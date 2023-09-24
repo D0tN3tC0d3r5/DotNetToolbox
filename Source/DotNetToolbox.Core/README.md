@@ -1,8 +1,8 @@
-# TC-Core
+# DotNetToolbox Core Library
 
-## Version 0.1.0-rc1
+## Version 1.0.0
 
-TC-Core is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
+The DotNetToolbox Core Library (DotNetToolbox.Core) is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
 
 ### Components
 
@@ -20,19 +20,25 @@ TC-Core is a comprehensive utility package that offers a wide range of functiona
 
 - `FileSystemHandler`: Handles file manipulation tasks.
 
-#### Results and Validation
+#### Results
 
 - `CrudResult`: Represents the outcomes of CRUD operations.
 - `HttpResult`: Represents the outcomes of HTTP requests.
 - `Result`: Base class for operation results.
 - `SignInResult`: Represents the outcomes of sign-in operations.
 - `ValidationResult`: Represents the outcomes of validation checks.
+
+#### Validation
+
 - `ValidationError`: Focuses on validation-related errors.
-- `ValidationErrorExtensions`: Extends functionalities for validation errors.
 
 #### Azure
 
 - `AzureSecretReader`: Facilitates reading secrets from Azure.
+
+#### Azure Active Directory
+
+- `AzureActiveDirectoryOptions`: Manages configurations related to Azure AD.
 
 #### GUIDs
 
@@ -45,9 +51,15 @@ TC-Core is a comprehensive utility package that offers a wide range of functiona
 
 #### Extensions
 
-- `ClientFactoryExtensions`: Provides extensions for client factories.
+- `HttpClientFactoryExtensions`: Provides extensions for client factories.
 - `ConcurrentDictionaryExtensions`: Offers utility functions for concurrent dictionaries.
 - `EnumerableExtensions`: Extends functionalities for enumerable types.
+
+#### HTTP Client Options
+
+- `ConfidentialHttpClientOptions`: Defines options for confidential HTTP clients.
+- `HttpClientOptions`: General options for HTTP clients.
+- `IdentifiedHttpClientOptions`: Defines options for identified HTTP clients.
 
 ## Usage
 
