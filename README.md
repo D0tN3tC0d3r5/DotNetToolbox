@@ -1,8 +1,8 @@
-# TC-Core
+# DotNetToolbox
 
-## Version 0.1.0-rc1
+## Version 1.0.0
 
-TC-Core is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
+DotNetToolboxe is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
 
 ### Components
 
