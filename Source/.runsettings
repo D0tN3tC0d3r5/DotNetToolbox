@@ -8,7 +8,7 @@
 
             <ModulePaths>
               <Include>
-                <ModulePath>.*TC\.Core\..*\.dll$</ModulePath>
+                <ModulePath>.*DotNetToolbox.*\.dll$</ModulePath>
               </Include>
               <Exclude>
                 <ModulePath>.*fluentvalidation\..*dll$</ModulePath>
