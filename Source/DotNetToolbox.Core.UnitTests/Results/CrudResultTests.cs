@@ -221,7 +221,7 @@ public class CrudResultTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
     }
 
     private static readonly CrudResult<string> _successForValue = CrudResult<string>.Success("Value");

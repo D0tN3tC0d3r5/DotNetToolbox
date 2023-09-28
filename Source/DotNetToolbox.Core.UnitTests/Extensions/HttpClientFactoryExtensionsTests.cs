@@ -27,7 +27,7 @@ public class HttpClientFactoryExtensionsTests
         var result = factory.CreateIdentifiedHttpClient(options);
 
         // Assert
-        result.DefaultRequestHeaders.Contains("x-api-key").Should().BeTrue();
+        result.DefaultRequestHeaders.Should().ContainKey("x-api-key");
         result.DefaultRequestHeaders.GetValues("x-api-key").Should().Contain(apiKey);
     }
 
@@ -91,9 +91,9 @@ public class HttpClientFactoryExtensionsTests
 
         // Assert
         result.BaseAddress.Should().Be(clientOptions.BaseAddress);
-        result.DefaultRequestHeaders.Contains("x-custom-header").Should().BeTrue();
+        result.DefaultRequestHeaders.Should().ContainKey("x-custom-header");
         result.DefaultRequestHeaders.GetValues("x-custom-header").Should().Contain("SomeValue");
-        result.DefaultRequestHeaders.Contains("Authorization").Should().BeTrue();
+        result.DefaultRequestHeaders.Should().ContainKey("Authorization");
 
         result.DefaultRequestHeaders.Authorization.Should().NotBeNull();
         result.DefaultRequestHeaders.Authorization!.Scheme.Should().Be("Bearer");

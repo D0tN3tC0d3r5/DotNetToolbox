@@ -212,7 +212,7 @@ public class SignInResultTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
         result.Token.Should().BeNull();
     }
 
@@ -227,7 +227,7 @@ public class SignInResultTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
         result.Token.Should().BeNull();
     }
 
@@ -257,6 +257,6 @@ public class SignInResultTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
     }
 }

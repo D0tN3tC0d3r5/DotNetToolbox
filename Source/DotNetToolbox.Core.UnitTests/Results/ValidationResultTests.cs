@@ -161,7 +161,7 @@ public class ValidationResultTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
     }
 
     [Fact]
@@ -189,7 +189,7 @@ public class ValidationResultTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
     }
 
     [Fact]
@@ -226,7 +226,7 @@ public class ValidationResultTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
     }
 
     [Fact]
@@ -254,6 +254,6 @@ public class ValidationResultTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
     }
 }

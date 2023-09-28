@@ -12,7 +12,7 @@ public class PagedCollectionTests
         subject.PageSize.Should().Be(DefaultPageSize);
         subject.PageIndex.Should().Be(0);
         subject.TotalCount.Should().Be(0);
-        subject.Items.ToArray().Should().HaveCount(0);
+        subject.Items.ToArray().Should().BeEmpty();
     }
 
     [Fact]
@@ -21,7 +21,7 @@ public class PagedCollectionTests
         var subject = PagedCollection<int>.Empty;
 
         subject.TotalCount.Should().Be(0);
-        subject.Items.ToArray().Should().HaveCount(0);
+        subject.Items.ToArray().Should().BeEmpty();
         subject.PageIndex.Should().Be(0);
         subject.PageSize.Should().Be(DefaultPageSize);
     }

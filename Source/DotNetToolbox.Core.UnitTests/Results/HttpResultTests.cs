@@ -230,7 +230,7 @@ public class HttpResultTests
 
         // Assert
         result.IsOk.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
     }
 
     [Fact]
@@ -259,7 +259,7 @@ public class HttpResultTests
 
         // Assert
         result.IsOk.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(1);
+        result.ValidationErrors.Should().ContainSingle();
     }
 
     private static readonly HttpResult<string> _okWithValue = HttpResult<string>.Ok("Value");
