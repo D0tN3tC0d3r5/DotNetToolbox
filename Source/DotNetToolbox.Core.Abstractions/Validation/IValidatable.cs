@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Validation;
+﻿using System.Results;
+
+namespace System.Validation;
 
 public interface IValidatable
 {

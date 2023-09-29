@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Constants;
+﻿namespace System.Constants;
 
 public class ErrorMessagesTests
 {

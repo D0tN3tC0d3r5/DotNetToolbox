@@ -1,6 +1,6 @@
-using static DotNetToolbox.Results.ValidationResult;
+using static System.Results.ValidationResult;
 
-namespace DotNetToolbox.Results;
+namespace System.Results;
 
 public class ValidationResultTests
 {

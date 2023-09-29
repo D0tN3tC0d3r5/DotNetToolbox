@@ -1,4 +1,4 @@
-namespace DotNetToolbox.Extensions;
+namespace System.Extensions;
 
 public class ValidationErrorCollectionExtensionsTests
 {

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Results;
+﻿namespace System.Results;
 
 public record HttpResult
     : Result<HttpResult, HttpResultType>

@@ -1,6 +1,6 @@
-﻿using DotNetToolbox.Validation;
+﻿using System.Validation;
 
-namespace DotNetToolbox.Results;
+namespace System.Results;
 
 public interface ICreateValuedHttpResults<out TSelf, in TValue>
 {

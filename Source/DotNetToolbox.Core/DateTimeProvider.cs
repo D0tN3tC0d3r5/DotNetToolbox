@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox;
+﻿namespace System;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
 public class DateTimeProvider

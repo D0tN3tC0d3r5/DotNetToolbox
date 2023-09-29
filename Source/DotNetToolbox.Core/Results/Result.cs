@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Results;
+﻿namespace System.Results;
 
 public abstract record Result<TResult, TType> : IResult<TType>
     where TResult : Result<TResult, TType>

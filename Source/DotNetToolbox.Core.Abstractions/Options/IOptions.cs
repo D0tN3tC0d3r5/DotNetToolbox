@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Options;
+﻿namespace System.Options;
 
 public interface IOptions
 {

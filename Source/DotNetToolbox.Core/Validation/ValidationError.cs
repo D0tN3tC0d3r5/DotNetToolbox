@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Validation;
+﻿namespace System.Validation;
 
 public sealed record ValidationError
     : IValidationError

@@ -5,14 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>DotNetToolbox.Azure</RootNamespace>
-    <PackageId>DotNetToolbox.Core.Abstractions</PackageId>
-    <Title>DotNetToolbox Core Abstractions</Title>
+    <PackageId>DotNetToolbox.Azure.Abstractions</PackageId>
+    <Title>DotNetToolbox Azure Abstractions</Title>
     <Version>1.0.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>DotNetToolbox</Company>
-    <PackageTags>DotNet;Toolbox;Core;Common;Library;Abstractions;Interfaces;Contracts;Result;Validation</PackageTags>
+    <PackageTags>DotNet;Toolbox;Azure;Common;Library;Abstractions;Interfaces;Contracts;Result;Validation</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Description>DotNetToolbox.Core.Abstractions: Interface contracts for DotNetToolbox.Core, covering results, validation, azure secrets, and more.</Description>
+    <Description>DotNetToolbox.Azure.Abstractions: Interface contracts for DotNetToolbox.Azure, covering results, validation, azure secrets, and more.</Description>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
@@ -20,7 +20,7 @@
       v1.0.0:
       - Fitst release.
     </PackageReleaseNotes>
-    <Product>DotNetToolbox.Core.Abstractions</Product>
+    <Product>DotNetToolbox.Azure.Abstractions</Product>
     <Copyright>Andre Vianna 2023</Copyright>
     <RepositoryUrl></RepositoryUrl>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>

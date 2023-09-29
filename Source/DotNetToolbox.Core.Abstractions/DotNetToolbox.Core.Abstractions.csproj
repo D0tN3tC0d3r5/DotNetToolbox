@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>DotNetToolbox</RootNamespace>
+    <RootNamespace>System</RootNamespace>
     <PackageId>DotNetToolbox.Core.Abstractions</PackageId>
     <Title>DotNetToolbox Core Abstractions</Title>
     <Version>1.0.0</Version>

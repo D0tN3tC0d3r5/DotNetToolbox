@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Results;
+﻿namespace System.Results;
 
 public interface ICrudResult : IResult<CrudResultType>
 {
