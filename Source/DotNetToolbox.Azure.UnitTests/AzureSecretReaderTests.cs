@@ -1,4 +1,4 @@
-namespace DotNetToolbox.Utilities;
+namespace DotNetToolbox.Azure;
 
 public class AzureSecretReaderTests
 {
@@ -54,7 +54,7 @@ public class AzureSecretReaderTests
         var azureSecretReader = CreateAzureSecretReader(false);
 
         var secret = new KeyVaultSecret(secretName, secretValue);
-        var response = Substitute.For<Azure.Response<KeyVaultSecret>>();
+        var response = Substitute.For<global::Azure.Response<KeyVaultSecret>>();
         response.Value.Returns(secret);
         _secretClient!.GetSecret(secretName).Returns(response);
 
@@ -104,7 +104,7 @@ public class AzureSecretReaderTests
         var azureSecretReader = CreateAzureSecretReader(false);
 
         var secret = new KeyVaultSecret(secretName, secretValue);
-        var response = Substitute.For<Azure.Response<KeyVaultSecret>>();
+        var response = Substitute.For<global::Azure.Response<KeyVaultSecret>>();
         response.Value.Returns(secret);
         _secretClient!.GetSecret(secretName).Returns(response);
 

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Utilities;
+﻿namespace DotNetToolbox.Azure;
 
 public interface IAzureSecretReader
 {

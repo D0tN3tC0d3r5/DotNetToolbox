@@ -9,10 +9,6 @@ global using System.Net.Http.Headers;
 global using System.Runtime.CompilerServices;
 global using System.Text.RegularExpressions;
 
-global using Azure.Identity;
-global using Azure.Security.KeyVault.Secrets;
-
-global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Options;
 global using Microsoft.Identity.Client;

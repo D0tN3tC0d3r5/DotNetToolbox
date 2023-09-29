@@ -13,10 +13,6 @@ The DotNetToolbox Core Abstractions is the companion package to DotNetToolbox Co
 - `ISignInResult`
 - `IValidationResult`
 
-#### Azure Secrets
-
-- `IAzureSecretReader`
-
 #### Validation
 
 - `IValidatable`
@@ -33,7 +29,3 @@ Please refer to the API documentation and DotNetToolbox.Core package for detaile
 ## Contributing
 
 This package is intended for internal use. Contributions are restricted to team members.
-
-## License
-
-[MIT License](LICENSE)

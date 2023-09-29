@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Utilities;
+﻿using DotNetToolbox.Azure;
+
+namespace DotNetToolbox;
 
 public sealed class AzureSecretReader
     : IAzureSecretReader

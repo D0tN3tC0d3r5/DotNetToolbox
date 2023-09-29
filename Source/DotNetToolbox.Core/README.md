@@ -32,14 +32,6 @@ The DotNetToolbox Core Library (DotNetToolbox.Core) is a comprehensive utility p
 
 - `ValidationError`: Focuses on validation-related errors.
 
-#### Azure
-
-- `AzureSecretReader`: Facilitates reading secrets from Azure.
-
-#### Azure Active Directory
-
-- `AzureActiveDirectoryOptions`: Manages configurations related to Azure AD.
-
 #### GUIDs
 
 - `Base64Guid`: Handles Base64 encoding and decoding of GUIDs.
@@ -68,7 +60,3 @@ Please refer to the API documentation for detailed usage instructions.
 ## Contributing
 
 This package is intended for internal use. Contributions are restricted to team members.
-
-## License
-
-[MIT License](LICENSE)

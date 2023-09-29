@@ -24,6 +24,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.Abstract
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.TestUtilities", "DotNetToolbox.Core.TestUtilities\DotNetToolbox.Core.TestUtilities.csproj", "{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.Azure", "DotNetToolbox.Azure\DotNetToolbox.Azure.csproj", "{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.Azure.Abstractions", "DotNetToolbox.Azure.Abstractions\DotNetToolbox.Azure.Abstractions.csproj", "{10839C36-46B1-40E6-80B8-422E58C83004}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.Azure.UnitTests", "DotNetToolbox.Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj", "{310680D3-C24B-4F79-A18A-944F9B6AC096}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +52,18 @@ Global
 		{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10839C36-46B1-40E6-80B8-422E58C83004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10839C36-46B1-40E6-80B8-422E58C83004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10839C36-46B1-40E6-80B8-422E58C83004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10839C36-46B1-40E6-80B8-422E58C83004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{310680D3-C24B-4F79-A18A-944F9B6AC096}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{310680D3-C24B-4F79-A18A-944F9B6AC096}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{310680D3-C24B-4F79-A18A-944F9B6AC096}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{310680D3-C24B-4F79-A18A-944F9B6AC096}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
