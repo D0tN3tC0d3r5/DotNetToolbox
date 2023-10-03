@@ -1,8 +1,7 @@
 ﻿namespace System;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
-public class FileSystemHandler
-{
+public class FileSystemHandler {
     public virtual string CombinePath(params string[] paths)
         => Path.Combine(paths);
 

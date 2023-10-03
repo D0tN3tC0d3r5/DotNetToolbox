@@ -2,8 +2,7 @@
 
 namespace System.Results;
 
-public interface ICreateHttpResults<out TSelf>
-{
+public interface ICreateHttpResults<out TSelf> {
     static abstract TSelf Ok();
     static abstract TSelf Created();
     static abstract TSelf BadRequest([StringSyntax(CompositeFormat)] string message, params object?[] args);

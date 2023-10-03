@@ -2,8 +2,7 @@
 
 namespace System.Results;
 
-public interface ICreateValuedHttpResults<out TSelf, in TValue>
-{
+public interface ICreateValuedHttpResults<out TSelf, in TValue> {
     static abstract TSelf Ok(TValue value);
     static abstract TSelf Created(TValue value);
     static abstract TSelf BadRequest([StringSyntax(CompositeFormat)] string message, params object?[] args);

@@ -1,7 +1,6 @@
 ﻿namespace System.Results;
 
-public interface ISignInResult : IResult<SignInResultType>
-{
+public interface ISignInResult : IResult<SignInResultType> {
     string? Token { get; }
 
     bool IsInvalid { get; }

@@ -4,11 +4,9 @@ public sealed record SignInResult
     : Result<SignInResult, SignInResultType>
     , ISignInResult
     , ICreateSignInResults<SignInResult>
-    , IResultOperators<SignInResult>
-{
+    , IResultOperators<SignInResult> {
     private SignInResult(SignInResultType type, string? token = null, IEnumerable<IValidationError>? errors = null)
-        : base(SignInResultType.ValidationFailure, type, errors)
-    {
+        : base(SignInResultType.ValidationFailure, type, errors) {
         Token = token;
     }
 
@@ -44,7 +42,7 @@ public sealed record SignInResult
     public static implicit operator SignInResult(List<IValidationError> errors)
         => errors.ToArray();
     public static implicit operator SignInResult(ValidationError error)
-        => new [] { error };
+        => new[] { error };
     public static implicit operator SignInResult(IValidationError[] errors)
         => (ValidationResult)errors;
     public static implicit operator SignInResult(ValidationResult result)

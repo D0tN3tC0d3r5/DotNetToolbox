@@ -3,14 +3,11 @@
 namespace DotNetToolbox;
 
 public sealed class AzureSecretReader
-    : IAzureSecretReader
-{
+    : IAzureSecretReader {
     private readonly SecretClient? _client;
 
-    public AzureSecretReader(IConfiguration configuration)
-    {
-        if (configuration.GetValue("UseLocalSecrets", false))
-        {
+    public AzureSecretReader(IConfiguration configuration) {
+        if (configuration.GetValue("UseLocalSecrets", false)) {
             return;
         }
 
@@ -20,21 +17,17 @@ public sealed class AzureSecretReader
         _client = new(keyVaultUri, credential);
     }
 
-    public TValue? GetSecretOrDefault<TValue>(string key, TValue? defaultValue = default)
-    {
+    public TValue? GetSecretOrDefault<TValue>(string key, TValue? defaultValue = default) {
         IsNotNull(key);
-        if (_client is null)
-        {
+        if (_client is null) {
             return defaultValue;
         }
 
-        try
-        {
+        try {
             var secret = _client.GetSecret(key).Value;
             return (TValue)Convert.ChangeType(secret.Value, typeof(TValue));
         }
-        catch (Exception)
-        {
+        catch (Exception) {
             return defaultValue;
         }
     }

@@ -4,11 +4,9 @@ public record HttpResult
     : Result<HttpResult, HttpResultType>
     , IHttpResult
     , ICreateHttpResults<HttpResult>
-    , IResultOperators<HttpResult>
-{
+    , IResultOperators<HttpResult> {
     private HttpResult(HttpResultType type, IEnumerable<IValidationError>? errors = null)
-        : base(HttpResultType.BadRequest, type ,errors)
-    {
+        : base(HttpResultType.BadRequest, type, errors) {
     }
 
     public bool IsBadRequest => HasErrors;
@@ -18,7 +16,7 @@ public record HttpResult
     public bool IsNotFound => !HasErrors && Type is HttpResultType.NotFound;
     public bool IsConflict => !HasErrors && Type is HttpResultType.Conflict;
 
-    public static HttpResult BadRequest([StringSyntax(CompositeFormat)]string message, params object?[] args)
+    public static HttpResult BadRequest([StringSyntax(CompositeFormat)] string message, params object?[] args)
         => new ValidationError(message, args);
     public static HttpResult BadRequest(IValidationResult result)
         => (ValidationResult)result;
@@ -60,11 +58,9 @@ public record HttpResult<TValue>
     : Result<HttpResult<TValue>, HttpResultType>
     , IHttpResult<TValue>
     , ICreateValuedHttpResults<HttpResult<TValue>, TValue>
-    , IResultOperators<HttpResult<TValue>>
-{
+    , IResultOperators<HttpResult<TValue>> {
     private HttpResult(HttpResultType type, TValue? value = default, IEnumerable<IValidationError>? errors = null)
-        : base(HttpResultType.BadRequest, type, errors)
-    {
+        : base(HttpResultType.BadRequest, type, errors) {
         Value = value;
     }
 

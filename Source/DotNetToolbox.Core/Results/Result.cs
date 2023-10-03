@@ -2,10 +2,8 @@
 
 public abstract record Result<TResult, TType> : IResult<TType>
     where TResult : Result<TResult, TType>
-    where TType : Enum
-{
-    protected Result(TType defaultType, TType type, IEnumerable<IValidationError>? errors = null)
-    {
+    where TType : Enum {
+    protected Result(TType defaultType, TType type, IEnumerable<IValidationError>? errors = null) {
         ValidationErrors = (errors is null
             ? Enumerable.Empty<ValidationError>()
             : IsNotNullAndDoesNotContainNull(errors).Distinct()).ToImmutableArray();
@@ -13,7 +11,7 @@ public abstract record Result<TResult, TType> : IResult<TType>
     }
 
     public TType Type { get; }
-    public IReadOnlyList<IValidationError> ValidationErrors { get; }
+    public IReadOnlyList<IValidationError> ValidationErrors { get; init; }
     protected bool HasErrors => ValidationErrors.Count > 0;
 
     public virtual bool Equals(TResult? other)

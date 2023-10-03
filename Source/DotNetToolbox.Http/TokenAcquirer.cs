@@ -1,20 +1,17 @@
 ﻿namespace DotNetToolbox.Http;
 
 [ExcludeFromCodeCoverage]
-internal class TokenAcquirer
+internal class TokenAcquirer<T>
     : ITokenAcquirer
-{
-    public async Task<string> AcquireTokenAsync<TOptions>(TOptions options)
-        where TOptions : ConfidentialHttpClientOptions
-    {
-        var app = ConfidentialClientApplicationBuilder
-                 .Create(options.ClientId)
-                 .WithAuthority(options.Authority)
-                 .WithClientSecret(options.ClientSecret)
-                 .Build();
+    where T : BaseAbstractAcquireTokenParameterBuilder<T> {
+    private readonly BaseAbstractAcquireTokenParameterBuilder<T> _builder;
 
-        var acquireToken = app.AcquireTokenForClient(options.Scopes);
-        var token = await acquireToken.ExecuteAsync(CancellationToken.None);
+    public TokenAcquirer(BaseAbstractAcquireTokenParameterBuilder<T> builder) {
+        _builder = builder;
+    }
+
+    public async Task<string> AcquireTokenAsync() {
+        var token = await _builder.ExecuteAsync(CancellationToken.None);
         return token.CreateAuthorizationHeader();
     }
 }

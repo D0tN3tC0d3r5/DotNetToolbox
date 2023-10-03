@@ -1,7 +1,6 @@
 ﻿namespace System.Results;
 
-public enum HttpResultType
-{
+public enum HttpResultType {
     Ok = HttpStatusCode.OK, // 200
     Created = HttpStatusCode.Created, // 201
 

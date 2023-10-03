@@ -1,7 +1,6 @@
 ﻿namespace System.Collections.Generic;
 
-public static class EnumerableExtensions
-{
+public static class EnumerableExtensions {
     public static TItem[] ToArray<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> transform)
         => source?.ToArray<TItem, TItem>(transform) ?? Array.Empty<TItem>();
 

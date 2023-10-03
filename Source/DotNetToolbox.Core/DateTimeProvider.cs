@@ -1,8 +1,7 @@
 ﻿namespace System;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
-public class DateTimeProvider
-{
+public class DateTimeProvider {
     public virtual DateTimeOffset NowWithTimeZone => DateTimeOffset.Now;
 
     public virtual DateTime LocalNow => DateTime.Now;

@@ -2,8 +2,7 @@ using static System.Results.ValidationResult;
 
 namespace System.Results;
 
-public class ValidationResultTests
-{
+public class ValidationResultTests {
     private static readonly ValidationError _error = new("Some {1} for {0}.", "Source", "error");
 
     private static readonly ValidationResult _success = Success();
@@ -18,8 +17,16 @@ public class ValidationResultTests
     private static readonly ValidationResult _invalidWithOtherMessage = Failure("Other {1} for {0} .", "SomeSource", "error");
 
     [Fact]
-    public void ImplicitConversion_FromValidationError_ReturnsFailure()
-    {
+    public void CloneConstructor_ReturnsInstance() {
+        // Act
+        var result = _success with { ValidationErrors = new[] { _error } };
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
         ValidationResult result = new ValidationError("Some error.");
 
@@ -28,8 +35,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
         ValidationResult result = new[] { new ValidationError("Some error.") };
 
@@ -38,8 +44,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromValidationErrorList_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
         ValidationResult result = new List<IValidationError> { new ValidationError("Some error.") };
 
@@ -48,8 +53,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromDictionary_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromDictionary_ReturnsFailure() {
         // Act
         ValidationResult result = new Dictionary<string, string[]>() { ["SomeField"] = new[] { "Some error 1.", "Some error 1." } };
 
@@ -57,27 +61,22 @@ public class ValidationResultTests
         result.IsSuccess.Should().BeFalse();
     }
 
-    private class TestDataForProperties : TheoryData<ValidationResult, bool, bool>
-    {
-        public TestDataForProperties()
-        {
+    private class TestDataForProperties : TheoryData<ValidationResult, bool, bool> {
+        public TestDataForProperties() {
             Add(_invalidWithMessageOnly, true, false);
             Add(_success, false, true);
         }
     }
     [Theory]
     [ClassData(typeof(TestDataForProperties))]
-    public void Properties_ShouldReturnAsExpected(ValidationResult subject, bool isInvalid, bool isSuccess)
-    {
+    public void Properties_ShouldReturnAsExpected(ValidationResult subject, bool isInvalid, bool isSuccess) {
         // Assert
         subject.IsFailure.Should().Be(isInvalid);
         subject.IsSuccess.Should().Be(isSuccess);
     }
 
-    private class TestDataForEquality : TheoryData<ValidationResult, ValidationResult?, bool>
-    {
-        public TestDataForEquality()
-        {
+    private class TestDataForEquality : TheoryData<ValidationResult, ValidationResult?, bool> {
+        public TestDataForEquality() {
             Add(_success, null, false);
             Add(_success, _success, true);
             Add(_success, _invalid, false);
@@ -97,8 +96,7 @@ public class ValidationResultTests
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(ValidationResult subject, ValidationResult? other, bool expectedResult)
-    {
+    public void Equals_ReturnsAsExpected(ValidationResult subject, ValidationResult? other, bool expectedResult) {
         // Act
         var result = subject == other;
 
@@ -108,8 +106,7 @@ public class ValidationResultTests
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(ValidationResult subject, ValidationResult? other, bool expectedResult)
-    {
+    public void NotEquals_ReturnsAsExpected(ValidationResult subject, ValidationResult? other, bool expectedResult) {
         // Act
         var result = subject != other;
 
@@ -118,8 +115,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void GetHashCode_DifferentiatesAsExpected()
-    {
+    public void GetHashCode_DifferentiatesAsExpected() {
         var expectedResult = new HashSet<ValidationResult> {
             _success,
             _invalidWithMessageOnly,
@@ -150,8 +146,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void AddOperator_FromSuccess_WithFailed_ReturnsInvalid()
-    {
+    public void AddOperator_FromSuccess_WithFailed_ReturnsInvalid() {
         // Arrange
         var result = Success();
         var other = Failure("Some error.");
@@ -165,8 +160,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void AddOperator_FromSuccess_WithSuccess_ReturnsSuccess()
-    {
+    public void AddOperator_FromSuccess_WithSuccess_ReturnsSuccess() {
         // Arrange
         var result = Success();
         var other = Success();
@@ -179,8 +173,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void AddOperator_FromSuccess_WithError_ReturnsInvalid()
-    {
+    public void AddOperator_FromSuccess_WithError_ReturnsInvalid() {
         // Arrange
         var result = Success();
 
@@ -193,8 +186,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void AddOperator_FromFailed_WithFailed_ReturnsInvalidWithDistinctErrors()
-    {
+    public void AddOperator_FromFailed_WithFailed_ReturnsInvalidWithDistinctErrors() {
         // Arrange
         var result = Failure("Some error 1.") + Failure("Some error 2.") + Failure("Some error 3.");
         var other = Failure("Some error 2.") + new ValidationError[] { new("Some error 3."), new("Some error 4.") };
@@ -215,8 +207,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void AddOperator_FromFailed_WithSuccess_ReturnsSuccess()
-    {
+    public void AddOperator_FromFailed_WithSuccess_ReturnsSuccess() {
         // Arrange
         var result = Failure("Some error.");
         var other = Success();
@@ -230,8 +221,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void AddOperator_FromFailed_WithError_ReturnsInvalid()
-    {
+    public void AddOperator_FromFailed_WithError_ReturnsInvalid() {
         // Arrange
         var result = Failure("Some error.");
 
@@ -244,8 +234,7 @@ public class ValidationResultTests
     }
 
     [Fact]
-    public void AddOperator_FromFailed_WithSameError_ReturnsInvalid()
-    {
+    public void AddOperator_FromFailed_WithSameError_ReturnsInvalid() {
         // Arrange
         var result = Failure("Some error.");
 

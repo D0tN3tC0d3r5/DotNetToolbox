@@ -4,11 +4,9 @@ public sealed record CrudResult
     : Result<CrudResult, CrudResultType>
     , ICrudResult
     , ICreateCrudResults<CrudResult>
-    , IResultOperators<CrudResult>
-{
+    , IResultOperators<CrudResult> {
     private CrudResult(CrudResultType type, IEnumerable<IValidationError>? errors = null)
-        : base(CrudResultType.ValidationFailure, type, errors)
-    {
+        : base(CrudResultType.ValidationFailure, type, errors) {
     }
 
     public bool IsFailure => HasErrors;
@@ -26,11 +24,11 @@ public sealed record CrudResult
         => (ValidationResult)result;
 
     public static CrudResult Success() => new(CrudResultType.Success);
-    public static CrudResult NotFound() => new (CrudResultType.NotFound);
+    public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
 
     public static implicit operator CrudResult(List<IValidationError> errors) => errors.ToArray();
-    public static implicit operator CrudResult(ValidationError error) => new [] { error };
+    public static implicit operator CrudResult(ValidationError error) => new[] { error };
     public static implicit operator CrudResult(IValidationError[] errors) => (ValidationResult)errors;
     public static implicit operator CrudResult(ValidationResult result)
         => new(CrudResultType.ValidationFailure, IsNotNullOrEmpty(result.ValidationErrors));
@@ -53,11 +51,9 @@ public record CrudResult<TValue>
     : Result<CrudResult<TValue>, CrudResultType>
     , ICrudResult<TValue>
     , ICreateValuedCrudResults<CrudResult<TValue>, TValue>
-    , IResultOperators<CrudResult<TValue>>
-{
+    , IResultOperators<CrudResult<TValue>> {
     private CrudResult(CrudResultType type, TValue? value = default, IEnumerable<IValidationError>? errors = null)
-        : base(CrudResultType.ValidationFailure, type, errors)
-    {
+        : base(CrudResultType.ValidationFailure, type, errors) {
         Value = value;
     }
 

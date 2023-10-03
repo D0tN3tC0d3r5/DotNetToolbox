@@ -2,7 +2,6 @@
 
 namespace System.Validation;
 
-public interface IValidatable
-{
+public interface IValidatable {
     IValidationResult Validate(IDictionary<string, object?>? context = null);
 }

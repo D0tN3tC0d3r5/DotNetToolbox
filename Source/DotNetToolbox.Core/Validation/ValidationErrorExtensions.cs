@@ -1,7 +1,6 @@
 ﻿namespace System.Validation;
 
-public static class ValidationErrorCollectionExtensions
-{
+public static class ValidationErrorCollectionExtensions {
     public static IEnumerable<IValidationError> Merge(this IEnumerable<IValidationError> errors, IEnumerable<IValidationError> otherErrors)
         => errors.Union(otherErrors);
 

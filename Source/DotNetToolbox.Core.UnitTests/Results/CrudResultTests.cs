@@ -1,8 +1,7 @@
 namespace System.Results;
 
-public class CrudResultTests
-{
-    private static readonly IValidationError _error = new ValidationError("Some {1} for {0}.", "Source", "error");
+public class CrudResultTests {
+    private static readonly ValidationError _error = new ValidationError("Some {1} for {0}.", "Source", "error");
 
     private static readonly CrudResult _success = CrudResult.Success();
     private static readonly CrudResult _notFound = CrudResult.NotFound();
@@ -18,8 +17,16 @@ public class CrudResultTests
     private static readonly CrudResult _invalidWithOtherMessage = CrudResult.Invalid("Other {1} for {0}.", "Source", "error");
 
     [Fact]
-    public void ImplicitConversion_FromValidationError_ReturnsFailure()
-    {
+    public void CloneConstructor_ReturnsInstance() {
+        // Act
+        var result = _success with { ValidationErrors = new[] { _error with { Source = "SomeField" } } };
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
         CrudResult result = new ValidationError("Some error {0}.", "Source");
 
@@ -28,8 +35,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
         CrudResult result = new[] { new ValidationError("Some error {0}.", "Source") };
 
@@ -38,8 +44,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromListOfValidationError_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromListOfValidationError_ReturnsFailure() {
         // Act
         CrudResult result = new List<IValidationError> { new ValidationError("Some error {0}.", "Source") };
 
@@ -48,8 +53,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_ToValidationResult_ReturnsFailure()
-    {
+    public void ImplicitConversion_ToValidationResult_ReturnsFailure() {
         // Act
         ValidationResult result = _invalid;
 
@@ -57,10 +61,8 @@ public class CrudResultTests
         result.IsSuccess.Should().BeFalse();
     }
 
-    private class TestDataForProperties : TheoryData<CrudResult, bool, bool, bool, bool>
-    {
-        public TestDataForProperties()
-        {
+    private class TestDataForProperties : TheoryData<CrudResult, bool, bool, bool, bool> {
+        public TestDataForProperties() {
             Add(_invalid, true, false, false, false);
             Add(_success, false, true, false, false);
             Add(_notFound, false, false, true, false);
@@ -69,8 +71,7 @@ public class CrudResultTests
     }
     [Theory]
     [ClassData(typeof(TestDataForProperties))]
-    public void Properties_ShouldReturnAsExpected(ICrudResult subject, bool isInvalid, bool isSuccess, bool wasNotFound, bool hasConflict)
-    {
+    public void Properties_ShouldReturnAsExpected(ICrudResult subject, bool isInvalid, bool isSuccess, bool wasNotFound, bool hasConflict) {
         // Assert
         subject.IsFailure.Should().Be(isInvalid);
         subject.IsSuccess.Should().Be(isSuccess);
@@ -78,10 +79,8 @@ public class CrudResultTests
         subject.IsConflict.Should().Be(hasConflict);
     }
 
-    private class TestDataForEquality : TheoryData<CrudResult, CrudResult?, bool>
-    {
-        public TestDataForEquality()
-        {
+    private class TestDataForEquality : TheoryData<CrudResult, CrudResult?, bool> {
+        public TestDataForEquality() {
             Add(_success, null, false);
             Add(_success, _success, true);
             Add(_success, _notFound, false);
@@ -113,8 +112,7 @@ public class CrudResultTests
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(CrudResult subject, CrudResult? other, bool expectedResult)
-    {
+    public void Equals_ReturnsAsExpected(CrudResult subject, CrudResult? other, bool expectedResult) {
         // Act
         var result = subject == other;
 
@@ -124,8 +122,7 @@ public class CrudResultTests
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(CrudResult subject, CrudResult? other, bool expectedResult)
-    {
+    public void NotEquals_ReturnsAsExpected(CrudResult subject, CrudResult? other, bool expectedResult) {
         // Act
         var result = subject != other;
 
@@ -134,8 +131,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void GetHashCode_DifferentiatesAsExpected()
-    {
+    public void GetHashCode_DifferentiatesAsExpected() {
         var expectedResult = new HashSet<CrudResult> {
             _success,
             _invalid,
@@ -167,8 +163,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void AddOperator_WithoutError_ReturnsInvalid()
-    {
+    public void AddOperator_WithoutError_ReturnsInvalid() {
         // Arrange
         var result = CrudResult.Success();
 
@@ -181,8 +176,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void AddOperator_WithError_ReturnsInvalid()
-    {
+    public void AddOperator_WithError_ReturnsInvalid() {
         // Arrange
         var result = CrudResult<string>.Success("SomeToken");
 
@@ -196,8 +190,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void AddOperator_WithOtherError_ReturnsBothErrors()
-    {
+    public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
         var result = CrudResult.Invalid("Some error {0}.", "Source");
 
@@ -211,8 +204,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void AddOperator_WithSameError_ReturnsOnlyOneError()
-    {
+    public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
         var result = CrudResult.Invalid("Some error {0}.", "Source");
 
@@ -224,35 +216,41 @@ public class CrudResultTests
         result.ValidationErrors.Should().ContainSingle();
     }
 
-    private static readonly CrudResult<string> _successForValue = CrudResult<string>.Success("Value");
-    private static readonly CrudResult<string> _successForOtherValue = CrudResult<string>.Success("Other");
-    private static readonly CrudResult<string> _notFoundForValue = CrudResult<string>.NotFound();
-    private static readonly CrudResult<string> _conflictForValue = CrudResult<string>.Conflict("Value");
-    private static readonly CrudResult<string> _conflictForOtherValue = CrudResult<string>.Conflict("Other");
-    private static readonly CrudResult<string> _invalidForValue = CrudResult<string>.Invalid( "Some {1} for {0}.", "Source", "error");
-    private static readonly CrudResult<string> _invalidForValueFromResult = CrudResult<string>.Invalid(ValidationResult.Failure(_error));
-    private static readonly CrudResult<string> _invalidForValueFromError = CrudResult<string>.Invalid(_error);
-    private static readonly CrudResult<string> _invalidForValueFromErrors = CrudResult<string>.Invalid(new[] { _error });
-    private static readonly CrudResult<string> _invalidForValueWithMessageOnly = CrudResult<string>.Invalid( "Some error for Source.");
-    private static readonly CrudResult<string> _invalidForValueWithSourceOnly = CrudResult<string>.Invalid( "Some error for {0}.", "Source");
-    private static readonly CrudResult<string> _invalidForValueWithOtherError = CrudResult<string>.Invalid( "Other {1} for {0}.", "Source", "error");
-    private static readonly CrudResult<string> _invalidForValueWithOtherSource = CrudResult<string>.Invalid( "Some {1} for {0}.", "OtherSource", "error");
-    private static readonly CrudResult<string> _invalidForValueWithOtherData = CrudResult<string>.Invalid( "Some {1} for {0}.", "Source", "other error");
+    private static readonly CrudResult<string> _successOfValue = CrudResult<string>.Success("Value");
+    private static readonly CrudResult<string> _successOfValueWithOtherValue = CrudResult<string>.Success("Other");
+    private static readonly CrudResult<string> _notFoundOfValue = CrudResult<string>.NotFound();
+    private static readonly CrudResult<string> _conflictOfValue = CrudResult<string>.Conflict("Value");
+    private static readonly CrudResult<string> _conflictOfValueWithOtherValue = CrudResult<string>.Conflict("Other");
+    private static readonly CrudResult<string> _invalidOfValue = CrudResult<string>.Invalid("Some {1} for {0}.", "Source", "error");
+    private static readonly CrudResult<string> _invalidOfValueFromResult = CrudResult<string>.Invalid(ValidationResult.Failure(_error));
+    private static readonly CrudResult<string> _invalidOfValueFromError = CrudResult<string>.Invalid(_error);
+    private static readonly CrudResult<string> _invalidOfValueFromErrors = CrudResult<string>.Invalid(new[] { _error });
+    private static readonly CrudResult<string> _invalidOfValueWithMessageOnly = CrudResult<string>.Invalid("Some error for Source.");
+    private static readonly CrudResult<string> _invalidOfValueWithSourceOnly = CrudResult<string>.Invalid("Some error for {0}.", "Source");
+    private static readonly CrudResult<string> _invalidOfValueWithOtherError = CrudResult<string>.Invalid("Other {1} for {0}.", "Source", "error");
+    private static readonly CrudResult<string> _invalidOfValueWithOtherSource = CrudResult<string>.Invalid("Some {1} for {0}.", "OtherSource", "error");
+    private static readonly CrudResult<string> _invalidOfValueWithOtherData = CrudResult<string>.Invalid("Some {1} for {0}.", "Source", "other error");
 
-    private class TestDataForPropertiesWithValue : TheoryData<CrudResult<string>, bool, bool, bool, bool>
-    {
-        public TestDataForPropertiesWithValue()
-        {
-            Add(_invalidForValue, true, false, false, false);
-            Add(_successForValue, false, true, false, false);
-            Add(_notFoundForValue, false, false, true, false);
-            Add(_conflictForValue, false, false, false, true);
+    [Fact]
+    public void CloneConstructor_WithValue_ReturnsInstance() {
+        // Act
+        var result = _successOfValue with { ValidationErrors = new[] { _error } };
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+    }
+
+    private class TestDataForPropertiesWithValue : TheoryData<CrudResult<string>, bool, bool, bool, bool> {
+        public TestDataForPropertiesWithValue() {
+            Add(_invalidOfValue, true, false, false, false);
+            Add(_successOfValue, false, true, false, false);
+            Add(_notFoundOfValue, false, false, true, false);
+            Add(_conflictOfValue, false, false, false, true);
         }
     }
     [Theory]
     [ClassData(typeof(TestDataForPropertiesWithValue))]
-    public void Properties_WithValue_ShouldReturnAsExpected(CrudResult<string> subject, bool isInvalid, bool isSuccess, bool wasNotFound, bool hasConflict)
-    {
+    public void Properties_WithValue_ShouldReturnAsExpected(CrudResult<string> subject, bool isInvalid, bool isSuccess, bool wasNotFound, bool hasConflict) {
         // Assert
         subject.IsFailure.Should().Be(isInvalid);
         subject.IsSuccess.Should().Be(isSuccess);
@@ -260,48 +258,45 @@ public class CrudResultTests
         subject.IsConflict.Should().Be(hasConflict);
     }
 
-    private class TestDataForEqualityWithValue : TheoryData<CrudResult<string>, CrudResult<string>?, bool>
-    {
-        public TestDataForEqualityWithValue()
-        {
-            Add(_successForValue, null, false);
-            Add(_successForValue, _successForValue, true);
-            Add(_successForValue, _successForOtherValue, false);
-            Add(_successForValue, _notFoundForValue, false);
-            Add(_successForValue, _conflictForValue, false);
-            Add(_successForValue, _invalidForValue, false);
-            Add(_notFoundForValue, null, false);
-            Add(_notFoundForValue, _successForValue, false);
-            Add(_notFoundForValue, _notFoundForValue, true);
-            Add(_notFoundForValue, _conflictForValue, false);
-            Add(_notFoundForValue, _invalidForValue, false);
-            Add(_conflictForValue, null, false);
-            Add(_conflictForValue, _successForValue, false);
-            Add(_conflictForValue, _notFoundForValue, false);
-            Add(_conflictForValue, _conflictForValue, true);
-            Add(_conflictForValue, _conflictForOtherValue, false);
-            Add(_conflictForValue, _invalidForValue, false);
-            Add(_invalidForValue, null, false);
-            Add(_invalidForValue, _successForValue, false);
-            Add(_invalidForValue, _notFoundForValue, false);
-            Add(_invalidForValue, _conflictForValue, false);
-            Add(_invalidForValue, _invalidForValue, true);
-            Add(_invalidForValue, _invalidForValueFromResult, true);
-            Add(_invalidForValue, _invalidForValueFromError, true);
-            Add(_invalidForValue, _invalidForValueFromErrors, true);
-            Add(_invalidForValue, _invalidForValueWithSourceOnly, true);
-            Add(_invalidForValue, _invalidForValueWithMessageOnly, false);
-            Add(_invalidForValue, _invalidForValueWithSourceOnly, true);
-            Add(_invalidForValue, _invalidForValueWithOtherError, false);
-            Add(_invalidForValue, _invalidForValueWithOtherSource, false);
-            Add(_invalidForValue, _invalidForValueWithOtherData, false);
+    private class TestDataForEqualityWithValue : TheoryData<CrudResult<string>, CrudResult<string>?, bool> {
+        public TestDataForEqualityWithValue() {
+            Add(_successOfValue, null, false);
+            Add(_successOfValue, _successOfValue, true);
+            Add(_successOfValue, _successOfValueWithOtherValue, false);
+            Add(_successOfValue, _notFoundOfValue, false);
+            Add(_successOfValue, _conflictOfValue, false);
+            Add(_successOfValue, _invalidOfValue, false);
+            Add(_notFoundOfValue, null, false);
+            Add(_notFoundOfValue, _successOfValue, false);
+            Add(_notFoundOfValue, _notFoundOfValue, true);
+            Add(_notFoundOfValue, _conflictOfValue, false);
+            Add(_notFoundOfValue, _invalidOfValue, false);
+            Add(_conflictOfValue, null, false);
+            Add(_conflictOfValue, _successOfValue, false);
+            Add(_conflictOfValue, _notFoundOfValue, false);
+            Add(_conflictOfValue, _conflictOfValue, true);
+            Add(_conflictOfValue, _conflictOfValueWithOtherValue, false);
+            Add(_conflictOfValue, _invalidOfValue, false);
+            Add(_invalidOfValue, null, false);
+            Add(_invalidOfValue, _successOfValue, false);
+            Add(_invalidOfValue, _notFoundOfValue, false);
+            Add(_invalidOfValue, _conflictOfValue, false);
+            Add(_invalidOfValue, _invalidOfValue, true);
+            Add(_invalidOfValue, _invalidOfValueFromResult, true);
+            Add(_invalidOfValue, _invalidOfValueFromError, true);
+            Add(_invalidOfValue, _invalidOfValueFromErrors, true);
+            Add(_invalidOfValue, _invalidOfValueWithSourceOnly, true);
+            Add(_invalidOfValue, _invalidOfValueWithMessageOnly, false);
+            Add(_invalidOfValue, _invalidOfValueWithSourceOnly, true);
+            Add(_invalidOfValue, _invalidOfValueWithOtherError, false);
+            Add(_invalidOfValue, _invalidOfValueWithOtherSource, false);
+            Add(_invalidOfValue, _invalidOfValueWithOtherData, false);
         }
     }
 
     [Theory]
     [ClassData(typeof(TestDataForEqualityWithValue))]
-    public void Equals_WithValue_ReturnsAsExpected(CrudResult<string> subject, CrudResult<string>? other, bool expectedResult)
-    {
+    public void Equals_WithValue_ReturnsAsExpected(CrudResult<string> subject, CrudResult<string>? other, bool expectedResult) {
         // Act
         var result = subject == other;
 
@@ -311,8 +306,7 @@ public class CrudResultTests
 
     [Theory]
     [ClassData(typeof(TestDataForEqualityWithValue))]
-    public void NotEquals_WithValue_ReturnsAsExpected(CrudResult<string> subject, CrudResult<string>? other, bool expectedResult)
-    {
+    public void NotEquals_WithValue_ReturnsAsExpected(CrudResult<string> subject, CrudResult<string>? other, bool expectedResult) {
         // Act
         var result = subject != other;
 
@@ -321,29 +315,28 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void GetHashCode_WithValue_DifferentiatesAsExpected()
-    {
+    public void GetHashCode_WithValue_DifferentiatesAsExpected() {
         var expectedResult = new HashSet<CrudResult<string>> {
-            _successForValue,
-            _successForOtherValue,
-            _invalidForValue,
-            _invalidForValueWithOtherError,
+            _successOfValue,
+            _successOfValueWithOtherValue,
+            _invalidOfValue,
+            _invalidOfValueWithOtherError,
         };
 
         // Act
         var result = new HashSet<CrudResult<string>> {
             CrudResult<string>.Success("Value"),
             CrudResult<string>.Success("Other"),
-            _successForValue,
-            _successForValue,
-            _invalidForValue,
-            _invalidForValue,
-            _invalidForValueWithSourceOnly,
-            _invalidForValueWithOtherError,
-            _invalidForValueWithSourceOnly,
-            _successForOtherValue,
-            _invalidForValueWithOtherError,
-            _successForValue,
+            _successOfValue,
+            _successOfValue,
+            _invalidOfValue,
+            _invalidOfValue,
+            _invalidOfValueWithSourceOnly,
+            _invalidOfValueWithOtherError,
+            _invalidOfValueWithSourceOnly,
+            _successOfValueWithOtherValue,
+            _invalidOfValueWithOtherError,
+            _successOfValue,
         };
 
         // Assert
@@ -351,8 +344,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromValue_ReturnsSuccess()
-    {
+    public void ImplicitConversion_FromValue_ReturnsSuccess() {
         // Act
         CrudResult<string> subject = "Value";
 
@@ -362,18 +354,16 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_ToValidationResult_WithValue_ReturnsFailure()
-    {
+    public void ImplicitConversion_ToValidationResult_WithValue_ReturnsFailure() {
         // Act
-        ValidationResult result = _invalidForValue;
+        ValidationResult result = _invalidOfValue;
 
         // Assert
         result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
-    public void ImplicitConversion_FromListOfValidationError_WithValue_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromListOfValidationError_WithValue_ReturnsFailure() {
         // Act
         CrudResult<string> result = new List<IValidationError> { new ValidationError("Some error {0}.", "Source") };
 
@@ -382,8 +372,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void AddOperator_ForValueAndWithoutError_ReturnsInvalid()
-    {
+    public void AddOperator_OfValueAndWithoutError_ReturnsInvalid() {
         // Arrange
         var result = CrudResult<string>.Success("Value");
 
@@ -397,8 +386,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void AddOperator_ForValueAndWithError_ReturnsInvalid()
-    {
+    public void AddOperator_OfValueAndWithError_ReturnsInvalid() {
         // Arrange
         var result = CrudResult<string>.Success("Value");
 
@@ -412,8 +400,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void MapTo_WithoutError_ReturnsSuccess()
-    {
+    public void MapTo_WithoutError_ReturnsSuccess() {
         // Arrange
         var subject = CrudResult<string>.Success("42");
 
@@ -426,8 +413,7 @@ public class CrudResultTests
     }
 
     [Fact]
-    public void MapTo_WithNotFound_ReturnsNotFound()
-    {
+    public void MapTo_WithNotFound_ReturnsNotFound() {
         // Arrange
         var subject = CrudResult<string>.NotFound();
 

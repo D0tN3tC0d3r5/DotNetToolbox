@@ -1,13 +1,11 @@
 namespace System.Collections.Concurrent;
 
-public class ConcurrentDictionaryExtensionsTests
-{
+public class ConcurrentDictionaryExtensionsTests {
     private readonly ConcurrentDictionary<int, object?> _concurrentDictionary = new();
     private readonly Func<int, string?> _getValue = Substitute.For<Func<int, string?>>();
 
     [Fact]
-    public void Get_ReturnsValueFromCache()
-    {
+    public void Get_ReturnsValueFromCache() {
         const int key = 100;
         const string expected = "Expected Value";
 
@@ -19,8 +17,7 @@ public class ConcurrentDictionaryExtensionsTests
     }
 
     [Fact]
-    public void Get_WhenKeyIsNotInCache_CallsGetValue_()
-    {
+    public void Get_WhenKeyIsNotInCache_CallsGetValue_() {
         const int key = 100;
         const string expected = "Expected Value";
 

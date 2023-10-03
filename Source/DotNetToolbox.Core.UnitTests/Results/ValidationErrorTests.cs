@@ -1,10 +1,8 @@
 namespace System.Results;
 
-public class ValidationErrorTests
-{
+public class ValidationErrorTests {
     [Fact]
-    public void Constructor_WithMessageOnly_CreatesValidationError()
-    {
+    public void Constructor_WithMessageOnly_CreatesValidationError() {
         //Act
         var validationError = new ValidationError("Error message.");
 
@@ -15,8 +13,7 @@ public class ValidationErrorTests
     }
 
     [Fact]
-    public void Constructor_WithSourceOnly_CreatesValidationError()
-    {
+    public void Constructor_WithSourceOnly_CreatesValidationError() {
         //Act
         var validationError = new ValidationError("Error message for {0}.", "fieldName");
 
@@ -27,8 +24,7 @@ public class ValidationErrorTests
     }
 
     [Fact]
-    public void Constructor_WithSourceAndData_CreatesValidationError()
-    {
+    public void Constructor_WithSourceAndData_CreatesValidationError() {
         //Act
         var validationError = new ValidationError("Error message for {0} at {1}.", "fieldName", 42);
 
@@ -39,8 +35,7 @@ public class ValidationErrorTests
     }
 
     [Fact]
-    public void DefaultConstructor_WithInvalidMessageTemplate_ThrowsArgumentException()
-    {
+    public void DefaultConstructor_WithInvalidMessageTemplate_ThrowsArgumentException() {
         //Act
         var action = () => new ValidationError("   ", "fieldName");
 
@@ -49,8 +44,7 @@ public class ValidationErrorTests
     }
 
     [Fact]
-    public void Constructor_WithEmptySource_SetsSourceToEmpty()
-    {
+    public void Constructor_WithEmptySource_SetsSourceToEmpty() {
         //Act
         var error = new ValidationError("Error message", "   ");
 
@@ -59,8 +53,7 @@ public class ValidationErrorTests
     }
 
     [Fact]
-    public void Constructor_WithMessageOnly_SetsSourceToEmpty()
-    {
+    public void Constructor_WithMessageOnly_SetsSourceToEmpty() {
         //Act
         var error = new ValidationError("Error message");
 
@@ -77,8 +70,7 @@ public class ValidationErrorTests
     [InlineData(true, true, false, false)]
     [InlineData(true, false, true, false)]
     [InlineData(true, true, true, true)]
-    public void Equality_ShouldReturnAsExpected(bool isNotNull, bool hasSameTemplate, bool hasSameSource, bool expectedResult)
-    {
+    public void Equality_ShouldReturnAsExpected(bool isNotNull, bool hasSameTemplate, bool hasSameSource, bool expectedResult) {
         var subject = new ValidationError("Some message for {0}: {1}", "someField", "error");
 
         var other = isNotNull

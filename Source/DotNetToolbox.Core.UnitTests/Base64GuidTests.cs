@@ -1,10 +1,8 @@
 ﻿namespace System;
 
-public class Base64GuidTests
-{
+public class Base64GuidTests {
     [Fact]
-    public void Parse_ReturnsBase64Guid()
-    {
+    public void Parse_ReturnsBase64Guid() {
         // Arrange
         var input = Guid.NewGuid();
         var guidString = input.ToString();
@@ -20,8 +18,7 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void TryParse_ReturnsTrueIfValid()
-    {
+    public void TryParse_ReturnsTrueIfValid() {
         // Arrange
         var input = Guid.NewGuid();
 
@@ -35,12 +32,10 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void ToString_ReturnsBase64Guid()
-    {
+    public void ToString_ReturnsBase64Guid() {
         // Arrange
         var input = Guid.NewGuid();
-        var subject = new Base64Guid
-        {
+        var subject = new Base64Guid {
             Value = input,
         };
         // Act
@@ -55,8 +50,7 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void ToGuid_ReturnsGuid()
-    {
+    public void ToGuid_ReturnsGuid() {
         // Arrange
         var input = Guid.NewGuid();
         var subject = new Base64Guid(input);
@@ -69,8 +63,7 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void FromBase64_SetProperly()
-    {
+    public void FromBase64_SetProperly() {
         // Arrange
         var input = new string('A', 22);
 
@@ -82,8 +75,7 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void FromGuidEmpty_ToString_SetProperly()
-    {
+    public void FromGuidEmpty_ToString_SetProperly() {
         // Act
         string subject = (Base64Guid)Guid.Empty;
 
@@ -92,8 +84,7 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void FromNullBase64_SetProperly()
-    {
+    public void FromNullBase64_SetProperly() {
         // Act
         Base64Guid subject = default(string)!;
 
@@ -102,14 +93,12 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void FromInvalid_Throws()
-    {
+    public void FromInvalid_Throws() {
         // Arrange
         var input = "invalid";
 
         // Act
-        var action = () =>
-        {
+        var action = () => {
             Base64Guid _ = input;
         };
 
@@ -118,8 +107,7 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void FromGuid_SetProperly()
-    {
+    public void FromGuid_SetProperly() {
         // Arrange
         var input = Guid.NewGuid();
 
@@ -131,8 +119,7 @@ public class Base64GuidTests
     }
 
     [Fact]
-    public void FromGuidEmpty_ToBase64Guid_SetProperly()
-    {
+    public void FromGuidEmpty_ToBase64Guid_SetProperly() {
         // Arrange
         var input = Guid.Empty;
 

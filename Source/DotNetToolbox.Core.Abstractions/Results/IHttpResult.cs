@@ -1,7 +1,6 @@
 ﻿namespace System.Results;
 
-public interface ICreateHttpResult
-{
+public interface ICreateHttpResult {
     static abstract IHttpResult BadRequest([StringSyntax(CompositeFormat)] string message, params object?[] args);
     static abstract IHttpResult BadRequest(IValidationResult result);
     static abstract IHttpResult Ok();
@@ -19,8 +18,7 @@ public interface ICreateHttpResult
     static abstract IHttpResult<TValue> ConflictWith<TValue>(TValue? value);
 }
 
-public interface IHttpResult : IResult<HttpResultType>
-{
+public interface IHttpResult : IResult<HttpResultType> {
     bool IsBadRequest { get; }
     bool IsOk { get; }
     bool IsCreated { get; }
@@ -29,8 +27,7 @@ public interface IHttpResult : IResult<HttpResultType>
     bool IsConflict { get; }
 }
 
-public interface IHttpResult<out TValue> : IHttpResult
-{
+public interface IHttpResult<out TValue> : IHttpResult {
     TValue? Value { get; }
 
     IHttpResult<TNewValue> Map<TNewValue>(Func<TValue, TNewValue> map);

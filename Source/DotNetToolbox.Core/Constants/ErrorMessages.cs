@@ -1,15 +1,13 @@
 ﻿namespace System.Constants;
 
-public static class ErrorMessages
-{
+public static class ErrorMessages {
     public static string GetInvertedErrorMessage(string message, params object?[] args)
         => GetErrorMessage(InvertMessage(message), args);
 
     public static string GetErrorMessage(string message, params object?[] args)
         => string.Format(message, args);
 
-    private static string InvertMessage(string message) => message switch
-    {
+    private static string InvertMessage(string message) => message switch {
         _ when message.Contains(" cannot ") => message.Replace(" cannot ", " must "),
         _ when message.Contains(" must ") => message.Replace(" must ", " cannot "),
         _ when message.Contains(" is not ") => message.Replace(" is not ", " is "),

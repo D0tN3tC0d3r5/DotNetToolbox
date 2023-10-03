@@ -1,17 +1,14 @@
 ﻿namespace System.Validation;
 
 public sealed record ValidationError
-    : IValidationError
-{
+    : IValidationError {
     private readonly string _messageTemplate;
 
     public ValidationError([StringSyntax(CompositeFormat)] string message, string source)
-        : this(message, new object?[] { source })
-    {
+        : this(message, new object?[] { source }) {
     }
 
-    public ValidationError([StringSyntax(CompositeFormat)] string messageTemplate, params object?[] args)
-    {
+    public ValidationError([StringSyntax(CompositeFormat)] string messageTemplate, params object?[] args) {
         _messageTemplate = IsNotNullOrWhiteSpace(messageTemplate);
         Source = args.Length == 0 ? string.Empty : IsNotNull(args[0]!.ToString()).Trim();
         Arguments = args;
@@ -19,7 +16,7 @@ public sealed record ValidationError
 
     public object?[] Arguments { get; }
 
-    public string Source { get; }
+    public string Source { get; init; }
 
     public string Message => GetErrorMessage(_messageTemplate, Arguments);
 

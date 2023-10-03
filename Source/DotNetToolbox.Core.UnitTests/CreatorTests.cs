@@ -1,27 +1,12 @@
 namespace System;
 
-public class CreatorTests
-{
-    private class TestClass : IHaveSingleton<TestClass>
-    {
-        public static TestClass Instance => IHaveSingleton<TestClass>.Singleton;
+public class CreatorTests {
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private class TestClass {
     }
 
     [Fact]
-    public void Static_Instance_ReturnsDefaultSingleton()
-    {
-        // Arrange & Act
-        var instance1 = TestClass.Instance;
-        var instance2 = TestClass.Instance;
-
-        // Assert
-        instance1.Should().BeOfType<TestClass>();
-        instance1.Should().BeSameAs(instance2);
-    }
-
-    [Fact]
-    public void Instance_NoArgs_CreatesObjectOfType()
-    {
+    public void Instance_NoArgs_CreatesObjectOfType() {
         // Arrange & Act
         var instance = Creator.CreateInstance<TestClass>();
 
@@ -30,19 +15,17 @@ public class CreatorTests
         instance.Should().BeOfType<TestClass>();
     }
 
-    private class TestClassWithArgs
-    {
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private class TestClassWithArgs {
         public string Value { get; }
 
-        public TestClassWithArgs(string value)
-        {
+        public TestClassWithArgs(string value) {
             Value = value;
         }
     }
 
     [Fact]
-    public void Instance_WithArgs_CreatesObjectOfTypeAndSetsValues()
-    {
+    public void Instance_WithArgs_CreatesObjectOfTypeAndSetsValues() {
         // Arrange
         const string expectedValue = "Test";
 

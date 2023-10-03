@@ -2,8 +2,7 @@
 
 namespace System.Results;
 
-public interface ICreateCrudResults<out TSelf>
-{
+public interface ICreateCrudResults<out TSelf> {
 
     static abstract TSelf Invalid([StringSyntax(CompositeFormat)] string message, params object?[] args);
     static abstract TSelf Invalid(IValidationResult result);

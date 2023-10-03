@@ -4,8 +4,7 @@ public sealed record ValidationResult
     : Result<ValidationResult, ValidationResultType>
     , IValidationResult
     , ICreateValidationResults<ValidationResult>
-    , IResultOperators<ValidationResult> 
-{
+    , IResultOperators<ValidationResult> {
     private ValidationResult(IEnumerable<IValidationError>? errors = null)
         : base(ValidationResultType.Failure, ValidationResultType.Success, errors) { }
 

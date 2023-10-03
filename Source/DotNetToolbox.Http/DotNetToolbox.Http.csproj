@@ -57,6 +57,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DotNetToolbox.Core\DotNetToolbox.Core.csproj" />
     <ProjectReference Include="..\DotNetToolbox.Http.Abstractions\DotNetToolbox.Http.Abstractions.csproj" />
   </ItemGroup>
 

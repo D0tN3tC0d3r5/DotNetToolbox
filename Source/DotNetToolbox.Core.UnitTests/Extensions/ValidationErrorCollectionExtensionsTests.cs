@@ -1,10 +1,8 @@
 namespace System.Extensions;
 
-public class ValidationErrorCollectionExtensionsTests
-{
+public class ValidationErrorCollectionExtensionsTests {
     [Fact]
-    public void MergeWith_ReturnsMergedList()
-    {
+    public void MergeWith_ReturnsMergedList() {
         // Arrange
         var errors1 = new List<ValidationError> {
             new("Some message 1 {0}.", "Source 1"),
@@ -31,8 +29,7 @@ public class ValidationErrorCollectionExtensionsTests
     }
 
     [Fact]
-    public void MergeWith_Error_ReturnsMergedList()
-    {
+    public void MergeWith_Error_ReturnsMergedList() {
         // Arrange
         var errors1 = new List<ValidationError> {
             new("Some message 1 {0}.", "Source 1"),

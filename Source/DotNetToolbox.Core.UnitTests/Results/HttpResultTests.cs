@@ -1,7 +1,6 @@
 ﻿namespace System.Results;
 
-public class HttpResultTests
-{
+public class HttpResultTests {
     private static readonly ValidationError _error = new("Some {1} for {0}.", "Source", "error");
 
     private static readonly HttpResult _ok = HttpResult.Ok();
@@ -20,8 +19,16 @@ public class HttpResultTests
     private static readonly HttpResult _badRequestWithOtherMessage = HttpResult.BadRequest("Other {1} for {0}.", "Source", "error");
 
     [Fact]
-    public void ImplicitConversion_FromValidationError_ReturnsFailure()
-    {
+    public void CloneConstructor_ReturnsInstance() {
+        // Act
+        var result = _ok with { ValidationErrors = new[] { _error } };
+
+        // Assert
+        result.IsOk.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
         HttpResult result = _error;
 
@@ -31,8 +38,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
         HttpResult result = new[] { _error };
 
@@ -41,8 +47,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromValidationErrorList_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
         HttpResult result = new List<IValidationError> { _error };
 
@@ -51,18 +56,16 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromErrorDictionary_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromErrorDictionary_ReturnsFailure() {
         // Act
-        HttpResult result = new Dictionary<string, string[]> { ["Source"] = new[] { "Some error." }  };
+        HttpResult result = new Dictionary<string, string[]> { ["Source"] = new[] { "Some error." } };
 
         // Assert
         result.IsOk.Should().BeFalse();
     }
 
     [Fact]
-    public void ImplicitConversion_ToValidationResult_ReturnsFailure()
-    {
+    public void ImplicitConversion_ToValidationResult_ReturnsFailure() {
         // Act
         ValidationResult result = _badRequest;
 
@@ -70,22 +73,19 @@ public class HttpResultTests
         result.IsSuccess.Should().BeFalse();
     }
 
-    private class TestDataForProperties : TheoryData<IHttpResult, bool, bool, bool, bool, bool, bool>
-    {
-        public TestDataForProperties()
-        {
-            Add(_badRequest,           true, false, false, false, false, false);
-            Add(_ok,                   false, true, false, false, false, false);
-            Add(_notFound,             false, false, true, false, false, false);
-            Add(_conflict,             false, false, false, true, false, false);
-            Add(_created,              false, false, false, false, true, false);
-            Add(_unauthorized,         false, false, false, false, false, true);
+    private class TestDataForProperties : TheoryData<IHttpResult, bool, bool, bool, bool, bool, bool> {
+        public TestDataForProperties() {
+            Add(_badRequest, true, false, false, false, false, false);
+            Add(_ok, false, true, false, false, false, false);
+            Add(_notFound, false, false, true, false, false, false);
+            Add(_conflict, false, false, false, true, false, false);
+            Add(_created, false, false, false, false, true, false);
+            Add(_unauthorized, false, false, false, false, false, true);
         }
     }
     [Theory]
     [ClassData(typeof(TestDataForProperties))]
-    public void Properties_ShouldReturnAsExpected(IHttpResult subject, bool isBadRequest, bool isOk, bool isNotFound, bool isConflict, bool isCreated, bool isUnauthorized)
-    {
+    public void Properties_ShouldReturnAsExpected(IHttpResult subject, bool isBadRequest, bool isOk, bool isNotFound, bool isConflict, bool isCreated, bool isUnauthorized) {
         // Assert
         subject.IsBadRequest.Should().Be(isBadRequest);
         subject.IsOk.Should().Be(isOk);
@@ -95,10 +95,8 @@ public class HttpResultTests
         subject.IsUnauthorized.Should().Be(isUnauthorized);
     }
 
-    private class TestDataForEquality : TheoryData<HttpResult, HttpResult?, bool>
-    {
-        public TestDataForEquality()
-        {
+    private class TestDataForEquality : TheoryData<HttpResult, HttpResult?, bool> {
+        public TestDataForEquality() {
             Add(_ok, null, false);
             Add(_ok, _ok, true);
             Add(_ok, _created, false);
@@ -152,8 +150,7 @@ public class HttpResultTests
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(HttpResult subject, HttpResult? other, bool expectedResult)
-    {
+    public void Equals_ReturnsAsExpected(HttpResult subject, HttpResult? other, bool expectedResult) {
         // Act
         var result = subject == other;
 
@@ -163,8 +160,7 @@ public class HttpResultTests
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(HttpResult subject, HttpResult? other, bool expectedResult)
-    {
+    public void NotEquals_ReturnsAsExpected(HttpResult subject, HttpResult? other, bool expectedResult) {
         // Act
         var result = subject != other;
 
@@ -173,8 +169,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void GetHashCode_DifferentiatesAsExpected()
-    {
+    public void GetHashCode_DifferentiatesAsExpected() {
         var expectedResult = new HashSet<HttpResult> {
             _ok,
             _badRequest,
@@ -206,8 +201,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void AddOperator_WithoutError_ReturnsBadRequest()
-    {
+    public void AddOperator_WithoutError_ReturnsBadRequest() {
         // Arrange
         var result = HttpResult.Ok();
 
@@ -220,8 +214,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void AddOperator_WithError_ReturnsBadRequest()
-    {
+    public void AddOperator_WithError_ReturnsBadRequest() {
         // Arrange
         var result = HttpResult<string>.Ok("SomeToken");
 
@@ -234,8 +227,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void AddOperator_WithOtherError_ReturnsBothErrors()
-    {
+    public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
         var result = _badRequest;
 
@@ -249,8 +241,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void AddOperator_WithSameError_ReturnsOnlyOneError()
-    {
+    public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
         var result = _badRequest;
 
@@ -262,40 +253,46 @@ public class HttpResultTests
         result.ValidationErrors.Should().ContainSingle();
     }
 
-    private static readonly HttpResult<string> _okWithValue = HttpResult<string>.Ok("Value");
-    private static readonly HttpResult<string> _okWithOtherValue = HttpResult<string>.Ok("Other");
-    private static readonly HttpResult<string> _createdWithValue = HttpResult<string>.Created("Value");
-    private static readonly HttpResult<string> _createdWithOtherValue = HttpResult<string>.Created("Other");
-    private static readonly HttpResult<string> _unauthorizedForValue = HttpResult<string>.Unauthorized();
-    private static readonly HttpResult<string> _notFoundForValue = HttpResult<string>.NotFound();
-    private static readonly HttpResult<string> _conflictForValue = HttpResult<string>.Conflict("Value");
-    private static readonly HttpResult<string> _conflictForOtherValue = HttpResult<string>.Conflict(default);
-    private static readonly HttpResult<string> _badRequestForValue = HttpResult<string>.BadRequest("Some {1} for {0}.", "Source", "error");
-    private static readonly HttpResult<string> _badRequestForValueFromResult = HttpResult<string>.BadRequest(ValidationResult.Failure(_error));
-    private static readonly HttpResult<string> _badRequestForValueFromError = HttpResult<string>.BadRequest(_error);
-    private static readonly HttpResult<string> _badRequestForValueFromErrors = HttpResult<string>.BadRequest(new[] { _error });
-    private static readonly HttpResult<string> _badRequestForValueWithMessageOnly = HttpResult<string>.BadRequest("Some error for Source.");
-    private static readonly HttpResult<string> _badRequestForValueWithSourceOnly = HttpResult<string>.BadRequest("Some error for {0}.", "Source");
-    private static readonly HttpResult<string> _badRequestForValueWithOtherError = HttpResult<string>.BadRequest("Other {1} for {0}.", "Source", "error");
-    private static readonly HttpResult<string> _badRequestForValueWithOtherSource = HttpResult<string>.BadRequest("Some {1} for {0}.", "OtherSource", "error");
-    private static readonly HttpResult<string> _badRequestForValueWithOtherData = HttpResult<string>.BadRequest("Some {1} for {0}.", "Source", "other error");
+    private static readonly HttpResult<string> _okOfValue = HttpResult<string>.Ok("Value");
+    private static readonly HttpResult<string> _okOfValueWithOtherValue = HttpResult<string>.Ok("Other");
+    private static readonly HttpResult<string> _createdOfValue = HttpResult<string>.Created("Value");
+    private static readonly HttpResult<string> _createdOfValueWithOtherValue = HttpResult<string>.Created("Other");
+    private static readonly HttpResult<string> _unauthorizedOfValue = HttpResult<string>.Unauthorized();
+    private static readonly HttpResult<string> _notFoundOfValue = HttpResult<string>.NotFound();
+    private static readonly HttpResult<string> _conflictOfValue = HttpResult<string>.Conflict("Value");
+    private static readonly HttpResult<string> _conflictOfValueWithDefault = HttpResult<string>.Conflict(default);
+    private static readonly HttpResult<string> _badRequestOfValue = HttpResult<string>.BadRequest("Some {1} for {0}.", "Source", "error");
+    private static readonly HttpResult<string> _badRequestOfValueFromResult = HttpResult<string>.BadRequest(ValidationResult.Failure(_error));
+    private static readonly HttpResult<string> _badRequestOfValueFromError = HttpResult<string>.BadRequest(_error);
+    private static readonly HttpResult<string> _badRequestOfValueFromErrors = HttpResult<string>.BadRequest(new[] { _error });
+    private static readonly HttpResult<string> _badRequestOfValueWithMessageOnly = HttpResult<string>.BadRequest("Some error for Source.");
+    private static readonly HttpResult<string> _badRequestOfValueWithSourceOnly = HttpResult<string>.BadRequest("Some error for {0}.", "Source");
+    private static readonly HttpResult<string> _badRequestOfValueWithOtherError = HttpResult<string>.BadRequest("Other {1} for {0}.", "Source", "error");
+    private static readonly HttpResult<string> _badRequestOfValueWithOtherSource = HttpResult<string>.BadRequest("Some {1} for {0}.", "OtherSource", "error");
+    private static readonly HttpResult<string> _badRequestOfValueWithOtherData = HttpResult<string>.BadRequest("Some {1} for {0}.", "Source", "other error");
 
-    private class TestDataForPropertiesWithValue : TheoryData<HttpResult<string>, bool, bool, bool, bool, bool, bool>
-    {
-        public TestDataForPropertiesWithValue()
-        {
-            Add(_badRequestForValue,  true, false, false, false, false, false);
-            Add(_okWithValue,          false, true, false, false, false, false);
-            Add(_notFoundForValue,     false, false, true, false, false, false);
-            Add(_conflictForValue,     false, false, false, true, false, false);
-            Add(_createdWithValue,     false, false, false, false, true, false);
-            Add(_unauthorizedForValue, false, false, false, false, false, true);
+    [Fact]
+    public void CloneConstructor_OfValue_ReturnsInstance() {
+        // Act
+        var result = _okOfValue with { ValidationErrors = new[] { _error } };
+
+        // Assert
+        result.IsOk.Should().BeFalse();
+    }
+
+    private class TestDataForPropertiesOfValue : TheoryData<HttpResult<string>, bool, bool, bool, bool, bool, bool> {
+        public TestDataForPropertiesOfValue() {
+            Add(_badRequestOfValue, true, false, false, false, false, false);
+            Add(_okOfValue, false, true, false, false, false, false);
+            Add(_notFoundOfValue, false, false, true, false, false, false);
+            Add(_conflictOfValue, false, false, false, true, false, false);
+            Add(_createdOfValue, false, false, false, false, true, false);
+            Add(_unauthorizedOfValue, false, false, false, false, false, true);
         }
     }
     [Theory]
-    [ClassData(typeof(TestDataForPropertiesWithValue))]
-    public void Properties_WithValue_ShouldReturnAsExpected(HttpResult<string> subject, bool isBadRequest, bool isOk, bool isNotFound, bool isConflict, bool isCreated, bool isUnauthorized)
-    {
+    [ClassData(typeof(TestDataForPropertiesOfValue))]
+    public void Properties_OfValue_ShouldReturnAsExpected(HttpResult<string> subject, bool isBadRequest, bool isOk, bool isNotFound, bool isConflict, bool isCreated, bool isUnauthorized) {
         // Assert
         subject.IsBadRequest.Should().Be(isBadRequest);
         subject.IsOk.Should().Be(isOk);
@@ -306,8 +303,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void ImplicitConversion_FromValue_ReturnsOk()
-    {
+    public void ImplicitConversion_FromValue_ReturnsOk() {
         // Act
         HttpResult<string> subject = "Value";
 
@@ -317,8 +313,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void AddOperator_WithValueAndWithoutError_ReturnsBadRequest()
-    {
+    public void AddOperator_OfValueAndWithoutError_ReturnsBadRequest() {
         // Arrange
         var result = HttpResult<string>.Ok("Value");
 
@@ -332,8 +327,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void AddOperator_WithValueAndWithError_ReturnsBadRequest()
-    {
+    public void AddOperator_OfValueAndWithError_ReturnsBadRequest() {
         // Arrange
         var result = HttpResult<string>.Ok("Value");
 
@@ -349,8 +343,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void MapTo_WithoutError_ReturnsOk()
-    {
+    public void MapTo_WithoutError_ReturnsOk() {
         // Arrange
         var subject = HttpResult<string>.Ok("42");
 
@@ -363,8 +356,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void MapTo_FromNotFound_ReturnsOk()
-    {
+    public void MapTo_FromNotFound_ReturnsOk() {
         // Arrange
         var subject = HttpResult<string>.NotFound();
 
@@ -379,8 +371,7 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void MapTo_WithError_ReturnsBadRequest()
-    {
+    public void MapTo_WithError_ReturnsBadRequest() {
         // Arrange
         var subject = HttpResult<string>.BadRequest("Some error {0}.", "Source");
 
@@ -392,80 +383,76 @@ public class HttpResultTests
         result.IsOk.Should().BeFalse();
     }
 
-    private class TestDataForEqualityWithValue : TheoryData<HttpResult<string>, HttpResult<string>?, bool>
-    {
-        public TestDataForEqualityWithValue()
-        {
-            Add(_okWithValue, null, false);
-            Add(_okWithValue, _okWithValue, true);
-            Add(_okWithValue, _okWithOtherValue, false);
-            Add(_okWithValue, _createdWithValue, false);
-            Add(_okWithValue, _notFoundForValue, false);
-            Add(_okWithValue, _unauthorizedForValue, false);
-            Add(_okWithValue, _conflictForValue, false);
-            Add(_okWithValue, _badRequestForValue, false);
-            Add(_createdWithValue, null, false);
-            Add(_createdWithValue, _okWithValue, false);
-            Add(_createdWithValue, _createdWithValue, true);
-            Add(_createdWithValue, _createdWithOtherValue, false);
-            Add(_createdWithValue, _notFoundForValue, false);
-            Add(_createdWithValue, _unauthorizedForValue, false);
-            Add(_createdWithValue, _conflictForValue, false);
-            Add(_createdWithValue, _badRequestForValue, false);
-            Add(_notFoundForValue, null, false);
-            Add(_notFoundForValue, _okWithValue, false);
-            Add(_notFoundForValue, _createdWithValue, false);
-            Add(_notFoundForValue, _notFoundForValue, true);
-            Add(_notFoundForValue, _unauthorizedForValue, false);
-            Add(_notFoundForValue, _conflictForValue, false);
-            Add(_notFoundForValue, _badRequestForValue, false);
-            Add(_unauthorizedForValue, null, false);
-            Add(_unauthorizedForValue, _okWithValue, false);
-            Add(_unauthorizedForValue, _createdWithValue, false);
-            Add(_unauthorizedForValue, _notFoundForValue, false);
-            Add(_unauthorizedForValue, _unauthorizedForValue, true);
-            Add(_unauthorizedForValue, _conflictForValue, false);
-            Add(_unauthorizedForValue, _badRequestForValue, false);
-            Add(_conflictForValue, null, false);
-            Add(_conflictForValue, _okWithValue, false);
-            Add(_conflictForValue, _createdWithValue, false);
-            Add(_conflictForValue, _notFoundForValue, false);
-            Add(_conflictForValue, _unauthorizedForValue, false);
-            Add(_conflictForValue, _conflictForValue, true);
-            Add(_conflictForValue, _conflictForOtherValue, false);
-            Add(_conflictForValue, _badRequestForValue, false);
-            Add(_badRequestForValue, null, false);
-            Add(_badRequestForValue, _okWithValue, false);
-            Add(_badRequestForValue, _createdWithValue, false);
-            Add(_badRequestForValue, _notFoundForValue, false);
-            Add(_badRequestForValue, _unauthorizedForValue, false);
-            Add(_badRequestForValue, _conflictForValue, false);
-            Add(_badRequestForValue, _badRequestForValue, true);
-            Add(_badRequestForValue, _badRequestForValueFromResult, true);
-            Add(_badRequestForValue, _badRequestForValueFromError, true);
-            Add(_badRequestForValue, _badRequestForValueFromErrors, true);
-            Add(_badRequestForValue, _badRequestForValueWithSourceOnly, true);
-            Add(_badRequestForValue, _badRequestForValueWithMessageOnly, false);
-            Add(_badRequestForValue, _badRequestForValueWithSourceOnly, true);
-            Add(_badRequestForValue, _badRequestForValueWithOtherError, false);
-            Add(_badRequestForValue, _badRequestForValueWithOtherSource, false);
-            Add(_badRequestForValue, _badRequestForValueWithOtherData, false);
+    private class TestDataForEqualityOfValue : TheoryData<HttpResult<string>, HttpResult<string>?, bool> {
+        public TestDataForEqualityOfValue() {
+            Add(_okOfValue, null, false);
+            Add(_okOfValue, _okOfValue, true);
+            Add(_okOfValue, _okOfValueWithOtherValue, false);
+            Add(_okOfValue, _createdOfValue, false);
+            Add(_okOfValue, _notFoundOfValue, false);
+            Add(_okOfValue, _unauthorizedOfValue, false);
+            Add(_okOfValue, _conflictOfValue, false);
+            Add(_okOfValue, _badRequestOfValue, false);
+            Add(_createdOfValue, null, false);
+            Add(_createdOfValue, _okOfValue, false);
+            Add(_createdOfValue, _createdOfValue, true);
+            Add(_createdOfValue, _createdOfValueWithOtherValue, false);
+            Add(_createdOfValue, _notFoundOfValue, false);
+            Add(_createdOfValue, _unauthorizedOfValue, false);
+            Add(_createdOfValue, _conflictOfValue, false);
+            Add(_createdOfValue, _badRequestOfValue, false);
+            Add(_notFoundOfValue, null, false);
+            Add(_notFoundOfValue, _okOfValue, false);
+            Add(_notFoundOfValue, _createdOfValue, false);
+            Add(_notFoundOfValue, _notFoundOfValue, true);
+            Add(_notFoundOfValue, _unauthorizedOfValue, false);
+            Add(_notFoundOfValue, _conflictOfValue, false);
+            Add(_notFoundOfValue, _badRequestOfValue, false);
+            Add(_unauthorizedOfValue, null, false);
+            Add(_unauthorizedOfValue, _okOfValue, false);
+            Add(_unauthorizedOfValue, _createdOfValue, false);
+            Add(_unauthorizedOfValue, _notFoundOfValue, false);
+            Add(_unauthorizedOfValue, _unauthorizedOfValue, true);
+            Add(_unauthorizedOfValue, _conflictOfValue, false);
+            Add(_unauthorizedOfValue, _badRequestOfValue, false);
+            Add(_conflictOfValue, null, false);
+            Add(_conflictOfValue, _okOfValue, false);
+            Add(_conflictOfValue, _createdOfValue, false);
+            Add(_conflictOfValue, _notFoundOfValue, false);
+            Add(_conflictOfValue, _unauthorizedOfValue, false);
+            Add(_conflictOfValue, _conflictOfValue, true);
+            Add(_conflictOfValue, _conflictOfValueWithDefault, false);
+            Add(_conflictOfValue, _badRequestOfValue, false);
+            Add(_badRequestOfValue, null, false);
+            Add(_badRequestOfValue, _okOfValue, false);
+            Add(_badRequestOfValue, _createdOfValue, false);
+            Add(_badRequestOfValue, _notFoundOfValue, false);
+            Add(_badRequestOfValue, _unauthorizedOfValue, false);
+            Add(_badRequestOfValue, _conflictOfValue, false);
+            Add(_badRequestOfValue, _badRequestOfValue, true);
+            Add(_badRequestOfValue, _badRequestOfValueFromResult, true);
+            Add(_badRequestOfValue, _badRequestOfValueFromError, true);
+            Add(_badRequestOfValue, _badRequestOfValueFromErrors, true);
+            Add(_badRequestOfValue, _badRequestOfValueWithSourceOnly, true);
+            Add(_badRequestOfValue, _badRequestOfValueWithMessageOnly, false);
+            Add(_badRequestOfValue, _badRequestOfValueWithSourceOnly, true);
+            Add(_badRequestOfValue, _badRequestOfValueWithOtherError, false);
+            Add(_badRequestOfValue, _badRequestOfValueWithOtherSource, false);
+            Add(_badRequestOfValue, _badRequestOfValueWithOtherData, false);
         }
     }
 
     [Fact]
-    public void ImplicitConversion_ToValidationResult_WithValue_ReturnsFailure()
-    {
+    public void ImplicitConversion_ToValidationResult_OfValue_ReturnsFailure() {
         // Act
-        ValidationResult result = _badRequestForValue;
+        ValidationResult result = _badRequestOfValue;
 
         // Assert
         result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
-    public void ImplicitConversion_FromListOfValidationError_WithValue_ReturnsFailure()
-    {
+    public void ImplicitConversion_FromListOfValidationError_OfValue_ReturnsFailure() {
         // Act
         HttpResult<string> result = new List<IValidationError> { new ValidationError("Some error {0}.", "Source") };
 
@@ -474,9 +461,8 @@ public class HttpResultTests
     }
 
     [Theory]
-    [ClassData(typeof(TestDataForEqualityWithValue))]
-    public void Equals_WithValue_ReturnsAsExpected(HttpResult<string> subject, HttpResult<string>? other, bool expectedResult)
-    {
+    [ClassData(typeof(TestDataForEqualityOfValue))]
+    public void Equals_OfValue_ReturnsAsExpected(HttpResult<string> subject, HttpResult<string>? other, bool expectedResult) {
         // Act
         var result = subject == other;
 
@@ -485,9 +471,8 @@ public class HttpResultTests
     }
 
     [Theory]
-    [ClassData(typeof(TestDataForEqualityWithValue))]
-    public void NotEquals_WithValue_ReturnsAsExpected(HttpResult<string> subject, HttpResult<string>? other, bool expectedResult)
-    {
+    [ClassData(typeof(TestDataForEqualityOfValue))]
+    public void NotEquals_OfValue_ReturnsAsExpected(HttpResult<string> subject, HttpResult<string>? other, bool expectedResult) {
         // Act
         var result = subject != other;
 
@@ -496,29 +481,28 @@ public class HttpResultTests
     }
 
     [Fact]
-    public void GetHashCode_WithValue_DifferentiatesAsExpected()
-    {
+    public void GetHashCode_OfValue_DifferentiatesAsExpected() {
         var expectedResult = new HashSet<HttpResult<string>> {
-            _okWithValue,
-            _okWithOtherValue,
-            _badRequestForValue,
-            _badRequestForValueWithOtherError,
+            _okOfValue,
+            _okOfValueWithOtherValue,
+            _badRequestOfValue,
+            _badRequestOfValueWithOtherError,
         };
 
         // Act
         var result = new HashSet<HttpResult<string>> {
             HttpResult<string>.Ok("Value"),
             HttpResult<string>.Ok("Other"),
-            _okWithValue,
-            _okWithValue,
-            _badRequestForValue,
-            _badRequestForValue,
-            _badRequestForValueWithSourceOnly,
-            _badRequestForValueWithOtherError,
-            _badRequestForValueWithSourceOnly,
-            _okWithOtherValue,
-            _badRequestForValueWithOtherError,
-            _okWithValue,
+            _okOfValue,
+            _okOfValue,
+            _badRequestOfValue,
+            _badRequestOfValue,
+            _badRequestOfValueWithSourceOnly,
+            _badRequestOfValueWithOtherError,
+            _badRequestOfValueWithSourceOnly,
+            _okOfValueWithOtherValue,
+            _badRequestOfValueWithOtherError,
+            _okOfValue,
         };
 
         // Assert
