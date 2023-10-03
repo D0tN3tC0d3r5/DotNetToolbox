@@ -1,7 +1,7 @@
 namespace System.Results;
 
 public class CrudResultTests {
-    private static readonly ValidationError _error = new ValidationError("Some {1} for {0}.", "Source", "error");
+    private static readonly ValidationError _error = new("Some {1} for {0}.", "Source", "error");
 
     private static readonly CrudResult _success = CrudResult.Success();
     private static readonly CrudResult _notFound = CrudResult.NotFound();
