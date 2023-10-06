@@ -1,17 +1,7 @@
-﻿namespace DotNetToolbox.Http.Options;
+﻿using System.Options;
 
-public record HttpClientOptions {
-    [Required]
-    public required string BaseAddress { get; init; }
+namespace DotNetToolbox.Http.Options;
 
-    public string ResponseFormat { get; init; } = "application/json";
-
-    public Dictionary<string, string> CustomHeaders { get; init; } = new();
-
-    public string? ApiKey { get; init; }
-
-    public string? ClientId { get; init; }
-    public string? ClientSecret { get; init; }
-    public string? Authority { get; init; }
-    public string[] Scopes { get; init; } = Array.Empty<string>();
+public class HttpClientOptions : HttpClientBasicOptions {
+    public Dictionary<string, HttpClientBasicOptions> Named { get; set; } = new();
 }

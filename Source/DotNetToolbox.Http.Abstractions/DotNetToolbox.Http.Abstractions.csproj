@@ -48,4 +48,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DotNetToolbox.Core.Abstractions\DotNetToolbox.Core.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

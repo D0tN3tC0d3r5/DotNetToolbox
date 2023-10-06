@@ -1,6 +1,6 @@
 ﻿namespace System.Singleton;
 
 public interface IInstance<out TSelf>
-    where TSelf : IInstance<TSelf>?, new() {
+    where TSelf : IInstance<TSelf>? {
     static abstract TSelf Instance { get; }
 }
