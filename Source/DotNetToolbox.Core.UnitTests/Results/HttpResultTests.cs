@@ -49,7 +49,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        HttpResult result = new List<IValidationError> { _error };
+        HttpResult result = new List<ValidationError> { _error };
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -454,7 +454,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromListOfValidationError_OfValue_ReturnsFailure() {
         // Act
-        HttpResult<string> result = new List<IValidationError> { new ValidationError("Some error {0}.", "Source") };
+        HttpResult<string> result = new List<ValidationError> { new("Some error {0}.", "Source") };
 
         // Assert
         result.IsOk.Should().BeFalse();

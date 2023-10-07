@@ -5,8 +5,8 @@ namespace System.Results;
 public interface ICreateSignInResults<out TSelf> {
     static abstract TSelf Invalid([StringSyntax(CompositeFormat)] string message, params object?[] args);
     static abstract TSelf Invalid(IValidationResult result);
-    static abstract TSelf Invalid(IEnumerable<IValidationError> errors);
-    static abstract TSelf Invalid(IValidationError error);
+    static abstract TSelf Invalid(IEnumerable<ValidationError> errors);
+    static abstract TSelf Invalid(ValidationError error);
     static abstract TSelf ConfirmationRequired(string token);
     static abstract TSelf TwoFactorRequired(string token);
     static abstract TSelf Success(string token);

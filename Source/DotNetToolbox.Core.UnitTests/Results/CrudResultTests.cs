@@ -46,7 +46,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromListOfValidationError_ReturnsFailure() {
         // Act
-        CrudResult result = new List<IValidationError> { new ValidationError("Some error {0}.", "Source") };
+        CrudResult result = new List<ValidationError> { new("Some error {0}.", "Source") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -365,7 +365,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromListOfValidationError_WithValue_ReturnsFailure() {
         // Act
-        CrudResult<string> result = new List<IValidationError> { new ValidationError("Some error {0}.", "Source") };
+        CrudResult<string> result = new List<ValidationError> { new("Some error {0}.", "Source") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();

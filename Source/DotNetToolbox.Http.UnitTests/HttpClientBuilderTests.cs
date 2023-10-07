@@ -1,21 +1,37 @@
+using System.Validation;
+
 namespace DotNetToolbox.Http;
 
 public class HttpClientBuilderTests {
-    private readonly HttpClientOptions _defaultOptions = new() {
+    private HttpClientOptions _defaultOptions = new() {
         BaseAddress = "http://example.com/api/",
-        ResponseFormat = "application/json",
     };
+
+    [Fact]
+    public void Build_WithDefaultConstructor_Throws() {
+        // Arrange
+        _defaultOptions = new();
+
+        // Act
+        var builder = CreateHttpClientBuilder();
+        var result = () => builder.Build();
+
+        // Assert
+        var exception = result.Should().Throw<ValidationException>().Subject.First();
+        exception.Errors.Should().HaveCount(1);
+        exception.Errors[0].Message.Should().Be("'BaseAddress' cannot be null.");
+    }
 
     [Fact]
     public void Build_WithBasicOptions_ReturnsHttpClient() {
         // Arrange
-        var clientOptions = _defaultOptions;
-        clientOptions.ResponseFormat = "text/xml";
-        clientOptions.CustomHeaders = new() {
+        var options = _defaultOptions;
+        options.ResponseFormat = "text/xml";
+        options.CustomHeaders = new() {
             ["x-custom-string"] = new[] { "SomeValue" },
             ["x-custom-int"] = new[] { "42" },
         };
-        var builder = CreateHttpClientBuilder(clientOptions);
+        var builder = CreateHttpClientBuilder();
 
         // Act
         var result = builder.Build();
@@ -34,14 +50,13 @@ public class HttpClientBuilderTests {
     }
 
     [Fact]
-    public void UseApiKey_AddsApiKeyHeader() {
+    public void UseApiKey_FromConfiguration_AddsApiKeyHeader() {
         // Arrange
-        var clientOptions = _defaultOptions;
-        clientOptions.Authorization = new() {
+        _defaultOptions.Authorization = new() {
             Type = HttpClientAuthorizationType.ApiKey,
             Value = "abc123",
         };
-        var builder = CreateHttpClientBuilder(clientOptions);
+        var builder = CreateHttpClientBuilder();
 
         // Act
         builder.UseApiKey();
@@ -52,31 +67,30 @@ public class HttpClientBuilderTests {
     }
 
     [Fact]
-    public void UseApiKey_WithNoApiKey_Throws() {
+    public void UseApiKey_WithInvalidOptions_Throws() {
         // Arrange
-        var builder = CreateHttpClientBuilder(_defaultOptions);
+        var builder = CreateHttpClientBuilder();
 
         // Act
         builder.UseApiKey();
         var result = () => builder.Build();
 
         // Assert
-        result.Should().Throw<AggregateException>();
+        result.Should().Throw<ValidationException>();
     }
 
     [Fact]
-    public void UseAuthorization_AddsApiKeyHeader() {
+    public void UseJsonWebToken_FromConfiguration_AddsAuthorizationHeader() {
         // Arrange
-        var clientOptions = _defaultOptions;
-        clientOptions.Authorization = new() {
+        _defaultOptions.Authorization = new() {
             Type = HttpClientAuthorizationType.ApiKey,
             Scheme = HttpClientAuthorizationScheme.Bearer,
             Value = "SomeToken",
         };
-        var builder = CreateHttpClientBuilder(clientOptions);
+        var builder = CreateHttpClientBuilder();
 
         // Act
-        //builder.UseAuthorization();
+        builder.UseJsonWebToken();
         //var result = builder.Build();
 
         //// Assert
@@ -86,9 +100,9 @@ public class HttpClientBuilderTests {
     }
 
     [Fact]
-    public void UseAuthorization_WithNoValue_AddsApiKeyHeader() {
+    public void UseJsonWebToken_WithInvalidOptions_Throws() {
         // Arrange
-        var builder = CreateHttpClientBuilder(_defaultOptions);
+        var builder = CreateHttpClientBuilder();
 
         // Act
         //var result = builder.UseAuthorization;
@@ -100,14 +114,14 @@ public class HttpClientBuilderTests {
     //[Fact]
     //public async Task AcquireTokenAsync_WithTokenSet_AddsAuthenticationHeader() {
     //    // Arrange
-    //    var clientOptions = _defaultOptions with {
+    //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
     //        ClientSecret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //        Authorization = "Bearer SomeToken"
     //    };
-    //    var builder = CreateHttpClientBuilder(clientOptions);
+    //    var builder = CreateHttpClientBuilder(options);
 
     //    // Act
     //    await builder.AuthorizeClientAsync();
@@ -136,13 +150,13 @@ public class HttpClientBuilderTests {
     //[Fact]
     //public async Task AcquireTokenAsync_WithFailedTokenAcquisition_Throws() {
     //    // Arrange
-    //    var clientOptions = _defaultOptions with {
+    //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
     //        ClientSecret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //    };
-    //    var builder = CreateHttpClientBuilder(clientOptions);
+    //    var builder = CreateHttpClientBuilder(options);
 
     //    // Act
     //    var result = builder.AuthorizeClientAsync;
@@ -156,14 +170,14 @@ public class HttpClientBuilderTests {
     //[Fact]
     //public async Task AuthorizeByCodeAsync_WithTokenSet_AddsAuthenticationHeader() {
     //    // Arrange
-    //    var clientOptions = _defaultOptions with {
+    //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
     //        ClientSecret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //        Authorization = "Bearer SomeToken"
     //    };
-    //    var builder = CreateHttpClientBuilder(clientOptions);
+    //    var builder = CreateHttpClientBuilder(options);
 
     //    // Act
     //    await builder.AuthorizeByCodeAsync("SomeCode");
@@ -192,13 +206,13 @@ public class HttpClientBuilderTests {
     //[Fact]
     //public async Task AuthorizeByCodeAsync_WithFailedTokenAcquisition_Throws() {
     //    // Arrange
-    //    var clientOptions = _defaultOptions with {
+    //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
     //        ClientSecret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //    };
-    //    var builder = CreateHttpClientBuilder(clientOptions);
+    //    var builder = CreateHttpClientBuilder(options);
 
     //    // Act
     //    var result = () => builder.AuthorizeByCodeAsync("SomeCode");
@@ -212,14 +226,14 @@ public class HttpClientBuilderTests {
     //[Fact]
     //public async Task AuthorizeAccountAsync_WithTokenSet_AddsAuthenticationHeader() {
     //    // Arrange
-    //    var clientOptions = _defaultOptions with {
+    //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
     //        ClientSecret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //        Authorization = "Bearer SomeToken"
     //    };
-    //    var builder = CreateHttpClientBuilder(clientOptions);
+    //    var builder = CreateHttpClientBuilder(options);
     //    var account = Substitute.For<IAccount>();
 
     //    // Act
@@ -250,13 +264,13 @@ public class HttpClientBuilderTests {
     //[Fact]
     //public async Task AuthorizeAccountAsync_WithFailedTokenAcquisition_Throws() {
     //    // Arrange
-    //    var clientOptions = _defaultOptions with {
+    //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
     //        ClientSecret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //    };
-    //    var builder = CreateHttpClientBuilder(clientOptions);
+    //    var builder = CreateHttpClientBuilder(options);
     //    var account = Substitute.For<IAccount>();
 
     //    // Act
@@ -268,25 +282,25 @@ public class HttpClientBuilderTests {
     //       .WithInnerException<MsalServiceException>();
     //}
 
-    private static HttpClientBuilder CreateHttpClientBuilder(HttpClientOptions optionsValue) {
+    private HttpClientBuilder CreateHttpClientBuilder() {
         var factory = Substitute.For<IHttpClientFactory>();
 
 
         var values = new Dictionary<string, string?> {
-            ["HttpClientOptions:BaseAddress"] = optionsValue.BaseAddress,
-            ["HttpClientOptions:ResponseFormat"] = optionsValue.ResponseFormat,
+            ["HttpClientOptions:BaseAddress"] = _defaultOptions.BaseAddress,
+            ["HttpClientOptions:ResponseFormat"] = _defaultOptions.ResponseFormat,
         };
 
-        foreach (var customHeader in optionsValue.CustomHeaders) {
+        foreach (var customHeader in _defaultOptions.CustomHeaders) {
             var items = customHeader.Value.ToArray();
             for (var i = 0; i < items.Length; i++) {
                 values[$"HttpClientOptions:CustomHeaders:{customHeader.Key}:{i+1}"] = items[i];
             }
         }
 
-        if (optionsValue.Authorization is not null) {
-            values["HttpClientOptions:Authorization:Type"] = optionsValue.Authorization?.Type.ToString();
-            values["HttpClientOptions:Authorization:Value"] = optionsValue.Authorization?.Value;
+        if (_defaultOptions.Authorization is not null) {
+            values["HttpClientOptions:Authorization:Type"] = _defaultOptions.Authorization?.Type.ToString();
+            values["HttpClientOptions:Authorization:Value"] = _defaultOptions.Authorization?.Value;
         }
 
         var configBuilder = new ConfigurationBuilder();

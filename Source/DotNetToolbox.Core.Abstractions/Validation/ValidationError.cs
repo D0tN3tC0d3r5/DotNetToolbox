@@ -1,7 +1,6 @@
 ﻿namespace System.Validation;
 
-public sealed record ValidationError
-    : IValidationError {
+public sealed record ValidationError {
     private readonly string _messageTemplate;
 
     public ValidationError([StringSyntax(CompositeFormat)] string message, string source)

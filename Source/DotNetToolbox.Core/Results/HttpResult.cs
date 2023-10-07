@@ -5,7 +5,7 @@ public record HttpResult
     , IHttpResult
     , ICreateHttpResults<HttpResult>
     , IResultOperators<HttpResult> {
-    private HttpResult(HttpResultType type, IEnumerable<IValidationError>? errors = null)
+    private HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = null)
         : base(HttpResultType.BadRequest, type, errors) {
     }
 
@@ -20,9 +20,9 @@ public record HttpResult
         => new ValidationError(message, args);
     public static HttpResult BadRequest(IValidationResult result)
         => (ValidationResult)result;
-    public static HttpResult BadRequest(IEnumerable<IValidationError> errors)
+    public static HttpResult BadRequest(IEnumerable<ValidationError> errors)
         => errors.ToArray();
-    public static HttpResult BadRequest(IValidationError error)
+    public static HttpResult BadRequest(ValidationError error)
         => (ValidationError)error;
 
     public static HttpResult Ok() => new(HttpResultType.Ok);
@@ -34,17 +34,17 @@ public record HttpResult
 
     public static implicit operator HttpResult(Dictionary<string, string[]> errors)
         => errors.SelectMany(i => i.Value.Select(msg => new ValidationError(msg, i.Key))).ToArray();
-    public static implicit operator HttpResult(List<IValidationError> errors) => errors.ToArray();
+    public static implicit operator HttpResult(List<ValidationError> errors) => errors.ToArray();
     public static implicit operator HttpResult(ValidationError error) => new[] { error };
-    public static implicit operator HttpResult(IValidationError[] errors) => (ValidationResult)errors;
+    public static implicit operator HttpResult(ValidationError[] errors) => (ValidationResult)errors;
     public static implicit operator HttpResult(ValidationResult result)
         => new(HttpResultType.BadRequest, IsNotNullOrEmpty(result.ValidationErrors));
 
     public static HttpResult operator +(HttpResult left, IValidationResult right)
         => new(left.Type, left.ValidationErrors.Merge(right.ValidationErrors));
-    public static HttpResult operator +(HttpResult left, IEnumerable<IValidationError> errors)
+    public static HttpResult operator +(HttpResult left, IEnumerable<ValidationError> errors)
         => new(left.Type, left.ValidationErrors.Merge(errors));
-    public static HttpResult operator +(HttpResult left, IValidationError error)
+    public static HttpResult operator +(HttpResult left, ValidationError error)
         => new(left.Type, left.ValidationErrors.Merge(error));
 
     public override bool Equals(HttpResult? other)
@@ -59,7 +59,7 @@ public record HttpResult<TValue>
     , IHttpResult<TValue>
     , ICreateValuedHttpResults<HttpResult<TValue>, TValue>
     , IResultOperators<HttpResult<TValue>> {
-    private HttpResult(HttpResultType type, TValue? value = default, IEnumerable<IValidationError>? errors = null)
+    private HttpResult(HttpResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = null)
         : base(HttpResultType.BadRequest, type, errors) {
         Value = value;
     }
@@ -75,9 +75,9 @@ public record HttpResult<TValue>
 
     public static implicit operator HttpResult<TValue>(TValue value)
         => new(HttpResultType.Ok, IsNotNull(value));
-    public static implicit operator HttpResult<TValue>(List<IValidationError> errors) => errors.ToArray();
+    public static implicit operator HttpResult<TValue>(List<ValidationError> errors) => errors.ToArray();
     public static implicit operator HttpResult<TValue>(ValidationError error) => new[] { error };
-    public static implicit operator HttpResult<TValue>(IValidationError[] errors) => (ValidationResult)errors;
+    public static implicit operator HttpResult<TValue>(ValidationError[] errors) => (ValidationResult)errors;
     public static implicit operator HttpResult<TValue>(ValidationResult result)
         => new(HttpResultType.BadRequest, default, IsNotNullOrEmpty(result.ValidationErrors));
     public static implicit operator ValidationResult(HttpResult<TValue> result)
@@ -85,9 +85,9 @@ public record HttpResult<TValue>
 
     public static HttpResult<TValue> operator +(HttpResult<TValue> left, IValidationResult right)
         => new(left.Type, left.Value, left.ValidationErrors.Merge(right.ValidationErrors));
-    public static HttpResult<TValue> operator +(HttpResult<TValue> left, IEnumerable<IValidationError> errors)
+    public static HttpResult<TValue> operator +(HttpResult<TValue> left, IEnumerable<ValidationError> errors)
         => new(left.Type, left.Value, left.ValidationErrors.Merge(errors));
-    public static HttpResult<TValue> operator +(HttpResult<TValue> left, IValidationError error)
+    public static HttpResult<TValue> operator +(HttpResult<TValue> left, ValidationError error)
         => new(left.Type, left.Value, left.ValidationErrors.Merge(error));
 
     public IHttpResult<TNewValue> Map<TNewValue>(Func<TValue, TNewValue> map)
@@ -104,9 +104,9 @@ public record HttpResult<TValue>
         => new ValidationError(message, args);
     public static HttpResult<TValue> BadRequest(IValidationResult result)
         => (ValidationResult)result;
-    public static HttpResult<TValue> BadRequest(IEnumerable<IValidationError> errors)
+    public static HttpResult<TValue> BadRequest(IEnumerable<ValidationError> errors)
         => errors.ToArray();
-    public static HttpResult<TValue> BadRequest(IValidationError error)
+    public static HttpResult<TValue> BadRequest(ValidationError error)
         => (ValidationError)error;
 
     public static HttpResult<TValue> Ok(TValue value) => new(HttpResultType.Ok, IsNotNull(value));

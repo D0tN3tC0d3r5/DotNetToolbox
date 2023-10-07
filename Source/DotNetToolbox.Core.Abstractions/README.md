@@ -16,7 +16,7 @@ The DotNetToolbox Core Abstractions is the companion package to DotNetToolbox Co
 #### Validation
 
 - `IValidatable`
-- `IValidationError`
+- `ValidationError`
 
 #### Others
 

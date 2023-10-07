@@ -51,7 +51,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        SignInResult result = new List<IValidationError> { new ValidationError("Some error {0}.", "Source") };
+        SignInResult result = new List<ValidationError> { new("Some error {0}.", "Source") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();

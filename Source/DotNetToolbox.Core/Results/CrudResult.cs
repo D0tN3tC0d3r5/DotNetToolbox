@@ -5,7 +5,7 @@ public sealed record CrudResult
     , ICrudResult
     , ICreateCrudResults<CrudResult>
     , IResultOperators<CrudResult> {
-    private CrudResult(CrudResultType type, IEnumerable<IValidationError>? errors = null)
+    private CrudResult(CrudResultType type, IEnumerable<ValidationError>? errors = null)
         : base(CrudResultType.ValidationFailure, type, errors) {
     }
 
@@ -16,9 +16,9 @@ public sealed record CrudResult
 
     public static CrudResult Invalid([StringSyntax(CompositeFormat)] string message, params object?[] args)
         => new ValidationError(message, args);
-    public static CrudResult Invalid(IEnumerable<IValidationError> errors)
+    public static CrudResult Invalid(IEnumerable<ValidationError> errors)
         => errors.ToArray();
-    public static CrudResult Invalid(IValidationError error)
+    public static CrudResult Invalid(ValidationError error)
         => (ValidationError)error;
     public static CrudResult Invalid(IValidationResult result)
         => (ValidationResult)result;
@@ -27,17 +27,17 @@ public sealed record CrudResult
     public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
 
-    public static implicit operator CrudResult(List<IValidationError> errors) => errors.ToArray();
+    public static implicit operator CrudResult(List<ValidationError> errors) => errors.ToArray();
     public static implicit operator CrudResult(ValidationError error) => new[] { error };
-    public static implicit operator CrudResult(IValidationError[] errors) => (ValidationResult)errors;
+    public static implicit operator CrudResult(ValidationError[] errors) => (ValidationResult)errors;
     public static implicit operator CrudResult(ValidationResult result)
         => new(CrudResultType.ValidationFailure, IsNotNullOrEmpty(result.ValidationErrors));
 
     public static CrudResult operator +(CrudResult left, IValidationResult right)
         => new(left.Type, left.ValidationErrors.Merge(right.ValidationErrors));
-    public static CrudResult operator +(CrudResult left, IEnumerable<IValidationError> errors)
+    public static CrudResult operator +(CrudResult left, IEnumerable<ValidationError> errors)
         => left.ValidationErrors.Merge(errors).ToArray();
-    public static CrudResult operator +(CrudResult left, IValidationError error)
+    public static CrudResult operator +(CrudResult left, ValidationError error)
         => new(left.Type, left.ValidationErrors.Merge(error));
 
     public override bool Equals(CrudResult? other)
@@ -52,7 +52,7 @@ public record CrudResult<TValue>
     , ICrudResult<TValue>
     , ICreateValuedCrudResults<CrudResult<TValue>, TValue>
     , IResultOperators<CrudResult<TValue>> {
-    private CrudResult(CrudResultType type, TValue? value = default, IEnumerable<IValidationError>? errors = null)
+    private CrudResult(CrudResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = null)
         : base(CrudResultType.ValidationFailure, type, errors) {
         Value = value;
     }
@@ -66,9 +66,9 @@ public record CrudResult<TValue>
     public static implicit operator CrudResult<TValue>(TValue value)
         => new(CrudResultType.Success, IsNotNull(value));
 
-    public static implicit operator CrudResult<TValue>(List<IValidationError> errors) => errors.ToArray();
+    public static implicit operator CrudResult<TValue>(List<ValidationError> errors) => errors.ToArray();
     public static implicit operator CrudResult<TValue>(ValidationError error) => new[] { error };
-    public static implicit operator CrudResult<TValue>(IValidationError[] errors) => (ValidationResult)errors;
+    public static implicit operator CrudResult<TValue>(ValidationError[] errors) => (ValidationResult)errors;
     public static implicit operator CrudResult<TValue>(ValidationResult result)
         => new(CrudResultType.ValidationFailure, default, IsNotNullOrEmpty(result.ValidationErrors));
     public static implicit operator ValidationResult(CrudResult<TValue> result)
@@ -76,9 +76,9 @@ public record CrudResult<TValue>
 
     public static CrudResult<TValue> operator +(CrudResult<TValue> left, IValidationResult right)
         => new(left.Type, left.Value, left.ValidationErrors.Merge(right.ValidationErrors));
-    public static CrudResult<TValue> operator +(CrudResult<TValue> left, IEnumerable<IValidationError> errors)
+    public static CrudResult<TValue> operator +(CrudResult<TValue> left, IEnumerable<ValidationError> errors)
         => new(left.Type, left.Value, left.ValidationErrors.Merge(errors));
-    public static CrudResult<TValue> operator +(CrudResult<TValue> left, IValidationError error)
+    public static CrudResult<TValue> operator +(CrudResult<TValue> left, ValidationError error)
         => new(left.Type, left.Value, left.ValidationErrors.Merge(error));
 
     public ICrudResult<TNewValue> Map<TNewValue>(Func<TValue, TNewValue> map)
@@ -97,9 +97,9 @@ public record CrudResult<TValue>
         => new ValidationError(message, args);
     public static CrudResult<TValue> Invalid(IValidationResult result)
         => (ValidationResult)result;
-    public static CrudResult<TValue> Invalid(IEnumerable<IValidationError> errors)
+    public static CrudResult<TValue> Invalid(IEnumerable<ValidationError> errors)
         => errors.ToArray();
-    public static CrudResult<TValue> Invalid(IValidationError error)
+    public static CrudResult<TValue> Invalid(ValidationError error)
         => (ValidationError)error;
 
     public static CrudResult<TValue> Success(TValue value) => new(CrudResultType.Success, IsNotNull(value));

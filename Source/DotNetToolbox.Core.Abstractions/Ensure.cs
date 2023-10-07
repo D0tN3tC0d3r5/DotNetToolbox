@@ -1,4 +1,7 @@
-﻿namespace System;
+﻿using System.Results;
+using System.Validation;
+
+namespace System;
 
 public static class Ensure {
     [return: NotNull]

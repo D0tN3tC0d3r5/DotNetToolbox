@@ -46,7 +46,7 @@ public class ValidationResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        ValidationResult result = new List<IValidationError> { new ValidationError("Some error.") };
+        ValidationResult result = new List<ValidationError> { new("Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();

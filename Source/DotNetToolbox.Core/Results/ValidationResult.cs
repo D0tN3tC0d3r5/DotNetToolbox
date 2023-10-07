@@ -5,7 +5,7 @@ public sealed record ValidationResult
     , IValidationResult
     , ICreateValidationResults<ValidationResult>
     , IResultOperators<ValidationResult> {
-    private ValidationResult(IEnumerable<IValidationError>? errors = null)
+    private ValidationResult(IEnumerable<ValidationError>? errors = null)
         : base(ValidationResultType.Failure, ValidationResultType.Success, errors) { }
 
     public bool IsFailure => HasErrors;
@@ -15,19 +15,19 @@ public sealed record ValidationResult
         => new(new ValidationError(message, args));
     public static ValidationResult Failure(IValidationResult result)
         => new((ValidationResult)result.ValidationErrors.ToArray());
-    public static ValidationResult Failure(IEnumerable<IValidationError> errors)
+    public static ValidationResult Failure(IEnumerable<ValidationError> errors)
         => errors.ToArray();
-    public static ValidationResult Failure(IValidationError error)
-        => (ValidationError)error;
+    public static ValidationResult Failure(ValidationError error)
+        => error;
     public static ValidationResult Success() => new();
 
     public static implicit operator ValidationResult(Dictionary<string, string[]> errors)
         => errors.SelectMany(i => i.Value.Select(msg => new ValidationError(msg, i.Key))).ToArray();
-    public static implicit operator ValidationResult(List<IValidationError> errors)
+    public static implicit operator ValidationResult(List<ValidationError> errors)
         => errors.ToArray();
     public static implicit operator ValidationResult(ValidationError error)
         => new[] { error };
-    public static implicit operator ValidationResult(IValidationError[] errors)
+    public static implicit operator ValidationResult(ValidationError[] errors)
         => new(errors.AsEnumerable());
     public static implicit operator ValidationResult(CrudResult result)
         => result.ValidationErrors.ToArray();
@@ -38,9 +38,9 @@ public sealed record ValidationResult
 
     public static ValidationResult operator +(ValidationResult left, IValidationResult right)
         => left.ValidationErrors.Merge(right.ValidationErrors).ToArray();
-    public static ValidationResult operator +(ValidationResult left, IEnumerable<IValidationError> errors)
+    public static ValidationResult operator +(ValidationResult left, IEnumerable<ValidationError> errors)
         => left.ValidationErrors.Merge(errors).ToArray();
-    public static ValidationResult operator +(ValidationResult left, IValidationError error)
+    public static ValidationResult operator +(ValidationResult left, ValidationError error)
         => left.ValidationErrors.Merge(error).ToArray();
 
     public override bool Equals(ValidationResult? other)

@@ -14,11 +14,6 @@ public class HttpClientBuilder {
         _options = configuration.GetSection(nameof(HttpClientOptions))
                                 .Get<HttpClientOptions>()
                                 ?? new HttpClientOptions();
-        var result = _options.Validate();
-        if (result.IsFailure) {
-            var exceptions = result.ValidationErrors.Select(i => new InvalidOperationException(i.Message));
-            throw new AggregateException("Http client options are not valid.", exceptions);
-        }
     }
 
     public HttpClientBuilder UseApiKey(string? apiKey = null) {
@@ -44,8 +39,8 @@ public class HttpClientBuilder {
 
     public HttpClient Build(string? name = null) {
         if (name is not null) {
-            if (!_options.Named.TryGetValue(name, out var namedOptions)) {
-                throw new InvalidOperationException($"Http client options for '{name}' not found.");
+            if (!_options.Clients.TryGetValue(name, out var namedOptions)) {
+                throw new ArgumentException($"Http client options for '{name}' not found.", nameof(name));
             }
 
             _options.BaseAddress = namedOptions.BaseAddress ?? _options.BaseAddress;
@@ -54,11 +49,7 @@ public class HttpClientBuilder {
             _options.CustomHeaders = namedOptions.CustomHeaders.UnionBy(_options.CustomHeaders.ExceptBy(namedOptions.CustomHeaders.Keys, i => i.Key), i => i.Key).ToDictionary(k => k.Key, v => v.Value);
         }
 
-        var result = _options.Validate();
-        if (result.IsFailure) {
-            var exceptions = result.ValidationErrors.Select(i => new InvalidOperationException(i.Message));
-            throw new AggregateException("HttpClient options are invalid", exceptions);
-        }
+        _options.EnsureIsValid("Http client options are invalid.");
 
         var client = _clientFactory.CreateClient();
         client.BaseAddress = new(_options.BaseAddress!);

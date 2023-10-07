@@ -3,7 +3,9 @@
 namespace System.Results;
 
 public interface IResult {
-    IReadOnlyList<IValidationError> ValidationErrors { get; }
+    IReadOnlyList<ValidationError> ValidationErrors { get; }
+
+    void EnsureIsValid(string? message = null);
 }
 
 public interface IResult<out TType> : IResult
