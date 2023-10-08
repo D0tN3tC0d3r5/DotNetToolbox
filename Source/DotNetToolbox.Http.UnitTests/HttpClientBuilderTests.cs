@@ -1,4 +1,4 @@
-using System.Validation;
+using static DotNetToolbox.Http.Options.HttpClientAuthorizationType;
 
 namespace DotNetToolbox.Http;
 
@@ -18,16 +18,30 @@ public class HttpClientBuilderTests {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().HaveCount(1);
-        exception.Errors[0].Message.Should().Be("'BaseAddress' cannot be null.");
+        exception.Errors.Should().ContainSingle();
+        exception.Errors[0].Message.Should().Be("'BaseAddress' cannot be null or whitespace.");
+    }
+
+    [Fact]
+    public void Build_WithInvalidOptions_Throws() {
+        // Arrange
+        _defaultOptions.ResponseFormat = string.Empty;
+
+        // Act
+        var builder = CreateHttpClientBuilder();
+        var result = () => builder.Build();
+
+        // Assert
+        var exception = result.Should().Throw<ValidationException>().Subject.First();
+        exception.Errors.Should().ContainSingle();
+        exception.Errors[0].Message.Should().Be("'ResponseFormat' cannot be null or whitespace.");
     }
 
     [Fact]
     public void Build_WithBasicOptions_ReturnsHttpClient() {
         // Arrange
-        var options = _defaultOptions;
-        options.ResponseFormat = "text/xml";
-        options.CustomHeaders = new() {
+        _defaultOptions.ResponseFormat = "text/xml";
+        _defaultOptions.CustomHeaders = new() {
             ["x-custom-string"] = new[] { "SomeValue" },
             ["x-custom-int"] = new[] { "42" },
         };
@@ -50,11 +64,52 @@ public class HttpClientBuilderTests {
     }
 
     [Fact]
+    public void Build_WithInvalidName_Throws() {
+        // Arrange
+        _defaultOptions.ResponseFormat = string.Empty;
+
+        // Act
+        var builder = CreateHttpClientBuilder();
+        var result = () => builder.Build("Invalid");
+
+        // Assert
+        result.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Build_WithNamedClient_ReturnsHttpClient() {
+        // Arrange
+        _defaultOptions.Clients["NamedClient"] = new() {
+            ResponseFormat = "text/xml",
+            CustomHeaders = new() {
+                ["x-custom-string"] = new[] { "SomeValue" },
+                ["x-custom-int"] = new[] { "42" },
+            },
+        };
+        var builder = CreateHttpClientBuilder();
+
+        // Act
+        var result = builder.Build("NamedClient");
+
+        // Assert
+        result.BaseAddress.Should().Be("http://example.com/api/");
+        result.DefaultRequestHeaders.GetValue("x-custom-string").Should().Be("SomeValue");
+        result.DefaultRequestHeaders.GetValue<int>("x-custom-int").Should().Be(42);
+        result.DefaultRequestHeaders.TryGetValue("x-custom-string", out var stringValue).Should().BeTrue();
+        stringValue.Should().Be("SomeValue");
+        result.DefaultRequestHeaders.TryGetValue<int>("x-custom-int", out var intValue).Should().BeTrue();
+        intValue.Should().Be(42);
+        result.DefaultRequestHeaders.TryGetValue("x-invalid", out _).Should().BeFalse();
+        result.DefaultRequestHeaders.TryGetValue<int>("x-invalid", out _).Should().BeFalse();
+        result.DefaultRequestHeaders.TryGetValue<int>("x-custom-string", out _).Should().BeFalse();
+    }
+
+    [Fact]
     public void UseApiKey_FromConfiguration_AddsApiKeyHeader() {
         // Arrange
         _defaultOptions.Authorization = new() {
-            Type = HttpClientAuthorizationType.ApiKey,
-            Value = "abc123",
+            Type = ApiKey,
+            Token = "abc123",
         };
         var builder = CreateHttpClientBuilder();
 
@@ -76,39 +131,47 @@ public class HttpClientBuilderTests {
         var result = () => builder.Build();
 
         // Assert
-        result.Should().Throw<ValidationException>();
+        var exception = result.Should().Throw<ValidationException>().Subject.First();
+        exception.Errors.Should().ContainSingle();
     }
 
     [Fact]
     public void UseJsonWebToken_FromConfiguration_AddsAuthorizationHeader() {
         // Arrange
+        // ReSharper disable StringLiteralTypo - Token
+        const string expectedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.QhB54iWGzYFFKAjbZvfd6OMKYxVpG0wLJgxuI9OICN4";
+        // ReSharper restore StringLiteralTypo
+
         _defaultOptions.Authorization = new() {
-            Type = HttpClientAuthorizationType.ApiKey,
-            Scheme = HttpClientAuthorizationScheme.Bearer,
-            Value = "SomeToken",
+            Type = Jwt,
+            Secret = "ASecretValueWith256BitsOr32Chars",
         };
         var builder = CreateHttpClientBuilder();
 
         // Act
         builder.UseJsonWebToken();
-        //var result = builder.Build();
+        var result = builder.Build();
 
-        //// Assert
-        //var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
-        //authorization.Scheme.Should().Be("Bearer");
-        //authorization.Parameter.Should().Be("SomeToken");
+        // Assert
+        var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
+        authorization.Scheme.Should().Be("Bearer");
+        authorization.Parameter.Should().Be(expectedToken);
     }
 
     [Fact]
     public void UseJsonWebToken_WithInvalidOptions_Throws() {
         // Arrange
+        _defaultOptions.Authorization = new() {
+            Type = Jwt,
+        };
         var builder = CreateHttpClientBuilder();
 
         // Act
-        //var result = builder.UseAuthorization;
+        var result = () => builder.UseJsonWebToken();
 
-        //// Assert
-        //result.Should().Throw<ArgumentException>();
+        // Assert
+        var exception = result.Should().Throw<ValidationException>().Subject.First();
+        exception.Errors.Should().ContainSingle();
     }
 
     //[Fact]
@@ -117,7 +180,7 @@ public class HttpClientBuilderTests {
     //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
-    //        ClientSecret = "SomeSecret",
+    //        Secret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //        Authorization = "Bearer SomeToken"
     //    };
@@ -153,7 +216,7 @@ public class HttpClientBuilderTests {
     //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
-    //        ClientSecret = "SomeSecret",
+    //        Secret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //    };
     //    var builder = CreateHttpClientBuilder(options);
@@ -173,7 +236,7 @@ public class HttpClientBuilderTests {
     //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
-    //        ClientSecret = "SomeSecret",
+    //        Secret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //        Authorization = "Bearer SomeToken"
     //    };
@@ -209,7 +272,7 @@ public class HttpClientBuilderTests {
     //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
-    //        ClientSecret = "SomeSecret",
+    //        Secret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //    };
     //    var builder = CreateHttpClientBuilder(options);
@@ -229,7 +292,7 @@ public class HttpClientBuilderTests {
     //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
-    //        ClientSecret = "SomeSecret",
+    //        Secret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //        Authorization = "Bearer SomeToken"
     //    };
@@ -267,7 +330,7 @@ public class HttpClientBuilderTests {
     //    var options = _defaultOptions with {
     //        ClientId = "SomeClientId",
     //        Authority = "https://example.com/user",
-    //        ClientSecret = "SomeSecret",
+    //        Secret = "SomeSecret",
     //        Scopes = new[] { "SomeScope" },
     //    };
     //    var builder = CreateHttpClientBuilder(options);
@@ -285,23 +348,12 @@ public class HttpClientBuilderTests {
     private HttpClientBuilder CreateHttpClientBuilder() {
         var factory = Substitute.For<IHttpClientFactory>();
 
-
-        var values = new Dictionary<string, string?> {
-            ["HttpClientOptions:BaseAddress"] = _defaultOptions.BaseAddress,
-            ["HttpClientOptions:ResponseFormat"] = _defaultOptions.ResponseFormat,
-        };
-
-        foreach (var customHeader in _defaultOptions.CustomHeaders) {
-            var items = customHeader.Value.ToArray();
-            for (var i = 0; i < items.Length; i++) {
-                values[$"HttpClientOptions:CustomHeaders:{customHeader.Key}:{i+1}"] = items[i];
-            }
-        }
-
-        if (_defaultOptions.Authorization is not null) {
-            values["HttpClientOptions:Authorization:Type"] = _defaultOptions.Authorization?.Type.ToString();
-            values["HttpClientOptions:Authorization:Value"] = _defaultOptions.Authorization?.Value;
-        }
+        var values = SetOptions(_defaultOptions);
+        values = _defaultOptions
+            .Clients
+            .Select(clientOptions => SetOptions(clientOptions.Value, clientOptions.Key))
+            .Aggregate(values, (current, clientValues) => clientValues
+            .Aggregate(current, (s, i) => s.Append(i).ToDictionary()));
 
         var configBuilder = new ConfigurationBuilder();
         configBuilder.AddInMemoryCollection(values);
@@ -314,5 +366,29 @@ public class HttpClientBuilderTests {
         // Act
         var result = new HttpClientBuilder(factory, configuration);
         return result;
+    }
+
+    private static Dictionary<string, string?> SetOptions(HttpClientBasicOptions options, string? name = null) {
+        var clientPath = name is null ? string.Empty : $":Clients:{name}";
+        var values = new Dictionary<string, string?> {
+            [$"HttpClientOptions{clientPath}:BaseAddress"] = options.BaseAddress,
+            [$"HttpClientOptions{clientPath}:ResponseFormat"] = options.ResponseFormat,
+        };
+
+        if (options.Authorization is not null) {
+            values[$"HttpClientOptions{clientPath}:Authorization:Type"] = options.Authorization?.Type.ToString();
+            values[$"HttpClientOptions{clientPath}:Authorization:Scheme"] = options.Authorization?.Scheme?.ToString();
+            values[$"HttpClientOptions{clientPath}:Authorization:Token"] = options.Authorization?.Token;
+            values[$"HttpClientOptions{clientPath}:Authorization:Secret"] = options.Authorization?.Secret;
+        }
+
+        foreach (var customHeader in options.CustomHeaders) {
+            var items = customHeader.Value.ToArray();
+            for (var i = 0; i < items.Length; i++) {
+                values[$"HttpClientOptions{clientPath}:CustomHeaders:{customHeader.Key}:{i + 1}"] = items[i];
+            }
+        }
+
+        return values;
     }
 }

@@ -17,7 +17,7 @@ public static class ErrorMessages {
 
     public static string CannotBeNull => "'{0}' cannot be null.";
     public static string CannotBeNullOrEmpty => "'{0}' cannot be null or empty.";
-    public static string CannotBeNullOrWhitespace => "'{0}' cannot be null or whitespace.";
+    public static string CannotBeNullOrWhiteSpace => "'{0}' cannot be null or whitespace.";
     public static string CannotContainNull => "'{0}' cannot contain null item(s).";
     public static string CannotContainNullOrEmpty => "'{0}' cannot contain null or empty string(s).";
     public static string CannotContainNullOrWhitespace => "'{0}' cannot contain null or whitespace string(s).";

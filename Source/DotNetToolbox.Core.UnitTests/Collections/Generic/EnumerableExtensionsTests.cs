@@ -2,16 +2,15 @@ namespace System.Collections.Generic;
 
 public class EnumerableExtensionsTests {
     [Fact]
-    public void ToArray_FromNull_GetsEmptyArray() {
+    public void ToArray_FromNull_Throw() {
         // Arrange
         IEnumerable<int>? subject = default;
 
         // Act
-        var result = subject!.ToArray<int>(i => i + 2);
+        var result = () => subject.ToArray<int>(i => i + 2);
 
         // Assert
-        result.Should().BeOfType<int[]>();
-        result.Should().BeEmpty();
+        result.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
@@ -30,11 +29,10 @@ public class EnumerableExtensionsTests {
         IEnumerable<int>? subject = default;
 
         // Act
-        var result = subject!.ToArray(i => $"{i + 2}");
+        var result = () => subject.ToArray(i => $"{i + 2}");
 
         // Assert
-        result.Should().BeOfType<string[]>();
-        result.Should().BeEmpty();
+        result.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]

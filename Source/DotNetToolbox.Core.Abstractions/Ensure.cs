@@ -36,9 +36,9 @@ public static class Ensure {
 
     public static string IsNotNullOrWhiteSpace(string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument is null
-            ? throw new ArgumentException(GetErrorMessage(CannotBeNullOrWhitespace, paramName), paramName)
+            ? throw new ArgumentException(GetErrorMessage(CannotBeNullOrWhiteSpace, paramName), paramName)
             : argument.Trim().Length == 0
-                ? throw new ArgumentException(GetErrorMessage(CannotBeNullOrWhitespace, paramName), paramName)
+                ? throw new ArgumentException(GetErrorMessage(CannotBeNullOrWhiteSpace, paramName), paramName)
                 : argument;
 
     [return: NotNull]

@@ -34,8 +34,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http", "DotNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http.UnitTests", "DotNetToolbox.Http.UnitTests\DotNetToolbox.Http.UnitTests.csproj", "{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.Http.Abstractions", "DotNetToolbox.Http.Abstractions\DotNetToolbox.Http.Abstractions.csproj", "{5A820ABF-A605-4D26-90F3-407321748D6E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,10 +76,6 @@ Global
 		{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A820ABF-A605-4D26-90F3-407321748D6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A820ABF-A605-4D26-90F3-407321748D6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A820ABF-A605-4D26-90F3-407321748D6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A820ABF-A605-4D26-90F3-407321748D6E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

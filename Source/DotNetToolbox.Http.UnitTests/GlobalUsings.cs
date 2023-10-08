@@ -2,6 +2,7 @@
 global using System.Configuration;
 global using System.Net.Http.Headers;
 global using System.Text.Json;
+global using System.Validation;
 
 global using DotNetToolbox.Http.Extensions;
 global using DotNetToolbox.Http.Options;
