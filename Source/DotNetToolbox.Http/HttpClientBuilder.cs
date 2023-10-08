@@ -47,7 +47,11 @@ public class HttpClientBuilder {
         return this;
     }
 
-    public HttpClientBuilder UseSimpleToken(HttpClientAuthorizationScheme? scheme = null, string? token = null, DateTimeOffset? notBefore = null, DateTimeOffset? expiresOn = null) {
+    public HttpClientBuilder UseSimpleToken(
+        HttpClientAuthorizationScheme? scheme = null,
+        string? token = null,
+        DateTimeOffset? notBefore = null,
+        DateTimeOffset? expiresOn = null) {
         _options.Authorization = new() {
             Type = SimpleToken,
             Scheme = scheme ?? _options.Authorization?.Scheme,
@@ -59,7 +63,12 @@ public class HttpClientBuilder {
         return this;
     }
 
-    public HttpClientBuilder UseOauth2(string? tenantId = null, string? clientId = null, string ? clientSecret = null, string ? authority = null, IEnumerable<string>? scopes = null) {
+    public HttpClientBuilder UseOauth2(
+        string? tenantId = null,
+        string? clientId = null,
+        string ? clientSecret = null,
+        string ? authority = null,
+        IEnumerable<string>? scopes = null) {
         _options.Authorization = new() {
             Type = OAuth2,
             Scheme = Bearer,
@@ -70,7 +79,6 @@ public class HttpClientBuilder {
             Scopes = scopes?.ToArray() ?? _options.Authorization?.Scopes ?? Array.Empty<string>(),
         };
 
-        _options.EnsureIsValid("Http client options are invalid.");
         return this;
     }
 
@@ -138,8 +146,6 @@ public class HttpClientBuilder {
         try {
             if (_options.Authorization is { IsActive: true })
                 return;
-
-            _options.EnsureIsValid("Http client options are invalid.");
 
             var authorization = _options.Authorization!;
             var result = AuthenticateClient();
