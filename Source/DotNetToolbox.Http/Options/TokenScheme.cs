@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public enum HttpClientAuthorizationScheme {
+public enum TokenScheme {
     Basic,
     Bearer,
 }

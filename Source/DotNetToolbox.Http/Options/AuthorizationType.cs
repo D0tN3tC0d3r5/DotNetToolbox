@@ -1,9 +1,10 @@
 ﻿namespace DotNetToolbox.Http.Options;
-public enum HttpClientAuthorizationType {
+
+public enum AuthorizationType {
     ApiKey,
     SimpleToken,
-    Jwt,
-    OAuth2,
+    JsonWebToken,
+    OAuth2Token,
     //Fixed,
     //Client,
     //ByCode,

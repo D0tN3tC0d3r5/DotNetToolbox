@@ -1,84 +1,40 @@
-﻿using static DotNetToolbox.Http.Options.HttpClientAuthorizationScheme;
-using static DotNetToolbox.Http.Options.HttpClientAuthorizationType;
-
-namespace DotNetToolbox.Http;
+﻿namespace DotNetToolbox.Http;
 
 public class HttpClientBuilder {
     private const string _apiKeyHeaderKey = "x-api-key";
 
     private readonly IHttpClientFactory _clientFactory;
+    private readonly IMsalHttpClientFactory _identityClientFactory;
     private readonly HttpClientOptions _options;
 
-    public HttpClientBuilder(IHttpClientFactory clientFactory, IConfiguration configuration) {
+    public HttpClientBuilder(IHttpClientFactory clientFactory, IOptions<HttpClientOptions> options, IMsalHttpClientFactory identityClientFactory) {
         _clientFactory = clientFactory;
+        _identityClientFactory = identityClientFactory;
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract - False positive
-        _options = configuration.GetSection(nameof(HttpClientOptions))
-                                .Get<HttpClientOptions>()
-                                ?? new HttpClientOptions();
+        _options = options.Value;
     }
 
-    public HttpClientBuilder UseApiKey(string? apiKey = null) {
-        _options.Authorization = new() {
-            Type = ApiKey,
-            Token = apiKey ?? _options.Authorization?.Token,
-        };
-
+    public HttpClientBuilder UseApiKey(Action<ApiKeyAuthorizationOptions>? configOptions = null) {
+        _options.Authorization ??= new ApiKeyAuthorizationOptions();
+        configOptions?.Invoke((ApiKeyAuthorizationOptions)_options.Authorization);
         return this;
     }
 
-    public HttpClientBuilder UseJsonWebToken(
-        string? secret = null,
-        string? issuer = null,
-        string? audience = null,
-        DateTimeOffset? expiresOn = null,
-        DateTimeOffset? notBefore = null,
-        IEnumerable<Claim>? claims = null) {
-        _options.Authorization = new() {
-            Type = Jwt,
-            Scheme = Bearer,
-            Secret = secret ?? _options.Authorization?.Secret,
-            Issuer = issuer ?? _options.Authorization?.Issuer,
-            Audience = audience ?? _options.Authorization?.Audience,
-            NotBefore = notBefore ?? _options.Authorization?.NotBefore,
-            ExpiresOn = expiresOn ?? _options.Authorization?.ExpiresOn,
-            Claims = claims?.ToArray() ?? _options.Authorization?.Claims ?? Array.Empty<Claim>(),
-        };
-
+    public HttpClientBuilder UseSimpleToken(Action<SimpleTokenAuthorizationOptions>? configOptions = null) {
+        _options.Authorization ??= new ApiKeyAuthorizationOptions();
+        configOptions?.Invoke((SimpleTokenAuthorizationOptions)_options.Authorization);
         return this;
     }
 
-    public HttpClientBuilder UseSimpleToken(
-        HttpClientAuthorizationScheme? scheme = null,
-        string? token = null,
-        DateTimeOffset? notBefore = null,
-        DateTimeOffset? expiresOn = null) {
-        _options.Authorization = new() {
-            Type = SimpleToken,
-            Scheme = scheme ?? _options.Authorization?.Scheme,
-            Token = token ?? _options.Authorization?.Token,
-            NotBefore = notBefore ?? _options.Authorization?.NotBefore,
-            ExpiresOn = expiresOn ?? _options.Authorization?.ExpiresOn,
-        };
-
+    public HttpClientBuilder UseJsonWebToken(Action<JsonWebTokenAuthorizationOptions>? configOptions = null) {
+        _options.Authorization ??= new JsonWebTokenAuthorizationOptions();
+        configOptions?.Invoke((JsonWebTokenAuthorizationOptions)_options.Authorization);
         return this;
     }
 
-    public HttpClientBuilder UseOauth2(
-        string? tenantId = null,
-        string? clientId = null,
-        string ? clientSecret = null,
-        string ? authority = null,
-        IEnumerable<string>? scopes = null) {
-        _options.Authorization = new() {
-            Type = OAuth2,
-            Scheme = Bearer,
-            TenantId = tenantId ?? _options.Authorization?.TenantId,
-            ClientId = clientId ?? _options.Authorization?.ClientId,
-            Secret = clientSecret ?? _options.Authorization?.Secret,
-            Authority = authority ?? _options.Authorization?.Authority,
-            Scopes = scopes?.ToArray() ?? _options.Authorization?.Scopes ?? Array.Empty<string>(),
-        };
-
+    public HttpClientBuilder UseOauth2(Action<OAuth2TokenAuthorizationOptions>? configOptions = null) {
+        _options.Authorization ??= new OAuth2TokenAuthorizationOptions();
+        configOptions?.Invoke((OAuth2TokenAuthorizationOptions)_options.Authorization);
         return this;
     }
 
@@ -107,20 +63,20 @@ public class HttpClientBuilder {
             return client;
 
         var authorization = _options.Authorization;
-        switch (authorization.Type) {
-            case ApiKey:
-                client.DefaultRequestHeaders.Add(_apiKeyHeaderKey, authorization.Token);
+        switch (authorization) {
+            case ApiKeyAuthorizationOptions authOptions:
+                client.DefaultRequestHeaders.Add(_apiKeyHeaderKey, authOptions.ApiKey);
                 break;
-            case Jwt:
+            case JsonWebTokenAuthorizationOptions authOptions:
                 CreateJwtTokenAsync();
-                client.DefaultRequestHeaders.Authorization = new(authorization.Scheme.ToString()!, authorization.Token);
+                client.DefaultRequestHeaders.Authorization = new(authOptions.Scheme.ToString()!, authOptions.Token);
                 break;
-            case OAuth2:
+            case OAuth2TokenAuthorizationOptions authOptions:
                 AcquireOauth2Token();
-                client.DefaultRequestHeaders.Authorization = new(authorization.Scheme.ToString()!, authorization.Token);
+                client.DefaultRequestHeaders.Authorization = new(authOptions.Scheme.ToString()!, authOptions.Token);
                 break;
-            case SimpleToken:
-                client.DefaultRequestHeaders.Authorization = new(authorization.Scheme.ToString()!, authorization.Token);
+            case SimpleTokenAuthorizationOptions authOptions:
+                client.DefaultRequestHeaders.Authorization = new(authOptions.Scheme.ToString()!, authOptions.Token);
                 break;
         }
 
@@ -128,8 +84,8 @@ public class HttpClientBuilder {
     }
 
     private void CreateJwtTokenAsync() {
-        var authorization = IsNotNull(_options.Authorization);
-        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authorization.Secret!));
+        var authorization = IsOfType<JsonWebTokenAuthorizationOptions>(_options.Authorization);
+        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authorization.PrivateKey!));
         var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
         var tokenOptions = new JwtSecurityToken(authorization.Issuer,
@@ -139,16 +95,17 @@ public class HttpClientBuilder {
                                                 authorization.ExpiresOn?.DateTime,
                                                 signingCredentials);
 
+        authorization.Scheme = TokenScheme.Bearer;
         authorization.Token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
     }
 
     private void AcquireOauth2Token() {
+        var authorization = IsOfType<OAuth2TokenAuthorizationOptions>(_options.Authorization);
         try {
-            if (_options.Authorization is { IsActive: true })
+            if (authorization is { IsActive: true })
                 return;
 
-            var authorization = _options.Authorization!;
-            var result = AuthenticateClient();
+            var result = AuthenticateClient(authorization);
             authorization.Token = result.AccessToken;
             authorization.ExpiresOn = result.ExpiresOn;
             authorization.NotBefore = null;
@@ -160,20 +117,21 @@ public class HttpClientBuilder {
     }
 
     [ExcludeFromCodeCoverage]
-    private AuthenticationResult AuthenticateClient()
-        => CreateApplication()
-        .AcquireTokenForClient(_options.Authorization!.Scopes)
-        .ExecuteAsync(CancellationToken.None).Result;
+    private AuthenticationResult AuthenticateClient(OAuth2TokenAuthorizationOptions options)
+        => CreateApplication(options)
+        .AcquireTokenForClient(options.Scopes)
+        .ExecuteAsync(CancellationToken.None)
+        .Result;
 
-    private IConfidentialClientApplication CreateApplication() {
-        var authorization = IsNotNull(_options.Authorization);
+    private IConfidentialClientApplication CreateApplication(OAuth2TokenAuthorizationOptions options) {
         var builder = ConfidentialClientApplicationBuilder
-                     .Create(authorization.ClientId)
-                     .WithClientSecret(authorization.Secret);
-        if (string.IsNullOrWhiteSpace(authorization.TenantId))
-            builder.WithTenantId(authorization.TenantId);
-        if (string.IsNullOrWhiteSpace(authorization.Authority))
-            builder.WithAuthority(authorization.Authority);
+                     .Create(options.ClientId)
+                     .WithHttpClientFactory(_identityClientFactory)
+                     .WithClientSecret(options.ClientSecret);
+        if (string.IsNullOrWhiteSpace(options.TenantId))
+            builder.WithTenantId(options.TenantId);
+        if (string.IsNullOrWhiteSpace(options.Authority))
+            builder.WithAuthority(options.Authority);
         return builder.Build();
     }
 

@@ -1,4 +1,4 @@
-﻿using static DotNetToolbox.Http.Options.HttpClientAuthorizationScheme;
+﻿using static DotNetToolbox.Http.Options.TokenScheme;
 
 namespace DotNetToolbox.Http.Extensions;
 

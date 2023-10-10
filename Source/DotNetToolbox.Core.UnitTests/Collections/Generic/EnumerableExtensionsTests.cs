@@ -7,7 +7,7 @@ public class EnumerableExtensionsTests {
         IEnumerable<int>? subject = default;
 
         // Act
-        var result = () => subject.ToArray<int>(i => i + 2);
+        var result = () => subject!.ToArray<int>(i => i + 2);
 
         // Assert
         result.Should().Throw<ArgumentNullException>();
@@ -29,7 +29,7 @@ public class EnumerableExtensionsTests {
         IEnumerable<int>? subject = default;
 
         // Act
-        var result = () => subject.ToArray(i => $"{i + 2}");
+        var result = () => subject!.ToArray(i => $"{i + 2}");
 
         // Assert
         result.Should().Throw<ArgumentNullException>();

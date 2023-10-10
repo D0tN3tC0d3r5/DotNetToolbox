@@ -2,8 +2,8 @@
 
 namespace DotNetToolbox.Http.Options;
 
-public class HttpClientOptions : HttpClientBasicOptions, IValidatable {
-    public Dictionary<string, HttpClientBasicOptions> Clients { get; set; } = new();
+public class HttpClientOptions : SimpleHttpClientOptions, IValidatable {
+    public Dictionary<string, SimpleHttpClientOptions> Clients { get; set; } = new();
 
     public IValidationResult Validate(IDictionary<string, object?>? context = null) {
         var result = base.Validate();

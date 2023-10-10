@@ -1,5 +1,3 @@
-using static DotNetToolbox.Http.Options.HttpClientAuthorizationType;
-
 namespace DotNetToolbox.Http;
 
 public class HttpClientBuilderTests {
@@ -107,9 +105,8 @@ public class HttpClientBuilderTests {
     [Fact]
     public void UseApiKey_FromConfiguration_AddsApiKeyHeader() {
         // Arrange
-        _defaultOptions.Authorization = new() {
-            Type = ApiKey,
-            Token = "abc123",
+        _defaultOptions.Authorization = new ApiKeyAuthorizationOptions {
+            ApiKey = "abc123",
         };
         var builder = CreateHttpClientBuilder();
 
@@ -124,6 +121,7 @@ public class HttpClientBuilderTests {
     [Fact]
     public void UseApiKey_WithInvalidOptions_Throws() {
         // Arrange
+        _defaultOptions.Authorization = new ApiKeyAuthorizationOptions();
         var builder = CreateHttpClientBuilder();
 
         // Act
@@ -142,9 +140,8 @@ public class HttpClientBuilderTests {
         const string expectedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.QhB54iWGzYFFKAjbZvfd6OMKYxVpG0wLJgxuI9OICN4";
         // ReSharper restore StringLiteralTypo
 
-        _defaultOptions.Authorization = new() {
-            Type = Jwt,
-            Secret = "ASecretValueWith256BitsOr32Chars",
+        _defaultOptions.Authorization = new JsonWebTokenAuthorizationOptions {
+            PrivateKey = "ASecretValueWith256BitsOr32Chars",
         };
         var builder = CreateHttpClientBuilder();
 
@@ -161,13 +158,12 @@ public class HttpClientBuilderTests {
     [Fact]
     public void UseJsonWebToken_WithInvalidOptions_Throws() {
         // Arrange
-        _defaultOptions.Authorization = new() {
-            Type = Jwt,
-        };
+        _defaultOptions.Authorization = new JsonWebTokenAuthorizationOptions();
         var builder = CreateHttpClientBuilder();
 
         // Act
-        var result = () => builder.UseJsonWebToken();
+        builder.UseJsonWebToken();
+        var result = () => builder.Build();
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
@@ -347,48 +343,15 @@ public class HttpClientBuilderTests {
 
     private HttpClientBuilder CreateHttpClientBuilder() {
         var factory = Substitute.For<IHttpClientFactory>();
-
-        var values = SetOptions(_defaultOptions);
-        values = _defaultOptions
-            .Clients
-            .Select(clientOptions => SetOptions(clientOptions.Value, clientOptions.Key))
-            .Aggregate(values, (current, clientValues) => clientValues
-            .Aggregate(current, (s, i) => s.Append(i).ToDictionary()));
-
-        var configBuilder = new ConfigurationBuilder();
-        configBuilder.AddInMemoryCollection(values);
-
-        var configuration = configBuilder.Build();
+        var options = Substitute.For<IOptions<HttpClientOptions>>();
+        options.Value.Returns(_defaultOptions);
+        var identityFactory = Substitute.For<IMsalHttpClientFactory>();
 
         var client = new HttpClient();
         factory.CreateClient(Arg.Any<string>()).Returns(client);
 
         // Act
-        var result = new HttpClientBuilder(factory, configuration);
+        var result = new HttpClientBuilder(factory, options, identityFactory);
         return result;
-    }
-
-    private static Dictionary<string, string?> SetOptions(HttpClientBasicOptions options, string? name = null) {
-        var clientPath = name is null ? string.Empty : $":Clients:{name}";
-        var values = new Dictionary<string, string?> {
-            [$"HttpClientOptions{clientPath}:BaseAddress"] = options.BaseAddress,
-            [$"HttpClientOptions{clientPath}:ResponseFormat"] = options.ResponseFormat,
-        };
-
-        if (options.Authorization is not null) {
-            values[$"HttpClientOptions{clientPath}:Authorization:Type"] = options.Authorization?.Type.ToString();
-            values[$"HttpClientOptions{clientPath}:Authorization:Scheme"] = options.Authorization?.Scheme?.ToString();
-            values[$"HttpClientOptions{clientPath}:Authorization:Token"] = options.Authorization?.Token;
-            values[$"HttpClientOptions{clientPath}:Authorization:Secret"] = options.Authorization?.Secret;
-        }
-
-        foreach (var customHeader in options.CustomHeaders) {
-            var items = customHeader.Value.ToArray();
-            for (var i = 0; i < items.Length; i++) {
-                values[$"HttpClientOptions{clientPath}:CustomHeaders:{customHeader.Key}:{i + 1}"] = items[i];
-            }
-        }
-
-        return values;
     }
 }
