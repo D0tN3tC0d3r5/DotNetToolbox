@@ -57,10 +57,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotNetToolbox.Azure.Abstractions\DotNetToolbox.Azure.Abstractions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
   </ItemGroup>
 

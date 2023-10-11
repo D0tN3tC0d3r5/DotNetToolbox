@@ -58,8 +58,4 @@
     <InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DotNetToolbox.Core.Abstractions\DotNetToolbox.Core.Abstractions.csproj" />
-  </ItemGroup>
-
 </Project>

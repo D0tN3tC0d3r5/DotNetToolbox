@@ -1,6 +1,4 @@
-﻿using System.Validation;
-
-namespace System.Results;
+﻿namespace System.Results;
 
 public interface ICreateValuedHttpResults<out TSelf, in TValue> {
     static abstract TSelf Ok(TValue value);

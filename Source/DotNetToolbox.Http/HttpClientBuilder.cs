@@ -32,7 +32,7 @@ public class HttpClientBuilder {
         return this;
     }
 
-    public HttpClientBuilder UseOauth2(Action<OAuth2TokenAuthorizationOptions>? configOptions = null) {
+    public HttpClientBuilder UseOAuth2Token(Action<OAuth2TokenAuthorizationOptions>? configOptions = null) {
         _options.Authorization ??= new OAuth2TokenAuthorizationOptions();
         configOptions?.Invoke((OAuth2TokenAuthorizationOptions)_options.Authorization);
         return this;
@@ -116,21 +116,23 @@ public class HttpClientBuilder {
         }
     }
 
+    internal AuthenticationResult? AuthenticationResult { get; set; }
+
     [ExcludeFromCodeCoverage]
     private AuthenticationResult AuthenticateClient(OAuth2TokenAuthorizationOptions options)
-        => CreateApplication(options)
-        .AcquireTokenForClient(options.Scopes)
-        .ExecuteAsync(CancellationToken.None)
-        .Result;
+        => AuthenticationResult ?? CreateApplication(options)
+          .AcquireTokenForClient(options.Scopes)
+          .ExecuteAsync(CancellationToken.None)
+          .Result;
 
     private IConfidentialClientApplication CreateApplication(OAuth2TokenAuthorizationOptions options) {
         var builder = ConfidentialClientApplicationBuilder
                      .Create(options.ClientId)
                      .WithHttpClientFactory(_identityClientFactory)
                      .WithClientSecret(options.ClientSecret);
-        if (string.IsNullOrWhiteSpace(options.TenantId))
+        if (!string.IsNullOrWhiteSpace(options.TenantId))
             builder.WithTenantId(options.TenantId);
-        if (string.IsNullOrWhiteSpace(options.Authority))
+        if (!string.IsNullOrWhiteSpace(options.Authority))
             builder.WithAuthority(options.Authority);
         return builder.Build();
     }

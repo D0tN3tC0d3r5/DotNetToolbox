@@ -1,6 +1,4 @@
-﻿using System.Results;
-
-namespace DotNetToolbox.Http.Options;
+﻿namespace DotNetToolbox.Http.Options;
 
 public class SimpleHttpClientOptions {
     public const string DefaultResponseFormat = "application/json";

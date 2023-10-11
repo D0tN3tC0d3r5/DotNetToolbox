@@ -1,6 +1,4 @@
-﻿using System.Results;
-
-namespace System.Validation;
+﻿namespace System.Validation;
 
 public interface IValidatable {
     IValidationResult Validate(IDictionary<string, object?>? context = null);

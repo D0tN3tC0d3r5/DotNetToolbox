@@ -1,6 +1,4 @@
-﻿using System.Validation;
-
-namespace System.Results;
+﻿namespace System.Results;
 
 public interface ICreateSignInResults<out TSelf> {
     static abstract TSelf Invalid([StringSyntax(CompositeFormat)] string message, params object?[] args);
