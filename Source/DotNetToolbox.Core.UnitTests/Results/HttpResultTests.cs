@@ -21,7 +21,7 @@ public class HttpResultTests {
     [Fact]
     public void CloneConstructor_ReturnsInstance() {
         // Act
-        var result = _ok with { ValidationErrors = new[] { _error } };
+        var result = _ok with { Errors = new[] { _error } };
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -70,7 +70,7 @@ public class HttpResultTests {
         ValidationResult result = _badRequest;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     private class TestDataForProperties : TheoryData<IHttpResult, bool, bool, bool, bool, bool, bool> {
@@ -223,7 +223,7 @@ public class HttpResultTests {
 
         // Assert
         result.IsOk.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -237,7 +237,7 @@ public class HttpResultTests {
 
         // Assert
         result.IsOk.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(4);
+        result.Errors.Should().HaveCount(4);
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public class HttpResultTests {
 
         // Assert
         result.IsOk.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.Errors.Should().ContainSingle();
     }
 
     private static readonly HttpResult<string> _okOfValue = HttpResult<string>.Ok("Value");
@@ -274,7 +274,7 @@ public class HttpResultTests {
     [Fact]
     public void CloneConstructor_OfValue_ReturnsInstance() {
         // Act
-        var result = _okOfValue with { ValidationErrors = new[] { _error } };
+        var result = _okOfValue with { Errors = new[] { _error } };
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -339,7 +339,7 @@ public class HttpResultTests {
         result.IsOk.Should().BeFalse();
         result.IsBadRequest.Should().BeTrue();
         result.Value.Should().Be("Value");
-        result.ValidationErrors.Should().HaveCount(3);
+        result.Errors.Should().HaveCount(3);
     }
 
     [Fact]
@@ -448,7 +448,7 @@ public class HttpResultTests {
         ValidationResult result = _badRequestOfValue;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]

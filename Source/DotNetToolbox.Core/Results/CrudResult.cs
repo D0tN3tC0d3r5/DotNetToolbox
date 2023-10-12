@@ -9,10 +9,10 @@ public sealed record CrudResult
         : base(CrudResultType.ValidationFailure, type, errors) {
     }
 
-    public bool IsFailure => HasErrors;
-    public bool IsSuccess => !HasErrors && Type is CrudResultType.Success;
-    public bool IsNotFound => !HasErrors && Type is CrudResultType.NotFound;
-    public bool IsConflict => !HasErrors && Type is CrudResultType.Conflict;
+    public bool IsFailure => IsInvalid;
+    public bool IsSuccess => IsValid && Type is CrudResultType.Success;
+    public bool IsNotFound => IsValid && Type is CrudResultType.NotFound;
+    public bool IsConflict => IsValid && Type is CrudResultType.Conflict;
 
     public static CrudResult Invalid([StringSyntax(CompositeFormat)] string message, params object?[] args)
         => new ValidationError(message, args);
@@ -31,14 +31,14 @@ public sealed record CrudResult
     public static implicit operator CrudResult(ValidationError error) => new[] { error };
     public static implicit operator CrudResult(ValidationError[] errors) => (ValidationResult)errors;
     public static implicit operator CrudResult(ValidationResult result)
-        => new(CrudResultType.ValidationFailure, IsNotNullOrEmpty(result.ValidationErrors));
+        => new(CrudResultType.ValidationFailure, IsNotNullOrEmpty(result.Errors));
 
     public static CrudResult operator +(CrudResult left, IValidationResult right)
-        => new(left.Type, left.ValidationErrors.Merge(right.ValidationErrors));
+        => new(left.Type, left.Errors.Merge(right.Errors));
     public static CrudResult operator +(CrudResult left, IEnumerable<ValidationError> errors)
-        => left.ValidationErrors.Merge(errors).ToArray();
+        => left.Errors.Merge(errors).ToArray();
     public static CrudResult operator +(CrudResult left, ValidationError error)
-        => new(left.Type, left.ValidationErrors.Merge(error));
+        => new(left.Type, left.Errors.Merge(error));
 
     public override bool Equals(CrudResult? other)
         => base.Equals(other);
@@ -57,10 +57,10 @@ public record CrudResult<TValue>
         Value = value;
     }
 
-    public bool IsFailure => HasErrors;
-    public bool IsSuccess => !HasErrors && Type is CrudResultType.Success;
-    public bool IsNotFound => !HasErrors && Type is CrudResultType.NotFound;
-    public bool IsConflict => !HasErrors && Type is CrudResultType.Conflict;
+    public bool IsFailure => IsInvalid;
+    public bool IsSuccess => IsValid && Type is CrudResultType.Success;
+    public bool IsNotFound => IsValid && Type is CrudResultType.NotFound;
+    public bool IsConflict => IsValid && Type is CrudResultType.Conflict;
     public TValue? Value { get; }
 
     public static implicit operator CrudResult<TValue>(TValue value)
@@ -70,21 +70,21 @@ public record CrudResult<TValue>
     public static implicit operator CrudResult<TValue>(ValidationError error) => new[] { error };
     public static implicit operator CrudResult<TValue>(ValidationError[] errors) => (ValidationResult)errors;
     public static implicit operator CrudResult<TValue>(ValidationResult result)
-        => new(CrudResultType.ValidationFailure, default, IsNotNullOrEmpty(result.ValidationErrors));
+        => new(CrudResultType.ValidationFailure, default, IsNotNullOrEmpty(result.Errors));
     public static implicit operator ValidationResult(CrudResult<TValue> result)
-        => result.ValidationErrors.ToArray();
+        => result.Errors.ToArray();
 
     public static CrudResult<TValue> operator +(CrudResult<TValue> left, IValidationResult right)
-        => new(left.Type, left.Value, left.ValidationErrors.Merge(right.ValidationErrors));
+        => new(left.Type, left.Value, left.Errors.Merge(right.Errors));
     public static CrudResult<TValue> operator +(CrudResult<TValue> left, IEnumerable<ValidationError> errors)
-        => new(left.Type, left.Value, left.ValidationErrors.Merge(errors));
+        => new(left.Type, left.Value, left.Errors.Merge(errors));
     public static CrudResult<TValue> operator +(CrudResult<TValue> left, ValidationError error)
-        => new(left.Type, left.Value, left.ValidationErrors.Merge(error));
+        => new(left.Type, left.Value, left.Errors.Merge(error));
 
     public ICrudResult<TNewValue> Map<TNewValue>(Func<TValue, TNewValue> map)
         => Value is null
             ? CrudResult<TNewValue>.NotFound()
-            : new(Type, map(Value), ValidationErrors);
+            : new(Type, map(Value), Errors);
 
     public override bool Equals(CrudResult<TValue>? other)
         => base.Equals(other)

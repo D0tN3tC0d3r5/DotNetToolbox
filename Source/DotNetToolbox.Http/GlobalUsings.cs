@@ -20,4 +20,7 @@ global using static System.Constants.ErrorMessages;
 global using static System.Ensure;
 global using static System.Results.ValidationResult;
 
+global using static DotNetToolbox.Http.AuthenticationScheme;
+global using static DotNetToolbox.Http.AuthenticationType;
+
 global using ValidationResult = System.Results.ValidationResult;

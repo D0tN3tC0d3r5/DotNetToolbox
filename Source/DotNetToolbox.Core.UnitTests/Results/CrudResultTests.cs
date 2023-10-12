@@ -19,10 +19,10 @@ public class CrudResultTests {
     [Fact]
     public void CloneConstructor_ReturnsInstance() {
         // Act
-        var result = _success with { ValidationErrors = new[] { _error with { Source = "SomeField" } } };
+        var result = _success with { Errors = new[] { _error with { Source = "SomeField" } } };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public class CrudResultTests {
         CrudResult result = new ValidationError("Some error {0}.", "Source");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class CrudResultTests {
         CrudResult result = new[] { new ValidationError("Some error {0}.", "Source") };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class CrudResultTests {
         CrudResult result = new List<ValidationError> { new("Some error {0}.", "Source") };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class CrudResultTests {
         ValidationResult result = _invalid;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     private class TestDataForProperties : TheoryData<CrudResult, bool, bool, bool, bool> {
@@ -171,7 +171,7 @@ public class CrudResultTests {
         result += ValidationResult.Success();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        result.IsValid.Should().BeTrue();
         result.IsFailure.Should().BeFalse();
     }
 
@@ -185,8 +185,8 @@ public class CrudResultTests {
         result += new ValidationError[] { new("Some error 3."), new("Some error 4.") };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(3);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(3);
     }
 
     [Fact]
@@ -199,8 +199,8 @@ public class CrudResultTests {
         result += new ValidationError[] { new("Some error 3."), new("Some error 4.") };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(4);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(4);
     }
 
     [Fact]
@@ -212,8 +212,8 @@ public class CrudResultTests {
         result += new ValidationError("Some error {0}.", "Source");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     private static readonly CrudResult<string> _successOfValue = CrudResult<string>.Success("Value");
@@ -234,10 +234,10 @@ public class CrudResultTests {
     [Fact]
     public void CloneConstructor_WithValue_ReturnsInstance() {
         // Act
-        var result = _successOfValue with { ValidationErrors = new[] { _error } };
+        var result = _successOfValue with { Errors = new[] { _error } };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     private class TestDataForPropertiesWithValue : TheoryData<CrudResult<string>, bool, bool, bool, bool> {
@@ -350,7 +350,7 @@ public class CrudResultTests {
 
         // Assert
         subject.Value.Should().Be("Value");
-        subject.IsSuccess.Should().BeTrue();
+        subject.IsValid.Should().BeTrue();
     }
 
     [Fact]
@@ -359,7 +359,7 @@ public class CrudResultTests {
         ValidationResult result = _invalidOfValue;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -368,7 +368,7 @@ public class CrudResultTests {
         CrudResult<string> result = new List<ValidationError> { new("Some error {0}.", "Source") };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -380,7 +380,7 @@ public class CrudResultTests {
         result += ValidationResult.Success();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        result.IsValid.Should().BeTrue();
         result.IsFailure.Should().BeFalse();
         result.Value.Should().Be("Value");
     }
@@ -394,7 +394,7 @@ public class CrudResultTests {
         result += new ValidationError("Some error {0}.", "Source");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
         result.IsFailure.Should().BeTrue();
         result.Value.Should().Be("Value");
     }

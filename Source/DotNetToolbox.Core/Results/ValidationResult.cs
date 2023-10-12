@@ -8,13 +8,13 @@ public sealed record ValidationResult
     private ValidationResult(IEnumerable<ValidationError>? errors = null)
         : base(ValidationResultType.Failure, ValidationResultType.Success, errors) { }
 
-    public bool IsFailure => HasErrors;
-    public bool IsSuccess => !HasErrors;
+    public bool IsFailure => IsInvalid;
+    public bool IsSuccess => IsValid;
 
     public static ValidationResult Failure([StringSyntax(CompositeFormat)] string message, params object?[] args)
         => new(new ValidationError(message, args));
     public static ValidationResult Failure(IValidationResult result)
-        => new((ValidationResult)result.ValidationErrors.ToArray());
+        => new((ValidationResult)result.Errors.ToArray());
     public static ValidationResult Failure(IEnumerable<ValidationError> errors)
         => errors.ToArray();
     public static ValidationResult Failure(ValidationError error)
@@ -30,18 +30,18 @@ public sealed record ValidationResult
     public static implicit operator ValidationResult(ValidationError[] errors)
         => new(errors.AsEnumerable());
     public static implicit operator ValidationResult(CrudResult result)
-        => result.ValidationErrors.ToArray();
+        => result.Errors.ToArray();
     public static implicit operator ValidationResult(HttpResult result)
-        => result.ValidationErrors.ToArray();
+        => result.Errors.ToArray();
     public static implicit operator ValidationResult(SignInResult result)
-        => result.ValidationErrors.ToArray();
+        => result.Errors.ToArray();
 
     public static ValidationResult operator +(ValidationResult left, IValidationResult right)
-        => left.ValidationErrors.Merge(right.ValidationErrors).ToArray();
+        => left.Errors.Merge(right.Errors).ToArray();
     public static ValidationResult operator +(ValidationResult left, IEnumerable<ValidationError> errors)
-        => left.ValidationErrors.Merge(errors).ToArray();
+        => left.Errors.Merge(errors).ToArray();
     public static ValidationResult operator +(ValidationResult left, ValidationError error)
-        => left.ValidationErrors.Merge(error).ToArray();
+        => left.Errors.Merge(error).ToArray();
 
     public override bool Equals(ValidationResult? other)
         => base.Equals(other);

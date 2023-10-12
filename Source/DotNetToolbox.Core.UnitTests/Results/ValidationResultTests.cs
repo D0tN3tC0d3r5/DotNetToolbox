@@ -19,10 +19,10 @@ public class ValidationResultTests {
     [Fact]
     public void CloneConstructor_ReturnsInstance() {
         // Act
-        var result = _success with { ValidationErrors = new[] { _error } };
+        var result = _success with { Errors = new[] { _error } };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public class ValidationResultTests {
         ValidationResult result = new ValidationError("Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class ValidationResultTests {
         ValidationResult result = new[] { new ValidationError("Some error.") };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class ValidationResultTests {
         ValidationResult result = new List<ValidationError> { new("Some error.") };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class ValidationResultTests {
         ValidationResult result = new Dictionary<string, string[]>() { ["SomeField"] = new[] { "Some error 1.", "Some error 1." } };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     private class TestDataForProperties : TheoryData<ValidationResult, bool, bool> {
@@ -72,7 +72,7 @@ public class ValidationResultTests {
     public void Properties_ShouldReturnAsExpected(ValidationResult subject, bool isInvalid, bool isSuccess) {
         // Assert
         subject.IsFailure.Should().Be(isInvalid);
-        subject.IsSuccess.Should().Be(isSuccess);
+        subject.IsValid.Should().Be(isSuccess);
     }
 
     private class TestDataForEquality : TheoryData<ValidationResult, ValidationResult?, bool> {
@@ -155,8 +155,8 @@ public class ValidationResultTests {
         result += other;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -169,7 +169,7 @@ public class ValidationResultTests {
         result += other;
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        result.IsValid.Should().BeTrue();
     }
 
     [Fact]
@@ -181,8 +181,8 @@ public class ValidationResultTests {
         result += new ValidationError("Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -195,15 +195,15 @@ public class ValidationResultTests {
         result += other;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().BeEquivalentTo(new[]
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().BeEquivalentTo(new[]
         {
             new ValidationError("Some error 1."),
             new ValidationError("Some error 2."),
             new ValidationError("Some error 3."),
             new ValidationError("Some error 4."),
         });
-        result.ValidationErrors.Should().HaveCount(4);
+        result.Errors.Should().HaveCount(4);
     }
 
     [Fact]
@@ -216,8 +216,8 @@ public class ValidationResultTests {
         result += other;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -229,8 +229,8 @@ public class ValidationResultTests {
         result += new ValidationError("Some other error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(2);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(2);
     }
 
     [Fact]
@@ -242,7 +242,7 @@ public class ValidationResultTests {
         result += new ValidationError("Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 }

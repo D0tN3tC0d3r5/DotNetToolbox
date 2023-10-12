@@ -3,7 +3,6 @@
 public interface ISignInResult : IResult<SignInResultType> {
     string? Token { get; }
 
-    bool IsInvalid { get; }
     bool IsLocked { get; }
     bool IsBlocked { get; }
     bool IsFailure { get; }

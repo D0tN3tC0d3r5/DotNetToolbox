@@ -1,8 +1,9 @@
 ﻿namespace System.Results;
 
 public interface IResult {
-    IReadOnlyList<ValidationError> ValidationErrors { get; }
-
+    IReadOnlyList<ValidationError> Errors { get; }
+    bool IsValid { get; }
+    bool IsInvalid { get; }
     void EnsureIsValid(string? message = null);
 }
 

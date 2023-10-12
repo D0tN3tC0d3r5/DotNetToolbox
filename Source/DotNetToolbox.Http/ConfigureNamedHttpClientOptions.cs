@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Http.Options;
+﻿namespace DotNetToolbox.Http;
 
 public class ConfigureNamedHttpClientOptions : IConfigureNamedOptions<HttpClientOptions> {
     public void Configure(string? name, HttpClientOptions options) {

@@ -109,6 +109,18 @@ public static class Ensure {
     }
 
     [return: NotNull]
+    public static TArgument IsValid<TArgument>(TArgument? argument, Func<TArgument?, ValidationResult> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        validate(IsNotNull(argument)).EnsureIsValid();
+        return argument!;
+    }
+
+    public static TArgument? IsValidOrNull<TArgument>(TArgument? argument, Func<TArgument?, ValidationResult> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        if (argument is null) return argument;
+        validate(argument).EnsureIsValid();
+        return argument;
+    }
+
+    [return: NotNull]
     public static TItem ArgumentExistsAndIsOfType<TItem>(string methodName, IReadOnlyList<object?> arguments, uint argumentIndex, [CallerArgumentExpression(nameof(arguments))] string? paramName = null)
         => argumentIndex >= arguments.Count
             ? throw new ArgumentException($"Invalid number of arguments for '{methodName}'. Missing argument {argumentIndex}.", paramName)
@@ -118,9 +130,8 @@ public static class Ensure {
 
     public static TItem[] ArgumentsAreAllOfType<TItem>(string methodName, IReadOnlyList<object?> arguments, [CallerArgumentExpression(nameof(arguments))] string? paramName = null) {
         var list = IsNotNullOrEmptyAndDoesNotContainNull(arguments, paramName);
-        for (var index = 0; index < list.Count; index++) {
+        for (var index = 0; index < list.Count; index++)
             ArgumentExistsAndIsOfType<TItem>(methodName, arguments, (uint)index, paramName);
-        }
 
         return list.Cast<TItem>().ToArray();
     }
@@ -137,9 +148,7 @@ public static class Ensure {
 
     public static TItem?[] ArgumentsAreAllOfTypeOrDefault<TItem>(string methodName, IReadOnlyList<object?> arguments, [CallerArgumentExpression(nameof(arguments))] string? paramName = null) {
         var list = IsNotNullOrEmpty(arguments, paramName);
-        for (var index = 0; index < list.Count; index++) {
-            ArgumentExistsAndIsOfTypeOrDefault<TItem>(methodName, arguments, (uint)index, paramName);
-        }
+        for (var index = 0; index < list.Count; index++) ArgumentExistsAndIsOfTypeOrDefault<TItem>(methodName, arguments, (uint)index, paramName);
 
         return list.Select(i => i is null ? default : (TItem)i).ToArray();
     }

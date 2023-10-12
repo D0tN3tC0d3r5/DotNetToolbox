@@ -10,13 +10,12 @@ public sealed record SignInResult
         Token = token;
     }
 
-    public bool IsInvalid => HasErrors;
-    public bool IsLocked => !HasErrors && Type == SignInResultType.Locked;
-    public bool IsBlocked => !HasErrors && Type == SignInResultType.Blocked;
-    public bool IsFailure => !HasErrors && Type == SignInResultType.Failure;
-    public bool IsConfirmationRequired => !HasErrors && Type == SignInResultType.ConfirmationRequired;
-    public bool IsTwoFactorRequired => !HasErrors && Type == SignInResultType.TwoFactorRequired;
-    public bool IsSuccess => !HasErrors && Type == SignInResultType.Success;
+    public bool IsLocked => IsValid && Type is SignInResultType.Locked;
+    public bool IsBlocked => IsValid && Type is SignInResultType.Blocked;
+    public bool IsFailure => IsValid && Type is SignInResultType.Failure;
+    public bool IsConfirmationRequired => IsValid && Type is SignInResultType.ConfirmationRequired;
+    public bool IsTwoFactorRequired => IsValid && Type is SignInResultType.TwoFactorRequired;
+    public bool IsSuccess => IsValid && Type is SignInResultType.Success;
     public string? Token { get; }
 
     public static SignInResult Invalid([StringSyntax(CompositeFormat)] string message, params object?[] args)
@@ -46,14 +45,14 @@ public sealed record SignInResult
     public static implicit operator SignInResult(ValidationError[] errors)
         => (ValidationResult)errors;
     public static implicit operator SignInResult(ValidationResult result)
-        => new(SignInResultType.ValidationFailure, null, IsNotNullOrEmpty(result.ValidationErrors));
+        => new(SignInResultType.ValidationFailure, null, IsNotNullOrEmpty(result.Errors));
 
     public static SignInResult operator +(SignInResult left, IValidationResult right)
-        => new(left.Type, right.ValidationErrors.Count != 0 ? null : left.Token, left.ValidationErrors.Merge(right.ValidationErrors));
+        => new(left.Type, right.Errors.Count != 0 ? null : left.Token, left.Errors.Merge(right.Errors));
     public static SignInResult operator +(SignInResult left, IEnumerable<ValidationError> errors)
-        => new(left.Type, null, left.ValidationErrors.Merge(errors));
+        => new(left.Type, null, left.Errors.Merge(errors));
     public static SignInResult operator +(SignInResult left, ValidationError error)
-        => new(left.Type, null, left.ValidationErrors.Merge(error));
+        => new(left.Type, null, left.Errors.Merge(error));
 
     public override bool Equals(SignInResult? other)
         => base.Equals(other)

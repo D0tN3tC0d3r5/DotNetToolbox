@@ -24,10 +24,10 @@ public class SignInResultTests {
     [Fact]
     public void CloneConstructor_ReturnsInstance() {
         // Act
-        var result = _success with { ValidationErrors = new[] { _error } };
+        var result = _success with { Errors = new[] { _error } };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class SignInResultTests {
         ValidationResult result = _invalid;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
     }
 
     private class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
@@ -191,7 +191,7 @@ public class SignInResultTests {
         result += ValidationResult.Success();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        result.IsValid.Should().BeTrue();
         result.IsFailure.Should().BeFalse();
         result.Token.Should().Be("SomeToken");
     }
@@ -205,8 +205,8 @@ public class SignInResultTests {
         result += ValidationResult.Failure("Some {1} for {0}.", "Source", "error");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
         result.Token.Should().BeNull();
     }
 
@@ -219,8 +219,8 @@ public class SignInResultTests {
         result += _error;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
         result.Token.Should().BeNull();
     }
 
@@ -234,8 +234,8 @@ public class SignInResultTests {
         result += new ValidationError[] { new("Some error 3."), new("Some error 4.") };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().HaveCount(4);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(4);
     }
 
     [Fact]
@@ -247,7 +247,7 @@ public class SignInResultTests {
         result += _error;
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ValidationErrors.Should().ContainSingle();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 }
