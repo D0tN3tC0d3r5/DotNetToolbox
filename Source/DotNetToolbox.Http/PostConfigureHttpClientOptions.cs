@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Http;
 
-public class PostConfigureHttpClientOptions : IPostConfigureOptions<HttpClientOptions> {
-    public void PostConfigure(string? name, HttpClientOptions options)
+public class PostConfigureHttpClientOptions : IPostConfigureOptions<HttpClientConfiguration> {
+    public void PostConfigure(string? name, HttpClientConfiguration config)
         => throw new NotImplementedException();
 }

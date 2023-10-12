@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Http;
 
-public record HttpClientAuthentication {
+public record HttpAuthentication {
     public AuthenticationType Type { get; init; } = None;
     public string Value { get; init; } = string.Empty;
     public AuthenticationScheme Scheme { get; init; } = Basic;
@@ -10,6 +10,6 @@ public record HttpClientAuthentication {
                                         && string.IsNullOrWhiteSpace(Value)
                                         && (ExpiresOn is null || (ExpiresOn > DateTime.UtcNow));
 
-    public static implicit operator AuthenticationHeaderValue(HttpClientAuthentication auth)
+    public static implicit operator AuthenticationHeaderValue(HttpAuthentication auth)
         => new(auth.Scheme.ToString(), auth.Value);
 }

@@ -12,6 +12,8 @@ global using DotNetToolbox.Http.Extensions;
 global using DotNetToolbox.Http.Options;
 
 global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Options;
 global using Microsoft.Identity.Client;
 global using Microsoft.IdentityModel.Tokens;

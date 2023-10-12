@@ -20,27 +20,27 @@ public record OAuth2TokenAuthenticationOptions : AuthenticationOptions {
     public string[] Scopes { get; set; } = Array.Empty<string>();
     internal IMsalHttpClientFactory? HttpClientFactory { get; set; }
 
-    internal override ValidationResult Validate(string? httpClientName = null) {
-        var result = base.Validate(httpClientName);
+    internal override ValidationResult Validate() {
+        var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(ClientId))
-            result += new ValidationError(CannotBeNullOrWhiteSpace, GetSource(httpClientName, nameof(ClientId)));
+            result += new ValidationError(CannotBeNullOrWhiteSpace, nameof(ClientId));
 
         if (string.IsNullOrEmpty(ClientSecret))
-            result += new ValidationError(CannotBeNullOrEmpty, GetSource(httpClientName, nameof(ClientSecret)));
+            result += new ValidationError(CannotBeNullOrEmpty, nameof(ClientSecret));
 
         if (Scopes.Length == 0)
-            result += new ValidationError(CannotBeEmpty, GetSource(httpClientName, nameof(Scopes)));
+            result += new ValidationError(CannotBeEmpty, nameof(Scopes));
 
         return result;
     }
 
-    internal override void Configure(HttpClient client, ref HttpClientAuthentication authentication) {
+    internal override void Configure(HttpClient client, ref HttpAuthentication authentication) {
         if (!authentication.IsValid(OAuth2)) authentication = AcquireOauth2Token();
         client.DefaultRequestHeaders.Authorization = authentication;
     }
 
-    private HttpClientAuthentication AcquireOauth2Token() {
+    private HttpAuthentication AcquireOauth2Token() {
         try {
             var result = AuthenticateClient();
             return new() {

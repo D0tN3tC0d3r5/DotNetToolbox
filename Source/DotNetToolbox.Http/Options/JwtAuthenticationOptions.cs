@@ -21,21 +21,21 @@ public record JwtAuthenticationOptions : AuthenticationOptions {
     public IReadOnlyList<Claim> Claims { get; set; } = Array.Empty<Claim>();
     public TimeSpan? ExpiresAfter { get; set; }
 
-    internal override ValidationResult Validate(string? httpClientName = null) {
-        var result = base.Validate(httpClientName);
+    internal override ValidationResult Validate() {
+        var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(PrivateKey))
-            result += new ValidationError(CannotBeNullOrWhiteSpace, GetSource(httpClientName, nameof(PrivateKey)));
+            result += new ValidationError(CannotBeNullOrWhiteSpace, nameof(PrivateKey));
 
         return result;
     }
 
-    internal override void Configure(HttpClient client, ref HttpClientAuthentication authentication) {
+    internal override void Configure(HttpClient client, ref HttpAuthentication authentication) {
         if (!authentication.IsValid(Jwt)) authentication = CreateJwtToken();
         client.DefaultRequestHeaders.Authorization = authentication;
     }
 
-    private HttpClientAuthentication CreateJwtToken() {
+    private HttpAuthentication CreateJwtToken() {
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(PrivateKey!));
         var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 

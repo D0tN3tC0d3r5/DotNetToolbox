@@ -14,16 +14,16 @@ public record ApiKeyAuthenticationOptions : AuthenticationOptions {
 
     public string ApiKey { get; set; } = string.Empty;
 
-    internal override ValidationResult Validate(string? httpClientName = null) {
-        var result = base.Validate(httpClientName);
+    internal override ValidationResult Validate() {
+        var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(ApiKey))
-            result += new ValidationError(CannotBeNullOrWhiteSpace, GetSource(httpClientName, nameof(ApiKey)));
+            result += new ValidationError(CannotBeNullOrWhiteSpace, nameof(ApiKey));
 
         return result;
     }
 
-    internal override void Configure(HttpClient client, ref HttpClientAuthentication authentication) {
+    internal override void Configure(HttpClient client, ref HttpAuthentication authentication) {
         authentication = new() {
             Type = AuthenticationType.ApiKey,
             Value = ApiKey,
