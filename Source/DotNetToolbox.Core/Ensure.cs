@@ -109,12 +109,19 @@ public static class Ensure {
     }
 
     [return: NotNull]
-    public static TArgument IsValid<TArgument>(TArgument? argument, Func<TArgument?, ValidationResult> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
-        validate(IsNotNull(argument)).EnsureIsValid(GetErrorMessage(IsNotValid, paramName));
-        return argument!;
-    }
+    public static TArgument IsValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IValidatable
+        => IsValid(argument, arg => arg.Validate(), paramName);
 
-    public static TArgument? IsValidOrNull<TArgument>(TArgument? argument, Func<TArgument?, ValidationResult> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+    [return: NotNull]
+    public static TArgument IsValid<TArgument>(TArgument? argument, Func<TArgument, ValidationResult> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => IsValidOrNull(IsNotNull(argument), validate, paramName)!;
+
+    public static TArgument? IsValidOrNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IValidatable
+        => IsValidOrNull(argument, arg => arg.Validate(), paramName);
+
+    public static TArgument? IsValidOrNull<TArgument>(TArgument? argument, Func<TArgument, ValidationResult> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
         if (argument is null) return argument;
         validate(argument).EnsureIsValid(GetErrorMessage(IsNotValid, paramName));
         return argument;

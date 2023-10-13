@@ -1,19 +1,6 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public record JwtAuthenticationOptions : AuthenticationOptions {
-
-    public JwtAuthenticationOptions() {
-    }
-
-    [SetsRequiredMembers]
-    public JwtAuthenticationOptions(IConfiguration config)
-        : this() {
-        ExpiresAfter = config.GetValue<TimeSpan?>(nameof(ExpiresAfter));
-        Audience = config.GetValue<string>(nameof(Audience));
-        Issuer = config.GetValue<string>(nameof(Issuer));
-        Claims = config.GetValue<Claim[]>(nameof(Claims)) ?? Array.Empty<Claim>();
-        PrivateKey = IsNotNullOrWhiteSpace(config.GetValue<string>(nameof(PrivateKey)));
-    }
+public class JwtAuthenticationOptions : AuthenticationOptions {
 
     public string? PrivateKey { get; set; }
     public string? Issuer { get; set; }
@@ -35,11 +22,13 @@ public record JwtAuthenticationOptions : AuthenticationOptions {
         client.DefaultRequestHeaders.Authorization = authentication;
     }
 
+    internal DateTimeProvider DateTimeProvider { get; set; } = new();
+
     private HttpAuthentication CreateJwtToken() {
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(PrivateKey!));
         var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
-        var expiration = DateTime.UtcNow + ExpiresAfter;
+        var expiration = DateTimeProvider.UtcNow + ExpiresAfter;
         var tokenOptions = new JwtSecurityToken(Issuer,
                                                 Audience,
                                                 Claims,
@@ -48,6 +37,7 @@ public record JwtAuthenticationOptions : AuthenticationOptions {
                                                 signingCredentials);
 
         return new() {
+            DateTimeProvider = DateTimeProvider,
             Type = Jwt,
             Value = new JwtSecurityTokenHandler().WriteToken(tokenOptions),
             Scheme = Bearer,

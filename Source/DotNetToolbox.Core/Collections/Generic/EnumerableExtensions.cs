@@ -9,11 +9,11 @@ public static class EnumerableExtensions {
 
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
         where TKey : notnull
-        => IsNotNull(source).ToDictionary(i => i.Key, i => i.Value);
+        => IsNotNull(source).ToDictionary<TKey, TValue>(i => i);
 
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Func<TValue, TValue> transform)
         where TKey : notnull
-        => IsNotNull(source).ToDictionary(i => i.Key, i => transform(i.Value));
+        => IsNotNull(source).ToDictionary<TKey, TValue, TValue>(transform);
 
     public static Dictionary<TKey, TOutputValue> ToDictionary<TKey, TInputValue, TOutputValue>(this IEnumerable<KeyValuePair<TKey, TInputValue>> source, Func<TInputValue, TOutputValue> transform)
         where TKey : notnull

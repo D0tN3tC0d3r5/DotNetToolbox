@@ -1,23 +1,13 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public record OAuth2TokenAuthenticationOptions : AuthenticationOptions {
-    public OAuth2TokenAuthenticationOptions() {
-    }
-
-    [SetsRequiredMembers]
-    public OAuth2TokenAuthenticationOptions(IConfiguration config)
-        : this() {
-        TenantId = config.GetValue<string>(nameof(TenantId));
-        ClientId = config.GetValue<string>(nameof(ClientId));
-        ClientSecret = config.GetValue<string>(nameof(ClientSecret));
-        Authority = config.GetValue<string>(nameof(Authority));
-    }
-
+public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
     public string? TenantId { get; set; }
     public string? ClientId { get; set; }
     public string? ClientSecret { get; set; }
     public string? Authority { get; set; }
     public string[] Scopes { get; set; } = Array.Empty<string>();
+    public Guid CorrelationId { get; private set; }
+
     internal IMsalHttpClientFactory? HttpClientFactory { get; set; }
 
     internal override ValidationResult Validate() {
@@ -40,14 +30,17 @@ public record OAuth2TokenAuthenticationOptions : AuthenticationOptions {
         client.DefaultRequestHeaders.Authorization = authentication;
     }
 
+    internal DateTimeProvider DateTimeProvider { get; set; } = new();
+
     private HttpAuthentication AcquireOauth2Token() {
         try {
             var result = AuthenticateClient();
             return new() {
+                DateTimeProvider = DateTimeProvider,
                 Type = OAuth2,
                 Value = result.AccessToken,
                 Scheme = Bearer,
-                ExpiresOn = result.ExpiresOn.ToUniversalTime().DateTime
+                ExpiresOn = result.ExpiresOn.DateTime,
             };
         }
         catch (Exception ex) {
@@ -59,10 +52,12 @@ public record OAuth2TokenAuthenticationOptions : AuthenticationOptions {
 
     [ExcludeFromCodeCoverage]
     private AuthenticationResult AuthenticateClient()
-        => AuthenticationResult ?? CreateApplication()
-                                  .AcquireTokenForClient(Scopes)
-                                  .ExecuteAsync(CancellationToken.None)
-                                  .Result;
+        => AuthenticationResult
+        ?? CreateApplication()
+        .AcquireTokenForClient(Scopes)
+        .WithCorrelationId(CorrelationId)
+        .ExecuteAsync(CancellationToken.None)
+        .Result;
 
     private IConfidentialClientApplication CreateApplication() {
         var builder = ConfidentialClientApplicationBuilder
@@ -73,6 +68,7 @@ public record OAuth2TokenAuthenticationOptions : AuthenticationOptions {
             builder.WithTenantId(TenantId);
         if (!string.IsNullOrWhiteSpace(Authority))
             builder.WithAuthority(Authority);
+        CorrelationId = Guid.NewGuid();
         return builder.Build();
     }
 }

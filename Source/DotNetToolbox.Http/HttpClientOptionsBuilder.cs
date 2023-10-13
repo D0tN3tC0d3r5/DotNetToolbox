@@ -5,10 +5,13 @@ internal class HttpClientOptionsBuilder : IHttpClientOptionsBuilder {
     private readonly IMsalHttpClientFactory _identityClientFactory;
     private readonly HttpClientOptions _options;
     private readonly string? _name;
+    private readonly HttpClientConfiguration _configuration;
+
     internal HttpClientOptionsBuilder(string? name, HttpClientConfiguration configuration, IMsalHttpClientFactory identityClientFactory) {
         _name = name;
+        _configuration = IsNotNull(configuration);
         _identityClientFactory = IsNotNull(identityClientFactory);
-        _options = IsNotNull(configuration).ResolveOptionsFor(name);
+        _options = _configuration.ResolveOptionsFor(name);
     }
 
     public IHttpClientOptionsBuilder SetBaseAddress(string baseAddress) {
@@ -50,7 +53,7 @@ internal class HttpClientOptionsBuilder : IHttpClientOptionsBuilder {
 
     private IHttpClientOptionsBuilder SetAuthentication<T>(Action<T> configAuthentication)
         where T : AuthenticationOptions, new() {
-        _options.Authentication = new T();
+        _options.Authentication = _configuration.Authentication ?? new T();
         configAuthentication((T)_options.Authentication);
         if (_options.Authentication is OAuth2TokenAuthenticationOptions oAuth2Options)
             oAuth2Options.HttpClientFactory = _identityClientFactory;

@@ -1,4 +1,7 @@
+using System.Results;
+
 using static System.Ensure;
+using static System.Results.ValidationResult;
 
 namespace System;
 
@@ -225,6 +228,43 @@ public class EnsureTests {
         var input = new[] { "Hello" };
         var result = IsNotNullOrEmptyAndDoesNotContainNullOrWhiteSpace(input);
         result.Should().BeSameAs(input);
+    }
+
+    private class ValidatableObject : IValidatable {
+        private readonly bool _isValid;
+
+        public ValidatableObject(bool isValid) {
+            _isValid = isValid;
+        }
+        public ValidationResult Validate(IDictionary<string, object?>? context = null)
+            => _isValid ? Success() : Failure("Is not valid.");
+    }
+
+    [Fact]
+    public void IsValid_WhenNotValid_ThrowsValidationException() {
+        var input = new ValidatableObject(isValid: false);
+        var result = () => IsValid(input);
+        result.Should().Throw<ValidationException>();
+    }
+
+    [Fact]
+    public void IsValid_WhenValid_ReturnsSame() {
+        var input = new ValidatableObject(isValid: true);
+        var result = IsValid(input);
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void IsValidOrNull_WhenValid_ReturnsSame() {
+        var input = new ValidatableObject(isValid: true);
+        var result = IsValidOrNull(input);
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void IsValidOrNull_WhenNull_ReturnsNull() {
+        var result = IsValidOrNull<ValidatableObject>(null);
+        result.Should().BeNull();
     }
 
     [Fact]

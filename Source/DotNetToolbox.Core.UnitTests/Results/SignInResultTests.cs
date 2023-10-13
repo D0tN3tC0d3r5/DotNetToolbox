@@ -66,6 +66,33 @@ public class SignInResultTests {
         result.IsValid.Should().BeFalse();
     }
 
+    [Fact]
+    public void EnsureIsValid_WhenValid_DoesNotThrow() {
+        // Act
+        var result = () => _success.EnsureIsValid();
+
+        // Assert
+        result.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureIsValid_WhenInvalid_WithMessage_Throws() {
+        // Act
+        var result = () => _invalid.EnsureIsValid("Is invalid");
+
+        // Assert
+        result.Should().Throw<ValidationException>();
+    }
+
+    [Fact]
+    public void EnsureIsValid_WhenInvalid_WithoutMessage_Throws() {
+        // Act
+        var result = () => _invalid.EnsureIsValid();
+
+        // Assert
+        result.Should().Throw<ValidationException>();
+    }
+
     private class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
         public TestDataForProperties() {
             Add(_invalid, true, false, false, false, false, false, false);

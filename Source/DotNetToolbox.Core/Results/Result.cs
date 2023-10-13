@@ -16,7 +16,7 @@ public abstract record Result<TResult, TType> : IResult<TType>
     public bool IsInvalid => Errors.Count != 0;
 
     public void EnsureIsValid(string? message = null) { 
-        if (!IsValid) throw new ValidationException(message, Errors);
+        if (!IsValid) throw new ValidationException(Errors, message);
     }
 
     public virtual bool Equals(TResult? other)

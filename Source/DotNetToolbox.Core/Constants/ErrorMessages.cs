@@ -23,6 +23,5 @@ public static class ErrorMessages {
     public static string CannotContainNullOrEmpty => "'{0}' cannot contain null or empty string(s).";
     public static string CannotContainNullOrWhitespace => "'{0}' cannot contain null or whitespace string(s).";
     public static string MustBeOfType => "'{0}' must be of type '{1}'. Found: '{2}'.";
-    public static string MustBe => "'{0}' must be '{1}'. Found: '{2}'.";
     public static string IsNotValid => "'{0}' is not valid.";
 }

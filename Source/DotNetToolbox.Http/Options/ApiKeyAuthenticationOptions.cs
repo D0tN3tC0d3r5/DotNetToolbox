@@ -1,16 +1,7 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public record ApiKeyAuthenticationOptions : AuthenticationOptions {
+public class ApiKeyAuthenticationOptions : AuthenticationOptions {
     private const string _apiKeyHeaderKey = "x-api-key";
-
-    public ApiKeyAuthenticationOptions() {
-    }
-
-    [SetsRequiredMembers]
-    public ApiKeyAuthenticationOptions(IConfiguration config)
-        : this() {
-        ApiKey = IsNotNullOrWhiteSpace(config.GetValue<string>(nameof(ApiKey)));
-    }
 
     public string ApiKey { get; set; } = string.Empty;
 

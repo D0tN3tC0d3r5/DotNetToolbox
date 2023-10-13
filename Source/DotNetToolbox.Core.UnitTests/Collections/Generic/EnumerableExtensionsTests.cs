@@ -24,6 +24,22 @@ public class EnumerableExtensionsTests {
     }
 
     [Fact]
+    public void ToDictionary_GetsDictionary() {
+        // Arrange
+        var input = new Dictionary<string, int>() {
+            ["One"] = 1,
+            ["Two"] = 2,
+        };
+
+        // Act
+        var result = input.ToDictionary();
+
+        // Assert
+        result.Should().BeOfType<Dictionary<string, int>>();
+        result.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void ToArray_WithOutput_FromNull_GetsArray() {
         // Arrange
         IEnumerable<int>? subject = default;
