@@ -66,7 +66,7 @@ public static class TaskExtensions {
 
     private static async void HandleFireAndForget(ValueTask task, Action<ValueTask, CancellationToken, Task?>? onCancel, Action<ValueTask, Exception>? onException) {
         try {
-            await IsNotNull(task).ConfigureAwait(false); // Fire and forget do not need to resume on the captured context
+            await IsNotNull(task).ConfigureAwait(false); // Fire and forget do not need to capture the current context
         }
         catch (TaskCanceledException ex) {
             onCancel?.Invoke(task, ex.CancellationToken, ex.Task);
@@ -78,7 +78,7 @@ public static class TaskExtensions {
 
     private static async void HandleFireAndForget<TResult>(ValueTask<TResult> task, Action<TResult> onResult, Action<ValueTask<TResult>, CancellationToken, Task?>? onCancel, Action<ValueTask<TResult>, Exception>? onException) {
         try {
-            var result = await IsNotNull(task).ConfigureAwait(false); // Fire and forget do not need to resume on the captured context
+            var result = await IsNotNull(task).ConfigureAwait(false); // Fire and forget do not need to capture the current context
             onResult(result);
         }
         catch (TaskCanceledException ex) {
@@ -91,7 +91,7 @@ public static class TaskExtensions {
 
     private static async void HandleFireAndForget(Task task, Action<Task, CancellationToken, Task?>? onCancel, Action<Task, Exception>? onException) {
         try {
-            await IsNotNull(task).ConfigureAwait(false); // Fire and forget do not need to resume on the captured context
+            await IsNotNull(task).ConfigureAwait(false); // Fire and forget do not need to capture the current context
         }
         catch (TaskCanceledException ex) {
             onCancel?.Invoke(task, ex.CancellationToken, ex.Task);
@@ -103,7 +103,7 @@ public static class TaskExtensions {
 
     private static async void HandleFireAndForget<TResult>(Task<TResult> task, Action<TResult> onResult, Action<Task<TResult>, CancellationToken, Task?>? onCancel, Action<Task<TResult>, Exception>? onException) {
         try {
-            var result = await IsNotNull(task).ConfigureAwait(false); // Fire and forget do not need to resume on the captured context
+            var result = await IsNotNull(task).ConfigureAwait(false); // Fire and forget do not need to capture the current context
             onResult(result);
         }
         catch (TaskCanceledException ex) {
