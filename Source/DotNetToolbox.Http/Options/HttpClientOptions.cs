@@ -11,7 +11,7 @@ public class HttpClientOptions  {
 
     public AuthenticationOptions? Authentication { get; set; }
 
-    public ValidationResult Validate() {
+    public Result Validate() {
         var result = Success();
 
         if (string.IsNullOrWhiteSpace(BaseAddress))

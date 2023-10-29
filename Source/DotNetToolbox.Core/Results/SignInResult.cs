@@ -1,63 +1,74 @@
-﻿namespace System.Results;
+﻿using static System.Ensure;
 
-public sealed record SignInResult
-    : Result<SignInResult, SignInResultType>
-    , ISignInResult
-    , ICreateSignInResults<SignInResult>
-    , IResultOperators<SignInResult> {
+namespace System.Results;
+
+public sealed record SignInResult : Result {
+    private const string _invalidInvalidSignInCreation =
+        """
+        To create an invalid result assigned the errors directly.
+        i.e. SingInResult result = new ValidationError(...);
+        """;
+    private const string _invalidSuccessfulSignInCreation =
+        """
+        To make a successful result assigned the token to it.
+        i.e. SingInResult result = "[Token]";
+        """;
+
+    private SignInResultType _type;
+
     private SignInResult(SignInResultType type, string? token = null, IEnumerable<ValidationError>? errors = null)
-        : base(SignInResultType.ValidationFailure, type, errors) {
-        Token = token;
+        : base(errors) {
+        _type = HasErrors ? SignInResultType.Invalid : type;
+        Token = IsSuccess ? IsNotNull(token) : null;
     }
 
-    public bool IsLocked => IsValid && Type is SignInResultType.Locked;
-    public bool IsBlocked => IsValid && Type is SignInResultType.Blocked;
-    public bool IsFailure => IsValid && Type is SignInResultType.Failure;
-    public bool IsConfirmationRequired => IsValid && Type is SignInResultType.ConfirmationRequired;
-    public bool IsTwoFactorRequired => IsValid && Type is SignInResultType.TwoFactorRequired;
-    public bool IsSuccess => IsValid && Type is SignInResultType.Success;
-    public string? Token { get; }
+    public string? Token { get; private set; }
 
-    public static SignInResult Invalid([StringSyntax(CompositeFormat)] string message, params object?[] args)
-        => new ValidationError(message, args);
-    public static SignInResult Invalid(IValidationResult result)
-        => (ValidationResult)result;
-    public static SignInResult Invalid(IEnumerable<ValidationError> errors)
-        => errors.ToArray();
-    public static SignInResult Invalid(ValidationError error)
-        => (ValidationError)error;
+    public bool IsLocked => _type is SignInResultType.Locked;
+    public bool IsBlocked => _type is SignInResultType.Blocked;
+    public bool IsFailure => _type is SignInResultType.Failed;
+    public bool RequiresConfirmation => _type is SignInResultType.ConfirmationRequired;
+    public bool RequiresTwoFactor => _type is SignInResultType.TwoFactorRequired;
+    public override bool IsSuccess => _type is SignInResultType.Success;
 
     public static SignInResult ConfirmationRequired(string token)
-        => new(SignInResultType.ConfirmationRequired, IsNotNull(token));
+        => new(SignInResultType.ConfirmationRequired, token);
     public static SignInResult TwoFactorRequired(string token)
-        => new(SignInResultType.TwoFactorRequired, IsNotNull(token));
+        => new(SignInResultType.TwoFactorRequired, token);
     public static SignInResult Success(string token)
-        => new(SignInResultType.Success, IsNotNull(token));
+        => new(SignInResultType.Success, token);
+    public static new SignInResult Invalid(string message, string source, params object?[] args)
+        => new(SignInResultType.Invalid, null, new ValidationError[] { new(message, source, args) });
+    public static SignInResult Invalid(Result result)
+        => new(SignInResultType.Invalid, null, result.Errors);
 
     public static SignInResult Blocked() => new(SignInResultType.Blocked);
     public static SignInResult Locked() => new(SignInResultType.Locked);
-    public static SignInResult Failure() => new(SignInResultType.Failure);
+    public static SignInResult Failure() => new(SignInResultType.Failed);
 
     public static implicit operator SignInResult(List<ValidationError> errors)
-        => errors.ToArray();
-    public static implicit operator SignInResult(ValidationError error)
-        => new[] { error };
+        => new(SignInResultType.Invalid, null, errors);
     public static implicit operator SignInResult(ValidationError[] errors)
-        => (ValidationResult)errors;
-    public static implicit operator SignInResult(ValidationResult result)
-        => new(SignInResultType.ValidationFailure, null, IsNotNullOrEmpty(result.Errors));
+        => new(SignInResultType.Invalid, null, errors);
+    public static implicit operator SignInResult(ValidationError error)
+        => new(SignInResultType.Invalid, null, new[] { error }.AsEnumerable());
+    public static implicit operator SignInResult(string token)
+        => new(SignInResultType.Success, token);
+    public static implicit operator SignInResult(SignInResultType resultType)
+        => resultType switch {
+            SignInResultType.Invalid => throw new InvalidCastException(_invalidInvalidSignInCreation),
+            SignInResultType.Success or SignInResultType.TwoFactorRequired => throw new InvalidCastException(_invalidSuccessfulSignInCreation),
+            _ => new(resultType),
+        };
 
-    public static SignInResult operator +(SignInResult left, IValidationResult right)
-        => new(left.Type, right.Errors.Count != 0 ? null : left.Token, left.Errors.Merge(right.Errors));
-    public static SignInResult operator +(SignInResult left, IEnumerable<ValidationError> errors)
-        => new(left.Type, null, left.Errors.Merge(errors));
-    public static SignInResult operator +(SignInResult left, ValidationError error)
-        => new(left.Type, null, left.Errors.Merge(error));
+    public static SignInResult operator +(SignInResult left, Result right) {
+        left.Errors.Merge(right.Errors.Distinct());
+        left._type = left.IsInvalid ? SignInResultType.Invalid : left._type;
+        if (left.HasErrors)
+            left.Token = null;
+        return left;
+    }
 
-    public override bool Equals(SignInResult? other)
-        => base.Equals(other)
-           && (Token?.Equals(other!.Token) ?? other!.Token is null);
-
-    public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Token?.GetHashCode() ?? 0);
+    public static bool operator ==(SignInResult left, SignInResultType right) => left._type == right;
+    public static bool operator !=(SignInResult left, SignInResultType right) => left._type != right;
 }

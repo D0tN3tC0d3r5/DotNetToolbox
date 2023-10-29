@@ -4,7 +4,7 @@ public class StaticTokenAuthenticationOptions : AuthenticationOptions {
     public AuthenticationScheme Scheme { get; set; } = Basic;
     public string Token { get; set; } = string.Empty;
 
-    internal override ValidationResult Validate() {
+    internal override Result Validate() {
         var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(Token))

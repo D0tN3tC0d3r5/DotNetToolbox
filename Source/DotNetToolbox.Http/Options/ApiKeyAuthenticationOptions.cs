@@ -5,7 +5,7 @@ public class ApiKeyAuthenticationOptions : AuthenticationOptions {
 
     public string ApiKey { get; set; } = string.Empty;
 
-    internal override ValidationResult Validate() {
+    internal override Result Validate() {
         var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(ApiKey))

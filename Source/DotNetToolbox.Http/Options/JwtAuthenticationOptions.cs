@@ -8,7 +8,7 @@ public class JwtAuthenticationOptions : AuthenticationOptions {
     public IReadOnlyList<Claim> Claims { get; set; } = Array.Empty<Claim>();
     public TimeSpan? ExpiresAfter { get; set; }
 
-    internal override ValidationResult Validate() {
+    internal override Result Validate() {
         var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(PrivateKey))

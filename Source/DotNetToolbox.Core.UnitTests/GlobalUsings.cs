@@ -16,4 +16,4 @@ global using Xunit;
 
 global using static System.Ensure;
 global using static System.Pagination.BlockSettings;
-global using static System.Results.ValidationResult;
+global using static System.Results.Result;

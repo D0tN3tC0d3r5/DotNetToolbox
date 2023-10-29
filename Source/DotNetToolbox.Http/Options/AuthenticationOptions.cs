@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
 public abstract class AuthenticationOptions {
-    internal virtual ValidationResult Validate()
+    internal virtual Result Validate()
         => Success();
 
     internal abstract void Configure(HttpClient client, ref HttpAuthentication authentication);

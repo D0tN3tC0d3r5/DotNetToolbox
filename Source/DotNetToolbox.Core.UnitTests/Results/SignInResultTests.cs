@@ -1,8 +1,11 @@
+using static System.Results.SignInResultType;
+
 namespace System.Results;
 
 public class SignInResultTests {
-    private static readonly ValidationError _error = new("Some {1} for {0}.", "Source", "error");
-
+    private static readonly SignInResult _invalid = new ValidationError("Some error.", "Source");
+    private static readonly SignInResult _invalidWithSameError = new ValidationError("Some error.", "Source");
+    private static readonly SignInResult _invalidWithOtherError = new ValidationError("Other error.", "Source");
     private static readonly SignInResult _locked = SignInResult.Locked();
     private static readonly SignInResult _blocked = SignInResult.Blocked();
     private static readonly SignInResult _failure = SignInResult.Failure();
@@ -11,29 +14,11 @@ public class SignInResultTests {
     private static readonly SignInResult _success = SignInResult.Success("SomeToken");
     private static readonly SignInResult _successWithSameToken = SignInResult.Success("SomeToken");
     private static readonly SignInResult _successWithOtherToken = SignInResult.Success("OtherToken");
-    private static readonly SignInResult _invalid = SignInResult.Invalid("Some {1} for {0}.", "Source", "error");
-    private static readonly SignInResult _invalidFromResult = SignInResult.Invalid(ValidationResult.Failure(_error));
-    private static readonly SignInResult _invalidFromError = SignInResult.Invalid(_error);
-    private static readonly SignInResult _invalidFromErrors = SignInResult.Invalid(new[] { _error });
-    private static readonly SignInResult _invalidWithMessageOnly = SignInResult.Invalid("Some error for Source.");
-    private static readonly SignInResult _invalidWithSourceOnly = SignInResult.Invalid("Some error for {0}.", "Source");
-    private static readonly SignInResult _invalidWithOtherSource = SignInResult.Invalid("Some {1} for {0}.", "OtherSource", "error");
-    private static readonly SignInResult _invalidWithOtherData = SignInResult.Invalid("Some {1} for {0}.", "Source", "other error");
-    private static readonly SignInResult _invalidWithOtherMessage = SignInResult.Invalid("Other {1} for {0}.", "Source", "error");
-
-    [Fact]
-    public void CloneConstructor_ReturnsInstance() {
-        // Act
-        var result = _success with { Errors = new[] { _error } };
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-    }
 
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
-        var result = (SignInResult)_error;
+        var result = (SignInResult)new ValidationError("Some error.", "Source");
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -42,7 +27,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        SignInResult result = new[] { _error };
+        SignInResult result = new[] { new ValidationError("Some error.", "Source") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -51,46 +36,68 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        SignInResult result = new List<ValidationError> { new("Some error {0}.", "Source") };
+        SignInResult result = new List<ValidationError> { new("Some error.", "Source") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
     }
 
     [Fact]
-    public void ImplicitConversion_ToValidationResult_WithValue_ReturnsFailure() {
+    public void ImplicitConversion_FromToken_ReturnsSuccess() {
         // Act
-        ValidationResult result = _invalid;
+        SignInResult result = "SomeToken";
 
         // Assert
-        result.IsValid.Should().BeFalse();
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public void EnsureIsValid_WhenValid_DoesNotThrow() {
+    public void ImplicitConversion_FromBlocked_ReturnsSuccess() {
         // Act
-        var result = () => _success.EnsureIsValid();
+        SignInResult subject = Blocked;
 
         // Assert
-        result.Should().NotThrow();
+        subject.IsBlocked.Should().BeTrue();
     }
 
     [Fact]
-    public void EnsureIsValid_WhenInvalid_WithMessage_Throws() {
+    public void ImplicitConversion_FromLocked_ReturnsSuccess() {
         // Act
-        var result = () => _invalid.EnsureIsValid("Is invalid");
+        SignInResult subject = Locked;
 
         // Assert
-        result.Should().Throw<ValidationException>();
+        subject.IsLocked.Should().BeTrue();
     }
 
     [Fact]
-    public void EnsureIsValid_WhenInvalid_WithoutMessage_Throws() {
+    public void ImplicitConversion_FromFailed_ReturnsSuccess() {
         // Act
-        var result = () => _invalid.EnsureIsValid();
+        SignInResult subject = Failed;
 
         // Assert
-        result.Should().Throw<ValidationException>();
+        subject.IsFailure.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromSuccess_Throws() {
+        // Act
+        var action = () => {
+            SignInResult _ = SignInResultType.Success;
+        };
+
+        // Assert
+        action.Should().Throw<InvalidCastException>();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromInvalid_Throws() {
+        // Act
+        var action = () => {
+            SignInResult _ = SignInResultType.Invalid;
+        };
+
+        // Assert
+        action.Should().Throw<InvalidCastException>();
     }
 
     private class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
@@ -112,55 +119,46 @@ public class SignInResultTests {
         subject.IsLocked.Should().Be(isLocked);
         subject.IsBlocked.Should().Be(isBlocked);
         subject.IsFailure.Should().Be(isFailure);
-        subject.IsConfirmationRequired.Should().Be(confirmationRequired);
-        subject.IsTwoFactorRequired.Should().Be(twoFactorRequired);
+        subject.RequiresConfirmation.Should().Be(confirmationRequired);
+        subject.RequiresTwoFactor.Should().Be(twoFactorRequired);
         subject.IsSuccess.Should().Be(isSuccess);
     }
 
-    private class TestDataForEquality : TheoryData<SignInResult, SignInResult?, bool> {
+    private class TestDataForEquality : TheoryData<SignInResult, SignInResultType, bool> {
         public TestDataForEquality() {
-            Add(_success, null, false);
-            Add(_success, _success, true);
-            Add(_success, _failure, false);
-            Add(_success, _locked, false);
-            Add(_success, _blocked, false);
-            Add(_success, _invalid, false);
-            Add(_failure, _success, false);
-            Add(_failure, _failure, true);
-            Add(_failure, _locked, false);
-            Add(_failure, _blocked, false);
-            Add(_failure, _invalid, false);
-            Add(_locked, _success, false);
-            Add(_locked, _failure, false);
-            Add(_locked, _locked, true);
-            Add(_locked, _blocked, false);
-            Add(_locked, _invalid, false);
-            Add(_blocked, _success, false);
-            Add(_blocked, _failure, false);
-            Add(_blocked, _locked, false);
-            Add(_blocked, _blocked, true);
-            Add(_blocked, _invalid, false);
-            Add(_invalid, _success, false);
-            Add(_invalid, _failure, false);
-            Add(_invalid, _locked, false);
-            Add(_invalid, _blocked, false);
-            Add(_invalid, _invalid, true);
-            Add(_invalid, _invalidFromResult, true);
-            Add(_invalid, _invalidFromError, true);
-            Add(_invalid, _invalidFromErrors, true);
-            Add(_invalid, _invalidWithMessageOnly, false);
-            Add(_invalid, _invalidWithSourceOnly, true);
-            Add(_invalid, _invalidWithOtherSource, false);
-            Add(_invalid, _invalidWithOtherData, false);
-            Add(_invalid, _invalidWithOtherMessage, false);
+            Add(_success, SignInResultType.Success, true);
+            Add(_success, Failed, false);
+            Add(_success, Locked, false);
+            Add(_success, Blocked, false);
+            Add(_success, SignInResultType.Invalid, false);
+            Add(_failure, SignInResultType.Success, false);
+            Add(_failure, Failed, true);
+            Add(_failure, Locked, false);
+            Add(_failure, Blocked, false);
+            Add(_failure, SignInResultType.Invalid, false);
+            Add(_locked, SignInResultType.Success, false);
+            Add(_locked, Failed, false);
+            Add(_locked, Locked, true);
+            Add(_locked, Blocked, false);
+            Add(_locked, SignInResultType.Invalid, false);
+            Add(_blocked, SignInResultType.Success, false);
+            Add(_blocked, Failed, false);
+            Add(_blocked, Locked, false);
+            Add(_blocked, Blocked, true);
+            Add(_blocked, SignInResultType.Invalid, false);
+            Add(_invalid, SignInResultType.Success, false);
+            Add(_invalid, Failed, false);
+            Add(_invalid, Locked, false);
+            Add(_invalid, Blocked, false);
+            Add(_invalid, SignInResultType.Invalid, true);
         }
     }
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(SignInResult subject, SignInResult? other, bool expectedResult) {
+    public void Equals_ReturnsAsExpected(SignInResult subject, SignInResultType type, bool expectedResult) {
         // Act
-        var result = subject == other;
+        var result = subject == type;
 
         // Assert
         result.Should().Be(expectedResult);
@@ -168,9 +166,9 @@ public class SignInResultTests {
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(SignInResult subject, SignInResult? other, bool expectedResult) {
+    public void NotEquals_ReturnsAsExpected(SignInResult subject, SignInResultType type, bool expectedResult) {
         // Act
-        var result = subject != other;
+        var result = subject != type;
 
         // Assert
         result.Should().Be(!expectedResult);
@@ -186,7 +184,7 @@ public class SignInResultTests {
             _blocked,
             _failure,
             _invalid,
-            _invalidWithOtherMessage,
+            _invalidWithOtherError
         };
 
         // Act
@@ -201,8 +199,8 @@ public class SignInResultTests {
             _failure,
             _invalid,
             _invalid,
-            _invalidFromError,
-            _invalidWithOtherMessage,
+            _invalidWithSameError,
+            _invalidWithOtherError,
         };
 
         // Assert
@@ -215,26 +213,12 @@ public class SignInResultTests {
         var result = SignInResult.Success("SomeToken");
 
         // Act
-        result += ValidationResult.Success();
+        result += Result.Success();
 
         // Assert
-        result.IsValid.Should().BeTrue();
-        result.IsFailure.Should().BeFalse();
+        result.IsSuccess.Should().BeTrue();
+        result.IsInvalid.Should().BeFalse();
         result.Token.Should().Be("SomeToken");
-    }
-
-    [Fact]
-    public void AddOperator_WithInvalid_ReturnsInvalid() {
-        // Arrange
-        var result = SignInResult.Success("SomeToken");
-
-        // Act
-        result += ValidationResult.Failure("Some {1} for {0}.", "Source", "error");
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
-        result.Token.Should().BeNull();
     }
 
     [Fact]
@@ -243,10 +227,10 @@ public class SignInResultTests {
         var result = SignInResult.Success("SomeToken");
 
         // Act
-        result += _error;
+        result += new ValidationError("Some error.", "Source");
 
         // Assert
-        result.IsValid.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
         result.Token.Should().BeNull();
     }
@@ -254,27 +238,26 @@ public class SignInResultTests {
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = SignInResult.Invalid("Some error {0}.", "Source");
+        var result = SignInResult.Invalid("Some error.", "Source");
 
         // Act
-        result += new ValidationError("Other {1} for {0}.", "Source", "error");
-        result += new ValidationError[] { new("Some error 3."), new("Some error 4.") };
+        result += new ValidationError("Other error.", "Source");
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(4);
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().HaveCount(2);
     }
 
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = SignInResult.Invalid(_error);
+        var result = SignInResult.Invalid("Some error.", "Source");
 
         // Act
-        result += _error;
+        result += new ValidationError("Some error.", "Source");
 
         // Assert
-        result.IsValid.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
     }
 }

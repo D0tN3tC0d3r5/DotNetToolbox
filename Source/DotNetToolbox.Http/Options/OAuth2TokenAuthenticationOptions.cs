@@ -10,7 +10,7 @@ public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
 
     internal IMsalHttpClientFactory? HttpClientFactory { get; set; }
 
-    internal override ValidationResult Validate() {
+    internal override Result Validate() {
         var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(ClientId))

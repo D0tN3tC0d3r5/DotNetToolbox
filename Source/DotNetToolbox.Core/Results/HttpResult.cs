@@ -1,117 +1,85 @@
-﻿namespace System.Results;
+﻿using System.Validation;
+using static System.Ensure;
 
-public record HttpResult
-    : Result<HttpResult, HttpResultType>
-    , IHttpResult
-    , ICreateHttpResults<HttpResult>
-    , IResultOperators<HttpResult> {
-    private HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = null)
-        : base(HttpResultType.BadRequest, type, errors) {
+namespace System.Results;
+
+public record HttpResult : Result {
+    protected HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = null)
+        : base(errors) {
+        Type = type;
     }
 
-    public bool IsBadRequest => IsInvalid;
-    public bool IsOk => IsValid && Type is HttpResultType.Ok;
-    public bool IsCreated => IsValid && Type is HttpResultType.Created;
-    public bool IsUnauthorized => IsValid && Type is HttpResultType.Unauthorized;
-    public bool IsNotFound => IsValid && Type is HttpResultType.NotFound;
-    public bool IsConflict => IsValid && Type is HttpResultType.Conflict;
+    public HttpResultType Type { get; protected set; }
 
-    public static HttpResult BadRequest([StringSyntax(CompositeFormat)] string message, params object?[] args)
-        => new ValidationError(message, args);
-    public static HttpResult BadRequest(IValidationResult result)
-        => (ValidationResult)result;
-    public static HttpResult BadRequest(IEnumerable<ValidationError> errors)
-        => errors.ToArray();
-    public static HttpResult BadRequest(ValidationError error)
-        => (ValidationError)error;
+    public override bool IsSuccess => !HasErrors && (Type is HttpResultType.Ok or HttpResultType.Created);
+    public override bool IsInvalid => Type is HttpResultType.BadRequest or HttpResultType.Unauthorized or HttpResultType.NotFound or HttpResultType.Conflict;
+
+    public bool IsOk => !HasErrors && Type is HttpResultType.Ok;
+    public bool WasCreated => !HasErrors && Type is HttpResultType.Created;
+
+    public bool IsBadRequest => HasErrors || Type is HttpResultType.BadRequest;
+    public bool IsUnauthorized => Type is HttpResultType.Unauthorized;
+    public bool WasNotFound => Type is HttpResultType.NotFound;
+    public bool HasConflict => Type is HttpResultType.Conflict;
 
     public static HttpResult Ok() => new(HttpResultType.Ok);
     public static HttpResult Created() => new(HttpResultType.Created);
 
+    public static HttpResult BadRequest(string message, string source, params object?[] args)
+        => new(HttpResultType.BadRequest, new ValidationError[] { new(message, source, args) });
     public static HttpResult Unauthorized() => new(HttpResultType.Unauthorized);
     public static HttpResult NotFound() => new(HttpResultType.NotFound);
     public static HttpResult Conflict() => new(HttpResultType.Conflict);
 
-    public static implicit operator HttpResult(Dictionary<string, string[]> errors)
-        => errors.SelectMany(i => i.Value.Select(msg => new ValidationError(msg, i.Key))).ToArray();
-    public static implicit operator HttpResult(List<ValidationError> errors) => errors.ToArray();
-    public static implicit operator HttpResult(ValidationError error) => new[] { error };
-    public static implicit operator HttpResult(ValidationError[] errors) => (ValidationResult)errors;
-    public static implicit operator HttpResult(ValidationResult result)
-        => new(HttpResultType.BadRequest, IsNotNullOrEmpty(result.Errors));
+    public static implicit operator HttpResult(List<ValidationError> errors)
+        => new(HttpResultType.BadRequest, IsNotNullAndDoesNotHaveNull(errors));
+    public static implicit operator HttpResult(ValidationError[] errors)
+        => new(HttpResultType.BadRequest, IsNotNullAndDoesNotHaveNull(errors));
+    public static implicit operator HttpResult(ValidationError error)
+        => new(HttpResultType.BadRequest, new[] { error }.AsEnumerable());
 
-    public static HttpResult operator +(HttpResult left, IValidationResult right)
-        => new(left.Type, left.Errors.Merge(right.Errors));
-    public static HttpResult operator +(HttpResult left, IEnumerable<ValidationError> errors)
-        => new(left.Type, left.Errors.Merge(errors));
-    public static HttpResult operator +(HttpResult left, ValidationError error)
-        => new(left.Type, left.Errors.Merge(error));
+    public static HttpResult operator +(HttpResult left, Result right) {
+        left.Errors.Merge(right.Errors.Distinct());
+        left.Type = left.IsInvalid ? HttpResultType.BadRequest : left.Type;
+        return left;
+    }
 
-    public override bool Equals(HttpResult? other)
-        => base.Equals(other);
+    public static HttpResult<TValue> Ok<TValue>(TValue value)
+        => new(HttpResultType.Ok, IsNotNull(value));
+    public static HttpResult<TValue> Created<TValue>(TValue value)
+        => new(HttpResultType.Created, IsNotNull(value));
 
-    public override int GetHashCode()
-        => base.GetHashCode();
+    public static HttpResult<TValue> BadRequest<TValue>(TValue value, string message, string source, params object?[] args)
+        => new(HttpResultType.BadRequest, IsNotNull(value), new ValidationError[] { new(message, source, args) });
+    public static HttpResult<TValue> Unauthorized<TValue>()
+        => new(HttpResultType.Unauthorized);
+    public static HttpResult<TValue> NotFound<TValue>()
+        => new(HttpResultType.NotFound);
+    public static HttpResult<TValue> Conflict<TValue>(TValue value)
+        => new(HttpResultType.Conflict, IsNotNull(value));
 }
 
-public record HttpResult<TValue>
-    : Result<HttpResult<TValue>, HttpResultType>
-    , IHttpResult<TValue>
-    , ICreateValuedHttpResults<HttpResult<TValue>, TValue>
-    , IResultOperators<HttpResult<TValue>> {
-    private HttpResult(HttpResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = null)
-        : base(HttpResultType.BadRequest, type, errors) {
+public record HttpResult<TResult> : HttpResult {
+    public HttpResult(HttpResultType type, TResult? value = default, IEnumerable<ValidationError>? errors = null)
+        : base(type, errors) {
         Value = value;
     }
 
-    public TValue? Value { get; }
+    public TResult? Value { get; }
 
-    public bool IsBadRequest => IsInvalid;
-    public bool IsOk => IsValid && Type is HttpResultType.Ok;
-    public bool IsCreated => IsValid && Type is HttpResultType.Created;
-    public bool IsUnauthorized => IsValid && Type is HttpResultType.Unauthorized;
-    public bool IsNotFound => IsValid && Type is HttpResultType.NotFound;
-    public bool IsConflict => IsValid && Type is HttpResultType.Conflict;
-
-    public static implicit operator HttpResult<TValue>(TValue value)
+    public static implicit operator HttpResult<TResult>(TResult value)
         => new(HttpResultType.Ok, IsNotNull(value));
-    public static implicit operator HttpResult<TValue>(List<ValidationError> errors) => errors.ToArray();
-    public static implicit operator HttpResult<TValue>(ValidationError error) => new[] { error };
-    public static implicit operator HttpResult<TValue>(ValidationError[] errors) => (ValidationResult)errors;
-    public static implicit operator HttpResult<TValue>(ValidationResult result)
-        => new(HttpResultType.BadRequest, default, IsNotNullOrEmpty(result.Errors));
-    public static implicit operator ValidationResult(HttpResult<TValue> result)
-        => result.Errors.ToArray();
+    public static implicit operator HttpResult<TResult>(Result<TResult> result)
+        => new(result.IsInvalid ? HttpResultType.BadRequest : HttpResultType.Ok, result.Value, result.Errors);
 
-    public static HttpResult<TValue> operator +(HttpResult<TValue> left, IValidationResult right)
-        => new(left.Type, left.Value, left.Errors.Merge(right.Errors));
-    public static HttpResult<TValue> operator +(HttpResult<TValue> left, IEnumerable<ValidationError> errors)
-        => new(left.Type, left.Value, left.Errors.Merge(errors));
-    public static HttpResult<TValue> operator +(HttpResult<TValue> left, ValidationError error)
-        => new(left.Type, left.Value, left.Errors.Merge(error));
+    public static HttpResult<TResult> operator +(HttpResult<TResult> left, Result right) {
+        left.Errors.Merge(right.Errors.Distinct());
+        left.Type = left.IsBadRequest ? HttpResultType.BadRequest : left.Type;
+        return left;
+    }
 
-    public IHttpResult<TNewValue> Map<TNewValue>(Func<TValue, TNewValue> map)
-        => new HttpResult<TNewValue>(Type, Value is null ? default : map(Value), Errors);
-
-    public override bool Equals(HttpResult<TValue>? other)
-        => base.Equals(other)
-        && (Value?.Equals(other!.Value) ?? other!.Value is null);
-
-    public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Value?.GetHashCode() ?? 0);
-
-    public static HttpResult<TValue> BadRequest([StringSyntax(CompositeFormat)] string message, params object?[] args)
-        => new ValidationError(message, args);
-    public static HttpResult<TValue> BadRequest(IValidationResult result)
-        => (ValidationResult)result;
-    public static HttpResult<TValue> BadRequest(IEnumerable<ValidationError> errors)
-        => errors.ToArray();
-    public static HttpResult<TValue> BadRequest(ValidationError error)
-        => (ValidationError)error;
-
-    public static HttpResult<TValue> Ok(TValue value) => new(HttpResultType.Ok, IsNotNull(value));
-    public static HttpResult<TValue> Created(TValue value) => new(HttpResultType.Created, IsNotNull(value));
-    public static HttpResult<TValue> Unauthorized() => new(HttpResultType.Unauthorized);
-    public static HttpResult<TValue> NotFound() => new(HttpResultType.NotFound);
-    public static HttpResult<TValue> Conflict(TValue? value) => new(HttpResultType.Conflict, value);
+    public HttpResult<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)
+        => Value is null
+            ? NotFound<TOutput>()
+            : new(Type, map(Value), Errors);
 }
