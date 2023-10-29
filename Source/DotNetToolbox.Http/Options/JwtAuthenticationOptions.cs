@@ -28,11 +28,12 @@ public class JwtAuthenticationOptions : AuthenticationOptions {
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(PrivateKey!));
         var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
-        var expiration = DateTimeProvider.UtcNow + ExpiresAfter;
+        var now = DateTimeProvider.UtcNow;
+        var expiration = now + ExpiresAfter;
         var tokenOptions = new JwtSecurityToken(Issuer,
                                                 Audience,
                                                 Claims,
-                                                null,
+                                                now,
                                                 expiration,
                                                 signingCredentials);
 

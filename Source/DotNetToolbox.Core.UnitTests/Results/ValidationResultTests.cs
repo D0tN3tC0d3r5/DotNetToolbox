@@ -1,5 +1,3 @@
-using static System.Results.ValidationResult;
-
 namespace System.Results;
 
 public class ValidationResultTests {
