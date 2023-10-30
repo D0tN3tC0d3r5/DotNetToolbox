@@ -1,5 +1,3 @@
-using static System.Results.Result;
-
 namespace System.Results;
 
 public class ResultTests {
@@ -11,7 +9,7 @@ public class ResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
-        Result result = new ValidationError("Some error.", nameof(result));
+        Result result = new ValidationError(nameof(result), "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -20,7 +18,7 @@ public class ResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        Result result = new[] { new ValidationError("Some error.", nameof(result)) };
+        Result result = new[] { new ValidationError(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -29,7 +27,7 @@ public class ResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        Result result = new List<ValidationError> { new("Some error.", nameof(result)) };
+        Result result = new List<ValidationError> { new(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -112,7 +110,7 @@ public class ResultTests {
         var result = Success();
 
         // Act
-        result += new ValidationError("Some error.", "result");
+        result += new ValidationError("result", "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -148,7 +146,7 @@ public class ResultTests {
         var result = Success("Value");
 
         // Act
-        result += new ValidationError("Some error.", "result");
+        result += new ValidationError("result", "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();

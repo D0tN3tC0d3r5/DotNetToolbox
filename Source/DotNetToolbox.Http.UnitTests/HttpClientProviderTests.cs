@@ -60,7 +60,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("'BaseAddress' cannot be null or whitespace.");
+        exception.Errors[0].FormattedMessage.Should().Be("BaseAddress: Value cannot be null or white space.");
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("'ResponseFormat' cannot be null or whitespace.");
+        exception.Errors[0].FormattedMessage.Should().Be("ResponseFormat: Value cannot be null or white space.");
     }
 
     [Fact]
@@ -193,7 +193,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("'BaseAddress' cannot be null or whitespace.");
+        exception.Errors[0].FormattedMessage.Should().Be("BaseAddress: Value cannot be null or white space.");
     }
 
     [Fact]

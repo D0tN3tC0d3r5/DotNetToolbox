@@ -1,11 +1,9 @@
-using static System.Results.SignInResultType;
-
 namespace System.Results;
 
 public class SignInResultTests {
-    private static readonly SignInResult _invalid = new ValidationError("Some error.", "Source");
-    private static readonly SignInResult _invalidWithSameError = new ValidationError("Some error.", "Source");
-    private static readonly SignInResult _invalidWithOtherError = new ValidationError("Other error.", "Source");
+    private static readonly SignInResult _invalid = new ValidationError("Source", "Some error.");
+    private static readonly SignInResult _invalidWithSameError = new ValidationError("Source", "Some error.");
+    private static readonly SignInResult _invalidWithOtherError = new ValidationError("Source", "Other error.");
     private static readonly SignInResult _locked = SignInResult.Locked();
     private static readonly SignInResult _blocked = SignInResult.Blocked();
     private static readonly SignInResult _failure = SignInResult.Failure();
@@ -18,7 +16,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
-        var result = (SignInResult)new ValidationError("Some error.", "Source");
+        var result = (SignInResult)new ValidationError("Source", "Some error.");
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -27,7 +25,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        SignInResult result = new[] { new ValidationError("Some error.", "Source") };
+        SignInResult result = new[] { new ValidationError("Source", "Some error.") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -36,7 +34,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        SignInResult result = new List<ValidationError> { new("Some error.", "Source") };
+        SignInResult result = new List<ValidationError> { new("Source", "Some error.") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -227,7 +225,7 @@ public class SignInResultTests {
         var result = SignInResult.Success("SomeToken");
 
         // Act
-        result += new ValidationError("Some error.", "Source");
+        result += new ValidationError("Source", "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -241,7 +239,7 @@ public class SignInResultTests {
         var result = SignInResult.Invalid("Some error.", "Source");
 
         // Act
-        result += new ValidationError("Other error.", "Source");
+        result += new ValidationError("Source", "Other error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -254,7 +252,7 @@ public class SignInResultTests {
         var result = SignInResult.Invalid("Some error.", "Source");
 
         // Act
-        result += new ValidationError("Some error.", "Source");
+        result += new ValidationError("Source", "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();

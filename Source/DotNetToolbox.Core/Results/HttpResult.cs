@@ -1,7 +1,4 @@
-﻿using System.Validation;
-using static System.Ensure;
-
-namespace System.Results;
+﻿namespace System.Results;
 
 public record HttpResult : Result {
     protected HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = null)
@@ -26,7 +23,7 @@ public record HttpResult : Result {
     public static HttpResult Created() => new(HttpResultType.Created);
 
     public static HttpResult BadRequest(string message, string source, params object?[] args)
-        => new(HttpResultType.BadRequest, new ValidationError[] { new(message, source, args) });
+        => new(HttpResultType.BadRequest, new ValidationError[] { new(source, message, args) });
     public static HttpResult Unauthorized() => new(HttpResultType.Unauthorized);
     public static HttpResult NotFound() => new(HttpResultType.NotFound);
     public static HttpResult Conflict() => new(HttpResultType.Conflict);
@@ -50,7 +47,7 @@ public record HttpResult : Result {
         => new(HttpResultType.Created, IsNotNull(value));
 
     public static HttpResult<TValue> BadRequest<TValue>(TValue value, string message, string source, params object?[] args)
-        => new(HttpResultType.BadRequest, IsNotNull(value), new ValidationError[] { new(message, source, args) });
+        => new(HttpResultType.BadRequest, IsNotNull(value), new ValidationError[] { new(source, message, args) });
     public static HttpResult<TValue> Unauthorized<TValue>()
         => new(HttpResultType.Unauthorized);
     public static HttpResult<TValue> NotFound<TValue>()

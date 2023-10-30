@@ -1,29 +1,29 @@
 ﻿namespace System.Validation;
 
 public sealed record ValidationError {
-    private readonly string _messageTemplate;
-
-    public ValidationError([StringSyntax(CompositeFormat)] string message, string source)
-        : this(message, new object?[] { source }) {
+    public ValidationError(string? source, [StringSyntax(CompositeFormat)] string template, params object[] args) {
+        MessageTemplate = IsNotNullOrWhiteSpace(template);
+        Arguments = args ?? Array.Empty<object>();
+        Source = source ?? string.Empty;
     }
 
-    public ValidationError([StringSyntax(CompositeFormat)] string messageTemplate, params object?[] args) {
-        _messageTemplate = IsNotNullOrWhiteSpace(messageTemplate);
-        Source = args.Length == 0 ? string.Empty : IsNotNull(args[0]!.ToString()).Trim();
-        Arguments = args;
+    public ValidationError([StringSyntax(CompositeFormat)] string template, params object[] args)
+        : this(string.Empty, template, args) {
     }
 
-    public object?[] Arguments { get; }
-
-    public string Source { get; init; }
-
-    public string Message => GetErrorMessage(_messageTemplate, Arguments);
+    public string Source { get; set; }
+    public string MessageTemplate { get; set; }
+    public object[] Arguments { get; set; }
+    public string FormattedMessage
+        => (string.IsNullOrWhiteSpace(Source) ? string.Empty : $"{Source}: ")
+        + string.Format(MessageTemplate, Arguments);
 
     public bool Equals(ValidationError? other)
         => other is not null
-           && Source.Equals(other.Source)
-           && Message.Equals(other.Message);
+        && Source.Equals(other.Source)
+        && MessageTemplate.Equals(other.MessageTemplate)
+        && Arguments.SequenceEqual(other.Arguments);
 
     public override int GetHashCode()
-        => HashCode.Combine(Message.GetHashCode(), Source.GetHashCode());
+        => Arguments.Aggregate(HashCode.Combine(Source, MessageTemplate), HashCode.Combine);
 }

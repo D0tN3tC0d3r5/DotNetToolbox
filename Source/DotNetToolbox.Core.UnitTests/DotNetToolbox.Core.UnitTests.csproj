@@ -38,4 +38,8 @@
     <ProjectReference Include="..\DotNetToolbox.Core\DotNetToolbox.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

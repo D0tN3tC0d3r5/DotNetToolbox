@@ -12,7 +12,7 @@ public class JwtAuthenticationOptions : AuthenticationOptions {
         var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(PrivateKey))
-            result += new ValidationError(CannotBeNullOrWhiteSpace, nameof(PrivateKey));
+            result += new ValidationError(nameof(PrivateKey), CannotBeNullOrWhiteSpace);
 
         return result;
     }

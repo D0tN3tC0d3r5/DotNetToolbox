@@ -1,7 +1,7 @@
 ﻿namespace System;
 
-public static class InstanceCreator {
-    public static T Create<T>(params object?[] args) {
+public static class Create {
+    public static T Instance<[DynamicallyAccessedMembers(PublicConstructors)] T>(params object[] args) {
         try {
             return (T)Activator.CreateInstance(typeof(T), args)!;
         }
@@ -10,9 +10,9 @@ public static class InstanceCreator {
         }
     }
 
-    public static T Create<T>(IServiceProvider services, params object?[] args) {
+    public static T Instance<[DynamicallyAccessedMembers(PublicConstructors)] T>(IServiceProvider services, params object[] args) {
         try {
-            return ActivatorUtilities.CreateInstance<T>(services, args);
+            return ActivatorUtilities.CreateInstance<T> (services, args);
         }
         catch (Exception ex) {
             throw new InvalidOperationException($"Failed to create instance of type {typeof(T).Name}", ex);

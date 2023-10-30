@@ -1,6 +1,4 @@
-﻿using static System.Ensure;
-
-namespace System.Results;
+﻿namespace System.Results;
 
 public record Result : IResult {
     protected Result(IEnumerable<ValidationError>? errors = null) {
@@ -22,7 +20,7 @@ public record Result : IResult {
         => Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine);
 
     public static Result Success() => new();
-    public static Result Invalid(string message, string source, params object?[] args) => new(new ValidationError(message, source, args));
+    public static Result Invalid(string message, string source, params object?[] args) => new(new ValidationError(source, message, args));
 
     public static implicit operator Result(List<ValidationError> errors) => new(errors.AsEnumerable());
     public static implicit operator Result(ValidationError[] errors) => new(errors.AsEnumerable());
@@ -38,7 +36,7 @@ public record Result : IResult {
     }
 
     public static Result<TValue> Success<TValue>(TValue value) => new(value);
-    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object?[] args) => new(value, new ValidationError[] { new(message, source, args) });
+    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object?[] args) => new(value, new ValidationError[] { new(source, message, args) });
 }
 
 public record Result<TResult> : Result {

@@ -1,6 +1,4 @@
-﻿using static System.Ensure;
-
-namespace System.Results;
+﻿namespace System.Results;
 
 public sealed record SignInResult : Result {
     private const string _invalidInvalidSignInCreation =
@@ -38,7 +36,7 @@ public sealed record SignInResult : Result {
     public static SignInResult Success(string token)
         => new(SignInResultType.Success, token);
     public static new SignInResult Invalid(string message, string source, params object?[] args)
-        => new(SignInResultType.Invalid, null, new ValidationError[] { new(message, source, args) });
+        => new(SignInResultType.Invalid, null, new ValidationError[] { new(source, message, args) });
     public static SignInResult Invalid(Result result)
         => new(SignInResultType.Invalid, null, result.Errors);
 

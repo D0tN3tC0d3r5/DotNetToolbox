@@ -1,6 +1,6 @@
 namespace System;
 
-public class InstanceCreatorTests {
+public class CreateTests {
     // ReSharper disable once ClassNeverInstantiated.Local
     private class TestClass {
     }
@@ -8,7 +8,7 @@ public class InstanceCreatorTests {
     [Fact]
     public void Create_NoArgs_CreatesObjectOfTypeT() {
         // Arrange & Act
-        var instance = InstanceCreator.Create<TestClass>();
+        var instance = Create.Instance<TestClass>();
 
         // Assert
         instance.Should().NotBeNull();
@@ -30,7 +30,7 @@ public class InstanceCreatorTests {
         const string expectedValue = "Test";
 
         // Act
-        var instance = InstanceCreator.Create<TestClassWithArgs>(expectedValue);
+        var instance = Create.Instance<TestClassWithArgs>(expectedValue);
 
         // Assert
         instance.Should().NotBeNull();
@@ -41,7 +41,7 @@ public class InstanceCreatorTests {
     [Fact]
     public void Create_WithWrongArgs_Throws() {
         // Act
-        var action = () => InstanceCreator.Create<TestClassWithArgs>();
+        var action = () => Create.Instance<TestClassWithArgs>();
 
         // Assert
         action.Should().Throw<InvalidOperationException>();
@@ -53,7 +53,7 @@ public class InstanceCreatorTests {
         var provider = Substitute.For<IServiceProvider>();
 
         // Act
-        var instance = InstanceCreator.Create<TestClass>(provider);
+        var instance = Create.Instance<TestClass>(provider);
 
         // Assert
         instance.Should().NotBeNull();
@@ -66,7 +66,7 @@ public class InstanceCreatorTests {
         var provider = Substitute.For<IServiceProvider>();
 
         // Act
-        var action = () => InstanceCreator.Create<TestClassWithArgs>(provider);
+        var action = () => Create.Instance<TestClassWithArgs>(provider);
 
         // Assert
         action.Should().Throw<InvalidOperationException>();

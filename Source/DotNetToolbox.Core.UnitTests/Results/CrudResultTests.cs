@@ -5,8 +5,8 @@ public class CrudResultTests {
     private static readonly CrudResult _notFound = CrudResult.NotFound();
     private static readonly CrudResult _conflict = CrudResult.Conflict();
     private static readonly CrudResult _invalid = CrudResult.Invalid("Some error.", "Source");
-    private static readonly CrudResult _invalidWithSameError = new ValidationError("Some error.", "Source");
-    private static readonly CrudResult _invalidWithWithOtherError = new ValidationError("Other error.", "Source");
+    private static readonly CrudResult _invalidWithSameError = new ValidationError("Source", "Some error.");
+    private static readonly CrudResult _invalidWithWithOtherError = new ValidationError("Source", "Other error.");
 
     private static readonly CrudResult<string> _successWithValue = CrudResult.Success("Value");
     private static readonly CrudResult<string> _notFoundWithValue = CrudResult.NotFound<string>();
@@ -16,7 +16,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
-        CrudResult result = new ValidationError("Some error.", nameof(result));
+        CrudResult result = new ValidationError(nameof(result), "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -25,7 +25,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        CrudResult result = new[] { new ValidationError("Some error.", nameof(result)) };
+        CrudResult result = new[] { new ValidationError(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -34,7 +34,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        CrudResult result = new List<ValidationError> { new("Some error.", nameof(result)) };
+        CrudResult result = new List<ValidationError> { new(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -152,7 +152,7 @@ public class CrudResultTests {
         var result = CrudResult.Success("SomeToken");
 
         // Act
-        result += new ValidationError("Some error.", "Source");
+        result += new ValidationError("Source", "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -165,7 +165,7 @@ public class CrudResultTests {
         var result = CrudResult.Invalid("Some error.", "Source");
 
         // Act
-        result += new ValidationError("Other error.", "Source");
+        result += new ValidationError("Source", "Other error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -178,7 +178,7 @@ public class CrudResultTests {
         var result = CrudResult.Invalid("Some error.", "Source");
 
         // Act
-        result += new ValidationError("Some error.", "Source");
+        result += new ValidationError("Source", "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -238,7 +238,7 @@ public class CrudResultTests {
         var result = CrudResult.Success("Value");
 
         // Act
-        result += new ValidationError("Some error.", "result");
+        result += new ValidationError("result", "Some error.");
 
         // Assert
         result.IsSuccess.Should().BeFalse();

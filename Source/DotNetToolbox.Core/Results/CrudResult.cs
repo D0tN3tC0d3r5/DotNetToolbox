@@ -1,6 +1,4 @@
-﻿using static System.Ensure;
-
-namespace System.Results;
+﻿namespace System.Results;
 
 public record CrudResult : Result {
     protected CrudResult(CrudResultType type, IEnumerable<ValidationError>? errors = null)
@@ -10,17 +8,17 @@ public record CrudResult : Result {
 
     protected CrudResultType Type { get; set; }
 
-    public override bool IsSuccess => base.IsSuccess && Type is CrudResultType.Success;
-    public override bool IsInvalid => base.IsInvalid || Type is CrudResultType.Invalid;
-    public bool WasNotFound => !IsInvalid && Type is CrudResultType.NotFound;
-    public bool HasConflict => !IsInvalid && Type is CrudResultType.Conflict;
+    public override bool IsSuccess => !HasErrors && Type is CrudResultType.Success;
+    public override bool IsInvalid => HasErrors || Type is CrudResultType.Invalid;
+    public bool WasNotFound => !HasErrors && Type is CrudResultType.NotFound;
+    public bool HasConflict => !HasErrors && Type is CrudResultType.Conflict;
 
     public static new CrudResult Success() => new(CrudResultType.Success);
     public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
 
     public static new CrudResult Invalid(string message, string source, params object?[] args)
-        => new(new ValidationError(message, source, args));
+        => new(new ValidationError(source, message, args));
     public static CrudResult Invalid(Result result)
         => new(CrudResultType.Invalid, result.Errors);
 
@@ -44,7 +42,7 @@ public record CrudResult : Result {
     public static CrudResult<TValue> Conflict<TValue>(TValue value)
         => new(CrudResultType.Conflict, IsNotNull(value));
     public static CrudResult<TValue> Invalid<TValue>(TValue value, string message, string source)
-        => new(CrudResultType.Invalid, IsNotNull(value), new ValidationError[] { new(message, source) });
+        => new(CrudResultType.Invalid, IsNotNull(value), new ValidationError[] { new(source, message) });
     public static CrudResult<TValue> Invalid<TValue>(TValue value, IEnumerable<ValidationError> errors)
         => new(CrudResultType.Invalid, IsNotNull(value), errors);
 }

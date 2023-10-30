@@ -4,17 +4,17 @@ public static class Ensure {
     [return: NotNull]
     public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument
-           ?? throw new ArgumentNullException(paramName, GetErrorMessage(CannotBeNull, paramName));
+        ?? throw new ArgumentNullException(paramName, GetErrorMessage(CannotBeNull, paramName));
 
     public static TArgument HasValue<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : struct
         => argument
-           ?? throw new ArgumentNullException(paramName, GetErrorMessage(CannotBeNull, paramName));
+        ?? throw new ArgumentNullException(paramName, GetErrorMessage(CannotBeNull, paramName));
 
     [return: NotNull]
     public static TArgument IsOfType<TArgument>(object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => IsNotNull(argument, paramName) is not TArgument result
-            ? throw new ArgumentException(string.Format(MustBeOfType, paramName, typeof(TArgument).Name, argument!.GetType().Name), paramName)
+            ? throw new ArgumentException(string.Format(MustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName)
             : result;
 
     [return: NotNull]
@@ -70,7 +70,7 @@ public static class Ensure {
         return argument switch {
             // ReSharper disable once ConvertClosureToMethodGroup - it messes with code coverage
             IEnumerable<string?> collection when collection.Any(i => string.IsNullOrWhiteSpace(i))
-                => throw new ArgumentException(GetErrorMessage(CannotContainNullOrWhitespace, paramName), paramName),
+                => throw new ArgumentException(GetErrorMessage(CannotContainNullOrWhiteSpace, paramName), paramName),
             _ => argument,
         };
     }
@@ -98,12 +98,12 @@ public static class Ensure {
     }
 
     [return: NotNull]
-    public static TArgument IsNotNullOrEmptyAndDoesNotContainNullOrWhiteSpace<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument IsNotNullOrEmptyAndDoesNotHaveNullOrWhiteSpace<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<string?> {
         argument = IsNotNullOrEmpty(argument, paramName);
         return argument switch {
             IEnumerable<string?> collection when collection.Any(string.IsNullOrWhiteSpace)
-                => throw new ArgumentException(GetErrorMessage(CannotContainNullOrWhitespace, paramName), paramName),
+                => throw new ArgumentException(GetErrorMessage(CannotContainNullOrWhiteSpace, paramName), paramName),
             _ => argument,
         };
     }
@@ -123,7 +123,7 @@ public static class Ensure {
 
     public static TArgument? IsValidOrNull<TArgument>(TArgument? argument, Func<TArgument, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
         if (argument is null) return argument;
-        validate(argument).EnsureIsValid(GetErrorMessage(IsNotValid, paramName));
+        validate(argument).EnsureIsValid(GetErrorMessage(MustBeValid, paramName));
         return argument;
     }
 

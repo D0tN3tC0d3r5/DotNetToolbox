@@ -7,8 +7,8 @@ public class HttpResultTests {
     private static readonly HttpResult _notFound = HttpResult.NotFound();
     private static readonly HttpResult _conflict = HttpResult.Conflict();
     private static readonly HttpResult _badRequest = HttpResult.BadRequest("Some error.", "Source");
-    private static readonly HttpResult _badRequestWithSameError = new ValidationError("Some error.", "Source");
-    private static readonly HttpResult _badRequestWithWithOtherError = new ValidationError("Other error.", "Source");
+    private static readonly HttpResult _badRequestWithSameError = new ValidationError("Source", "Some error.");
+    private static readonly HttpResult _badRequestWithWithOtherError = new ValidationError("Source", "Other error.");
 
     private static readonly HttpResult<string> _okWithValue = HttpResult.Ok("Value");
     private static readonly HttpResult<string> _createdWithValue = HttpResult.Created("Value");
@@ -20,7 +20,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
-        HttpResult result = new ValidationError("Some error.", nameof(result));
+        HttpResult result = new ValidationError(nameof(result), "Some error.");
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -29,7 +29,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        HttpResult result = new[] { new ValidationError("Some error.", nameof(result)) };
+        HttpResult result = new[] { new ValidationError(nameof(result), "Some error.") };
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -38,7 +38,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        HttpResult result = new List<ValidationError> { new("Some error.", nameof(result)) };
+        HttpResult result = new List<ValidationError> { new(nameof(result), "Some error.") };
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -162,7 +162,7 @@ public class HttpResultTests {
         var result = HttpResult.Ok("SomeToken");
 
         // Act
-        result += new ValidationError("Some error.", "Source");
+        result += new ValidationError("Source", "Some error.");
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -175,7 +175,7 @@ public class HttpResultTests {
         var result = HttpResult.BadRequest("Some error.", "Source");
 
         // Act
-        result += new ValidationError("Other error.", "Source");
+        result += new ValidationError("Source", "Other error.");
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -188,7 +188,7 @@ public class HttpResultTests {
         var result = HttpResult.BadRequest("Some error.", "Source");
 
         // Act
-        result += new ValidationError("Some error.", "Source");
+        result += new ValidationError("Source", "Some error.");
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -248,7 +248,7 @@ public class HttpResultTests {
         var result = HttpResult.Ok("Value");
 
         // Act
-        result += new ValidationError("Some error.", "result");
+        result += new ValidationError("result", "Some error.");
 
         // Assert
         result.IsOk.Should().BeFalse();
