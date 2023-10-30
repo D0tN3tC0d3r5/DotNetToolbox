@@ -1,4 +1,4 @@
-﻿namespace Madam.Security;
+﻿namespace System.Security;
 
 public class PasswordPolicyTests {
     [Fact]
