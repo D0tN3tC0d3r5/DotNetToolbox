@@ -15,10 +15,10 @@ public class HttpClientOptions  {
         var result = Success();
 
         if (string.IsNullOrWhiteSpace(BaseAddress))
-            result += new ValidationError(nameof(BaseAddress), CannotBeNullOrWhiteSpace);
+            result += new ValidationError(nameof(BaseAddress), ValueCannotBeNullOrWhiteSpace);
 
         if (string.IsNullOrWhiteSpace(ResponseFormat))
-            result += new ValidationError(nameof(ResponseFormat), CannotBeNullOrWhiteSpace);
+            result += new ValidationError(nameof(ResponseFormat), ValueCannotBeNullOrWhiteSpace);
 
         result += Authentication?.Validate() ?? Success();
 

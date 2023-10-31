@@ -6,7 +6,7 @@ public class HttpResultTests {
     private static readonly HttpResult _unauthorized = HttpResult.Unauthorized();
     private static readonly HttpResult _notFound = HttpResult.NotFound();
     private static readonly HttpResult _conflict = HttpResult.Conflict();
-    private static readonly HttpResult _badRequest = HttpResult.BadRequest("Some error.", "Source");
+    private static readonly HttpResult _badRequest = HttpResult.BadRequest("Source", "Some error.");
     private static readonly HttpResult _badRequestWithSameError = new ValidationError("Source", "Some error.");
     private static readonly HttpResult _badRequestWithWithOtherError = new ValidationError("Source", "Other error.");
 
@@ -15,7 +15,7 @@ public class HttpResultTests {
     private static readonly HttpResult<string> _unauthorizedWithValue = HttpResult.Unauthorized<string>();
     private static readonly HttpResult<string> _notFoundWithValue = HttpResult.NotFound<string>();
     private static readonly HttpResult<string> _conflictWithValue = HttpResult.Conflict("Value");
-    private static readonly HttpResult<string> _badRequestWithValue = HttpResult.BadRequest("Value", "Some error.", "Source");
+    private static readonly HttpResult<string> _badRequestWithValue = HttpResult.BadRequest("Value", "Source", "Some error.");
 
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
@@ -172,7 +172,7 @@ public class HttpResultTests {
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = HttpResult.BadRequest("Some error.", "Source");
+        var result = HttpResult.BadRequest("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Other error.");
@@ -185,7 +185,7 @@ public class HttpResultTests {
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = HttpResult.BadRequest("Some error.", "Source");
+        var result = HttpResult.BadRequest("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Some error.");
@@ -287,7 +287,7 @@ public class HttpResultTests {
     [Fact]
     public void MapTo_WithError_ReturnsBadRequest() {
         // Arrange
-        var subject = HttpResult.BadRequest("42", "Some error.", "Field");
+        var subject = HttpResult.BadRequest("42", "Field", "Some error.");
 
         // Act
         var result = subject.MapTo(int.Parse);

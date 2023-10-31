@@ -8,7 +8,7 @@ public class StaticTokenAuthenticationOptions : AuthenticationOptions {
         var result = base.Validate();
 
         if (string.IsNullOrWhiteSpace(Token))
-            result += new ValidationError(nameof(Token), CannotBeNullOrWhiteSpace);
+            result += new ValidationError(nameof(Token), ValueCannotBeNullOrWhiteSpace);
 
         return result;
     }

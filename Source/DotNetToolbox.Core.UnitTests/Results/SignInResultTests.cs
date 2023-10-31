@@ -236,7 +236,7 @@ public class SignInResultTests {
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = SignInResult.Invalid("Some error.", "Source");
+        var result = SignInResult.Invalid("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Other error.");
@@ -249,7 +249,7 @@ public class SignInResultTests {
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = SignInResult.Invalid("Some error.", "Source");
+        var result = SignInResult.Invalid("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Some error.");

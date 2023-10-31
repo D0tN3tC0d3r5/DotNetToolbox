@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageId>DotNetToolbox.ValidationBuilder</PackageId>
+        <Title>DotNetToolbox Validation Builder Library</Title>
+        <Version>1.0.0</Version>
+        <Authors>Andre Vianna</Authors>
+        <Company>DotNetToolbox</Company>
+        <PackageTags>DotNet;Toolbox;Validation;Library</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Description>DotNetToolbox.ValidationBuilder: A comprehensive utility library for building object validation and more.</Description>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageReleaseNotes>
+            v1.0.0:
+            - First release.
+        </PackageReleaseNotes>
+        <Product>DotNetToolbox.ValidationBuilder</Product>
+        <Copyright>Andre Vianna 2023</Copyright>
+        <RepositoryUrl></RepositoryUrl>
+        <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+        <PackageProjectUrl>https://github.com/AndreVianna/DotNetToolbox</PackageProjectUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="pkgs\**" />
+        <EmbeddedResource Remove="pkgs\**" />
+        <None Remove="pkgs\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\icon.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\..\LICENSE">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DotNetToolbox.Core\DotNetToolbox.Core.csproj" />
+    </ItemGroup>
+
+</Project>

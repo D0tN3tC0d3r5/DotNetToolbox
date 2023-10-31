@@ -4,10 +4,22 @@ public class ValidationException
     : Exception {
     private const string _defaultMessage = "Validation failed.";
 
-    public ValidationException(IEnumerable<ValidationError> errors, string? message = null)
-        : base(message ?? _defaultMessage) {
+    public ValidationException(string error)
+        : this(string.Empty, error) {
+    }
+
+    public ValidationException(string source, string error)
+        : this(new ValidationError(source, error)) {
+    }
+
+    public ValidationException(ValidationError error)
+        : this(new[] { error }) {
+    }
+
+    public ValidationException(IEnumerable<ValidationError> errors)
+        : base(_defaultMessage) {
         Errors = errors.ToArray();
     }
 
-    public IReadOnlyList<ValidationError> Errors { get; }
+    public IEnumerable<ValidationError> Errors { get; }
 }

@@ -35,8 +35,10 @@ public sealed record SignInResult : Result {
         => new(SignInResultType.TwoFactorRequired, token);
     public static SignInResult Success(string token)
         => new(SignInResultType.Success, token);
-    public static new SignInResult Invalid(string message, string source, params object?[] args)
+    public static new SignInResult Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
         => new(SignInResultType.Invalid, null, new ValidationError[] { new(source, message, args) });
+    public static new SignInResult Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
+        => Invalid(string.Empty, message, args);
     public static SignInResult Invalid(Result result)
         => new(SignInResultType.Invalid, null, result.Errors);
 
@@ -60,7 +62,7 @@ public sealed record SignInResult : Result {
         };
 
     public static SignInResult operator +(SignInResult left, Result right) {
-        left.Errors.Merge(right.Errors.Distinct());
+        left.Errors.UnionWith(right.Errors);
         left._type = left.IsInvalid ? SignInResultType.Invalid : left._type;
         if (left.HasErrors)
             left.Token = null;

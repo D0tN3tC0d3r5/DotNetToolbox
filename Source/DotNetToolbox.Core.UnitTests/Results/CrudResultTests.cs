@@ -4,14 +4,14 @@ public class CrudResultTests {
     private static readonly CrudResult _success = CrudResult.Success();
     private static readonly CrudResult _notFound = CrudResult.NotFound();
     private static readonly CrudResult _conflict = CrudResult.Conflict();
-    private static readonly CrudResult _invalid = CrudResult.Invalid("Some error.", "Source");
+    private static readonly CrudResult _invalid = CrudResult.Invalid("Source", "Some error.");
     private static readonly CrudResult _invalidWithSameError = new ValidationError("Source", "Some error.");
     private static readonly CrudResult _invalidWithWithOtherError = new ValidationError("Source", "Other error.");
 
     private static readonly CrudResult<string> _successWithValue = CrudResult.Success("Value");
     private static readonly CrudResult<string> _notFoundWithValue = CrudResult.NotFound<string>();
     private static readonly CrudResult<string> _conflictWithValue = CrudResult.Conflict("Value");
-    private static readonly CrudResult<string> _invalidWithValue = CrudResult.Invalid("Value", "Some error.", "Source");
+    private static readonly CrudResult<string> _invalidWithValue = CrudResult.Invalid("Value", "Source", "Some error.");
 
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
@@ -162,7 +162,7 @@ public class CrudResultTests {
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = CrudResult.Invalid("Some error.", "Source");
+        var result = CrudResult.Invalid("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Other error.");
@@ -175,7 +175,7 @@ public class CrudResultTests {
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = CrudResult.Invalid("Some error.", "Source");
+        var result = CrudResult.Invalid("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Some error.");
@@ -277,7 +277,7 @@ public class CrudResultTests {
     [Fact]
     public void MapTo_WithError_ReturnsInvalid() {
         // Arrange
-        var subject = CrudResult.Invalid("42", "Some error.", "Field");
+        var subject = CrudResult.Invalid("42", "Field", "Some error.");
 
         // Act
         var result = subject.MapTo(int.Parse);

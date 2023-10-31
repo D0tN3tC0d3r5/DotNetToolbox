@@ -93,59 +93,45 @@ public class EnsureTests {
     }
 
     [Fact]
-    public void NotNullOrDoesNotHaveNull_WhenIsNull_ThrowsArgumentException() {
-        const ICollection<int> input = default!;
-        var action = () => IsNotNullAndDoesNotHaveNull(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null. (Parameter 'input')");
-    }
-
-    [Fact]
-    public void NotNullOrDoesNotHaveNull_WhenDoesNotHaveNull_ThrowsArgumentException() {
+    public void DoesNotHaveNull_WhenDoesNotHaveNull_ThrowsArgumentException() {
         var input = new[] { default(int?) };
-        var action = () => IsNotNullAndDoesNotHaveNull(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null item(s). (Parameter 'input')");
+        var action = () => DoesNotHaveNulls(input);
+        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null value(s). (Parameter 'input')");
     }
 
     [Fact]
-    public void NotNullOrDoesNotHaveNullOrEmpty_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
+    public void DoesNotHaveNullOrEmpty_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
         var input = new[] { string.Empty };
-        var action = () => IsNotNullAndDoesNotHaveNullOrEmpty(input);
+        var action = () => DoesNotHaveNullOrEmptyStrings(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or empty string(s). (Parameter 'input')");
     }
 
     [Fact]
-    public void NotNullOrDoesNotHaveNullOrEmpty_WhenValid_ThrowsArgumentException() {
+    public void DoesNotHaveNullOrEmpty_WhenValid_ThrowsArgumentException() {
         var input = new[] { "Hello" };
-        var result = IsNotNullAndDoesNotHaveNullOrEmpty(input);
+        var result = DoesNotHaveNullOrEmptyStrings(input);
         result.Should().BeSameAs(input);
-    }
-
-    [Fact]
-    public void NotNullOrDoesNotHaveNullOrWhiteSpace_WhenDoesNotHaveWhitespace_ThrowsArgumentException() {
-        var input = new[] { " " };
-        var action = () => IsNotNullAndDoesNotHaveNullOrWhiteSpace(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or white space string(s). (Parameter 'input')");
     }
 
     [Fact]
     public void NotNullOrDoesNotHaveNullOrWhiteSpace_WhenValid_ThrowsArgumentException() {
         var input = new[] { "Hello" };
-        var result = IsNotNullAndDoesNotHaveNullOrWhiteSpace(input);
+        var result = DoesNotHaveNullOrWhiteSpaceStrings(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrDoesNotHaveNull_WhenIsNotEmpty_ReturnsInput() {
         var input = new[] { 1, 2, 3 };
-        var result = IsNotNullAndDoesNotHaveNull(input);
+        var result = DoesNotHaveNulls(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrEmpty_WhenIsNull_ThrowsArgumentException() {
         const ICollection<int> input = default!;
-        var action = () => IsNotNullOrEmpty(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or empty. (Parameter 'input')");
+        var result = IsNotEmpty(input);
+        result.Should().BeNull();
     }
 
     [Fact]
@@ -156,73 +142,52 @@ public class EnsureTests {
     }
 
     [Fact]
+    public void NoEmpty_WhenIsEmpty_ThrowsArgumentException() {
+        var input = Array.Empty<int>();
+        var action = () => IsNotEmpty(input);
+        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be empty. (Parameter 'input')");
+    }
+
+    [Fact]
     public void NotNullOrEmpty_WhenIsNotEmpty_ReturnsInput() {
         var input = new[] { 1, 2, 3 };
-        var result = IsNotNullOrEmpty(input);
+        var result = IsNotEmpty(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNull_WhenDoesNotHaveNull_ThrowsArgumentException() {
+    public void DoesNotHaveNulls_WhenDoesNotHaveNull_ThrowsArgumentException() {
         var input = new[] { default(int?) };
-        var action = () => IsNotNullOrEmptyAndDoesNotHaveNull(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null item(s). (Parameter 'input')");
+        var action = () => DoesNotHaveNulls(input);
+        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null value(s). (Parameter 'input')");
     }
 
     [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNull_WhenValid_ReturnsSame() {
+    public void DoesNotHaveNulls_WhenValid_ReturnsSame() {
         var input = new[] { "hello" };
-        var result = IsNotNullOrEmptyAndDoesNotHaveNull(input);
+        var result = DoesNotHaveNulls(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNullOrEmpty_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
+    public void DoesNotHaveNullOrEmptyStrings_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
         var input = new[] { string.Empty };
-        var action = () => IsNotNullOrEmptyAndDoesNotHaveNullOrEmpty(input);
+        var action = () => DoesNotHaveNullOrEmptyStrings(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or empty string(s). (Parameter 'input')");
     }
 
     [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNullOrEmpty_WhenValid_ReturnsSame() {
+    public void DoesNotHaveNullOrEmptyStrings_WhenValid_ReturnsSame() {
         var input = new[] { "Hello" };
-        var result = IsNotNullOrEmptyAndDoesNotHaveNullOrEmpty(input);
+        var result = DoesNotHaveNullOrEmptyStrings(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNullOrWhiteSpace_WhenDoesNotHaveWhitespace_ThrowsArgumentException() {
+    public void DoesNotHaveNullOrWhiteSpaceStrings_WhenDoesNotHaveWhitespace_ThrowsArgumentException() {
         var input = new[] { " " };
-        var action = () => IsNotNullOrEmptyAndDoesNotHaveNullOrWhiteSpace(input);
+        var action = () => DoesNotHaveNullOrWhiteSpaceStrings(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or white space string(s). (Parameter 'input')");
-    }
-
-    [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNullOrWhiteSpace_WhenEmpty_ThrowsArgumentException() {
-        var input = Array.Empty<string>();
-        var action = () => IsNotNullOrEmptyAndDoesNotHaveNullOrWhiteSpace(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or empty. (Parameter 'input')");
-    }
-
-    [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNullOrWhiteSpace_WhenDoesNotHaveNull_ThrowsArgumentException() {
-        string[] input = { default! };
-        var action = () => IsNotNullOrEmptyAndDoesNotHaveNullOrWhiteSpace(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or white space string(s). (Parameter 'input')");
-    }
-
-    [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNullOrWhiteSpace_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
-        var input = new[] { string.Empty };
-        var action = () => IsNotNullOrEmptyAndDoesNotHaveNullOrWhiteSpace(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or white space string(s). (Parameter 'input')");
-    }
-
-    [Fact]
-    public void NotNullOrEmptyOrDoesNotHaveNullOrWhiteSpace_WhenValid_ReturnsSame() {
-        var input = new[] { "Hello" };
-        var result = IsNotNullOrEmptyAndDoesNotHaveNullOrWhiteSpace(input);
-        result.Should().BeSameAs(input);
     }
 
     private class ValidatableObject : IValidatable {
@@ -232,137 +197,48 @@ public class EnsureTests {
             _isValid = isValid;
         }
         public Result Validate(IDictionary<string, object?>? context = null)
-            => _isValid ? Result.Success() : Result.Invalid("Is not valid.", "Source");
+            => _isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
     }
 
     [Fact]
-    public void IsValid_WhenNotValid_ThrowsValidationException() {
+    public void IsValid_WhenInvalidValidatable_ThrowsValidationException() {
         var input = new ValidatableObject(isValid: false);
         var result = () => IsValid(input);
         result.Should().Throw<ValidationException>();
     }
 
     [Fact]
-    public void IsValid_WhenValid_ReturnsSame() {
+    public void IsValid_WhenValidValidatable_ReturnsSame() {
         var input = new ValidatableObject(isValid: true);
         var result = IsValid(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
-    public void IsValidOrNull_WhenValid_ReturnsSame() {
-        var input = new ValidatableObject(isValid: true);
-        var result = IsValidOrNull(input);
+    public void IsValid_WhenValidSimpleObject_ReturnsSame() {
+        var input = new object();
+        var result = IsValid(input, o => Success());
         result.Should().BeSameAs(input);
     }
 
     [Fact]
-    public void IsValidOrNull_WhenNull_ReturnsNull() {
-        var result = IsValidOrNull<ValidatableObject>(null);
-        result.Should().BeNull();
+    public void IsValid_WhenInvalidSimpleObject_ReturnsSame() {
+        var input = new object();
+        var result = () => IsValid(input, o => Invalid("Some error."));
+        result.Should().Throw<ValidationException>();
     }
 
     [Fact]
-    public void ArgumentExistsAndIsOfType_WhenEmpty_ThrowsArgumentException() {
-        const string method = "MethodName";
-        var arguments = Array.Empty<object?>();
-        var action = () => ArgumentExistsAndIsOfType<string>(method, arguments, 0);
-        action.Should().Throw<ArgumentException>().WithMessage("Invalid number of arguments for 'MethodName'. Missing argument 0. (Parameter 'arguments')");
+    public void IsValid_WhenValidSimpleObject_AndPredicate_ReturnsSame() {
+        var input = new object();
+        var result = IsValid(input, o => true);
+        result.Should().BeSameAs(input);
     }
 
     [Fact]
-    public void ArgumentExistsAndIsOfType_WhenWrongType_ThrowsArgumentException() {
-        const string method = "MethodName";
-        var arguments = new object?[] { 1, "2", 3 };
-        var action = () => ArgumentExistsAndIsOfType<string>(method, arguments, 0);
-        action.Should().Throw<ArgumentException>().WithMessage("Invalid type of arguments[0] of 'MethodName'. Expected: String. Found: Int32. (Parameter 'arguments[0]')");
-    }
-
-    [Fact]
-    public void ArgumentExistsAndIsOfType_WhenValid_ReturnsItem() {
-        const string method = "MethodName";
-        var arguments = new object?[] { 1, "2", 3.0m };
-        var value = ArgumentExistsAndIsOfType<int>(method, arguments, 0);
-        value.Should().Be(1);
-    }
-
-    [Fact]
-    public void ArgumentsAreAllOfType_WhenEmpty_ThrowsArgumentException() {
-        const string method = "MethodName";
-        var arguments = Array.Empty<object?>();
-        var action = () => ArgumentsAreAllOfType<string>(method, arguments);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or empty. (Parameter 'arguments')");
-    }
-
-    [Fact]
-    public void ArgumentsAreAllOfType_WhenWrongType_ThrowsArgumentException() {
-        const string method = "MethodName";
-        var arguments = new object?[] { 1, "2", 3 };
-        var action = () => ArgumentsAreAllOfType<int>(method, arguments);
-        action.Should().Throw<ArgumentException>().WithMessage("Invalid type of arguments[1] of 'MethodName'. Expected: Int32. Found: String. (Parameter 'arguments[1]')");
-    }
-
-    [Fact]
-    public void ArgumentsAreAllOfType_WhenValid_ReturnsItem() {
-        const string method = "MethodName";
-        var arguments = new object?[] { 1, 2, 3 };
-        var value = ArgumentsAreAllOfType<int>(method, arguments);
-        value.Should().BeOfType<int[]>().Subject.Should().BeEquivalentTo(arguments);
-    }
-
-    [Fact]
-    public void ArgumentExistsAndIsOfTypeOrDefault_WhenEmpty_ThrowsArgumentException() {
-        const string method = "MethodName";
-        var arguments = Array.Empty<object?>();
-        var action = () => ArgumentExistsAndIsOfTypeOrDefault<string>(method, arguments, 0);
-        action.Should().Throw<ArgumentException>().WithMessage("Invalid number of arguments for 'MethodName'. Missing argument 0. (Parameter 'arguments')");
-    }
-
-    [Fact]
-    public void ArgumentExistsAndIsOfTypeOrDefault_WhenWrongType_ThrowsArgumentException() {
-        const string method = "MethodName";
-        var arguments = new object?[] { 1, "2", 3 };
-        var action = () => ArgumentExistsAndIsOfTypeOrDefault<string>(method, arguments, 0);
-        action.Should().Throw<ArgumentException>().WithMessage("Invalid type of arguments[0] of 'MethodName'. Expected: String. Found: Int32. (Parameter 'arguments[0]')");
-    }
-
-    [Fact]
-    public void ArgumentExistsAndIsOfTypeOrDefault_WhenValid_ReturnsItem() {
-        const string method = "MethodName";
-        var arguments = new object?[] { 1, "2", 3.0m };
-        var value = ArgumentExistsAndIsOfTypeOrDefault<int>(method, arguments, 0);
-        value.Should().Be(1);
-    }
-
-    [Fact]
-    public void ArgumentExistsAndIsOfTypeOrDefault_WhenNull_ReturnsDefault() {
-        const string method = "MethodName";
-        var arguments = new object?[] { null, "2", 3.0m };
-        var value = ArgumentExistsAndIsOfTypeOrDefault<int>(method, arguments, 0);
-        value.Should().Be(0);
-    }
-
-    [Fact]
-    public void ArgumentsAreAllOfTypeOrDefault_WhenEmpty_ThrowsArgumentException() {
-        const string method = "MethodName";
-        var arguments = Array.Empty<object?>();
-        var action = () => ArgumentsAreAllOfTypeOrDefault<string>(method, arguments);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or empty. (Parameter 'arguments')");
-    }
-
-    [Fact]
-    public void ArgumentsAreAllOfTypeOrDefault_WhenWrongType_ThrowsArgumentException() {
-        const string method = "MethodName";
-        var arguments = new object?[] { 1, "2", 3 };
-        var action = () => ArgumentsAreAllOfTypeOrDefault<int>(method, arguments);
-        action.Should().Throw<ArgumentException>().WithMessage("Invalid type of arguments[1] of 'MethodName'. Expected: Int32. Found: String. (Parameter 'arguments[1]')");
-    }
-
-    [Fact]
-    public void ArgumentsAreAllOfTypeOrDefault_WhenValid_ReturnsItem() {
-        const string method = "MethodName";
-        var arguments = new object?[] { null, 1, 2, 3 };
-        var value = ArgumentsAreAllOfTypeOrDefault<int>(method, arguments);
-        value.Should().BeOfType<int[]>().Subject.Should().BeEquivalentTo(new[] { 0, 1, 2, 3 });
+    public void IsValid_WhenInvalidSimpleObject_AndPredicate_ReturnsSame() {
+        var input = new object();
+        var result = () => IsValid(input, o => false);
+        result.Should().Throw<ValidationException>();
     }
 }

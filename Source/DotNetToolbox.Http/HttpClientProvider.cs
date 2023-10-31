@@ -24,7 +24,7 @@ public class HttpClientProvider : IHttpClientProvider {
         var builder = new HttpClientOptionsBuilder(name, _config, _identityClientFactory);
         configBuilder?.Invoke(builder);
         var options = builder.Build();
-        options.Validate().EnsureIsValid($"'{name ?? "Default"}' http client options are not valid.");
+        options.Validate().EnsureIsValid();
 
         var client = _clientFactory.CreateClient();
         lock (_lock) options.Configure(client, ref _authentication);

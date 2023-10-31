@@ -2,5 +2,5 @@
 
 public interface IResult {
     bool IsSuccess { get; }
-    IList<ValidationError> Errors { get; }
+    ISet<ValidationError> Errors { get; }
 }

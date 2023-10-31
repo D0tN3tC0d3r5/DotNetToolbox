@@ -2,9 +2,9 @@ namespace System.Results;
 
 public class ResultTests {
     private static readonly Result _success = Success();
-    private static readonly Result _invalid = Invalid("Some error.", "Source");
-    private static readonly Result _invalidWithSameError = Invalid("Some error.", "Source");
-    private static readonly Result _invalidWithOtherError = Invalid("Other error.", "Source");
+    private static readonly Result _invalid = Invalid("Source", "Some error.");
+    private static readonly Result _invalidWithSameError = Invalid("Source", "Some error.");
+    private static readonly Result _invalidWithOtherError = Invalid("Source", "Other error.");
 
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {

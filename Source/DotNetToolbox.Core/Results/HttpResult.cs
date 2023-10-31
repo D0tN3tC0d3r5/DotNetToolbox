@@ -8,7 +8,7 @@ public record HttpResult : Result {
 
     public HttpResultType Type { get; protected set; }
 
-    public override bool IsSuccess => !HasErrors && (Type is HttpResultType.Ok or HttpResultType.Created);
+    public override bool IsSuccess => !HasErrors && Type is HttpResultType.Ok or HttpResultType.Created;
     public override bool IsInvalid => Type is HttpResultType.BadRequest or HttpResultType.Unauthorized or HttpResultType.NotFound or HttpResultType.Conflict;
 
     public bool IsOk => !HasErrors && Type is HttpResultType.Ok;
@@ -22,21 +22,23 @@ public record HttpResult : Result {
     public static HttpResult Ok() => new(HttpResultType.Ok);
     public static HttpResult Created() => new(HttpResultType.Created);
 
-    public static HttpResult BadRequest(string message, string source, params object?[] args)
+    public static HttpResult BadRequest(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
         => new(HttpResultType.BadRequest, new ValidationError[] { new(source, message, args) });
+    public static HttpResult BadRequest([StringSyntax(CompositeFormat)] string message, params object[] args)
+        => BadRequest(string.Empty, message, args);
     public static HttpResult Unauthorized() => new(HttpResultType.Unauthorized);
     public static HttpResult NotFound() => new(HttpResultType.NotFound);
     public static HttpResult Conflict() => new(HttpResultType.Conflict);
 
     public static implicit operator HttpResult(List<ValidationError> errors)
-        => new(HttpResultType.BadRequest, IsNotNullAndDoesNotHaveNull(errors));
+        => new(HttpResultType.BadRequest, DoesNotHaveNulls(errors));
     public static implicit operator HttpResult(ValidationError[] errors)
-        => new(HttpResultType.BadRequest, IsNotNullAndDoesNotHaveNull(errors));
+        => new(HttpResultType.BadRequest, DoesNotHaveNulls(errors));
     public static implicit operator HttpResult(ValidationError error)
         => new(HttpResultType.BadRequest, new[] { error }.AsEnumerable());
 
     public static HttpResult operator +(HttpResult left, Result right) {
-        left.Errors.Merge(right.Errors.Distinct());
+        left.Errors.UnionWith(right.Errors);
         left.Type = left.IsInvalid ? HttpResultType.BadRequest : left.Type;
         return left;
     }
@@ -46,8 +48,10 @@ public record HttpResult : Result {
     public static HttpResult<TValue> Created<TValue>(TValue value)
         => new(HttpResultType.Created, IsNotNull(value));
 
-    public static HttpResult<TValue> BadRequest<TValue>(TValue value, string message, string source, params object?[] args)
+    public static HttpResult<TValue> BadRequest<TValue>(TValue value, string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
         => new(HttpResultType.BadRequest, IsNotNull(value), new ValidationError[] { new(source, message, args) });
+    public static HttpResult<TValue> BadRequest<TValue>(TValue value, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => BadRequest(value, string.Empty, message, args);
     public static HttpResult<TValue> Unauthorized<TValue>()
         => new(HttpResultType.Unauthorized);
     public static HttpResult<TValue> NotFound<TValue>()
@@ -70,7 +74,7 @@ public record HttpResult<TResult> : HttpResult {
         => new(result.IsInvalid ? HttpResultType.BadRequest : HttpResultType.Ok, result.Value, result.Errors);
 
     public static HttpResult<TResult> operator +(HttpResult<TResult> left, Result right) {
-        left.Errors.Merge(right.Errors.Distinct());
+        left.Errors.UnionWith(right.Errors);
         left.Type = left.IsBadRequest ? HttpResultType.BadRequest : left.Type;
         return left;
     }

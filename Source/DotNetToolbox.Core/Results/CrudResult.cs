@@ -17,20 +17,22 @@ public record CrudResult : Result {
     public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
 
-    public static new CrudResult Invalid(string message, string source, params object?[] args)
+    public static new CrudResult Invalid(string source, [StringSyntax(CompositeFormat)]string message, params object[] args)
         => new(new ValidationError(source, message, args));
+    public static new CrudResult Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
+        => Invalid(string.Empty, message, args);
     public static CrudResult Invalid(Result result)
         => new(CrudResultType.Invalid, result.Errors);
 
     public static implicit operator CrudResult(List<ValidationError> errors)
-        => new(CrudResultType.Invalid, IsNotNullAndDoesNotHaveNull(errors));
+        => new(CrudResultType.Invalid, DoesNotHaveNulls(errors));
     public static implicit operator CrudResult(ValidationError[] errors)
-        => new(CrudResultType.Invalid, IsNotNullAndDoesNotHaveNull(errors));
+        => new(CrudResultType.Invalid, DoesNotHaveNulls(errors));
     public static implicit operator CrudResult(ValidationError error)
         => new(CrudResultType.Invalid, new[] { error }.AsEnumerable());
 
     public static CrudResult operator +(CrudResult left, Result right) {
-        left.Errors.Merge(right.Errors.Distinct());
+        left.Errors.UnionWith(right.Errors);
         left.Type = left.IsInvalid ? CrudResultType.Invalid : left.Type;
         return left;
     }
@@ -41,8 +43,10 @@ public record CrudResult : Result {
         => new(CrudResultType.NotFound);
     public static CrudResult<TValue> Conflict<TValue>(TValue value)
         => new(CrudResultType.Conflict, IsNotNull(value));
-    public static CrudResult<TValue> Invalid<TValue>(TValue value, string message, string source)
-        => new(CrudResultType.Invalid, IsNotNull(value), new ValidationError[] { new(source, message) });
+    public static CrudResult<TValue> Invalid<TValue>(TValue value, string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => new(CrudResultType.Invalid, IsNotNull(value), new ValidationError[] { new(source, message, args) });
+    public static CrudResult<TValue> Invalid<TValue>(TValue value, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => Invalid(value, string.Empty, message, args);
     public static CrudResult<TValue> Invalid<TValue>(TValue value, IEnumerable<ValidationError> errors)
         => new(CrudResultType.Invalid, IsNotNull(value), errors);
 }
@@ -60,7 +64,7 @@ public record CrudResult<TResult> : CrudResult {
         => new(result.IsInvalid ? CrudResultType.Invalid : CrudResultType.Success, result.Value, result.Errors);
 
     public static CrudResult<TResult> operator +(CrudResult<TResult> left, Result right) {
-        left.Errors.Merge(right.Errors.Distinct());
+        left.Errors.UnionWith(right.Errors);
         left.Type = left.IsInvalid ? CrudResultType.Invalid : left.Type;
         return left;
     }

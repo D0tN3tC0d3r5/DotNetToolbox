@@ -18,7 +18,7 @@ global using Microsoft.Extensions.Options;
 global using Microsoft.Identity.Client;
 global using Microsoft.IdentityModel.Tokens;
 
-global using static System.Constants.ErrorMessages;
+global using static System.Constants.Messages;
 global using static System.Ensure;
 global using static System.Results.Result;
 

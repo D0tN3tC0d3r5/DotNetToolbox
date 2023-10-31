@@ -47,7 +47,7 @@ internal class HttpClientOptionsBuilder : IHttpClientOptionsBuilder {
         => SetAuthentication(options);
 
     internal HttpClientOptions Build() {
-        _options.Validate().EnsureIsValid($"'{_name ?? "Default"}' http client options are not valid.");
+        _options.Validate().EnsureIsValid();
         return _options;
     }
 

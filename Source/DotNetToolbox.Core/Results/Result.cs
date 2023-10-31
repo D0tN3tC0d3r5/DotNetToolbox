@@ -4,10 +4,10 @@ public record Result : IResult {
     protected Result(IEnumerable<ValidationError>? errors = null) {
         Errors = errors is null
             ? new()
-            : IsNotNullAndDoesNotHaveNull(errors).ToList();
+            : DoesNotHaveNulls(errors).ToHashSet();
     }
 
-    public IList<ValidationError> Errors { get; } = new List<ValidationError>();
+    public ISet<ValidationError> Errors { get; } = new HashSet<ValidationError>();
     protected bool HasErrors => Errors.Count != 0;
     public virtual bool IsInvalid => HasErrors;
     public virtual bool IsSuccess => !HasErrors;
@@ -20,23 +20,26 @@ public record Result : IResult {
         => Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine);
 
     public static Result Success() => new();
-    public static Result Invalid(string message, string source, params object?[] args) => new(new ValidationError(source, message, args));
+    public static Result Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => new(new ValidationError(source, message, args));
+    public static Result Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
+        => Invalid(string.Empty, message, args);
 
     public static implicit operator Result(List<ValidationError> errors) => new(errors.AsEnumerable());
     public static implicit operator Result(ValidationError[] errors) => new(errors.AsEnumerable());
     public static implicit operator Result(ValidationError error) => new(new[] { error }.AsEnumerable());
 
     public static Result operator +(Result left, Result right) {
-        left.Errors.Merge(right.Errors.Distinct());
+        left.Errors.UnionWith(right.Errors);
         return left;
     }
 
-    public void EnsureIsValid(string? message = null) {
-        if (HasErrors) throw new ValidationException(Errors, message);
+    public void EnsureIsValid() {
+        if (HasErrors) throw new ValidationException(Errors);
     }
 
     public static Result<TValue> Success<TValue>(TValue value) => new(value);
-    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object?[] args) => new(value, new ValidationError[] { new(source, message, args) });
+    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object[] args) => new(value, new ValidationError[] { new(source, message, args) });
 }
 
 public record Result<TResult> : Result {
@@ -50,7 +53,7 @@ public record Result<TResult> : Result {
     public static implicit operator Result<TResult>(TResult value) => new(value);
 
     public static Result<TResult> operator +(Result<TResult> left, Result right) {
-        left.Errors.Merge(right.Errors.Distinct());
+        left.Errors.UnionWith(right.Errors.Distinct());
         return left;
     }
 
