@@ -26,7 +26,6 @@ public class HttpResultTests {
             Errors = new HashSet<ValidationError> { new("Some error.") },
         };
 
-
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
@@ -246,9 +245,8 @@ public class HttpResultTests {
 
         // Act
         var result = original with {
-                                       Value = 7,
-                                   };
-
+            Value = 7,
+        };
 
         // Assert
         result.IsSuccess.Should().BeTrue();

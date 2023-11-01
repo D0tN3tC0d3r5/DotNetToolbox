@@ -7,15 +7,15 @@ public abstract class ValidationCommand : IValidationCommand {
 
     protected string Source { get; }
 
-    public virtual Result Validate(object? subject) {
-        if (subject is null || ValidateAs(subject)) return Result.Success();
-        return Result.Invalid(Source, ValidationErrorMessage, GetErrorMessageArguments(subject));
-    }
+    public virtual Result Validate(object? subject)
+        => subject is null || ValidateAs(subject)
+            ? Result.Success()
+            : Result.Invalid(Source, ValidationErrorMessage, GetErrorMessageArguments(subject));
 
-    public virtual Result Negate(object? subject) {
-        if (subject is null || !ValidateAs(subject)) return Result.Success();
-        return Result.Invalid(Source, InvertMessage(ValidationErrorMessage), GetErrorMessageArguments(subject));
-    }
+    public virtual Result Negate(object? subject)
+        => subject is null || !ValidateAs(subject)
+            ? Result.Success()
+            : Result.Invalid(Source, InvertMessage(ValidationErrorMessage), GetErrorMessageArguments(subject));
 
     protected Func<object, bool> ValidateAs { get; init; } = _ => true;
     protected string ValidationErrorMessage { get; init; } = MustBeValid;

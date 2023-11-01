@@ -4,7 +4,6 @@ public class Sha512Hasher : IHasher {
     public const int DefaultKeySize = 64;
     public const int DefaultIterations = 350000;
 
-
     private readonly int _keySize;
     private readonly int _iterations;
     private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;

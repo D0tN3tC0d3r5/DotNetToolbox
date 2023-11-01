@@ -145,7 +145,6 @@ public class UrlSafeBase64StringTests {
         bytes.Should().BeEquivalentTo(_bytesValue);
     }
 
-
     [Fact]
     public void ImplicitConversionFrom_ReturnCorrectValues() {
         // Act

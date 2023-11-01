@@ -45,30 +45,30 @@ public static class Ensure {
     public static TArgument? DoesNotHaveNulls<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
-               IEnumerable collection when collection.Cast<object?>().Any(item => item is null)
-                   => throw new ArgumentException(string.Format(ValueCannotContainNullItem, paramName), paramName),
-               _ => argument,
-           };
+            IEnumerable collection when collection.Cast<object?>().Any(item => item is null)
+                => throw new ArgumentException(string.Format(ValueCannotContainNullItem, paramName), paramName),
+            _ => argument,
+        };
 
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? DoesNotHaveNullOrEmptyStrings<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<string?>
         => argument switch {
-               // ReSharper disable once ConvertClosureToMethodGroup - it messes with code coverage
-               IEnumerable<string?> collection when collection.Any(i => string.IsNullOrEmpty(i))
-                   => throw new ArgumentException(string.Format(ValueCannotContainEmptyString, paramName), paramName),
-               _ => argument,
-           };
+            // ReSharper disable once ConvertClosureToMethodGroup - it messes with code coverage
+            IEnumerable<string?> collection when collection.Any(string.IsNullOrEmpty)
+                => throw new ArgumentException(string.Format(ValueCannotContainEmptyString, paramName), paramName),
+            _ => argument,
+        };
 
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? DoesNotHaveNullOrWhiteSpaceStrings<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<string?>
         => argument switch {
-               // ReSharper disable once ConvertClosureToMethodGroup - it messes with code coverage
-               IEnumerable<string?> collection when collection.Any(i => string.IsNullOrWhiteSpace(i))
-                   => throw new ArgumentException(string.Format(ValueCannotContainWhiteSpaceString, paramName), paramName),
-               _ => argument,
-           };
+            // ReSharper disable once ConvertClosureToMethodGroup - it messes with code coverage
+            IEnumerable<string?> collection when collection.Any(string.IsNullOrWhiteSpace)
+                => throw new ArgumentException(string.Format(ValueCannotContainWhiteSpaceString, paramName), paramName),
+            _ => argument,
+        };
 
     [return: NotNull]
     public static TArgument IsValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)

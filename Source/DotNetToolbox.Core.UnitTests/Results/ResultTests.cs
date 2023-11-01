@@ -16,7 +16,6 @@ public class ResultTests {
             Errors = new HashSet<ValidationError> { new("Some error.") },
         };
 
-
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
@@ -138,7 +137,6 @@ public class ResultTests {
         var result = _successWithValue with {
             Errors = new HashSet<ValidationError> { new("Some error.") },
         };
-
 
         // Assert
         result.IsSuccess.Should().BeFalse();
