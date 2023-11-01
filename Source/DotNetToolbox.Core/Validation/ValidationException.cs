@@ -1,7 +1,7 @@
 ﻿namespace System.Validation;
 
-public class ValidationException
-    : Exception {
+public class ValidationException(IEnumerable<ValidationError> errors)
+    : Exception(_defaultMessage) {
     private const string _defaultMessage = "Validation failed.";
 
     public ValidationException(string error)
@@ -13,13 +13,8 @@ public class ValidationException
     }
 
     public ValidationException(ValidationError error)
-        : this(new[] { error }) {
+        : this(new[] { error, }) {
     }
 
-    public ValidationException(IEnumerable<ValidationError> errors)
-        : base(_defaultMessage) {
-        Errors = errors.ToArray();
-    }
-
-    public IEnumerable<ValidationError> Errors { get; }
+    public IEnumerable<ValidationError> Errors { get; } = errors.ToArray();
 }

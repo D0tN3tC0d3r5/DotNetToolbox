@@ -1,23 +1,18 @@
 ﻿namespace DotNetToolbox.ValidationBuilder.Commands;
 
-public abstract class ValidationCommand : IValidationCommand {
-    protected ValidationCommand(string source) {
-        Source = source;
-    }
+public abstract class ValidationCommand(string source) : IValidationCommand {
+    protected string Source { get; } = source;
 
-    protected string Source { get; }
+    public virtual Result Validate(object? subject)
+        => subject is null || ValidateAs(subject)
+                                                           ? Result.Success()
+                                                           : Result.Invalid(Source, ValidationErrorMessage, GetErrorMessageArguments(subject));
 
-    public virtual Result Validate(object? subject) {
-        if (subject is null || ValidateAs(subject)) return Result.Success();
-        return Result.Invalid(Source, ValidationErrorMessage, GetErrorMessageArguments(subject));
-    }
-
-    public virtual Result Negate(object? subject) {
-        if (subject is null || !ValidateAs(subject)) return Result.Success();
-        return Result.Invalid(Source, InvertMessage(ValidationErrorMessage), GetErrorMessageArguments(subject));
-    }
+    public virtual Result Negate(object? subject) => subject is null || !ValidateAs(subject)
+                                                         ? Result.Success()
+                                                         : Result.Invalid(Source, InvertMessage(ValidationErrorMessage), GetErrorMessageArguments(subject));
 
     protected Func<object, bool> ValidateAs { get; init; } = _ => true;
     protected string ValidationErrorMessage { get; init; } = MustBeValid;
-    protected Func<object?, object?[]> GetErrorMessageArguments { get; init; } = _ => Array.Empty<object?>();
+    protected Func<object?, object[]> GetErrorMessageArguments { get; init; } = _ => Array.Empty<object>();
 }

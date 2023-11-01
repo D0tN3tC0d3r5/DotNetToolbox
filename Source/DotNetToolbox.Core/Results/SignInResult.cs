@@ -1,17 +1,6 @@
 ﻿namespace System.Results;
 
 public sealed record SignInResult : Result {
-    private const string _invalidInvalidSignInCreation =
-        """
-        To create an invalid result assigned the errors directly.
-        i.e. SingInResult result = new ValidationError(...);
-        """;
-    private const string _invalidSuccessfulSignInCreation =
-        """
-        To make a successful result assigned the token to it.
-        i.e. SingInResult result = "[Token]";
-        """;
-
     private SignInResultType _type;
 
     private SignInResult(SignInResultType type, string? token = null, IEnumerable<ValidationError>? errors = null)
@@ -35,9 +24,9 @@ public sealed record SignInResult : Result {
         => new(SignInResultType.ConfirmationRequired, token);
     public static SignInResult TwoFactorRequired(string token)
         => new(SignInResultType.TwoFactorRequired, token);
-    public static new SignInResult Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static new SignInResult Invalid([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
-    public static new SignInResult Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static new SignInResult Invalid(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(new ValidationError(source, message, args));
     public static new SignInResult Invalid(Result result)
         => new(SignInResultType.Invalid, null, result.Errors);
@@ -51,7 +40,7 @@ public sealed record SignInResult : Result {
     public static implicit operator SignInResult(ValidationError[] errors)
         => new(SignInResultType.Invalid, null, errors);
     public static implicit operator SignInResult(ValidationError error)
-        => new(SignInResultType.Invalid, null, new[] { error }.AsEnumerable());
+        => new(SignInResultType.Invalid, null, new[] { error, }.AsEnumerable());
     public static implicit operator SignInResult(string token)
         => new(SignInResultType.Success, token);
 
@@ -60,7 +49,7 @@ public sealed record SignInResult : Result {
         return left with {
             _type = left.IsInvalid ? SignInResultType.Invalid : left._type,
             Token = left.IsInvalid ? null : left.Token,
-                         };
+        };
     }
 
     public static bool operator ==(SignInResult left, SignInResultType right) => left._type == right;

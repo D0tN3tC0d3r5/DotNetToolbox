@@ -17,9 +17,9 @@ public record CrudResult : Result {
     public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
 
-    public static new CrudResult Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static new CrudResult Invalid([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
-    public static new CrudResult Invalid(string source, [StringSyntax(CompositeFormat)]string message, params object[] args)
+    public static new CrudResult Invalid(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => new(new ValidationError(source, message, args));
     public static new CrudResult Invalid(Result result)
         => new(CrudResultType.Invalid, result.Errors);
@@ -29,7 +29,7 @@ public record CrudResult : Result {
     public static implicit operator CrudResult(ValidationError[] errors)
         => new(CrudResultType.Invalid, DoesNotHaveNulls(errors));
     public static implicit operator CrudResult(ValidationError error)
-        => new(CrudResultType.Invalid, new[] { error }.AsEnumerable());
+        => new(CrudResultType.Invalid, new[] { error, }.AsEnumerable());
 
     public static CrudResult operator +(CrudResult left, Result right) {
         left.Errors.UnionWith(right.Errors);
@@ -43,9 +43,9 @@ public record CrudResult : Result {
         => new(CrudResultType.NotFound);
     public static CrudResult<TValue> Conflict<TValue>(TValue value)
         => new(CrudResultType.Conflict, IsNotNull(value));
-    public static CrudResult<TValue> Invalid<TValue>(TValue value, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static CrudResult<TValue> Invalid<TValue>(TValue value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(value, string.Empty, message, args);
-    public static new CrudResult<TValue> Invalid<TValue>(TValue value, string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static new CrudResult<TValue> Invalid<TValue>(TValue value, string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(value, new ValidationError(source, message, args));
     public static CrudResult<TValue> Invalid<TValue>(TValue value, Result result)
         => new(CrudResultType.Invalid, IsNotNull(value), result.Errors);

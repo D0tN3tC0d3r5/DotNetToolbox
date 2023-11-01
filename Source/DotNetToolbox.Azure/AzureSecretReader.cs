@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Azure;
-
-namespace DotNetToolbox;
+﻿namespace DotNetToolbox;
 
 public sealed class AzureSecretReader
     : IAzureSecretReader {
@@ -18,7 +16,7 @@ public sealed class AzureSecretReader
     }
 
     public TValue? GetSecretOrDefault<TValue>(string key, TValue? defaultValue = default) {
-        IsNotNull(key);
+        _ = IsNotNull(key);
         if (_client is null) {
             return defaultValue;
         }

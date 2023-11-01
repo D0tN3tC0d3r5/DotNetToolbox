@@ -10,7 +10,7 @@ public class EnumerableExtensionsTests {
         var result = () => subject!.ToArray<int>(i => i + 2);
 
         // Assert
-        result.Should().Throw<ArgumentNullException>();
+        _ = result.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
@@ -19,8 +19,8 @@ public class EnumerableExtensionsTests {
         var result = Enumerable.Range(0, 100).ToArray<int>(i => i + 2);
 
         // Assert
-        result.Should().BeOfType<int[]>();
-        result.Should().HaveCount(100);
+        _ = result.Should().BeOfType<int[]>();
+        _ = result.Should().HaveCount(100);
     }
 
     [Fact]
@@ -35,8 +35,8 @@ public class EnumerableExtensionsTests {
         var result = input.ToDictionary();
 
         // Assert
-        result.Should().BeOfType<Dictionary<string, int>>();
-        result.Should().HaveCount(2);
+        _ = result.Should().BeOfType<Dictionary<string, int>>();
+        _ = result.Should().HaveCount(2);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class EnumerableExtensionsTests {
         var result = () => subject!.ToArray(i => $"{i + 2}");
 
         // Assert
-        result.Should().Throw<ArgumentNullException>();
+        _ = result.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class EnumerableExtensionsTests {
         var result = Enumerable.Range(0, 100).ToArray(i => $"{i + 2}");
 
         // Assert
-        result.Should().BeOfType<string[]>();
-        result.Should().HaveCount(100);
+        _ = result.Should().BeOfType<string[]>();
+        _ = result.Should().HaveCount(100);
     }
 }

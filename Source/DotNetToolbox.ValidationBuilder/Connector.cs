@@ -2,21 +2,15 @@
 
 namespace DotNetToolbox.ValidationBuilder;
 
-public class Connector<TSubject, TValidator>
+public class Connector<TSubject, TValidator>(TValidator left)
     : IConnector<TValidator>
     where TValidator : Validator<TSubject> {
-    private readonly TValidator _left;
+    public Result Result => left.Result;
 
-    public Connector(TValidator left) {
-        _left = left;
-    }
-
-    public Result Result => _left.Result;
-
-    public TValidator And() => (TValidator)_left.SetMode(ValidatorMode.And);
-    public TValidator Or() => (TValidator)_left.SetMode(ValidatorMode.Or);
-    public TValidator AndNot() => (TValidator)_left.SetMode(ValidatorMode.AndNot);
-    public TValidator OrNot() => (TValidator)_left.SetMode(ValidatorMode.OrNot);
+    public TValidator And() => (TValidator)left.SetMode(ValidatorMode.And);
+    public TValidator Or() => (TValidator)left.SetMode(ValidatorMode.Or);
+    public TValidator AndNot() => (TValidator)left.SetMode(ValidatorMode.AndNot);
+    public TValidator OrNot() => (TValidator)left.SetMode(ValidatorMode.OrNot);
 
     public TValidator And(Func<TValidator, ITerminator> validateRight)
         => ProcessAnd(validateRight, ValidatorMode.And);
@@ -31,19 +25,19 @@ public class Connector<TSubject, TValidator>
         => ProcessOr(validateRight, ValidatorMode.AndNot);
 
     private TValidator ProcessAnd(Func<TValidator, ITerminator> validateRight, ValidatorMode mode) {
-        var rightValidator = Create.Instance<TValidator>(_left.Subject, _left.Source, mode);
+        var rightValidator = Create.Instance<TValidator>(left.Subject!, left.Source, mode);
         var rightResult = validateRight(rightValidator).Result;
-        _left.AddErrors(rightResult.Errors);
-        return _left;
+        left.AddErrors(rightResult.Errors);
+        return left;
     }
 
     private TValidator ProcessOr(Func<TValidator, ITerminator> validateRight, ValidatorMode mode) {
-        var rightValidator = Create.Instance<TValidator>(_left.Subject, _left.Source, mode);
+        var rightValidator = Create.Instance<TValidator>(left.Subject!, left.Source, mode);
         var rightResult = validateRight(rightValidator).Result;
-        if (_left.Result.IsInvalid && rightResult.IsInvalid)
-            _left.AddErrors(rightResult.Errors);
+        if (left.Result.IsInvalid && rightResult.IsInvalid)
+            left.AddErrors(rightResult.Errors);
         else
-            _left.ClearErrors();
-        return _left;
+            left.ClearErrors();
+        return left;
     }
 }

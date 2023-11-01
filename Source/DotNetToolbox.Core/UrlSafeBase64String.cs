@@ -2,11 +2,11 @@
 
 public readonly partial record struct UrlSafeBase64String {
     public UrlSafeBase64String() {
-        Bytes = Array.Empty<byte>();
+        Bytes = [];
     }
 
     public UrlSafeBase64String(byte[]? input = null) {
-        Bytes = input ?? Array.Empty<byte>();
+        Bytes = input ?? [];
     }
 
     public UrlSafeBase64String(Guid input) {
@@ -25,10 +25,10 @@ public readonly partial record struct UrlSafeBase64String {
     public string Base64 => ToBase64(Bytes);
     public bool IsGuid => Bytes.Length is 0 or 16;
     public Guid Guid => Bytes.Length switch {
-                            0 => Guid.Empty,
-                            16 => new(Bytes),
-                            _ => throw new FormatException("The value is not a valid GUID."),
-                        };
+        0 => Guid.Empty,
+        16 => new(Bytes),
+        _ => throw new FormatException("The value is not a valid GUID."),
+    };
 
     public static implicit operator UrlSafeBase64String(byte[]? input) => new(input);
     public static implicit operator UrlSafeBase64String(string input) => new(input);
@@ -45,8 +45,8 @@ public readonly partial record struct UrlSafeBase64String {
     private static string ToSafeBase64(byte[] bytes) {
         var base64 = Convert.ToBase64String(bytes);
         var builder = new StringBuilder(base64.TrimEnd('='));
-        builder.Replace('+', '-');
-        builder.Replace('/', '_');
+        _ = builder.Replace('+', '-');
+        _ = builder.Replace('/', '_');
         return builder.ToString();
     }
 
@@ -55,9 +55,9 @@ public readonly partial record struct UrlSafeBase64String {
 
     private static string ToStandardBase64(string input) {
         var builder = new StringBuilder(input.Trim());
-        builder.Replace('_', '/');
-        builder.Replace('-', '+');
-        builder.Append('=', 24 - (input.Length % 24));
+        _ = builder.Replace('_', '/');
+        _ = builder.Replace('-', '+');
+        _ = builder.Append('=', 24 - (input.Length % 24));
         return builder.ToString();
     }
 

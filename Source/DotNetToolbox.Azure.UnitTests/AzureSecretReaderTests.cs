@@ -6,9 +6,9 @@ public class AzureSecretReaderTests {
     private AzureSecretReader CreateAzureSecretReader(bool useLocalSecrets) {
         var configuration = Substitute.For<IConfiguration>();
         var configurationSection = Substitute.For<IConfigurationSection>();
-        configurationSection.Value.Returns(useLocalSecrets.ToString());
-        configuration.GetSection("UseLocalSecrets").Returns(configurationSection);
-        configuration["KeyVaultUrl"].Returns("https://keyVaultName.vault.azure.net/");
+        _ = configurationSection.Value.Returns(useLocalSecrets.ToString());
+        _ = configuration.GetSection("UseLocalSecrets").Returns(configurationSection);
+        _ = configuration["KeyVaultUrl"].Returns("https://keyVaultName.vault.azure.net/");
 
         var reader = new AzureSecretReader(configuration);
 
@@ -38,7 +38,7 @@ public class AzureSecretReaderTests {
         var result = azureSecretReader.GetSecretOrDefault(secretName, defaultValue);
 
         // Assert
-        result.Should().Be(defaultValue);
+        _ = result.Should().Be(defaultValue);
     }
 
     [Fact]
@@ -50,14 +50,14 @@ public class AzureSecretReaderTests {
 
         var secret = new KeyVaultSecret(secretName, secretValue);
         var response = Substitute.For<global::Azure.Response<KeyVaultSecret>>();
-        response.Value.Returns(secret);
-        _secretClient!.GetSecret(secretName).Returns(response);
+        _ = response.Value.Returns(secret);
+        _ = _secretClient!.GetSecret(secretName).Returns(response);
 
         // Act
         var result = azureSecretReader.GetSecretOrDefault<string>(secretName);
 
         // Assert
-        result.Should().Be(secretValue);
+        _ = result.Should().Be(secretValue);
     }
 
     [Fact]
@@ -66,13 +66,13 @@ public class AzureSecretReaderTests {
         var secretName = "SecretName";
         var defaultValue = "This is a default value";
         var azureSecretReader = CreateAzureSecretReader(false);
-        _secretClient!.GetSecret(secretName).Throws<Exception>();
+        _ = _secretClient!.GetSecret(secretName).Throws<Exception>();
 
         // Act
         var result = azureSecretReader.GetSecretOrDefault(secretName, defaultValue);
 
         // Assert
-        result.Should().Be(defaultValue);
+        _ = result.Should().Be(defaultValue);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class AzureSecretReaderTests {
         var result = azureSecretReader.GetSecretOrKey(secretName);
 
         // Assert
-        result.Should().Be(secretName);
+        _ = result.Should().Be(secretName);
     }
 
     [Fact]
@@ -97,14 +97,14 @@ public class AzureSecretReaderTests {
 
         var secret = new KeyVaultSecret(secretName, secretValue);
         var response = Substitute.For<global::Azure.Response<KeyVaultSecret>>();
-        response.Value.Returns(secret);
-        _secretClient!.GetSecret(secretName).Returns(response);
+        _ = response.Value.Returns(secret);
+        _ = _secretClient!.GetSecret(secretName).Returns(response);
 
         // Act
         var result = azureSecretReader.GetSecretOrKey(secretName);
 
         // Assert
-        result.Should().Be(secretValue);
+        _ = result.Should().Be(secretValue);
     }
 
     [Fact]
@@ -113,12 +113,12 @@ public class AzureSecretReaderTests {
         var secretName = "SecretName";
         var azureSecretReader = CreateAzureSecretReader(false);
 
-        _secretClient!.GetSecret(secretName).Throws<Exception>();
+        _ = _secretClient!.GetSecret(secretName).Throws<Exception>();
 
         // Act
         var result = azureSecretReader.GetSecretOrKey(secretName);
 
         // Assert
-        result.Should().Be(secretName);
+        _ = result.Should().Be(secretName);
     }
 }

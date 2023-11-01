@@ -3,7 +3,7 @@
 public record Result : IResult {
     protected Result(IEnumerable<ValidationError>? errors = null) {
         Errors = errors is null
-            ? new()
+            ? []
             : DoesNotHaveNulls(errors).ToHashSet();
     }
 
@@ -21,9 +21,9 @@ public record Result : IResult {
 
     public static Result Success()
         => new();
-    public static Result Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static Result Invalid([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
-    public static Result Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static Result Invalid(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(new ValidationError(source, message, args));
     public static Result Invalid(Result result)
         => new(result.Errors);
@@ -33,7 +33,7 @@ public record Result : IResult {
     public static implicit operator Result(ValidationError[] errors)
         => new(errors.AsEnumerable());
     public static implicit operator Result(ValidationError error)
-        => new(new[] { error }.AsEnumerable());
+        => new(new[] { error, }.AsEnumerable());
 
     public static Result operator +(Result left, Result right) {
         left.Errors.UnionWith(right.Errors);
@@ -45,7 +45,7 @@ public record Result : IResult {
     }
 
     public static Result<TValue> Success<TValue>(TValue value) => new(value);
-    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object[] args) => new(value, new ValidationError[] { new(source, message, args) });
+    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object[] args) => new(value, new ValidationError[] { new(source, message, args), });
 }
 
 public record Result<TResult> : Result {

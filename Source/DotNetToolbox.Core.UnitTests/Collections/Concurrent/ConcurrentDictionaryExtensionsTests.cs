@@ -9,11 +9,11 @@ public class ConcurrentDictionaryExtensionsTests {
         const int key = 100;
         const string expected = "Expected Value";
 
-        _concurrentDictionary.TryAdd(key, expected);
+        _ = _concurrentDictionary.TryAdd(key, expected);
 
         var actual = _concurrentDictionary.Get(key, _getValue);
 
-        actual.Should().Be(expected);
+        _ = actual.Should().Be(expected);
     }
 
     [Fact]
@@ -21,10 +21,10 @@ public class ConcurrentDictionaryExtensionsTests {
         const int key = 100;
         const string expected = "Expected Value";
 
-        _getValue.Invoke(key).Returns(expected);
+        _ = _getValue.Invoke(key).Returns(expected);
 
         var actual = _concurrentDictionary.Get(key, _getValue);
 
-        actual.Should().Be(expected);
+        _ = actual.Should().Be(expected);
     }
 }

@@ -23,13 +23,12 @@ public class HttpResultTests {
     public void CopyConstructor_ClonesObject() {
         // Act
         var result = _ok with {
-            Errors = new HashSet<ValidationError> { new("Some error.") },
+            Errors = new HashSet<ValidationError> { new("Some error."), },
         };
 
-
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -38,25 +37,25 @@ public class HttpResultTests {
         HttpResult result = new ValidationError(nameof(result), "Some error.");
 
         // Assert
-        result.IsOk.Should().BeFalse();
+        _ = result.IsOk.Should().BeFalse();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        HttpResult result = new[] { new ValidationError(nameof(result), "Some error.") };
+        HttpResult result = new[] { new ValidationError(nameof(result), "Some error."), };
 
         // Assert
-        result.IsOk.Should().BeFalse();
+        _ = result.IsOk.Should().BeFalse();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        HttpResult result = new List<ValidationError> { new(nameof(result), "Some error.") };
+        HttpResult result = new List<ValidationError> { new(nameof(result), "Some error."), };
 
         // Assert
-        result.IsOk.Should().BeFalse();
+        _ = result.IsOk.Should().BeFalse();
     }
 
     private class TestDataForProperties : TheoryData<HttpResult, bool, bool, bool, bool, bool, bool> {
@@ -79,12 +78,12 @@ public class HttpResultTests {
     [ClassData(typeof(TestDataForProperties))]
     public void Properties_ShouldReturnAsExpected(HttpResult subject, bool isBadRequest, bool isOk, bool isNotFound, bool isConflict, bool isCreated, bool isUnauthorized) {
         // Assert
-        subject.IsBadRequest.Should().Be(isBadRequest);
-        subject.IsOk.Should().Be(isOk);
-        subject.WasNotFound.Should().Be(isNotFound);
-        subject.HasConflict.Should().Be(isConflict);
-        subject.WasCreated.Should().Be(isCreated);
-        subject.IsUnauthorized.Should().Be(isUnauthorized);
+        _ = subject.IsBadRequest.Should().Be(isBadRequest);
+        _ = subject.IsOk.Should().Be(isOk);
+        _ = subject.WasNotFound.Should().Be(isNotFound);
+        _ = subject.HasConflict.Should().Be(isConflict);
+        _ = subject.WasCreated.Should().Be(isCreated);
+        _ = subject.IsUnauthorized.Should().Be(isUnauthorized);
     }
 
     private class TestDataForEquality : TheoryData<HttpResult, HttpResult?, bool> {
@@ -121,7 +120,7 @@ public class HttpResultTests {
         var result = subject == other;
 
         // Assert
-        result.Should().Be(expectedResult);
+        _ = result.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -131,7 +130,7 @@ public class HttpResultTests {
         var result = subject != other;
 
         // Assert
-        result.Should().Be(!expectedResult);
+        _ = result.Should().Be(!expectedResult);
     }
 
     [Fact]
@@ -155,7 +154,7 @@ public class HttpResultTests {
         };
 
         // Assert
-        result.Should().BeEquivalentTo(expectedResult);
+        _ = result.Should().BeEquivalentTo(expectedResult);
     }
 
     [Fact]
@@ -164,8 +163,8 @@ public class HttpResultTests {
         var result = Ok();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
+        _ = result.IsSuccess.Should().BeTrue();
+        _ = result.Errors.Should().BeEmpty();
     }
 
     [Fact]
@@ -174,8 +173,8 @@ public class HttpResultTests {
         var result = BadRequest("Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -184,8 +183,8 @@ public class HttpResultTests {
         var result = BadRequest("Field1", "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().BeEquivalentTo(new[] {
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().BeEquivalentTo(new[] {
             new ValidationError("Field1", "Some error."),
         });
     }
@@ -196,8 +195,8 @@ public class HttpResultTests {
         var result = BadRequest(Invalid("Some error."));
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -209,8 +208,8 @@ public class HttpResultTests {
         result += Success();
 
         // Assert
-        result.IsOk.Should().BeTrue();
-        result.IsBadRequest.Should().BeFalse();
+        _ = result.IsOk.Should().BeTrue();
+        _ = result.IsBadRequest.Should().BeFalse();
     }
 
     [Fact]
@@ -222,8 +221,8 @@ public class HttpResultTests {
         result += new ValidationError("Source", "Other error.");
 
         // Assert
-        result.IsOk.Should().BeFalse();
-        result.Errors.Should().HaveCount(2);
+        _ = result.IsOk.Should().BeFalse();
+        _ = result.Errors.Should().HaveCount(2);
     }
 
     [Fact]
@@ -235,8 +234,8 @@ public class HttpResultTests {
         result += new ValidationError("Source", "Some error.");
 
         // Assert
-        result.IsOk.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsOk.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -246,13 +245,12 @@ public class HttpResultTests {
 
         // Act
         var result = original with {
-                                       Value = 7,
-                                   };
-
+            Value = 7,
+        };
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().Be(7);
+        _ = result.IsSuccess.Should().BeTrue();
+        _ = result.Value.Should().Be(7);
     }
 
     [Fact]
@@ -264,8 +262,8 @@ public class HttpResultTests {
         result += new ValidationError("Source", "Some error.");
 
         // Assert
-        result.IsOk.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsOk.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -274,8 +272,8 @@ public class HttpResultTests {
         HttpResult<string> subject = "Value";
 
         // Assert
-        subject.Value.Should().Be("Value");
-        subject.IsOk.Should().BeTrue();
+        _ = subject.Value.Should().Be("Value");
+        _ = subject.IsOk.Should().BeTrue();
     }
 
     [Fact]
@@ -285,8 +283,8 @@ public class HttpResultTests {
         HttpResult<string> subject = result;
 
         // Assert
-        subject.Value.Should().Be(result.Value);
-        subject.IsOk.Should().BeTrue();
+        _ = subject.Value.Should().Be(result.Value);
+        _ = subject.IsOk.Should().BeTrue();
     }
 
     [Fact]
@@ -296,9 +294,9 @@ public class HttpResultTests {
         HttpResult<string> subject = result;
 
         // Assert
-        subject.Value.Should().Be(result.Value);
-        subject.IsOk.Should().BeFalse();
-        subject.Errors.Should().BeEquivalentTo(result.Errors);
+        _ = subject.Value.Should().Be(result.Value);
+        _ = subject.IsOk.Should().BeFalse();
+        _ = subject.Errors.Should().BeEquivalentTo(result.Errors);
     }
 
     [Fact]
@@ -310,9 +308,9 @@ public class HttpResultTests {
         result += Success();
 
         // Assert
-        result.IsOk.Should().BeTrue();
-        result.IsBadRequest.Should().BeFalse();
-        result.Value.Should().Be("Value");
+        _ = result.IsOk.Should().BeTrue();
+        _ = result.IsBadRequest.Should().BeFalse();
+        _ = result.Value.Should().Be("Value");
     }
 
     [Fact]
@@ -324,9 +322,9 @@ public class HttpResultTests {
         result += new ValidationError("result", "Some error.");
 
         // Assert
-        result.IsOk.Should().BeFalse();
-        result.IsBadRequest.Should().BeTrue();
-        result.Value.Should().Be("Value");
+        _ = result.IsOk.Should().BeFalse();
+        _ = result.IsBadRequest.Should().BeTrue();
+        _ = result.Value.Should().Be("Value");
     }
 
     [Fact]
@@ -338,8 +336,8 @@ public class HttpResultTests {
         var result = subject.MapTo(int.Parse);
 
         // Assert
-        result.Should().BeOfType<HttpResult<int>>();
-        result.IsOk.Should().BeTrue();
+        _ = result.Should().BeOfType<HttpResult<int>>();
+        _ = result.IsOk.Should().BeTrue();
     }
 
     [Fact]
@@ -351,10 +349,10 @@ public class HttpResultTests {
         var result = subject.MapTo(int.Parse);
 
         // Assert
-        result.Should().BeOfType<HttpResult<int>>();
-        result.IsOk.Should().BeFalse();
-        result.IsBadRequest.Should().BeFalse();
-        result.WasNotFound.Should().BeTrue();
+        _ = result.Should().BeOfType<HttpResult<int>>();
+        _ = result.IsOk.Should().BeFalse();
+        _ = result.IsBadRequest.Should().BeFalse();
+        _ = result.WasNotFound.Should().BeTrue();
     }
 
     [Fact]
@@ -366,8 +364,8 @@ public class HttpResultTests {
         var result = subject.MapTo(int.Parse);
 
         // Assert
-        result.Should().BeOfType<HttpResult<int>>();
-        result.IsOk.Should().BeFalse();
+        _ = result.Should().BeOfType<HttpResult<int>>();
+        _ = result.IsOk.Should().BeFalse();
     }
 
     [Fact]
@@ -376,8 +374,8 @@ public class HttpResultTests {
         var result = Ok(42);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
+        _ = result.IsSuccess.Should().BeTrue();
+        _ = result.Errors.Should().BeEmpty();
     }
 
     [Fact]
@@ -386,8 +384,8 @@ public class HttpResultTests {
         var result = BadRequest(42, "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -396,8 +394,8 @@ public class HttpResultTests {
         var result = BadRequest(42, "Field1", "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().BeEquivalentTo(new[] {
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().BeEquivalentTo(new[] {
             new ValidationError("Field1", "Some error."),
         });
     }
@@ -408,7 +406,7 @@ public class HttpResultTests {
         var result = BadRequest(42, Invalid("Some error."));
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 }

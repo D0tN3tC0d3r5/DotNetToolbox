@@ -10,6 +10,6 @@ public sealed class ServiceCollectionExtensionsTests {
         var configuration = Substitute.For<IConfiguration>();
 
         // Act
-        services.AddHttpClientProvider(configuration);
+        _ = services.AddHttpClientProvider(configuration);
     }
 }

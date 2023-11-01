@@ -13,7 +13,6 @@ public static class Messages {
     public const string ValueMustContainEmptyString = "Value must contain null or empty string(s).";
     public const string ValueMustContainWhiteSpaceString = "Value must contain null or white space string(s).";
 
-
     public static readonly string ValueCannotBeNull = NegateMessage(ValueMustBeNull);
 
     public static readonly string ValueCannotBeNullOrEmpty = NegateMessage(ValueMustBeNullOrEmpty);

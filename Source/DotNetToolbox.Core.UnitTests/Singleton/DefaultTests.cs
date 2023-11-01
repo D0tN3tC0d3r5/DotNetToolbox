@@ -12,7 +12,7 @@ public class DefaultTests {
         var instance2 = ClassWithDefault.Default;
 
         // Assert
-        instance1.Should().BeOfType<ClassWithDefault>();
-        instance1.Should().BeSameAs(instance2);
+        _ = instance1.Should().BeOfType<ClassWithDefault>();
+        _ = instance1.Should().BeSameAs(instance2);
     }
 }

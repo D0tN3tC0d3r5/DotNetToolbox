@@ -1,4 +1,4 @@
-﻿namespace System.Constants;
+﻿namespace DotNetToolbox.ValidationBuilder.Constants;
 
 public static class Commands {
     public const string IsEqualTo = "IsEqualTo";

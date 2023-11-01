@@ -1,11 +1,7 @@
 namespace DotNetToolbox.ValidationBuilder;
 
 public class ValidatorsTests {
-    public class TestObject : Validator<long> {
-        public TestObject(long subject, string source, ValidatorMode mode = ValidatorMode.And)
-            : base(subject, source, mode) {
-        }
-    }
+    public class TestObject(long subject, string source, ValidatorMode mode = ValidatorMode.And) : Validator<long>(subject, source, mode);
 
     [Fact]
     public void Constructor_CreatesBuilder() {
@@ -13,8 +9,8 @@ public class ValidatorsTests {
         var result = new TestObject(100, "SomeSubject");
 
         // Assert
-        result.Mode.Should().Be(ValidatorMode.And);
-        result.Result.IsSuccess.Should().BeTrue();
+        _ = result.Mode.Should().Be(ValidatorMode.And);
+        _ = result.Result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
@@ -23,7 +19,7 @@ public class ValidatorsTests {
         var result = new TestObject(100, "SomeSubject", ValidatorMode.Or);
 
         // Assert
-        result.Mode.Should().Be(ValidatorMode.Or);
-        result.Result.IsSuccess.Should().BeTrue();
+        _ = result.Mode.Should().Be(ValidatorMode.Or);
+        _ = result.Result.IsSuccess.Should().BeTrue();
     }
 }

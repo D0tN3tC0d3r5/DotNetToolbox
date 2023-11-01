@@ -13,6 +13,8 @@ public sealed class ValidationCommandFactory {
         => new(subjectType, source);
 
     public IValidationCommand Create(string command, params object?[] arguments) {
+        #pragma warning disable IDE0046 // Convert to conditional expression
+        // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (command == IsNull) return new IsNullCommand(_source);
         if (command == IsEqualTo) return new IsEqualToCommand(arguments[0]!, _source);
         if (_subjectType == typeof(int)) return CreateNumberCommand<int>(command, arguments);
@@ -34,31 +36,32 @@ public sealed class ValidationCommandFactory {
         if (_subjectType.IsAssignableTo(typeof(IDictionary<string, string>))) return CreateDictionaryCommand<string, string>(command, arguments);
         if (_subjectType.IsAssignableTo(typeof(IValidatable))) return CreateValidatableCommand(command);
         throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'.");
+        #pragma warning restore IDE0046 // Convert to conditional expression
     }
 
-    private IValidationCommand CreateValidatableCommand(string command)
+    private IsValidCommand CreateValidatableCommand(string command)
         => command switch {
-            System.Constants.Commands.IsValid => new IsValidCommand(_source),
+            Constants.Commands.IsValid => new (_source),
             _ => throw new InvalidOperationException($"Unsupported command '{command}' for {_subjectType.Name}."),
-           };
+        };
 
-    private IValidationCommand CreateNumberCommand<TValue>(string command, IReadOnlyList<object?> arguments)
+    private ValidationCommand CreateNumberCommand<TValue>(string command, IReadOnlyList<object?> arguments)
         where TValue : struct, IComparable<TValue> {
         return command switch {
             IsLessThan => new IsLessThanCommand<TValue>(GetLimitValue(), _source),
             IsGreaterThan => new IsGreaterThanCommand<TValue>(GetLimitValue(), _source),
             _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
-               };
+        };
 
         TValue GetLimitValue() => GetArgumentValue<TValue>(command, arguments, 0);
     }
 
-    private IValidationCommand CreateDateTimeCommand(string command, IReadOnlyList<object?> arguments) {
+    private ValidationCommand CreateDateTimeCommand(string command, IReadOnlyList<object?> arguments) {
         return command switch {
             IsBefore => new IsBeforeCommand(GetLimitValue(), _source),
             IsAfter => new IsAfterCommand(GetLimitValue(), _source),
             _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
-               };
+        };
 
         DateTime GetLimitValue() => GetArgumentValue<DateTime>(command, arguments, 0);
     }
@@ -75,7 +78,7 @@ public sealed class ValidationCommandFactory {
             IsEmail => new IsEmailCommand(_source),
             IsPassword => new IsPasswordCommand(GetPolicy(), _source),
             _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
-               };
+        };
 
         int GetLengthValue() => GetArgumentValue<int>(command, arguments, 0);
         string GetCandidateValue() => GetArgumentValue<string>(command, arguments, 0);
@@ -91,7 +94,7 @@ public sealed class ValidationCommandFactory {
             HasAtMost => new HasAtMostCommand<TItem>(GetCountValue(), _source),
             Has => new HasCommand<TItem>(GetCountValue(), _source),
             _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
-               };
+        };
 
         int GetCountValue() => GetArgumentValue<int>(command, arguments, 0);
         TItem? GetItemValue() => GetArgumentValueOrDefault<TItem>(command, arguments, 0);
@@ -107,7 +110,7 @@ public sealed class ValidationCommandFactory {
             ContainsKey => new ContainsKeyCommand<TKey, TValue?>(GetKeyValue(), _source),
             ContainsValue => new ContainsValueCommand<TKey, TValue?>(GetValueValue(), _source),
             _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
-               };
+        };
 
         int GetCountValue() => GetArgumentValueOrDefault<int>(command, arguments, 0);
         TKey GetKeyValue() => GetArgumentValue<TKey>(command, arguments, 0);
@@ -133,7 +136,7 @@ public sealed class ValidationCommandFactory {
 
     private static TArgument?[] GetArgumentValues<TArgument>(string methodName, IReadOnlyList<object?> arguments, [CallerArgumentExpression(nameof(arguments))] string? paramName = null) {
         var list = IsNotEmpty(IsNotNull(arguments, paramName), paramName);
-        for (var index = 0; index < list.Count; index++) GetArgumentValueOrDefault<TArgument>(methodName, arguments, (uint)index, paramName);
+        for (var index = 0; index < list.Count; index++) _ = GetArgumentValueOrDefault<TArgument>(methodName, arguments, (uint)index, paramName);
 
         return list.Select(i => i is null ? default : (TArgument)i).ToArray();
     }

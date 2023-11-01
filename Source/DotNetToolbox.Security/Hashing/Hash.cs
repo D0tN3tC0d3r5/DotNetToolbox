@@ -2,6 +2,7 @@
 
 public readonly record struct Hash {
 
+    // ReSharper disable once ConvertToPrimaryConstructor - no setters
     public Hash(byte[] value, byte[] salt) {
         Value = value;
         Salt = salt;

@@ -6,13 +6,13 @@ public sealed class IsNullCommand : ValidationCommand {
         ValidationErrorMessage = MustBeNull;
     }
 
-    public override Result Validate(object? subject) {
-        if (subject is null) return Result.Success();
-        return Result.Invalid(Source, ValidationErrorMessage, GetErrorMessageArguments(subject));
-    }
+    public override Result Validate(object? subject)
+        => subject is null
+        ? Result.Success()
+        : Result.Invalid(Source, ValidationErrorMessage, GetErrorMessageArguments(subject));
 
-    public override Result Negate(object? subject) {
-        if (subject is not null) return Result.Success();
-        return Result.Invalid(Source, InvertMessage(ValidationErrorMessage), GetErrorMessageArguments(subject));
-    }
+    public override Result Negate(object? subject)
+        => subject is not null
+        ? Result.Success()
+        : Result.Invalid(Source, InvertMessage(ValidationErrorMessage), GetErrorMessageArguments(subject));
 }

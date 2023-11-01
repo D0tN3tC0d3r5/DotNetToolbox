@@ -2,9 +2,9 @@ namespace System.Threading;
 
 public class TaskExtensionTests {
     private static readonly FieldInfo _taskAwaiterField = typeof(ConfiguredTaskAwaitable).GetField("m_configuredTaskAwaiter", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _taskContinueOnCapturedContextField = typeof(ConfiguredTaskAwaitable.ConfiguredTaskAwaiter).GetField("m_continueOnCapturedContext", BindingFlags.NonPublic | BindingFlags.Instance)!;
+    private static readonly FieldInfo _taskAwaiterConfigureAwaitOptionsField = typeof(ConfiguredTaskAwaitable.ConfiguredTaskAwaiter).GetField("m_options", BindingFlags.NonPublic | BindingFlags.Instance)!;
     private static readonly FieldInfo _taskOfTAwaiterField = typeof(ConfiguredTaskAwaitable<int>).GetField("m_configuredTaskAwaiter", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _taskOfTContinueOnCapturedContextField = typeof(ConfiguredTaskAwaitable<int>.ConfiguredTaskAwaiter).GetField("m_continueOnCapturedContext", BindingFlags.NonPublic | BindingFlags.Instance)!;
+    private static readonly FieldInfo _taskOfTAwaiterConfigureAwaitOptionsField = typeof(ConfiguredTaskAwaitable<int>.ConfiguredTaskAwaiter).GetField("m_options", BindingFlags.NonPublic | BindingFlags.Instance)!;
     private static readonly FieldInfo _valueTaskField = typeof(ConfiguredValueTaskAwaitable).GetField("_value", BindingFlags.NonPublic | BindingFlags.Instance)!;
     private static readonly FieldInfo _valueTaskContinueOnCapturedContextField = typeof(ValueTask).GetField("_continueOnCapturedContext", BindingFlags.NonPublic | BindingFlags.Instance)!;
     private static readonly FieldInfo _valueTaskOfTField = typeof(ConfiguredValueTaskAwaitable<int>).GetField("_value", BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -37,7 +37,7 @@ public class TaskExtensionTests {
         var act = () => TestValueTask().FireAndForget();
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
     }
 
     [Fact]
@@ -49,8 +49,10 @@ public class TaskExtensionTests {
         var act = () => TestValueTask().FireAndForget(onCancel);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
+#pragma warning disable CA2012 // Use ValueTasks correctly
         onCancel.DidNotReceive().Invoke(Arg.Any<ValueTask>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
+#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -62,8 +64,10 @@ public class TaskExtensionTests {
         var act = () => TestValueTask().FireAndForget(onException);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
+#pragma warning disable CA2012 // Use ValueTasks correctly
         onException.DidNotReceive().Invoke(Arg.Any<ValueTask>(), Arg.Any<Exception>());
+#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -72,7 +76,7 @@ public class TaskExtensionTests {
         var act = () => TestFaultyValueTask().FireAndForget();
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
     }
 
     [Fact]
@@ -81,9 +85,8 @@ public class TaskExtensionTests {
         var act = () => TestCanceledValueTask().FireAndForget();
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
     }
-
 
     [Fact]
     public void FireAndForget_WithCanceledValueTaskAndOnCancel_ShouldDoNothing() {
@@ -94,8 +97,10 @@ public class TaskExtensionTests {
         var act = () => TestCanceledValueTask().FireAndForget(onCancel);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
+#pragma warning disable CA2012 // Use ValueTasks correctly
         onCancel.Received(1).Invoke(Arg.Any<ValueTask>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
+#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -107,10 +112,11 @@ public class TaskExtensionTests {
         var act = () => TestFaultyValueTask().FireAndForget(onException);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
+#pragma warning disable CA2012 // Use ValueTasks correctly
         onException.Received(1).Invoke(Arg.Any<ValueTask>(), Arg.Any<Exception>());
+#pragma warning restore CA2012 // Use ValueTasks correctly
     }
-
 
     [Fact]
     public void FireAndForget_WithValueTaskOfT_ShouldDoNothing() {
@@ -121,7 +127,7 @@ public class TaskExtensionTests {
         var act = () => TestValueTaskOfT().FireAndForget(onResult);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
     }
 
@@ -135,9 +141,11 @@ public class TaskExtensionTests {
         var act = () => TestValueTaskOfT().FireAndForget(onResult, onCancel);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
+#pragma warning disable CA2012 // Use ValueTasks correctly
         onCancel.DidNotReceive().Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
+#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -150,9 +158,11 @@ public class TaskExtensionTests {
         var act = () => TestValueTaskOfT().FireAndForget(onResult, onException);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
+#pragma warning disable CA2012 // Use ValueTasks correctly
         onException.DidNotReceive().Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<Exception>());
+#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -164,7 +174,7 @@ public class TaskExtensionTests {
         var act = () => TestFaultyValueTaskOfT().FireAndForget(onResult);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
     }
 
@@ -177,10 +187,9 @@ public class TaskExtensionTests {
         var act = () => TestCanceledValueTaskOfT().FireAndForget(onResult);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
     }
-
 
     [Fact]
     public void FireAndForget_WithCanceledValueTaskOfTAndOnCancel_ShouldDoNothing() {
@@ -192,9 +201,11 @@ public class TaskExtensionTests {
         var act = () => TestCanceledValueTaskOfT().FireAndForget(onResult, onCancel);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
+#pragma warning disable CA2012 // Use ValueTasks correctly
         onCancel.Received(1).Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
+#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -207,9 +218,11 @@ public class TaskExtensionTests {
         var act = () => TestFaultyValueTaskOfT().FireAndForget(onResult, onException);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
+#pragma warning disable CA2012 // Use ValueTasks correctly
         onException.Received(1).Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<Exception>());
+#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -218,7 +231,7 @@ public class TaskExtensionTests {
         var act = () => TestTask().FireAndForget();
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
     }
 
     [Fact]
@@ -230,7 +243,7 @@ public class TaskExtensionTests {
         var act = () => TestTask().FireAndForget(onCancel);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onCancel.DidNotReceive().Invoke(Arg.Any<Task>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
     }
 
@@ -243,7 +256,7 @@ public class TaskExtensionTests {
         var act = () => TestTask().FireAndForget(onException);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onException.DidNotReceive().Invoke(Arg.Any<Task>(), Arg.Any<Exception>());
     }
 
@@ -253,7 +266,7 @@ public class TaskExtensionTests {
         var act = () => TestFaultyTask().FireAndForget();
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
     }
 
     [Fact]
@@ -262,9 +275,8 @@ public class TaskExtensionTests {
         var act = () => TestCanceledTask().FireAndForget();
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
     }
-
 
     [Fact]
     public void FireAndForget_WithCanceledTaskAndOnCancel_ShouldDoNothing() {
@@ -275,7 +287,7 @@ public class TaskExtensionTests {
         var act = () => TestCanceledTask().FireAndForget(onCancel);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onCancel.Received(1).Invoke(Arg.Any<Task>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
     }
 
@@ -288,7 +300,7 @@ public class TaskExtensionTests {
         var act = () => TestFaultyTask().FireAndForget(onException);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onException.Received(1).Invoke(Arg.Any<Task>(), Arg.Any<Exception>());
     }
 
@@ -301,7 +313,7 @@ public class TaskExtensionTests {
         var act = () => TestTaskOfT().FireAndForget(onResult);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
     }
 
@@ -315,7 +327,7 @@ public class TaskExtensionTests {
         var act = () => TestTaskOfT().FireAndForget(onResult, onCancel);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
         onCancel.DidNotReceive().Invoke(Arg.Any<Task<int>>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
     }
@@ -330,7 +342,7 @@ public class TaskExtensionTests {
         var act = () => TestTaskOfT().FireAndForget(onResult, onException);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
         onException.DidNotReceive().Invoke(Arg.Any<Task<int>>(), Arg.Any<Exception>());
     }
@@ -344,7 +356,7 @@ public class TaskExtensionTests {
         var act = () => TestFaultyTaskOfT().FireAndForget(onResult);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
     }
 
@@ -357,10 +369,9 @@ public class TaskExtensionTests {
         var act = () => TestCanceledTaskOfT().FireAndForget(onResult);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
     }
-
 
     [Fact]
     public void FireAndForget_WithCanceledTaskOfTAndOnCancel_ShouldDoNothing() {
@@ -369,10 +380,10 @@ public class TaskExtensionTests {
         var onResult = Substitute.For<Action<int>>();
 
         // Act
-        var act = () => TestCanceledTaskOfT().FireAndForget(onResult,onCancel);
+        var act = () => TestCanceledTaskOfT().FireAndForget(onResult, onCancel);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
         onCancel.Received(1).Invoke(Arg.Any<Task<int>>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
     }
@@ -384,10 +395,10 @@ public class TaskExtensionTests {
         var onResult = Substitute.For<Action<int>>();
 
         // Act
-        var act = () => TestFaultyTaskOfT().FireAndForget(onResult,onException);
+        var act = () => TestFaultyTaskOfT().FireAndForget(onResult, onException);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
         onException.Received(1).Invoke(Arg.Any<Task<int>>(), Arg.Any<Exception>());
     }
@@ -400,7 +411,7 @@ public class TaskExtensionTests {
         // Assert
         var valueTask = (ValueTask)_valueTaskField.GetValue(task)!;
         var continueOnCapturedContextField = (bool)_valueTaskContinueOnCapturedContextField.GetValue(valueTask)!;
-        continueOnCapturedContextField.Should().BeFalse();
+        _ = continueOnCapturedContextField.Should().BeFalse();
     }
 
     [Fact]
@@ -411,7 +422,7 @@ public class TaskExtensionTests {
         // Assert
         var valueTask = (ValueTask)_valueTaskField.GetValue(task)!;
         var continueOnCapturedContextField = (bool)_valueTaskContinueOnCapturedContextField.GetValue(valueTask)!;
-        continueOnCapturedContextField.Should().BeTrue();
+        _ = continueOnCapturedContextField.Should().BeTrue();
     }
 
     [Fact]
@@ -422,7 +433,7 @@ public class TaskExtensionTests {
         // Assert
         var valueTask = (ValueTask<int>)_valueTaskOfTField.GetValue(task)!;
         var continueOnCapturedContextField = (bool)_valueTaskOfTContinueOnCapturedContextField.GetValue(valueTask)!;
-        continueOnCapturedContextField.Should().BeFalse();
+        _ = continueOnCapturedContextField.Should().BeFalse();
     }
 
     [Fact]
@@ -433,7 +444,7 @@ public class TaskExtensionTests {
         // Assert
         var valueTask = (ValueTask<int>)_valueTaskOfTField.GetValue(task)!;
         var continueOnCapturedContextField = (bool)_valueTaskOfTContinueOnCapturedContextField.GetValue(valueTask)!;
-        continueOnCapturedContextField.Should().BeTrue();
+        _ = continueOnCapturedContextField.Should().BeTrue();
     }
 
     [Fact]
@@ -443,8 +454,8 @@ public class TaskExtensionTests {
 
         // Assert
         var awaiter = (ConfiguredTaskAwaitable.ConfiguredTaskAwaiter)_taskAwaiterField.GetValue(task)!;
-        var continueOnCapturedContextField = (bool)_taskContinueOnCapturedContextField.GetValue(awaiter)!;
-        continueOnCapturedContextField.Should().BeFalse();
+        var configureAwaitOptionsField = (int)_taskAwaiterConfigureAwaitOptionsField.GetValue(awaiter)!;
+        _ = configureAwaitOptionsField.Should().Be(0);
     }
 
     [Fact]
@@ -454,8 +465,8 @@ public class TaskExtensionTests {
 
         // Assert
         var awaiter = (ConfiguredTaskAwaitable.ConfiguredTaskAwaiter)_taskAwaiterField.GetValue(task)!;
-        var continueOnCapturedContextField = (bool)_taskContinueOnCapturedContextField.GetValue(awaiter)!;
-        continueOnCapturedContextField.Should().BeTrue();
+        var configureAwaitOptionsField = (int)_taskAwaiterConfigureAwaitOptionsField.GetValue(awaiter)!;
+        _ = configureAwaitOptionsField.Should().Be(1);
     }
 
     [Fact]
@@ -465,8 +476,8 @@ public class TaskExtensionTests {
 
         // Assert
         var awaiter = (ConfiguredTaskAwaitable<int>.ConfiguredTaskAwaiter)_taskOfTAwaiterField.GetValue(task)!;
-        var continueOnCapturedContextField = (bool)_taskOfTContinueOnCapturedContextField.GetValue(awaiter)!;
-        continueOnCapturedContextField.Should().BeFalse();
+        var continueOnCapturedContextField = (int)_taskOfTAwaiterConfigureAwaitOptionsField.GetValue(awaiter)!;
+        _ = continueOnCapturedContextField.Should().Be(0);
     }
 
     [Fact]
@@ -476,8 +487,8 @@ public class TaskExtensionTests {
 
         // Assert
         var awaiter = (ConfiguredTaskAwaitable<int>.ConfiguredTaskAwaiter)_taskOfTAwaiterField.GetValue(task)!;
-        var continueOnCapturedContextField = (bool)_taskOfTContinueOnCapturedContextField.GetValue(awaiter)!;
-        continueOnCapturedContextField.Should().BeTrue();
+        var continueOnCapturedContextField = (int)_taskOfTAwaiterConfigureAwaitOptionsField.GetValue(awaiter)!;
+        _ = continueOnCapturedContextField.Should().Be(1);
     }
 
     [Fact]
@@ -496,14 +507,14 @@ public class TaskExtensionTests {
     public async Task ContinueSynchronouslyWith_ForTask_WithReturn_ExecutesSynchronously() {
         // Arrange
         var function = Substitute.For<Func<Task, int>>();
-        function(Arg.Any<Task>()).Returns(42);
+        _ = function(Arg.Any<Task>()).Returns(42);
 
         // Act
         var result = await TestTask().ContinueSynchronouslyWith(function);
 
         // Assert
-        function.Received(1).Invoke(Arg.Any<Task>());
-        result.Should().Be(42);
+        _ = function.Received(1).Invoke(Arg.Any<Task>());
+        _ = result.Should().Be(42);
     }
 
     [Fact]
@@ -524,14 +535,14 @@ public class TaskExtensionTests {
         // Arrange
         var task = Task.FromResult(42);
         var function = Substitute.For<Func<Task<int>, string>>();
-        function(Arg.Any<Task<int>>()).Returns("42");
+        _ = function(Arg.Any<Task<int>>()).Returns("42");
 
         // Act
         var result = await task.ContinueSynchronouslyWith(function);
 
         // Assert
-        function.Received(1).Invoke(Arg.Any<Task<int>>());
-        result.Should().Be("42");
+        _ = function.Received(1).Invoke(Arg.Any<Task<int>>());
+        _ = result.Should().Be("42");
     }
 
     [Fact]
@@ -543,7 +554,7 @@ public class TaskExtensionTests {
         var result = () => TestFaultyTask().ContinueSynchronouslyWith(action);
 
         // Assert
-        await result.Should().ThrowAsync<TaskCanceledException>();
+        _ = await result.Should().ThrowAsync<TaskCanceledException>();
         action.DidNotReceive().Invoke(Arg.Any<Task>());
     }
 
@@ -556,7 +567,7 @@ public class TaskExtensionTests {
         var result = () => TestCanceledTask().ContinueSynchronouslyWith(action);
 
         // Assert
-        await result.Should().ThrowAsync<TaskCanceledException>();
+        _ = await result.Should().ThrowAsync<TaskCanceledException>();
         action.DidNotReceive().Invoke(Arg.Any<Task>());
     }
 }

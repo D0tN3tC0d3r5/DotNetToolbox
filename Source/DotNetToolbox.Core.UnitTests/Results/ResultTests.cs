@@ -13,13 +13,12 @@ public class ResultTests {
     public void CopyConstructor_ClonesObject() {
         // Act
         var result = _success with {
-            Errors = new HashSet<ValidationError> { new("Some error.") },
+            Errors = new HashSet<ValidationError> { new("Some error."), },
         };
 
-
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -28,25 +27,25 @@ public class ResultTests {
         Result result = new ValidationError(nameof(result), "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        _ = result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        Result result = new[] { new ValidationError(nameof(result), "Some error.") };
+        Result result = new[] { new ValidationError(nameof(result), "Some error."), };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        _ = result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        Result result = new List<ValidationError> { new(nameof(result), "Some error.") };
+        Result result = new List<ValidationError> { new(nameof(result), "Some error."), };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        _ = result.IsSuccess.Should().BeFalse();
     }
 
     private class TestDataForProperties : TheoryData<Result, bool, bool> {
@@ -59,8 +58,8 @@ public class ResultTests {
     [ClassData(typeof(TestDataForProperties))]
     public void Properties_ShouldReturnAsExpected(Result subject, bool isInvalid, bool isSuccess) {
         // Assert
-        subject.IsInvalid.Should().Be(isInvalid);
-        subject.IsSuccess.Should().Be(isSuccess);
+        _ = subject.IsInvalid.Should().Be(isInvalid);
+        _ = subject.IsSuccess.Should().Be(isSuccess);
     }
 
     [Fact]
@@ -72,7 +71,7 @@ public class ResultTests {
         result += new ValidationError("result", "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
+        _ = result.IsSuccess.Should().BeFalse();
     }
 
     private class TestDataForEquality : TheoryData<Result, Result?, bool> {
@@ -95,7 +94,7 @@ public class ResultTests {
         var result = subject == other;
 
         // Assert
-        result.Should().Be(expectedResult);
+        _ = result.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -105,7 +104,7 @@ public class ResultTests {
         var result = subject != other;
 
         // Assert
-        result.Should().Be(!expectedResult);
+        _ = result.Should().Be(!expectedResult);
     }
 
     [Fact]
@@ -129,20 +128,19 @@ public class ResultTests {
         };
 
         // Assert
-        result.Should().BeEquivalentTo(expectedResult);
+        _ = result.Should().BeEquivalentTo(expectedResult);
     }
 
     [Fact]
     public void OfT_CopyConstructor_ClonesObject() {
         // Act
         var result = _successWithValue with {
-            Errors = new HashSet<ValidationError> { new("Some error.") },
+            Errors = new HashSet<ValidationError> { new("Some error."), },
         };
 
-
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -151,8 +149,8 @@ public class ResultTests {
         Result<string> subject = "Value";
 
         // Assert
-        subject.Value.Should().Be("Value");
-        subject.IsSuccess.Should().BeTrue();
+        _ = subject.Value.Should().Be("Value");
+        _ = subject.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
@@ -164,9 +162,9 @@ public class ResultTests {
         result += Success();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.IsInvalid.Should().BeFalse();
-        result.Value.Should().Be("42");
+        _ = result.IsSuccess.Should().BeTrue();
+        _ = result.IsInvalid.Should().BeFalse();
+        _ = result.Value.Should().Be("42");
     }
 
     [Fact]
@@ -178,9 +176,9 @@ public class ResultTests {
         result += new ValidationError("result", "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.IsInvalid.Should().BeTrue();
-        result.Value.Should().Be("42");
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.IsInvalid.Should().BeTrue();
+        _ = result.Value.Should().Be("42");
     }
 
     [Fact]
@@ -192,8 +190,8 @@ public class ResultTests {
         var result = subject.MapTo(int.Parse);
 
         // Assert
-        result.Should().BeOfType<Result<int>>();
-        result.IsSuccess.Should().BeTrue();
+        _ = result.Should().BeOfType<Result<int>>();
+        _ = result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
@@ -205,7 +203,7 @@ public class ResultTests {
         var result = subject.MapTo(int.Parse);
 
         // Assert
-        result.Should().BeOfType<Result<int>>();
-        result.IsSuccess.Should().BeFalse();
+        _ = result.Should().BeOfType<Result<int>>();
+        _ = result.IsSuccess.Should().BeFalse();
     }
 }

@@ -1,15 +1,9 @@
 ﻿namespace DotNetToolbox.ValidationBuilder;
 
-public abstract class Validator : IValidator {
-    protected Validator(string source, ValidatorMode mode = And) {
-        Mode = mode;
-        Source = source;
-        Result = Result.Success();
-    }
-
-    public ValidatorMode Mode { get; private set; }
-    public string Source { get; }
-    public Result Result { get; private set; }
+public abstract class Validator(string source, ValidatorMode mode = And) : IValidator {
+    public ValidatorMode Mode { get; private set; } = mode;
+    public string Source { get; } = source;
+    public Result Result { get; private set; } = Result.Success();
 
     public Validator SetMode(ValidatorMode mode) {
         Mode = mode;
@@ -25,13 +19,8 @@ public abstract class Validator : IValidator {
     public void AddErrors(IEnumerable<ValidationError> errors) => Result += errors.ToArray();
 }
 
-public abstract class Validator<TSubject> : Validator {
-    protected Validator(TSubject? subject, string source, ValidatorMode mode = And)
-        : base(source, mode) {
-        Subject = subject;
-    }
-
-    public TSubject? Subject { get; }
+public abstract class Validator<TSubject>(TSubject? subject, string source, ValidatorMode mode = And) : Validator(source, mode) {
+    public TSubject? Subject { get; } = subject;
 
     protected void ValidateWith(IValidationCommand validator) {
         var rightResult = Mode.Has(Not)

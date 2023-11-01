@@ -27,6 +27,6 @@ public class TypeValidatorsTests {
         var result = subject.Validate();
 
         // Assert
-        result.Errors.Should().HaveCount(errorCount);
+        _ = result.Errors.Should().HaveCount(errorCount);
     }
 }

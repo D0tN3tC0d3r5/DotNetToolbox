@@ -21,8 +21,8 @@ public class SignInResultTests {
         var result = Success("SomeToken");
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
+        _ = result.IsSuccess.Should().BeTrue();
+        _ = result.Errors.Should().BeEmpty();
     }
 
     [Fact]
@@ -31,8 +31,8 @@ public class SignInResultTests {
         var result = Invalid("Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -41,8 +41,8 @@ public class SignInResultTests {
         var result = Invalid("Field1", "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().BeEquivalentTo(new[] {
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().BeEquivalentTo(new[] {
             new ValidationError("Field1", "Some error."),
         });
     }
@@ -53,8 +53,8 @@ public class SignInResultTests {
         var result = Invalid(Result.Invalid("Some error."));
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -63,25 +63,25 @@ public class SignInResultTests {
         var result = (SignInResult)new ValidationError("Source", "Some error.");
 
         // Assert
-        result.IsInvalid.Should().BeTrue();
+        _ = result.IsInvalid.Should().BeTrue();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        SignInResult result = new[] { new ValidationError("Source", "Some error.") };
+        SignInResult result = new[] { new ValidationError("Source", "Some error."), };
 
         // Assert
-        result.IsInvalid.Should().BeTrue();
+        _ = result.IsInvalid.Should().BeTrue();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        SignInResult result = new List<ValidationError> { new("Source", "Some error.") };
+        SignInResult result = new List<ValidationError> { new("Source", "Some error."), };
 
         // Assert
-        result.IsInvalid.Should().BeTrue();
+        _ = result.IsInvalid.Should().BeTrue();
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class SignInResultTests {
         SignInResult result = "SomeToken";
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        _ = result.IsSuccess.Should().BeTrue();
     }
 
     private class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
@@ -108,13 +108,13 @@ public class SignInResultTests {
     [ClassData(typeof(TestDataForProperties))]
     public void Properties_ShouldReturnAsExpected(SignInResult subject, bool isInvalid, bool isBlocked, bool isLocked, bool isFailure, bool confirmationRequired, bool twoFactorRequired, bool isSuccess) {
         // Assert
-        subject.IsInvalid.Should().Be(isInvalid);
-        subject.IsLocked.Should().Be(isLocked);
-        subject.IsBlocked.Should().Be(isBlocked);
-        subject.IsFailure.Should().Be(isFailure);
-        subject.RequiresConfirmation.Should().Be(confirmationRequired);
-        subject.RequiresTwoFactor.Should().Be(twoFactorRequired);
-        subject.IsSuccess.Should().Be(isSuccess);
+        _ = subject.IsInvalid.Should().Be(isInvalid);
+        _ = subject.IsLocked.Should().Be(isLocked);
+        _ = subject.IsBlocked.Should().Be(isBlocked);
+        _ = subject.IsFailure.Should().Be(isFailure);
+        _ = subject.RequiresConfirmation.Should().Be(confirmationRequired);
+        _ = subject.RequiresTwoFactor.Should().Be(twoFactorRequired);
+        _ = subject.IsSuccess.Should().Be(isSuccess);
     }
 
     private class TestDataForEquality : TheoryData<SignInResult, SignInResultType, bool> {
@@ -154,7 +154,7 @@ public class SignInResultTests {
         var result = subject == type;
 
         // Assert
-        result.Should().Be(expectedResult);
+        _ = result.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -164,7 +164,7 @@ public class SignInResultTests {
         var result = subject != type;
 
         // Assert
-        result.Should().Be(!expectedResult);
+        _ = result.Should().Be(!expectedResult);
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public class SignInResultTests {
         };
 
         // Assert
-        result.Should().BeEquivalentTo(expectedResult);
+        _ = result.Should().BeEquivalentTo(expectedResult);
     }
 
     [Fact]
@@ -206,12 +206,12 @@ public class SignInResultTests {
         var result = Success("SomeToken");
 
         // Act
-        result += Result.Success();
+        result += Success();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.IsInvalid.Should().BeFalse();
-        result.Token.Should().Be("SomeToken");
+        _ = result.IsSuccess.Should().BeTrue();
+        _ = result.IsInvalid.Should().BeFalse();
+        _ = result.Token.Should().Be("SomeToken");
     }
 
     [Fact]
@@ -223,9 +223,9 @@ public class SignInResultTests {
         result += new ValidationError("Source", "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
-        result.Token.Should().BeNull();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
+        _ = result.Token.Should().BeNull();
     }
 
     [Fact]
@@ -237,8 +237,8 @@ public class SignInResultTests {
         result += new ValidationError("Source", "Other error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().HaveCount(2);
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().HaveCount(2);
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public class SignInResultTests {
         result += new ValidationError("Source", "Some error.");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        _ = result.IsSuccess.Should().BeFalse();
+        _ = result.Errors.Should().ContainSingle();
     }
 }

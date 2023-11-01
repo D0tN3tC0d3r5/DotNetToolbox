@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>DotNetToolbox.Security</PackageId>
     <Title>DotNetToolbox Security Library</Title>
-    <Version>7.0.0</Version>
+    <Version>8.0.0-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>DotNetToolbox</Company>
     <PackageTags>DotNet;Toolbox;Security;Library</PackageTags>
@@ -16,8 +16,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v7.0.0:
-      - Based on .Net 7.0
+      v8.0.0-rc1:
+      - Based on .Net 8.0.0-rc.2
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Security</Product>
     <Copyright>Andre Vianna 2023</Copyright>

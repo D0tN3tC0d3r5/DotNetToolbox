@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
 public class HttpClientConfiguration : HttpClientOptions {
-    public Dictionary<string, HttpClientOptions> Clients { get; set; } = new();
+    public Dictionary<string, HttpClientOptions> Clients { get; set; } = [];
 
     public HttpClientOptions ResolveOptionsFor(string? clientName = null) {
         var options = (HttpClientOptions)this;

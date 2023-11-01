@@ -1,27 +1,20 @@
 ﻿namespace DotNetToolbox.Security.Hashing;
 
-public class Sha512Hasher : IHasher {
+public class Sha512Hasher(int keySize = Sha512Hasher.DefaultKeySize, int iterations = Sha512Hasher.DefaultIterations)
+    : IHasher {
     public const int DefaultKeySize = 64;
     public const int DefaultIterations = 350000;
 
-
-    private readonly int _keySize;
-    private readonly int _iterations;
     private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;
 
-    public Sha512Hasher(int keySize = DefaultKeySize, int iterations = DefaultIterations) {
-        _keySize = keySize;
-        _iterations = iterations;
-    }
-
     public Hash Generate(byte[] secret) {
-        var salt = RandomNumberGenerator.GetBytes(_keySize);
+        var salt = RandomNumberGenerator.GetBytes(keySize);
         var hash = Rfc2898DeriveBytes.Pbkdf2(
             IsNotNull(secret),
             salt,
-            _iterations,
+            iterations,
             _hashAlgorithm,
-            _keySize);
+            keySize);
         return new(hash, salt);
     }
 
@@ -29,9 +22,9 @@ public class Sha512Hasher : IHasher {
         var testValue = Rfc2898DeriveBytes.Pbkdf2(
                                          IsNotNull(secret),
                                          hash.Salt,
-                                         _iterations,
+                                         iterations,
                                          _hashAlgorithm,
-                                         _keySize);
+                                         keySize);
         return hash.Value.SequenceEqual(testValue);
     }
 }

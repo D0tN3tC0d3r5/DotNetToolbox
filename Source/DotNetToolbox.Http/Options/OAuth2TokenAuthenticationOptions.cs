@@ -5,7 +5,7 @@ public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
     public string? ClientId { get; set; }
     public string? ClientSecret { get; set; }
     public string? Authority { get; set; }
-    public string[] Scopes { get; set; } = Array.Empty<string>();
+    public string[] Scopes { get; set; } = [];
     public Guid CorrelationId { get; private set; }
 
     internal IMsalHttpClientFactory? HttpClientFactory { get; set; }
@@ -65,9 +65,9 @@ public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
                      .WithHttpClientFactory(HttpClientFactory)
                      .WithClientSecret(ClientSecret);
         if (!string.IsNullOrWhiteSpace(TenantId))
-            builder.WithTenantId(TenantId);
+            _ = builder.WithTenantId(TenantId);
         if (!string.IsNullOrWhiteSpace(Authority))
-            builder.WithAuthority(Authority);
+            _ = builder.WithAuthority(Authority);
         CorrelationId = Guid.NewGuid();
         return builder.Build();
     }

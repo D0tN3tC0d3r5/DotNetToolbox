@@ -1,4 +1,4 @@
-﻿namespace System.Constants;
+﻿namespace DotNetToolbox.ValidationBuilder.Constants;
 
 public static class ErrorMessages {
     public const string MustBeAfter = "Value must be after {0}. Found: {1}.";

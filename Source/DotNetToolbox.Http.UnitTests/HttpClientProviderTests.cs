@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 namespace DotNetToolbox.Http;
 
-public sealed class HttpClientProviderTests : IDisposable  {
+public sealed class HttpClientProviderTests : IDisposable {
     private readonly HttpClientConfiguration _defaultConfiguration = new() {
         BaseAddress = "http://example.com/api/",
     };
@@ -16,7 +16,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             uniqueId: null,
             account: null,
             idToken: Guid.NewGuid().ToString(),
-            scopes: new[] { "https://graph.microsoft.com/.default" },
+            scopes: ["https://graph.microsoft.com/.default",],
             correlationId: correlationId);
 
     private readonly HttpClientProvider _provider;
@@ -28,14 +28,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
     private static HttpClientProvider CreateHttpClientBuilder(HttpClientConfiguration? clientOptions = null) {
         var clientFactory = Substitute.For<IHttpClientFactory>();
         var options = Substitute.For<IOptions<HttpClientConfiguration>>();
-        options.Value.Returns(clientOptions);
+        _ = options.Value.Returns(clientOptions);
         var identityFactory = Substitute.For<IMsalHttpClientFactory>();
 
         var client = new HttpClient();
-        clientFactory.CreateClient(Arg.Any<string>()).Returns(client);
+        _ = clientFactory.CreateClient(Arg.Any<string>()).Returns(client);
 
         var identityClient = new HttpClient();
-        identityFactory.GetHttpClient().Returns(identityClient);
+        _ = identityFactory.GetHttpClient().Returns(identityClient);
 
         // Act
         var result = new HttpClientProvider(clientFactory, options, identityFactory);
@@ -59,8 +59,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().ContainSingle();
-        exception.Errors.First().FormattedMessage.Should().Be("BaseAddress: Value cannot be null or white space.");
+        _ = exception.Errors.Should().ContainSingle();
+        _ = exception.Errors.First().FormattedMessage.Should().Be("BaseAddress: Value cannot be null or white space.");
     }
 
     [Fact]
@@ -73,8 +73,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().ContainSingle();
-        exception.Errors.First().FormattedMessage.Should().Be("ResponseFormat: Value cannot be null or white space.");
+        _ = exception.Errors.Should().ContainSingle();
+        _ = exception.Errors.First().FormattedMessage.Should().Be("ResponseFormat: Value cannot be null or white space.");
     }
 
     [Fact]
@@ -83,8 +83,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var result = _provider.GetHttpClient();
 
         // Assert
-        result.BaseAddress.Should().Be("http://example.com/api/");
-        result.DefaultRequestHeaders.Accept.Should().Contain(new MediaTypeWithQualityHeaderValue("application/json"));
+        _ = result.BaseAddress.Should().Be("http://example.com/api/");
+        _ = result.DefaultRequestHeaders.Accept.Should().Contain(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
     [Fact]
@@ -92,25 +92,25 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         _defaultConfiguration.ResponseFormat = "text/xml";
         _defaultConfiguration.CustomHeaders = new() {
-            ["x-custom-string"] = new[] { "SomeValue" },
-            ["x-custom-int"] = new[] { "42" },
+            ["x-custom-string"] = ["SomeValue",],
+            ["x-custom-int"] = ["42",],
         };
 
         // Act
         var result = _provider.GetHttpClient();
 
         // Assert
-        result.BaseAddress.Should().Be("http://example.com/api/");
-        result.DefaultRequestHeaders.Accept.Should().Contain(new MediaTypeWithQualityHeaderValue("text/xml"));
-        result.DefaultRequestHeaders.GetValue("x-custom-string").Should().Be("SomeValue");
-        result.DefaultRequestHeaders.GetValue<int>("x-custom-int").Should().Be(42);
-        result.DefaultRequestHeaders.TryGetValue("x-custom-string", out var stringValue).Should().BeTrue();
-        stringValue.Should().Be("SomeValue");
-        result.DefaultRequestHeaders.TryGetValue<int>("x-custom-int", out var intValue).Should().BeTrue();
-        intValue.Should().Be(42);
-        result.DefaultRequestHeaders.TryGetValue("x-invalid", out _).Should().BeFalse();
-        result.DefaultRequestHeaders.TryGetValue<int>("x-invalid", out _).Should().BeFalse();
-        result.DefaultRequestHeaders.TryGetValue<int>("x-custom-string", out _).Should().BeFalse();
+        _ = result.BaseAddress.Should().Be("http://example.com/api/");
+        _ = result.DefaultRequestHeaders.Accept.Should().Contain(new MediaTypeWithQualityHeaderValue("text/xml"));
+        _ = result.DefaultRequestHeaders.GetValue("x-custom-string").Should().Be("SomeValue");
+        _ = result.DefaultRequestHeaders.GetValue<int>("x-custom-int").Should().Be(42);
+        _ = result.DefaultRequestHeaders.TryGetValue("x-custom-string", out var stringValue).Should().BeTrue();
+        _ = stringValue.Should().Be("SomeValue");
+        _ = result.DefaultRequestHeaders.TryGetValue<int>("x-custom-int", out var intValue).Should().BeTrue();
+        _ = intValue.Should().Be(42);
+        _ = result.DefaultRequestHeaders.TryGetValue("x-invalid", out _).Should().BeFalse();
+        _ = result.DefaultRequestHeaders.TryGetValue<int>("x-invalid", out _).Should().BeFalse();
+        _ = result.DefaultRequestHeaders.TryGetValue<int>("x-custom-string", out _).Should().BeFalse();
     }
 
     [Fact]
@@ -118,18 +118,18 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         // Act
         var result = _provider.GetHttpClient(config => {
-            config.SetBaseAddress("http://example.com/api/v2/");
-            config.SetResponseFormat("text/xml");
-            config.AddCustomHeader("x-custom-string", "SomeValue");
-            config.AddCustomHeader("x-custom-string", "SomeValue");
-            config.AddCustomHeader("x-custom-string", "SomeOtherValue");
-            config.AddCustomHeader("x-custom-int", "42");
+            _ = config.SetBaseAddress("http://example.com/api/v2/");
+            _ = config.SetResponseFormat("text/xml");
+            _ = config.AddCustomHeader("x-custom-string", "SomeValue");
+            _ = config.AddCustomHeader("x-custom-string", "SomeValue");
+            _ = config.AddCustomHeader("x-custom-string", "SomeOtherValue");
+            _ = config.AddCustomHeader("x-custom-int", "42");
         });
 
         // Assert
-        result.BaseAddress.Should().Be("http://example.com/api/v2/");
-        result.DefaultRequestHeaders.Accept.Should().Contain(new MediaTypeWithQualityHeaderValue("text/xml"));
-        result.DefaultRequestHeaders.GetValues("x-custom-string").Should().BeEquivalentTo("SomeValue", "SomeOtherValue");
+        _ = result.BaseAddress.Should().Be("http://example.com/api/v2/");
+        _ = result.DefaultRequestHeaders.Accept.Should().Contain(new MediaTypeWithQualityHeaderValue("text/xml"));
+        _ = result.DefaultRequestHeaders.GetValues("x-custom-string").Should().BeEquivalentTo("SomeValue", "SomeOtherValue");
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var result = () => _provider.GetHttpClient("Invalid");
 
         // Assert
-        result.Should().Throw<ArgumentException>();
+        _ = result.Should().Throw<ArgumentException>();
     }
 
     [Fact]
@@ -151,8 +151,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
             BaseAddress = _defaultConfiguration.BaseAddress,
             ResponseFormat = "text/xml",
             CustomHeaders = new() {
-                ["x-custom-string"] = new[] { "SomeValue" },
-                ["x-custom-int"] = new[] { "42" },
+                ["x-custom-string"] = ["SomeValue",],
+                ["x-custom-int"] = ["42",],
             },
         };
 
@@ -160,16 +160,16 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var result = _provider.GetHttpClient("NamedClient1");
 
         // Assert
-        result.BaseAddress.Should().Be("http://example.com/api/");
-        result.DefaultRequestHeaders.GetValue("x-custom-string").Should().Be("SomeValue");
-        result.DefaultRequestHeaders.GetValue<int>("x-custom-int").Should().Be(42);
-        result.DefaultRequestHeaders.TryGetValue("x-custom-string", out var stringValue).Should().BeTrue();
-        stringValue.Should().Be("SomeValue");
-        result.DefaultRequestHeaders.TryGetValue<int>("x-custom-int", out var intValue).Should().BeTrue();
-        intValue.Should().Be(42);
-        result.DefaultRequestHeaders.TryGetValue("x-invalid", out _).Should().BeFalse();
-        result.DefaultRequestHeaders.TryGetValue<int>("x-invalid", out _).Should().BeFalse();
-        result.DefaultRequestHeaders.TryGetValue<int>("x-custom-string", out _).Should().BeFalse();
+        _ = result.BaseAddress.Should().Be("http://example.com/api/");
+        _ = result.DefaultRequestHeaders.GetValue("x-custom-string").Should().Be("SomeValue");
+        _ = result.DefaultRequestHeaders.GetValue<int>("x-custom-int").Should().Be(42);
+        _ = result.DefaultRequestHeaders.TryGetValue("x-custom-string", out var stringValue).Should().BeTrue();
+        _ = stringValue.Should().Be("SomeValue");
+        _ = result.DefaultRequestHeaders.TryGetValue<int>("x-custom-int", out var intValue).Should().BeTrue();
+        _ = intValue.Should().Be(42);
+        _ = result.DefaultRequestHeaders.TryGetValue("x-invalid", out _).Should().BeFalse();
+        _ = result.DefaultRequestHeaders.TryGetValue<int>("x-invalid", out _).Should().BeFalse();
+        _ = result.DefaultRequestHeaders.TryGetValue<int>("x-custom-string", out _).Should().BeFalse();
     }
 
     [Fact]
@@ -180,8 +180,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
                 BaseAddress = _defaultConfiguration.BaseAddress,
                 ResponseFormat = "text/xml",
                 CustomHeaders = new() {
-                    ["x-custom-string"] = new[] { "SomeValue" },
-                    ["x-custom-int"] = new[] { "42" },
+                    ["x-custom-string"] = ["SomeValue",],
+                    ["x-custom-int"] = ["42",],
                 },
             },
             ["NamedClient2"] = new(),
@@ -192,8 +192,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().ContainSingle();
-        exception.Errors.First().FormattedMessage.Should().Be("BaseAddress: Value cannot be null or white space.");
+        _ = exception.Errors.Should().ContainSingle();
+        _ = exception.Errors.First().FormattedMessage.Should().Be("BaseAddress: Value cannot be null or white space.");
     }
 
     [Fact]
@@ -207,7 +207,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var result = _provider.GetHttpClient();
 
         // Assert
-        result.DefaultRequestHeaders.GetValue("x-api-key").Should().Be("abc123");
+        _ = result.DefaultRequestHeaders.GetValue("x-api-key").Should().Be("abc123");
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var result = _provider.GetHttpClient(options => options.UseApiKeyAuthentication(opt => opt.ApiKey = "abc123"));
 
         // Assert
-        result.DefaultRequestHeaders.GetValue("x-api-key").Should().Be("abc123");
+        _ = result.DefaultRequestHeaders.GetValue("x-api-key").Should().Be("abc123");
     }
 
     [Fact]
@@ -229,7 +229,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().ContainSingle();
+        _ = exception.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -248,8 +248,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
-        authorization.Scheme.Should().Be("Basic");
-        authorization.Parameter.Should().Be(expectedToken);
+        _ = authorization.Scheme.Should().Be("Basic");
+        _ = authorization.Parameter.Should().Be(expectedToken);
     }
 
     [Fact]
@@ -271,8 +271,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
-        authorization.Scheme.Should().Be(Bearer.ToString());
-        authorization.Parameter.Should().Be(expectedToken);
+        _ = authorization.Scheme.Should().Be(Bearer.ToString());
+        _ = authorization.Parameter.Should().Be(expectedToken);
     }
 
     [Fact]
@@ -285,7 +285,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().ContainSingle();
+        _ = exception.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -306,22 +306,22 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
-        authorization.Scheme.Should().Be(Bearer.ToString());
-        authorization.Parameter.Should().Be(expectedToken);
+        _ = authorization.Scheme.Should().Be(Bearer.ToString());
+        _ = authorization.Parameter.Should().Be(expectedToken);
     }
 
     [Fact]
     public void UseJsonWebToken_AfterASimpleCall_CreatesNewToken() {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
         _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
         };
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
         ((JwtAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
@@ -329,21 +329,21 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var secondToken = secondClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
-        firstToken.Should().Be(secondToken);
+        _ = firstToken.Should().Be(secondToken);
     }
 
     [Fact]
     public void UseJsonWebToken_TokenWithoutExpiration_ReusesSameToken() {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
         _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
         };
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
         ((JwtAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
@@ -351,14 +351,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var secondToken = secondClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
-        firstToken.Should().Be(secondToken);
+        _ = firstToken.Should().Be(secondToken);
     }
 
     [Fact]
     public void UseJsonWebToken_PreviousTokenStillValid_ReusesSameToken() {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
         _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
             DateTimeProvider = dateTimeProvider,
@@ -367,7 +367,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
         ((JwtAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
@@ -375,14 +375,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var secondToken = secondClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
-        firstToken.Should().Be(secondToken);
+        _ = firstToken.Should().Be(secondToken);
     }
 
     [Fact]
     public void UseJsonWebToken_PreviousTokenExpired_CreatedNewToken() {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
         _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
             DateTimeProvider = dateTimeProvider,
@@ -391,7 +391,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
         ((JwtAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
@@ -399,7 +399,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var secondToken = secondClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
-        firstToken.Should().NotBe(secondToken);
+        _ = firstToken.Should().NotBe(secondToken);
     }
 
     [Fact]
@@ -409,7 +409,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             PrivateKey = "OtherSecretValue256BitsOr32Chars",
         };
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
 
         // Act
         var result = _provider.GetHttpClient(options => options.UseJsonWebTokenAuthentication(opt => {
@@ -426,8 +426,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
-        authorization.Scheme.Should().Be(Bearer.ToString());
-        authorization.Parameter.Should().NotBeNull();
+        _ = authorization.Scheme.Should().Be(Bearer.ToString());
+        _ = authorization.Parameter.Should().NotBeNull();
     }
 
     [Fact]
@@ -440,7 +440,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().ContainSingle();
+        _ = exception.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -451,7 +451,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default" },
+            Scopes = ["https://graph.microsoft.com/.default",],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
         };
 
@@ -460,28 +460,28 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
-        authorization.Scheme.Should().Be(Bearer.ToString());
-        authorization.Parameter.Should().Be("SomeToken");
+        _ = authorization.Scheme.Should().Be(Bearer.ToString());
+        _ = authorization.Parameter.Should().Be("SomeToken");
     }
 
     [Fact]
     public void UseOAuth2Token_PreviousTokenStillValid_ReusesSameToken() {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
         _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default" },
+            Scopes = ["https://graph.microsoft.com/.default",],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
         ((OAuth2TokenAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
@@ -489,27 +489,27 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var secondToken = secondClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
-        firstToken.Should().Be(secondToken);
+        _ = firstToken.Should().Be(secondToken);
     }
 
     [Fact]
     public void UseOAuth2Token_PreviousTokenExpired_CreatedNewToken() {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
         _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default" },
+            Scopes = ["https://graph.microsoft.com/.default",],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
         ((OAuth2TokenAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
         ((OAuth2TokenAuthenticationOptions)_defaultConfiguration.Authentication).AuthenticationResult = GenerateResult("SomeOtherToken", Guid.NewGuid());
 
@@ -518,14 +518,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var secondToken = secondClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
-        firstToken.Should().NotBe(secondToken);
+        _ = firstToken.Should().NotBe(secondToken);
     }
 
     [Fact]
     public void UseOAuth2Token_PreviousTokenOfDifferentType_CreatedNewToken() {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
         _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
             DateTimeProvider = dateTimeProvider,
@@ -534,13 +534,13 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
-        dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
+        _ = dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
         _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default" },
+            Scopes = ["https://graph.microsoft.com/.default",],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
@@ -550,7 +550,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var secondToken = secondClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
-        firstToken.Should().NotBe(secondToken);
+        _ = firstToken.Should().NotBe(secondToken);
     }
 
     [Fact]
@@ -569,14 +569,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
             opt.ClientId = "SomeClient";
             opt.ClientSecret = "SomeSecret";
             opt.Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a";
-            opt.Scopes = new[] { "https://graph.microsoft.com/Directory.Read" };
+            opt.Scopes = ["https://graph.microsoft.com/Directory.Read",];
             opt.AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid());
         }));
 
         // Assert
         var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
-        authorization.Scheme.Should().Be(Bearer.ToString());
-        authorization.Parameter.Should().Be("SomeToken");
+        _ = authorization.Scheme.Should().Be(Bearer.ToString());
+        _ = authorization.Parameter.Should().Be("SomeToken");
     }
 
     [Fact]
@@ -587,14 +587,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default" },
+            Scopes = ["https://graph.microsoft.com/.default",],
         };
 
         // Act
         var result = () => _provider.GetHttpClient();
 
         // Assert
-        result.Should().Throw<InvalidOperationException>();
+        _ = result.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
@@ -607,6 +607,6 @@ public sealed class HttpClientProviderTests : IDisposable  {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().HaveCount(3);
+        _ = exception.Errors.Should().HaveCount(3);
     }
 }

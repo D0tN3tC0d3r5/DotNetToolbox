@@ -11,17 +11,13 @@ public class CreateTests {
         var instance = Create.Instance<TestClass>();
 
         // Assert
-        instance.Should().NotBeNull();
-        instance.Should().BeOfType<TestClass>();
+        _ = instance.Should().NotBeNull();
+        _ = instance.Should().BeOfType<TestClass>();
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestClassWithArgs {
-        public string Value { get; }
-
-        public TestClassWithArgs(string value) {
-            Value = value;
-        }
+    private class TestClassWithArgs(string value) {
+        public string Value { get; } = value;
     }
 
     [Fact]
@@ -33,9 +29,9 @@ public class CreateTests {
         var instance = Create.Instance<TestClassWithArgs>(expectedValue);
 
         // Assert
-        instance.Should().NotBeNull();
-        instance.Should().BeOfType<TestClassWithArgs>();
-        instance.Value.Should().Be(expectedValue);
+        _ = instance.Should().NotBeNull();
+        _ = instance.Should().BeOfType<TestClassWithArgs>();
+        _ = instance.Value.Should().Be(expectedValue);
     }
 
     [Fact]
@@ -44,7 +40,7 @@ public class CreateTests {
         var action = () => Create.Instance<TestClassWithArgs>();
 
         // Assert
-        action.Should().Throw<InvalidOperationException>();
+        _ = action.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
@@ -56,8 +52,8 @@ public class CreateTests {
         var instance = Create.Instance<TestClass>(provider);
 
         // Assert
-        instance.Should().NotBeNull();
-        instance.Should().BeOfType<TestClass>();
+        _ = instance.Should().NotBeNull();
+        _ = instance.Should().BeOfType<TestClass>();
     }
 
     [Fact]
@@ -69,6 +65,6 @@ public class CreateTests {
         var action = () => Create.Instance<TestClassWithArgs>(provider);
 
         // Assert
-        action.Should().Throw<InvalidOperationException>();
+        _ = action.Should().Throw<InvalidOperationException>();
     }
 }

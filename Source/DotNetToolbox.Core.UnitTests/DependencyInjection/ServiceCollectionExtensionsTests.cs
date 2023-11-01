@@ -7,6 +7,6 @@ public class ServiceCollectionExtensionsTests {
 
         var result = services.AddSystemUtilities();
 
-        result.Should().BeSameAs(services);
+        _ = result.Should().BeSameAs(services);
     }
 }
