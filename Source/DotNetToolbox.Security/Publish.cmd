@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% DotNetToolbox.Security 7.0.0
+call Publish %target% DotNetToolbox.Security 8.0.0-rc1
 cd DotNetToolbox.Security
 goto :eof
 
