@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <PackageId>DotNetToolbox.Http</PackageId>
     <Title>DotNetToolbox Http Library</Title>
-    <Version>1.0.0</Version>
+    <Version>7.0.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>DotNetToolbox</Company>
     <PackageTags>DotNet;Toolbox;Http;Library</PackageTags>
@@ -16,8 +16,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v1.0.0:
-      - First release.
+      v7.0.0:
+      - Based on .Net 7.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Http</Product>
     <Copyright>Andre Vianna 2023</Copyright>

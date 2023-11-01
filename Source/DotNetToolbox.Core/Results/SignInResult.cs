@@ -20,7 +20,7 @@ public sealed record SignInResult : Result {
         Token = IsSuccess ? IsNotNull(token) : null;
     }
 
-    public string? Token { get; private set; }
+    public string? Token { get; private init; }
 
     public bool IsLocked => _type is SignInResultType.Locked;
     public bool IsBlocked => _type is SignInResultType.Blocked;
@@ -29,17 +29,17 @@ public sealed record SignInResult : Result {
     public bool RequiresTwoFactor => _type is SignInResultType.TwoFactorRequired;
     public override bool IsSuccess => _type is SignInResultType.Success;
 
+    public static SignInResult Success(string token)
+        => new(SignInResultType.Success, token);
     public static SignInResult ConfirmationRequired(string token)
         => new(SignInResultType.ConfirmationRequired, token);
     public static SignInResult TwoFactorRequired(string token)
         => new(SignInResultType.TwoFactorRequired, token);
-    public static SignInResult Success(string token)
-        => new(SignInResultType.Success, token);
-    public static new SignInResult Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
-        => new(SignInResultType.Invalid, null, new ValidationError[] { new(source, message, args) });
     public static new SignInResult Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
-    public static SignInResult Invalid(Result result)
+    public static new SignInResult Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => Invalid(new ValidationError(source, message, args));
+    public static new SignInResult Invalid(Result result)
         => new(SignInResultType.Invalid, null, result.Errors);
 
     public static SignInResult Blocked() => new(SignInResultType.Blocked);
@@ -54,19 +54,13 @@ public sealed record SignInResult : Result {
         => new(SignInResultType.Invalid, null, new[] { error }.AsEnumerable());
     public static implicit operator SignInResult(string token)
         => new(SignInResultType.Success, token);
-    public static implicit operator SignInResult(SignInResultType resultType)
-        => resultType switch {
-            SignInResultType.Invalid => throw new InvalidCastException(_invalidInvalidSignInCreation),
-            SignInResultType.Success or SignInResultType.TwoFactorRequired => throw new InvalidCastException(_invalidSuccessfulSignInCreation),
-            _ => new(resultType),
-        };
 
     public static SignInResult operator +(SignInResult left, Result right) {
         left.Errors.UnionWith(right.Errors);
-        left._type = left.IsInvalid ? SignInResultType.Invalid : left._type;
-        if (left.HasErrors)
-            left.Token = null;
-        return left;
+        return left with {
+            _type = left.IsInvalid ? SignInResultType.Invalid : left._type,
+            Token = left.IsInvalid ? null : left.Token,
+                         };
     }
 
     public static bool operator ==(SignInResult left, SignInResultType right) => left._type == right;

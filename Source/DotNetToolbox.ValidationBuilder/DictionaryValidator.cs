@@ -70,7 +70,7 @@ public class DictionaryValidator<TKey, TValue>
     private void AddItemErrors(IEnumerable<ValidationError> errors, string source) {
         foreach (var error in errors) {
             var path = error.Source.Split('.');
-            AddError(error with { Source = $"{source}.{string.Join('.', path[1..])}" });
+            AddError(error with { Source = $"{source}.{string.Join('.', path[1..])}", });
         }
     }
 }

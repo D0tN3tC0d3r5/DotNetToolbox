@@ -1,12 +1,6 @@
 ﻿namespace System.Constants;
 
 public static class ErrorMessages {
-    public static string GetInvertedErrorMessage(string message, params object?[] args)
-        => GetErrorMessage(InvertMessage(message), args);
-
-    public static string GetErrorMessage(string message, params object?[] args)
-        => string.Format(message, args);
-
     public const string MustBeAfter = "Value must be after {0}. Found: {1}.";
     public const string MustBeBefore = "Value must be before {0}. Found: {1}.";
     public const string MustBeEmpty = "Value must be empty.";

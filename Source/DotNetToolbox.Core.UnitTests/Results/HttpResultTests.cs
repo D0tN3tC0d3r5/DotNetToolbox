@@ -1,21 +1,36 @@
-﻿namespace System.Results;
+﻿using static System.Results.HttpResult;
+
+namespace System.Results;
 
 public class HttpResultTests {
-    private static readonly HttpResult _ok = HttpResult.Ok();
-    private static readonly HttpResult _created = HttpResult.Created();
-    private static readonly HttpResult _unauthorized = HttpResult.Unauthorized();
-    private static readonly HttpResult _notFound = HttpResult.NotFound();
-    private static readonly HttpResult _conflict = HttpResult.Conflict();
-    private static readonly HttpResult _badRequest = HttpResult.BadRequest("Source", "Some error.");
+    private static readonly HttpResult _ok = Ok();
+    private static readonly HttpResult _created = Created();
+    private static readonly HttpResult _unauthorized = Unauthorized();
+    private static readonly HttpResult _notFound = NotFound();
+    private static readonly HttpResult _conflict = Conflict();
+    private static readonly HttpResult _badRequest = BadRequest("Source", "Some error.");
     private static readonly HttpResult _badRequestWithSameError = new ValidationError("Source", "Some error.");
     private static readonly HttpResult _badRequestWithWithOtherError = new ValidationError("Source", "Other error.");
 
-    private static readonly HttpResult<string> _okWithValue = HttpResult.Ok("Value");
-    private static readonly HttpResult<string> _createdWithValue = HttpResult.Created("Value");
-    private static readonly HttpResult<string> _unauthorizedWithValue = HttpResult.Unauthorized<string>();
-    private static readonly HttpResult<string> _notFoundWithValue = HttpResult.NotFound<string>();
-    private static readonly HttpResult<string> _conflictWithValue = HttpResult.Conflict("Value");
-    private static readonly HttpResult<string> _badRequestWithValue = HttpResult.BadRequest("Value", "Source", "Some error.");
+    private static readonly HttpResult<string> _okWithValue = Ok("Value");
+    private static readonly HttpResult<string> _createdWithValue = Created("Value");
+    private static readonly HttpResult<string> _unauthorizedWithValue = Unauthorized<string>();
+    private static readonly HttpResult<string> _notFoundWithValue = NotFound<string>();
+    private static readonly HttpResult<string> _conflictWithValue = Conflict("Value");
+    private static readonly HttpResult<string> _badRequestWithValue = BadRequest("Value", "Source", "Some error.");
+
+    [Fact]
+    public void CopyConstructor_ClonesObject() {
+        // Act
+        var result = _ok with {
+            Errors = new HashSet<ValidationError> { new("Some error.") },
+        };
+
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
 
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
@@ -124,13 +139,13 @@ public class HttpResultTests {
         var expectedResult = new HashSet<HttpResult> {
             _ok,
             _badRequest,
-            _badRequestWithWithOtherError
+            _badRequestWithWithOtherError,
         };
 
         // Act
         var result = new HashSet<HttpResult> {
-            HttpResult.Ok(),
-            HttpResult.Ok(),
+            Ok(),
+            Ok(),
             _ok,
             _ok,
             _badRequest,
@@ -144,12 +159,54 @@ public class HttpResultTests {
     }
 
     [Fact]
+    public void Ok_CreatesResult() {
+        // Arrange & Act
+        var result = Ok();
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BadRequest_WithMessageOnly_CreatesResult() {
+        // Arrange & Act
+        var result = BadRequest("Some error.");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void BadRequest_WithSourceAndMessage_CreatesResult() {
+        // Arrange & Act
+        var result = BadRequest("Field1", "Some error.");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().BeEquivalentTo(new[] {
+            new ValidationError("Field1", "Some error."),
+        });
+    }
+
+    [Fact]
+    public void BadRequest_WithResult_CreatesResult() {
+        // Arrange & Act
+        var result = BadRequest(Invalid("Some error."));
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
     public void AddOperator_WithoutError_ReturnsBadRequest() {
         // Arrange
-        var result = HttpResult.Ok();
+        var result = Ok();
 
         // Act
-        result += Result.Success();
+        result += Success();
 
         // Assert
         result.IsOk.Should().BeTrue();
@@ -157,22 +214,9 @@ public class HttpResultTests {
     }
 
     [Fact]
-    public void AddOperator_WithError_ReturnsBadRequest() {
-        // Arrange
-        var result = HttpResult.Ok("SomeToken");
-
-        // Act
-        result += new ValidationError("Source", "Some error.");
-
-        // Assert
-        result.IsOk.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
-    }
-
-    [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = HttpResult.BadRequest("Source", "Some error.");
+        var result = BadRequest("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Other error.");
@@ -185,7 +229,36 @@ public class HttpResultTests {
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = HttpResult.BadRequest("Source", "Some error.");
+        var result = BadRequest("Source", "Some error.");
+
+        // Act
+        result += new ValidationError("Source", "Some error.");
+
+        // Assert
+        result.IsOk.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void OfT_CopyConstructor_ClonesObject() {
+        // Arrange
+        var original = Ok(42);
+
+        // Act
+        var result = original with {
+                                       Value = 7,
+                                   };
+
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(7);
+    }
+
+    [Fact]
+    public void AddOperator_WithError_ReturnsBadRequest() {
+        // Arrange
+        var result = Ok("SomeToken");
 
         // Act
         result += new ValidationError("Source", "Some error.");
@@ -208,7 +281,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromOkResult_ReturnsOk() {
         // Act
-        var result = Result.Success("Value");
+        var result = Success("Value");
         HttpResult<string> subject = result;
 
         // Assert
@@ -219,7 +292,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromBadRequestResult_ReturnsOk() {
         // Act
-        var result = Result.Invalid("Value", "Some error.", "SomeProperty");
+        var result = Invalid("Value", "Some error.", "SomeProperty");
         HttpResult<string> subject = result;
 
         // Assert
@@ -231,10 +304,10 @@ public class HttpResultTests {
     [Fact]
     public void AddOperator_WithValueAndWithoutError_ReturnsBadRequest() {
         // Arrange
-        var result = HttpResult.Ok("Value");
+        var result = Ok("Value");
 
         // Act
-        result += Result.Success();
+        result += Success();
 
         // Assert
         result.IsOk.Should().BeTrue();
@@ -245,7 +318,7 @@ public class HttpResultTests {
     [Fact]
     public void AddOperator_WithValueAndWithError_ReturnsBadRequest() {
         // Arrange
-        var result = HttpResult.Ok("Value");
+        var result = Ok("Value");
 
         // Act
         result += new ValidationError("result", "Some error.");
@@ -259,7 +332,7 @@ public class HttpResultTests {
     [Fact]
     public void MapTo_WithoutError_ReturnsOk() {
         // Arrange
-        var subject = HttpResult.Ok("42");
+        var subject = Ok("42");
 
         // Act
         var result = subject.MapTo(int.Parse);
@@ -272,7 +345,7 @@ public class HttpResultTests {
     [Fact]
     public void MapTo_FromNotFound_ReturnsOk() {
         // Arrange
-        var subject = HttpResult.NotFound<string>();
+        var subject = NotFound<string>();
 
         // Act
         var result = subject.MapTo(int.Parse);
@@ -287,7 +360,7 @@ public class HttpResultTests {
     [Fact]
     public void MapTo_WithError_ReturnsBadRequest() {
         // Arrange
-        var subject = HttpResult.BadRequest("42", "Field", "Some error.");
+        var subject = BadRequest("42", "Field", "Some error.");
 
         // Act
         var result = subject.MapTo(int.Parse);
@@ -295,5 +368,47 @@ public class HttpResultTests {
         // Assert
         result.Should().BeOfType<HttpResult<int>>();
         result.IsOk.Should().BeFalse();
+    }
+
+    [Fact]
+    public void OkOfT_CreatesResult() {
+        // Arrange & Act
+        var result = Ok(42);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BadRequestOfT_WithMessageOnly_CreatesResult() {
+        // Arrange & Act
+        var result = BadRequest(42, "Some error.");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void BadRequestOfT_WithSourceAndMessage_CreatesResult() {
+        // Arrange & Act
+        var result = BadRequest(42, "Field1", "Some error.");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().BeEquivalentTo(new[] {
+            new ValidationError("Field1", "Some error."),
+        });
+    }
+
+    [Fact]
+    public void BadRequestOfT_WithResult_CreatesResult() {
+        // Arrange & Act
+        var result = BadRequest(42, Invalid("Some error."));
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 }

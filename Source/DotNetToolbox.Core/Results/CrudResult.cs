@@ -17,11 +17,11 @@ public record CrudResult : Result {
     public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
 
-    public static new CrudResult Invalid(string source, [StringSyntax(CompositeFormat)]string message, params object[] args)
-        => new(new ValidationError(source, message, args));
     public static new CrudResult Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
-    public static CrudResult Invalid(Result result)
+    public static new CrudResult Invalid(string source, [StringSyntax(CompositeFormat)]string message, params object[] args)
+        => new(new ValidationError(source, message, args));
+    public static new CrudResult Invalid(Result result)
         => new(CrudResultType.Invalid, result.Errors);
 
     public static implicit operator CrudResult(List<ValidationError> errors)
@@ -43,12 +43,12 @@ public record CrudResult : Result {
         => new(CrudResultType.NotFound);
     public static CrudResult<TValue> Conflict<TValue>(TValue value)
         => new(CrudResultType.Conflict, IsNotNull(value));
-    public static CrudResult<TValue> Invalid<TValue>(TValue value, string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
-        => new(CrudResultType.Invalid, IsNotNull(value), new ValidationError[] { new(source, message, args) });
     public static CrudResult<TValue> Invalid<TValue>(TValue value, [StringSyntax(CompositeFormat)] string message, params object[] args)
         => Invalid(value, string.Empty, message, args);
-    public static CrudResult<TValue> Invalid<TValue>(TValue value, IEnumerable<ValidationError> errors)
-        => new(CrudResultType.Invalid, IsNotNull(value), errors);
+    public static new CrudResult<TValue> Invalid<TValue>(TValue value, string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => Invalid(value, new ValidationError(source, message, args));
+    public static CrudResult<TValue> Invalid<TValue>(TValue value, Result result)
+        => new(CrudResultType.Invalid, IsNotNull(value), result.Errors);
 }
 
 public record CrudResult<TResult> : CrudResult {
@@ -57,7 +57,7 @@ public record CrudResult<TResult> : CrudResult {
         Value = value;
     }
 
-    public TResult? Value { get; }
+    public TResult? Value { get; init; }
 
     public static implicit operator CrudResult<TResult>(TResult? value) => new(CrudResultType.Success, value);
     public static implicit operator CrudResult<TResult>(Result<TResult> result)

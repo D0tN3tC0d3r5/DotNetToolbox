@@ -4,7 +4,7 @@ public class PageTests {
     [Fact]
     public void Constructor_WithParams_Passes() {
         var subject = new Page<int>(totalCount: 12,
-                                    items: new[] { 1, 2, 3, 4, 5, },
+                                    items: new[] { 1, 2, 3, 4, 5 },
                                     offset: 1,
                                     size: 5);
 
@@ -17,7 +17,7 @@ public class PageTests {
     [Fact]
     public void ObjectInitializer_Passes() {
         var subject = new Page<int>() {
-            Items = new[] { 1, 2, 3, 4, },
+            Items = new[] { 1, 2, 3, 4 },
             Offset = 5,
             TotalCount = 100,
         };

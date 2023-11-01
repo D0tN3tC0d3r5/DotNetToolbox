@@ -3,7 +3,7 @@
 public class BlockTests {
     [Fact]
     public void Constructor_WithParams_Passes() {
-        var subject = new Block<int>(items: new[] { 1, 2, 3, 4, 5, },
+        var subject = new Block<int>(items: new[] { 1, 2, 3, 4, 5 },
                                      offset: 6,
                                      size: 5);
 
@@ -15,7 +15,7 @@ public class BlockTests {
     [Fact]
     public void ObjectInitializer_Passes() {
         var subject = new Block<int>() {
-            Items = new[] { 1, 2, 3, 4, },
+            Items = new[] { 1, 2, 3, 4 },
             Offset = 5,
         };
 

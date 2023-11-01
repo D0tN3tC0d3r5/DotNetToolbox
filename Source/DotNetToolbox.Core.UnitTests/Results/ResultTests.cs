@@ -6,6 +6,22 @@ public class ResultTests {
     private static readonly Result _invalidWithSameError = Invalid("Source", "Some error.");
     private static readonly Result _invalidWithOtherError = Invalid("Source", "Other error.");
 
+    private static readonly Result<string> _successWithValue = Success("42");
+    private static readonly Result<string> _invalidWithValue = Invalid("42", "Source", "Some error.");
+
+    [Fact]
+    public void CopyConstructor_ClonesObject() {
+        // Act
+        var result = _success with {
+            Errors = new HashSet<ValidationError> { new("Some error.") },
+        };
+
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
@@ -47,6 +63,18 @@ public class ResultTests {
         subject.IsSuccess.Should().Be(isSuccess);
     }
 
+    [Fact]
+    public void AddOperator_WithError_ReturnsInvalid() {
+        // Arrange
+        var result = Success();
+
+        // Act
+        result += new ValidationError("result", "Some error.");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+    }
+
     private class TestDataForEquality : TheoryData<Result, Result?, bool> {
         public TestDataForEquality() {
             Add(_success, null, false);
@@ -85,7 +113,7 @@ public class ResultTests {
         var expectedResult = new HashSet<Result> {
             _success,
             _invalid,
-            _invalidWithOtherError
+            _invalidWithOtherError,
         };
 
         // Act
@@ -105,15 +133,16 @@ public class ResultTests {
     }
 
     [Fact]
-    public void AddOperator_WithError_ReturnsInvalid() {
-        // Arrange
-        var result = Success();
-
+    public void OfT_CopyConstructor_ClonesObject() {
         // Act
-        result += new ValidationError("result", "Some error.");
+        var result = _successWithValue with {
+            Errors = new HashSet<ValidationError> { new("Some error.") },
+        };
+
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -129,7 +158,7 @@ public class ResultTests {
     [Fact]
     public void AddOperator_WithValueAndWithoutError_ReturnsInvalid() {
         // Arrange
-        var result = Success("Value");
+        var result = _successWithValue;
 
         // Act
         result += Success();
@@ -137,13 +166,13 @@ public class ResultTests {
         // Assert
         result.IsSuccess.Should().BeTrue();
         result.IsInvalid.Should().BeFalse();
-        result.Value.Should().Be("Value");
+        result.Value.Should().Be("42");
     }
 
     [Fact]
     public void AddOperator_WithValueAndWithError_ReturnsInvalid() {
         // Arrange
-        var result = Success("Value");
+        var result = _successWithValue;
 
         // Act
         result += new ValidationError("result", "Some error.");
@@ -151,13 +180,13 @@ public class ResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.IsInvalid.Should().BeTrue();
-        result.Value.Should().Be("Value");
+        result.Value.Should().Be("42");
     }
 
     [Fact]
     public void MapTo_WithoutError_ReturnsSuccess() {
         // Arrange
-        var subject = Success("42");
+        var subject = _successWithValue;
 
         // Act
         var result = subject.MapTo(int.Parse);
@@ -170,7 +199,7 @@ public class ResultTests {
     [Fact]
     public void MapTo_WithError_ReturnsInvalid() {
         // Arrange
-        var subject = Invalid("42", "Some error.", "Field");
+        var subject = _invalidWithValue;
 
         // Act
         var result = subject.MapTo(int.Parse);

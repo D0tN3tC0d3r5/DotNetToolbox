@@ -39,16 +39,16 @@ public sealed class ValidationCommandFactory {
     private IValidationCommand CreateValidatableCommand(string command)
         => command switch {
             System.Constants.Commands.IsValid => new IsValidCommand(_source),
-            _ => throw new InvalidOperationException($"Unsupported command '{command}' for {_subjectType.Name}.")
-        };
+            _ => throw new InvalidOperationException($"Unsupported command '{command}' for {_subjectType.Name}."),
+           };
 
     private IValidationCommand CreateNumberCommand<TValue>(string command, IReadOnlyList<object?> arguments)
         where TValue : struct, IComparable<TValue> {
         return command switch {
             IsLessThan => new IsLessThanCommand<TValue>(GetLimitValue(), _source),
             IsGreaterThan => new IsGreaterThanCommand<TValue>(GetLimitValue(), _source),
-            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'.")
-        };
+            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
+               };
 
         TValue GetLimitValue() => GetArgumentValue<TValue>(command, arguments, 0);
     }
@@ -57,8 +57,8 @@ public sealed class ValidationCommandFactory {
         return command switch {
             IsBefore => new IsBeforeCommand(GetLimitValue(), _source),
             IsAfter => new IsAfterCommand(GetLimitValue(), _source),
-            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'.")
-        };
+            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
+               };
 
         DateTime GetLimitValue() => GetArgumentValue<DateTime>(command, arguments, 0);
     }
@@ -74,8 +74,8 @@ public sealed class ValidationCommandFactory {
             IsIn => new IsInCommand<string>(GetListValue(), _source),
             IsEmail => new IsEmailCommand(_source),
             IsPassword => new IsPasswordCommand(GetPolicy(), _source),
-            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'.")
-        };
+            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
+               };
 
         int GetLengthValue() => GetArgumentValue<int>(command, arguments, 0);
         string GetCandidateValue() => GetArgumentValue<string>(command, arguments, 0);
@@ -90,8 +90,8 @@ public sealed class ValidationCommandFactory {
             HasAtLeast => new HasAtLeastCommand<TItem>(GetCountValue(), _source),
             HasAtMost => new HasAtMostCommand<TItem>(GetCountValue(), _source),
             Has => new HasCommand<TItem>(GetCountValue(), _source),
-            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'.")
-        };
+            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
+               };
 
         int GetCountValue() => GetArgumentValue<int>(command, arguments, 0);
         TItem? GetItemValue() => GetArgumentValueOrDefault<TItem>(command, arguments, 0);
@@ -106,8 +106,8 @@ public sealed class ValidationCommandFactory {
             Has => new HasCommand<KeyValuePair<TKey, TValue?>>(GetCountValue(), _source),
             ContainsKey => new ContainsKeyCommand<TKey, TValue?>(GetKeyValue(), _source),
             ContainsValue => new ContainsValueCommand<TKey, TValue?>(GetValueValue(), _source),
-            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'.")
-        };
+            _ => throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'."),
+               };
 
         int GetCountValue() => GetArgumentValueOrDefault<int>(command, arguments, 0);
         TKey GetKeyValue() => GetArgumentValue<TKey>(command, arguments, 0);

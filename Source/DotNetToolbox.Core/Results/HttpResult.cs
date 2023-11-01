@@ -21,11 +21,12 @@ public record HttpResult : Result {
 
     public static HttpResult Ok() => new(HttpResultType.Ok);
     public static HttpResult Created() => new(HttpResultType.Created);
-
-    public static HttpResult BadRequest(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
-        => new(HttpResultType.BadRequest, new ValidationError[] { new(source, message, args) });
     public static HttpResult BadRequest([StringSyntax(CompositeFormat)] string message, params object[] args)
         => BadRequest(string.Empty, message, args);
+    public static HttpResult BadRequest(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => BadRequest(new ValidationError(source, message, args));
+    public static HttpResult BadRequest(Result result)
+        => new(HttpResultType.BadRequest, result.Errors);
     public static HttpResult Unauthorized() => new(HttpResultType.Unauthorized);
     public static HttpResult NotFound() => new(HttpResultType.NotFound);
     public static HttpResult Conflict() => new(HttpResultType.Conflict);
@@ -48,10 +49,12 @@ public record HttpResult : Result {
     public static HttpResult<TValue> Created<TValue>(TValue value)
         => new(HttpResultType.Created, IsNotNull(value));
 
-    public static HttpResult<TValue> BadRequest<TValue>(TValue value, string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
-        => new(HttpResultType.BadRequest, IsNotNull(value), new ValidationError[] { new(source, message, args) });
     public static HttpResult<TValue> BadRequest<TValue>(TValue value, [StringSyntax(CompositeFormat)] string message, params object[] args)
         => BadRequest(value, string.Empty, message, args);
+    public static HttpResult<TValue> BadRequest<TValue>(TValue value, string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => BadRequest(value, new ValidationError(source, message, args));
+    public static HttpResult<TValue> BadRequest<TValue>(TValue value, Result result)
+        => new(HttpResultType.BadRequest, value, result.Errors);
     public static HttpResult<TValue> Unauthorized<TValue>()
         => new(HttpResultType.Unauthorized);
     public static HttpResult<TValue> NotFound<TValue>()
@@ -66,7 +69,7 @@ public record HttpResult<TResult> : HttpResult {
         Value = value;
     }
 
-    public TResult? Value { get; }
+    public TResult? Value { get; init; }
 
     public static implicit operator HttpResult<TResult>(TResult value)
         => new(HttpResultType.Ok, IsNotNull(value));

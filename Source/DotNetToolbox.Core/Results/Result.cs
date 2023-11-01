@@ -7,7 +7,7 @@ public record Result : IResult {
             : DoesNotHaveNulls(errors).ToHashSet();
     }
 
-    public ISet<ValidationError> Errors { get; } = new HashSet<ValidationError>();
+    public ISet<ValidationError> Errors { get; init; } = new HashSet<ValidationError>();
     protected bool HasErrors => Errors.Count != 0;
     public virtual bool IsInvalid => HasErrors;
     public virtual bool IsSuccess => !HasErrors;
@@ -19,15 +19,21 @@ public record Result : IResult {
     public override int GetHashCode()
         => Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine);
 
-    public static Result Success() => new();
-    public static Result Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
-        => new(new ValidationError(source, message, args));
+    public static Result Success()
+        => new();
     public static Result Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
+    public static Result Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+        => Invalid(new ValidationError(source, message, args));
+    public static Result Invalid(Result result)
+        => new(result.Errors);
 
-    public static implicit operator Result(List<ValidationError> errors) => new(errors.AsEnumerable());
-    public static implicit operator Result(ValidationError[] errors) => new(errors.AsEnumerable());
-    public static implicit operator Result(ValidationError error) => new(new[] { error }.AsEnumerable());
+    public static implicit operator Result(List<ValidationError> errors)
+        => new(errors.AsEnumerable());
+    public static implicit operator Result(ValidationError[] errors)
+        => new(errors.AsEnumerable());
+    public static implicit operator Result(ValidationError error)
+        => new(new[] { error }.AsEnumerable());
 
     public static Result operator +(Result left, Result right) {
         left.Errors.UnionWith(right.Errors);
@@ -48,7 +54,7 @@ public record Result<TResult> : Result {
         Value = IsNotNull(value);
     }
 
-    public TResult Value { get; }
+    public TResult Value { get; init; }
 
     public static implicit operator Result<TResult>(TResult value) => new(value);
 
