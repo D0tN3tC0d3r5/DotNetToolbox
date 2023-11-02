@@ -3,7 +3,7 @@
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
 public class FileSystemHandler {
-    public static readonly DateTimeProvider Default = new();
+    public static readonly FileSystemHandler Default = new();
 
     public virtual char DirectorySeparatorChar => Path.DirectorySeparatorChar;
     public virtual string CombinePath(params string[] paths) => Path.Combine(paths);

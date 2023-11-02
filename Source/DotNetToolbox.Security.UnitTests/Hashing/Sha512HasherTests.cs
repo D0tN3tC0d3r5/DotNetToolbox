@@ -1,12 +1,16 @@
 namespace DotNetToolbox.Security.Hashing;
 
-public class Sha512HasherTests
-{
+public class Sha512HasherTests {
     private readonly Sha512Hasher _sut = new();
 
     [Fact]
-    public void Generate_ReturnsHashWithSalt()
-    {
+    public void Constants_ReturnsDefaultValues() {
+        Sha512Hasher.DefaultIterations.Should().Be(350000);
+        Sha512Hasher.DefaultKeySize.Should().Be(512);
+    }
+
+    [Fact]
+    public void Generate_ReturnsHashWithSalt() {
         // Arrange
         var secret = new byte[] { 1, 2, 3, };
 
@@ -22,7 +26,7 @@ public class Sha512HasherTests
     [Fact]
     public void Generate_FromString_ReturnsHashWithSalt() {
         // Arrange
-        var secret = "Some secret to hash.";
+        const string secret = "Some secret to hash.";
 
         // Act
         var result = _sut.Generate(secret);
@@ -34,8 +38,7 @@ public class Sha512HasherTests
     }
 
     [Fact]
-    public void Validate_WithInvalidHash_ReturnsFalse()
-    {
+    public void Validate_WithInvalidHash_ReturnsFalse() {
         // Arrange
         var secret = new byte[] { 1, 2, 3, };
         var salt = new byte[] { 4, 5, 6, };
@@ -49,8 +52,7 @@ public class Sha512HasherTests
     }
 
     [Fact]
-    public void Validate_WithValidHash_ReturnsTrue()
-    {
+    public void Validate_WithValidHash_ReturnsTrue() {
         // Arrange
         var secret = new byte[] { 1, 2, 3, };
         var subject = _sut.Generate(secret);
