@@ -13,6 +13,8 @@ public sealed class ValidationCommandFactory {
         => new(subjectType, source);
 
     public IValidationCommand Create(string command, params object?[] arguments) {
+        #pragma warning disable IDE0046 // Convert to conditional expression
+        // ReSharper disable once ConvertIfStatementToSwitchStatement - Better readability
         if (command == IsNull) return new IsNullCommand(_source);
         if (command == IsEqualTo) return new IsEqualToCommand(arguments[0]!, _source);
         if (_subjectType == typeof(int)) return CreateNumberCommand<int>(command, arguments);
@@ -34,6 +36,7 @@ public sealed class ValidationCommandFactory {
         if (_subjectType.IsAssignableTo(typeof(IDictionary<string, string>))) return CreateDictionaryCommand<string, string>(command, arguments);
         if (_subjectType.IsAssignableTo(typeof(IValidatable))) return CreateValidatableCommand(command);
         throw new InvalidOperationException($"Unsupported command '{command}' for type '{_subjectType.Name}'.");
+        #pragma warning restore IDE0046 // Convert to conditional expression
     }
 
     private IValidationCommand CreateValidatableCommand(string command)

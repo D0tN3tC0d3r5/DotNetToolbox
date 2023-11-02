@@ -19,7 +19,7 @@ public class CrudResultTests {
     public void CopyConstructor_ClonesObject() {
         // Act
         var result = _success with {
-            Errors = new HashSet<ValidationError> { new("Some error.") },
+            Errors = new HashSet<ValidationError> { new("Some error."), },
         };
 
         // Assert
@@ -39,7 +39,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        CrudResult result = new[] { new ValidationError(nameof(result), "Some error.") };
+        CrudResult result = new[] { new ValidationError(nameof(result), "Some error."), };
 
         // Assert
         _ = result.IsSuccess.Should().BeFalse();
@@ -48,7 +48,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        CrudResult result = new List<ValidationError> { new(nameof(result), "Some error.") };
+        CrudResult result = new List<ValidationError> { new(nameof(result), "Some error."), };
 
         // Assert
         _ = result.IsSuccess.Should().BeFalse();

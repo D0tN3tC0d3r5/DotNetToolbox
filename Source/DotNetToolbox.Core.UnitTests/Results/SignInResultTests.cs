@@ -69,7 +69,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        SignInResult result = new[] { new ValidationError("Source", "Some error.") };
+        SignInResult result = new[] { new ValidationError("Source", "Some error."), };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -78,7 +78,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        SignInResult result = new List<ValidationError> { new("Source", "Some error.") };
+        SignInResult result = new List<ValidationError> { new("Source", "Some error."), };
 
         // Assert
         result.IsInvalid.Should().BeTrue();

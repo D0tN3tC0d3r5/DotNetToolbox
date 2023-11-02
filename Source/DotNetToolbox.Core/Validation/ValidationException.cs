@@ -13,7 +13,7 @@ public class ValidationException
     }
 
     public ValidationException(ValidationError error)
-        : this(new[] { error }) {
+        : this(new[] { error, }) {
     }
 
     public ValidationException(IEnumerable<ValidationError> errors)

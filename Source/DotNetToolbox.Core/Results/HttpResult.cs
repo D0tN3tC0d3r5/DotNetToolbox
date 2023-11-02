@@ -36,7 +36,7 @@ public record HttpResult : Result {
     public static implicit operator HttpResult(ValidationError[] errors)
         => new(HttpResultType.BadRequest, DoesNotHaveNulls(errors));
     public static implicit operator HttpResult(ValidationError error)
-        => new(HttpResultType.BadRequest, new[] { error }.AsEnumerable());
+        => new(HttpResultType.BadRequest, new[] { error, }.AsEnumerable());
 
     public static HttpResult operator +(HttpResult left, Result right) {
         left.Errors.UnionWith(right.Errors);

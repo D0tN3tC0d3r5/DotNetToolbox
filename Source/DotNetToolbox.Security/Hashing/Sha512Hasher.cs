@@ -13,6 +13,8 @@ public class Sha512Hasher : IHasher {
         _iterations = iterations;
     }
 
+    public Hash Generate(string secret) => Generate(Encoding.UTF8.GetBytes(IsNotNull(secret)));
+
     public Hash Generate(byte[] secret) {
         var salt = RandomNumberGenerator.GetBytes(_keySize);
         var hash = Rfc2898DeriveBytes.Pbkdf2(
@@ -24,6 +26,8 @@ public class Sha512Hasher : IHasher {
         return new(hash, salt);
     }
 
+    public bool Validate(Hash hash, string secret) => Validate(IsNotNull(hash), Encoding.UTF8.GetBytes(IsNotNull(secret)));
+
     public bool Validate(Hash hash, byte[] secret) {
         var testValue = Rfc2898DeriveBytes.Pbkdf2(
                                          IsNotNull(secret),
@@ -31,6 +35,6 @@ public class Sha512Hasher : IHasher {
                                          _iterations,
                                          _hashAlgorithm,
                                          _keySize);
-        return hash.Value.SequenceEqual(testValue);
+        return IsNotNull(hash).Value.SequenceEqual(testValue);
     }
 }

@@ -20,8 +20,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "DotNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.UnitTests", "DotNetToolbox.Core.UnitTests\DotNetToolbox.Core.UnitTests.csproj", "{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.TestUtilities", "DotNetToolbox.Core.TestUtilities\DotNetToolbox.Core.TestUtilities.csproj", "{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure", "DotNetToolbox.Azure\DotNetToolbox.Azure.csproj", "{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure.UnitTests", "DotNetToolbox.Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj", "{310680D3-C24B-4F79-A18A-944F9B6AC096}"
@@ -34,9 +32,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBui
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder.UnitTests", "DotNetToolbox.ValidationBuilder.UnitTests\DotNetToolbox.ValidationBuilder.UnitTests.csproj", "{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.Security", "DotNetToolbox.Security\DotNetToolbox.Security.csproj", "{1C6644F0-167D-4E79-AC42-DA5669FE110F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security", "DotNetToolbox.Security\DotNetToolbox.Security.csproj", "{1C6644F0-167D-4E79-AC42-DA5669FE110F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.Security.UnitTests", "DotNetToolbox.Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj", "{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security.UnitTests", "DotNetToolbox.Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj", "{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities", "DotNetToolbox.TestUtilities\DotNetToolbox.TestUtilities.csproj", "{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,10 +52,6 @@ Global
 		{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62EC5C91-57C7-4A8F-8858-8AE04D6D1776}.Release|Any CPU.Build.0 = Release|Any CPU
 		{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -88,6 +84,10 @@ Global
 		{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

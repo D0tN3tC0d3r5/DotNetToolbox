@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.Security.Hashing;
 
-public readonly record struct Hash {
+public class Hash {
 
     public Hash(byte[] value, byte[] salt) {
-        Value = value;
-        Salt = salt;
+        Value = IsNotNull(value);
+        Salt = IsNotNull(salt);
     }
 
     public byte[] Value { get; }

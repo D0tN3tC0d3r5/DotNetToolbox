@@ -32,8 +32,10 @@ public record Result : IResult {
         => new(errors.AsEnumerable());
     public static implicit operator Result(ValidationError[] errors)
         => new(errors.AsEnumerable());
+    public static implicit operator Result(HashSet<ValidationError> errors)
+        => new(errors.AsEnumerable());
     public static implicit operator Result(ValidationError error)
-        => new(new[] { error }.AsEnumerable());
+        => new(new[] { error, }.AsEnumerable());
 
     public static Result operator +(Result left, Result right) {
         left.Errors.UnionWith(right.Errors);
@@ -45,7 +47,7 @@ public record Result : IResult {
     }
 
     public static Result<TValue> Success<TValue>(TValue value) => new(value);
-    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object[] args) => new(value, new ValidationError[] { new(source, message, args) });
+    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object[] args) => new(value, new ValidationError[] { new(source, message, args), });
 }
 
 public record Result<TResult> : Result {

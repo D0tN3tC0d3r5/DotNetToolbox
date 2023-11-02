@@ -20,6 +20,20 @@ public class Sha512HasherTests
     }
 
     [Fact]
+    public void Generate_FromString_ReturnsHashWithSalt() {
+        // Arrange
+        var secret = "Some secret to hash.";
+
+        // Act
+        var result = _sut.Generate(secret);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Salt.Should().NotBeNull();
+        result.Value.Should().NotBeNull();
+    }
+
+    [Fact]
     public void Validate_WithInvalidHash_ReturnsFalse()
     {
         // Arrange
@@ -39,6 +53,19 @@ public class Sha512HasherTests
     {
         // Arrange
         var secret = new byte[] { 1, 2, 3, };
+        var subject = _sut.Generate(secret);
+
+        // Act
+        var result = _sut.Validate(subject, secret);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_FromString_WithValidHash_ReturnsHashWithSalt() {
+        // Arrange
+        const string secret = "Some secret to hash.";
         var subject = _sut.Generate(secret);
 
         // Act
