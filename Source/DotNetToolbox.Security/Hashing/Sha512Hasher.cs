@@ -7,24 +7,28 @@ public class Sha512Hasher(int keySize = Sha512Hasher.DefaultKeySize, int iterati
 
     private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;
 
+    public Hash Generate(string secret) => Generate(Encoding.UTF8.GetBytes(IsNotNull(secret)));
+
     public Hash Generate(byte[] secret) {
         var salt = RandomNumberGenerator.GetBytes(keySize);
         var hash = Rfc2898DeriveBytes.Pbkdf2(
-            IsNotNull(secret),
-            salt,
-            iterations,
-            _hashAlgorithm,
-            keySize);
+                                             IsNotNull(secret),
+                                             salt,
+                                             iterations,
+                                             _hashAlgorithm,
+                                             keySize);
         return new(hash, salt);
     }
 
+    public bool Validate(Hash hash, string secret) => Validate(IsNotNull(hash), Encoding.UTF8.GetBytes(IsNotNull(secret)));
+
     public bool Validate(Hash hash, byte[] secret) {
         var testValue = Rfc2898DeriveBytes.Pbkdf2(
-                                         IsNotNull(secret),
-                                         hash.Salt,
-                                         iterations,
-                                         _hashAlgorithm,
-                                         keySize);
-        return hash.Value.SequenceEqual(testValue);
+                                                  IsNotNull(secret),
+                                                  hash.Salt,
+                                                  iterations,
+                                                  _hashAlgorithm,
+                                                  keySize);
+        return IsNotNull(hash).Value.SequenceEqual(testValue);
     }
 }

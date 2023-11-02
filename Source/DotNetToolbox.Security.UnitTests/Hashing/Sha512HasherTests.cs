@@ -4,6 +4,12 @@ public class Sha512HasherTests {
     private readonly Sha512Hasher _sut = new();
 
     [Fact]
+    public void Constants_ReturnsDefaultValues() {
+        Sha512Hasher.DefaultIterations.Should().Be(350000);
+        Sha512Hasher.DefaultKeySize.Should().Be(64);
+    }
+
+    [Fact]
     public void Generate_ReturnsHashWithSalt() {
         // Arrange
         var secret = new byte[] { 1, 2, 3, };
@@ -12,9 +18,9 @@ public class Sha512HasherTests {
         var result = _sut.Generate(secret);
 
         // Assert
-        _ = result.Should().NotBeNull();
-        _ = result.Salt.Should().NotBeNull();
-        _ = result.Value.Should().NotBeNull();
+        result.Should().NotBeNull();
+        result.Salt.Should().NotBeNull();
+        result.Value.Should().NotBeNull();
     }
 
     [Fact]
@@ -28,7 +34,7 @@ public class Sha512HasherTests {
         var result = _sut.Validate(hash, secret);
 
         // Assert
-        _ = result.Should().BeFalse();
+        result.Should().BeFalse();
     }
 
     [Fact]
@@ -41,6 +47,6 @@ public class Sha512HasherTests {
         var result = _sut.Validate(subject, secret);
 
         // Assert
-        _ = result.Should().BeTrue();
+        result.Should().BeTrue();
     }
 }
