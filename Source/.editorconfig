@@ -91,46 +91,46 @@ csharp_style_expression_bodied_operators = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 
 # Pattern matching preferences
-csharp_style_pattern_matching_over_as_with_null_check = true
-csharp_style_pattern_matching_over_is_with_cast_check = true
-csharp_style_prefer_extended_property_pattern = true
-csharp_style_prefer_not_pattern = true
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_prefer_extended_property_pattern = true:suggestion
+csharp_style_prefer_not_pattern = true:suggestion
 csharp_style_prefer_pattern_matching = true:suggestion
-csharp_style_prefer_switch_expression = true
+csharp_style_prefer_switch_expression = true:suggestion
 
 # Null-checking preferences
-csharp_style_conditional_delegate_call = true
+csharp_style_conditional_delegate_call = true:suggestion
 
 # Modifier preferences
-csharp_prefer_static_local_function = true
+csharp_prefer_static_local_function = true:suggestion
 csharp_preferred_modifier_order = public, private, protected, internal, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async, file, required:suggestion
-csharp_style_prefer_readonly_struct = true
-csharp_style_prefer_readonly_struct_member = true
+csharp_style_prefer_readonly_struct = true:suggestion
+csharp_style_prefer_readonly_struct_member = true:suggestion
 
 # Code-block preferences
-csharp_prefer_simple_using_statement = true
+csharp_prefer_simple_using_statement = true:suggestion
 csharp_style_namespace_declarations = file_scoped:suggestion
 csharp_style_prefer_method_group_conversion = true:suggestion
-csharp_style_prefer_primary_constructors = true
-csharp_style_prefer_top_level_statements = true
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_prefer_top_level_statements = true:suggestion
 
 # Expression-level preferences
-csharp_prefer_simple_default_expression = true
-csharp_style_deconstructed_variable_declaration = true
-csharp_style_implicit_object_creation_when_type_is_apparent = true
-csharp_style_inlined_variable_declaration = true
-csharp_style_prefer_index_operator = true
-csharp_style_prefer_local_over_anonymous_function = true
-csharp_style_prefer_null_check_over_type_check = true
-csharp_style_prefer_range_operator = true
-csharp_style_prefer_tuple_swap = true
+csharp_prefer_simple_default_expression = true:suggestion
+csharp_style_deconstructed_variable_declaration = true:suggestion
+csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
+csharp_style_inlined_variable_declaration = true:suggestion
+csharp_style_prefer_index_operator = true:suggestion
+csharp_style_prefer_local_over_anonymous_function = true:suggestion
+csharp_style_prefer_null_check_over_type_check = true:suggestion
+csharp_style_prefer_range_operator = true:suggestion
+csharp_style_prefer_tuple_swap = true:suggestion
 csharp_style_prefer_utf8_string_literals = true:suggestion
-csharp_style_throw_expression = true
-csharp_style_unused_value_assignment_preference = discard_variable
-csharp_style_unused_value_expression_statement_preference = discard_variable
+csharp_style_throw_expression = true:suggestion
+csharp_style_unused_value_assignment_preference = discard_variable:suggestion
+csharp_style_unused_value_expression_statement_preference = discard_variable:silent
 
 # 'using' directive preferences
-csharp_using_directive_placement = outside_namespace:silent
+csharp_using_directive_placement = outside_namespace:suggestion
 
 # New line preferences
 csharp_style_allow_blank_line_after_colon_in_constructor_initializer_experimental = false:suggestion
@@ -146,7 +146,7 @@ csharp_new_line_before_catch = true
 csharp_new_line_before_else = true
 csharp_new_line_before_finally = true
 csharp_new_line_before_members_in_anonymous_types = true
-csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_open_brace = none
 csharp_new_line_between_query_expression_clauses = true
 
@@ -386,7 +386,7 @@ resharper_csharp_wrap_ternary_expr_style = chop_always
 resharper_cxxcli_property_declaration_braces = next_line
 resharper_default_exception_variable_name = e
 resharper_default_value_when_type_evident = default_literal
-resharper_default_value_when_type_not_evident = default_expression
+resharper_default_value_when_type_not_evident = default_literal
 resharper_delete_quotes_from_solid_values = false
 resharper_disable_blank_line_changes = false
 resharper_disable_formatter = false
@@ -521,15 +521,13 @@ resharper_normalize_tag_names = false
 resharper_no_indent_inside_elements = html,body,thead,tbody,tfoot
 resharper_no_indent_inside_if_element_longer_than = 200
 resharper_null_checking_pattern_style = not_null_pattern
-resharper_object_creation_when_type_evident = target_typed
-resharper_object_creation_when_type_not_evident = target_typed
 resharper_old_engine = false
 resharper_outdent_binary_ops = true
 resharper_outdent_binary_pattern_ops = true
 resharper_outdent_namespace_member = false
 resharper_outdent_statement_labels = true
 resharper_outdent_ternary_ops = false
-resharper_parentheses_non_obvious_operations = none, multiplicative, additive, arithmetic, shift, relational, equality, bitwise_and, bitwise_exclusive_or, bitwise_inclusive_or, bitwise, conditional_and, conditional_or, conditional, null_coalescing, range
+resharper_parentheses_non_obvious_operations = none
 resharper_parentheses_redundancy_style = remove_if_not_clarifies_precedence
 resharper_pi_attributes_indent = align_by_first_attribute
 resharper_place_accessorholder_attribute_on_same_line = false
@@ -1201,7 +1199,7 @@ resharper_arguments_style_named_expression_highlighting = none
 resharper_arguments_style_other_highlighting = none
 resharper_arguments_style_string_literal_highlighting = none
 resharper_arrange_attributes_highlighting = none
-resharper_arrange_default_value_when_type_evident_highlighting = suggestion
+resharper_arrange_default_value_when_type_evident_highlighting = hint
 resharper_arrange_default_value_when_type_not_evident_highlighting = hint
 resharper_arrange_local_function_body_highlighting = suggestion
 resharper_arrange_missing_parentheses_highlighting = hint
@@ -3321,7 +3319,7 @@ resharper_redundant_overload_global_highlighting = suggestion
 resharper_redundant_overload_local_highlighting = suggestion
 resharper_redundant_overridden_member_highlighting = warning
 resharper_redundant_params_highlighting = warning
-resharper_redundant_parentheses_highlighting = none
+resharper_redundant_parentheses_highlighting = hint
 resharper_redundant_pattern_parentheses_highlighting = hint
 resharper_redundant_property_parentheses_highlighting = hint
 resharper_redundant_property_pattern_clause_highlighting = suggestion
@@ -3333,7 +3331,7 @@ resharper_redundant_record_class_keyword_highlighting = warning
 resharper_redundant_scoped_parameter_modifier_highlighting = warning
 resharper_redundant_setter_value_parameter_declaration_highlighting = hint
 resharper_redundant_set_contains_before_adding_highlighting = warning
-resharper_redundant_space_highlighting = none
+resharper_redundant_space_highlighting = hint
 resharper_redundant_string_format_call_highlighting = warning
 resharper_redundant_string_interpolation_highlighting = suggestion
 resharper_redundant_string_to_char_array_call_highlighting = warning
@@ -3529,7 +3527,7 @@ resharper_unknown_property_highlighting = none
 resharper_unknown_target_highlighting = suggestion
 resharper_unknown_task_attribute_highlighting = suggestion
 resharper_unknown_task_highlighting = warning
-resharper_unnecessary_whitespace_highlighting = none
+resharper_unnecessary_whitespace_highlighting = hint
 resharper_unreachable_switch_arm_due_to_integer_analysis_highlighting = warning
 resharper_unreachable_switch_case_due_to_integer_analysis_highlighting = warning
 resharper_unreal_header_tool_error_highlighting = error
@@ -3774,8 +3772,43 @@ resharper_xaml_xaml_xamarin_forms_data_type_and_binding_context_type_mismatched_
 resharper_xaml_x_key_attribute_disallowed_highlighting = error
 resharper_xunit_xunit_test_with_console_output_highlighting = warning
 resharper_zero_index_from_end_highlighting = warning
+csharp_prefer_braces = when_multiline:suggestion
 
 [*.{appxmanifest,asax,ascx,aspx,axaml,axml,build,c,c++,c++m,cc,ccm,cginc,compute,config,cp,cpp,cppm,cs,cshtml,csproj,cu,cuh,cxx,cxxm,dbml,discomap,dtd,fx,fxh,h,hh,hlsl,hlsli,hlslinc,hpp,htm,html,hxx,inc,inl,ino,ipp,ixx,jsproj,lsproj,master,mpp,mq4,mq5,mqh,mxx,njsproj,nuspec,paml,proj,props,razor,resw,resx,skin,StyleCop,targets,tasks,tpp,usf,ush,vb,vbproj,xaml,xamlx,xml,xoml,xsd}]
 indent_style = space
 indent_size = 4
 tab_width = 4
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+end_of_line = crlf
+dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
+dotnet_style_prefer_auto_properties = true:suggestion
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_prefer_collection_expression = true:suggestion
+insert_final_newline = true
+dotnet_style_collection_initializer = true:suggestion
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
+dotnet_style_prefer_conditional_expression_over_assignment = true:suggestion
+dotnet_style_prefer_conditional_expression_over_return = true:suggestion
+dotnet_style_explicit_tuple_names = true:suggestion
+dotnet_style_prefer_inferred_tuple_names = true:suggestion
+dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
+dotnet_style_prefer_compound_assignment = true:suggestion
+dotnet_style_prefer_simplified_interpolation = true:suggestion
+dotnet_style_namespace_match_folder = true:suggestion
+dotnet_style_readonly_field = true:suggestion
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
+dotnet_style_predefined_type_for_member_access = true:suggestion
+dotnet_style_require_accessibility_modifiers = always:suggestion
+dotnet_style_allow_multiple_blank_lines_experimental = false:suggestion
+dotnet_style_allow_statement_immediately_after_block_experimental = true:suggestion
+dotnet_code_quality_unused_parameters = all:suggestion
+dotnet_style_parentheses_in_arithmetic_binary_operators = never_if_unnecessary:suggestion
+dotnet_style_parentheses_in_other_binary_operators = never_if_unnecessary:suggestion
+dotnet_style_parentheses_in_relational_binary_operators = never_if_unnecessary:suggestion
+dotnet_style_parentheses_in_other_operators = never_if_unnecessary:suggestion
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion

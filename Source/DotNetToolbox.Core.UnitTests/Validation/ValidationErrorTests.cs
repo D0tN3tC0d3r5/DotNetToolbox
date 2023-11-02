@@ -93,7 +93,7 @@ public class ValidationErrorTests {
             new("Source 1", "Some message 1 {0}.", 42),
             new("Source 1", "Some message 1 {0}.", 42),
             new(" Source 1 ", "Some message 1 {0}.", 42),
-            new("Source 1", "Some message 1 {0}.", 42, 13),
+            new("Source 1", "Some message 1 42."),
             new("Source 2", "Some message 1 {0}.", 42),
             new("Source 1", "Some message 2 {0}.", 42),
             new("Source 1", "Some message 1 {0}.", 7),

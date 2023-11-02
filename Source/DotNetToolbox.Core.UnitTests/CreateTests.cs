@@ -2,8 +2,7 @@ namespace System;
 
 public class CreateTests {
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestClass {
-    }
+    private class TestClass;
 
     [Fact]
     public void Create_NoArgs_CreatesObjectOfTypeT() {

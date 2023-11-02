@@ -29,11 +29,11 @@ public class JwtAuthenticationOptions : AuthenticationOptions {
         var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
         var now = DateTimeProvider.UtcNow;
-        var expiration = now + ExpiresAfter;
+        var expiration = now.DateTime + ExpiresAfter;
         var tokenOptions = new JwtSecurityToken(Issuer,
                                                 Audience,
                                                 Claims,
-                                                now,
+                                                now.DateTime,
                                                 expiration,
                                                 signingCredentials);
 

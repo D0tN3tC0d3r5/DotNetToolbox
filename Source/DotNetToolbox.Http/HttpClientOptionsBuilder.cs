@@ -4,11 +4,9 @@ internal class HttpClientOptionsBuilder : IHttpClientOptionsBuilder {
 
     private readonly IMsalHttpClientFactory _identityClientFactory;
     private readonly HttpClientOptions _options;
-    private readonly string? _name;
     private readonly HttpClientConfiguration _configuration;
 
     internal HttpClientOptionsBuilder(string? name, HttpClientConfiguration configuration, IMsalHttpClientFactory identityClientFactory) {
-        _name = name;
         _configuration = IsNotNull(configuration);
         _identityClientFactory = IsNotNull(identityClientFactory);
         _options = _configuration.ResolveOptionsFor(name);

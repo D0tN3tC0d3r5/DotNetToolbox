@@ -10,8 +10,8 @@ public class HttpAuthentication {
 
     public bool IsValid(AuthenticationType type)
         => !string.IsNullOrWhiteSpace(Value)
-        && (Type == type)
-        && (ExpiresOn is null || (ExpiresOn.Value > DateTimeProvider.UtcNow));
+        && Type == type
+        && (ExpiresOn is null || ExpiresOn.Value > DateTimeProvider.UtcNow);
 
     public static implicit operator AuthenticationHeaderValue(HttpAuthentication auth)
         => new(auth.Scheme.ToString(), auth.Value);

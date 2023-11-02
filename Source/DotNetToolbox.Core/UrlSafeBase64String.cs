@@ -13,7 +13,7 @@ public readonly partial record struct UrlSafeBase64String {
         Bytes = input.ToByteArray();
     }
 
-    public UrlSafeBase64String(string input) {
+    public UrlSafeBase64String(string? input) {
         input = input?.Trim() ?? string.Empty;
         Bytes = _safeBase64String.IsMatch(input)
             ? ToBytes(input)
@@ -57,7 +57,7 @@ public readonly partial record struct UrlSafeBase64String {
         var builder = new StringBuilder(input.Trim());
         _ = builder.Replace('_', '/');
         _ = builder.Replace('-', '+');
-        _ = builder.Append('=', 24 - (input.Length % 24));
+        _ = builder.Append('=', 24 - input.Length % 24);
         return builder.ToString();
     }
 

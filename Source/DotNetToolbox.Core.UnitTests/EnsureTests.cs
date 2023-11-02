@@ -213,28 +213,28 @@ public class EnsureTests {
     [Fact]
     public void IsValid_WhenValidSimpleObject_ReturnsSame() {
         var input = new object();
-        var result = IsValid(input, o => Success());
+        var result = IsValid(input, _ => Success());
         _ = result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void IsValid_WhenInvalidSimpleObject_ReturnsSame() {
         var input = new object();
-        var result = () => IsValid(input, o => Invalid("Some error."));
+        var result = () => IsValid(input, _ => Invalid("Some error."));
         _ = result.Should().Throw<ValidationException>();
     }
 
     [Fact]
     public void IsValid_WhenValidSimpleObject_AndPredicate_ReturnsSame() {
         var input = new object();
-        var result = IsValid(input, o => true);
+        var result = IsValid(input, _ => true);
         _ = result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void IsValid_WhenInvalidSimpleObject_AndPredicate_ReturnsSame() {
         var input = new object();
-        var result = () => IsValid(input, o => false);
+        var result = () => IsValid(input, _ => false);
         _ = result.Should().Throw<ValidationException>();
     }
 }

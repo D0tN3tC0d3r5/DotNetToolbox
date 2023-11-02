@@ -18,11 +18,11 @@ public class HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpC
     public HttpClient GetHttpClient(string name, Action<IHttpClientOptionsBuilder>? configBuilder = null) {
         var builder = new HttpClientOptionsBuilder(name, _config, _identityClientFactory);
         configBuilder?.Invoke(builder);
-        var options = builder.Build();
-        options.Validate().EnsureIsValid();
+        var clientOptions = builder.Build();
+        clientOptions.Validate().EnsureIsValid();
 
         var client = clientFactory.CreateClient();
-        lock (_lock) options.Configure(client, ref _authentication);
+        lock (_lock) clientOptions.Configure(client, ref _authentication);
         return client;
     }
 

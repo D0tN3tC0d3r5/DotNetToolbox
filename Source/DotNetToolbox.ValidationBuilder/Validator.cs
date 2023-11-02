@@ -5,8 +5,8 @@ public abstract class Validator(string source, ValidatorMode mode = And) : IVali
     public string Source { get; } = source;
     public Result Result { get; private set; } = Result.Success();
 
-    public Validator SetMode(ValidatorMode mode) {
-        Mode = mode;
+    public Validator SetMode(ValidatorMode validatorMode) {
+        Mode = validatorMode;
         return this;
     }
 
