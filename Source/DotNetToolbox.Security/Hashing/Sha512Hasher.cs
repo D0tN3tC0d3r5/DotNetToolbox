@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Security.Hashing;
 
-public readonly record struct Sha512Hasher
+public sealed class Sha512Hasher
     : IHasher {
     public const int DefaultIterations = 259733; // Some not exact number
 
