@@ -1,34 +1,41 @@
 ﻿namespace DotNetToolbox.Security.Hashing;
 
-public class Sha512Hasher(int keySize = Sha512Hasher.DefaultKeySize, int iterations = Sha512Hasher.DefaultIterations)
+public readonly record struct Sha512Hasher
     : IHasher {
-    public const int DefaultKeySize = 64;
-    public const int DefaultIterations = 350000;
+    public const int DefaultIterations = 259733; // Some not exact number
 
+    private const int _saltSize = 64; // 512 bits
+    private readonly int _iterations;
     private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;
 
-    public Hash Generate(string secret) => Generate(Encoding.UTF8.GetBytes(IsNotNull(secret)));
+    public Sha512Hasher() {
+        _iterations = DefaultIterations;
+    }
 
-    public Hash Generate(byte[] secret) {
-        var salt = RandomNumberGenerator.GetBytes(keySize);
-        var hash = Rfc2898DeriveBytes.Pbkdf2(
-                                             IsNotNull(secret),
-                                             salt,
-                                             iterations,
-                                             _hashAlgorithm,
-                                             keySize);
+    public Sha512Hasher(int iterations) {
+        if (iterations < 1)
+            throw new ArgumentOutOfRangeException(nameof(iterations), iterations, "Iterations must be greater than 0.");
+        _iterations = iterations;
+    }
+
+    public Hash Generate(string input) => Generate(Encoding.UTF8.GetBytes(IsNotNull(input)));
+
+    public Hash Generate(byte[] input) {
+        var salt = RandomNumberGenerator.GetBytes(_saltSize);
+        var hash = ExecuteHashing(input, salt);
         return new(hash, salt);
     }
 
-    public bool Validate(Hash hash, string secret) => Validate(IsNotNull(hash), Encoding.UTF8.GetBytes(IsNotNull(secret)));
+    public bool Validate(Hash secret, string input) => Validate(IsNotNull(secret), Encoding.UTF8.GetBytes(IsNotNull(input)));
 
-    public bool Validate(Hash hash, byte[] secret) {
-        var testValue = Rfc2898DeriveBytes.Pbkdf2(
-                                                  IsNotNull(secret),
-                                                  hash.Salt,
-                                                  iterations,
-                                                  _hashAlgorithm,
-                                                  keySize);
-        return IsNotNull(hash).Value.SequenceEqual(testValue);
+    public bool Validate(Hash secret, byte[] input) {
+        var hash = ExecuteHashing(IsNotNull(input), IsNotNull(secret).Salt);
+        return secret.Value.SequenceEqual(hash);
     }
+    private byte[] ExecuteHashing(byte[] input, byte[] salt)
+        => Rfc2898DeriveBytes.Pbkdf2(input,
+                                     salt,
+                                     _iterations,
+                                     _hashAlgorithm,
+                                     _saltSize);
 }

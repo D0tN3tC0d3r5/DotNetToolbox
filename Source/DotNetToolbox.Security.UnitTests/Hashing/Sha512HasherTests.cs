@@ -1,12 +1,38 @@
+using System.Text;
+
+using FluentAssertions.Extensions;
+
 namespace DotNetToolbox.Security.Hashing;
 
 public class Sha512HasherTests {
-    private readonly Sha512Hasher _sut = new();
+    private readonly Sha512Hasher _subject = new();
 
     [Fact]
-    public void Constants_ReturnsDefaultValues() {
-        Sha512Hasher.DefaultIterations.Should().Be(350000);
-        Sha512Hasher.DefaultKeySize.Should().Be(64);
+    public void Constants_ReturnsDefaultValues()
+        => Sha512Hasher.DefaultIterations.Should().Be(259733);
+
+    [Fact]
+    public void ConstructorWithIterations_Generate_ReturnsHashWithSalt() {
+        // Arrange
+        var subject = new Sha512Hasher(1000);
+        var secret = new byte[] { 1, 2, 3, };
+
+        // Act
+        var result = subject.Generate(secret);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Salt.Should().NotBeNull();
+        result.Value.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void ConstructorWithInvalidIterations_Throws() {
+        // Arrange & Act
+        var result = () => new Sha512Hasher(0);
+
+        // Assert
+        result.Should().Throw<ArgumentException>();
     }
 
     [Fact]
@@ -15,7 +41,21 @@ public class Sha512HasherTests {
         var secret = new byte[] { 1, 2, 3, };
 
         // Act
-        var result = _sut.Generate(secret);
+        var result = _subject.Generate(secret);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Salt.Should().NotBeNull();
+        result.Value.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Generate_FromString_ReturnsHashWithSalt() {
+        // Arrange
+        const string secret = "SomePassword";
+
+        // Act
+        var result = _subject.Generate(secret);
 
         // Assert
         result.Should().NotBeNull();
@@ -31,7 +71,7 @@ public class Sha512HasherTests {
         var hash = new Hash([7, 8, 9,], salt);
 
         // Act
-        var result = _sut.Validate(hash, secret);
+        var result = _subject.Validate(hash, secret);
 
         // Assert
         result.Should().BeFalse();
@@ -41,10 +81,23 @@ public class Sha512HasherTests {
     public void Validate_WithValidHash_ReturnsTrue() {
         // Arrange
         var secret = new byte[] { 1, 2, 3, };
-        var subject = _sut.Generate(secret);
+        var subject = _subject.Generate(secret);
 
         // Act
-        var result = _sut.Validate(subject, secret);
+        var result = _subject.Validate(subject, secret);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_FromString_WithValidHash_ReturnsTrue() {
+        // Arrange
+        const string secret = "SomePassword";
+        var subject = _subject.Generate(secret);
+
+        // Act
+        var result = _subject.Validate(subject, secret);
 
         // Assert
         result.Should().BeTrue();
