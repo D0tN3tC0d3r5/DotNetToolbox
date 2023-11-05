@@ -21,28 +21,28 @@ public class SignInResultTests {
         var result = Success("SomeToken");
 
         // Assert
-        _ = result.IsSuccess.Should().BeTrue();
-        _ = result.Errors.Should().BeEmpty();
+        result.IsSuccess.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
     }
 
     [Fact]
     public void Invalid_WithMessageOnly_CreatesResult() {
         // Arrange & Act
-        var result = Invalid("Some error.");
+        var result = SignInResult.Invalid("Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
     public void Invalid_WithSourceAndMessage_CreatesResult() {
         // Arrange & Act
-        var result = Invalid("Field1", "Some error.");
+        var result = SignInResult.Invalid("Field1", "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().BeEquivalentTo(new[] {
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().BeEquivalentTo(new[] {
             new ValidationError("Field1", "Some error."),
         });
     }
@@ -50,11 +50,11 @@ public class SignInResultTests {
     [Fact]
     public void Invalid_WithResult_CreatesResult() {
         // Arrange & Act
-        var result = Invalid(Result.Invalid("Some error."));
+        var result = SignInResult.Invalid(Result.Invalid("Some error."));
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class SignInResultTests {
         var result = (SignInResult)new ValidationError("Source", "Some error.");
 
         // Assert
-        _ = result.IsInvalid.Should().BeTrue();
+        result.IsInvalid.Should().BeTrue();
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class SignInResultTests {
         SignInResult result = new[] { new ValidationError("Source", "Some error."), };
 
         // Assert
-        _ = result.IsInvalid.Should().BeTrue();
+        result.IsInvalid.Should().BeTrue();
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class SignInResultTests {
         SignInResult result = new List<ValidationError> { new("Source", "Some error."), };
 
         // Assert
-        _ = result.IsInvalid.Should().BeTrue();
+        result.IsInvalid.Should().BeTrue();
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class SignInResultTests {
         SignInResult result = "SomeToken";
 
         // Assert
-        _ = result.IsSuccess.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
     }
 
     private class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
@@ -108,42 +108,37 @@ public class SignInResultTests {
     [ClassData(typeof(TestDataForProperties))]
     public void Properties_ShouldReturnAsExpected(SignInResult subject, bool isInvalid, bool isBlocked, bool isLocked, bool isFailure, bool confirmationRequired, bool twoFactorRequired, bool isSuccess) {
         // Assert
-        _ = subject.IsInvalid.Should().Be(isInvalid);
-        _ = subject.IsLocked.Should().Be(isLocked);
-        _ = subject.IsBlocked.Should().Be(isBlocked);
-        _ = subject.IsFailure.Should().Be(isFailure);
-        _ = subject.RequiresConfirmation.Should().Be(confirmationRequired);
-        _ = subject.RequiresTwoFactor.Should().Be(twoFactorRequired);
-        _ = subject.IsSuccess.Should().Be(isSuccess);
+        subject.IsInvalid.Should().Be(isInvalid);
+        subject.IsSuccess.Should().Be(isSuccess);
+        subject.RequiresConfirmation.Should().Be(confirmationRequired);
+        subject.RequiresTwoFactor.Should().Be(twoFactorRequired);
+        subject.IsFailure.Should().Be(isFailure);
+        subject.IsLocked.Should().Be(isLocked);
+        subject.IsBlocked.Should().Be(isBlocked);
     }
 
     private class TestDataForEquality : TheoryData<SignInResult, SignInResultType, bool> {
         public TestDataForEquality() {
-            Add(_success, SignInResultType.Success, true);
-            Add(_success, Failed, false);
-            Add(_success, SignInResultType.Locked, false);
-            Add(_success, SignInResultType.Blocked, false);
-            Add(_success, SignInResultType.Invalid, false);
-            Add(_failure, SignInResultType.Success, false);
-            Add(_failure, Failed, true);
-            Add(_failure, SignInResultType.Locked, false);
-            Add(_failure, SignInResultType.Blocked, false);
-            Add(_failure, SignInResultType.Invalid, false);
-            Add(_locked, SignInResultType.Success, false);
-            Add(_locked, Failed, false);
-            Add(_locked, SignInResultType.Locked, true);
-            Add(_locked, SignInResultType.Blocked, false);
-            Add(_locked, SignInResultType.Invalid, false);
-            Add(_blocked, SignInResultType.Success, false);
-            Add(_blocked, Failed, false);
-            Add(_blocked, SignInResultType.Locked, false);
-            Add(_blocked, SignInResultType.Blocked, true);
-            Add(_blocked, SignInResultType.Invalid, false);
             Add(_invalid, SignInResultType.Success, false);
             Add(_invalid, Failed, false);
             Add(_invalid, SignInResultType.Locked, false);
             Add(_invalid, SignInResultType.Blocked, false);
-            Add(_invalid, SignInResultType.Invalid, true);
+            Add(_success, SignInResultType.Success, true);
+            Add(_success, Failed, false);
+            Add(_success, SignInResultType.Locked, false);
+            Add(_success, SignInResultType.Blocked, false);
+            Add(_failure, SignInResultType.Success, false);
+            Add(_failure, Failed, true);
+            Add(_failure, SignInResultType.Locked, false);
+            Add(_failure, SignInResultType.Blocked, false);
+            Add(_locked, SignInResultType.Success, false);
+            Add(_locked, Failed, false);
+            Add(_locked, SignInResultType.Locked, true);
+            Add(_locked, SignInResultType.Blocked, false);
+            Add(_blocked, SignInResultType.Success, false);
+            Add(_blocked, Failed, false);
+            Add(_blocked, SignInResultType.Locked, false);
+            Add(_blocked, SignInResultType.Blocked, true);
         }
     }
 
@@ -154,7 +149,7 @@ public class SignInResultTests {
         var result = subject == type;
 
         // Assert
-        _ = result.Should().Be(expectedResult);
+        result.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -164,7 +159,7 @@ public class SignInResultTests {
         var result = subject != type;
 
         // Assert
-        _ = result.Should().Be(!expectedResult);
+        result.Should().Be(!expectedResult);
     }
 
     [Fact]
@@ -197,7 +192,7 @@ public class SignInResultTests {
         };
 
         // Assert
-        _ = result.Should().BeEquivalentTo(expectedResult);
+        result.Should().BeEquivalentTo(expectedResult);
     }
 
     [Fact]
@@ -209,9 +204,9 @@ public class SignInResultTests {
         result += Success();
 
         // Assert
-        _ = result.IsSuccess.Should().BeTrue();
-        _ = result.IsInvalid.Should().BeFalse();
-        _ = result.Token.Should().Be("SomeToken");
+        result.IsSuccess.Should().BeTrue();
+        result.IsInvalid.Should().BeFalse();
+        result.Token.Should().Be("SomeToken");
     }
 
     [Fact]
@@ -223,34 +218,34 @@ public class SignInResultTests {
         result += new ValidationError("Source", "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
-        _ = result.Token.Should().BeNull();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+        result.Token.Should().BeNull();
     }
 
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = Invalid("Source", "Some error.");
+        var result = SignInResult.Invalid("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Other error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().HaveCount(2);
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().HaveCount(2);
     }
 
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = Invalid("Source", "Some error.");
+        var result = SignInResult.Invalid("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 }

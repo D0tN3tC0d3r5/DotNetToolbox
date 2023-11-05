@@ -20,18 +20,6 @@ public class HttpResultTests {
     private static readonly HttpResult<string> _badRequestWithValue = BadRequest("Value", "Source", "Some error.");
 
     [Fact]
-    public void CopyConstructor_ClonesObject() {
-        // Act
-        var result = _ok with {
-            Errors = new HashSet<ValidationError> { new("Some error."), },
-        };
-
-        // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
-    }
-
-    [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
         HttpResult result = new ValidationError(nameof(result), "Some error.");
@@ -236,21 +224,6 @@ public class HttpResultTests {
         // Assert
         _ = result.IsOk.Should().BeFalse();
         _ = result.Errors.Should().ContainSingle();
-    }
-
-    [Fact]
-    public void OfT_CopyConstructor_ClonesObject() {
-        // Arrange
-        var original = Ok(42);
-
-        // Act
-        var result = original with {
-            Value = 7,
-        };
-
-        // Assert
-        _ = result.IsSuccess.Should().BeTrue();
-        _ = result.Value.Should().Be(7);
     }
 
     [Fact]

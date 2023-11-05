@@ -1,23 +1,22 @@
 ﻿namespace System.Results;
 
-public record HttpResult : Result {
+public class HttpResult : ResultBase {
     protected HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = null)
         : base(errors) {
-        Type = type;
+        Type = HasErrors ? HttpResultType.BadRequest : type;
     }
 
-    public HttpResultType Type { get; protected set; }
+    protected HttpResultType Type { get; set; }
 
-    public override bool IsSuccess => !HasErrors && Type is HttpResultType.Ok or HttpResultType.Created;
-    public override bool IsInvalid => Type is HttpResultType.BadRequest or HttpResultType.Unauthorized or HttpResultType.NotFound or HttpResultType.Conflict;
+    public bool IsSuccess => !HasErrors && Type is HttpResultType.Ok or HttpResultType.Created;
 
     public bool IsOk => !HasErrors && Type is HttpResultType.Ok;
     public bool WasCreated => !HasErrors && Type is HttpResultType.Created;
 
-    public bool IsBadRequest => HasErrors || Type is HttpResultType.BadRequest;
-    public bool IsUnauthorized => Type is HttpResultType.Unauthorized;
-    public bool WasNotFound => Type is HttpResultType.NotFound;
-    public bool HasConflict => Type is HttpResultType.Conflict;
+    public bool IsBadRequest => HasErrors;
+    public bool IsUnauthorized => !HasErrors && Type is HttpResultType.Unauthorized;
+    public bool WasNotFound => !HasErrors && Type is HttpResultType.NotFound;
+    public bool HasConflict => !HasErrors && Type is HttpResultType.Conflict;
 
     public static HttpResult Ok() => new(HttpResultType.Ok);
     public static HttpResult Created() => new(HttpResultType.Created);
@@ -40,7 +39,7 @@ public record HttpResult : Result {
 
     public static HttpResult operator +(HttpResult left, Result right) {
         left.Errors.UnionWith(right.Errors);
-        left.Type = left.IsInvalid ? HttpResultType.BadRequest : left.Type;
+        left.Type = left.HasErrors ? HttpResultType.BadRequest : left.Type;
         return left;
     }
 
@@ -61,9 +60,12 @@ public record HttpResult : Result {
         => new(HttpResultType.NotFound);
     public static HttpResult<TValue> Conflict<TValue>(TValue value)
         => new(HttpResultType.Conflict, IsNotNull(value));
+
+    public bool Equals([NotNullWhen(true)] HttpResult? other)
+        => base.Equals(other) && Type == other.Type;
 }
 
-public record HttpResult<TResult> : HttpResult {
+public class HttpResult<TResult> : HttpResult {
     public HttpResult(HttpResultType type, TResult? value = default, IEnumerable<ValidationError>? errors = null)
         : base(type, errors) {
         Value = value;
@@ -82,8 +84,9 @@ public record HttpResult<TResult> : HttpResult {
         return left;
     }
 
+    public bool Equals([NotNullWhen(true)] HttpResult<TResult>? other)
+        => base.Equals(other) && (Value?.Equals(other.Value) ?? other.Value is null);
+
     public HttpResult<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)
-        => Value is null
-            ? NotFound<TOutput>()
-            : new(Type, map(Value), Errors);
+        => new(Type, Value is null ? default : map(Value), Errors);
 }

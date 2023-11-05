@@ -3,29 +3,17 @@ using static System.Results.CrudResult;
 namespace System.Results;
 
 public class CrudResultTests {
-    private static readonly CrudResult _success = Success();
+    private static readonly CrudResult _success = CrudResult.Success();
     private static readonly CrudResult _notFound = NotFound();
     private static readonly CrudResult _conflict = Conflict();
-    private static readonly CrudResult _invalid = Invalid("Source", "Some error.");
+    private static readonly CrudResult _invalid = CrudResult.Invalid("Source", "Some error.");
     private static readonly CrudResult _invalidWithSameError = new ValidationError("Source", "Some error.");
     private static readonly CrudResult _invalidWithWithOtherError = new ValidationError("Source", "Other error.");
 
-    private static readonly CrudResult<string> _successWithValue = Success("Value");
+    private static readonly CrudResult<string> _successWithValue = CrudResult.Success("Value");
     private static readonly CrudResult<string> _notFoundWithValue = NotFound<string>();
     private static readonly CrudResult<string> _conflictWithValue = Conflict("Value");
-    private static readonly CrudResult<string> _invalidWithValue = Invalid("Value", "Source", "Some error.");
-
-    [Fact]
-    public void CopyConstructor_ClonesObject() {
-        // Act
-        var result = _success with {
-            Errors = new HashSet<ValidationError> { new("Some error."), },
-        };
-
-        // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
-    }
+    private static readonly CrudResult<string> _invalidWithValue = CrudResult.Invalid("Value", "Source", "Some error.");
 
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
@@ -33,7 +21,7 @@ public class CrudResultTests {
         CrudResult result = new ValidationError(nameof(result), "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
@@ -42,7 +30,7 @@ public class CrudResultTests {
         CrudResult result = new[] { new ValidationError(nameof(result), "Some error."), };
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
@@ -51,7 +39,7 @@ public class CrudResultTests {
         CrudResult result = new List<ValidationError> { new(nameof(result), "Some error."), };
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
     }
 
     private class TestDataForProperties : TheoryData<CrudResult, bool, bool, bool, bool> {
@@ -70,10 +58,10 @@ public class CrudResultTests {
     [ClassData(typeof(TestDataForProperties))]
     public void Properties_ShouldReturnAsExpected(CrudResult subject, bool isInvalid, bool isSuccess, bool isNotFound, bool isConflict) {
         // Assert
-        _ = subject.IsInvalid.Should().Be(isInvalid);
-        _ = subject.IsSuccess.Should().Be(isSuccess);
-        _ = subject.WasNotFound.Should().Be(isNotFound);
-        _ = subject.HasConflict.Should().Be(isConflict);
+        subject.IsInvalid.Should().Be(isInvalid);
+        subject.IsSuccess.Should().Be(isSuccess);
+        subject.WasNotFound.Should().Be(isNotFound);
+        subject.HasConflict.Should().Be(isConflict);
     }
 
     private class TestDataForEquality : TheoryData<CrudResult, CrudResult?, bool> {
@@ -110,7 +98,7 @@ public class CrudResultTests {
         var result = subject == other;
 
         // Assert
-        _ = result.Should().Be(expectedResult);
+        result.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -120,7 +108,7 @@ public class CrudResultTests {
         var result = subject != other;
 
         // Assert
-        _ = result.Should().Be(!expectedResult);
+        result.Should().Be(!expectedResult);
     }
 
     [Fact]
@@ -133,8 +121,8 @@ public class CrudResultTests {
 
         // Act
         var result = new HashSet<CrudResult> {
-            Success(),
-            Success(),
+            CrudResult.Success(),
+            CrudResult.Success(),
             _success,
             _success,
             _invalid,
@@ -144,37 +132,37 @@ public class CrudResultTests {
         };
 
         // Assert
-        _ = result.Should().BeEquivalentTo(expectedResult);
+        result.Should().BeEquivalentTo(expectedResult);
     }
 
     [Fact]
     public void Success_CreatesResult() {
         // Arrange & Act
-        var result = Success();
+        var result = CrudResult.Success();
 
         // Assert
-        _ = result.IsSuccess.Should().BeTrue();
-        _ = result.Errors.Should().BeEmpty();
+        result.IsSuccess.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
     }
 
     [Fact]
     public void Invalid_WithMessageOnly_CreatesResult() {
         // Arrange & Act
-        var result = Invalid("Some error.");
+        var result = CrudResult.Invalid("Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
     public void Invalid_WithSourceAndMessage_CreatesResult() {
         // Arrange & Act
-        var result = Invalid("Field1", "Some error.");
+        var result = CrudResult.Invalid("Field1", "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().BeEquivalentTo(new[] {
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().BeEquivalentTo(new[] {
             new ValidationError("Field1", "Some error."),
         });
     }
@@ -182,156 +170,141 @@ public class CrudResultTests {
     [Fact]
     public void Invalid_WithResult_CreatesResult() {
         // Arrange & Act
-        var result = Invalid(Result.Invalid("Some error."));
+        var result = CrudResult.Invalid(Result.Invalid("Some error."));
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
-    public void AddOperator_WithoutError_ReturnsInvalid() {
+    public void AddOperator_WithoutError_ReturnsCrudResultInvalid() {
         // Arrange
-        var result = Success();
+        var result = CrudResult.Success();
 
         // Act
         result += Result.Success();
 
         // Assert
-        _ = result.IsSuccess.Should().BeTrue();
-        _ = result.IsInvalid.Should().BeFalse();
+        result.IsSuccess.Should().BeTrue();
+        result.IsInvalid.Should().BeFalse();
     }
 
     [Fact]
-    public void AddOperator_WithError_ReturnsInvalid() {
+    public void AddOperator_WithError_ReturnsCrudResultInvalid() {
         // Arrange
-        var result = Success("SomeToken");
+        var result = CrudResult.Success("SomeToken");
 
         // Act
         result += new ValidationError("Source", "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = Invalid("Source", "Some error {0}.", 42);
+        var result = CrudResult.Invalid("Source", "Some error {0}.", 42);
 
         // Act
         result += new ValidationError("Source", "Other error {0}.", 42);
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().HaveCount(2);
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().HaveCount(2);
     }
 
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = Invalid("Source", "Some error.");
+        var result = CrudResult.Invalid("Source", "Some error.");
 
         // Act
         result += new ValidationError("Source", "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
-    public void OfT_CopyConstructor_ClonesObject() {
-        // Arrange
-        var original = Success(42);
-
-        // Act
-        var result = original with {
-            Value = 7,
-        };
-
-        // Assert
-        _ = result.IsSuccess.Should().BeTrue();
-        _ = result.Value.Should().Be(7);
-    }
-
-    [Fact]
-    public void ImplicitConversion_FromValue_ReturnsSuccess() {
+    public void ImplicitConversion_FromValue_ReturnsCrudResultSuccess() {
         // Act
         CrudResult<string> subject = "Value";
 
         // Assert
-        _ = subject.Value.Should().Be("Value");
-        _ = subject.IsSuccess.Should().BeTrue();
+        subject.Value.Should().Be("Value");
+        subject.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public void ImplicitConversion_FromSuccessResult_ReturnsSuccess() {
+    public void ImplicitConversion_FromSuccessResult_ReturnsCrudResultSuccess() {
         // Act
         var result = Result.Success("Value");
         CrudResult<string> subject = result;
 
         // Assert
-        _ = subject.Value.Should().Be(result.Value);
-        _ = subject.IsSuccess.Should().BeTrue();
+        subject.Value.Should().Be(result.Value);
+        subject.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public void ImplicitConversion_FromInvalidResult_ReturnsSuccess() {
+    public void ImplicitConversion_FromInvalidResult_ReturnsCrudResultSuccess() {
         // Act
         var result = Result.Invalid("Value", "Some error.", "SomeProperty");
         CrudResult<string> subject = result;
 
         // Assert
-        _ = subject.Value.Should().Be(result.Value);
-        _ = subject.IsSuccess.Should().BeFalse();
-        _ = subject.Errors.Should().BeEquivalentTo(result.Errors);
+        subject.Value.Should().Be(result.Value);
+        subject.IsSuccess.Should().BeFalse();
+        subject.Errors.Should().BeEquivalentTo(result.Errors);
     }
 
     [Fact]
-    public void AddOperator_WithValueAndWithoutError_ReturnsInvalid() {
+    public void AddOperator_WithValueAndWithoutError_ReturnsCrudResultInvalid() {
         // Arrange
-        var result = Success("Value");
+        var result = CrudResult.Success("Value");
 
         // Act
         result += Result.Success();
 
         // Assert
-        _ = result.IsSuccess.Should().BeTrue();
-        _ = result.IsInvalid.Should().BeFalse();
-        _ = result.Value.Should().Be("Value");
+        result.IsSuccess.Should().BeTrue();
+        result.IsInvalid.Should().BeFalse();
+        result.Value.Should().Be("Value");
     }
 
     [Fact]
-    public void AddOperator_WithValueAndWithError_ReturnsInvalid() {
+    public void AddOperator_WithValueAndWithError_ReturnsCrudResultInvalid() {
         // Arrange
-        var result = Success("Value");
+        var result = CrudResult.Success("Value");
 
         // Act
         result += new ValidationError("result", "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.IsInvalid.Should().BeTrue();
-        _ = result.Value.Should().Be("Value");
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.Value.Should().Be("Value");
     }
 
     [Fact]
-    public void MapTo_WithoutError_ReturnsSuccess() {
+    public void MapTo_WithoutError_ReturnsCrudResultSuccess() {
         // Arrange
-        var subject = Success("42");
+        var subject = CrudResult.Success("42");
 
         // Act
         var result = subject.MapTo(int.Parse);
 
         // Assert
-        _ = result.Should().BeOfType<CrudResult<int>>();
-        _ = result.IsSuccess.Should().BeTrue();
+        result.Should().BeOfType<CrudResult<int>>();
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public void MapTo_FromNotFound_ReturnsSuccess() {
+    public void MapTo_FromNotFound_ReturnsCrudResultSuccess() {
         // Arrange
         var subject = NotFound<string>();
 
@@ -339,53 +312,53 @@ public class CrudResultTests {
         var result = subject.MapTo(int.Parse);
 
         // Assert
-        _ = result.Should().BeOfType<CrudResult<int>>();
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.IsInvalid.Should().BeFalse();
-        _ = result.WasNotFound.Should().BeTrue();
+        result.Should().BeOfType<CrudResult<int>>();
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeFalse();
+        result.WasNotFound.Should().BeTrue();
     }
 
     [Fact]
-    public void MapTo_WithError_ReturnsInvalid() {
+    public void MapTo_WithError_ReturnsCrudResultInvalid() {
         // Arrange
-        var subject = Invalid("42", "Field", "Some error.");
+        var subject = CrudResult.Invalid("42", "Field", "Some error.");
 
         // Act
         var result = subject.MapTo(int.Parse);
 
         // Assert
-        _ = result.Should().BeOfType<CrudResult<int>>();
-        _ = result.IsSuccess.Should().BeFalse();
+        result.Should().BeOfType<CrudResult<int>>();
+        result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
     public void SuccessOfT_CreatesResult() {
         // Arrange & Act
-        var result = Success(42);
+        var result = CrudResult.Success(42);
 
         // Assert
-        _ = result.IsSuccess.Should().BeTrue();
-        _ = result.Errors.Should().BeEmpty();
+        result.IsSuccess.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
     }
 
     [Fact]
     public void InvalidOfT_WithMessageOnly_CreatesResult() {
         // Arrange & Act
-        var result = Invalid(42, "Some error.");
+        var result = CrudResult.Invalid(42, "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
     public void InvalidOfT_WithSourceAndMessage_CreatesResult() {
         // Arrange & Act
-        var result = Invalid(42, "Field1", "Some error.");
+        var result = CrudResult.Invalid(42, "Field1", "Some error.");
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().BeEquivalentTo(new[] {
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().BeEquivalentTo(new[] {
             new ValidationError("Field1", "Some error."),
         });
     }
@@ -393,10 +366,10 @@ public class CrudResultTests {
     [Fact]
     public void InvalidOfT_WithResult_CreatesResult() {
         // Arrange & Act
-        var result = Invalid(42, Result.Invalid("Some error."));
+        var result = CrudResult.Invalid(42, Result.Invalid("Some error."));
 
         // Assert
-        _ = result.IsSuccess.Should().BeFalse();
-        _ = result.Errors.Should().ContainSingle();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
     }
 }
