@@ -65,9 +65,9 @@ public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
                      .WithHttpClientFactory(HttpClientFactory)
                      .WithClientSecret(ClientSecret);
         if (!string.IsNullOrWhiteSpace(TenantId))
-            _ = builder.WithTenantId(TenantId);
+            builder.WithTenantId(TenantId);
         if (!string.IsNullOrWhiteSpace(Authority))
-            _ = builder.WithAuthority(Authority);
+            builder.WithAuthority(Authority);
         CorrelationId = Guid.NewGuid();
         return builder.Build();
     }

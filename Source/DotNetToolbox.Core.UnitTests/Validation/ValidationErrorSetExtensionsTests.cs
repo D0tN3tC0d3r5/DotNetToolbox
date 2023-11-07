@@ -16,6 +16,6 @@ public class ValidationErrorSetExtensionsTests {
         };
 
         // Act & Assert
-        _ = errors.Contains(message).Should().Be(expectedResult);
+        errors.Contains(message).Should().Be(expectedResult);
     }
 }

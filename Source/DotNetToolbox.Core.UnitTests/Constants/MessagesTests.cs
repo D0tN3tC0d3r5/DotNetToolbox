@@ -12,6 +12,6 @@ public class MessagesTests {
         var result = NegateMessage(message);
 
         // Assert
-        _ = result.Should().Be(expectedMessage);
+        result.Should().Be(expectedMessage);
     }
 }

@@ -12,7 +12,7 @@ public class InstanceTests {
         var instance2 = ClassWithInstance.Instance;
 
         // Assert
-        _ = instance1.Should().BeOfType<ClassWithInstance>();
-        _ = instance1.Should().BeSameAs(instance2);
+        instance1.Should().BeOfType<ClassWithInstance>();
+        instance1.Should().BeSameAs(instance2);
     }
 }

@@ -14,7 +14,7 @@ public class ConnectorTests {
         var result = validator.LengthIs(5).And().Contains("val").Result;
 
         // Assert
-        _ = result.Errors.Should().HaveCount(expectedErrorCount);
+        result.Errors.Should().HaveCount(expectedErrorCount);
     }
 
     [Theory]
@@ -30,7 +30,7 @@ public class ConnectorTests {
         var result = validator.LengthIs(5).Or().Contains("val").Result;
 
         // Assert
-        _ = result.Errors.Should().HaveCount(expectedErrorCount);
+        result.Errors.Should().HaveCount(expectedErrorCount);
     }
 
     [Theory]
@@ -46,7 +46,7 @@ public class ConnectorTests {
         var result = validator.LengthIs(5).AndNot().Contains("val").Result;
 
         // Assert
-        _ = result.Errors.Should().HaveCount(expectedErrorCount);
+        result.Errors.Should().HaveCount(expectedErrorCount);
     }
 
     [Theory]
@@ -62,7 +62,7 @@ public class ConnectorTests {
         var result = validator.LengthIs(5).OrNot().Contains("val").Result;
 
         // Assert
-        _ = result.Errors.Should().HaveCount(expectedErrorCount);
+        result.Errors.Should().HaveCount(expectedErrorCount);
     }
 
     [Theory]
@@ -78,7 +78,7 @@ public class ConnectorTests {
         var result = validator.LengthIs(5).And(i => i.Contains("val")).Result;
 
         // Assert
-        _ = result.Errors.Should().HaveCount(expectedErrorCount);
+        result.Errors.Should().HaveCount(expectedErrorCount);
     }
 
     [Theory]
@@ -94,7 +94,7 @@ public class ConnectorTests {
         var result = validator.LengthIs(5).Or(i => i.Contains("val")).Result;
 
         // Assert
-        _ = result.Errors.Should().HaveCount(expectedErrorCount);
+        result.Errors.Should().HaveCount(expectedErrorCount);
     }
 
     [Theory]
@@ -110,7 +110,7 @@ public class ConnectorTests {
         var result = validator.LengthIs(5).AndNot(i => i.Contains("val")).Result;
 
         // Assert
-        _ = result.Errors.Should().HaveCount(expectedErrorCount);
+        result.Errors.Should().HaveCount(expectedErrorCount);
     }
 
     [Theory]
@@ -126,7 +126,7 @@ public class ConnectorTests {
         var result = validator.LengthIs(5).OrNot(i => i.Contains("val")).Result;
 
         // Assert
-        _ = result.Errors.Should().HaveCount(expectedErrorCount);
+        result.Errors.Should().HaveCount(expectedErrorCount);
     }
 
     private static StringValidator CreateValidatorFor(string value, ValidatorMode mode = ValidatorMode.And)

@@ -20,7 +20,7 @@ public class ValidationCommandFactoryTests {
         var action = () => ValidationCommandFactory.For(subjectType, "Attribute").Create("Anything", []);
 
         //Assert
-        _ = action.Should().Throw<InvalidOperationException>();
+        action.Should().Throw<InvalidOperationException>();
     }
 
     private const string _string = "AbcDef";
@@ -88,7 +88,7 @@ public class ValidationCommandFactoryTests {
         var validator = ValidationCommandFactory.For(valueType, "Attribute").Create(validatorName, args);
         var validResult = validator.Validate(validValue);
 
-        _ = validResult.IsSuccess.Should().BeTrue();
+        validResult.IsSuccess.Should().BeTrue();
     }
 
     private class TestDataForValidateFailure : TheoryData<string, object?[], object?, Type> {
@@ -144,7 +144,7 @@ public class ValidationCommandFactoryTests {
         var validator = ValidationCommandFactory.For(valueType, "Attribute").Create(validatorName, args);
         var invalidResult = validator.Validate(invalidValue);
 
-        _ = invalidResult.IsInvalid.Should().BeTrue();
+        invalidResult.IsInvalid.Should().BeTrue();
     }
 
     private class TestCommand() : ValidationCommand("Source");
@@ -155,6 +155,6 @@ public class ValidationCommandFactoryTests {
 
         var result = command.Validate("Value");
 
-        _ = result.IsSuccess.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
     }
 }

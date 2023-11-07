@@ -16,7 +16,7 @@ public sealed class AzureSecretReader
     }
 
     public TValue? GetSecretOrDefault<TValue>(string key, TValue? defaultValue = default) {
-        _ = IsNotNull(key);
+        IsNotNull(key);
         if (_client is null) {
             return defaultValue;
         }

@@ -3,14 +3,14 @@
 public static class LoggerAssertionExtensions {
     public static ILoggerFactory CreateFactory(this ILogger logger) {
         var loggerFactory = Substitute.For<ILoggerFactory>();
-        _ = logger.IsEnabled(Arg.Any<LogLevel>()).Returns(true);
-        _ = loggerFactory.CreateLogger(Arg.Any<string>()).Returns(logger);
+        logger.IsEnabled(Arg.Any<LogLevel>()).Returns(true);
+        loggerFactory.CreateLogger(Arg.Any<string>()).Returns(logger);
         return loggerFactory;
     }
 
     public static void ShouldContain<TType>(this ILogger<TType> logger, LogLevel level, string message, EventId eventId = default) {
         var calls = logger.ReceivedCalls().ToArray();
-        _ = calls.Should().Contain(l => Contains(l, level, message, eventId));
+        calls.Should().Contain(l => Contains(l, level, message, eventId));
     }
 
     private static bool Contains(ICall call, LogLevel level, string message, EventId eventId) {

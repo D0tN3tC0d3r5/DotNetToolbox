@@ -8,10 +8,10 @@ public class PageTests {
                                     offset: 1,
                                     size: 5);
 
-        _ = subject.TotalCount.Should().Be(12);
-        _ = subject.Items.Should().BeEquivalentTo([1, 2, 3, 4, 5,]);
-        _ = subject.Offset.Should().Be(1);
-        _ = subject.Size.Should().Be(5);
+        subject.TotalCount.Should().Be(12);
+        subject.Items.Should().BeEquivalentTo([1, 2, 3, 4, 5,]);
+        subject.Offset.Should().Be(1);
+        subject.Size.Should().Be(5);
     }
 
     [Fact]
@@ -22,19 +22,19 @@ public class PageTests {
             TotalCount = 100,
         };
 
-        _ = subject.Items.Should().BeEquivalentTo([1, 2, 3, 4,]);
-        _ = subject.Offset.Should().Be(5);
-        _ = subject.TotalCount.Should().Be(100);
-        _ = subject.Size.Should().Be(DefaultBlockSize);
+        subject.Items.Should().BeEquivalentTo([1, 2, 3, 4,]);
+        subject.Offset.Should().Be(5);
+        subject.TotalCount.Should().Be(100);
+        subject.Size.Should().Be(DefaultBlockSize);
     }
 
     [Fact]
     public void DefaultConstructor_Passes() {
         var subject = new Page<int>();
 
-        _ = subject.Items.Should().BeEmpty();
-        _ = subject.Offset.Should().Be(0);
-        _ = subject.TotalCount.Should().Be(0);
-        _ = subject.Size.Should().Be(DefaultBlockSize);
+        subject.Items.Should().BeEmpty();
+        subject.Offset.Should().Be(0);
+        subject.TotalCount.Should().Be(0);
+        subject.Size.Should().Be(DefaultBlockSize);
     }
 }

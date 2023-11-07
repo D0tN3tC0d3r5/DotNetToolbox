@@ -9,8 +9,8 @@ public class ValidatorsTests {
         var result = new TestObject(100, "SomeSubject");
 
         // Assert
-        _ = result.Mode.Should().Be(ValidatorMode.And);
-        _ = result.Result.IsSuccess.Should().BeTrue();
+        result.Mode.Should().Be(ValidatorMode.And);
+        result.Result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
@@ -19,7 +19,7 @@ public class ValidatorsTests {
         var result = new TestObject(100, "SomeSubject", ValidatorMode.Or);
 
         // Assert
-        _ = result.Mode.Should().Be(ValidatorMode.Or);
-        _ = result.Result.IsSuccess.Should().BeTrue();
+        result.Mode.Should().Be(ValidatorMode.Or);
+        result.Result.IsSuccess.Should().BeTrue();
     }
 }

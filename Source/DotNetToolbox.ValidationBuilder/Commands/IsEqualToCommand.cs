@@ -12,14 +12,14 @@ public sealed class IsEqualToCommand
     private static string GetString(object? o) {
         if (o is not IEnumerable oc) return $"{o}";
         var sb = new StringBuilder();
-        _ = sb.Append('[');
+        sb.Append('[');
         foreach (var i in oc) {
-            _ = sb.Append(GetString(i));
-            _ = sb.Append(", ");
+            sb.Append(GetString(i));
+            sb.Append(", ");
         }
 
-        _ = sb.Remove(sb.Length - 2, 2);
-        _ = sb.Append(']');
+        sb.Remove(sb.Length - 2, 2);
+        sb.Append(']');
         return sb.ToString();
     }
 

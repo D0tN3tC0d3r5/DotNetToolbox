@@ -13,8 +13,8 @@ public class ValidationErrorTests {
         var error2 = error1;
 
         // Assert
-        _ = error2.Should().NotBeSameAs(error1);
-        _ = error2.FormattedMessage.Should().Be("Some error 42.");
+        error2.Should().NotBeSameAs(error1);
+        error2.FormattedMessage.Should().Be("Some error 42.");
     }
 
     [Theory]
@@ -29,10 +29,10 @@ public class ValidationErrorTests {
         var error = new ValidationError(source, template, args);
 
         // Assert
-        _ = error.Source.Should().Be(source.Trim());
-        _ = error.MessageTemplate.Should().Be(template);
-        _ = error.Arguments.Should().BeEquivalentTo(args);
-        _ = error.FormattedMessage.Should().Be(expectedMessage);
+        error.Source.Should().Be(source.Trim());
+        error.MessageTemplate.Should().Be(template);
+        error.Arguments.Should().BeEquivalentTo(args);
+        error.FormattedMessage.Should().Be(expectedMessage);
     }
 
     [Fact]
@@ -41,10 +41,10 @@ public class ValidationErrorTests {
         var error = default(ValidationError);
 
         // Assert
-        _ = error.Source.Should().Be(string.Empty);
-        _ = error.MessageTemplate.Should().Be(string.Empty);
-        _ = error.Arguments.Should().BeEmpty();
-        _ = error.FormattedMessage.Should().Be(string.Empty);
+        error.Source.Should().Be(string.Empty);
+        error.MessageTemplate.Should().Be(string.Empty);
+        error.Arguments.Should().BeEmpty();
+        error.FormattedMessage.Should().Be(string.Empty);
     }
 
     [Theory]
@@ -57,10 +57,10 @@ public class ValidationErrorTests {
         var error = new ValidationError(template, args);
 
         // Assert
-        _ = error.Source.Should().Be(string.Empty);
-        _ = error.MessageTemplate.Should().Be(template);
-        _ = error.Arguments.Should().BeEquivalentTo(args);
-        _ = error.FormattedMessage.Should().Be(expectedMessage);
+        error.Source.Should().Be(string.Empty);
+        error.MessageTemplate.Should().Be(template);
+        error.Arguments.Should().BeEquivalentTo(args);
+        error.FormattedMessage.Should().Be(expectedMessage);
     }
 
     [Fact]
@@ -79,11 +79,11 @@ public class ValidationErrorTests {
         var resultForSame = subject == same;
 
         //Assert
-        _ = resultForDefault.Should().BeTrue();
-        _ = resultForOtherSource.Should().BeTrue();
-        _ = resultForOtherTemplate.Should().BeTrue();
-        _ = resultForOtherData.Should().BeTrue();
-        _ = resultForSame.Should().BeTrue();
+        resultForDefault.Should().BeTrue();
+        resultForOtherSource.Should().BeTrue();
+        resultForOtherTemplate.Should().BeTrue();
+        resultForOtherData.Should().BeTrue();
+        resultForSame.Should().BeTrue();
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class ValidationErrorTests {
         };
 
         // Assert
-        _ = errorSet.Should().BeEquivalentTo(new ValidationError[] {
+        errorSet.Should().BeEquivalentTo(new ValidationError[] {
             new("Source 1", "Some message 1 {0}.", 42),
             new("Source 2", "Some message 1 {0}.", 42),
             new("Source 1", "Some message 2 {0}.", 42),

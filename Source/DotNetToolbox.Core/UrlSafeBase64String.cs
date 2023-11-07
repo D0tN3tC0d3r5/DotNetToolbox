@@ -45,8 +45,8 @@ public readonly partial record struct UrlSafeBase64String {
     private static string ToSafeBase64(byte[] bytes) {
         var base64 = Convert.ToBase64String(bytes);
         var builder = new StringBuilder(base64.TrimEnd('='));
-        _ = builder.Replace('+', '-');
-        _ = builder.Replace('/', '_');
+        builder.Replace('+', '-');
+        builder.Replace('/', '_');
         return builder.ToString();
     }
 
@@ -55,9 +55,9 @@ public readonly partial record struct UrlSafeBase64String {
 
     private static string ToStandardBase64(string input) {
         var builder = new StringBuilder(input.Trim());
-        _ = builder.Replace('_', '/');
-        _ = builder.Replace('-', '+');
-        _ = builder.Append('=', 24 - input.Length % 24);
+        builder.Replace('_', '/');
+        builder.Replace('-', '+');
+        builder.Append('=', 24 - input.Length % 24);
         return builder.ToString();
     }
 

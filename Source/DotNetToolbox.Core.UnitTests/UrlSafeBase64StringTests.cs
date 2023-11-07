@@ -12,11 +12,11 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String();
 
         // Assert
-        _ = result.Bytes.Should().BeEmpty();
-        _ = result.Text.Should().Be(string.Empty);
-        _ = result.Base64.Should().Be(string.Empty);
-        _ = result.IsGuid.Should().BeTrue();
-        _ = result.Guid.Should().Be(Guid.Empty);
+        result.Bytes.Should().BeEmpty();
+        result.Text.Should().Be(string.Empty);
+        result.Base64.Should().Be(string.Empty);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(Guid.Empty);
     }
 
     [Fact]
@@ -25,11 +25,11 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String(default(byte[]));
 
         // Assert
-        _ = result.Bytes.Should().BeEmpty();
-        _ = result.Text.Should().Be(string.Empty);
-        _ = result.Base64.Should().Be(string.Empty);
-        _ = result.IsGuid.Should().BeTrue();
-        _ = result.Guid.Should().Be(Guid.Empty);
+        result.Bytes.Should().BeEmpty();
+        result.Text.Should().Be(string.Empty);
+        result.Base64.Should().Be(string.Empty);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(Guid.Empty);
     }
 
     [Fact]
@@ -38,11 +38,11 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String(default(string)!);
 
         // Assert
-        _ = result.Bytes.Should().BeEmpty();
-        _ = result.Text.Should().Be(string.Empty);
-        _ = result.Base64.Should().Be(string.Empty);
-        _ = result.IsGuid.Should().BeTrue();
-        _ = result.Guid.Should().Be(Guid.Empty);
+        result.Bytes.Should().BeEmpty();
+        result.Text.Should().Be(string.Empty);
+        result.Base64.Should().Be(string.Empty);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(Guid.Empty);
     }
 
     [Fact]
@@ -51,11 +51,11 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String(_guidValue);
 
         // Assert
-        _ = result.Bytes.Should().BeEquivalentTo(_bytesValue);
-        _ = result.Text.Should().Be(_stringValue);
-        _ = result.Base64.Should().Be(_base64Value);
-        _ = result.IsGuid.Should().BeTrue();
-        _ = result.Guid.Should().Be(_guidValue);
+        result.Bytes.Should().BeEquivalentTo(_bytesValue);
+        result.Text.Should().Be(_stringValue);
+        result.Base64.Should().Be(_base64Value);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(_guidValue);
     }
 
     [Fact]
@@ -64,11 +64,11 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String(_stringValue);
 
         // Assert
-        _ = result.Bytes.Should().BeEquivalentTo(_bytesValue);
-        _ = result.Text.Should().Be(_stringValue);
-        _ = result.Base64.Should().Be(_base64Value);
-        _ = result.IsGuid.Should().BeTrue();
-        _ = result.Guid.Should().Be(_guidValue);
+        result.Bytes.Should().BeEquivalentTo(_bytesValue);
+        result.Text.Should().Be(_stringValue);
+        result.Base64.Should().Be(_base64Value);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(_guidValue);
     }
 
     [Fact]
@@ -77,11 +77,11 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String(_base64Value);
 
         // Assert
-        _ = result.Bytes.Should().BeEquivalentTo(_bytesValue);
-        _ = result.Text.Should().Be(_stringValue);
-        _ = result.Base64.Should().Be(_base64Value);
-        _ = result.IsGuid.Should().BeTrue();
-        _ = result.Guid.Should().Be(_guidValue);
+        result.Bytes.Should().BeEquivalentTo(_bytesValue);
+        result.Text.Should().Be(_stringValue);
+        result.Base64.Should().Be(_base64Value);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(_guidValue);
     }
 
     [Fact]
@@ -90,11 +90,11 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String(_bytesValue);
 
         // Assert
-        _ = result.Bytes.Should().BeEquivalentTo(_bytesValue);
-        _ = result.Text.Should().Be(_stringValue);
-        _ = result.Base64.Should().Be(_base64Value);
-        _ = result.IsGuid.Should().BeTrue();
-        _ = result.Guid.Should().Be(_guidValue);
+        result.Bytes.Should().BeEquivalentTo(_bytesValue);
+        result.Text.Should().Be(_stringValue);
+        result.Base64.Should().Be(_base64Value);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(_guidValue);
     }
 
     [Fact]
@@ -103,10 +103,10 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String("Not base 64.");
 
         // Assert
-        _ = result.IsGuid.Should().BeFalse();
-        _ = result.Invoking(s => s.Guid).Should().Throw<FormatException>();
-        _ = result.Text.Should().Be("Not base 64.");
-        _ = result.Bytes.Should().BeEquivalentTo("Not base 64."u8.ToArray());
+        result.IsGuid.Should().BeFalse();
+        result.Invoking(s => s.Guid).Should().Throw<FormatException>();
+        result.Text.Should().Be("Not base 64.");
+        result.Bytes.Should().BeEquivalentTo("Not base 64."u8.ToArray());
     }
 
     [Fact]
@@ -121,11 +121,11 @@ public class UrlSafeBase64StringTests {
         var result = new UrlSafeBase64String(input);
 
         // Assert
-        _ = result.IsGuid.Should().BeFalse();
-        _ = result.Invoking(s => s.Guid).Should().Throw<FormatException>();
-        _ = result.Text.Should().Be("\u05a8m\u0019Ū\u0006O\u05a8m\u0019Ū\u0006O\u05a8m\u0019Ū\u0006O");
-        _ = result.Base64.Should().Be("1qhtGcWqBk_WqG0ZxaoGT9aobRnFqgZP");
-        _ = result.Bytes.Should().BeEquivalentTo(input);
+        result.IsGuid.Should().BeFalse();
+        result.Invoking(s => s.Guid).Should().Throw<FormatException>();
+        result.Text.Should().Be("\u05a8m\u0019Ū\u0006O\u05a8m\u0019Ū\u0006O\u05a8m\u0019Ū\u0006O");
+        result.Base64.Should().Be("1qhtGcWqBk_WqG0ZxaoGT9aobRnFqgZP");
+        result.Bytes.Should().BeEquivalentTo(input);
     }
 
     [Fact]
@@ -139,10 +139,10 @@ public class UrlSafeBase64StringTests {
         byte[] bytes = subject;
 
         // Assert
-        _ = subject.IsGuid.Should().BeTrue();
-        _ = text.Should().Be(_base64Value);
-        _ = guid.Should().Be(_guidValue);
-        _ = bytes.Should().BeEquivalentTo(_bytesValue);
+        subject.IsGuid.Should().BeTrue();
+        text.Should().Be(_base64Value);
+        guid.Should().Be(_guidValue);
+        bytes.Should().BeEquivalentTo(_bytesValue);
     }
 
     [Fact]
@@ -154,9 +154,9 @@ public class UrlSafeBase64StringTests {
         UrlSafeBase64String value3 = _bytesValue;
 
         // Assert
-        _ = value0.Text.Should().Be(_stringValue);
-        _ = value1.Text.Should().Be(_stringValue);
-        _ = value2.Text.Should().Be(_stringValue);
-        _ = value3.Text.Should().Be(_stringValue);
+        value0.Text.Should().Be(_stringValue);
+        value1.Text.Should().Be(_stringValue);
+        value2.Text.Should().Be(_stringValue);
+        value3.Text.Should().Be(_stringValue);
     }
 }

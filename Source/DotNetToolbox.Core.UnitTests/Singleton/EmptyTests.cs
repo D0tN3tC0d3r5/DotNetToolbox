@@ -12,7 +12,7 @@ public class EmptyTests {
         var instance2 = RecordWithEmpty.Empty;
 
         // Assert
-        _ = instance1.Should().BeOfType<RecordWithEmpty>();
-        _ = instance1.Should().BeSameAs(instance2);
+        instance1.Should().BeOfType<RecordWithEmpty>();
+        instance1.Should().BeSameAs(instance2);
     }
 }

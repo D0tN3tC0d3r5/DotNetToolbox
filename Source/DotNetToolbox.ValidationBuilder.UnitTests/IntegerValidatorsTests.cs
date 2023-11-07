@@ -31,6 +31,6 @@ public class IntegerValidatorsTests {
         var result = subject.Validate();
 
         // Assert
-        _ = result.Errors.Should().HaveCount(errorCount);
+        result.Errors.Should().HaveCount(errorCount);
     }
 }

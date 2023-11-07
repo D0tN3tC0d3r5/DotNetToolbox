@@ -38,7 +38,7 @@ public class ValidatableValidatorsTests {
         var result = subject.Validate();
 
         // Assert
-        _ = result.IsSuccess.Should().Be(isSuccess);
-        _ = result.Errors.Should().HaveCount(errorCount);
+        result.IsSuccess.Should().Be(isSuccess);
+        result.Errors.Should().HaveCount(errorCount);
     }
 }

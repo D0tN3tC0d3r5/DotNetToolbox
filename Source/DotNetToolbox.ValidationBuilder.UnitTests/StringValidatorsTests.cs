@@ -5,7 +5,7 @@ public class StringValidatorsTests {
         private readonly IPasswordPolicy _fakePolicy = Substitute.For<IPasswordPolicy>();
 
         public TestObject() {
-            _ = _fakePolicy.Enforce(Arg.Any<string>()).Returns(x => {
+            _fakePolicy.Enforce(Arg.Any<string>()).Returns(x => {
                 var result = Success();
                 if (x[0] is not "Invalid") return result;
 
@@ -61,6 +61,6 @@ public class StringValidatorsTests {
         var result = subject.Validate();
 
         // Assert
-        _ = result.Errors.Should().HaveCount(errorCount);
+        result.Errors.Should().HaveCount(errorCount);
     }
 }

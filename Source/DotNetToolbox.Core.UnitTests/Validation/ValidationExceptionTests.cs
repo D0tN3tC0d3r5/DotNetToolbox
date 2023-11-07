@@ -10,8 +10,8 @@ public class ValidationExceptionTests {
         var exception = new ValidationException("Some error.");
 
         // Assert
-        _ = exception.Errors.Should().BeEquivalentTo(new[] { error1, });
-        _ = exception.Message.Should().Be("Validation failed.");
+        exception.Errors.Should().BeEquivalentTo(new[] { error1, });
+        exception.Message.Should().Be("Validation failed.");
     }
 
     [Fact]
@@ -23,8 +23,8 @@ public class ValidationExceptionTests {
         var exception = new ValidationException("Field1", "Some error.");
 
         // Assert
-        _ = exception.Errors.Should().BeEquivalentTo(new[] { error1, });
-        _ = exception.Message.Should().Be("Validation failed.");
+        exception.Errors.Should().BeEquivalentTo(new[] { error1, });
+        exception.Message.Should().Be("Validation failed.");
     }
 
     [Fact]
@@ -36,8 +36,8 @@ public class ValidationExceptionTests {
         var exception = new ValidationException(error1);
 
         // Assert
-        _ = exception.Errors.Should().BeEquivalentTo(new[] { error1, });
-        _ = exception.Message.Should().Be("Validation failed.");
+        exception.Errors.Should().BeEquivalentTo(new[] { error1, });
+        exception.Message.Should().Be("Validation failed.");
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class ValidationExceptionTests {
         var exception = new ValidationException(new[] { error1, error2, });
 
         // Assert
-        _ = exception.Errors.Should().BeEquivalentTo(new[] { error1, error2, });
-        _ = exception.Message.Should().Be("Validation failed.");
+        exception.Errors.Should().BeEquivalentTo(new[] { error1, error2, });
+        exception.Message.Should().Be("Validation failed.");
     }
 }
