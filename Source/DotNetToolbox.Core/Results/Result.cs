@@ -1,10 +1,8 @@
 ﻿namespace System.Results;
 
 public class Result : ResultBase {
-    protected Result(IEnumerable<ValidationError>? errors = null) {
-        Errors = errors is null
-            ? []
-            : DoesNotHaveNulls(errors).ToHashSet();
+    protected Result(IEnumerable<ValidationError>? errors = null)
+        : base(errors) {
     }
 
     public bool IsSuccess => !HasErrors;
@@ -15,8 +13,8 @@ public class Result : ResultBase {
     public static Result Invalid([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
     public static Result Invalid(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
-        => Invalid(new ValidationError(source, message, args));
-    public static Result Invalid(Result result)
+        => Invalid((Result)new ValidationError(source, message, args));
+    private static Result Invalid(IResult result)
         => new(result.Errors);
 
     public static implicit operator Result(List<ValidationError> errors)
@@ -26,32 +24,55 @@ public class Result : ResultBase {
     public static implicit operator Result(ValidationError error)
         => new(new[] { error, }.AsEnumerable());
 
-    public static Result operator +(Result left, ResultBase right) 
-        => (Result)((ResultBase)left + right);
+    public static Result operator +(Result left, ResultBase right)
+        => new (left.Errors.Union(right.Errors));
 
-    public bool Equals([NotNullWhen(true)] Result? other)
+    public static bool operator ==(Result left, Result? right)
+        => left.Equals(right);
+    public static bool operator !=(Result left, Result? right)
+        => !left.Equals(right);
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => base.Equals(obj)
+        || obj is Result r && Equals(r);
+    public override int GetHashCode() => base.GetHashCode();
+
+    private bool Equals(Result? other)
         => base.Equals(other);
 
     public static Result<TValue> Success<TValue>(TValue value) => new(value);
     public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object[] args) => new(value, new ValidationError[] { new(source, message, args), });
 }
 
-public class Result<TResult> : Result {
-    internal Result(TResult value, IEnumerable<ValidationError>? errors = null)
+public class Result<TValue> : Result {
+    internal Result(TValue value, IEnumerable<ValidationError>? errors = null)
         : base(errors) {
         Value = IsNotNull(value);
     }
 
-    public TResult Value { get; init; }
+    public TValue Value { get; init; }
 
-    public static implicit operator Result<TResult>(TResult value) => new(value);
+    public static implicit operator Result<TValue>(TValue value) => new(value);
 
-    public static Result<TResult> operator +(Result<TResult> left, Result right)
-        => (Result<TResult>)((Result)left + right);
+    public static Result<TValue> operator +(Result<TValue> left, Result right)
+        => new(left.Value, left.Errors.Union(right.Errors));
 
-    public bool Equals([NotNullWhen(true)] Result<TResult>? other)
-        => base.Equals(other) && (Value?.Equals(other.Value) ?? other.Value is null);
+    public static bool operator ==(Result<TValue> left, Result<TValue>? right)
+        => left.Equals(right);
+    public static bool operator !=(Result<TValue> left, Result<TValue>? right)
+        => !left.Equals(right);
+    public static bool operator ==(Result<TValue> left, TValue? right)
+        => left.IsSuccess && (left.Value?.Equals(right) ?? right is null);
+    public static bool operator !=(Result<TValue> left, TValue? right)
+        => !left.IsSuccess || !(left.Value?.Equals(right) ?? right is null);
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => base.Equals(obj)
+        || obj is Result<TValue> r && Equals(r);
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Value);
 
-    public Result<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)
+    private bool Equals([NotNullWhen(true)] Result<TValue>? other)
+        => base.Equals(other)
+        && (Value?.Equals(other.Value) ?? other.Value is null);
+
+    public Result<TNewValue> MapTo<TNewValue>(Func<TValue, TNewValue> map)
         => new(map(Value), Errors);
 }

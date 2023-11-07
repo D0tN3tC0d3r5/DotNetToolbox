@@ -6,7 +6,7 @@ public class HttpResult : ResultBase {
         Type = HasErrors ? HttpResultType.BadRequest : type;
     }
 
-    protected HttpResultType Type { get; set; }
+    protected HttpResultType Type { get; }
 
     public bool IsSuccess => !HasErrors && Type is HttpResultType.Ok or HttpResultType.Created;
 
@@ -37,11 +37,8 @@ public class HttpResult : ResultBase {
     public static implicit operator HttpResult(ValidationError error)
         => new(HttpResultType.BadRequest, new[] { error, }.AsEnumerable());
 
-    public static HttpResult operator +(HttpResult left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        left.Type = left.HasErrors ? HttpResultType.BadRequest : left.Type;
-        return left;
-    }
+    public static HttpResult operator +(HttpResult left, Result right)
+        => new(left.Type, left.Errors.Union(right.Errors));
 
     public static HttpResult<TValue> Ok<TValue>(TValue value)
         => new(HttpResultType.Ok, IsNotNull(value));
@@ -61,32 +58,57 @@ public class HttpResult : ResultBase {
     public static HttpResult<TValue> Conflict<TValue>(TValue value)
         => new(HttpResultType.Conflict, IsNotNull(value));
 
-    public bool Equals([NotNullWhen(true)] HttpResult? other)
-        => base.Equals(other) && Type == other.Type;
+    public static bool operator ==(HttpResult left, HttpResultType right)
+        => left.Type == right;
+    public static bool operator !=(HttpResult left, HttpResultType right)
+        => left.Type != right;
+    public static bool operator ==(HttpResult left, HttpResult? right)
+        => left.Equals(right);
+    public static bool operator !=(HttpResult left, HttpResult? right)
+        => !left.Equals(right);
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => base.Equals(obj)
+        || obj is HttpResult r && Equals(r);
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Type);
+
+    private bool Equals(HttpResult? other)
+        => base.Equals(other)
+        && Type == other.Type;
 }
 
-public class HttpResult<TResult> : HttpResult {
-    public HttpResult(HttpResultType type, TResult? value = default, IEnumerable<ValidationError>? errors = null)
-        : base(type, errors) {
-        Value = value;
-    }
+public class HttpResult<TValue>(HttpResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = null)
+    : HttpResult(type, errors) {
+    public TValue? Value { get; init; } = value;
 
-    public TResult? Value { get; init; }
-
-    public static implicit operator HttpResult<TResult>(TResult value)
+    public static implicit operator HttpResult<TValue>(TValue value)
         => new(HttpResultType.Ok, IsNotNull(value));
-    public static implicit operator HttpResult<TResult>(Result<TResult> result)
+    public static implicit operator HttpResult<TValue>(Result<TValue> result)
         => new(result.IsInvalid ? HttpResultType.BadRequest : HttpResultType.Ok, result.Value, result.Errors);
 
-    public static HttpResult<TResult> operator +(HttpResult<TResult> left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        left.Type = left.IsBadRequest ? HttpResultType.BadRequest : left.Type;
-        return left;
-    }
+    public static HttpResult<TValue> operator +(HttpResult<TValue> left, Result right)
+        => new(left.Type, left.Value, left.Errors.Union(right.Errors));
 
-    public bool Equals([NotNullWhen(true)] HttpResult<TResult>? other)
-        => base.Equals(other) && (Value?.Equals(other.Value) ?? other.Value is null);
+    public static bool operator ==(HttpResult<TValue> left, HttpResultType type)
+        => left.Type == type;
+    public static bool operator !=(HttpResult<TValue> left, HttpResultType type)
+        => left.Type != type;
+    public static bool operator ==(HttpResult<TValue> left, HttpResult<TValue>? right)
+        => left.Equals(right);
+    public static bool operator !=(HttpResult<TValue> left, HttpResult<TValue>? right)
+        => !left.Equals(right);
+    public static bool operator ==(HttpResult<TValue> left, TValue value)
+        => left.IsSuccess && (left.Value?.Equals(value) ?? false);
+    public static bool operator !=(HttpResult<TValue> left, TValue value)
+        => !left.IsSuccess || !(left.Value?.Equals(value) ?? false);
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => base.Equals(obj)
+        || obj is HttpResult<TValue> r && Equals(r);
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Type, Value);
 
-    public HttpResult<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)
+    private bool Equals(HttpResult<TValue>? other)
+        => base.Equals(other)
+        && (Value?.Equals(other.Value) ?? other.Value is null);
+
+    public HttpResult<TOutput> MapTo<TOutput>(Func<TValue, TOutput> map)
         => new(Type, Value is null ? default : map(Value), Errors);
 }

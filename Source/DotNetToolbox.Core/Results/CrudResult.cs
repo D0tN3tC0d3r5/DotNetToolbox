@@ -7,7 +7,7 @@ public class CrudResult : ResultBase {
         : base(errors) {
         Type = HasErrors ? null : type;
     }
-    protected CrudResultType? Type { get; private set; }
+    protected CrudResultType? Type { get; }
 
     public static CrudResult Invalid([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
@@ -32,11 +32,8 @@ public class CrudResult : ResultBase {
     public static implicit operator CrudResult(ValidationError error)
         => new(default, [ error, ]);
 
-    public static CrudResult operator +(CrudResult left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        left.Type = left.HasErrors ? default : left.Type;
-        return left;
-    }
+    public static CrudResult operator +(CrudResult left, Result right)
+        => new(left.Type, left.Errors.Union(right.Errors));
 
     public static CrudResult<TValue> Success<TValue>(TValue value)
         => new(CrudResultType.Success, IsNotNull(value));
@@ -51,27 +48,59 @@ public class CrudResult : ResultBase {
     public static CrudResult<TValue> Invalid<TValue>(TValue value, Result result)
         => new(default, IsNotNull(value), result.Errors);
 
-    public bool Equals([NotNullWhen(true)] CrudResult? other)
-        => base.Equals(other) && Type == other.Type;
+    public static bool operator ==(CrudResult left, CrudResultType type)
+        => left.Type == type;
+    public static bool operator !=(CrudResult left, CrudResultType type)
+        => left.Type != type;
+    public static bool operator ==(CrudResult left, CrudResult? right)
+        => left.Equals(right);
+    public static bool operator !=(CrudResult left, CrudResult? right)
+        => !left.Equals(right);
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => base.Equals(obj)
+        || obj is CrudResult r && Equals(r);
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Type);
+
+    private bool Equals(CrudResult? other)
+        => base.Equals(other)
+        && Type == other.Type;
 }
 
-public class CrudResult<TResult> : CrudResult {
-    internal CrudResult(CrudResultType? type, TResult? value = default, IEnumerable<ValidationError>? errors = null)
+public class CrudResult<TValue> : CrudResult {
+    internal CrudResult(CrudResultType? type, TValue? value = default, IEnumerable<ValidationError>? errors = null)
         : base(type, errors) {
         Value = Type == CrudResultType.NotFound ? default :  value;
     }
 
-    public TResult? Value { get; init; }
+    public TValue? Value { get; init; }
 
-    public static implicit operator CrudResult<TResult>(TResult value) => new(CrudResultType.Success, value);
-    public static implicit operator CrudResult<TResult>(Result<TResult> result) => new(CrudResultType.Success, result.Value, result.Errors);
+    public static implicit operator CrudResult<TValue>(TValue value) => new(CrudResultType.Success, value);
+    public static implicit operator CrudResult<TValue>(Result<TValue> result) => new(CrudResultType.Success, result.Value, result.Errors);
 
-    public static CrudResult<TResult> operator +(CrudResult<TResult> left, Result right)
-        => (CrudResult<TResult>)((CrudResult)left + right);
+    public static CrudResult<TValue> operator +(CrudResult<TValue> left, Result right)
+        => new(left.Type, left.Value, left.Errors.Union(right.Errors));
 
-    public bool Equals([NotNullWhen(true)] CrudResult<TResult>? other)
-        => base.Equals(other) && (Value?.Equals(other.Value) ?? other.Value is null);
+    public static bool operator ==(CrudResult<TValue> left, CrudResultType type)
+        => left.Type == type;
+    public static bool operator !=(CrudResult<TValue> left, CrudResultType type)
+        => left.Type != type;
+    public static bool operator ==(CrudResult<TValue> left, CrudResult<TValue>? right)
+        => left.Equals(right);
+    public static bool operator !=(CrudResult<TValue> left, CrudResult<TValue>? right)
+        => !left.Equals(right);
+    public static bool operator ==(CrudResult<TValue> left, TValue value)
+        => left.IsSuccess && (left.Value?.Equals(value) ?? false);
+    public static bool operator !=(CrudResult<TValue> left, TValue value)
+        => !left.IsSuccess || !(left.Value?.Equals(value) ?? false);
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => base.Equals(obj)
+        || obj is CrudResult<TValue> r && Equals(r);
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Value);
 
-    public CrudResult<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)
+    private bool Equals(CrudResult<TValue>? other)
+        => base.Equals(other)
+        && (Value?.Equals(other.Value) ?? other.Value is null);
+
+    public CrudResult<TOutput> MapTo<TOutput>(Func<TValue, TOutput> map)
         => new(Type, Value is null ? default : map(Value), Errors);
 }

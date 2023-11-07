@@ -1,7 +1,7 @@
 ﻿namespace System.Results;
 
 public sealed class SignInResult : ResultBase {
-    private SignInResultType? _type;
+    private readonly SignInResultType? _type;
 
     private SignInResult(SignInResultType? type, string? token = null, IEnumerable<ValidationError>? errors = null)
         : base(errors) {
@@ -9,7 +9,7 @@ public sealed class SignInResult : ResultBase {
         Token = !IsSuccess ? null : IsNotNull(token);
     }
 
-    public string? Token { get; private set; }
+    public string? Token { get; }
 
     public bool IsInvalid => HasErrors;
     public bool IsFailure => !HasErrors && _type == SignInResultType.Failed;
@@ -46,18 +46,30 @@ public sealed class SignInResult : ResultBase {
     public static implicit operator SignInResult(string token)
         => new(SignInResultType.Success, token);
 
-    public static SignInResult operator +(SignInResult left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        left._type = left.HasErrors ? default : left._type;
-        left.Token = left.HasErrors ? null : left.Token;
-        return left;
-    }
+    public static SignInResult operator +(SignInResult left, Result right)
+        => new(left._type, left.Token, left.Errors.Union(right.Errors));
 
-    public static bool operator ==(SignInResult left, SignInResultType right)
-        => !left.HasErrors && left._type == right;
-    public static bool operator !=(SignInResult left, SignInResultType right)
-        => left.HasErrors || left._type != right;
+    public static bool operator ==(SignInResult left, SignInResultType type)
+        => left._type == type;
+    public static bool operator !=(SignInResult left, SignInResultType type)
+        => left._type != type;
+    public static bool operator ==(SignInResult left, SignInResult? right)
+        => left.Equals(right);
+    public static bool operator !=(SignInResult left, SignInResult? right)
+        => !left.Equals(right);
+    public static bool operator ==(SignInResult left, string token)
+        => left.Token?.Equals(token) ?? false;
+    public static bool operator !=(SignInResult left, string token)
+        => !left.Token?.Equals(token) ?? false;
 
-    public bool Equals(SignInResult? other)
-        => base.Equals(other) && _type == other._type && Token == other.Token;
+    public override bool Equals(object? obj)
+        => base.Equals(obj)
+        || obj is SignInResult sir && Equals(sir);
+
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _type, Token);
+
+    private bool Equals(SignInResult? other)
+        => base.Equals(other)
+        && _type == other._type
+        && Token == other.Token;
 }

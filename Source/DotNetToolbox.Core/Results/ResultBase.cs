@@ -7,27 +7,32 @@ public class  ResultBase : IResult {
             : DoesNotHaveNulls(errors).ToHashSet();
     }
 
-    public ISet<ValidationError> Errors { get; init; } = new HashSet<ValidationError>();
+    public ISet<ValidationError> Errors { get; }
     protected bool HasErrors => Errors.Count != 0;
-
-    public virtual bool Equals([NotNullWhen(true)] ResultBase? other)
-        => other is not null
-        && Errors.SequenceEqual(other.Errors);
-
-    public override int GetHashCode()
-        => Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine);
 
     public static implicit operator ResultBase(ValidationError[] errors)
         => new(errors.AsEnumerable());
     public static implicit operator ResultBase(ValidationError error)
         => new(new[] { error, }.AsEnumerable());
 
-    public static ResultBase operator +(ResultBase left, ResultBase right) {
-        left.Errors.UnionWith(right.Errors);
-        return left;
-    }
+    public static bool operator ==(ResultBase left, ResultBase? right)
+        => left.Equals(right);
+    public static bool operator !=(ResultBase left, ResultBase? right)
+        => !left.Equals(right);
+    public static ResultBase operator +(ResultBase left, ResultBase right)
+        => new(left.Errors.Union(right.Errors));
+
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => ReferenceEquals(obj, this)
+        || obj is ResultBase r && Equals(r);
+    public override int GetHashCode()
+        => Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine);
+
+    private bool Equals(IResult? other)
+        => other is not null
+        && Errors.SequenceEqual(other.Errors);
 
     public void EnsureIsValid() {
-        if (Errors.Count != 0) throw new ValidationException(Errors);
+        if (HasErrors) throw new ValidationException(Errors);
     }
 }
