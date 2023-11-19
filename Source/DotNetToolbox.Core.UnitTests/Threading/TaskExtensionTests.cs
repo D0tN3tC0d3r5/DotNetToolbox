@@ -43,16 +43,14 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithValueTaskAndOnCancel_ShouldCallOnException() {
         // Arrange
-        var onCancel = Substitute.For<Action<ValueTask, CancellationToken, Task?>>();
+        var onCancel = Substitute.For<Action<ValueTask, OperationCanceledException?>>();
 
         // Act
         var act = () => TestValueTask().FireAndForget(onCancel);
 
         // Assert
         act.Should().NotThrow();
-#pragma warning disable CA2012 // Use ValueTasks correctly
-        onCancel.DidNotReceive().Invoke(Arg.Any<ValueTask>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
-#pragma warning restore CA2012 // Use ValueTasks correctly
+        onCancel.DidNotReceive().Invoke(Arg.Any<ValueTask>(), Arg.Any<OperationCanceledException>());
     }
 
     [Fact]
@@ -65,9 +63,7 @@ public class TaskExtensionTests {
 
         // Assert
         act.Should().NotThrow();
-#pragma warning disable CA2012 // Use ValueTasks correctly
         onException.DidNotReceive().Invoke(Arg.Any<ValueTask>(), Arg.Any<Exception>());
-#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -91,16 +87,14 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithCanceledValueTaskAndOnCancel_ShouldDoNothing() {
         // Arrange
-        var onCancel = Substitute.For<Action<ValueTask, CancellationToken, Task?>>();
+        var onCancel = Substitute.For<Action<ValueTask, OperationCanceledException>>();
 
         // Act
         var act = () => TestCanceledValueTask().FireAndForget(onCancel);
 
         // Assert
         act.Should().NotThrow();
-#pragma warning disable CA2012 // Use ValueTasks correctly
-        onCancel.Received(1).Invoke(Arg.Any<ValueTask>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
-#pragma warning restore CA2012 // Use ValueTasks correctly
+        onCancel.Received(1).Invoke(Arg.Any<ValueTask>(), Arg.Any<OperationCanceledException>());
     }
 
     [Fact]
@@ -113,9 +107,7 @@ public class TaskExtensionTests {
 
         // Assert
         act.Should().NotThrow();
-#pragma warning disable CA2012 // Use ValueTasks correctly
         onException.Received(1).Invoke(Arg.Any<ValueTask>(), Arg.Any<Exception>());
-#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -135,7 +127,7 @@ public class TaskExtensionTests {
     public void FireAndForget_WithValueTaskOfTAndOnCancel_ShouldCallOnException() {
         // Arrange
         var onResult = Substitute.For<Action<int>>();
-        var onCancel = Substitute.For<Action<ValueTask<int>, CancellationToken, Task?>>();
+        var onCancel = Substitute.For<Action<ValueTask<int>, OperationCanceledException>>();
 
         // Act
         var act = () => TestValueTaskOfT().FireAndForget(onResult, onCancel);
@@ -143,9 +135,7 @@ public class TaskExtensionTests {
         // Assert
         act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
-#pragma warning disable CA2012 // Use ValueTasks correctly
-        onCancel.DidNotReceive().Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
-#pragma warning restore CA2012 // Use ValueTasks correctly
+        onCancel.DidNotReceive().Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<OperationCanceledException>());
     }
 
     [Fact]
@@ -160,9 +150,7 @@ public class TaskExtensionTests {
         // Assert
         act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
-#pragma warning disable CA2012 // Use ValueTasks correctly
         onException.DidNotReceive().Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<Exception>());
-#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -194,7 +182,7 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithCanceledValueTaskOfTAndOnCancel_ShouldDoNothing() {
         // Arrange
-        var onCancel = Substitute.For<Action<ValueTask<int>, CancellationToken, Task?>>();
+        var onCancel = Substitute.For<Action<ValueTask<int>, OperationCanceledException>>();
         var onResult = Substitute.For<Action<int>>();
 
         // Act
@@ -203,9 +191,7 @@ public class TaskExtensionTests {
         // Assert
         act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
-#pragma warning disable CA2012 // Use ValueTasks correctly
-        onCancel.Received(1).Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
-#pragma warning restore CA2012 // Use ValueTasks correctly
+        onCancel.Received(1).Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<OperationCanceledException>());
     }
 
     [Fact]
@@ -220,9 +206,7 @@ public class TaskExtensionTests {
         // Assert
         act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
-#pragma warning disable CA2012 // Use ValueTasks correctly
         onException.Received(1).Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<Exception>());
-#pragma warning restore CA2012 // Use ValueTasks correctly
     }
 
     [Fact]
@@ -237,14 +221,14 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithTaskAndOnCancel_ShouldCallOnException() {
         // Arrange
-        var onCancel = Substitute.For<Action<Task, CancellationToken, Task?>>();
+        var onCancel = Substitute.For<Action<Task, OperationCanceledException>>();
 
         // Act
         var act = () => TestTask().FireAndForget(onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onCancel.DidNotReceive().Invoke(Arg.Any<Task>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
+        onCancel.DidNotReceive().Invoke(Arg.Any<Task>(), Arg.Any<OperationCanceledException>());
     }
 
     [Fact]
@@ -281,14 +265,14 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithCanceledTaskAndOnCancel_ShouldDoNothing() {
         // Arrange
-        var onCancel = Substitute.For<Action<Task, CancellationToken, Task?>>();
+        var onCancel = Substitute.For<Action<Task, OperationCanceledException>>();
 
         // Act
         var act = () => TestCanceledTask().FireAndForget(onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onCancel.Received(1).Invoke(Arg.Any<Task>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
+        onCancel.Received(1).Invoke(Arg.Any<Task>(), Arg.Any<OperationCanceledException>());
     }
 
     [Fact]
@@ -321,7 +305,7 @@ public class TaskExtensionTests {
     public void FireAndForget_WithTaskOfTAndOnCancel_ShouldCallOnException() {
         // Arrange
         var onResult = Substitute.For<Action<int>>();
-        var onCancel = Substitute.For<Action<Task<int>, CancellationToken, Task?>>();
+        var onCancel = Substitute.For<Action<Task<int>, OperationCanceledException>>();
 
         // Act
         var act = () => TestTaskOfT().FireAndForget(onResult, onCancel);
@@ -329,7 +313,7 @@ public class TaskExtensionTests {
         // Assert
         act.Should().NotThrow();
         onResult.Received(1).Invoke(Arg.Any<int>());
-        onCancel.DidNotReceive().Invoke(Arg.Any<Task<int>>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
+        onCancel.DidNotReceive().Invoke(Arg.Any<Task<int>>(), Arg.Any<OperationCanceledException>());
     }
 
     [Fact]
@@ -376,7 +360,7 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithCanceledTaskOfTAndOnCancel_ShouldDoNothing() {
         // Arrange
-        var onCancel = Substitute.For<Action<Task<int>, CancellationToken, Task?>>();
+        var onCancel = Substitute.For<Action<Task<int>, OperationCanceledException>>();
         var onResult = Substitute.For<Action<int>>();
 
         // Act
@@ -385,7 +369,7 @@ public class TaskExtensionTests {
         // Assert
         act.Should().NotThrow();
         onResult.DidNotReceive().Invoke(Arg.Any<int>());
-        onCancel.Received(1).Invoke(Arg.Any<Task<int>>(), Arg.Any<CancellationToken>(), Arg.Any<Task?>());
+        onCancel.Received(1).Invoke(Arg.Any<Task<int>>(), Arg.Any<OperationCanceledException>());
     }
 
     [Fact]
