@@ -25,10 +25,10 @@ public readonly partial record struct UrlSafeBase64String {
     public string Base64 => ToBase64(Bytes);
     public bool IsGuid => Bytes.Length is 0 or 16;
     public Guid Guid => Bytes.Length switch {
-                            0 => Guid.Empty,
-                            16 => new(Bytes),
-                            _ => throw new FormatException("The value is not a valid GUID."),
-                        };
+        0 => Guid.Empty,
+        16 => new(Bytes),
+        _ => throw new FormatException("The value is not a valid GUID."),
+    };
 
     public static implicit operator UrlSafeBase64String(byte[]? input) => new(input);
     public static implicit operator UrlSafeBase64String(string input) => new(input);
@@ -57,7 +57,7 @@ public readonly partial record struct UrlSafeBase64String {
         var builder = new StringBuilder(input.Trim());
         builder.Replace('_', '/');
         builder.Replace('-', '+');
-        builder.Append('=', 24 - (input.Length % 24));
+        builder.Append('=', 24 - input.Length % 24);
         return builder.ToString();
     }
 

@@ -12,8 +12,8 @@ public static class LoggerAssertionExtensions {
         => logger.ReceivedCalls().Should().Contain(c => c.Has(level, message, eventId));
 
     private static bool Has(this ICall call, LogLevel level, string message, EventId eventId)
-        => call.GetArguments() is [LogLevel ll, EventId evt, string msg, .., ]
-        && (ll == level)
-        && (evt.Id == eventId.Id)
-        && (msg == message);
+        => call.GetArguments() is [LogLevel ll, EventId evt, string msg, ..,]
+        && ll == level
+        && evt.Id == eventId.Id
+        && msg == message;
 }
