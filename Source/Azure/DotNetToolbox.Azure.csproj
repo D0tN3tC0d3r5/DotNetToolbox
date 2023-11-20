@@ -1,18 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>DotNetToolbox</RootNamespace>
+    <RootNamespace>DotNetToolbox.Azure</RootNamespace>
     <PackageId>DotNetToolbox.Azure</PackageId>
     <Title>DotNetToolbox Azure Library</Title>
     <Version>7.0.0</Version>
     <Authors>Andre Vianna</Authors>
-    <Company>DotNetToolbox</Company>
+    <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Azure;Library;KeyVault;Secrets</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
     <Description>DotNetToolbox.Azure: A comprehensive utility library for handling Azure assets.</Description>
+    <Copyright>© Andre Vianna 2023</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
@@ -21,10 +23,7 @@
       - Based on .Net 7.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Azure</Product>
-    <Copyright>Andre Vianna 2023</Copyright>
-    <RepositoryUrl></RepositoryUrl>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
-    <PackageProjectUrl>https://github.com/AndreVianna/DotNetToolbox</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

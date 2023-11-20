@@ -4,8 +4,8 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% DotNetToolbox.Http 7.0.0
-cd DotNetToolbox.Http
+call Publish %target% Http 7.0.0
+cd Http
 goto :eof
 
 :USAGE

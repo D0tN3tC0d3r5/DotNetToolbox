@@ -4,8 +4,8 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% DotNetToolbox.CommandLineBuilder 7.0.0
-cd DotNetToolbox.CommandLineBuilder
+call Publish %target% CommandLineBuilder 7.0.0
+cd CommandLineBuilder
 goto :eof
 
 :USAGE
