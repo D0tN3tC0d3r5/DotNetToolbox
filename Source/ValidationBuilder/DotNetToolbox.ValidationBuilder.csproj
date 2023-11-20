@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.ValidationBuilder</RootNamespace>
     <PackageId>DotNetToolbox.ValidationBuilder</PackageId>
     <Title>DotNetToolbox Validation Builder Library</Title>
-    <Version>7.0.0</Version>
+    <Version>7.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Validation;Library</PackageTags>
@@ -19,11 +19,16 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v7.0.0:
+      v7.0.1:
       - Based on .Net 7.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.ValidationBuilder</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="7.0.0" />
+    <PackageReference Include="DotNetToolbox.Core" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>

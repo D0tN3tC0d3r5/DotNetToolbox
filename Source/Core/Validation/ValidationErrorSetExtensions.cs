@@ -1,4 +1,4 @@
-﻿namespace System.Validation;
+﻿namespace DotNetToolbox.Validation;
 
 public static class ValidationErrorSetExtensions {
     public static bool Contains(this IEnumerable<ValidationError> errors, string message)

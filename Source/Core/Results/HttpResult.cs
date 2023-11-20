@@ -1,4 +1,4 @@
-﻿namespace System.Results;
+﻿namespace DotNetToolbox.Results;
 
 public record HttpResult : Result {
     protected HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = null)
@@ -6,7 +6,7 @@ public record HttpResult : Result {
         Type = type;
     }
 
-    public HttpResultType Type { get; protected set; }
+    protected HttpResultType Type { get; init; }
 
     public override bool IsSuccess => !HasErrors && Type is HttpResultType.Ok or HttpResultType.Created;
     public override bool IsInvalid => Type is HttpResultType.BadRequest or HttpResultType.Unauthorized or HttpResultType.NotFound or HttpResultType.Conflict;
@@ -39,9 +39,11 @@ public record HttpResult : Result {
         => new(HttpResultType.BadRequest, new[] { error, }.AsEnumerable());
 
     public static HttpResult operator +(HttpResult left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        left.Type = left.IsInvalid ? HttpResultType.BadRequest : left.Type;
-        return left;
+        var errors = left.Errors.Union(right.Errors).ToHashSet();
+        return left with {
+            Errors = errors,
+            Type = errors.Count > 0 ? HttpResultType.BadRequest : left.Type,
+        };
     }
 
     public static HttpResult<TValue> Ok<TValue>(TValue value)
@@ -77,9 +79,11 @@ public record HttpResult<TResult> : HttpResult {
         => new(result.IsInvalid ? HttpResultType.BadRequest : HttpResultType.Ok, result.Value, result.Errors);
 
     public static HttpResult<TResult> operator +(HttpResult<TResult> left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        left.Type = left.IsBadRequest ? HttpResultType.BadRequest : left.Type;
-        return left;
+        var errors = left.Errors.Union(right.Errors).ToHashSet();
+        return left with {
+            Errors = errors,
+            Type = errors.Count > 0 ? HttpResultType.BadRequest : left.Type,
+        };
     }
 
     public HttpResult<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)

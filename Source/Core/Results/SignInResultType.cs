@@ -1,4 +1,4 @@
-﻿namespace System.Results;
+﻿namespace DotNetToolbox.Results;
 
 public enum SignInResultType {
     Invalid = 0, // request validation failed.

@@ -1,4 +1,4 @@
-namespace System.Collections.Generic;
+namespace DotNetToolbox.Collections.Generic;
 
 public class EnumerableExtensionsTests {
     [Fact]

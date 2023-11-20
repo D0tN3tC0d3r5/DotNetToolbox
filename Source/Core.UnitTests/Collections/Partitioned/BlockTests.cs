@@ -1,4 +1,4 @@
-﻿namespace System.Collections.Partitioned;
+﻿namespace DotNetToolbox.Collections.Partitioned;
 
 public class BlockTests {
     [Fact]

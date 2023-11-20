@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.Http</RootNamespace>
     <PackageId>DotNetToolbox.Http</PackageId>
     <Title>DotNetToolbox Http Library</Title>
-    <Version>7.0.0</Version>
+    <Version>7.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Http;Library</PackageTags>
@@ -19,11 +19,16 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v7.0.0:
+      v7.0.1:
       - Based on .Net 7.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Http</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -52,11 +57,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="7.0.0" />
+    <PackageReference Include="DotNetToolbox.Core" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.56.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.2" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.57.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 

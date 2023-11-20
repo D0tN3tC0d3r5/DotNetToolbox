@@ -1,4 +1,4 @@
-﻿namespace System.Threading;
+﻿namespace DotNetToolbox.Threading;
 
 public static class TaskExtensions {
     public static void FireAndForget(this ValueTask task)

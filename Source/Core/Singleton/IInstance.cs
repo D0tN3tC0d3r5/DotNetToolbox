@@ -1,4 +1,4 @@
-﻿namespace System.Singleton;
+﻿namespace DotNetToolbox.Singleton;
 
 public interface IInstance<out TSelf>
     where TSelf : IInstance<TSelf>? {

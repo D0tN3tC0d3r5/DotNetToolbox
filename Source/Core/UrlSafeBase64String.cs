@@ -1,4 +1,4 @@
-﻿namespace System;
+﻿namespace DotNetToolbox;
 
 public readonly partial record struct UrlSafeBase64String {
     public UrlSafeBase64String() {
@@ -57,7 +57,7 @@ public readonly partial record struct UrlSafeBase64String {
         var builder = new StringBuilder(input.Trim());
         builder.Replace('_', '/');
         builder.Replace('-', '+');
-        builder.Append('=', 24 - input.Length % 24);
+        builder.Append('=', 24 - (input.Length % 24));
         return builder.ToString();
     }
 

@@ -1,8 +1,10 @@
-global using System.Pagination;
+global using System.Collections.Concurrent;
 global using System.Reflection;
-global using System.Results;
 global using System.Runtime.CompilerServices;
-global using System.Validation;
+
+global using DotNetToolbox.Pagination;
+global using DotNetToolbox.Results;
+global using DotNetToolbox.Validation;
 
 global using FluentAssertions;
 
@@ -12,8 +14,8 @@ global using NSubstitute;
 
 global using Xunit;
 
-global using static System.Constants.Messages;
-global using static System.Ensure;
-global using static System.Pagination.BlockSettings;
-global using static System.Results.Result;
-global using static System.Results.SignInResultType;
+global using static DotNetToolbox.Constants.Messages;
+global using static DotNetToolbox.Ensure;
+global using static DotNetToolbox.Pagination.BlockSettings;
+global using static DotNetToolbox.Results.Result;
+global using static DotNetToolbox.Results.SignInResultType;

@@ -1,4 +1,4 @@
-﻿namespace System;
+﻿namespace DotNetToolbox;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.

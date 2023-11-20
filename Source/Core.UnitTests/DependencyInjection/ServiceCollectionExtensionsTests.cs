@@ -1,4 +1,4 @@
-namespace System.DependencyInjection;
+namespace DotNetToolbox.DependencyInjection;
 
 public class ServiceCollectionExtensionsTests {
     [Fact]

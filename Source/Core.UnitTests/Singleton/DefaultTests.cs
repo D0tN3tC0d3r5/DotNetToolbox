@@ -1,4 +1,4 @@
-﻿namespace System.Singleton;
+﻿namespace DotNetToolbox.Singleton;
 
 public class DefaultTests {
     private class ClassWithDefault : IDefault<ClassWithDefault> {

@@ -1,4 +1,4 @@
-﻿namespace System.Results;
+﻿namespace DotNetToolbox.Results;
 
 public record Result : IResult {
     protected Result(IEnumerable<ValidationError>? errors = null) {
@@ -19,8 +19,8 @@ public record Result : IResult {
     public override int GetHashCode()
         => Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine);
 
-    public static Result Success()
-        => new();
+    private static readonly Result _success = new();
+    public static Result Success() => _success;
     public static Result Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
     public static Result Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
@@ -37,10 +37,8 @@ public record Result : IResult {
     public static implicit operator Result(ValidationError error)
         => new(new[] { error, }.AsEnumerable());
 
-    public static Result operator +(Result left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        return left;
-    }
+    public static Result operator +(Result left, Result right)
+        => left with { Errors = left.Errors.Union(right.Errors).ToHashSet(), };
 
     public void EnsureIsValid() {
         if (HasErrors) throw new ValidationException(Errors);
@@ -60,10 +58,8 @@ public record Result<TResult> : Result {
 
     public static implicit operator Result<TResult>(TResult value) => new(value);
 
-    public static Result<TResult> operator +(Result<TResult> left, Result right) {
-        left.Errors.UnionWith(right.Errors.Distinct());
-        return left;
-    }
+    public static Result<TResult> operator +(Result<TResult> left, Result right)
+        => left with { Errors = left.Errors.Union(right.Errors).ToHashSet(), };
 
     public Result<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)
         => new(map(Value), Errors);

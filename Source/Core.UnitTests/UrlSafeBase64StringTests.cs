@@ -1,4 +1,4 @@
-﻿namespace System;
+﻿namespace DotNetToolbox;
 
 public class UrlSafeBase64StringTests {
     private static readonly Guid _guidValue = new("34333231-3635-3837-3930-313233343536");
@@ -9,7 +9,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void DefaultConstructor_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String();
+        var result = new DotNetToolbox.UrlSafeBase64String();
 
         // Assert
         result.Bytes.Should().BeEmpty();
@@ -22,7 +22,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void ConstructorWithNullBytes_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String(default(byte[]));
+        var result = new DotNetToolbox.UrlSafeBase64String(default(byte[]));
 
         // Assert
         result.Bytes.Should().BeEmpty();
@@ -35,7 +35,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void ConstructorWithNullString_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String(default(string)!);
+        var result = new DotNetToolbox.UrlSafeBase64String(default(string)!);
 
         // Assert
         result.Bytes.Should().BeEmpty();
@@ -48,7 +48,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void GuidConstructor_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String(_guidValue);
+        var result = new DotNetToolbox.UrlSafeBase64String(_guidValue);
 
         // Assert
         result.Bytes.Should().BeEquivalentTo(_bytesValue);
@@ -61,7 +61,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void StringConstructor_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String(_stringValue);
+        var result = new DotNetToolbox.UrlSafeBase64String(_stringValue);
 
         // Assert
         result.Bytes.Should().BeEquivalentTo(_bytesValue);
@@ -74,7 +74,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void Base64Constructor_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String(_base64Value);
+        var result = new DotNetToolbox.UrlSafeBase64String(_base64Value);
 
         // Assert
         result.Bytes.Should().BeEquivalentTo(_bytesValue);
@@ -87,7 +87,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void BytesConstructor_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String(_bytesValue);
+        var result = new DotNetToolbox.UrlSafeBase64String(_bytesValue);
 
         // Assert
         result.Bytes.Should().BeEquivalentTo(_bytesValue);
@@ -100,7 +100,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void StringConstructor_InvalidBase64_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String("Not base 64.");
+        var result = new DotNetToolbox.UrlSafeBase64String("Not base 64.");
 
         // Assert
         result.IsGuid.Should().BeFalse();
@@ -118,7 +118,7 @@ public class UrlSafeBase64StringTests {
         };
 
         // Act
-        var result = new UrlSafeBase64String(input);
+        var result = new DotNetToolbox.UrlSafeBase64String(input);
 
         // Assert
         result.IsGuid.Should().BeFalse();
@@ -131,7 +131,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void ImplicitConversionTo_ReturnCorrectValues() {
         // Act
-        var subject = new UrlSafeBase64String(_bytesValue);
+        var subject = new DotNetToolbox.UrlSafeBase64String(_bytesValue);
 
         // Act
         string text = subject;
@@ -148,10 +148,10 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void ImplicitConversionFrom_ReturnCorrectValues() {
         // Act
-        UrlSafeBase64String value0 = _stringValue;
-        UrlSafeBase64String value1 = _base64Value;
-        UrlSafeBase64String value2 = _guidValue;
-        UrlSafeBase64String value3 = _bytesValue;
+        DotNetToolbox.UrlSafeBase64String value0 = _stringValue;
+        DotNetToolbox.UrlSafeBase64String value1 = _base64Value;
+        DotNetToolbox.UrlSafeBase64String value2 = _guidValue;
+        DotNetToolbox.UrlSafeBase64String value3 = _bytesValue;
 
         // Assert
         value0.Text.Should().Be(_stringValue);

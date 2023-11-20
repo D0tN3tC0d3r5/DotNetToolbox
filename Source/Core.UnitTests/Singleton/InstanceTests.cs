@@ -1,4 +1,4 @@
-﻿namespace System.Singleton;
+﻿namespace DotNetToolbox.Singleton;
 
 public class InstanceTests {
     private class ClassWithInstance : IInstance<ClassWithInstance> {

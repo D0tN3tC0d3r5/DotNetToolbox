@@ -1,4 +1,4 @@
-﻿namespace System.Pagination;
+﻿namespace DotNetToolbox.Pagination;
 
 public class Block<TItem>
     : Block<TItem, TItem>,

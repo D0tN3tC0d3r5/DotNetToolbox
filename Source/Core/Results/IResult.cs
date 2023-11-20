@@ -1,4 +1,4 @@
-﻿namespace System.Results;
+﻿namespace DotNetToolbox.Results;
 
 public interface IResult {
     bool IsSuccess { get; }

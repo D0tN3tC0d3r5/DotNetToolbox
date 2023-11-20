@@ -1,4 +1,4 @@
-﻿namespace System.Collections.Concurrent;
+﻿namespace DotNetToolbox.Collections.Concurrent;
 
 public static class ConcurrentDictionaryExtensions {
     public static TValue? Get<TKey, TValue>(this ConcurrentDictionary<TKey, object?> cache, TKey key, Func<TKey, TValue?> getValue)

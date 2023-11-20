@@ -1,4 +1,4 @@
-namespace System;
+namespace DotNetToolbox;
 
 public class CreateTests {
     // ReSharper disable once ClassNeverInstantiated.Local

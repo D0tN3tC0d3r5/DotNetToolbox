@@ -1,4 +1,4 @@
-﻿namespace System.Collections.Generic;
+﻿namespace DotNetToolbox.Collections.Generic;
 
 public static class EnumerableExtensions {
     public static TItem[] ToArray<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> transform)

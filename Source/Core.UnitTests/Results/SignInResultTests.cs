@@ -1,6 +1,6 @@
-using static System.Results.SignInResult;
+using static DotNetToolbox.Results.SignInResult;
 
-namespace System.Results;
+namespace DotNetToolbox.Results;
 
 public class SignInResultTests {
     private static readonly SignInResult _invalid = new ValidationError("Source", "Some error.");

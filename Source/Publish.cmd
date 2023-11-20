@@ -13,26 +13,24 @@ if [%packageName%]==[] set packageName=%project%
 
 cd %project%
 
-@echo [93mRemove existing packages...[0m
-rmdir /Q /S %userprofile%\.nuget\packages\DotNetToolbox.%project%\%version%
-nuget delete DotNetToolbox.%project% %version% -source c:\nuget\packages -noninteractive
-
-@echo [93mBuild project...[0m
-dotnet build -c Release
-
-@echo [93mPack project...[0m
+@echo [93mBuilding and packing project...[0m
 dotnet pack -c Release
 
 if [%target%]==[local] (
+	@echo [93mRemove existing packages locally...[0m
+	rmdir /Q /S %userprofile%\.nuget\packages\DotNetToolbox.%project%\%version%
+	nuget delete DotNetToolbox.%project% %version% -source c:\nuget\packages -noninteractive
+
 	@echo [93mPublish package locally...[0m
 	nuget add pkgs\Release\DotNetToolbox.%packageName%.%version%.nupkg -source c:\nuget\packages
 )
-
 if [%target%]==[remote] (
+	@echo [93mRemove existing packages remotelly...[0m
+	nuget delete DotNetToolbox.%project% %version% %NuGetApiKey% -Source https://api.nuget.org/v3/index.json
+
 	@echo [93mPublish package remotely...[0m
 	nuget push pkgs\Release\DotNetToolbox.%packageName%.%version%.nupkg %NuGetApiKey% -Source https://api.nuget.org/v3/index.json
 )
-
 
 cd ..
 

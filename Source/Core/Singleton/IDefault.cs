@@ -1,4 +1,4 @@
-﻿namespace System.Singleton;
+﻿namespace DotNetToolbox.Singleton;
 
 public interface IDefault<out TSelf>
     where TSelf : IDefault<TSelf>? {

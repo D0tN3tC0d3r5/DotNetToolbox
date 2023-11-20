@@ -1,4 +1,4 @@
-namespace System.Results;
+namespace DotNetToolbox.Results;
 
 public class ResultTests {
     private static readonly Result _success = Success();

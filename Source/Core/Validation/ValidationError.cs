@@ -1,4 +1,4 @@
-﻿namespace System.Validation;
+﻿namespace DotNetToolbox.Validation;
 
 public readonly struct ValidationError {
     [SetsRequiredMembers]

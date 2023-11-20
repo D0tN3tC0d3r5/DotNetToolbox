@@ -1,4 +1,4 @@
-﻿namespace System.Results;
+﻿namespace DotNetToolbox.Results;
 
 public enum CrudResultType {
     Invalid = 0,

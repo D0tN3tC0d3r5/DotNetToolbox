@@ -1,6 +1,6 @@
-﻿using static System.Results.HttpResult;
+﻿using static DotNetToolbox.Results.HttpResult;
 
-namespace System.Results;
+namespace DotNetToolbox.Results;
 
 public class HttpResultTests {
     private static readonly HttpResult _ok = Ok();

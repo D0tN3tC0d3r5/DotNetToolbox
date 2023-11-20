@@ -1,4 +1,4 @@
-namespace System.Collections.Concurrent;
+namespace DotNetToolbox.Collections.Concurrent;
 
 public class ConcurrentDictionaryExtensionsTests {
     private readonly ConcurrentDictionary<int, object?> _concurrentDictionary = new();

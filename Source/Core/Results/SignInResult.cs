@@ -1,4 +1,4 @@
-﻿namespace System.Results;
+﻿namespace DotNetToolbox.Results;
 
 public sealed record SignInResult : Result {
     private SignInResultType _type;
@@ -9,7 +9,7 @@ public sealed record SignInResult : Result {
         Token = IsSuccess ? IsNotNull(token) : null;
     }
 
-    public string? Token { get; private init; }
+    public string? Token { get; init; }
 
     public bool IsLocked => _type is SignInResultType.Locked;
     public bool IsBlocked => _type is SignInResultType.Blocked;
@@ -45,11 +45,12 @@ public sealed record SignInResult : Result {
         => new(SignInResultType.Success, token);
 
     public static SignInResult operator +(SignInResult left, Result right) {
-        left.Errors.UnionWith(right.Errors);
+        var errors = left.Errors.Union(right.Errors).ToHashSet();
         return left with {
-            _type = left.IsInvalid ? SignInResultType.Invalid : left._type,
-            Token = left.IsInvalid ? null : left.Token,
-                         };
+            Errors = errors,
+            _type = errors.Count > 0 ? SignInResultType.Invalid : left._type,
+            Token = errors.Count > 0 ? null : left.Token,
+        };
     }
 
     public static bool operator ==(SignInResult left, SignInResultType right) => left._type == right;

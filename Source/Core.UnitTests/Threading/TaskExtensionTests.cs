@@ -1,4 +1,4 @@
-namespace System.Threading;
+namespace DotNetToolbox.Threading;
 
 public class TaskExtensionTests {
     private static readonly FieldInfo _taskAwaiterField = typeof(ConfiguredTaskAwaitable).GetField("m_configuredTaskAwaiter", BindingFlags.NonPublic | BindingFlags.Instance)!;

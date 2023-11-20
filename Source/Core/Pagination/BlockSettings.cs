@@ -1,4 +1,4 @@
-﻿namespace System.Pagination;
+﻿namespace DotNetToolbox.Pagination;
 
 public static class BlockSettings {
     public const uint MaxSize = 1_000;

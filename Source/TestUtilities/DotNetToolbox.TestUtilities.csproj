@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.TestUtilities</RootNamespace>
     <PackageId>DotNetToolbox.TestUtilities</PackageId>
     <Title>DotNetToolbox TestUtilities Library</Title>
-    <Version>7.0.0</Version>
+    <Version>7.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;TestUtilities;Logging;NSubstitute;FluentAssertions</PackageTags>
@@ -19,11 +19,16 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v7.0.0:
+      v7.0.1:
       - Based on .Net 7.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.TestUtilities</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>

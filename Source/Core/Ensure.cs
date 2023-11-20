@@ -1,4 +1,4 @@
-﻿namespace System;
+﻿namespace DotNetToolbox;
 
 public static class Ensure {
     [return: NotNull]

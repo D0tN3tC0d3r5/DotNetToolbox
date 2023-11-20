@@ -1,4 +1,4 @@
-﻿namespace System;
+﻿namespace DotNetToolbox;
 
 public static class Create {
     public static T Instance<[DynamicallyAccessedMembers(PublicConstructors)] T>(params object[] args) {

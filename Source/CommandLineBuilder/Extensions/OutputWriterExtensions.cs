@@ -8,12 +8,12 @@ public static class OutputWriterExtensions {
     }
 
     public static void WriteHelp(this OutputWriter writer, CommandBase command) {
-        if (command is RootCommand) writer.WriteRootHeader(command);
+        if (command is IRootCommand) writer.WriteRootHeader(command);
 
         var parameters = command.Tokens.OfType<Parameter>().Cast<Token>().ToArray();
         var options = command.Tokens.OfType<Option>().Cast<Token>().ToArray();
         var flags = command.Tokens.OfType<Flag>().Cast<Token>().ToArray();
-        var subCommands = command.Tokens.OfType<Command>().Cast<Token>().ToArray();
+        var subCommands = command.Tokens.OfType<ICommand>().Cast<Token>().ToArray();
 
         writer.WriteLine();
         if (parameters.Length != 0) writer.WriteLine($"Usage: {command.Path} [parameters]{(options.Length != 0 ? " [options]" : "")}");

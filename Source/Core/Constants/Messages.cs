@@ -1,4 +1,4 @@
-﻿namespace System.Constants;
+﻿namespace DotNetToolbox.Constants;
 
 public static class Messages {
     public const string ValueMustBeNull = "Value must be null.";

@@ -1,4 +1,4 @@
-﻿namespace System.Results;
+﻿namespace DotNetToolbox.Results;
 
 public enum HttpResultType {
     Ok = HttpStatusCode.OK, // 200

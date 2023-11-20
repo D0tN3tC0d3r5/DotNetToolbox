@@ -1,4 +1,4 @@
-﻿namespace System.Singleton;
+﻿namespace DotNetToolbox.Singleton;
 
 public static class SingletonFactory<TSelf>
     where TSelf : new() {

@@ -1,4 +1,4 @@
-﻿namespace System.Singleton;
+﻿namespace DotNetToolbox.Singleton;
 
 public class EmptyTests {
     private record RecordWithEmpty : IEmpty<RecordWithEmpty> {

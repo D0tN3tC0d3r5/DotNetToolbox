@@ -1,4 +1,4 @@
-﻿namespace System.Singleton;
+﻿namespace DotNetToolbox.Singleton;
 
 public interface IEmpty<out TSelf>
     where TSelf : IEmpty<TSelf>? {

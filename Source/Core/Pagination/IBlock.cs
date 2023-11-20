@@ -1,4 +1,4 @@
-﻿namespace System.Pagination;
+﻿namespace DotNetToolbox.Pagination;
 
 public interface IBlock<out TItem> : IBlock<TItem, TItem> {
 }

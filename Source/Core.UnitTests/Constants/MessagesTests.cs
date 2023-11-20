@@ -1,4 +1,4 @@
-﻿namespace System.Constants;
+﻿namespace DotNetToolbox.Constants;
 
 public class MessagesTests {
     [Theory]

@@ -8,3 +8,6 @@ global using System.Text.RegularExpressions;
 global using DotNetToolbox.CommandLineBuilder.Defaults;
 global using DotNetToolbox.CommandLineBuilder.Extensions;
 global using DotNetToolbox.CommandLineBuilder.Utilities;
+
+global using static System.Environment;
+global using static System.IO.Path;

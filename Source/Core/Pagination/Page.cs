@@ -1,4 +1,4 @@
-﻿namespace System.Pagination;
+﻿namespace DotNetToolbox.Pagination;
 
 public class Page<TItem>
     : Block<TItem, uint>,

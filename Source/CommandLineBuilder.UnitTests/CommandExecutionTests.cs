@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.CommandLineBuilder.Extensions;
-
-namespace DotNetToolbox.CommandLineBuilder;
+﻿namespace DotNetToolbox.CommandLineBuilder;
 
 public class CommandExecutionTests {
     private readonly InMemoryOutputWriter _writer = new();
@@ -172,7 +170,7 @@ public class CommandExecutionTests {
 
         _writer.Output.Should().Be("""
 
-                                        DotNetToolbox.CommandLineBuilder 7.0.0
+                                        DotNetToolbox.CommandLineBuilder 7.0.1
 
                                         This package provides tools for creating a simple CLI (Command-Line Interface) console application.
 
@@ -214,7 +212,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("--version");
 
-        _writer.Output.Should().Be("DotNetToolbox.CommandLineBuilder\n7.0.0\n");
+        _writer.Output.Should().Be("DotNetToolbox.CommandLineBuilder\n7.0.1\n");
     }
 
     [Fact]

@@ -1,6 +1,6 @@
-using static System.Results.CrudResult;
+using static DotNetToolbox.Results.CrudResult;
 
-namespace System.Results;
+namespace DotNetToolbox.Results;
 
 public class CrudResultTests {
     private static readonly CrudResult _success = Success();

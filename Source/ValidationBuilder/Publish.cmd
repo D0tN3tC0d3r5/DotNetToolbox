@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% ValidationBuilder 7.0.0
+call Publish %target% ValidationBuilder 7.0.1
 cd ValidationBuilder
 goto :eof
 

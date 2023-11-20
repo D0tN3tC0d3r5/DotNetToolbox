@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace DotNetToolbox.Http.Extensions;
 
 public sealed class ServiceCollectionExtensionsTests {

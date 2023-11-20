@@ -1,4 +1,4 @@
-﻿namespace System.Results;
+﻿namespace DotNetToolbox.Results;
 
 public record CrudResult : Result {
     protected CrudResult(CrudResultType type, IEnumerable<ValidationError>? errors = null)
@@ -6,7 +6,7 @@ public record CrudResult : Result {
         Type = HasErrors ? CrudResultType.Invalid : type;
     }
 
-    protected CrudResultType Type { get; set; }
+    protected CrudResultType Type { get; init; }
 
     public override bool IsSuccess => !HasErrors && Type is CrudResultType.Success;
     public override bool IsInvalid => HasErrors || Type is CrudResultType.Invalid;
@@ -19,7 +19,7 @@ public record CrudResult : Result {
 
     public static new CrudResult Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
-    public static new CrudResult Invalid(string source, [StringSyntax(CompositeFormat)]string message, params object[] args)
+    public static new CrudResult Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
         => new(new ValidationError(source, message, args));
     public static new CrudResult Invalid(Result result)
         => new(CrudResultType.Invalid, result.Errors);
@@ -32,9 +32,11 @@ public record CrudResult : Result {
         => new(CrudResultType.Invalid, new[] { error, }.AsEnumerable());
 
     public static CrudResult operator +(CrudResult left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        left.Type = left.IsInvalid ? CrudResultType.Invalid : left.Type;
-        return left;
+        var errors = left.Errors.Union(right.Errors).ToHashSet();
+        return left with {
+            Errors = errors,
+            Type = errors.Count > 0 ? CrudResultType.Invalid : left.Type,
+        };
     }
 
     public static new CrudResult<TValue> Success<TValue>(TValue value)
@@ -64,9 +66,11 @@ public record CrudResult<TResult> : CrudResult {
         => new(result.IsInvalid ? CrudResultType.Invalid : CrudResultType.Success, result.Value, result.Errors);
 
     public static CrudResult<TResult> operator +(CrudResult<TResult> left, Result right) {
-        left.Errors.UnionWith(right.Errors);
-        left.Type = left.IsInvalid ? CrudResultType.Invalid : left.Type;
-        return left;
+        var errors = left.Errors.Union(right.Errors).ToHashSet();
+        return left with {
+            Errors = errors,
+            Type = errors.Count > 0 ? CrudResultType.Invalid : left.Type,
+        };
     }
 
     public CrudResult<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)

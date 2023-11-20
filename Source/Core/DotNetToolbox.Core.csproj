@@ -4,10 +4,10 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>System</RootNamespace>
+    <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.Core</PackageId>
     <Title>DotNetToolbox Core Library</Title>
-    <Version>7.0.0</Version>
+    <Version>7.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Common;Library;Pagination;DateTime;FileSystem;Results;Validation;Azure;GUID</PackageTags>
@@ -19,11 +19,16 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v7.0.0:
+      v7.0.1:
       - Based on .Net 7.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Core</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
