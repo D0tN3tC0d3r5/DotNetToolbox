@@ -3,6 +3,7 @@
 global using System;
 global using System.Collections;
 global using System.Diagnostics.CodeAnalysis;
+global using System.Globalization;
 global using System.Net;
 global using System.Results;
 global using System.Runtime.CompilerServices;

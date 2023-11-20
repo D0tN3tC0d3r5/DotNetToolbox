@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace System;
+﻿namespace System;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
