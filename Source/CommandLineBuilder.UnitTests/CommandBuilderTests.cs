@@ -8,7 +8,7 @@ public class CommandBuilderTests {
         subject.Should().BeOfType<RootCommand>();
         subject.Name.Should().Be("testhost");
         subject.Path.Should().Be("testhost");
-        subject.ToString().Should().Be("Command 'testhost'");
+        subject.ToString().Should().Be("Root 'testhost'");
         subject.Tokens.Should().HaveCount(4);
     }
 
