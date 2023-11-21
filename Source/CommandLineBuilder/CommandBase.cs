@@ -126,7 +126,7 @@ public abstract class CommandBase : Token, IAsyncDisposable {
 
     protected async Task<bool> TryExecuteChildCommand(string[] arguments, CancellationToken ct) {
         var name = arguments[0].Trim();
-        var subCommand = Tokens.OfType<Command>().FirstOrDefaultByName(name);
+        var subCommand = Tokens.OfType<CommandBase>().FirstOrDefaultByName(name);
         if (subCommand is null) return false;
 
         await subCommand.Execute(arguments[1..], ct);

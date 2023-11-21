@@ -29,21 +29,14 @@ public static class OutputWriterExtensions {
         writer.WriteLine();
     }
 
-    public static void WriteError(this OutputWriter writer, string message, Exception ex) {
-        if (writer.VerboseLevel == OutputVerboseLevel.Silent) return;
-
-        writer.WriteError(message);
-        if (writer.VerboseLevel == OutputVerboseLevel.Debug)
-            writer.WriteLine(ex.ToString().Replace("\r", ""));
-    }
-
-    public static void WriteError(this OutputWriter writer, string message) {
+    public static void WriteError(this OutputWriter writer, string message, Exception? ex = null) {
         if (writer.VerboseLevel == OutputVerboseLevel.Silent) return;
 
         var oldColor = writer.ForegroundColor;
         try {
             if (writer.UseColors) writer.ForegroundColor = ConsoleColor.Red;
             writer.WriteLine(message);
+            if (ex != null) writer.WriteLine(ex.ToString());
         }
         finally {
             writer.ForegroundColor = oldColor;
