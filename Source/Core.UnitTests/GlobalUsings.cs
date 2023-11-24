@@ -19,3 +19,6 @@ global using static DotNetToolbox.Ensure;
 global using static DotNetToolbox.Pagination.BlockSettings;
 global using static DotNetToolbox.Results.Result;
 global using static DotNetToolbox.Results.SignInResultType;
+
+global using static NSubstitute.Arg;
+global using static NSubstitute.Substitute;
