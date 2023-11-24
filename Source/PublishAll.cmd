@@ -8,7 +8,7 @@ call Publish %target% Azure 7.0.1
 call Publish %target% Http 7.0.1
 call Publish %target% Security 7.0.1
 call Publish %target% ValidationBuilder 7.0.1
-call Publish %target% CommandLineBuilder 7.0.1
+call Publish %target% CommandLineBuilder 7.0.2
 call Publish %target% TestUtilities 7.0.1
 goto :eof
 
