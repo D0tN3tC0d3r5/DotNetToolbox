@@ -43,27 +43,27 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithValueTaskAndOnCancel_ShouldCallOnException() {
         // Arrange
-        var onCancel = Substitute.For<Action<ValueTask, OperationCanceledException>>();
+        var onCancel = For<Action<ValueTask, OperationCanceledException>>();
 
         // Act
         var act = () => TestValueTask().FireAndForget(onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onCancel.DidNotReceive().Invoke(Arg.Any<ValueTask>(), Arg.Any<OperationCanceledException>());
+        onCancel.DidNotReceive().Invoke(Any<ValueTask>(), Any<OperationCanceledException>());
     }
 
     [Fact]
     public void FireAndForget_WithValueTaskAndOnException_ShouldCallOnException() {
         // Arrange
-        var onException = Substitute.For<Action<ValueTask, Exception>>();
+        var onException = For<Action<ValueTask, Exception>>();
 
         // Act
         var act = () => TestValueTask().FireAndForget(onException);
 
         // Assert
         act.Should().NotThrow();
-        onException.DidNotReceive().Invoke(Arg.Any<ValueTask>(), Arg.Any<Exception>());
+        onException.DidNotReceive().Invoke(Any<ValueTask>(), Any<Exception>());
     }
 
     [Fact]
@@ -87,126 +87,126 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithCanceledValueTaskAndOnCancel_ShouldDoNothing() {
         // Arrange
-        var onCancel = Substitute.For<Action<ValueTask, OperationCanceledException>>();
+        var onCancel = For<Action<ValueTask, OperationCanceledException>>();
 
         // Act
         var act = () => TestCanceledValueTask().FireAndForget(onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onCancel.Received(1).Invoke(Arg.Any<ValueTask>(), Arg.Any<OperationCanceledException>());
+        onCancel.Received(1).Invoke(Any<ValueTask>(), Any<OperationCanceledException>());
     }
 
     [Fact]
     public void FireAndForget_WithFailingValueTaskAndOnException_ShouldCallOnException() {
         // Arrange
-        var onException = Substitute.For<Action<ValueTask, Exception>>();
+        var onException = For<Action<ValueTask, Exception>>();
 
         // Act
         var act = () => TestFaultyValueTask().FireAndForget(onException);
 
         // Assert
         act.Should().NotThrow();
-        onException.Received(1).Invoke(Arg.Any<ValueTask>(), Arg.Any<Exception>());
+        onException.Received(1).Invoke(Any<ValueTask>(), Any<Exception>());
     }
 
     [Fact]
     public void FireAndForget_WithValueTaskOfT_ShouldDoNothing() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestValueTaskOfT().FireAndForget(onResult);
 
         // Assert
         act.Should().NotThrow();
-        onResult.Received(1).Invoke(Arg.Any<int>());
+        onResult.Received(1).Invoke(Any<int>());
     }
 
     [Fact]
     public void FireAndForget_WithValueTaskOfTAndOnCancel_ShouldCallOnException() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
-        var onCancel = Substitute.For<Action<ValueTask<int>, OperationCanceledException>>();
+        var onResult = For<Action<int>>();
+        var onCancel = For<Action<ValueTask<int>, OperationCanceledException>>();
 
         // Act
         var act = () => TestValueTaskOfT().FireAndForget(onResult, onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onResult.Received(1).Invoke(Arg.Any<int>());
-        onCancel.DidNotReceive().Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<OperationCanceledException>());
+        onResult.Received(1).Invoke(Any<int>());
+        onCancel.DidNotReceive().Invoke(Any<ValueTask<int>>(), Any<OperationCanceledException>());
     }
 
     [Fact]
     public void FireAndForget_WithValueTaskOfTAndOnException_ShouldCallOnException() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
-        var onException = Substitute.For<Action<ValueTask<int>, Exception>>();
+        var onResult = For<Action<int>>();
+        var onException = For<Action<ValueTask<int>, Exception>>();
 
         // Act
         var act = () => TestValueTaskOfT().FireAndForget(onResult, onException);
 
         // Assert
         act.Should().NotThrow();
-        onResult.Received(1).Invoke(Arg.Any<int>());
-        onException.DidNotReceive().Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<Exception>());
+        onResult.Received(1).Invoke(Any<int>());
+        onException.DidNotReceive().Invoke(Any<ValueTask<int>>(), Any<Exception>());
     }
 
     [Fact]
     public void FireAndForget_WithFailingValueTaskOfTAndNoOnException_ShouldDoNothing() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestFaultyValueTaskOfT().FireAndForget(onResult);
 
         // Assert
         act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Arg.Any<int>());
+        onResult.DidNotReceive().Invoke(Any<int>());
     }
 
     [Fact]
     public void FireAndForget_WithCanceledValueTaskOfT_ShouldDoNothing() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestCanceledValueTaskOfT().FireAndForget(onResult);
 
         // Assert
         act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Arg.Any<int>());
+        onResult.DidNotReceive().Invoke(Any<int>());
     }
 
     [Fact]
     public void FireAndForget_WithCanceledValueTaskOfTAndOnCancel_ShouldDoNothing() {
         // Arrange
-        var onCancel = Substitute.For<Action<ValueTask<int>, OperationCanceledException>>();
-        var onResult = Substitute.For<Action<int>>();
+        var onCancel = For<Action<ValueTask<int>, OperationCanceledException>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestCanceledValueTaskOfT().FireAndForget(onResult, onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Arg.Any<int>());
-        onCancel.Received(1).Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<OperationCanceledException>());
+        onResult.DidNotReceive().Invoke(Any<int>());
+        onCancel.Received(1).Invoke(Any<ValueTask<int>>(), Any<OperationCanceledException>());
     }
 
     [Fact]
     public void FireAndForget_WithFailingValueTaskOfTAndOnException_ShouldCallOnException() {
         // Arrange
-        var onException = Substitute.For<Action<ValueTask<int>, Exception>>();
-        var onResult = Substitute.For<Action<int>>();
+        var onException = For<Action<ValueTask<int>, Exception>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestFaultyValueTaskOfT().FireAndForget(onResult, onException);
 
         // Assert
         act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Arg.Any<int>());
-        onException.Received(1).Invoke(Arg.Any<ValueTask<int>>(), Arg.Any<Exception>());
+        onResult.DidNotReceive().Invoke(Any<int>());
+        onException.Received(1).Invoke(Any<ValueTask<int>>(), Any<Exception>());
     }
 
     [Fact]
@@ -221,27 +221,27 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithTaskAndOnCancel_ShouldCallOnException() {
         // Arrange
-        var onCancel = Substitute.For<Action<Task, OperationCanceledException>>();
+        var onCancel = For<Action<Task, OperationCanceledException>>();
 
         // Act
         var act = () => TestTask().FireAndForget(onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onCancel.DidNotReceive().Invoke(Arg.Any<Task>(), Arg.Any<OperationCanceledException>());
+        onCancel.DidNotReceive().Invoke(Any<Task>(), Any<OperationCanceledException>());
     }
 
     [Fact]
     public void FireAndForget_WithTaskAndOnException_ShouldCallOnException() {
         // Arrange
-        var onException = Substitute.For<Action<Task, Exception>>();
+        var onException = For<Action<Task, Exception>>();
 
         // Act
         var act = () => TestTask().FireAndForget(onException);
 
         // Assert
         act.Should().NotThrow();
-        onException.DidNotReceive().Invoke(Arg.Any<Task>(), Arg.Any<Exception>());
+        onException.DidNotReceive().Invoke(Any<Task>(), Any<Exception>());
     }
 
     [Fact]
@@ -265,126 +265,126 @@ public class TaskExtensionTests {
     [Fact]
     public void FireAndForget_WithCanceledTaskAndOnCancel_ShouldDoNothing() {
         // Arrange
-        var onCancel = Substitute.For<Action<Task, OperationCanceledException>>();
+        var onCancel = For<Action<Task, OperationCanceledException>>();
 
         // Act
         var act = () => TestCanceledTask().FireAndForget(onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onCancel.Received(1).Invoke(Arg.Any<Task>(), Arg.Any<OperationCanceledException>());
+        onCancel.Received(1).Invoke(Any<Task>(), Any<OperationCanceledException>());
     }
 
     [Fact]
     public void FireAndForget_WithFailingTaskAndOnException_ShouldCallOnException() {
         // Arrange
-        var onException = Substitute.For<Action<Task, Exception>>();
+        var onException = For<Action<Task, Exception>>();
 
         // Act
         var act = () => TestFaultyTask().FireAndForget(onException);
 
         // Assert
         act.Should().NotThrow();
-        onException.Received(1).Invoke(Arg.Any<Task>(), Arg.Any<Exception>());
+        onException.Received(1).Invoke(Any<Task>(), Any<Exception>());
     }
 
     [Fact]
     public void FireAndForget_WithTaskOfT_ShouldDoNothing() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestTaskOfT().FireAndForget(onResult);
 
         // Assert
         act.Should().NotThrow();
-        onResult.Received(1).Invoke(Arg.Any<int>());
+        onResult.Received(1).Invoke(Any<int>());
     }
 
     [Fact]
     public void FireAndForget_WithTaskOfTAndOnCancel_ShouldCallOnException() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
-        var onCancel = Substitute.For<Action<Task<int>, OperationCanceledException>>();
+        var onResult = For<Action<int>>();
+        var onCancel = For<Action<Task<int>, OperationCanceledException>>();
 
         // Act
         var act = () => TestTaskOfT().FireAndForget(onResult, onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onResult.Received(1).Invoke(Arg.Any<int>());
-        onCancel.DidNotReceive().Invoke(Arg.Any<Task<int>>(), Arg.Any<OperationCanceledException>());
+        onResult.Received(1).Invoke(Any<int>());
+        onCancel.DidNotReceive().Invoke(Any<Task<int>>(), Any<OperationCanceledException>());
     }
 
     [Fact]
     public void FireAndForget_WithTaskOfTAndOnException_ShouldCallOnException() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
-        var onException = Substitute.For<Action<Task<int>, Exception>>();
+        var onResult = For<Action<int>>();
+        var onException = For<Action<Task<int>, Exception>>();
 
         // Act
         var act = () => TestTaskOfT().FireAndForget(onResult, onException);
 
         // Assert
         act.Should().NotThrow();
-        onResult.Received(1).Invoke(Arg.Any<int>());
-        onException.DidNotReceive().Invoke(Arg.Any<Task<int>>(), Arg.Any<Exception>());
+        onResult.Received(1).Invoke(Any<int>());
+        onException.DidNotReceive().Invoke(Any<Task<int>>(), Any<Exception>());
     }
 
     [Fact]
     public void FireAndForget_WithFailingTaskOfTAndNoOnException_ShouldDoNothing() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestFaultyTaskOfT().FireAndForget(onResult);
 
         // Assert
         act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Arg.Any<int>());
+        onResult.DidNotReceive().Invoke(Any<int>());
     }
 
     [Fact]
     public void FireAndForget_WithCanceledTaskOfT_ShouldDoNothing() {
         // Arrange
-        var onResult = Substitute.For<Action<int>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestCanceledTaskOfT().FireAndForget(onResult);
 
         // Assert
         act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Arg.Any<int>());
+        onResult.DidNotReceive().Invoke(Any<int>());
     }
 
     [Fact]
     public void FireAndForget_WithCanceledTaskOfTAndOnCancel_ShouldDoNothing() {
         // Arrange
-        var onCancel = Substitute.For<Action<Task<int>, OperationCanceledException>>();
-        var onResult = Substitute.For<Action<int>>();
+        var onCancel = For<Action<Task<int>, OperationCanceledException>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestCanceledTaskOfT().FireAndForget(onResult, onCancel);
 
         // Assert
         act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Arg.Any<int>());
-        onCancel.Received(1).Invoke(Arg.Any<Task<int>>(), Arg.Any<OperationCanceledException>());
+        onResult.DidNotReceive().Invoke(Any<int>());
+        onCancel.Received(1).Invoke(Any<Task<int>>(), Any<OperationCanceledException>());
     }
 
     [Fact]
     public void FireAndForget_WithFailingTaskOfTAndOnException_ShouldCallOnException() {
         // Arrange
-        var onException = Substitute.For<Action<Task<int>, Exception>>();
-        var onResult = Substitute.For<Action<int>>();
+        var onException = For<Action<Task<int>, Exception>>();
+        var onResult = For<Action<int>>();
 
         // Act
         var act = () => TestFaultyTaskOfT().FireAndForget(onResult, onException);
 
         // Assert
         act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Arg.Any<int>());
-        onException.Received(1).Invoke(Arg.Any<Task<int>>(), Arg.Any<Exception>());
+        onResult.DidNotReceive().Invoke(Any<int>());
+        onException.Received(1).Invoke(Any<Task<int>>(), Any<Exception>());
     }
 
     [Fact]
@@ -478,26 +478,26 @@ public class TaskExtensionTests {
     [Fact]
     public async Task ContinueSynchronouslyWith_ForTask_ExecutesSynchronously() {
         // Arrange
-        var action = Substitute.For<Action<Task>>();
+        var action = For<Action<Task>>();
 
         // Act
         await TestTask().ContinueSynchronouslyWith(action);
 
         // Assert
-        action.Received(1).Invoke(Arg.Any<Task>());
+        action.Received(1).Invoke(Any<Task>());
     }
 
     [Fact]
     public async Task ContinueSynchronouslyWith_ForTask_WithReturn_ExecutesSynchronously() {
         // Arrange
-        var function = Substitute.For<Func<Task, int>>();
-        function(Arg.Any<Task>()).Returns(42);
+        var function = For<Func<Task, int>>();
+        function(Any<Task>()).Returns(42);
 
         // Act
         var result = await TestTask().ContinueSynchronouslyWith(function);
 
         // Assert
-        function.Received(1).Invoke(Arg.Any<Task>());
+        function.Received(1).Invoke(Any<Task>());
         result.Should().Be(42);
     }
 
@@ -505,53 +505,53 @@ public class TaskExtensionTests {
     public async Task ContinueSynchronouslyWith_ForTaskOfT_ExecutesSynchronously() {
         // Arrange
         var task = Task.FromResult(42);
-        var action = Substitute.For<Action<Task<int>>>();
+        var action = For<Action<Task<int>>>();
 
         // Act
         await task.ContinueSynchronouslyWith(action);
 
         // Assert
-        action.Received(1).Invoke(Arg.Any<Task<int>>());
+        action.Received(1).Invoke(Any<Task<int>>());
     }
 
     [Fact]
     public async Task ContinueSynchronouslyWith_ForTaskOfT_WithReturn_ExecutesSynchronously() {
         // Arrange
         var task = Task.FromResult(42);
-        var function = Substitute.For<Func<Task<int>, string>>();
-        function(Arg.Any<Task<int>>()).Returns("42");
+        var function = For<Func<Task<int>, string>>();
+        function(Any<Task<int>>()).Returns("42");
 
         // Act
         var result = await task.ContinueSynchronouslyWith(function);
 
         // Assert
-        function.Received(1).Invoke(Arg.Any<Task<int>>());
+        function.Received(1).Invoke(Any<Task<int>>());
         result.Should().Be("42");
     }
 
     [Fact]
     public async Task ContinueSynchronouslyWith_ForFaultyTask_DoesNothing() {
         // Arrange
-        var action = Substitute.For<Action<Task>>();
+        var action = For<Action<Task>>();
 
         // Act
         var result = () => TestFaultyTask().ContinueSynchronouslyWith(action);
 
         // Assert
         await result.Should().ThrowAsync<TaskCanceledException>();
-        action.DidNotReceive().Invoke(Arg.Any<Task>());
+        action.DidNotReceive().Invoke(Any<Task>());
     }
 
     [Fact]
     public async Task ContinueSynchronouslyWith_ForCanceledTask_DoesNothing() {
         // Arrange
-        var action = Substitute.For<Action<Task>>();
+        var action = For<Action<Task>>();
 
         // Act
         var result = () => TestCanceledTask().ContinueSynchronouslyWith(action);
 
         // Assert
         await result.Should().ThrowAsync<TaskCanceledException>();
-        action.DidNotReceive().Invoke(Arg.Any<Task>());
+        action.DidNotReceive().Invoke(Any<Task>());
     }
 }
