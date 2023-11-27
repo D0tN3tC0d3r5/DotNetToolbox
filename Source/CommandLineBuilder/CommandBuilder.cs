@@ -15,7 +15,7 @@ public sealed class CommandBuilder<TCommand>
     private readonly string? _description;
     private readonly OutputWriter? _writer;
 
-    private Func<TCommand, CancellationToken, Task>? _onExecute;
+    private Func<string[], CancellationToken, Task>? _onExecute;
 
     private readonly ICollection<Func<CommandBase, CommandBase>> _steps = new List<Func<CommandBase, CommandBase>>();
 
@@ -35,7 +35,7 @@ public sealed class CommandBuilder<TCommand>
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Action<CommandBase> onExecute) {
+    public CommandBuilder<TCommand> OnExecute(Action<string[]> onExecute) {
         _onExecute = (cmd, ct) => Task.Run(() => onExecute(cmd), ct);
         return this;
     }
@@ -45,7 +45,7 @@ public sealed class CommandBuilder<TCommand>
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<CommandBase, Task> onExecute) {
+    public CommandBuilder<TCommand> OnExecute(Func<string[], Task> onExecute) {
         _onExecute = (cmd, _) => onExecute(cmd);
         return this;
     }
@@ -55,7 +55,7 @@ public sealed class CommandBuilder<TCommand>
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<CommandBase, CancellationToken, Task> onExecute) {
+    public CommandBuilder<TCommand> OnExecute(Func<string[], CancellationToken, Task> onExecute) {
         _onExecute = onExecute;
         return this;
     }

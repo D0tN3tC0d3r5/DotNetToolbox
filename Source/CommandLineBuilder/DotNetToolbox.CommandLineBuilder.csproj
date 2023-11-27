@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.CommandLineBuilder</RootNamespace>
     <PackageId>DotNetToolbox.CommandLineBuilder</PackageId>
     <Title>DotNetToolbox Command-Line Interface (CLI) Builder Library</Title>
-    <Version>7.0.2</Version>
+    <Version>7.0.3</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>Command-Line;CLI;Tools</PackageTags>
@@ -19,7 +19,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v7.0.2:
+      v7.0.3:
       - Based on .Net 7.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.CommandLineBuilder</Product>

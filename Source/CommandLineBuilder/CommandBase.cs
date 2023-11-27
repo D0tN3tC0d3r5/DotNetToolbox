@@ -147,9 +147,9 @@ public abstract class CommandBase<TCommand> : CommandBase
         return ValueTask.CompletedTask;
     }
 
-    public event Func<TCommand, CancellationToken, Task>? OnExecute;
+    public event Func<string[], CancellationToken, Task>? OnExecute;
 
-    public sealed override async Task Execute(string[] arguments, CancellationToken ct) {
+    public override async Task Execute(string[] arguments, CancellationToken ct) {
         try {
             while (arguments.Length > 0) {
                 if (TryReadFlag(arguments, out arguments, out var exit)) {
@@ -162,7 +162,7 @@ public abstract class CommandBase<TCommand> : CommandBase
             }
 
             ReadParameters(arguments, out arguments);
-            await (OnExecute?.Invoke((TCommand)this, ct) ?? DefaultAsyncAction((TCommand)this));
+            await (OnExecute?.Invoke(arguments, ct) ?? DefaultAsyncAction((TCommand)this));
         }
         catch (Exception ex) {
             Writer.WriteError($"An error occurred while executing command '{Name}'.", ex);
