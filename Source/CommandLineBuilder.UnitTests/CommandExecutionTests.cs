@@ -11,7 +11,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("-v", "2", "--no-color");
 
-        _writer.Output.Should().Be("An error occurred while executing command 'testhost'.\n");
+        _writer.Output.Should().Be("An error occurred while executing command 'test'.\n");
     }
 
     [Fact]
@@ -22,7 +22,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("-v", "2");
 
-        _writer.Output.Should().Be("An error occurred while executing command 'testhost'.\n");
+        _writer.Output.Should().Be("An error occurred while executing command 'test'.\n");
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("-v", "1");
 
-        _writer.Output.Should().Contain("An error occurred while executing command 'testhost'.\nSystem.Exception: Some exception.\n");
+        _writer.Output.Should().Contain("An error occurred while executing command 'test'.\nSystem.Exception: Some exception.\n");
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class CommandExecutionTests {
         var subject = new Command("Command", "Command description.") {
             Writer = _writer,
         };
-        subject.OnExecute += (cmd, ct) => Task.Run(() => cmd.Writer.WriteLine("Executing command..."), ct);
+        subject.OnExecute += (cmd, _, ct) => Task.Run(() => cmd.Writer.WriteLine("Executing command..."), ct);
 
         await subject.Execute();
 
@@ -147,7 +147,7 @@ public class CommandExecutionTests {
 
         await subject.Execute();
 
-        _writer.Output.Should().Be("An error occurred while executing command 'testhost'.\n");
+        _writer.Output.Should().Be("An error occurred while executing command 'test'.\n");
     }
 
     [Fact]
@@ -159,7 +159,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("--option", "abc");
 
-        _writer.Output.Should().Be("An error occurred while reading option 'option'.\nAn error occurred while executing command 'testhost'.\n");
+        _writer.Output.Should().Be("An error occurred while reading option 'option'.\nAn error occurred while executing command 'test'.\n");
     }
 
     [Fact]
@@ -174,7 +174,7 @@ public class CommandExecutionTests {
 
                                         This package provides tools for creating a simple CLI (Command-Line Interface) console application.
 
-                                        Usage: testhost [options]
+                                        Usage: test [options]
 
                                         Options:
                                           -h, --help                    Show this help information and exit.
@@ -197,7 +197,7 @@ public class CommandExecutionTests {
 
         _writer.Output.Should().Be("""
 
-                                        Usage: testhost sub-Command
+                                        Usage: test sub-Command
 
                                         Options:
                                           -h, --help                    Show this help information and exit.
@@ -221,11 +221,11 @@ public class CommandExecutionTests {
         subject.Add(new Option<string>("options"));
         subject.Add(new Option<string>("very-long-name", 'v', "Some description"));
         var childCommand = new Command("sub-Command");
-        childCommand.OnExecute += (cmd, ct) => Task.Run(() => cmd.Writer.WriteLine("Executing sub-Command..."), ct);
+        childCommand.OnExecute += (cmd, _, ct) => Task.Run(() => cmd.Writer.WriteLine("Executing sub-Command..."), ct);
         subject.Add(childCommand);
         subject.Add(new Parameter<string>("param"));
         subject.Writer = _writer;
-        subject.OnExecute += (cmd, ct) => Task.Run(() => cmd.Writer.WriteLine("You should not be here!"), ct);
+        subject.OnExecute += (cmd, _, ct) => Task.Run(() => cmd.Writer.WriteLine("You should not be here!"), ct);
 
         await subject.Execute("-h");
 

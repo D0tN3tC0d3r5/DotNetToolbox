@@ -6,9 +6,9 @@ public class CommandBuilderTests {
         var subject = CommandBuilder.FromDefaultRoot().Build();
 
         subject.Should().BeOfType<RootCommand>();
-        subject.Name.Should().Be("testhost");
-        subject.Path.Should().Be("testhost");
-        subject.ToString().Should().Be("Root 'testhost'");
+        subject.Name.Should().Be("test");
+        subject.Path.Should().Be("test");
+        subject.ToString().Should().Be("Root 'test'");
         subject.Tokens.Should().HaveCount(4);
     }
 

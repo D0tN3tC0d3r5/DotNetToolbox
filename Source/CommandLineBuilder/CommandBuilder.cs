@@ -15,13 +15,13 @@ public sealed class CommandBuilder<TCommand>
     private readonly string? _description;
     private readonly OutputWriter? _writer;
 
-    private Func<string[], CancellationToken, Task>? _onExecute;
+    private Func<TCommand, string[], CancellationToken, Task>? _onExecute;
 
     private readonly ICollection<Func<CommandBase, CommandBase>> _steps = new List<Func<CommandBase, CommandBase>>();
 
     internal CommandBuilder(OutputWriter? writer = null) {
         _isRoot = true;
-        _writer = writer ?? new();
+        _writer = writer ?? new OutputWriter();
     }
 
     private CommandBuilder(string name, string? description = null) {
@@ -31,31 +31,61 @@ public sealed class CommandBuilder<TCommand>
     }
 
     public CommandBuilder<TCommand> OnExecute(Action onExecute) {
-        _onExecute = (_, ct) => Task.Run(onExecute, ct);
+        _onExecute = (_, _, ct) => Task.Run(onExecute, ct);
         return this;
     }
 
     public CommandBuilder<TCommand> OnExecute(Action<string[]> onExecute) {
-        _onExecute = (cmd, ct) => Task.Run(() => onExecute(cmd), ct);
+        _onExecute = (_, args, ct) => Task.Run(() => onExecute(args), ct);
+        return this;
+    }
+
+    public CommandBuilder<TCommand> OnExecute(Action<TCommand> onExecute) {
+        _onExecute = (cmd, _, ct) => Task.Run(() => onExecute(cmd), ct);
+        return this;
+    }
+
+    public CommandBuilder<TCommand> OnExecute(Action<TCommand, string[]> onExecute) {
+        _onExecute = (cmd, args, ct) => Task.Run(() => onExecute(cmd, args), ct);
         return this;
     }
 
     public CommandBuilder<TCommand> OnExecute(Func<Task> onExecute) {
-        _onExecute = (_, _) => onExecute();
+        _onExecute = (_, _, _) => onExecute();
+        return this;
+    }
+
+    public CommandBuilder<TCommand> OnExecute(Func<TCommand, Task> onExecute) {
+        _onExecute = (cmd, _, _) => onExecute(cmd);
         return this;
     }
 
     public CommandBuilder<TCommand> OnExecute(Func<string[], Task> onExecute) {
-        _onExecute = (cmd, _) => onExecute(cmd);
+        _onExecute = (_, args, _) => onExecute(args);
+        return this;
+    }
+
+    public CommandBuilder<TCommand> OnExecute(Func<TCommand, string[], Task> onExecute) {
+        _onExecute = (cmd, args, _) => onExecute(cmd, args);
         return this;
     }
 
     public CommandBuilder<TCommand> OnExecute(Func<CancellationToken, Task> onExecute) {
-        _onExecute = (_, ct) => onExecute(ct);
+        _onExecute = (_, _, ct) => onExecute(ct);
+        return this;
+    }
+
+    public CommandBuilder<TCommand> OnExecute(Func<TCommand, CancellationToken, Task> onExecute) {
+        _onExecute = (cmd, _, ct) => onExecute(cmd, ct);
         return this;
     }
 
     public CommandBuilder<TCommand> OnExecute(Func<string[], CancellationToken, Task> onExecute) {
+        _onExecute = (_, args, ct) => onExecute(args, ct);
+        return this;
+    }
+
+    public CommandBuilder<TCommand> OnExecute(Func<TCommand, string[], CancellationToken, Task> onExecute) {
         _onExecute = onExecute;
         return this;
     }

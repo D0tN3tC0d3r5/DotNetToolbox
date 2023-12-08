@@ -68,10 +68,13 @@ public abstract class CommandBase : Token, IAsyncDisposable {
         return GetArgumentValue<T>(parameter, index.ToString(), nameof(index), true)!;
     }
 
-    private static TValue? GetArgumentValue<TValue>(Argument? argument, string source, string parameterName, bool isRequired, TValue? defaultValue = default) => argument switch {
-        null => throw new ArgumentException($"Argument '{source}' not found.", parameterName), { IsSet: false } when isRequired => throw new ArgumentException($"{argument.TokenType} '{source}' not set.", parameterName), { IsSet: false } => defaultValue,
-        IHasValue<TValue> typedArgument => typedArgument.Value,
-        _ => throw ExceptionHelper.CreateGetCastException<TValue>(argument)
+    private static TValue? GetArgumentValue<TValue>(Argument? argument, string source, string parameterName, bool isRequired, TValue? defaultValue = default)
+        => argument switch {
+            null => throw new ArgumentException($"Argument '{source}' not found.", parameterName),
+            { IsSet: false, } when isRequired => throw new ArgumentException($"Required {argument.TokenType} '{source}' not set.", parameterName),
+            { IsSet: false, } => defaultValue,
+            IHasValue<TValue> typedArgument => typedArgument.Value,
+            _ => throw ExceptionHelper.CreateGetCastException<TValue>(argument),
     };
 
     public bool IsFlagSet(string nameOrAlias) {
@@ -80,7 +83,7 @@ public abstract class CommandBase : Token, IAsyncDisposable {
         return argument switch {
             null => throw new ArgumentException($"Argument '{nameOrAlias}' not found.", nameof(nameOrAlias)),
             Flag flag => flag.Value,
-            _ => throw new ArgumentException($"Argument '{nameOrAlias}' is not a flag.", nameof(nameOrAlias))
+            _ => throw new ArgumentException($"Argument '{nameOrAlias}' is not a flag.", nameof(nameOrAlias)),
         };
     }
 
@@ -147,7 +150,7 @@ public abstract class CommandBase<TCommand> : CommandBase
         return ValueTask.CompletedTask;
     }
 
-    public event Func<string[], CancellationToken, Task>? OnExecute;
+    public event Func<TCommand, string[], CancellationToken, Task>? OnExecute;
 
     public override async Task Execute(string[] arguments, CancellationToken ct) {
         try {
@@ -162,7 +165,7 @@ public abstract class CommandBase<TCommand> : CommandBase
             }
 
             ReadParameters(arguments, out arguments);
-            await (OnExecute?.Invoke(arguments, ct) ?? DefaultAsyncAction((TCommand)this));
+            await (OnExecute?.Invoke((TCommand)this, arguments, ct) ?? DefaultAsyncAction((TCommand)this));
         }
         catch (Exception ex) {
             Writer.WriteError($"An error occurred while executing command '{Name}'.", ex);

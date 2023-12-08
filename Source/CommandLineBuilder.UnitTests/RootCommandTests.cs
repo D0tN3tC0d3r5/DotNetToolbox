@@ -5,7 +5,7 @@ public class RootCommandTests {
     public async Task RootCommand_Execute_WithWriter_ExecutesDelegate() {
         InMemoryOutputWriter writer = new();
         RootCommand subject = new(writer);
-        subject.OnExecute += (cmd, ct) => Task.Run(() => {
+        subject.OnExecute += (cmd, _, ct) => Task.Run(() => {
             var who = cmd.GetValueOrDefault<string>("who");
             cmd.Writer.WriteLine($"Hello {who}!");
         }, ct);
@@ -19,7 +19,7 @@ public class RootCommandTests {
     [Fact]
     public Task RootCommand_Execute_WithoutWriter_ExecutesDelegate() {
         RootCommand subject = new();
-        subject.OnExecute += (cmd, ct) => Task.Run(() => {
+        subject.OnExecute += (cmd, _, ct) => Task.Run(() => {
             var who = cmd.GetValueOrDefault<string>("who");
             cmd.Writer.WriteLine($"Hello {who}!");
         }, ct);
