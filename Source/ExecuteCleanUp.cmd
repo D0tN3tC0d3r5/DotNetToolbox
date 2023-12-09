@@ -24,4 +24,7 @@ for /f "tokens=*" %%g in ('dir /b /ad /s CoverageReports') do (
 )
 rmdir /s /q CoverageReports
 
+echo [93mCleaning MergeFiles files...[0m
+del /s /q *.orig
+
 pause
