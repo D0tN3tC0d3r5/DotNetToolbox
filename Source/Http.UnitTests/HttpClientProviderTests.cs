@@ -14,7 +14,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             uniqueId: null,
             account: null,
             idToken: Guid.NewGuid().ToString(),
-            scopes: new[] { "https://graph.microsoft.com/.default", },
+            scopes: [ "https://graph.microsoft.com/.default", ],
             correlationId: correlationId);
 
     private readonly HttpClientProvider _provider;
@@ -90,8 +90,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         _defaultConfiguration.ResponseFormat = "text/xml";
         _defaultConfiguration.CustomHeaders = new() {
-            ["x-custom-string"] = new[] { "SomeValue", },
-            ["x-custom-int"] = new[] { "42", },
+            ["x-custom-string"] = ["SomeValue",],
+            ["x-custom-int"] = ["42",],
         };
 
         // Act
@@ -149,8 +149,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
             BaseAddress = _defaultConfiguration.BaseAddress,
             ResponseFormat = "text/xml",
             CustomHeaders = new() {
-                ["x-custom-string"] = new[] { "SomeValue", },
-                ["x-custom-int"] = new[] { "42", },
+                ["x-custom-string"] = ["SomeValue",],
+                ["x-custom-int"] = ["42",],
             },
         };
 
@@ -178,8 +178,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
                 BaseAddress = _defaultConfiguration.BaseAddress,
                 ResponseFormat = "text/xml",
                 CustomHeaders = new() {
-                    ["x-custom-string"] = new[] { "SomeValue", },
-                    ["x-custom-int"] = new[] { "42", },
+                    ["x-custom-string"] = ["SomeValue",],
+                    ["x-custom-int"] = ["42",],
                 },
             },
             ["NamedClient2"] = new(),
@@ -449,7 +449,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default", },
+            Scopes = ["https://graph.microsoft.com/.default",],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
         };
 
@@ -472,7 +472,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default", },
+            Scopes = ["https://graph.microsoft.com/.default",],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
@@ -500,7 +500,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default", },
+            Scopes = ["https://graph.microsoft.com/.default",],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
@@ -538,7 +538,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default", },
+            Scopes = ["https://graph.microsoft.com/.default",],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
@@ -567,7 +567,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             opt.ClientId = "SomeClient";
             opt.ClientSecret = "SomeSecret";
             opt.Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a";
-            opt.Scopes = new[] { "https://graph.microsoft.com/Directory.Read", };
+            opt.Scopes = ["https://graph.microsoft.com/Directory.Read",];
             opt.AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid());
         }));
 
@@ -585,7 +585,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = new[] { "https://graph.microsoft.com/.default", },
+            Scopes = ["https://graph.microsoft.com/.default",],
         };
 
         // Act

@@ -21,9 +21,9 @@ public record HttpResult : Result {
 
     public static HttpResult Ok() => new(HttpResultType.Ok);
     public static HttpResult Created() => new(HttpResultType.Created);
-    public static HttpResult BadRequest([StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static HttpResult BadRequest([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => BadRequest(string.Empty, message, args);
-    public static HttpResult BadRequest(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static HttpResult BadRequest(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => BadRequest(new ValidationError(source, message, args));
     public static HttpResult BadRequest(Result result)
         => new(HttpResultType.BadRequest, result.Errors);
@@ -51,9 +51,9 @@ public record HttpResult : Result {
     public static HttpResult<TValue> Created<TValue>(TValue value)
         => new(HttpResultType.Created, IsNotNull(value));
 
-    public static HttpResult<TValue> BadRequest<TValue>(TValue value, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static HttpResult<TValue> BadRequest<TValue>(TValue value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => BadRequest(value, string.Empty, message, args);
-    public static HttpResult<TValue> BadRequest<TValue>(TValue value, string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static HttpResult<TValue> BadRequest<TValue>(TValue value, string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => BadRequest(value, new ValidationError(source, message, args));
     public static HttpResult<TValue> BadRequest<TValue>(TValue value, Result result)
         => new(HttpResultType.BadRequest, value, result.Errors);

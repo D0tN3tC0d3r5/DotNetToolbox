@@ -24,9 +24,9 @@ public sealed record SignInResult : Result {
         => new(SignInResultType.ConfirmationRequired, token);
     public static SignInResult TwoFactorRequired(string token)
         => new(SignInResultType.TwoFactorRequired, token);
-    public static new SignInResult Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static new SignInResult Invalid([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
-    public static new SignInResult Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static new SignInResult Invalid(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(new ValidationError(source, message, args));
     public static new SignInResult Invalid(Result result)
         => new(SignInResultType.Invalid, null, result.Errors);

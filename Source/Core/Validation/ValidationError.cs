@@ -2,7 +2,7 @@
 
 public readonly struct ValidationError {
     [SetsRequiredMembers]
-    public ValidationError(string source, [StringSyntax(CompositeFormat)] string template, params object[] args)
+    public ValidationError(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string template, params object[] args)
         : this() {
         Source = IsNotNull(source).Trim();
         MessageTemplate = IsNotNullOrEmpty(template);
@@ -10,7 +10,7 @@ public readonly struct ValidationError {
     }
 
     [SetsRequiredMembers]
-    public ValidationError([StringSyntax(CompositeFormat)] string template, params object[] args)
+    public ValidationError([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string template, params object[] args)
         : this(string.Empty, template, args) {
     }
 
@@ -28,7 +28,7 @@ public readonly struct ValidationError {
 
     private readonly object[]? _arguments;
     public object[] Arguments {
-        get => _arguments ?? Array.Empty<object>();
+        get => _arguments ?? [];
         init => _arguments = value;
     }
 

@@ -190,14 +190,9 @@ public class EnsureTests {
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or white space string(s). (Parameter 'input')");
     }
 
-    private class ValidatableObject : IValidatable {
-        private readonly bool _isValid;
-
-        public ValidatableObject(bool isValid) {
-            _isValid = isValid;
-        }
+    private class ValidatableObject(bool isValid) : IValidatable {
         public Result Validate(IDictionary<string, object?>? context = null)
-            => _isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
+            => isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
     }
 
     [Fact]

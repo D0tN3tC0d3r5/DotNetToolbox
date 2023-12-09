@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% CommandLineBuilder 7.0.3
+call Publish %target% CommandLineBuilder 8.0.1
 cd CommandLineBuilder
 goto :eof
 

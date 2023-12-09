@@ -7,7 +7,7 @@ public class HttpClientOptions  {
 
     public string ResponseFormat { get; set; } = DefaultResponseFormat;
 
-    public Dictionary<string, string[]> CustomHeaders { get; set; } = new();
+    public Dictionary<string, string[]> CustomHeaders { get; set; } = [];
 
     public AuthenticationOptions? Authentication { get; set; }
 

@@ -16,12 +16,8 @@ public class CreateTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestClassWithArgs {
-        public string Value { get; }
-
-        public TestClassWithArgs(string value) {
-            Value = value;
-        }
+    private class TestClassWithArgs(string value) {
+        public string Value { get; } = value;
     }
 
     [Fact]

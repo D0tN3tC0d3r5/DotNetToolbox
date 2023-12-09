@@ -23,9 +23,9 @@ public class CollectionValidatorsTests {
 
     private class TestData : TheoryData<TestObject, int> {
         public TestData() {
-            Add(new() { Numbers = new[] { 1, 3, 5, }, Names = new[] { ("Name", 30), }, }, 0);
-            Add(new() { Numbers = Array.Empty<int>(), Names = new[] { ("Name", 30), default!, }, }, 5);
-            Add(new() { Numbers = new[] { 0, 5, 10, 13, 20, }, Names = new[] { ("Name", 30), }, }, 3);
+            Add(new() { Numbers = [ 1, 3, 5, ], Names = new[] { ("Name", 30), }, }, 0);
+            Add(new() { Numbers = [], Names = new[] { ("Name", 30), default!, }, }, 5);
+            Add(new() { Numbers = [ 0, 5, 10, 13, 20, ], Names = new[] { ("Name", 30), }, }, 3);
             Add(new() { Numbers = null!, Names = null!, }, 2);
         }
     }

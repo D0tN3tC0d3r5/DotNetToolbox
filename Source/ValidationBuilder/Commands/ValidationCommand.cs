@@ -1,11 +1,7 @@
 ﻿namespace DotNetToolbox.ValidationBuilder.Commands;
 
-public abstract class ValidationCommand : IValidationCommand {
-    protected ValidationCommand(string source) {
-        Source = source;
-    }
-
-    protected string Source { get; }
+public abstract class ValidationCommand(string source) : IValidationCommand {
+    protected string Source { get; } = source;
 
     public virtual Result Validate(object? subject)
         => subject is null || ValidateAs(subject)

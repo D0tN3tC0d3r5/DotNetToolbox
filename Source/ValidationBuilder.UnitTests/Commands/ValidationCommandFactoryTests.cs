@@ -17,7 +17,7 @@ public class ValidationCommandFactoryTests {
     [InlineData(typeof(Dictionary<double, double>))]
     public void Create_ForUnsupportedValidator_Throws(Type subjectType) {
         //Act
-        var action = () => ValidationCommandFactory.For(subjectType, "Attribute").Create("Anything", Array.Empty<object>());
+        var action = () => ValidationCommandFactory.For(subjectType, "Attribute").Create("Anything", []);
 
         //Assert
         action.Should().Throw<InvalidOperationException>();
@@ -28,11 +28,11 @@ public class ValidationCommandFactoryTests {
     private const decimal _decimal = 42.0m;
     private static readonly DateTime _dateTime = DateTime.Parse("2020-01-01 10:10:10.12345");
     private static readonly Type _type = typeof(string);
-    private static readonly List<int> _integers = new() { 1, 2, 3, };
-    private static readonly List<decimal> _decimals = new() { 1.0m, 2.0m, 3.0m, };
-    private static readonly List<int?> _nullableIntegers = new() { 1, 2, 3, };
-    private static readonly List<decimal?> _nullableDecimals = new() { 1.0m, 2.0m, 3.0m, };
-    private static readonly List<string> _strings = new() { "A", _string, "C", };
+    private static readonly List<int> _integers = [1, 2, 3,];
+    private static readonly List<decimal> _decimals = [1.0m, 2.0m, 3.0m,];
+    private static readonly List<int?> _nullableIntegers = [1, 2, 3,];
+    private static readonly List<decimal?> _nullableDecimals = [1.0m, 2.0m, 3.0m,];
+    private static readonly List<string> _strings = ["A", _string, "C",];
     private static readonly Dictionary<string, int> _strings2Integers = new() { ["A"] = 1, ["B"] = 2, ["C"] = 3, };
     private static readonly Dictionary<string, decimal> _strings2Decimals = new() { ["A"] = 1m, ["B"] = 2m, ["C"] = 3m, };
     private static readonly Dictionary<string, int?> _strings2NullableIntegers = new() { ["A"] = 1, ["B"] = 2, ["C"] = 3, };
@@ -147,11 +147,7 @@ public class ValidationCommandFactoryTests {
         invalidResult.IsInvalid.Should().BeTrue();
     }
 
-    private class TestCommand : ValidationCommand {
-        public TestCommand() : base("Source") {
-
-        }
-    }
+    private class TestCommand() : ValidationCommand("Source");
 
     [Fact]
     public void Validate_WithDefaultCommand_ReturnsSuccess() {

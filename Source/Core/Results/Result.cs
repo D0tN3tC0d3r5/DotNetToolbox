@@ -3,7 +3,7 @@
 public record Result : IResult {
     protected Result(IEnumerable<ValidationError>? errors = null) {
         Errors = errors is null
-            ? new()
+            ? []
             : DoesNotHaveNulls(errors).ToHashSet();
     }
 
@@ -21,9 +21,9 @@ public record Result : IResult {
 
     private static readonly Result _success = new();
     public static Result Success() => _success;
-    public static Result Invalid([StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static Result Invalid([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(string.Empty, message, args);
-    public static Result Invalid(string source, [StringSyntax(CompositeFormat)] string message, params object[] args)
+    public static Result Invalid(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
         => Invalid(new ValidationError(source, message, args));
     public static Result Invalid(Result result)
         => new(result.Errors);
