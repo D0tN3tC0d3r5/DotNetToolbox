@@ -25,10 +25,10 @@ internal class HttpClientOptionsBuilder : IHttpClientOptionsBuilder {
     public IHttpClientOptionsBuilder AddCustomHeader(string key, string value) {
         if (_options.CustomHeaders.TryGetValue(key, out var values)) {
             if (values.Contains(value)) return this;
-            _options.CustomHeaders[key] = values.Append(value).ToArray();
+            _options.CustomHeaders[key] = [.. values, value];
             return this;
         }
-        _options.CustomHeaders[key] = new[] { value, };
+        _options.CustomHeaders[key] = [value,];
         return this;
     }
 
@@ -49,7 +49,7 @@ internal class HttpClientOptionsBuilder : IHttpClientOptionsBuilder {
         return _options;
     }
 
-    private IHttpClientOptionsBuilder SetAuthentication<T>(Action<T> configAuthentication)
+    private HttpClientOptionsBuilder SetAuthentication<T>(Action<T> configAuthentication)
         where T : AuthenticationOptions, new() {
         _options.Authentication = _configuration.Authentication ?? new T();
         configAuthentication((T)_options.Authentication);

@@ -17,8 +17,4 @@ public abstract class RootCommand<TCommand> : CommandBase<TCommand>, IRootComman
     }
 }
 
-public sealed class RootCommand : RootCommand<RootCommand> {
-    public RootCommand(OutputWriter? writer = null)
-        : base(writer) {
-    }
-}
+public sealed class RootCommand(OutputWriter? writer = null) : RootCommand<RootCommand>(writer);

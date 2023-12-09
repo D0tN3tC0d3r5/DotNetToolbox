@@ -4,12 +4,12 @@ public class PageTests {
     [Fact]
     public void Constructor_WithParams_Passes() {
         var subject = new Page<int>(totalCount: 12,
-                                    items: new[] { 1, 2, 3, 4, 5, },
+                                    items: [ 1, 2, 3, 4, 5, ],
                                     offset: 1,
                                     size: 5);
 
         subject.TotalCount.Should().Be(12);
-        subject.Items.Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, });
+        subject.Items.Should().BeEquivalentTo([ 1, 2, 3, 4, 5, ]);
         subject.Offset.Should().Be(1);
         subject.Size.Should().Be(5);
     }
@@ -17,12 +17,12 @@ public class PageTests {
     [Fact]
     public void ObjectInitializer_Passes() {
         var subject = new Page<int>() {
-            Items = new[] { 1, 2, 3, 4, },
+            Items = [ 1, 2, 3, 4, ],
             Offset = 5,
             TotalCount = 100,
         };
 
-        subject.Items.Should().BeEquivalentTo(new[] { 1, 2, 3, 4, });
+        subject.Items.Should().BeEquivalentTo([ 1, 2, 3, 4, ]);
         subject.Offset.Should().Be(5);
         subject.TotalCount.Should().Be(100);
         subject.Size.Should().Be(DefaultBlockSize);

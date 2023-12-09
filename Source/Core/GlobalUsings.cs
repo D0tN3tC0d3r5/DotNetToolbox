@@ -18,4 +18,5 @@ global using Microsoft.Extensions.DependencyInjection;
 global using static DotNetToolbox.Constants.Messages;
 global using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
 global using static System.Diagnostics.CodeAnalysis.StringSyntaxAttribute;
+
 global using static DotNetToolbox.Ensure;

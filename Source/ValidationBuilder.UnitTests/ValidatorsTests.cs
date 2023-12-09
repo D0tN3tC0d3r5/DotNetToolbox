@@ -1,11 +1,7 @@
 namespace DotNetToolbox.ValidationBuilder;
 
 public class ValidatorsTests {
-    public class TestObject : Validator<long> {
-        public TestObject(long subject, string source, ValidatorMode mode = ValidatorMode.And)
-            : base(subject, source, mode) {
-        }
-    }
+    public class TestObject(long subject, string source, ValidatorMode mode = ValidatorMode.And) : Validator<long>(subject, source, mode);
 
     [Fact]
     public void Constructor_CreatesBuilder() {

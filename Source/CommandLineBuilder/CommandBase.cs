@@ -1,10 +1,6 @@
 ﻿namespace DotNetToolbox.CommandLineBuilder;
 
-public abstract class CommandBase : Token, IAsyncDisposable {
-    protected CommandBase(TokenType type, string name, string? description = null)
-        : base(type, name, description) {
-    }
-
+public abstract class CommandBase(TokenType type, string name, string? description = null) : Token(type, name, description), IAsyncDisposable {
     protected virtual ValueTask DisposeAsyncCore()
         => ValueTask.CompletedTask;
 
@@ -137,13 +133,9 @@ public abstract class CommandBase : Token, IAsyncDisposable {
     }
 }
 
-public abstract class CommandBase<TCommand> : CommandBase
+public abstract class CommandBase<TCommand>(TokenType type, string name, string? description = null) : CommandBase(type, name, description)
     where TCommand : CommandBase<TCommand> {
     private static Task DefaultAsyncAction(TCommand c) => Task.Run(() => c.Writer.WriteHelp(c));
-
-    protected CommandBase(TokenType type, string name, string? description = null)
-        : base(type, name, description) {
-    }
 
     protected override ValueTask DisposeAsyncCore() {
         OnExecute = null;

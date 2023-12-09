@@ -42,7 +42,7 @@ public class Sha512HasherTests {
         // Arrange
         var secret = new byte[] { 1, 2, 3, };
         var salt = new byte[] { 4, 5, 6, };
-        var hash = new Hash(new byte[] { 7, 8, 9, }, salt);
+        var hash = new Hash([7, 8, 9,], salt);
 
         // Act
         var result = _sut.Validate(hash, secret);

@@ -170,7 +170,7 @@ public class CommandExecutionTests {
 
         _writer.Output.Should().Be("""
 
-                                        DotNetToolbox.CommandLineBuilder 7.0.3
+                                        DotNetToolbox.CommandLineBuilder 8.0.1
 
                                         This package provides tools for creating a simple CLI (Command-Line Interface) console application.
 
@@ -212,7 +212,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("--version");
 
-        _writer.Output.Should().Be("DotNetToolbox.CommandLineBuilder\n7.0.3\n");
+        _writer.Output.Should().Be("DotNetToolbox.CommandLineBuilder\n8.0.1\n");
     }
 
     [Fact]

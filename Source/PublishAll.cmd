@@ -3,13 +3,13 @@
 if [%1]==[] goto USAGE
 set target=%1
 
-call Publish %target% Core 7.0.1
-call Publish %target% Azure 7.0.1
-call Publish %target% Http 7.0.1
-call Publish %target% Security 7.0.1
-call Publish %target% ValidationBuilder 7.0.1
-call Publish %target% CommandLineBuilder 7.0.3
-call Publish %target% TestUtilities 7.0.1
+call Publish %target% Core 8.0.1
+call Publish %target% Azure 8.0.1
+call Publish %target% Http 8.0.1
+call Publish %target% Security 8.0.1
+call Publish %target% ValidationBuilder 8.0.1
+call Publish %target% CommandLineBuilder 8.0.1
+call Publish %target% TestUtilities 8.0.1
 goto :eof
 
 :USAGE

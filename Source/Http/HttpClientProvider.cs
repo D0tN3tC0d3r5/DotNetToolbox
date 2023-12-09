@@ -1,18 +1,13 @@
 ﻿namespace DotNetToolbox.Http;
 
-public class HttpClientProvider : IHttpClientProvider {
-    private readonly IHttpClientFactory _clientFactory;
-    private readonly HttpClientConfiguration _config;
-    private readonly IMsalHttpClientFactory _identityClientFactory;
+public class HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpClientConfiguration> options, IMsalHttpClientFactory identityClientFactory)
+    : IHttpClientProvider {
+    private readonly HttpClientConfiguration _config = IsNotNull(options).Value;
+    private readonly IMsalHttpClientFactory _identityClientFactory = IsNotNull(identityClientFactory);
 
     private static HttpAuthentication _authentication = new();
     private static readonly object _lock = new();
 
-    public HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpClientConfiguration> options, IMsalHttpClientFactory identityClientFactory) {
-        _clientFactory = clientFactory;
-        _config = IsNotNull(options).Value;
-        _identityClientFactory = IsNotNull(identityClientFactory);
-    }
     public static void RevokeAuthorization() {
         lock (_lock) _authentication = new();
     }
@@ -26,20 +21,8 @@ public class HttpClientProvider : IHttpClientProvider {
         var options = builder.Build();
         options.Validate().EnsureIsValid();
 
-        var client = _clientFactory.CreateClient();
+        var client = clientFactory.CreateClient();
         lock (_lock) options.Configure(client, ref _authentication);
         return client;
     }
-
-    //[ExcludeFromCodeCoverage]
-    //private Task<AuthenticationResult> AuthenticateWithAuthorizationCodeAsync(string authorizationCode)
-    //    => CreateApplication()
-    //    .AcquireTokenByAuthorizationCode(_config.Authentication.Scopes, authorizationCode)
-    //    .ExecuteAsync(CancellationToken.None);
-
-    //[ExcludeFromCodeCoverage]
-    //private Task<AuthenticationResult> AuthenticateAccountAsync(IAccount account)
-    //    => CreateApplication()
-    //    .AcquireTokenSilent(_config.Authentication.Scopes, account)
-    //    .ExecuteAsync(CancellationToken.None);
 }

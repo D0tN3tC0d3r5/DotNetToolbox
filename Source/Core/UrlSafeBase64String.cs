@@ -2,11 +2,11 @@
 
 public readonly partial record struct UrlSafeBase64String {
     public UrlSafeBase64String() {
-        Bytes = Array.Empty<byte>();
+        Bytes = [];
     }
 
     public UrlSafeBase64String(byte[]? input = null) {
-        Bytes = input ?? Array.Empty<byte>();
+        Bytes = input ?? [];
     }
 
     public UrlSafeBase64String(Guid input) {

@@ -5,7 +5,7 @@ public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
     public string? ClientId { get; set; }
     public string? ClientSecret { get; set; }
     public string? Authority { get; set; }
-    public string[] Scopes { get; set; } = Array.Empty<string>();
+    public string[] Scopes { get; set; } = [];
     public Guid CorrelationId { get; private set; }
 
     internal IMsalHttpClientFactory? HttpClientFactory { get; set; }

@@ -11,8 +11,4 @@ public abstract class Command<TCommand> : CommandBase<TCommand>, ICommand
     }
 }
 
-public sealed class Command : Command<Command> {
-    public Command(string name, string? description = null)
-        : base(name, description) {
-    }
-}
+public sealed class Command(string name, string? description = null) : Command<Command>(name, description);

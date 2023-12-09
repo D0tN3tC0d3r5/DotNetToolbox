@@ -17,7 +17,7 @@ public sealed class CommandBuilder<TCommand>
 
     private Func<TCommand, string[], CancellationToken, Task>? _onExecute;
 
-    private readonly ICollection<Func<CommandBase, CommandBase>> _steps = new List<Func<CommandBase, CommandBase>>();
+    private readonly List<Func<CommandBase, CommandBase>> _steps = [];
 
     internal CommandBuilder(OutputWriter? writer = null) {
         _isRoot = true;

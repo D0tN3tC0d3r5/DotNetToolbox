@@ -39,7 +39,7 @@ public sealed class ValidationCommandFactory {
         #pragma warning restore IDE0046 // Convert to conditional expression
     }
 
-    private IValidationCommand CreateValidatableCommand(string command)
+    private IsValidCommand CreateValidatableCommand(string command)
         => command switch {
             System.Constants.Commands.IsValid => new IsValidCommand(_source),
             _ => throw new InvalidOperationException($"Unsupported command '{command}' for {_subjectType.Name}."),
@@ -82,7 +82,7 @@ public sealed class ValidationCommandFactory {
 
         int GetLengthValue() => GetArgumentValue<int>(command, arguments, 0);
         string GetCandidateValue() => GetArgumentValue<string>(command, arguments, 0);
-        string?[] GetListValue() => GetArgumentValues<string>(command, arguments).ToArray();
+        string?[] GetListValue() => [.. GetArgumentValues<string>(command, arguments)];
         IPasswordPolicy GetPolicy() => GetArgumentValue<IPasswordPolicy>(command, arguments, 0);
     }
 

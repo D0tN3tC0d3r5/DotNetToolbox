@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>DotNetToolbox.Azure</RootNamespace>
     <PackageId>DotNetToolbox.Azure</PackageId>
     <Title>DotNetToolbox Azure Library</Title>
-    <Version>7.0.1</Version>
+    <Version>8.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Azure;Library;KeyVault;Secrets</PackageTags>
@@ -19,8 +19,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v7.0.1:
-      - Based on .Net 7.0
+      v8.0.1:
+      - Based on .Net 8.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Azure</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
@@ -55,7 +55,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.10.4" />
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.5.0" />
-    <PackageReference Include="DotNetToolbox.Core" Version="7.0.1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>

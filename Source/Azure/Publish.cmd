@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% Azure 7.0.1
+call Publish %target% Azure 8.0.1
 cd Azure
 goto :eof
 
