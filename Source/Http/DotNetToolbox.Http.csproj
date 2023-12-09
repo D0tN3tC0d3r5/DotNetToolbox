@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>DotNetToolbox.Http</RootNamespace>
+    <PackageId>DotNetToolbox.Http</PackageId>
+    <Title>DotNetToolbox Http Library</Title>
+    <Version>7.0.1</Version>
+    <Authors>Andre Vianna</Authors>
+    <Company>D0tN3tC0d3r5</Company>
+    <PackageTags>DotNet;Toolbox;Http;Library</PackageTags>
+    <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
+    <Description>DotNetToolbox.Http: A comprehensive utility library for handling http connections and more.</Description>
+    <Copyright>© Andre Vianna 2023</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>
+      v7.0.1:
+      - Based on .Net 7.0
+    </PackageReleaseNotes>
+    <Product>DotNetToolbox.Http</Product>
+    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="pkgs\**" />
+    <EmbeddedResource Remove="pkgs\**" />
+    <None Remove="pkgs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetToolbox.Core" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.57.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+</Project>
