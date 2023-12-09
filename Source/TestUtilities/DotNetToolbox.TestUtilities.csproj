@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>DotNetToolbox.TestUtilities</RootNamespace>
+    <PackageId>DotNetToolbox.TestUtilities</PackageId>
+    <Title>DotNetToolbox TestUtilities Library</Title>
+    <Version>7.0.1</Version>
+    <Authors>Andre Vianna</Authors>
+    <Company>D0tN3tC0d3r5</Company>
+    <PackageTags>DotNet;Toolbox;TestUtilities;Logging;NSubstitute;FluentAssertions</PackageTags>
+    <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
+    <Description>DotNetToolbox.TestUtilities: A comprehensive utility library for helping with unit tests, and more.</Description>
+    <Copyright>© Andre Vianna 2023</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>
+      v7.0.1:
+      - Based on .Net 7.0
+    </PackageReleaseNotes>
+    <Product>DotNetToolbox.TestUtilities</Product>
+    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="pkgs\**" />
+    <EmbeddedResource Remove="pkgs\**" />
+    <None Remove="pkgs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+    <PackageReference Include="NSubstitute" Version="5.1.0" />
+  </ItemGroup>
+
+</Project>
