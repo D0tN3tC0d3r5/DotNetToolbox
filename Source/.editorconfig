@@ -110,7 +110,7 @@ csharp_style_prefer_readonly_struct_member = true:suggestion
 csharp_prefer_simple_using_statement = true:suggestion
 csharp_style_namespace_declarations = file_scoped:suggestion
 csharp_style_prefer_method_group_conversion = true:suggestion
-csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_prefer_primary_constructors = true:hint
 csharp_style_prefer_top_level_statements = true:suggestion
 
 # Expression-level preferences
@@ -726,7 +726,7 @@ resharper_support_vs_event_naming_pattern = true
 resharper_toplevel_function_declaration_return_type_style = do_not_change
 resharper_toplevel_function_definition_return_type_style = do_not_change
 resharper_trailing_comma_in_multiline_lists = true
-resharper_trailing_comma_in_singleline_lists = true
+resharper_trailing_comma_in_singleline_lists = false
 resharper_use_continuous_indent_inside_initializer_braces = true
 resharper_use_continuous_indent_inside_parens = true
 resharper_use_continuous_line_indent_in_expression_braces = false
@@ -1325,7 +1325,7 @@ resharper_convert_to_constant_local_highlighting = hint
 resharper_convert_to_lambda_expression_highlighting = suggestion
 resharper_convert_to_local_function_highlighting = suggestion
 resharper_convert_to_null_coalescing_compound_assignment_highlighting = suggestion
-resharper_convert_to_primary_constructor_highlighting = suggestion
+resharper_convert_to_primary_constructor_highlighting = hint
 resharper_convert_to_static_class_highlighting = suggestion
 resharper_convert_to_using_declaration_highlighting = suggestion
 resharper_convert_to_vb_auto_property_highlighting = suggestion
@@ -3812,3 +3812,9 @@ dotnet_style_qualification_for_field = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_event = false:suggestion
+
+[*.{cs,vb}]
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+tab_width = 4
+indent_size = 4
+end_of_line = crlf

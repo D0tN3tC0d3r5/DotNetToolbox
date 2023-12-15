@@ -11,7 +11,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("-v", "2", "--no-color");
 
-        _writer.Output.Should().Be("An error occurred while executing command 'test'.\n");
+        _writer.Output.Should().StartWith("An error occurred while executing command 'testhost'.\n");
     }
 
     [Fact]
@@ -22,7 +22,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("-v", "2");
 
-        _writer.Output.Should().Be("An error occurred while executing command 'test'.\n");
+        _writer.Output.Should().StartWith("An error occurred while executing command 'testhost'.\n");
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class CommandExecutionTests {
 
         await subject.Execute("-v", "1");
 
-        _writer.Output.Should().Contain("An error occurred while executing command 'test'.\nSystem.Exception: Some exception.\n");
+        _writer.Output.Should().Contain("An error occurred while executing command 'testhost'.\nSystem.Exception: Some exception.");
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public class CommandExecutionTests {
 
         await subject.Execute();
 
-        _writer.Output.Should().Be("An error occurred while executing command 'test'.\n");
+        _writer.Output.Should().StartWith("An error occurred while executing command 'testhost'.\n");
     }
 
     [Fact]
@@ -159,7 +159,8 @@ public class CommandExecutionTests {
 
         await subject.Execute("--option", "abc");
 
-        _writer.Output.Should().Be("An error occurred while reading option 'option'.\nAn error occurred while executing command 'test'.\n");
+        _writer.Output.Should().Contain("An error occurred while reading option 'option'.\n");
+        _writer.Output.Should().Contain("An error occurred while executing command 'testhost'.\n");
     }
 
     [Fact]
@@ -174,7 +175,7 @@ public class CommandExecutionTests {
 
                                         This package provides tools for creating a simple CLI (Command-Line Interface) console application.
 
-                                        Usage: test [options]
+                                        Usage: testhost [options]
 
                                         Options:
                                           -h, --help                    Show this help information and exit.
@@ -197,7 +198,7 @@ public class CommandExecutionTests {
 
         _writer.Output.Should().Be("""
 
-                                        Usage: test sub-Command
+                                        Usage: testhost sub-Command
 
                                         Options:
                                           -h, --help                    Show this help information and exit.

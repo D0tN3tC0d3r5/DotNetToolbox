@@ -103,7 +103,7 @@ public class CommandGetDataTests {
 
         var action = () => _testCommand.GetValue<string>("option");
 
-        action.Should().Throw<ArgumentException>().WithMessage("Option 'option' not set. (Parameter 'nameOrAlias')");
+        action.Should().Throw<ArgumentException>().WithMessage("Required option 'option' not set. (Parameter 'nameOrAlias')");
     }
 
     [Fact]
@@ -172,7 +172,7 @@ public class CommandGetDataTests {
 
         var action = () => _testCommand.GetValue<string>("option");
 
-        action.Should().Throw<ArgumentException>().WithMessage("Option 'option' not set. (Parameter 'nameOrAlias')");
+        action.Should().Throw<ArgumentException>().WithMessage("Required option 'option' not set. (Parameter 'nameOrAlias')");
     }
 
     [Fact]
@@ -182,7 +182,7 @@ public class CommandGetDataTests {
 
         var action = () => _testCommand.GetValue<string>("option");
 
-        action.Should().Throw<ArgumentException>().WithMessage("Parameter 'option' not set. (Parameter 'nameOrAlias')");
+        action.Should().Throw<ArgumentException>().WithMessage("Required parameter 'option' not set. (Parameter 'nameOrAlias')");
     }
 
     [Fact]
@@ -269,7 +269,7 @@ public class CommandGetDataTests {
 
         var action = () => _testCommand.GetValue<string>(0);
 
-        action.Should().Throw<ArgumentException>().WithMessage("Parameter '0' not set. (Parameter 'index')");
+        action.Should().Throw<ArgumentException>().WithMessage("Required parameter '0' not set. (Parameter 'index')");
     }
 
     [Fact]
