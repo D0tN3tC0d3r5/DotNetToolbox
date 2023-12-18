@@ -1,114 +1,168 @@
-﻿using Member = (object? Name, System.Type? Type, object? Value);
-
-namespace DotNetToolbox;
+﻿namespace DotNetToolbox;
 
 internal record DumpBuilder {
-    private readonly object? _name;
-    private readonly object? _value;
-    private readonly Type? _type;
+    private readonly Member _member;
     private readonly DumpBuilderOptions _options;
-    private readonly StringBuilder _builder;
     private readonly HashSet<object> _ancestors;
 
     private readonly byte _level;
 
-    private DumpBuilder(byte level, object? name, Type? type, object? value, DumpBuilderOptions options, HashSet<object>? ancestors = null) {
-        _value = value;
-        _type = type;
+    public bool Success { get; private set; }
+    public bool SkipMember { get; private set; }
+    public StringBuilder Builder { get; }
+
+    private DumpBuilder(byte level, Member member, DumpBuilderOptions options, HashSet<object>? ancestors = null) {
+        _member = member;
         _options = options;
         _level = level;
-        _name = name;
-        _builder = new();
+        Builder = new();
         _ancestors = ancestors ?? [];
-        if (value is not null) _ancestors.Add(value);
+        if (_member.Value is not null) _ancestors.Add(_member.Value);
     }
 
     public static string Build(object? value, DumpBuilderOptions options) {
-        var dumper = new DumpBuilder(0, null, value?.GetType(), value, options);
+        var member = new Member(null, value?.GetType(), value);
+        var dumper = new DumpBuilder(0, member, options);
         dumper.AddType();
-        dumper.AddFormattedValue();
+        dumper.AddFormattedValue(value);
         return dumper.Build();
     }
 
-    public string Build() => _builder.ToString();
+    public string Build() => Builder.ToString();
 
     private void AddType() {
-        if (_options.Layout == Layout.Json || _type is null) return;
-        _builder.Append('<');
-        _builder.Append(GetTypeName(_type));
-        _builder.Append('>');
+        if (_options.Layout == Layout.Json || _member.Type is null) return;
+        Builder.Append('<');
+        Builder.Append(_member.Type.IsSubclassOf(typeof(Attribute))
+                           ? nameof(Attribute)
+                           : GetDescription(_member.Type));
+        Builder.Append('>');
         AddSpacer();
     }
 
-    public string GetTypeName(Type type) {
-        var typeName = _options.ShowTypeFullName ? type.FullName! : type.Name;
-        if (!type.IsGenericType) return typeName;
-        var genericArguments = type.GetGenericArguments();
-        var genericTypeName = typeName[..typeName.IndexOf('`')];
-        var genericArgumentsNames = string.Join(", ", genericArguments.Select(GetTypeName));
-        return $"{genericTypeName}<{genericArgumentsNames}>";
-    }
-
-    private void AddFormattedValue() => AddFormattedValue(_value);
-
     private void AddFormattedValue(object? value) {
-        if (TryUseCustomFormatter(value)) return;
-        if (TryUseDefaultFormatter(value)) return;
-        AddFormattedComplexType(value);
+        Success = false;
+        SkipMember = false;
+        TryUseCustomFormatter(value);
+        if (Success || SkipMember) return;
+        TryUseDefaultFormatter(value);
+        if (Success || SkipMember) return;
+        TryFormatComplexType(value);
     }
 
-    private bool TryUseCustomFormatter(object? value) {
+    private void TryUseCustomFormatter(object? value) {
         var formattedValue = value is not null
-            && _options.CustomFormatters.TryGetValue(value.GetType(), out var formatter)
-                   ? formatter(value)
-                   : null;
-        if (formattedValue is null) return false;
+                          && _options.CustomFormatters.TryGetValue(value.GetType(), out var formatter)
+                                 ? formatter(value)
+                                 : null;
+        if (formattedValue is null) return;
 
-        _builder.Append(formattedValue);
-        return true;
+        Builder.Append(formattedValue);
+        Success = true;
     }
 
-    private bool TryUseDefaultFormatter([NotNullWhen(false)] object? value) {
+    private void TryUseDefaultFormatter([NotNullWhen(false)] object? value) {
         var formattedValue = value switch {
             null => "null",
+            RuntimeTypeHandle => HideMember(),
             bool => $"{value}".ToLower(),
+            nint => $"{value}",
+            nuint => $"{value}",
             char => $"'{value}'",
             string => $"\"{value}\"",
+            Guid v => $"{v:d}",
+            TimeSpan v => $"{v:g}",
             IConvertible v => v.ToString(_options.Culture),
+            DateTimeOffset v => v.ToString(_options.Culture),
+            DateOnly v => v.ToString(_options.Culture),
+            TimeOnly v => v.ToString(_options.Culture),
+            Assembly a when _level > 0 => GetDescription(a),
+            Module m when _level > 0 => GetDescription(m),
+            MemberInfo m when _level > 0 => GetDescription(m),
+            Attribute m when _level > 0 => GetDescription(m),
+            CustomAttributeData m when _level > 0 => GetDescription(m),
             _ => null,
         };
-        if (formattedValue is null) return false;
 
-        _builder.Append(formattedValue);
-        return true;
+        if (formattedValue is null) return;
+        Builder.Append(formattedValue);
+        Success = true;
     }
 
-    private void AddFormattedComplexType(object? value) {
+    public string GetDescription(Type type) {
+        var typeName = (_options.ShowFullNames ? type.FullName! : null) ?? type.Name;
+        var genericStart = typeName.IndexOf('`');
+        if (genericStart < 0) return typeName;
+        var genericArguments = type.GetGenericArguments();
+        var genericArgumentsNames = string.Join(", ", genericArguments.Select(GetDescription));
+        var declaringType = type.DeclaringType is null ? string.Empty : $"{GetDescription(type.DeclaringType!)}+";
+        return $"{declaringType}{typeName[..typeName.IndexOf('`')]}<{genericArgumentsNames}>";
+    }
+
+    public string GetDescription(Assembly assembly)
+        => (_options.ShowFullNames ? null : assembly.GetName().Name) ?? assembly.GetName().FullName;
+
+    public string GetDescription(Module module)
+        => _options.ShowFullNames ? module.FullyQualifiedName : module.Name;
+
+    public string? GetDescription(MemberInfo member) {
+        Success = false;
+        var formattedValue = member switch {
+                 FieldInfo { IsPublic: false } or
+                 MethodBase { IsPublic: false } or
+                 Type { IsPublic: false } => HideMember(),
+            Type t => GetDescription(t),
+            ConstructorInfo m => $"{m.Name}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
+            MethodInfo m => $"{GetDescription(m.ReturnType)} {GetDescription(m)}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
+            EventInfo e => $"{GetDescription(e.EventHandlerType!)} {e.Name}",
+            PropertyInfo p => $"{GetDescription(p.PropertyType)} {p.Name}",
+            FieldInfo f => $"{GetDescription(f.FieldType)} {f.Name}",
+            _ => $"<{member.MemberType}> {member.Name}",
+        };
+
+        Success = formattedValue is not null;
+        return formattedValue;
+    }
+
+    public string? GetDescription(MethodInfo method) {
+        var methodName = method.Name;
+        var genericStart = methodName.IndexOf('`');
+        if (genericStart < 0) return methodName;
+        var genericArguments = method.GetGenericArguments();
+        var genericArgumentsNames = string.Join(", ", genericArguments.Select(GetDescription));
+        return $"{methodName[..genericStart]}<{genericArgumentsNames}>";
+
+    }
+
+    public string GetDescription(CustomAttributeData data)
+        => GetDescription(data.AttributeType);
+
+    public string? GetDescription(Attribute attribute)
+        => GetDescription(attribute.GetType());
+
+    private string? HideMember() {
+        SkipMember = true;
+        return null;
+    }
+
+    private void TryFormatComplexType(object? value) {
         if (MaxLevelReached()) return;
 
         StartBlock();
-        var enumerator = GetEnumerator(value);
+        var enumerator = value.GetEnumerator()!;
         try {
-            AddMembers(value, enumerator: enumerator);
+            AddMembers(value, enumerator);
         }
         finally {
             (enumerator as IDisposable)?.Dispose();
         }
-        AddNewLine();
         EndBlock();
+        Success = true;
     }
-
-    [MustDisposeResource]
-    private IEnumerator GetEnumerator(object? value) => value is IEnumerable list
-                                                            ? list.GetEnumerator()
-                                                            : GetProperties(_value!.GetType()).GetEnumerator();
-
-    private static PropertyInfo[] GetProperties(IReflect type)
-        => type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static).ToArray();
 
     private bool MaxLevelReached() {
         if (_options.MaxLevel == 0 || _level < _options.MaxLevel - 1) return false;
-        _builder.Append("...");
+        Builder.Append("...");
         return true;
 
     }
@@ -128,22 +182,20 @@ internal record DumpBuilder {
             : TryGetProperty(enumerator, out member);
         var memberAdded = memberFound && TryAddValue(member);
         var hasNext = enumerator.MoveNext();
-        if (!hasNext || !memberAdded) return hasNext;
-
-        _builder.Append(',');
-        AddNewLine();
-        return true;
+        if (hasNext && memberAdded) Builder.Append(',');
+        if (memberAdded) AddNewLine();
+        return hasNext;
     }
 
     private bool TryGetElement(IEnumerator enumerator, int count, out Member member) {
-        member = new(0, null, null);
+        member = Member.Default;
         try {
             if (enumerator is IDictionaryEnumerator dict) {
                 member = new(dict.Key, null, dict.Value);
                 return true;
             }
 
-            var index = _options.ShowListIndexes ? count : (int?)null;
+            var index = _options.ShowItemIndex ? count : (int?)null;
             var item = enumerator.Current;
             if (item is not null && _ancestors.Any(a => ReferenceEquals(a, item))) return false;
             member = new(index, null, item);
@@ -156,19 +208,19 @@ internal record DumpBuilder {
 
 
     private bool TryGetProperty(IEnumerator enumerator, out Member member) {
-        member = new(0, null, null);
+        member = Member.Default;
         var prop = (PropertyInfo)enumerator.Current!;
         try {
-            member = new(prop.Name, prop.PropertyType, prop.GetValue(_value));
+            member = new(prop.Name, prop.PropertyType, prop.GetValue(_member.Value));
             return true;
         }
-        catch (Exception ex) {
+        catch {
             return false;
         }
     }
 
     private void StartBlock() {
-        _builder.Append(_value is IEnumerable ? '[' : '{');
+        Builder.Append(_member.IsEnumerable ? '[' : '{');
         AddNewLine();
     }
 
@@ -176,40 +228,41 @@ internal record DumpBuilder {
         if (_level >= _options.MaxLevel) return false;
         if (member.Value is not null && _ancestors.Any(a => ReferenceEquals(a, member.Value))) return false;
 
-        var valueDumper = new DumpBuilder((byte)(_level + 1), member.Name, member.Type, member.Value, _options, _ancestors);
+        var valueDumper = new DumpBuilder((byte)(_level + 1), member, _options, _ancestors);
         valueDumper.AddIndentation();
         valueDumper.AddFormattedName();
         valueDumper.AddType();
-        valueDumper.AddFormattedValue();
-        _builder.Append(valueDumper._builder);
-        return true;
+        valueDumper.AddFormattedValue(member.Value);
+        if (valueDumper.SkipMember) return false;
+        if (valueDumper.Success) Builder.Append(valueDumper.Builder);
+        return valueDumper.Success;
     }
 
     private void AddFormattedName() {
-        if (_name is null) return;
-        AddFormattedValue(_name);
-        _builder.Append(':');
+        if (_member.Name is null) return;
+        AddFormattedValue(_member.Name);
+        Builder.Append(':');
         AddSpacer();
     }
 
     private void AddSpacer() {
         if (!_options.Indented) return;
-        _builder.Append(' ');
+        Builder.Append(' ');
     }
 
     private void EndBlock() {
         AddIndentation();
-        _builder.Append(_value is IEnumerable ? ']' : '}');
+        Builder.Append(_member.IsEnumerable ? ']' : '}');
     }
 
     private void AddIndentation() {
         if (!_options.Indented) return;
-        if (_options.UseTabs) _builder.Append('\t', _level);
-        else _builder.Append(' ', _level * _options.IndentSize);
+        if (_options.UseTabs) Builder.Append('\t', _level);
+        else Builder.Append(' ', _level * _options.IndentSize);
     }
 
     private void AddNewLine() {
         if (!_options.Indented) return;
-        _builder.Append(Environment.NewLine);
+        Builder.Append(Environment.NewLine);
     }
 }
