@@ -4,6 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 call Publish %target% Core 8.0.1
+call Publish %target% ObjectDumper 8.0.1
 call Publish %target% Azure 8.0.1
 call Publish %target% Http 8.0.1
 call Publish %target% Security 8.0.1
