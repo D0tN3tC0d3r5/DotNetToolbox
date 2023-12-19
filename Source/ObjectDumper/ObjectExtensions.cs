@@ -13,9 +13,10 @@ public static class ObjectExtensions {
         => value switch {
                null => null,
                IEnumerable list => list.GetEnumerator(),
-               _ => GetProperties(value.GetType()).GetEnumerator(),
+               _ => GetMembers(value.GetType()).GetEnumerator(),
            };
 
-    private static PropertyInfo[] GetProperties(IReflect type)
-        => type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static).ToArray();
+    private static readonly BindingFlags _allPublic = BindingFlags.Public | BindingFlags.Instance;
+    private static PropertyInfo[] GetMembers(IReflect type)
+        => type.GetProperties(_allPublic).ToArray();
 }

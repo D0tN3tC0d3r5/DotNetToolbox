@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox;
 
 public enum Layout {
-    TypedJson,
+    Typed,
     Json,
     Console,
 }

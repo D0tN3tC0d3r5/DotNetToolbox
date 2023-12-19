@@ -47,7 +47,7 @@ internal record DumpBuilder {
         if (Success || SkipMember) return;
         TryUseDefaultFormatter(value);
         if (Success || SkipMember) return;
-        TryFormatComplexType(value);
+        TryFormatComplexType(value!);
     }
 
     private void TryUseCustomFormatter(object? value) {
@@ -72,10 +72,10 @@ internal record DumpBuilder {
             string => $"\"{value}\"",
             Guid v => $"{v:d}",
             TimeSpan v => $"{v:g}",
-            IConvertible v => v.ToString(_options.Culture),
-            DateTimeOffset v => v.ToString(_options.Culture),
-            DateOnly v => v.ToString(_options.Culture),
-            TimeOnly v => v.ToString(_options.Culture),
+            IConvertible v => v.ToString(CultureInfo.CurrentCulture),
+            DateTimeOffset v => v.ToString(CultureInfo.CurrentCulture),
+            DateOnly v => v.ToString(CultureInfo.CurrentCulture),
+            TimeOnly v => v.ToString(CultureInfo.CurrentCulture),
             Assembly a when _level > 0 => GetDescription(a),
             Module m when _level > 0 => GetDescription(m),
             MemberInfo m when _level > 0 => GetDescription(m),
@@ -90,7 +90,7 @@ internal record DumpBuilder {
     }
 
     public string GetDescription(Type type) {
-        var typeName = (_options.ShowFullNames ? type.FullName! : null) ?? type.Name;
+        var typeName = (_options.UseFullNames ? type.FullName : null) ?? type.Name;
         var genericStart = typeName.IndexOf('`');
         if (genericStart < 0) return typeName;
         var genericArguments = type.GetGenericArguments();
@@ -100,23 +100,24 @@ internal record DumpBuilder {
     }
 
     public string GetDescription(Assembly assembly)
-        => (_options.ShowFullNames ? null : assembly.GetName().Name) ?? assembly.GetName().FullName;
+        => (_options.UseFullNames ? null : assembly.GetName().Name) ?? assembly.GetName().FullName;
 
     public string GetDescription(Module module)
-        => _options.ShowFullNames ? module.FullyQualifiedName : module.Name;
+        => _options.UseFullNames ? module.FullyQualifiedName : module.Name;
 
     public string? GetDescription(MemberInfo member) {
         Success = false;
         var formattedValue = member switch {
                  FieldInfo { IsPublic: false } or
                  MethodBase { IsPublic: false } or
+                 PropertyInfo { GetMethod: null or { IsPublic: false } } or
                  Type { IsPublic: false } => HideMember(),
             Type t => GetDescription(t),
-            ConstructorInfo m => $"{m.Name}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
-            MethodInfo m => $"{GetDescription(m.ReturnType)} {GetDescription(m)}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
-            EventInfo e => $"{GetDescription(e.EventHandlerType!)} {e.Name}",
-            PropertyInfo p => $"{GetDescription(p.PropertyType)} {p.Name}",
-            FieldInfo f => $"{GetDescription(f.FieldType)} {f.Name}",
+            ConstructorInfo m => $"<{member.MemberType}> {m.Name}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
+            MethodInfo m => $"<{member.MemberType}> {GetDescription(m.ReturnType)} {GetDescription(m)}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
+            EventInfo e => $"<{member.MemberType}> {GetDescription(e.EventHandlerType!)} {e.Name}",
+            PropertyInfo p => $"<{member.MemberType}> {GetDescription(p.PropertyType)} {p.Name}",
+            FieldInfo f => $"<{member.MemberType}> {GetDescription(f.FieldType)} {f.Name}",
             _ => $"<{member.MemberType}> {member.Name}",
         };
 
@@ -124,7 +125,7 @@ internal record DumpBuilder {
         return formattedValue;
     }
 
-    public string? GetDescription(MethodInfo method) {
+    public string GetDescription(MethodInfo method) {
         var methodName = method.Name;
         var genericStart = methodName.IndexOf('`');
         if (genericStart < 0) return methodName;
@@ -137,7 +138,7 @@ internal record DumpBuilder {
     public string GetDescription(CustomAttributeData data)
         => GetDescription(data.AttributeType);
 
-    public string? GetDescription(Attribute attribute)
+    public string GetDescription(Attribute attribute)
         => GetDescription(attribute.GetType());
 
     private string? HideMember() {
@@ -145,17 +146,11 @@ internal record DumpBuilder {
         return null;
     }
 
-    private void TryFormatComplexType(object? value) {
+    private void TryFormatComplexType(object value) {
         if (MaxLevelReached()) return;
 
         StartBlock();
-        var enumerator = value.GetEnumerator()!;
-        try {
-            AddMembers(value, enumerator);
-        }
-        finally {
-            (enumerator as IDisposable)?.Dispose();
-        }
+        AddMembers(value);
         EndBlock();
         Success = true;
     }
@@ -167,47 +162,54 @@ internal record DumpBuilder {
 
     }
 
-    private void AddMembers(object? value, IEnumerator enumerator) {
+    private void AddMembers(object value) {
         var counter = 0;
+        // ReSharper disable once NotDisposedResource = not disposable
+        var enumerator = value.GetEnumerator()!;
         var hasNext = enumerator.MoveNext();
         while (hasNext) {
-            hasNext = AddMember(counter, value, enumerator);
-            counter++;
+            hasNext = AddMember(ref counter, value, enumerator);
         }
     }
 
-    private bool AddMember(int counter, object? value, IEnumerator enumerator) {
+    private bool AddMember(ref int counter, object value, IEnumerator enumerator) {
         var memberFound = value is IEnumerable
             ? TryGetElement(enumerator, counter, out var member)
-            : TryGetProperty(enumerator, out member);
+            : TryGetMember(enumerator, out member);
         var memberAdded = memberFound && TryAddValue(member);
         var hasNext = enumerator.MoveNext();
-        if (hasNext && memberAdded) Builder.Append(',');
-        if (memberAdded) AddNewLine();
+        if (!memberAdded) return hasNext;
+        if (hasNext) Builder.Append(',');
+        AddNewLine();
+        counter++;
         return hasNext;
     }
 
     private bool TryGetElement(IEnumerator enumerator, int count, out Member member) {
-        member = Member.Default;
         try {
-            if (enumerator is IDictionaryEnumerator dict) {
-                member = new(dict.Key, null, dict.Value);
-                return true;
-            }
-
-            var index = _options.ShowItemIndex ? count : (int?)null;
-            var item = enumerator.Current;
-            if (item is not null && _ancestors.Any(a => ReferenceEquals(a, item))) return false;
-            member = new(index, null, item);
-            return true;
+            member = GetElement(enumerator, count) ?? Member.Default;
+            return member != Member.Default;
         }
         catch (Exception) {
+            member = Member.Default;
             return false;
         }
+
     }
 
+    private Member? GetElement(IEnumerator enumerator, int count) {
+        var element = enumerator.Current;
+        return HasCircularReference()
+                   ? null
+                   : enumerator is IDictionaryEnumerator keyValuePair
+                       ? new(keyValuePair.Key, null, keyValuePair.Value)
+                       : new(GetIndex(), null, element);
 
-    private bool TryGetProperty(IEnumerator enumerator, out Member member) {
+        bool HasCircularReference() => element is not null && _ancestors.Any(a => ReferenceEquals(a, element));
+        object? GetIndex() => _options.Layout == Layout.Typed ? count : null;
+    }
+
+    private bool TryGetMember(IEnumerator enumerator, out Member member) {
         member = Member.Default;
         var prop = (PropertyInfo)enumerator.Current!;
         try {
