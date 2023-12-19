@@ -1,6 +1,5 @@
 ﻿namespace DotNetToolbox;
 
-internal record Member(object? Name, Type? Type, object? Value) {
-    public static readonly Member Default = new(null, null, null);
+internal record struct Member(MemberKind Kind, object? Name, Type? Type, object? Value) {
     public bool IsEnumerable => Value is IEnumerable;
 }
