@@ -1,5 +1,3 @@
 ﻿namespace DotNetToolbox;
 
-internal record struct Member(MemberKind Kind, object? Name, Type? Type, object? Value) {
-    public bool IsEnumerable => Value is IEnumerable;
-}
+internal record struct Member(MemberKind Kind, object? Name, Type? Type, object? Value);

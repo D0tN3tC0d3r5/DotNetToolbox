@@ -71,14 +71,21 @@ internal sealed class DumpBuilder : IDisposable {
             bool => $"{value}".ToLower(),
             nint => $"{value}",
             nuint => $"{value}",
+            char when _options.Layout is Layout.Json => $"\"{value}\"",
             char => $"'{value}'",
             string => $"\"{value}\"",
+            Guid v when _options.Layout is Layout.Json => $"\"{v:d}\"",
             Guid v => $"{v:d}",
+            TimeSpan when _options.Layout is Layout.Json => $"\"{value}\"",
             TimeSpan v => $"{v:g}",
-            IConvertible v => v.ToString(CultureInfo.CurrentCulture),
+            DateTime when _options.Layout is Layout.Json => $"\"{value:s}\"",
+            DateTimeOffset when _options.Layout is Layout.Json => $"\"{value:s}{value:zzz}\"",
             DateTimeOffset v => v.ToString(CultureInfo.CurrentCulture),
+            DateOnly when _options.Layout is Layout.Json => $"\"{value:d}\"",
             DateOnly v => v.ToString(CultureInfo.CurrentCulture),
+            TimeOnly when _options.Layout is Layout.Json => $"\"{value:T}\"",
             TimeOnly v => v.ToString(CultureInfo.CurrentCulture),
+            IConvertible v => v.ToString(CultureInfo.CurrentCulture),
             Assembly a when _level > 0 => GetDescription(a),
             Module m when _level > 0 => GetDescription(m),
             MemberInfo m when _level > 0 => GetDescription(m),
@@ -172,6 +179,7 @@ internal sealed class DumpBuilder : IDisposable {
     private static readonly int _commaAndNewLineLength = Environment.NewLine.Length + 1;
     private void RemoveExtraComma()
     {
+        if (!_options.Indented) return;
         if (Builder[^_commaAndNewLineLength] != ',') return;
         Builder.Remove(Builder.Length - _commaAndNewLineLength, _commaAndNewLineLength);
         AddNewLine();
@@ -223,7 +231,8 @@ internal sealed class DumpBuilder : IDisposable {
     }
 
     private void StartBlock() {
-        Builder.Append(_member.IsEnumerable ? '[' : '{');
+        var useSquareBrackets = (_member.Value is IDictionary && _options.Layout is Layout.Typed) || (_member.Value is not IDictionary && _member.Value is IEnumerable);
+        Builder.Append(useSquareBrackets ? '[' : '{');
         AddNewLine();
     }
 
@@ -247,12 +256,18 @@ internal sealed class DumpBuilder : IDisposable {
         // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
         switch (_member.Kind) {
             case MemberKind.KeyValuePair:
-                Builder.Append('[');
+                if (_options.Layout != Layout.Json) Builder.Append('[');
                 AddFormattedValue(_member.Name);
-                Builder.Append("]:");
+                if (_options.Layout != Layout.Json) {
+                    Builder.Append(']');
+                    AddSpacer();
+                    Builder.Append('=');
+                    break;
+                }
+                Builder.Append(':');
                 break;
             case MemberKind.Element:
-                Builder.Append($"[{_member.Name}]:");
+                if (_options.Layout != Layout.Json) Builder.Append($"{_member.Name}:");
                 break;
             case MemberKind.Property:
                 Builder.Append($"\"{_member.Name}\":");
@@ -269,7 +284,8 @@ internal sealed class DumpBuilder : IDisposable {
 
     private void EndBlock() {
         AddIndentation();
-        Builder.Append(_member.IsEnumerable ? ']' : '}');
+        var useSquareBrackets = (_member.Value is IDictionary && _options.Layout is Layout.Typed) || (_member.Value is not IDictionary && _member.Value is IEnumerable);
+        Builder.Append(useSquareBrackets ? ']' : '}');
     }
 
     private void AddIndentation() {

@@ -1,4 +1,7 @@
-﻿namespace DotNetToolbox;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace DotNetToolbox;
 
 public class ObjectExtensionsTests {
     [Theory]
@@ -9,6 +12,25 @@ public class ObjectExtensionsTests {
 
         //Assert
         result.Should().Be(expectedText);
+    }
+
+
+    [Theory]
+    [ClassData(typeof(TestDataForJson))]
+    public void Dump_AsJson_ReturnsString(ICustomClassWithGenerics subject) {
+        // Arrange
+        var expected = JsonSerializer.Serialize(subject, new JsonSerializerOptions() {
+
+        });
+
+        //Act
+        var result = subject.Dump(opt => {
+            opt.Layout = Layout.Json;
+            opt.Indented = false;
+        });
+
+        // Assert
+        result.Should().Be(expected);
     }
 
     [Fact]
@@ -91,46 +113,67 @@ public class ObjectExtensionsTests {
         result.Should().Be(_customClassWithGenericsDump);
     }
 
-#region Test Data
+    #region Test Data
 
     private static readonly int[] _array = [1, 2, 3];
     private static readonly List<int> _list = [1, 2, 3];
     private static readonly List<List<int>> _listOfLists = [_list, _list, _list];
 
-    [SuppressMessage("CodeQuality", "IDE[0079]:Remove unnecessary suppression", Justification = "<Pending>")]
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private class TestClass(int intValue, string stringValue) {
         public int IntProperty { get; init; } = intValue;
         public string StringProperty { get; set; } = stringValue;
     }
 
-    [SuppressMessage("CodeQuality", "IDE[0079]:Remove unnecessary suppression", Justification = "<Pending>")]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<bool>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<char>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<Guid>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<DateTimeOffset>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<DateTime>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<DateOnly>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<TimeOnly>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<TimeSpan>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<List<int>>))]
+    [JsonDerivedType(typeof(CustomClassWithGenerics<Dictionary<string, TestClass>>))]
+    public interface ICustomClassWithGenerics;
+
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    private class CustomClassWithGenerics<T>(T? value) {
+    private class CustomClassWithGenerics<T>(T? value) : ICustomClassWithGenerics {
         public const string Name = "CustomClassWithGenerics";
+
+        // ReSharper disable once MemberCanBePrivate.Local
         public static readonly T Default = default!;
+
         public T Value { get; } = value ?? Default;
-        public static T ConvertTo<T>(object? obj)
-            => (T)Convert.ChangeType(obj, typeof(T))!;
+        public TValue ConvertTo<TValue>(object? obj) {
+            var result = (TValue)Convert.ChangeType(obj, typeof(TValue))!;
+            OnConverted?.Invoke(this, new() { Value = result });
+            return result;
+        }
+
         public delegate void OnConvertedHandler(object sender, ConvertedArgs e);
-        public event OnConvertedHandler OnConverted;
+        public event OnConvertedHandler? OnConverted;
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public class ConvertedArgs : EventArgs {
-            public T Value { get; set; }
+            public object? Value { get; set; }
         }
     }
 
-    [SuppressMessage("CodeQuality", "IDE[0079]:Remove unnecessary suppression", Justification = "<Pending>")]
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private class TestClassWithGeneric<T>(T value) {
         public T Property { get; set; } = value;
         public Func<T>? ConvertTo { get; set; }
     }
 
-    [SuppressMessage("CodeQuality", "IDE[0079]:Remove unnecessary suppression", Justification = "<Pending>")]
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local")]
     private record TestRecord(int IntProperty, string StringProperty);
 
-    [SuppressMessage("CodeQuality", "IDE[0079]:Remove unnecessary suppression", Justification = "<Pending>")]
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private struct TestStruct(int intValue, string stringValue) {
         public int IntProperty { get; set; } = intValue;
@@ -160,6 +203,25 @@ public class ObjectExtensionsTests {
             Add(new TimeOnly(23, 15, 52), "<TimeOnly> 23:15");
             Add(new TimeSpan(23, 15, 52), "<TimeSpan> 23:15:52");
             Add(Guid.Parse("b6d3aec4-daca-4dca-ada7-cda51623ed50"), "<Guid> b6d3aec4-daca-4dca-ada7-cda51623ed50");
+        }
+    }
+
+    private class TestDataForJson : TheoryData<ICustomClassWithGenerics> {
+        public TestDataForJson() {
+            //Add(new CustomClassWithGenerics<bool>(true));
+            //Add(new CustomClassWithGenerics<char>('A'));
+            //Add(new CustomClassWithGenerics<Guid>(Guid.NewGuid()));
+            //Add(new CustomClassWithGenerics<DateTimeOffset>(new(new DateTime(2001, 10, 12), TimeSpan.FromHours(-5))));
+            //Add(new CustomClassWithGenerics<DateTime>(new(2001, 10, 12)));
+            //Add(new CustomClassWithGenerics<DateOnly>(new(2001, 10, 12)));
+            //Add(new CustomClassWithGenerics<TimeOnly>(new(23, 15, 52)));
+            //Add(new CustomClassWithGenerics<TimeSpan>(new(23, 15, 52)));
+            //Add(new CustomClassWithGenerics<List<int>>([1, 2, 3]));
+            var dict = new Dictionary<string, TestClass> {
+                ["One"] = new(42, "Test"),
+                ["Two"] = new(7, "Other"),
+            };
+            Add(new CustomClassWithGenerics<Dictionary<string, TestClass>>(dict));
         }
     }
 
@@ -195,57 +257,56 @@ public class ObjectExtensionsTests {
         }
     }
 
-
     private const string _arrayOfInt32Dump =
         """
         <Int32[]> [
-            [0]: 1,
-            [1]: 2,
-            [2]: 3
+            0: 1,
+            1: 2,
+            2: 3
         ]
         """;
 
     private const string _listOfInt32Dump =
         """
         <List<Int32>> [
-            [0]: 1,
-            [1]: 2,
-            [2]: 3
+            0: 1,
+            1: 2,
+            2: 3
         ]
         """;
 
     private const string _dictionaryOfStringDoubleDump =
         """
         <Dictionary<String, Double>> [
-            ["A"]: 1.1,
-            ["B"]: 2.2,
-            ["C"]: 3.3
+            ["A"] = 1.1,
+            ["B"] = 2.2,
+            ["C"] = 3.3
         ]
         """;
 
     private const string _listOfListsDump =
         """
         <List<List<Int32>>> [
-            [0]: [
-                [0]: 1,
-                [1]: 2,
-                [2]: 3
+            0: [
+                0: 1,
+                1: 2,
+                2: 3
             ],
-            [1]: [
-                [0]: 1,
-                [1]: 2,
-                [2]: 3
+            1: [
+                0: 1,
+                1: 2,
+                2: 3
             ],
-            [2]: [
-                [0]: 1,
-                [1]: 2,
-                [2]: 3
+            2: [
+                0: 1,
+                1: 2,
+                2: 3
             ]
         ]
         """;
 
     private const string _listOfListsCompactDump =
-        "<List<List<Int32>>>[[0]:[[0]:1,[1]:2,[2]:3],[1]:[[0]:1,[1]:2,[2]:3],[2]:[[0]:1,[1]:2,[2]:3]]";
+        "<List<List<Int32>>>[0:[0:1,1:2,2:3],1:[0:1,1:2,2:3],2:[0:1,1:2,2:3]]";
 
     private const string _testClassDump =
         """
@@ -305,11 +366,11 @@ public class ObjectExtensionsTests {
     private const string _testDictionaryDump =
         """
         <Dictionary<String, TestStruct>> [
-            ["A"]: {
+            ["A"] = {
                 "IntProperty": <Int32> 42,
                 "StringProperty": <String> "Text"
             },
-            ["B"]: {
+            ["B"] = {
                 "IntProperty": <Int32> 7,
                 "StringProperty": <String> "Other"
             }
@@ -317,7 +378,7 @@ public class ObjectExtensionsTests {
         """;
 
     private const string _testDictionaryCompactDump =
-        """<Dictionary<String, TestStruct>>[["A"]:{"IntProperty":<Int32>42,"StringProperty":<String>"Text"},["B"]:{"IntProperty":<Int32>7,"StringProperty":<String>"Other"}]""";
+        """<Dictionary<String, TestStruct>>[["A"]={"IntProperty":<Int32>42,"StringProperty":<String>"Text"},["B"]={"IntProperty":<Int32>7,"StringProperty":<String>"Other"}]""";
 
     private const string _cultureInfoDump =
         """
@@ -383,43 +444,43 @@ public class ObjectExtensionsTests {
             "IsSecuritySafeCritical": <Boolean> false,
             "IsSecurityTransparent": <Boolean> false,
             "MemberType": <MemberTypes> NestedType,
-            "MetadataToken": <Int32> 33554438,
+            "MetadataToken": <Int32> 33554439,
             "Module": <Module> DotnetToolbox.ObjectDumper.UnitTests.dll,
             "ReflectedType": <Type> ObjectExtensionsTests,
             "GenericTypeParameters": <Type[]> [
-                [0]: T
+                0: T
             ],
             "DeclaredConstructors": <IEnumerable<ConstructorInfo>> [
-                [0]: <Constructor> .ctor(T value)
+                0: <Constructor> .ctor(T value)
             ],
             "DeclaredEvents": <IEnumerable<EventInfo>> [
-                [0]: <Event> OnConvertedHandler OnConverted
+                0: <Event> OnConvertedHandler OnConverted
             ],
             "DeclaredFields": <IEnumerable<FieldInfo>> [
-                [0]: <Field> T Default,
-                [1]: <Field> String Name
+                0: <Field> T Default,
+                1: <Field> String Name
             ],
             "DeclaredMembers": <IEnumerable<MemberInfo>> [
-                [0]: <Method> T get_Value(),
-                [1]: <Method> T ConvertTo(Object obj),
-                [2]: <Method> Void add_OnConverted(OnConvertedHandler value),
-                [3]: <Method> Void remove_OnConverted(OnConvertedHandler value),
-                [4]: <Constructor> .ctor(T value),
-                [5]: <Property> T Value,
-                [6]: <Event> OnConvertedHandler OnConverted,
-                [7]: <Field> T Default,
-                [8]: <Field> String Name
+                0: <Method> T get_Value(),
+                1: <Method> TValue ConvertTo(Object obj),
+                2: <Method> Void add_OnConverted(OnConvertedHandler value),
+                3: <Method> Void remove_OnConverted(OnConvertedHandler value),
+                4: <Constructor> .ctor(T value),
+                5: <Property> T Value,
+                6: <Event> OnConvertedHandler OnConverted,
+                7: <Field> T Default,
+                8: <Field> String Name
             ],
             "DeclaredMethods": <IEnumerable<MethodInfo>> [
-                [0]: <Method> T get_Value(),
-                [1]: <Method> T ConvertTo(Object obj),
-                [2]: <Method> Void add_OnConverted(OnConvertedHandler value),
-                [3]: <Method> Void remove_OnConverted(OnConvertedHandler value)
+                0: <Method> T get_Value(),
+                1: <Method> TValue ConvertTo(Object obj),
+                2: <Method> Void add_OnConverted(OnConvertedHandler value),
+                3: <Method> Void remove_OnConverted(OnConvertedHandler value)
             ],
             "DeclaredNestedTypes": <IEnumerable<TypeInfo>> [
             ],
             "DeclaredProperties": <IEnumerable<PropertyInfo>> [
-                [0]: <Property> T Value
+                0: <Property> T Value
             ],
             "ImplementedInterfaces": <IEnumerable<Type>> [
             ],
@@ -463,7 +524,7 @@ public class ObjectExtensionsTests {
             "IsSerializable": <Boolean> false,
             "IsVisible": <Boolean> false,
             "CustomAttributes": <IEnumerable<CustomAttributeData>> [
-                [0]: NullableAttribute
+                0: NullableAttribute
             ]
         }
         """;
@@ -506,155 +567,155 @@ public class ObjectExtensionsTests {
             "DeclaredEvents": <IEnumerable<EventInfo>> [
             ],
             "DeclaredFields": <IEnumerable<FieldInfo>> [
-                [0]: <Field> Int32 MaxValue,
-                [1]: <Field> Int32 MinValue
+                0: <Field> Int32 MaxValue,
+                1: <Field> Int32 MinValue
             ],
             "DeclaredMembers": <IEnumerable<MemberInfo>> [
-                [0]: <Method> Int32 CompareTo(Object value),
-                [1]: <Method> Int32 CompareTo(Int32 value),
-                [2]: <Method> Boolean Equals(Object obj),
-                [3]: <Method> Boolean Equals(Int32 obj),
-                [4]: <Method> Int32 GetHashCode(),
-                [5]: <Method> String ToString(),
-                [6]: <Method> String ToString(String format),
-                [7]: <Method> String ToString(IFormatProvider provider),
-                [8]: <Method> String ToString(String format, IFormatProvider provider),
-                [9]: <Method> Boolean TryFormat(Span<Char> destination, Int32& charsWritten, ReadOnlySpan<Char> format, IFormatProvider provider),
-                [10]: <Method> Boolean TryFormat(Span<Byte> utf8Destination, Int32& bytesWritten, ReadOnlySpan<Char> format, IFormatProvider provider),
-                [11]: <Method> Int32 Parse(String s),
-                [12]: <Method> Int32 Parse(String s, NumberStyles style),
-                [13]: <Method> Int32 Parse(String s, IFormatProvider provider),
-                [14]: <Method> Int32 Parse(String s, NumberStyles style, IFormatProvider provider),
-                [15]: <Method> Int32 Parse(ReadOnlySpan<Char> s, NumberStyles style, IFormatProvider provider),
-                [16]: <Method> Boolean TryParse(String s, Int32& result),
-                [17]: <Method> Boolean TryParse(ReadOnlySpan<Char> s, Int32& result),
-                [18]: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, Int32& result),
-                [19]: <Method> Boolean TryParse(String s, NumberStyles style, IFormatProvider provider, Int32& result),
-                [20]: <Method> Boolean TryParse(ReadOnlySpan<Char> s, NumberStyles style, IFormatProvider provider, Int32& result),
-                [21]: <Method> TypeCode GetTypeCode(),
-                [22]: <Method> ValueTuple<Int32, Int32> DivRem(Int32 left, Int32 right),
-                [23]: <Method> Int32 LeadingZeroCount(Int32 value),
-                [24]: <Method> Int32 PopCount(Int32 value),
-                [25]: <Method> Int32 RotateLeft(Int32 value, Int32 rotateAmount),
-                [26]: <Method> Int32 RotateRight(Int32 value, Int32 rotateAmount),
-                [27]: <Method> Int32 TrailingZeroCount(Int32 value),
-                [28]: <Method> Boolean IsPow2(Int32 value),
-                [29]: <Method> Int32 Log2(Int32 value),
-                [30]: <Method> Int32 Clamp(Int32 value, Int32 min, Int32 max),
-                [31]: <Method> Int32 CopySign(Int32 value, Int32 sign),
-                [32]: <Method> Int32 Max(Int32 x, Int32 y),
-                [33]: <Method> Int32 Min(Int32 x, Int32 y),
-                [34]: <Method> Int32 Sign(Int32 value),
-                [35]: <Method> Int32 Abs(Int32 value),
-                [36]: <Method> Int32 CreateChecked(TOther value),
-                [37]: <Method> Int32 CreateSaturating(TOther value),
-                [38]: <Method> Int32 CreateTruncating(TOther value),
-                [39]: <Method> Boolean IsEvenInteger(Int32 value),
-                [40]: <Method> Boolean IsNegative(Int32 value),
-                [41]: <Method> Boolean IsOddInteger(Int32 value),
-                [42]: <Method> Boolean IsPositive(Int32 value),
-                [43]: <Method> Int32 MaxMagnitude(Int32 x, Int32 y),
-                [44]: <Method> Int32 MinMagnitude(Int32 x, Int32 y),
-                [45]: <Method> Boolean TryParse(String s, IFormatProvider provider, Int32& result),
-                [46]: <Method> Int32 Parse(ReadOnlySpan<Char> s, IFormatProvider provider),
-                [47]: <Method> Boolean TryParse(ReadOnlySpan<Char> s, IFormatProvider provider, Int32& result),
-                [48]: <Method> Int32 Parse(ReadOnlySpan<Byte> utf8Text, NumberStyles style, IFormatProvider provider),
-                [49]: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, NumberStyles style, IFormatProvider provider, Int32& result),
-                [50]: <Method> Int32 Parse(ReadOnlySpan<Byte> utf8Text, IFormatProvider provider),
-                [51]: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, IFormatProvider provider, Int32& result),
-                [52]: <Field> Int32 MaxValue,
-                [53]: <Field> Int32 MinValue
+                0: <Method> Int32 CompareTo(Object value),
+                1: <Method> Int32 CompareTo(Int32 value),
+                2: <Method> Boolean Equals(Object obj),
+                3: <Method> Boolean Equals(Int32 obj),
+                4: <Method> Int32 GetHashCode(),
+                5: <Method> String ToString(),
+                6: <Method> String ToString(String format),
+                7: <Method> String ToString(IFormatProvider provider),
+                8: <Method> String ToString(String format, IFormatProvider provider),
+                9: <Method> Boolean TryFormat(Span<Char> destination, Int32& charsWritten, ReadOnlySpan<Char> format, IFormatProvider provider),
+                10: <Method> Boolean TryFormat(Span<Byte> utf8Destination, Int32& bytesWritten, ReadOnlySpan<Char> format, IFormatProvider provider),
+                11: <Method> Int32 Parse(String s),
+                12: <Method> Int32 Parse(String s, NumberStyles style),
+                13: <Method> Int32 Parse(String s, IFormatProvider provider),
+                14: <Method> Int32 Parse(String s, NumberStyles style, IFormatProvider provider),
+                15: <Method> Int32 Parse(ReadOnlySpan<Char> s, NumberStyles style, IFormatProvider provider),
+                16: <Method> Boolean TryParse(String s, Int32& result),
+                17: <Method> Boolean TryParse(ReadOnlySpan<Char> s, Int32& result),
+                18: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, Int32& result),
+                19: <Method> Boolean TryParse(String s, NumberStyles style, IFormatProvider provider, Int32& result),
+                20: <Method> Boolean TryParse(ReadOnlySpan<Char> s, NumberStyles style, IFormatProvider provider, Int32& result),
+                21: <Method> TypeCode GetTypeCode(),
+                22: <Method> ValueTuple<Int32, Int32> DivRem(Int32 left, Int32 right),
+                23: <Method> Int32 LeadingZeroCount(Int32 value),
+                24: <Method> Int32 PopCount(Int32 value),
+                25: <Method> Int32 RotateLeft(Int32 value, Int32 rotateAmount),
+                26: <Method> Int32 RotateRight(Int32 value, Int32 rotateAmount),
+                27: <Method> Int32 TrailingZeroCount(Int32 value),
+                28: <Method> Boolean IsPow2(Int32 value),
+                29: <Method> Int32 Log2(Int32 value),
+                30: <Method> Int32 Clamp(Int32 value, Int32 min, Int32 max),
+                31: <Method> Int32 CopySign(Int32 value, Int32 sign),
+                32: <Method> Int32 Max(Int32 x, Int32 y),
+                33: <Method> Int32 Min(Int32 x, Int32 y),
+                34: <Method> Int32 Sign(Int32 value),
+                35: <Method> Int32 Abs(Int32 value),
+                36: <Method> Int32 CreateChecked(TOther value),
+                37: <Method> Int32 CreateSaturating(TOther value),
+                38: <Method> Int32 CreateTruncating(TOther value),
+                39: <Method> Boolean IsEvenInteger(Int32 value),
+                40: <Method> Boolean IsNegative(Int32 value),
+                41: <Method> Boolean IsOddInteger(Int32 value),
+                42: <Method> Boolean IsPositive(Int32 value),
+                43: <Method> Int32 MaxMagnitude(Int32 x, Int32 y),
+                44: <Method> Int32 MinMagnitude(Int32 x, Int32 y),
+                45: <Method> Boolean TryParse(String s, IFormatProvider provider, Int32& result),
+                46: <Method> Int32 Parse(ReadOnlySpan<Char> s, IFormatProvider provider),
+                47: <Method> Boolean TryParse(ReadOnlySpan<Char> s, IFormatProvider provider, Int32& result),
+                48: <Method> Int32 Parse(ReadOnlySpan<Byte> utf8Text, NumberStyles style, IFormatProvider provider),
+                49: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, NumberStyles style, IFormatProvider provider, Int32& result),
+                50: <Method> Int32 Parse(ReadOnlySpan<Byte> utf8Text, IFormatProvider provider),
+                51: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, IFormatProvider provider, Int32& result),
+                52: <Field> Int32 MaxValue,
+                53: <Field> Int32 MinValue
             ],
             "DeclaredMethods": <IEnumerable<MethodInfo>> [
-                [0]: <Method> Int32 CompareTo(Object value),
-                [1]: <Method> Int32 CompareTo(Int32 value),
-                [2]: <Method> Boolean Equals(Object obj),
-                [3]: <Method> Boolean Equals(Int32 obj),
-                [4]: <Method> Int32 GetHashCode(),
-                [5]: <Method> String ToString(),
-                [6]: <Method> String ToString(String format),
-                [7]: <Method> String ToString(IFormatProvider provider),
-                [8]: <Method> String ToString(String format, IFormatProvider provider),
-                [9]: <Method> Boolean TryFormat(Span<Char> destination, Int32& charsWritten, ReadOnlySpan<Char> format, IFormatProvider provider),
-                [10]: <Method> Boolean TryFormat(Span<Byte> utf8Destination, Int32& bytesWritten, ReadOnlySpan<Char> format, IFormatProvider provider),
-                [11]: <Method> Int32 Parse(String s),
-                [12]: <Method> Int32 Parse(String s, NumberStyles style),
-                [13]: <Method> Int32 Parse(String s, IFormatProvider provider),
-                [14]: <Method> Int32 Parse(String s, NumberStyles style, IFormatProvider provider),
-                [15]: <Method> Int32 Parse(ReadOnlySpan<Char> s, NumberStyles style, IFormatProvider provider),
-                [16]: <Method> Boolean TryParse(String s, Int32& result),
-                [17]: <Method> Boolean TryParse(ReadOnlySpan<Char> s, Int32& result),
-                [18]: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, Int32& result),
-                [19]: <Method> Boolean TryParse(String s, NumberStyles style, IFormatProvider provider, Int32& result),
-                [20]: <Method> Boolean TryParse(ReadOnlySpan<Char> s, NumberStyles style, IFormatProvider provider, Int32& result),
-                [21]: <Method> TypeCode GetTypeCode(),
-                [22]: <Method> ValueTuple<Int32, Int32> DivRem(Int32 left, Int32 right),
-                [23]: <Method> Int32 LeadingZeroCount(Int32 value),
-                [24]: <Method> Int32 PopCount(Int32 value),
-                [25]: <Method> Int32 RotateLeft(Int32 value, Int32 rotateAmount),
-                [26]: <Method> Int32 RotateRight(Int32 value, Int32 rotateAmount),
-                [27]: <Method> Int32 TrailingZeroCount(Int32 value),
-                [28]: <Method> Boolean IsPow2(Int32 value),
-                [29]: <Method> Int32 Log2(Int32 value),
-                [30]: <Method> Int32 Clamp(Int32 value, Int32 min, Int32 max),
-                [31]: <Method> Int32 CopySign(Int32 value, Int32 sign),
-                [32]: <Method> Int32 Max(Int32 x, Int32 y),
-                [33]: <Method> Int32 Min(Int32 x, Int32 y),
-                [34]: <Method> Int32 Sign(Int32 value),
-                [35]: <Method> Int32 Abs(Int32 value),
-                [36]: <Method> Int32 CreateChecked(TOther value),
-                [37]: <Method> Int32 CreateSaturating(TOther value),
-                [38]: <Method> Int32 CreateTruncating(TOther value),
-                [39]: <Method> Boolean IsEvenInteger(Int32 value),
-                [40]: <Method> Boolean IsNegative(Int32 value),
-                [41]: <Method> Boolean IsOddInteger(Int32 value),
-                [42]: <Method> Boolean IsPositive(Int32 value),
-                [43]: <Method> Int32 MaxMagnitude(Int32 x, Int32 y),
-                [44]: <Method> Int32 MinMagnitude(Int32 x, Int32 y),
-                [45]: <Method> Boolean TryParse(String s, IFormatProvider provider, Int32& result),
-                [46]: <Method> Int32 Parse(ReadOnlySpan<Char> s, IFormatProvider provider),
-                [47]: <Method> Boolean TryParse(ReadOnlySpan<Char> s, IFormatProvider provider, Int32& result),
-                [48]: <Method> Int32 Parse(ReadOnlySpan<Byte> utf8Text, NumberStyles style, IFormatProvider provider),
-                [49]: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, NumberStyles style, IFormatProvider provider, Int32& result),
-                [50]: <Method> Int32 Parse(ReadOnlySpan<Byte> utf8Text, IFormatProvider provider),
-                [51]: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, IFormatProvider provider, Int32& result)
+                0: <Method> Int32 CompareTo(Object value),
+                1: <Method> Int32 CompareTo(Int32 value),
+                2: <Method> Boolean Equals(Object obj),
+                3: <Method> Boolean Equals(Int32 obj),
+                4: <Method> Int32 GetHashCode(),
+                5: <Method> String ToString(),
+                6: <Method> String ToString(String format),
+                7: <Method> String ToString(IFormatProvider provider),
+                8: <Method> String ToString(String format, IFormatProvider provider),
+                9: <Method> Boolean TryFormat(Span<Char> destination, Int32& charsWritten, ReadOnlySpan<Char> format, IFormatProvider provider),
+                10: <Method> Boolean TryFormat(Span<Byte> utf8Destination, Int32& bytesWritten, ReadOnlySpan<Char> format, IFormatProvider provider),
+                11: <Method> Int32 Parse(String s),
+                12: <Method> Int32 Parse(String s, NumberStyles style),
+                13: <Method> Int32 Parse(String s, IFormatProvider provider),
+                14: <Method> Int32 Parse(String s, NumberStyles style, IFormatProvider provider),
+                15: <Method> Int32 Parse(ReadOnlySpan<Char> s, NumberStyles style, IFormatProvider provider),
+                16: <Method> Boolean TryParse(String s, Int32& result),
+                17: <Method> Boolean TryParse(ReadOnlySpan<Char> s, Int32& result),
+                18: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, Int32& result),
+                19: <Method> Boolean TryParse(String s, NumberStyles style, IFormatProvider provider, Int32& result),
+                20: <Method> Boolean TryParse(ReadOnlySpan<Char> s, NumberStyles style, IFormatProvider provider, Int32& result),
+                21: <Method> TypeCode GetTypeCode(),
+                22: <Method> ValueTuple<Int32, Int32> DivRem(Int32 left, Int32 right),
+                23: <Method> Int32 LeadingZeroCount(Int32 value),
+                24: <Method> Int32 PopCount(Int32 value),
+                25: <Method> Int32 RotateLeft(Int32 value, Int32 rotateAmount),
+                26: <Method> Int32 RotateRight(Int32 value, Int32 rotateAmount),
+                27: <Method> Int32 TrailingZeroCount(Int32 value),
+                28: <Method> Boolean IsPow2(Int32 value),
+                29: <Method> Int32 Log2(Int32 value),
+                30: <Method> Int32 Clamp(Int32 value, Int32 min, Int32 max),
+                31: <Method> Int32 CopySign(Int32 value, Int32 sign),
+                32: <Method> Int32 Max(Int32 x, Int32 y),
+                33: <Method> Int32 Min(Int32 x, Int32 y),
+                34: <Method> Int32 Sign(Int32 value),
+                35: <Method> Int32 Abs(Int32 value),
+                36: <Method> Int32 CreateChecked(TOther value),
+                37: <Method> Int32 CreateSaturating(TOther value),
+                38: <Method> Int32 CreateTruncating(TOther value),
+                39: <Method> Boolean IsEvenInteger(Int32 value),
+                40: <Method> Boolean IsNegative(Int32 value),
+                41: <Method> Boolean IsOddInteger(Int32 value),
+                42: <Method> Boolean IsPositive(Int32 value),
+                43: <Method> Int32 MaxMagnitude(Int32 x, Int32 y),
+                44: <Method> Int32 MinMagnitude(Int32 x, Int32 y),
+                45: <Method> Boolean TryParse(String s, IFormatProvider provider, Int32& result),
+                46: <Method> Int32 Parse(ReadOnlySpan<Char> s, IFormatProvider provider),
+                47: <Method> Boolean TryParse(ReadOnlySpan<Char> s, IFormatProvider provider, Int32& result),
+                48: <Method> Int32 Parse(ReadOnlySpan<Byte> utf8Text, NumberStyles style, IFormatProvider provider),
+                49: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, NumberStyles style, IFormatProvider provider, Int32& result),
+                50: <Method> Int32 Parse(ReadOnlySpan<Byte> utf8Text, IFormatProvider provider),
+                51: <Method> Boolean TryParse(ReadOnlySpan<Byte> utf8Text, IFormatProvider provider, Int32& result)
             ],
             "DeclaredNestedTypes": <IEnumerable<TypeInfo>> [
             ],
             "DeclaredProperties": <IEnumerable<PropertyInfo>> [
             ],
             "ImplementedInterfaces": <IEnumerable<Type>> [
-                [0]: IComparable,
-                [1]: IConvertible,
-                [2]: ISpanFormattable,
-                [3]: IFormattable,
-                [4]: IComparable<Int32>,
-                [5]: IEquatable<Int32>,
-                [6]: IBinaryInteger<Int32>,
-                [7]: IBinaryNumber<Int32>,
-                [8]: IBitwiseOperators<Int32, Int32, Int32>,
-                [9]: INumber<Int32>,
-                [10]: IComparisonOperators<Int32, Int32, Boolean>,
-                [11]: IEqualityOperators<Int32, Int32, Boolean>,
-                [12]: IModulusOperators<Int32, Int32, Int32>,
-                [13]: INumberBase<Int32>,
-                [14]: IAdditionOperators<Int32, Int32, Int32>,
-                [15]: IAdditiveIdentity<Int32, Int32>,
-                [16]: IDecrementOperators<Int32>,
-                [17]: IDivisionOperators<Int32, Int32, Int32>,
-                [18]: IIncrementOperators<Int32>,
-                [19]: IMultiplicativeIdentity<Int32, Int32>,
-                [20]: IMultiplyOperators<Int32, Int32, Int32>,
-                [21]: ISpanParsable<Int32>,
-                [22]: IParsable<Int32>,
-                [23]: ISubtractionOperators<Int32, Int32, Int32>,
-                [24]: IUnaryPlusOperators<Int32, Int32>,
-                [25]: IUnaryNegationOperators<Int32, Int32>,
-                [26]: IUtf8SpanFormattable,
-                [27]: IUtf8SpanParsable<Int32>,
-                [28]: IShiftOperators<Int32, Int32, Int32>,
-                [29]: IMinMaxValue<Int32>,
-                [30]: ISignedNumber<Int32>
+                0: IComparable,
+                1: IConvertible,
+                2: ISpanFormattable,
+                3: IFormattable,
+                4: IComparable<Int32>,
+                5: IEquatable<Int32>,
+                6: IBinaryInteger<Int32>,
+                7: IBinaryNumber<Int32>,
+                8: IBitwiseOperators<Int32, Int32, Int32>,
+                9: INumber<Int32>,
+                10: IComparisonOperators<Int32, Int32, Boolean>,
+                11: IEqualityOperators<Int32, Int32, Boolean>,
+                12: IModulusOperators<Int32, Int32, Int32>,
+                13: INumberBase<Int32>,
+                14: IAdditionOperators<Int32, Int32, Int32>,
+                15: IAdditiveIdentity<Int32, Int32>,
+                16: IDecrementOperators<Int32>,
+                17: IDivisionOperators<Int32, Int32, Int32>,
+                18: IIncrementOperators<Int32>,
+                19: IMultiplicativeIdentity<Int32, Int32>,
+                20: IMultiplyOperators<Int32, Int32, Int32>,
+                21: ISpanParsable<Int32>,
+                22: IParsable<Int32>,
+                23: ISubtractionOperators<Int32, Int32, Int32>,
+                24: IUnaryPlusOperators<Int32, Int32>,
+                25: IUnaryNegationOperators<Int32, Int32>,
+                26: IUtf8SpanFormattable,
+                27: IUtf8SpanParsable<Int32>,
+                28: IShiftOperators<Int32, Int32, Int32>,
+                29: IMinMaxValue<Int32>,
+                30: ISignedNumber<Int32>
             ],
             "IsInterface": <Boolean> false,
             "IsNested": <Boolean> false,
@@ -697,9 +758,9 @@ public class ObjectExtensionsTests {
             "IsSerializable": <Boolean> true,
             "IsVisible": <Boolean> true,
             "CustomAttributes": <IEnumerable<CustomAttributeData>> [
-                [0]: SerializableAttribute,
-                [1]: IsReadOnlyAttribute,
-                [2]: TypeForwardedFromAttribute
+                0: SerializableAttribute,
+                1: IsReadOnlyAttribute,
+                2: TypeForwardedFromAttribute
             ]
         }
         """;
