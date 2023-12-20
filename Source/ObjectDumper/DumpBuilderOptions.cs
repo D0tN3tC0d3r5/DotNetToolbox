@@ -8,5 +8,5 @@ public class DumpBuilderOptions {
     public bool Indented { get; set; } = true;
     public bool UseFullNames { get; set; }
 
-    public Dictionary<Type, Func<object, string>> CustomFormatters { get; set; } = new();
+    public Dictionary<Type, Func<object?, string>> CustomFormatters { get; set; } = [];
 }

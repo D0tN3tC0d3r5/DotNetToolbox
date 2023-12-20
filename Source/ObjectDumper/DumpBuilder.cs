@@ -1,89 +1,95 @@
-﻿namespace DotNetToolbox;
+﻿using System.Text.Json;
+
+namespace DotNetToolbox;
 
 internal sealed class DumpBuilder : IDisposable {
-    private readonly Member _member;
     private readonly DumpBuilderOptions _options;
-    private readonly HashSet<object> _ancestors;
+    private readonly Stack<object> _ancestors;
 
     private readonly byte _level;
+    private readonly Member _member;
 
-    public bool Success { get; private set; }
     public bool SkipMember { get; private set; }
     public StringBuilder Builder { get; }
 
-    private DumpBuilder(byte level, Member member, DumpBuilderOptions options, HashSet<object>? ancestors = null) {
-        _member = member;
+    private DumpBuilder(byte level, Member member, DumpBuilderOptions options, Stack<object>? ancestors = null) {
         _options = options;
         _level = level;
+        _member = member;
         Builder = new();
         _ancestors = ancestors ?? [];
-        if (_member.Value is not null) _ancestors.Add(_member.Value);
+        if (_member.Value is not null) _ancestors.Push(_member.Value);
     }
 
 
     void IDisposable.Dispose() {
-        if (_member.Value is not null) _ancestors.Remove(_member.Value);
+        if (_member.Value is not null) _ancestors.Pop();
     }
 
+    private static readonly JsonSerializerOptions _indentedJson = new() {
+        WriteIndented = true,
+    };
+    private static readonly JsonSerializerOptions _compactJson = new() {
+        WriteIndented = false,
+    };
     public static string Build(object? value, DumpBuilderOptions options) {
-        var member = new Member(MemberKind.Basic, null, value?.GetType(), value);
+        if (value is null) return "null";
+        if (options.Layout == Layout.Json) {
+            return JsonSerializer.Serialize(value, options.Indented ? _indentedJson : _compactJson);
+        }
+
+        var member = new Member(MemberKind.Basic, null, value.GetType(), value);
         using var dumper = new DumpBuilder(0, member, options);
-        dumper.AddType();
-        dumper.AddFormattedValue(value);
-        return dumper.Builder.ToString();
+        dumper.AddType(member);
+        return dumper.AddFormattedValue(member)
+           ? dumper.Builder.ToString()
+           : string.Empty;
     }
 
-    private void AddType() {
-        if (_options.Layout == Layout.Json || _member.Type is null) return;
+    private void AddType(Member member) {
+        if (member.Type is null) return;
         Builder.Append('<');
-        Builder.Append(_member.Type.IsSubclassOf(typeof(Attribute))
+        Builder.Append(member.Type.IsSubclassOf(typeof(Attribute))
                            ? nameof(Attribute)
-                           : GetDescription(_member.Type));
+                           : GetDescription(member.Type));
         Builder.Append('>');
         AddSpacer();
     }
 
-    private void AddFormattedValue(object? value) {
-        Success = false;
+    private bool AddFormattedValue(Member member) {
         SkipMember = false;
-        TryUseCustomFormatter(value);
-        if (Success || SkipMember) return;
-        TryUseDefaultFormatter(value);
-        if (Success || SkipMember) return;
-        TryFormatComplexType(value!);
+        if (TryUseCustomFormatter(member)) return true;
+        if (!SkipMember && TryUseDefaultFormatter(member.Value)) return true;
+        return !SkipMember && TryFormatComplexType(member.Value!);
     }
 
-    private void TryUseCustomFormatter(object? value) {
-        var formattedValue = value is not null
-                          && _options.CustomFormatters.TryGetValue(value.GetType(), out var formatter)
-                                 ? formatter(value)
+    private bool TryUseCustomFormatter(Member member) {
+        if (member.Type is null) return false;
+        var formattedValue = _options
+                            .CustomFormatters
+                            .TryGetValue(member.Type, out var formatter)
+                                 ? formatter(member.Value)
                                  : null;
-        if (formattedValue is null) return;
+        if (formattedValue is null) return false;
 
         Builder.Append(formattedValue);
-        Success = true;
+        return true;
     }
 
-    private void TryUseDefaultFormatter([NotNullWhen(false)] object? value) {
+    private bool TryUseDefaultFormatter([NotNullWhen(false)] object? value) {
         var formattedValue = value switch {
             null => "null",
             RuntimeTypeHandle => HideMember(),
             bool => $"{value}".ToLower(),
             nint => $"{value}",
             nuint => $"{value}",
-            char when _options.Layout is Layout.Json => $"\"{value}\"",
-            char => $"'{value}'",
             string => $"\"{value}\"",
-            Guid v when _options.Layout is Layout.Json => $"\"{v:d}\"",
-            Guid v => $"{v:d}",
-            TimeSpan when _options.Layout is Layout.Json => $"\"{value}\"",
-            TimeSpan v => $"{v:g}",
-            DateTime when _options.Layout is Layout.Json => $"\"{value:s}\"",
-            DateTimeOffset when _options.Layout is Layout.Json => $"\"{value:s}{value:zzz}\"",
+            char => $"'{value}'",
+            Guid => $"{value}",
+            TimeSpan => $"{value}",
+            DateTime v => v.ToString(CultureInfo.CurrentCulture),
             DateTimeOffset v => v.ToString(CultureInfo.CurrentCulture),
-            DateOnly when _options.Layout is Layout.Json => $"\"{value:d}\"",
             DateOnly v => v.ToString(CultureInfo.CurrentCulture),
-            TimeOnly when _options.Layout is Layout.Json => $"\"{value:T}\"",
             TimeOnly v => v.ToString(CultureInfo.CurrentCulture),
             IConvertible v => v.ToString(CultureInfo.CurrentCulture),
             Assembly a when _level > 0 => GetDescription(a),
@@ -94,9 +100,9 @@ internal sealed class DumpBuilder : IDisposable {
             _ => null,
         };
 
-        if (formattedValue is null) return;
+        if (formattedValue is null) return false;
         Builder.Append(formattedValue);
-        Success = true;
+        return true;
     }
 
     public string GetDescription(Type type) {
@@ -116,7 +122,6 @@ internal sealed class DumpBuilder : IDisposable {
         => _options.UseFullNames ? module.FullyQualifiedName : module.Name;
 
     public string? GetDescription(MemberInfo member) {
-        Success = false;
         var formattedValue = member switch {
             FieldInfo { IsPublic: false } or
             MethodBase { IsPublic: false } or
@@ -131,7 +136,6 @@ internal sealed class DumpBuilder : IDisposable {
             _ => $"<{member.MemberType}> {member.Name}",
         };
 
-        Success = formattedValue is not null;
         return formattedValue;
     }
 
@@ -146,13 +150,13 @@ internal sealed class DumpBuilder : IDisposable {
         return null;
     }
 
-    private void TryFormatComplexType(object value) {
-        if (MaxLevelReached()) return;
+    private bool TryFormatComplexType(object value) {
+        if (MaxLevelReached()) return false;
 
-        StartBlock();
+        StartBlock(value);
         AddMembers(value);
-        EndBlock();
-        Success = true;
+        EndBlock(value);
+        return true;
     }
 
     private bool MaxLevelReached() {
@@ -177,8 +181,7 @@ internal sealed class DumpBuilder : IDisposable {
     }
 
     private static readonly int _commaAndNewLineLength = Environment.NewLine.Length + 1;
-    private void RemoveExtraComma()
-    {
+    private void RemoveExtraComma() {
         if (!_options.Indented) return;
         if (Builder[^_commaAndNewLineLength] != ',') return;
         Builder.Remove(Builder.Length - _commaAndNewLineLength, _commaAndNewLineLength);
@@ -203,24 +206,15 @@ internal sealed class DumpBuilder : IDisposable {
                 var itemType = item.GetType();
                 var key = itemType.GetProperty("Key")!.GetValue(item);
                 var value = itemType.GetProperty("Value")!.GetValue(item);
-                return new(MemberKind.KeyValuePair,
-                           key,
-                           null,
-                           value);
+                return new(MemberKind.KeyValuePair, key, null, value);
             }
 
             if (member is IEnumerable) {
-                return new(MemberKind.Element,
-                           GetIndex(),
-                           null,
-                           item);
+                return new(MemberKind.Element, GetIndex(), null, item);
             }
 
             var prop = (PropertyInfo)item;
-            return new(MemberKind.Property,
-                       prop.Name,
-                       prop.PropertyType,
-                       prop.GetValue(_member.Value));
+            return new(MemberKind.Property, prop.Name, prop.PropertyType, prop.GetValue(member));
 
             bool HasCircularReference() => _ancestors.Any(a => ReferenceEquals(a, item));
             object? GetIndex() => _options.Layout == Layout.Typed ? count : null;
@@ -230,9 +224,8 @@ internal sealed class DumpBuilder : IDisposable {
         }
     }
 
-    private void StartBlock() {
-        var useSquareBrackets = (_member.Value is IDictionary && _options.Layout is Layout.Typed) || (_member.Value is not IDictionary && _member.Value is IEnumerable);
-        Builder.Append(useSquareBrackets ? '[' : '{');
+    private void StartBlock(object value) {
+        Builder.Append(value is IEnumerable ? '[' : '{');
         AddNewLine();
     }
 
@@ -243,31 +236,27 @@ internal sealed class DumpBuilder : IDisposable {
 
         using var valueDumper = new DumpBuilder((byte)(_level + 1), member, _options, _ancestors);
         valueDumper.AddIndentation();
-        valueDumper.AddFormattedName();
-        valueDumper.AddType();
-        valueDumper.AddFormattedValue(member.Value);
-        _ancestors.Remove(_member);
+        valueDumper.AddFormattedName(member);
+        valueDumper.AddType(member);
+        var success = valueDumper.AddFormattedValue(member);
         if (valueDumper.SkipMember) return false;
-        if (valueDumper.Success) Builder.Append(valueDumper.Builder);
-        return valueDumper.Success;
+        if (success) Builder.Append(valueDumper.Builder);
+        return success;
     }
 
-    private void AddFormattedName() {
+    private void AddFormattedName(Member member) {
         // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-        switch (_member.Kind) {
+        switch (member.Kind) {
             case MemberKind.KeyValuePair:
-                if (_options.Layout != Layout.Json) Builder.Append('[');
-                AddFormattedValue(_member.Name);
-                if (_options.Layout != Layout.Json) {
-                    Builder.Append(']');
-                    AddSpacer();
-                    Builder.Append('=');
-                    break;
-                }
-                Builder.Append(':');
+                Builder.Append('[');
+                var key = new Member(MemberKind.Basic, null, null, member.Name);
+                AddFormattedValue(key);
+                Builder.Append(']');
+                AddSpacer();
+                Builder.Append('=');
                 break;
             case MemberKind.Element:
-                if (_options.Layout != Layout.Json) Builder.Append($"{_member.Name}:");
+                Builder.Append($"{_member.Name}:");
                 break;
             case MemberKind.Property:
                 Builder.Append($"\"{_member.Name}\":");
@@ -282,10 +271,9 @@ internal sealed class DumpBuilder : IDisposable {
         Builder.Append(' ');
     }
 
-    private void EndBlock() {
+    private void EndBlock(object value) {
         AddIndentation();
-        var useSquareBrackets = (_member.Value is IDictionary && _options.Layout is Layout.Typed) || (_member.Value is not IDictionary && _member.Value is IEnumerable);
-        Builder.Append(useSquareBrackets ? ']' : '}');
+        Builder.Append(value is IEnumerable ? ']' : '}');
     }
 
     private void AddIndentation() {

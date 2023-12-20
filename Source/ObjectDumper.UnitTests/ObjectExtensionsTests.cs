@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace DotNetToolbox;
+﻿namespace DotNetToolbox;
 
 public class ObjectExtensionsTests {
     [Theory]
@@ -14,23 +11,32 @@ public class ObjectExtensionsTests {
         result.Should().Be(expectedText);
     }
 
-
+    private static readonly JsonSerializerOptions _indentedJson = new() {
+        WriteIndented = true,
+    };
+    private static readonly JsonSerializerOptions _compactJson = new() {
+        WriteIndented = false,
+    };
     [Theory]
     [ClassData(typeof(TestDataForJson))]
-    public void Dump_AsJson_ReturnsString(ICustomClassWithGenerics subject) {
+    public void Dump_AsJson_ReturnsString(object? subject) {
         // Arrange
-        var expected = JsonSerializer.Serialize(subject, new JsonSerializerOptions() {
-
-        });
+        var expectedIndented = JsonSerializer.Serialize(subject, _indentedJson);
+        var expectedCompact = JsonSerializer.Serialize(subject, _compactJson);
 
         //Act
-        var result = subject.Dump(opt => {
+        var resultIndented = subject.Dump(opt => {
+            opt.Layout = Layout.Json;
+            opt.Indented = true;
+        });
+        var resultCompact = subject.Dump(opt => {
             opt.Layout = Layout.Json;
             opt.Indented = false;
         });
 
         // Assert
-        result.Should().Be(expected);
+        resultIndented.Should().Be(expectedIndented);
+        resultCompact.Should().Be(expectedCompact);
     }
 
     [Fact]
@@ -66,15 +72,21 @@ public class ObjectExtensionsTests {
 
     [Theory]
     [ClassData(typeof(TestDataForComplexTypes))]
-    public void Dump_ComplexType_ReturnsString(object? value, Layout layout, bool indented, string expectedText) {
+    public void Dump_ComplexType_ReturnsString(object? value, bool indented, string expectedText) {
         // Arrange & Act
-        var result = value.Dump(opt => {
-            opt.Layout = layout;
-            opt.Indented = indented;
-        });
+        var result = value.Dump(opt => opt.Indented = indented);
 
         // Assert
         result.Should().Be(expectedText);
+    }
+
+    [Fact]
+    public void Dump_WithFullName_ReturnsString() {
+        // Arrange & Act
+        var result = new TestClass(42, "Text").Dump(opt => opt.UseFullNames = true);
+
+        // Assert
+        result.Should().Be(_fullNamedDump);
     }
 
     [Fact]
@@ -86,34 +98,30 @@ public class ObjectExtensionsTests {
         result.Should().Be(_cultureInfoDump);
     }
 
-    [Fact]
-    public void Dump_ComplexTypes_WithFullName_ReturnsString() {
+    [Theory]
+    [InlineData(typeof(int), _integerTypeDump)]
+    [InlineData(typeof(CustomClass<>), _customClassDump)]
+    public void Dump_ExtremelyComplexType_ReturnsString(object value, string expectedText) {
         // Arrange & Act
-        var result = new TestClass(42, "Text").Dump(opt => opt.UseFullNames = true);
+        var result = value.Dump();
 
         // Assert
-        result.Should().Be(_fullNamedDump);
+        result.Should().Be(expectedText);
     }
 
-    [Fact]
-    public void Dump_ExtremelyComplexType_ReturnsString() {
+    [Theory]
+    [InlineData(typeof(int))]
+    public void Dump_NotSupportedTypes_AsJson_ReturnsString(object value) {
         // Arrange & Act
-        var result = typeof(int).Dump();
+        var action = () => value.Dump(opt => opt.Layout = Layout.Json);
 
         // Assert
-        result.Should().Be(_integerTypeDump);
-    }
-
-    [Fact]
-    public void Dump_CustomType_ReturnsString() {
-        // Arrange & Act
-        var result = typeof(CustomClassWithGenerics<>).Dump();
-
-        // Assert
-        result.Should().Be(_customClassWithGenericsDump);
+        action.Should().Throw<NotSupportedException>();
     }
 
     #region Test Data
+
+    #region Type defnitions
 
     private static readonly int[] _array = [1, 2, 3];
     private static readonly List<int> _list = [1, 2, 3];
@@ -126,22 +134,14 @@ public class ObjectExtensionsTests {
         public string StringProperty { get; set; } = stringValue;
     }
 
-    [JsonDerivedType(typeof(CustomClassWithGenerics<bool>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<char>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<Guid>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<DateTimeOffset>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<DateTime>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<DateOnly>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<TimeOnly>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<TimeSpan>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<List<int>>))]
-    [JsonDerivedType(typeof(CustomClassWithGenerics<Dictionary<string, TestClass>>))]
-    public interface ICustomClassWithGenerics;
+    public interface ICustomClass<out T> {
+        T Value { get; }
+    };
 
     [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    private class CustomClassWithGenerics<T>(T? value) : ICustomClassWithGenerics {
-        public const string Name = "CustomClassWithGenerics";
+    private class CustomClass<T>(T? value) : ICustomClass<T> {
+        public const string Name = "CustomClass";
 
         // ReSharper disable once MemberCanBePrivate.Local
         public static readonly T Default = default!;
@@ -180,6 +180,8 @@ public class ObjectExtensionsTests {
         public string StringProperty { get; } = stringValue;
     }
 
+    #endregion
+
     private class TestDataForPrimitives : TheoryData<object?, string> {
         public TestDataForPrimitives() {
             Add(null, "null");
@@ -206,22 +208,24 @@ public class ObjectExtensionsTests {
         }
     }
 
-    private class TestDataForJson : TheoryData<ICustomClassWithGenerics> {
+    private class TestDataForJson : TheoryData<object?> {
         public TestDataForJson() {
-            //Add(new CustomClassWithGenerics<bool>(true));
-            //Add(new CustomClassWithGenerics<char>('A'));
-            //Add(new CustomClassWithGenerics<Guid>(Guid.NewGuid()));
-            //Add(new CustomClassWithGenerics<DateTimeOffset>(new(new DateTime(2001, 10, 12), TimeSpan.FromHours(-5))));
-            //Add(new CustomClassWithGenerics<DateTime>(new(2001, 10, 12)));
-            //Add(new CustomClassWithGenerics<DateOnly>(new(2001, 10, 12)));
-            //Add(new CustomClassWithGenerics<TimeOnly>(new(23, 15, 52)));
-            //Add(new CustomClassWithGenerics<TimeSpan>(new(23, 15, 52)));
-            //Add(new CustomClassWithGenerics<List<int>>([1, 2, 3]));
+            Add(true);
+            Add('A');
+            Add(Guid.NewGuid());
+            Add(new DateTimeOffset(new DateTime(2001, 10, 12), TimeSpan.FromHours(-5)));
+            Add(new DateTime(2001, 10, 12));
+            Add(new DateOnly(2001, 10, 12));
+            Add(new TimeOnly(23, 15, 52));
+            Add(new TimeSpan(23, 15, 52));
+            Add(new List<int>([1, 2, 3]));
             var dict = new Dictionary<string, TestClass> {
                 ["One"] = new(42, "Test"),
                 ["Two"] = new(7, "Other"),
             };
-            Add(new CustomClassWithGenerics<Dictionary<string, TestClass>>(dict));
+            Add(dict);
+            Add(new CustomClass<int>(42));
+            Add(new TestClass(42, "Text"));
         }
     }
 
@@ -232,28 +236,26 @@ public class ObjectExtensionsTests {
             Add(new Dictionary<string, double> { ["A"] = 1.1, ["B"] = 2.2, ["C"] = 3.3 }, _dictionaryOfStringDoubleDump);
         }
     }
-    private class TestDataForComplexTypes : TheoryData<object?, Layout, bool, string> {
+    private class TestDataForComplexTypes : TheoryData<object?, bool, string> {
         public TestDataForComplexTypes() {
-            Add(new TestClass(42, "Text"), Layout.Typed, true, _testClassDump);
-            Add(new TestClass(42, "Text"), Layout.Typed, false, _testClassCompactDump);
-            Add(new TestClass(42, "Text"), Layout.Json, true, _testClassIndentedJsonDump);
-            Add(new TestClass(42, "Text"), Layout.Json, false, _testClassCompactJsonDump);
-            Add(new TestClassWithGeneric<int>(42), Layout.Typed, true, _testGenericClassWithInt32Dump);
-            Add(new TestClassWithGeneric<double>(42), Layout.Typed, false, _testGenericClassDoubleCompactDump);
-            Add(new TestRecord(42, "Text"), Layout.Typed, true, _testRecordDump);
-            Add(new TestRecord(42, "Text"), Layout.Typed, false, _testRecordCompactDump);
-            Add(new TestStruct(42, "Text"), Layout.Typed, true, _testStructDump);
-            Add(new TestStruct(42, "Text"), Layout.Typed, false, _testStructCompactDump);
+            Add(new TestClass(42, "Text"), true, _testClassDump);
+            Add(new TestClass(42, "Text"), false, _testClassCompactDump);
+            Add(new TestClassWithGeneric<int>(42), true, _testGenericClassWithInt32Dump);
+            Add(new TestClassWithGeneric<double>(42), false, _testGenericClassDoubleCompactDump);
+            Add(new TestRecord(42, "Text"), true, _testRecordDump);
+            Add(new TestRecord(42, "Text"), false, _testRecordCompactDump);
+            Add(new TestStruct(42, "Text"), true, _testStructDump);
+            Add(new TestStruct(42, "Text"), false, _testStructCompactDump);
             Add(new Dictionary<string, TestStruct> {
                 ["A"] = new(42, "Text"),
                 ["B"] = new(7, "Other"),
-            }, Layout.Typed, true, _testDictionaryDump);
+            }, true, _testDictionaryDump);
             Add(new Dictionary<string, TestStruct> {
                 ["A"] = new(42, "Text"),
                 ["B"] = new(7, "Other"),
-            }, Layout.Typed, false, _testDictionaryCompactDump);
-            Add(_listOfLists, Layout.Typed, true, _listOfListsDump);
-            Add(_listOfLists, Layout.Typed, false, _listOfListsCompactDump);
+            }, false, _testDictionaryCompactDump);
+            Add(_listOfLists, true, _listOfListsDump);
+            Add(_listOfLists, false, _listOfListsCompactDump);
         }
     }
 
@@ -416,14 +418,14 @@ public class ObjectExtensionsTests {
         }
         """;
 
-    private const string _customClassWithGenericsDump =
+    private const string _customClassDump =
         """
         <RuntimeType> {
             "IsCollectible": <Boolean> false,
-            "FullName": <String> "DotNetToolbox.ObjectExtensionsTests+CustomClassWithGenerics`1",
-            "AssemblyQualifiedName": <String> "DotNetToolbox.ObjectExtensionsTests+CustomClassWithGenerics`1, DotnetToolbox.ObjectDumper.UnitTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "FullName": <String> "DotNetToolbox.ObjectExtensionsTests+CustomClass`1",
+            "AssemblyQualifiedName": <String> "DotNetToolbox.ObjectExtensionsTests+CustomClass`1, DotnetToolbox.ObjectDumper.UnitTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
             "Namespace": <String> "DotNetToolbox",
-            "GUID": <Guid> 93476c5f-16f1-34c0-a15f-9c0601fff3c4,
+            "GUID": <Guid> efd78b28-31df-34ae-95c7-af2dec38772b,
             "IsEnum": <Boolean> false,
             "IsConstructedGenericType": <Boolean> false,
             "IsGenericType": <Boolean> true,
@@ -433,7 +435,7 @@ public class ObjectExtensionsTests {
             "StructLayoutAttribute": <Attribute> StructLayoutAttribute,
             "IsFunctionPointer": <Boolean> false,
             "IsUnmanagedFunctionPointer": <Boolean> false,
-            "Name": <String> "CustomClassWithGenerics`1",
+            "Name": <String> "CustomClass`1",
             "DeclaringType": <Type> ObjectExtensionsTests,
             "Assembly": <Assembly> DotnetToolbox.ObjectDumper.UnitTests,
             "BaseType": <Type> Object,
@@ -444,7 +446,7 @@ public class ObjectExtensionsTests {
             "IsSecuritySafeCritical": <Boolean> false,
             "IsSecurityTransparent": <Boolean> false,
             "MemberType": <MemberTypes> NestedType,
-            "MetadataToken": <Int32> 33554439,
+            "MetadataToken": <Int32> 33554440,
             "Module": <Module> DotnetToolbox.ObjectDumper.UnitTests.dll,
             "ReflectedType": <Type> ObjectExtensionsTests,
             "GenericTypeParameters": <Type[]> [
@@ -529,7 +531,7 @@ public class ObjectExtensionsTests {
         }
         """;
 
-    private static readonly string _integerTypeDump =
+    private const string _integerTypeDump =
         """
         <RuntimeType> {
             "IsCollectible": <Boolean> false,
