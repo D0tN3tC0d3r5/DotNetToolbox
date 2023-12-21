@@ -7,7 +7,7 @@ internal sealed class DumpBuilder : IDisposable {
     private readonly byte _level;
     private readonly Member _member;
 
-    public bool SkipMember { get; private set; }
+    public bool MemberIsHidden { get; private set; }
     public StringBuilder Builder { get; }
 
     private DumpBuilder(byte level, Member member, DumpBuilderOptions options, Stack<object>? ancestors = null) {
@@ -26,12 +26,11 @@ internal sealed class DumpBuilder : IDisposable {
 
     public static string Build(object? value, DumpBuilderOptions options) {
         if (value is null) return "null";
-        var member = new Member(MemberKind.Basic, null, value.GetType(), value);
+        var member = new Member(MemberKind.Object, null, value.GetType(), value);
         using var dumper = new DumpBuilder(0, member, options);
         dumper.AddType(member);
-        return dumper.AddFormattedValue(member)
-           ? dumper.Builder.ToString()
-           : string.Empty;
+        dumper.AddFormattedValue(member);
+        return dumper.Builder.ToString();
     }
 
     private void AddType(Member member) {
@@ -45,10 +44,21 @@ internal sealed class DumpBuilder : IDisposable {
     }
 
     private bool AddFormattedValue(Member member) {
-        SkipMember = false;
+        if (TryAddKeyWord(member)) return true;
         if (TryUseCustomFormatter(member)) return true;
-        if (!SkipMember && TryUseDefaultFormatter(member.Value)) return true;
-        return !SkipMember && TryFormatComplexType(member.Value!);
+        if (TryUseDefaultFormatter(member.Value)) return true;
+        if (TryFormatSpecialType(member.Value)) return true;
+        if (MemberIsHidden) return false;
+        AddFormattedComplexType(member.Value!);
+        return true;
+    }
+
+    private bool TryAddKeyWord(Member member) {
+        if (member.Kind != MemberKind.KeyWord) return false;
+        AddSymbol('#');
+        Builder.Append(member.Value);
+        AddSymbol('#');
+        return true;
     }
 
     private bool TryUseCustomFormatter(Member member) {
@@ -67,7 +77,6 @@ internal sealed class DumpBuilder : IDisposable {
     private bool TryUseDefaultFormatter([NotNullWhen(false)] object? value) {
         var formattedValue = value switch {
             null => "null",
-            RuntimeTypeHandle => HideMember(),
             bool => $"{value}".ToLower(),
             nint => $"{value}",
             nuint => $"{value}",
@@ -80,11 +89,6 @@ internal sealed class DumpBuilder : IDisposable {
             DateOnly v => v.ToString(CultureInfo.CurrentCulture),
             TimeOnly v => v.ToString(CultureInfo.CurrentCulture),
             IConvertible v => v.ToString(CultureInfo.CurrentCulture),
-            Assembly a when _level > 0 => GetDescription(a),
-            Module m when _level > 0 => GetDescription(m),
-            MemberInfo m when _level > 0 => GetDescription(m),
-            Attribute m when _level > 0 => GetDescription(m),
-            CustomAttributeData m when _level > 0 => GetDescription(m),
             _ => null,
         };
 
@@ -104,28 +108,26 @@ internal sealed class DumpBuilder : IDisposable {
     }
 
     public string GetDescription(Assembly assembly)
-        => (_options.UseFullNames ? null : assembly.GetName().Name) ?? assembly.GetName().FullName;
+        => _options.UseFullNames
+               ? assembly.GetName().FullName
+               : $"{assembly.GetName().Name} v{assembly.GetName().Version}";
 
-    public string GetDescription(Module module)
-        => _options.UseFullNames ? module.FullyQualifiedName : module.Name;
+    #pragma warning disable CS8509 // The switch expression does not handle all possible values of its input type (it is not exhaustive).
+    public string? GetDescription(MemberInfo member)
+        => member switch {
+               FieldInfo { IsPublic: false }
+                 or MethodBase { IsPublic: false }
+                 or PropertyInfo { GetMethod: null or { IsPublic: false } }
+                 or Type { IsPublic: false } => HideMember(),
+               ConstructorInfo m => $"<{member.MemberType}> {m.Name}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
+               FieldInfo f => $"<{member.MemberType}> {GetDescription(f.FieldType)} {f.Name}",
+               MethodInfo m => $"<{member.MemberType}> {GetDescription(m.ReturnType)} {m.Name}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
+               EventInfo e => $"<{member.MemberType}> {GetDescription(e.EventHandlerType!)} {e.Name}",
+               PropertyInfo p => $"<{member.MemberType}> {GetDescription(p.PropertyType)} {p.Name}",
+               Type t => GetDescription(t),
+           };
+    #pragma warning restore CS8509
 
-    public string? GetDescription(MemberInfo member) {
-        var formattedValue = member switch {
-            FieldInfo { IsPublic: false } or
-            MethodBase { IsPublic: false } or
-            PropertyInfo { GetMethod: null or { IsPublic: false } } or
-            Type { IsPublic: false } => HideMember(),
-            Type t => GetDescription(t),
-            ConstructorInfo m => $"<{member.MemberType}> {m.Name}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
-            MethodInfo m => $"<{member.MemberType}> {GetDescription(m.ReturnType)} {m.Name}({string.Join(", ", m.GetParameters().Select(p => $"{GetDescription(p.ParameterType)} {p.Name}"))})",
-            EventInfo e => $"<{member.MemberType}> {GetDescription(e.EventHandlerType!)} {e.Name}",
-            PropertyInfo p => $"<{member.MemberType}> {GetDescription(p.PropertyType)} {p.Name}",
-            FieldInfo f => $"<{member.MemberType}> {GetDescription(f.FieldType)} {f.Name}",
-            _ => $"<{member.MemberType}> {member.Name}",
-        };
-
-        return formattedValue;
-    }
 
     public string GetDescription(CustomAttributeData data)
         => GetDescription(data.AttributeType);
@@ -134,24 +136,37 @@ internal sealed class DumpBuilder : IDisposable {
         => GetDescription(attribute.GetType());
 
     private string? HideMember() {
-        SkipMember = true;
+        MemberIsHidden = true;
         return null;
     }
 
-    private bool TryFormatComplexType(object value) {
-        if (MaxLevelReached()) return false;
+    private bool TryFormatSpecialType(object value) {
+        var formattedValue = value switch {
+            RuntimeTypeHandle when _level > 0 => HideMember(),
+            Module when _level > 0 => HideMember(),
+            Assembly a when _level > 0 => GetDescription(a),
+            MemberInfo m when _level > 0 => GetDescription(m),
+            Attribute m when _level > 0 => GetDescription(m),
+            CustomAttributeData m when _level > 0 => GetDescription(m),
+            _ => null,
+        };
 
-        StartBlock(value);
-        AddMembers(value);
-        EndBlock(value);
+        if (formattedValue is null) return false;
+        Builder.Append(formattedValue);
         return true;
     }
 
-    private bool MaxLevelReached() {
-        if (_options.MaxDepth == 0 || _level < _options.MaxDepth - 1) return false;
+    private void AddFormattedComplexType(object value) {
+        if (MaxDepthReached()) return;
+        StartBlock(value);
+        AddMembers(value);
+        EndBlock(value);
+    }
+
+    private bool MaxDepthReached() {
+        if (_level < _options.MaxDepth) return false;
         Builder.Append("...");
         return true;
-
     }
 
     private void AddMembers(object value) {
@@ -184,10 +199,10 @@ internal sealed class DumpBuilder : IDisposable {
     private static PropertyInfo[] GetMembers(IReflect type)
         => type.GetProperties(_allPublic).ToArray();
 
-    private Member GetElementOrDefault(object? member, object? item) {
+    private Member? GetElementOrDefault(object? member, object? item) {
         try {
-            if (item is null) return default;
-            if (HasCircularReference()) return default;
+            if (item is null) return default(Member);
+            if (HasCircularReference()) return new(MemberKind.KeyWord, null, null, "CircularReference");
             if (member is IDictionary) {
                 var itemType = item.GetType();
                 var key = itemType.GetProperty("Key")!.GetValue(item);
@@ -195,9 +210,8 @@ internal sealed class DumpBuilder : IDisposable {
                 return new(MemberKind.KeyValuePair, key, null, value);
             }
 
-            if (member is IEnumerable) {
+            if (member is IEnumerable)
                 return new(MemberKind.Element, null, null, item);
-            }
 
             var prop = (PropertyInfo)item;
             return new(MemberKind.Property, prop.Name, prop.PropertyType, prop.GetValue(member));
@@ -205,7 +219,7 @@ internal sealed class DumpBuilder : IDisposable {
             bool HasCircularReference() => _ancestors.Any(a => ReferenceEquals(a, item));
         }
         catch {
-            return default;
+            return null;
         }
     }
 
@@ -214,18 +228,17 @@ internal sealed class DumpBuilder : IDisposable {
         AddNewLine();
     }
 
-    private bool TryAddValue(Member member) {
-        if (member == default) return false;
-        if (_level >= _options.MaxDepth) return false;
-        if (_ancestors.Any(a => ReferenceEquals(a, member.Value))) return false;
+    private bool TryAddValue(Member? member) {
+        if (member is null) return false;
+        if (_ancestors.Any(a => ReferenceEquals(a, member.Value.Value))) return false;
 
-        using var valueDumper = new DumpBuilder((byte)(_level + 1), member, _options, _ancestors);
-        valueDumper.AddIndentation();
-        valueDumper.AddFormattedName(member);
-        valueDumper.AddType(member);
-        var success = valueDumper.AddFormattedValue(member);
-        if (valueDumper.SkipMember) return false;
-        if (success) Builder.Append(valueDumper.Builder);
+        using var dumper = new DumpBuilder((byte)(_level + 1), member.Value, _options, _ancestors);
+        dumper.AddIndentation();
+        dumper.AddFormattedName(member.Value);
+        dumper.AddType(member.Value);
+        var success = dumper.AddFormattedValue(member.Value);
+        if (dumper.MemberIsHidden) return false;
+        if (success) Builder.Append(dumper.Builder);
         return success;
     }
 
@@ -234,14 +247,12 @@ internal sealed class DumpBuilder : IDisposable {
         switch (member.Kind) {
             case MemberKind.KeyValuePair:
                 AddSymbol('[');
-                var key = new Member(MemberKind.Basic, null, null, member.Name);
+                var key = new Member(MemberKind.Object, null, null, member.Name);
                 AddFormattedValue(key);
                 AddSymbol(']');
                 AddSpacer();
                 AddSymbol('=');
                 AddSpacer();
-                break;
-            case MemberKind.Element:
                 break;
             case MemberKind.Property:
                 Builder.Append($"\"{_member.Name}\"");

@@ -1,3 +1,15 @@
 ﻿namespace DotNetToolbox;
 
-internal record struct Member(MemberKind Kind, object? Name, Type? Type, object? Value);
+internal record struct Member {
+    public Member(MemberKind kind, object? name, Type? type, object? value) {
+        Kind = kind;
+        Name = name;
+        Type = type;
+        Value = value;
+    }
+
+    public MemberKind Kind { get; }
+    public object? Name { get; }
+    public Type? Type { get; }
+    public object? Value { get; }
+}

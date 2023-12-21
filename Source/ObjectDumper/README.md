@@ -1,8 +1,8 @@
-# DotNetToolbox Core Library
+# DotNetToolbox Object Dumper
 
-## Version 1.0.0
+## Version 8.0.1
 
-The DotNetToolbox Core Library (DotNetToolbox.Core) is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
+The DotNetToolbox Object Dumper (DotNetToolbox.ObjectDumper) is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
 
 ### Components
 

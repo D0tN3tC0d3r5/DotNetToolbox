@@ -1,8 +1,9 @@
 ﻿namespace DotNetToolbox;
 
 internal enum MemberKind {
-    Basic,
+    Object,
     Element,
     KeyValuePair,
     Property,
+    KeyWord,
 }
