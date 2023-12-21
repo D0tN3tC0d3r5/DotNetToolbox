@@ -6,4 +6,10 @@ public static class ObjectExtensions {
         config?.Invoke(options);
         return DumpBuilder.Build(value, options);
     }
+
+    public static string DumpAsJson(this object? value, Action<JsonDumpBuilderOptions>? config = null) {
+        var options = new JsonDumpBuilderOptions();
+        config?.Invoke(options);
+        return JsonDumpBuilder.Build(value, options);
+    }
 }

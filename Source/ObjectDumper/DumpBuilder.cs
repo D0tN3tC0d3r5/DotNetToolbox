@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace DotNetToolbox;
+﻿namespace DotNetToolbox;
 
 internal sealed class DumpBuilder : IDisposable {
     private readonly DumpBuilderOptions _options;
@@ -26,18 +24,8 @@ internal sealed class DumpBuilder : IDisposable {
         if (_member.Value is not null) _ancestors.Pop();
     }
 
-    private static readonly JsonSerializerOptions _indentedJson = new() {
-        WriteIndented = true,
-    };
-    private static readonly JsonSerializerOptions _compactJson = new() {
-        WriteIndented = false,
-    };
     public static string Build(object? value, DumpBuilderOptions options) {
         if (value is null) return "null";
-        if (options.Layout == Layout.Json) {
-            return JsonSerializer.Serialize(value, options.Indented ? _indentedJson : _compactJson);
-        }
-
         var member = new Member(MemberKind.Basic, null, value.GetType(), value);
         using var dumper = new DumpBuilder(0, member, options);
         dumper.AddType(member);
@@ -48,11 +36,11 @@ internal sealed class DumpBuilder : IDisposable {
 
     private void AddType(Member member) {
         if (member.Type is null) return;
-        Builder.Append('<');
+        AddSymbol('<');
         Builder.Append(member.Type.IsSubclassOf(typeof(Attribute))
                            ? nameof(Attribute)
                            : GetDescription(member.Type));
-        Builder.Append('>');
+        AddSymbol('>');
         AddSpacer();
     }
 
@@ -160,22 +148,20 @@ internal sealed class DumpBuilder : IDisposable {
     }
 
     private bool MaxLevelReached() {
-        if (_options.MaxLevel == 0 || _level < _options.MaxLevel - 1) return false;
+        if (_options.MaxDepth == 0 || _level < _options.MaxDepth - 1) return false;
         Builder.Append("...");
         return true;
 
     }
 
     private void AddMembers(object value) {
-        var counter = 0;
         var items = GetItems(value).Cast<object?>().Select((item, index) => (Value: item, Index: index)).ToArray();
         var lastIndex = items.Length > 0 ? items.Max(i => i.Index) : 0;
         foreach (var item in items) {
-            var member = GetElementOrDefault(value, item.Value, counter);
+            var member = GetElementOrDefault(value, item.Value);
             if (!TryAddValue(member)) continue;
-            if (item.Index != lastIndex) Builder.Append(',');
+            if (item.Index != lastIndex) AddSymbol(',');
             AddNewLine();
-            counter++;
         }
         RemoveExtraComma();
     }
@@ -198,7 +184,7 @@ internal sealed class DumpBuilder : IDisposable {
     private static PropertyInfo[] GetMembers(IReflect type)
         => type.GetProperties(_allPublic).ToArray();
 
-    private Member GetElementOrDefault(object? member, object? item, int count) {
+    private Member GetElementOrDefault(object? member, object? item) {
         try {
             if (item is null) return default;
             if (HasCircularReference()) return default;
@@ -210,14 +196,13 @@ internal sealed class DumpBuilder : IDisposable {
             }
 
             if (member is IEnumerable) {
-                return new(MemberKind.Element, GetIndex(), null, item);
+                return new(MemberKind.Element, null, null, item);
             }
 
             var prop = (PropertyInfo)item;
             return new(MemberKind.Property, prop.Name, prop.PropertyType, prop.GetValue(member));
 
             bool HasCircularReference() => _ancestors.Any(a => ReferenceEquals(a, item));
-            object? GetIndex() => _options.Layout == Layout.Typed ? count : null;
         }
         catch {
             return default;
@@ -225,13 +210,13 @@ internal sealed class DumpBuilder : IDisposable {
     }
 
     private void StartBlock(object value) {
-        Builder.Append(value is IEnumerable ? '[' : '{');
+        AddSymbol(value is IEnumerable ? '[' : '{');
         AddNewLine();
     }
 
     private bool TryAddValue(Member member) {
         if (member == default) return false;
-        if (_level >= _options.MaxLevel) return false;
+        if (_level >= _options.MaxDepth) return false;
         if (_ancestors.Any(a => ReferenceEquals(a, member.Value))) return false;
 
         using var valueDumper = new DumpBuilder((byte)(_level + 1), member, _options, _ancestors);
@@ -248,32 +233,35 @@ internal sealed class DumpBuilder : IDisposable {
         // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
         switch (member.Kind) {
             case MemberKind.KeyValuePair:
-                Builder.Append('[');
+                AddSymbol('[');
                 var key = new Member(MemberKind.Basic, null, null, member.Name);
                 AddFormattedValue(key);
-                Builder.Append(']');
+                AddSymbol(']');
                 AddSpacer();
-                Builder.Append('=');
+                AddSymbol('=');
+                AddSpacer();
                 break;
             case MemberKind.Element:
-                Builder.Append($"{_member.Name}:");
                 break;
             case MemberKind.Property:
-                Builder.Append($"\"{_member.Name}\":");
+                Builder.Append($"\"{_member.Name}\"");
+                AddSymbol(':');
+                AddSpacer();
                 break;
         }
-
-        AddSpacer();
     }
 
     private void AddSpacer() {
         if (!_options.Indented) return;
-        Builder.Append(' ');
+        AddSymbol(' ');
     }
+
+    private void AddSymbol(char symbol)
+        => Builder.Append(symbol);
 
     private void EndBlock(object value) {
         AddIndentation();
-        Builder.Append(value is IEnumerable ? ']' : '}');
+        AddSymbol(value is IEnumerable ? ']' : '}');
     }
 
     private void AddIndentation() {
