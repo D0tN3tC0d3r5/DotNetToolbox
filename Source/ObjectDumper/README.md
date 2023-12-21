@@ -1,62 +1,56 @@
 # DotNetToolbox Object Dumper
 
-## Version 8.0.1
+## Overview
 
-The DotNetToolbox Object Dumper (DotNetToolbox.ObjectDumper) is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
+The DotNetToolbox Object Dumper is a powerful and flexible library for .NET that allows developers to dump the contents of any .NET object in a human-readable format. It's a great tool for debugging and logging, providing a quick and easy way to visualize complex objects and data structures.
 
-### Components
+## Features
 
-#### Pagination
+- **Flexible Formatting**: Choose from several layout options including JSON, Typed JSON, and Console.
+- **Custom Formatters**: Define custom formatters for specific types to control how they are represented.
+- **Depth Control**: Control the depth of nested objects and collections that are included in the output.
+- **Full Type Information**: Option to include full type names in the output.
+- **Culture-Specific Formatting**: Control the culture used for formatting values.
 
-- `PagedCollection`: Manages paged collections.
-- `Pagination`: Handles pagination logic.
-- `PaginationSettings`: Stores pagination settings.
+## Installation
 
-#### Date and Time
+The DotNet Toolbox Object Dumper is available as a NuGet package. To install it, run the following command in the Package Manager Console:
 
-- `DateTimeProvider`: Offers functionalities for date-time management.
-
-#### File System
-
-- `FileSystemHandler`: Handles file manipulation tasks.
-
-#### Results
-
-- `CrudResult`: Represents the outcomes of CRUD operations.
-- `HttpResult`: Represents the outcomes of HTTP requests.
-- `Result`: Base class for operation results.
-- `SignInResult`: Represents the outcomes of sign-in operations.
-- `ValidationResult`: Represents the outcomes of validation checks.
-
-#### Validation
-
-- `ValidationError`: Focuses on validation-related errors.
-
-#### GUIDs
-
-- `Base64Guid`: Handles Base64 encoding and decoding of GUIDs.
-
-#### Object Creation and Validation
-
-- `Create`: Assists in object creation.
-- `Ensure`: Aids in object validation.
-
-#### Extensions
-
-- `HttpClientFactoryExtensions`: Provides extensions for client factories.
-- `ConcurrentDictionaryExtensions`: Offers utility functions for concurrent dictionaries.
-- `EnumerableExtensions`: Extends functionalities for enumerable types.
-
-#### HTTP Client Options
-
-- `ConfidentialHttpClientOptions`: Defines options for confidential HTTP clients.
-- `HttpClientOptions`: General options for HTTP clients.
-- `IdentifiedHttpClientOptions`: Defines options for identified HTTP clients.
+```shell
+PM> Install-Package DotNetToolbox.ObjectDumper
+```
 
 ## Usage
 
-Please refer to the API documentation for detailed usage instructions.
+Here's a simple example of how to use the Object Dumper:
+
+```csharp
+var options = new DumpBuilderOptions
+{
+    Indented = true,
+    ShowFullNames = true
+};
+
+var dumper = new DumpBuilder();
+var result = dumper.Dump(myObject, options);
+
+Console.WriteLine(result);
+```
+
+In this example, `myObject` is the object you want to dump, and `options` is an instance of `DumpBuilderOptions` that controls how the output is formatted.
+
+## Documentation
+
+For more detailed information on how to use the DotNet Toolbox Object Dumper, please refer to the [official documentation](#).
 
 ## Contributing
 
-This package is intended for internal use. Contributions are restricted to team members.
+Contributions are welcome! Please read our [contributing guide](#) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to DotNet Toolbox Object Dumper.
+
+## License
+
+The DotNet Toolbox Object Dumper is licensed under the [MIT license](#).
+
+## Contact
+
+If you have any issues or feature requests, please [file an issue](#). For other questions or discussions, please join our [community forum](#).
