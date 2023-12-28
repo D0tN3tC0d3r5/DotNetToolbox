@@ -42,15 +42,15 @@ public class StringValidatorsTests {
 
     private class TestData : TheoryData<TestObject, int> {
         public TestData() {
-            Add(new() { Name = "Text1", Email = "some@email.com", }, 0);
-            Add(new() { Name = "Text1", Email = "", }, 2);
-            Add(new() { Name = "Text1", Email = "NotEmail", }, 1);
-            Add(new() { Name = null, Password = "AnyTh1n6!", }, 2);
-            Add(new() { Name = "", }, 6);
-            Add(new() { Name = "  ", }, 6);
-            Add(new() { Name = "12", }, 5);
-            Add(new() { Name = "12345678901", }, 5);
-            Add(new() { Name = "Other", Password = "Invalid", }, 6);
+            Add(new() { Name = "Text1", Email = "some@email.com" }, 0);
+            Add(new() { Name = "Text1", Email = "" }, 2);
+            Add(new() { Name = "Text1", Email = "NotEmail" }, 1);
+            Add(new() { Name = null, Password = "AnyTh1n6!" }, 2);
+            Add(new() { Name = "" }, 6);
+            Add(new() { Name = "  " }, 6);
+            Add(new() { Name = "12" }, 5);
+            Add(new() { Name = "12345678901" }, 5);
+            Add(new() { Name = "Other", Password = "Invalid" }, 6);
         }
     }
 

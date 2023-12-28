@@ -8,18 +8,24 @@ public class JwtAuthenticationOptions : AuthenticationOptions {
     public IReadOnlyList<Claim> Claims { get; set; } = Array.Empty<Claim>();
     public TimeSpan? ExpiresAfter { get; set; }
 
-    internal override Result Validate() {
-        var result = base.Validate();
+    public override Result Validate(IDictionary<string, object?>? context = null) {
+        var result = base.Validate(context);
 
         if (string.IsNullOrWhiteSpace(PrivateKey))
-            result += new ValidationError(nameof(PrivateKey), ValueCannotBeNullOrWhiteSpace);
+            result += new ValidationError(GetSourcePath(nameof(PrivateKey)), ValueCannotBeNullOrWhiteSpace);
 
         return result;
+
+        string GetSourcePath(string source)
+            => context is null || !context.TryGetValue("ClientName", out var name)
+                   ? source
+                   : $"{name}.{source}";
     }
 
-    internal override void Configure(HttpClient client, ref HttpAuthentication authentication) {
+    internal override HttpAuthentication Configure(HttpClient client, HttpAuthentication authentication) {
         if (!authentication.IsValid(Jwt)) authentication = CreateJwtToken();
         client.DefaultRequestHeaders.Authorization = authentication;
+        return authentication;
     }
 
     internal DateTimeProvider DateTimeProvider { get; set; } = new();

@@ -29,7 +29,7 @@ public record CrudResult : Result {
     public static implicit operator CrudResult(ValidationError[] errors)
         => new(CrudResultType.Invalid, DoesNotHaveNulls(errors));
     public static implicit operator CrudResult(ValidationError error)
-        => new(CrudResultType.Invalid, new[] { error, }.AsEnumerable());
+        => new(CrudResultType.Invalid, new[] { error }.AsEnumerable());
 
     public static CrudResult operator +(CrudResult left, Result right) {
         var errors = left.Errors.Union(right.Errors).ToHashSet();

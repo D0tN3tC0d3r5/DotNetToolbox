@@ -8,7 +8,7 @@ public class FileSystemHandler {
     public virtual char DirectorySeparatorChar => Path.DirectorySeparatorChar;
     public virtual string CombinePath(params string[] paths) => Path.Combine(paths);
     public virtual string[] GetPath(string filePath)
-        => [.. Path.GetDirectoryName(filePath)?.Split(DirectorySeparatorChar) ?? [], Path.GetFileName(filePath), ];
+        => [.. Path.GetDirectoryName(filePath)?.Split(DirectorySeparatorChar) ?? [], Path.GetFileName(filePath)];
     public virtual string GetFileName(string filePath) => Path.GetFileName(filePath);
     public virtual string GetFileNameOnly(string filePath) => Path.GetFileNameWithoutExtension(filePath);
     public virtual string GetFileExtension(string filePath) => Path.GetExtension(filePath).TrimStart('.');

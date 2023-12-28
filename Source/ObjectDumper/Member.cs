@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox;
 
-internal record struct Member {
+internal readonly record struct Member {
     public Member(MemberKind kind, object? name, Type? type, object? value) {
         Kind = kind;
         Name = name;

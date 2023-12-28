@@ -14,9 +14,9 @@ public class TypeValidatorsTests {
 
     private class TestData : TheoryData<TestObject, int> {
         public TestData() {
-            Add(new() { Type = typeof(string), }, 0);
-            Add(new() { Type = null, }, 1);
-            Add(new() { Type = typeof(int), }, 1);
+            Add(new() { Type = typeof(string) }, 0);
+            Add(new() { Type = null }, 1);
+            Add(new() { Type = typeof(int) }, 1);
         }
     }
 

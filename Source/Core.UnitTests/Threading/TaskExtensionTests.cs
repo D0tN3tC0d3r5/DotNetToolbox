@@ -1,15 +1,6 @@
 namespace DotNetToolbox.Threading;
 
 public class TaskExtensionTests {
-    private static readonly FieldInfo _taskAwaiterField = typeof(ConfiguredTaskAwaitable).GetField("m_configuredTaskAwaiter", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _taskContinueOnCapturedContextField = typeof(ConfiguredTaskAwaitable.ConfiguredTaskAwaiter).GetField("m_continueOnCapturedContext", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _taskOfTAwaiterField = typeof(ConfiguredTaskAwaitable<int>).GetField("m_configuredTaskAwaiter", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _taskOfTContinueOnCapturedContextField = typeof(ConfiguredTaskAwaitable<int>.ConfiguredTaskAwaiter).GetField("m_continueOnCapturedContext", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _valueTaskField = typeof(ConfiguredValueTaskAwaitable).GetField("_value", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _valueTaskContinueOnCapturedContextField = typeof(ValueTask).GetField("_continueOnCapturedContext", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _valueTaskOfTField = typeof(ConfiguredValueTaskAwaitable<int>).GetField("_value", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private static readonly FieldInfo _valueTaskOfTContinueOnCapturedContextField = typeof(ValueTask<int>).GetField("_continueOnCapturedContext", BindingFlags.NonPublic | BindingFlags.Instance)!;
-
     private static readonly CancellationTokenSource _tokenSource = new();
     private static readonly CancellationToken _token = _tokenSource.Token;
 

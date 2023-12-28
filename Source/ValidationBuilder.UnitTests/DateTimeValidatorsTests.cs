@@ -19,10 +19,10 @@ public class DateTimeValidatorsTests {
 
     private class TestData : TheoryData<TestObject, bool, int> {
         public TestData() {
-            Add(new() { NotNull = _baseDate.AddSeconds(1), Nullable = _baseDate.AddSeconds(1), Required = _baseDate.AddSeconds(1), }, true, 0);
-            Add(new() { NotNull = _baseDate, Nullable = null, Required = null, }, false, 2);
-            Add(new() { NotNull = _baseDate.AddDays(-1), Nullable = _baseDate, Required = _baseDate.AddDays(-1), }, false, 3);
-            Add(new() { NotNull = _baseDate.AddDays(3), Nullable = _baseDate, Required = _baseDate.AddDays(3), }, false, 3);
+            Add(new() { NotNull = _baseDate.AddSeconds(1), Nullable = _baseDate.AddSeconds(1), Required = _baseDate.AddSeconds(1) }, true, 0);
+            Add(new() { NotNull = _baseDate, Nullable = null, Required = null }, false, 2);
+            Add(new() { NotNull = _baseDate.AddDays(-1), Nullable = _baseDate, Required = _baseDate.AddDays(-1) }, false, 3);
+            Add(new() { NotNull = _baseDate.AddDays(3), Nullable = _baseDate, Required = _baseDate.AddDays(3) }, false, 3);
         }
     }
 

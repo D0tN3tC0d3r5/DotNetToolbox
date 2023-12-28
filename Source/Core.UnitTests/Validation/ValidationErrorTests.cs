@@ -6,7 +6,7 @@ public class ValidationErrorTests {
         // Arrange
         var error1 = new ValidationError() {
             MessageTemplate = "Some error {0}.",
-            Arguments = [42,],
+            Arguments = [42],
         };
 
         // Act
@@ -20,9 +20,9 @@ public class ValidationErrorTests {
     [Theory]
     #pragma warning disable CA1861
     [InlineData("Source1", "Some message 1.", new object[] { }, "Source1: Some message 1.")]
-    [InlineData("Source1", "Some message with {0}.", new object[] { 42, }, "Source1: Some message with 42.")]
-    [InlineData("", " Some message with {0}. ", new object[] { 42, }, " Some message with 42. ")]
-    [InlineData("   ", "Some message with {0}.", new object[] { 42, }, "Some message with 42.")]
+    [InlineData("Source1", "Some message with {0}.", new object[] { 42 }, "Source1: Some message with 42.")]
+    [InlineData("", " Some message with {0}. ", new object[] { 42 }, " Some message with 42. ")]
+    [InlineData("   ", "Some message with {0}.", new object[] { 42 }, "Some message with 42.")]
     #pragma warning restore CA1861
     public void FormattedMessage_WithSource_ReturnsMessage(string source, string template, object[] args, string expectedMessage) {
         // Act
@@ -50,7 +50,7 @@ public class ValidationErrorTests {
     [Theory]
     #pragma warning disable CA1861
     [InlineData("Some message 1.", new object[] { }, "Some message 1.")]
-    [InlineData("Some message with {0}.", new object[] { 42, }, "Some message with 42.")]
+    [InlineData("Some message with {0}.", new object[] { 42 }, "Some message with 42.")]
     #pragma warning restore CA1861
     public void FormattedMessage_WithoutSource_ReturnsMessage(string template, object[] args, string expectedMessage) {
         // Act

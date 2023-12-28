@@ -23,7 +23,7 @@ public class HttpResultTests {
     public void CopyConstructor_ClonesObject() {
         // Act
         var result = _ok with {
-            Errors = new HashSet<ValidationError> { new("Some error."), },
+            Errors = new HashSet<ValidationError> { new("Some error.") },
         };
 
         // Assert
@@ -43,7 +43,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        HttpResult result = new[] { new ValidationError(nameof(result), "Some error."), };
+        HttpResult result = new[] { new ValidationError(nameof(result), "Some error.") };
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -52,7 +52,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        HttpResult result = new List<ValidationError> { new(nameof(result), "Some error."), };
+        HttpResult result = new List<ValidationError> { new(nameof(result), "Some error.") };
 
         // Assert
         result.IsOk.Should().BeFalse();

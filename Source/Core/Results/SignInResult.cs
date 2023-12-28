@@ -40,7 +40,7 @@ public sealed record SignInResult : Result {
     public static implicit operator SignInResult(ValidationError[] errors)
         => new(SignInResultType.Invalid, null, errors);
     public static implicit operator SignInResult(ValidationError error)
-        => new(SignInResultType.Invalid, null, new[] { error, }.AsEnumerable());
+        => new(SignInResultType.Invalid, null, new[] { error }.AsEnumerable());
     public static implicit operator SignInResult(string token)
         => new(SignInResultType.Success, token);
 

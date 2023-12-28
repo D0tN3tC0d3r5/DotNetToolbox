@@ -6,8 +6,8 @@ public class CommandGetDataTests {
 
     public CommandGetDataTests() {
         _testCommand = new("test") {
-            Writer = _writer
-        };
+            Writer = _writer,
+                                   };
     }
 
     [Fact]

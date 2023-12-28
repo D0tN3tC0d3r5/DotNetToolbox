@@ -11,7 +11,6 @@ public class ObjectExtensionsTests {
         result.Should().Be(expectedText);
     }
 
-
     [Theory]
     [ClassData(typeof(TestDataForComplexType))]
     public void Dump_ForCollections_ReturnsString(object? value, string expectedText) {
@@ -71,7 +70,6 @@ public class ObjectExtensionsTests {
         //Assert
         result.Should().Be(_customFormatterDump);
     }
-
 
     [Fact]
     public void Dump_WithTabs_ReturnsString() {
@@ -326,12 +324,12 @@ public class ObjectExtensionsTests {
          ]
          """;
     private const string _dictionaryOfStringDoubleDump = """
-                                                         <Dictionary<String, Double>> [
-                                                             ["A"] = 1.1,
-                                                             ["B"] = 2.2,
-                                                             ["C"] = 3.3
-                                                         ]
-                                                         """;
+        <Dictionary<String, Double>> [
+            ["A"] = 1.1,
+            ["B"] = 2.2,
+            ["C"] = 3.3
+        ]
+        """;
     private const string _multiDimensionArrayDump = """
         <Int32[][]> [
             [

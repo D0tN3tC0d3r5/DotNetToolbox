@@ -6,19 +6,18 @@ internal sealed class DumpBuilder : IDisposable {
 
     private readonly byte _level;
     private readonly Member _member;
+    private readonly StringBuilder _builder;
 
-    public bool MemberIsHidden { get; private set; }
-    public StringBuilder Builder { get; }
+    private bool _memberIsHidden;
 
     private DumpBuilder(byte level, Member member, DumpBuilderOptions options, Stack<object>? ancestors = null) {
         _options = options;
         _level = level;
         _member = member;
-        Builder = new();
+        _builder = new();
         _ancestors = ancestors ?? [];
         if (_member.Value is not null) _ancestors.Push(_member.Value);
     }
-
 
     void IDisposable.Dispose() {
         if (_member.Value is not null) _ancestors.Pop();
@@ -30,13 +29,13 @@ internal sealed class DumpBuilder : IDisposable {
         using var dumper = new DumpBuilder(0, member, options);
         dumper.AddType(member);
         dumper.AddFormattedValue(member);
-        return dumper.Builder.ToString();
+        return dumper._builder.ToString();
     }
 
     private void AddType(Member member) {
         if (member.Type is null) return;
         AddSymbol('<');
-        Builder.Append(member.Type.IsSubclassOf(typeof(Attribute))
+        _builder.Append(member.Type.IsSubclassOf(typeof(Attribute))
                            ? nameof(Attribute)
                            : GetDescription(member.Type));
         AddSymbol('>');
@@ -48,7 +47,7 @@ internal sealed class DumpBuilder : IDisposable {
         if (TryUseCustomFormatter(member)) return true;
         if (TryUseDefaultFormatter(member.Value)) return true;
         if (TryFormatSpecialType(member.Value)) return true;
-        if (MemberIsHidden) return false;
+        if (_memberIsHidden) return false;
         AddFormattedComplexType(member.Value!);
         return true;
     }
@@ -56,7 +55,7 @@ internal sealed class DumpBuilder : IDisposable {
     private bool TryAddKeyWord(Member member) {
         if (member.Kind != MemberKind.KeyWord) return false;
         AddSymbol('#');
-        Builder.Append(member.Value);
+        _builder.Append(member.Value);
         AddSymbol('#');
         return true;
     }
@@ -70,7 +69,7 @@ internal sealed class DumpBuilder : IDisposable {
                                  : null;
         if (formattedValue is null) return false;
 
-        Builder.Append(formattedValue);
+        _builder.Append(formattedValue);
         return true;
     }
 
@@ -93,11 +92,11 @@ internal sealed class DumpBuilder : IDisposable {
         };
 
         if (formattedValue is null) return false;
-        Builder.Append(formattedValue);
+        _builder.Append(formattedValue);
         return true;
     }
 
-    public string GetDescription(Type type) {
+    private string GetDescription(Type type) {
         var typeName = (_options.UseFullNames ? type.FullName : null) ?? type.Name;
         var genericStart = typeName.IndexOf('`');
         if (genericStart < 0) return typeName;
@@ -128,7 +127,6 @@ internal sealed class DumpBuilder : IDisposable {
            };
     #pragma warning restore CS8509
 
-
     public string GetDescription(CustomAttributeData data)
         => GetDescription(data.AttributeType);
 
@@ -136,7 +134,7 @@ internal sealed class DumpBuilder : IDisposable {
         => GetDescription(attribute.GetType());
 
     private string? HideMember() {
-        MemberIsHidden = true;
+        _memberIsHidden = true;
         return null;
     }
 
@@ -152,7 +150,7 @@ internal sealed class DumpBuilder : IDisposable {
         };
 
         if (formattedValue is null) return false;
-        Builder.Append(formattedValue);
+        _builder.Append(formattedValue);
         return true;
     }
 
@@ -165,7 +163,7 @@ internal sealed class DumpBuilder : IDisposable {
 
     private bool MaxDepthReached() {
         if (_level < _options.MaxDepth) return false;
-        Builder.Append("...");
+        _builder.Append("...");
         return true;
     }
 
@@ -184,8 +182,8 @@ internal sealed class DumpBuilder : IDisposable {
     private static readonly int _commaAndNewLineLength = Environment.NewLine.Length + 1;
     private void RemoveExtraComma() {
         if (!_options.Indented) return;
-        if (Builder[^_commaAndNewLineLength] != ',') return;
-        Builder.Remove(Builder.Length - _commaAndNewLineLength, _commaAndNewLineLength);
+        if (_builder[^_commaAndNewLineLength] != ',') return;
+        _builder.Remove(_builder.Length - _commaAndNewLineLength, _commaAndNewLineLength);
         AddNewLine();
     }
 
@@ -196,7 +194,9 @@ internal sealed class DumpBuilder : IDisposable {
         };
 
     private static readonly BindingFlags _allPublic = BindingFlags.Public | BindingFlags.Instance;
-    private static PropertyInfo[] GetMembers(IReflect type)
+    // ReSharper disable once SuggestBaseTypeForParameter
+    // ReSharper disable once ReturnTypeCanBeEnumerable.Local
+    private static PropertyInfo[] GetMembers(Type type)
         => type.GetProperties(_allPublic).ToArray();
 
     private Member? GetElementOrDefault(object? member, object? item) {
@@ -237,8 +237,8 @@ internal sealed class DumpBuilder : IDisposable {
         dumper.AddFormattedName(member.Value);
         dumper.AddType(member.Value);
         var success = dumper.AddFormattedValue(member.Value);
-        if (dumper.MemberIsHidden) return false;
-        if (success) Builder.Append(dumper.Builder);
+        if (dumper._memberIsHidden) return false;
+        if (success) _builder.Append(dumper._builder);
         return success;
     }
 
@@ -255,7 +255,7 @@ internal sealed class DumpBuilder : IDisposable {
                 AddSpacer();
                 break;
             case MemberKind.Property:
-                Builder.Append($"\"{_member.Name}\"");
+                _builder.Append($"\"{_member.Name}\"");
                 AddSymbol(':');
                 AddSpacer();
                 break;
@@ -268,7 +268,7 @@ internal sealed class DumpBuilder : IDisposable {
     }
 
     private void AddSymbol(char symbol)
-        => Builder.Append(symbol);
+        => _builder.Append(symbol);
 
     private void EndBlock(object value) {
         AddIndentation();
@@ -277,12 +277,12 @@ internal sealed class DumpBuilder : IDisposable {
 
     private void AddIndentation() {
         if (!_options.Indented) return;
-        if (_options.UseTabs) Builder.Append('\t', _level);
-        else Builder.Append(' ', _level * _options.IndentSize);
+        if (_options.UseTabs) _builder.Append('\t', _level);
+        else _builder.Append(' ', _level * _options.IndentSize);
     }
 
     private void AddNewLine() {
         if (!_options.Indented) return;
-        Builder.Append(Environment.NewLine);
+        _builder.Append(Environment.NewLine);
     }
 }

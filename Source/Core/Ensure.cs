@@ -21,7 +21,7 @@ public static class Ensure {
     public static TArgument? IsNotEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
-            ICollection { Count: 0, } => throw new ArgumentException(string.Format(ValueCannotBeEmpty, paramName), paramName),
+            ICollection { Count: 0 } => throw new ArgumentException(string.Format(ValueCannotBeEmpty, paramName), paramName),
             _ => argument,
         };
 
@@ -30,8 +30,8 @@ public static class Ensure {
         where TArgument : IEnumerable
         => argument switch {
             null => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
-            string { Length: 0, } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
-            ICollection { Count: 0, } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
+            string { Length: 0 } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
+            ICollection { Count: 0 } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
             _ => argument,
         };
 

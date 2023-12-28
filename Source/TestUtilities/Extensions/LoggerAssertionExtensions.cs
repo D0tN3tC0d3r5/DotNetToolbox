@@ -9,11 +9,11 @@ public static class LoggerAssertionExtensions {
     }
 
     public static void ShouldContain<TType>(this ILogger<TType> logger, LogLevel level, string message, EventId eventId = default)
-        => logger.ReceivedCalls().Should().Contain(c => c.Has(level, message, eventId));
+        => logger.ReceivedCalls().Should().Contain(c => c.With(level, message, eventId));
 
-    private static bool Has(this ICall call, LogLevel level, string message, EventId eventId)
-        => call.GetArguments() is [LogLevel ll, EventId evt, string msg, ..,]
+    private static bool With(this ICall call, LogLevel level, string message, EventId eventId)
+        => call.GetArguments() is [LogLevel ll, EventId evt, { } msg, ..]
         && ll == level
         && evt.Id == eventId.Id
-        && msg == message;
+        && $"{msg}" == message;
 }

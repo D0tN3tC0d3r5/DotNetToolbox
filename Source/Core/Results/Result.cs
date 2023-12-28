@@ -35,17 +35,17 @@ public record Result : IResult {
     public static implicit operator Result(HashSet<ValidationError> errors)
         => new(errors.AsEnumerable());
     public static implicit operator Result(ValidationError error)
-        => new(new[] { error, }.AsEnumerable());
+        => new(new[] { error }.AsEnumerable());
 
     public static Result operator +(Result left, Result right)
-        => left with { Errors = left.Errors.Union(right.Errors).ToHashSet(), };
+        => left with { Errors = left.Errors.Union(right.Errors).ToHashSet() };
 
     public void EnsureIsValid() {
         if (HasErrors) throw new ValidationException(Errors);
     }
 
     public static Result<TValue> Success<TValue>(TValue value) => new(value);
-    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object[] args) => new(value, new ValidationError[] { new(source, message, args), });
+    public static Result<TValue> Invalid<TValue>(TValue value, string message, string source, params object[] args) => new(value, new ValidationError[] { new(source, message, args) });
 }
 
 public record Result<TResult> : Result {
@@ -59,7 +59,7 @@ public record Result<TResult> : Result {
     public static implicit operator Result<TResult>(TResult value) => new(value);
 
     public static Result<TResult> operator +(Result<TResult> left, Result right)
-        => left with { Errors = left.Errors.Union(right.Errors).ToHashSet(), };
+        => left with { Errors = left.Errors.Union(right.Errors).ToHashSet() };
 
     public Result<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)
         => new(map(Value), Errors);

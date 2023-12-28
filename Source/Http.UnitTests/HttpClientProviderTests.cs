@@ -1,9 +1,33 @@
 namespace DotNetToolbox.Http;
 
-public sealed class HttpClientProviderTests : IDisposable  {
-    private readonly HttpClientConfiguration _defaultConfiguration = new() {
-        BaseAddress = "http://example.com/api/",
+public sealed class HttpClientProviderTests : IDisposable {
+    private readonly HttpClientProvider _provider;
+    private readonly IHttpClientFactory _clientFactory;
+
+    public HttpClientProviderTests() {
+        _clientFactory = Substitute.For<IHttpClientFactory>();
+        var client = new HttpClient();
+        _clientFactory.CreateClient(Arg.Any<string>()).Returns(client);
+        _provider = CreateHttpClientBuilder();
+    }
+
+    private readonly HttpClientOptions _defaultOptions = new() {
+        BaseAddress = new("http://example.com/api/"),
     };
+
+    private HttpClientProvider CreateHttpClientBuilder(HttpClientOptions? clientOptions = null) {
+        clientOptions ??= _defaultOptions;
+        var options = Substitute.For<IOptions<HttpClientOptions>>();
+        options.Value.Returns(clientOptions);
+        return new(_clientFactory, options);
+    }
+
+    private bool _isDisposed;
+    public void Dispose() {
+        if (_isDisposed) return;
+        HttpClientProvider.RevokeAuthorization();
+        _isDisposed = true;
+    }
 
     private static AuthenticationResult GenerateResult(string token, Guid correlationId)
         => new(accessToken: token,
@@ -14,38 +38,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
             uniqueId: null,
             account: null,
             idToken: Guid.NewGuid().ToString(),
-            scopes: [ "https://graph.microsoft.com/.default", ],
+            scopes: ["https://graph.microsoft.com/.default"],
             correlationId: correlationId);
-
-    private readonly HttpClientProvider _provider;
-
-    public HttpClientProviderTests() {
-        _provider = CreateHttpClientBuilder(_defaultConfiguration);
-    }
-
-    private static HttpClientProvider CreateHttpClientBuilder(HttpClientConfiguration? clientOptions = null) {
-        var clientFactory = Substitute.For<IHttpClientFactory>();
-        var options = Substitute.For<IOptions<HttpClientConfiguration>>();
-        options.Value.Returns(clientOptions);
-        var identityFactory = Substitute.For<IMsalHttpClientFactory>();
-
-        var client = new HttpClient();
-        clientFactory.CreateClient(Arg.Any<string>()).Returns(client);
-
-        var identityClient = new HttpClient();
-        identityFactory.GetHttpClient().Returns(identityClient);
-
-        // Act
-        var result = new HttpClientProvider(clientFactory, options, identityFactory);
-        return result;
-    }
-
-    private bool _isDisposed;
-    public void Dispose() {
-        if (_isDisposed) return;
-        HttpClientProvider.RevokeAuthorization();
-        _isDisposed = true;
-    }
 
     [Fact]
     public void GetHttpClient_WithDefaultOptions_Throws() {
@@ -64,7 +58,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
     [Fact]
     public void GetHttpClient_WithInvalidOptions_Throws() {
         // Arrange
-        _defaultConfiguration.ResponseFormat = string.Empty;
+        _defaultOptions.ResponseFormat = string.Empty;
 
         // Act
         var result = () => _provider.GetHttpClient();
@@ -76,7 +70,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void GetHttpClient_MinimumConfiguration_ReturnsHttpClient() {
+    public void GetHttpClient_MinimumOptions_ReturnsHttpClient() {
         // Act
         var result = _provider.GetHttpClient();
 
@@ -86,12 +80,12 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void GetHttpClient_FromConfiguration_ReturnsHttpClient() {
+    public void GetHttpClient_FromOptions_ReturnsHttpClient() {
         // Arrange
-        _defaultConfiguration.ResponseFormat = "text/xml";
-        _defaultConfiguration.CustomHeaders = new() {
-            ["x-custom-string"] = ["SomeValue",],
-            ["x-custom-int"] = ["42",],
+        _defaultOptions.ResponseFormat = "text/xml";
+        _defaultOptions.CustomHeaders = new() {
+            ["x-custom-string"] = ["SomeValue"],
+            ["x-custom-int"] = ["42"],
         };
 
         // Act
@@ -115,13 +109,13 @@ public sealed class HttpClientProviderTests : IDisposable  {
     public void GetHttpClient_FromParameters_ReturnsHttpClient() {
         // Arrange
         // Act
-        var result = _provider.GetHttpClient(config => {
-            config.SetBaseAddress("http://example.com/api/v2/");
-            config.SetResponseFormat("text/xml");
-            config.AddCustomHeader("x-custom-string", "SomeValue");
-            config.AddCustomHeader("x-custom-string", "SomeValue");
-            config.AddCustomHeader("x-custom-string", "SomeOtherValue");
-            config.AddCustomHeader("x-custom-int", "42");
+        var result = _provider.GetHttpClient(opt => {
+            opt.SetBaseAddress(new("http://example.com/api/v2/"));
+            opt.SetResponseFormat("text/xml");
+            opt.AddCustomHeader("x-custom-string", "SomeValue");
+            opt.AddCustomHeader("x-custom-string", "SomeValue");
+            opt.AddCustomHeader("x-custom-string", "SomeOtherValue");
+            opt.AddCustomHeader("x-custom-int", "42");
         });
 
         // Assert
@@ -133,24 +127,26 @@ public sealed class HttpClientProviderTests : IDisposable  {
     [Fact]
     public void GetHttpClient_WithInvalidName_Throws() {
         // Arrange
-        _defaultConfiguration.ResponseFormat = string.Empty;
+        _defaultOptions.ResponseFormat = string.Empty;
 
         // Act
         var result = () => _provider.GetHttpClient("Invalid");
 
         // Assert
-        result.Should().Throw<ArgumentException>();
+        result.Should().Throw<ValidationException>();
     }
 
     [Fact]
     public void GetHttpClient_WithNamedClient_ReturnsHttpClient() {
         // Arrange
-        _defaultConfiguration.Clients["NamedClient1"] = new() {
-            BaseAddress = _defaultConfiguration.BaseAddress,
-            ResponseFormat = "text/xml",
-            CustomHeaders = new() {
-                ["x-custom-string"] = ["SomeValue",],
-                ["x-custom-int"] = ["42",],
+        _defaultOptions.Clients = new() {
+            ["NamedClient1"] = new() {
+                BaseAddress = _defaultOptions.BaseAddress,
+                ResponseFormat = "text/xml",
+                CustomHeaders = new() {
+                    ["x-custom-string"] = ["SomeValue"],
+                    ["x-custom-int"] = ["42"],
+                },
             },
         };
 
@@ -173,13 +169,13 @@ public sealed class HttpClientProviderTests : IDisposable  {
     [Fact]
     public void GetHttpClient_WithInvalidNamedClient_ReturnsHttpClient() {
         // Arrange
-        _defaultConfiguration.Clients = new() {
+        _defaultOptions.Clients = new() {
             ["NamedClient1"] = new() {
-                BaseAddress = _defaultConfiguration.BaseAddress,
+                BaseAddress = _defaultOptions.BaseAddress,
                 ResponseFormat = "text/xml",
                 CustomHeaders = new() {
-                    ["x-custom-string"] = ["SomeValue",],
-                    ["x-custom-int"] = ["42",],
+                    ["x-custom-string"] = ["SomeValue"],
+                    ["x-custom-int"] = ["42"],
                 },
             },
             ["NamedClient2"] = new(),
@@ -195,9 +191,9 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void UseApiKey_FromConfiguration_AddsApiKeyHeader() {
+    public void UseApiKey_FromOptions_AddsApiKeyHeader() {
         // Arrange
-        _defaultConfiguration.Authentication = new ApiKeyAuthenticationOptions {
+        _defaultOptions.Authentication = new ApiKeyAuthenticationOptions {
             ApiKey = "abc123",
         };
 
@@ -209,7 +205,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void UseApiKey_FromParameter_OverridesConfiguration() {
+    public void UseApiKey_FromParameter_OverridesOptions() {
         // Act
         var result = _provider.GetHttpClient(options => options.UseApiKeyAuthentication(opt => opt.ApiKey = "abc123"));
 
@@ -220,7 +216,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
     [Fact]
     public void UseApiKey_WithInvalidOptions_Throws() {
         // Arrange
-        _defaultConfiguration.Authentication = new ApiKeyAuthenticationOptions();
+        _defaultOptions.Authentication = new ApiKeyAuthenticationOptions();
 
         // Act
         var result = () => _provider.GetHttpClient();
@@ -231,13 +227,13 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void UseSimpleToken_FromConfiguration_AddsAuthorizationHeader() {
+    public void UseSimpleToken_FromOptions_AddsAuthorizationHeader() {
         // Arrange
         // ReSharper disable StringLiteralTypo - HttpToken
         const string expectedToken = "SomeToken";
         // ReSharper restore StringLiteralTypo
 
-        _defaultConfiguration.Authentication = new StaticTokenAuthenticationOptions {
+        _defaultOptions.Authentication = new StaticTokenAuthenticationOptions {
             Token = expectedToken,
         };
 
@@ -251,13 +247,13 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void UseSimpleToken_FromParameter_OverridesConfiguration() {
+    public void UseSimpleToken_FromParameter_OverridesOptions() {
         // Arrange
         // ReSharper disable StringLiteralTypo - HttpToken
         const string expectedToken = "SomeToken";
         // ReSharper restore StringLiteralTypo
 
-        _defaultConfiguration.Authentication = new StaticTokenAuthenticationOptions {
+        _defaultOptions.Authentication = new StaticTokenAuthenticationOptions {
             Token = "OtherToken",
         };
 
@@ -276,7 +272,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
     [Fact]
     public void UseSimpleToken_WithInvalidOptions_Throws() {
         // Arrange
-        _defaultConfiguration.Authentication = new StaticTokenAuthenticationOptions();
+        _defaultOptions.Authentication = new StaticTokenAuthenticationOptions();
 
         // Act
         var result = () => _provider.GetHttpClient();
@@ -287,7 +283,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void UseJsonWebToken_FromConfiguration_AddsAuthorizationHeader() {
+    public void UseJsonWebToken_FromOptions_AddsAuthorizationHeader() {
         // Arrange
         // ReSharper disable StringLiteralTypo - HttpToken
         const string expectedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
@@ -295,7 +291,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
                                    + ".QhB54iWGzYFFKAjbZvfd6OMKYxVpG0wLJgxuI9OICN4";
         // ReSharper restore StringLiteralTypo
 
-        _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
+        _defaultOptions.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
         };
 
@@ -313,14 +309,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
-        _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
+        _defaultOptions.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
         };
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
-        ((JwtAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
+        ((JwtAuthenticationOptions)_defaultOptions.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
         var secondClient = _provider.GetHttpClient();
@@ -335,14 +331,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
-        _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
+        _defaultOptions.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
         };
         var firstClient = _provider.GetHttpClient(); // The token is generated on the first call;
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
-        ((JwtAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
+        ((JwtAuthenticationOptions)_defaultOptions.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
         var secondClient = _provider.GetHttpClient();
@@ -357,7 +353,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
-        _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
+        _defaultOptions.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
             DateTimeProvider = dateTimeProvider,
             ExpiresAfter = TimeSpan.FromMinutes(5),
@@ -366,7 +362,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
-        ((JwtAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
+        ((JwtAuthenticationOptions)_defaultOptions.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
         var secondClient = _provider.GetHttpClient();
@@ -381,7 +377,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
-        _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
+        _defaultOptions.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
             DateTimeProvider = dateTimeProvider,
             ExpiresAfter = TimeSpan.FromMinutes(5),
@@ -390,7 +386,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
-        ((JwtAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
+        ((JwtAuthenticationOptions)_defaultOptions.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
         var secondClient = _provider.GetHttpClient();
@@ -401,9 +397,9 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void UseJsonWebToken_FromParameter_OverridesConfiguration() {
+    public void UseJsonWebToken_FromParameter_OverridesOptions() {
         // Arrange
-        _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
+        _defaultOptions.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "OtherSecretValue256BitsOr32Chars",
         };
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
@@ -431,7 +427,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
     [Fact]
     public void UseJsonWebToken_WithInvalidOptions_Throws() {
         // Arrange
-        _defaultConfiguration.Authentication = new JwtAuthenticationOptions();
+        _defaultOptions.Authentication = new JwtAuthenticationOptions();
 
         // Act
         var result = () => _provider.GetHttpClient();
@@ -442,14 +438,14 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void UseOAuth2Token_FromConfiguration_AddsAuthorizationHeader() {
+    public void UseOAuth2Token_FromOptions_AddsAuthorizationHeader() {
         // Arrange
-        _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
+        _defaultOptions.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = ["https://graph.microsoft.com/.default",],
+            Scopes = ["https://graph.microsoft.com/.default"],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
         };
 
@@ -467,12 +463,12 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
-        _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
+        _defaultOptions.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = ["https://graph.microsoft.com/.default",],
+            Scopes = ["https://graph.microsoft.com/.default"],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
@@ -480,7 +476,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(2));
-        ((OAuth2TokenAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
+        ((OAuth2TokenAuthenticationOptions)_defaultOptions.Authentication).DateTimeProvider = dateTimeProvider;
 
         // Act
         var secondClient = _provider.GetHttpClient();
@@ -495,12 +491,12 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
-        _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
+        _defaultOptions.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = ["https://graph.microsoft.com/.default",],
+            Scopes = ["https://graph.microsoft.com/.default"],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
@@ -508,8 +504,8 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
-        ((OAuth2TokenAuthenticationOptions)_defaultConfiguration.Authentication).DateTimeProvider = dateTimeProvider;
-        ((OAuth2TokenAuthenticationOptions)_defaultConfiguration.Authentication).AuthenticationResult = GenerateResult("SomeOtherToken", Guid.NewGuid());
+        ((OAuth2TokenAuthenticationOptions)_defaultOptions.Authentication).DateTimeProvider = dateTimeProvider;
+        ((OAuth2TokenAuthenticationOptions)_defaultOptions.Authentication).AuthenticationResult = GenerateResult("SomeOtherToken", Guid.NewGuid());
 
         // Act
         var secondClient = _provider.GetHttpClient();
@@ -524,7 +520,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
         // Arrange
         var dateTimeProvider = Substitute.For<DateTimeProvider>();
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
-        _defaultConfiguration.Authentication = new JwtAuthenticationOptions {
+        _defaultOptions.Authentication = new JwtAuthenticationOptions {
             PrivateKey = "ASecretValueWith256BitsOr32Chars",
             DateTimeProvider = dateTimeProvider,
             ExpiresAfter = TimeSpan.FromMinutes(5),
@@ -533,12 +529,12 @@ public sealed class HttpClientProviderTests : IDisposable  {
         var firstToken = firstClient.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject.Parameter;
 
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01").AddMinutes(6));
-        _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
+        _defaultOptions.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = ["https://graph.microsoft.com/.default",],
+            Scopes = ["https://graph.microsoft.com/.default"],
             AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid()),
             DateTimeProvider = dateTimeProvider,
         };
@@ -552,14 +548,18 @@ public sealed class HttpClientProviderTests : IDisposable  {
     }
 
     [Fact]
-    public void UseOAuth2Token_FromParameter_OverridesConfiguration() {
+    public void UseOAuth2Token_FromParameter_OverridesOptions() {
         // Arrange
-        _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
+        _defaultOptions.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "OtherTenant",
             ClientId = "OtherClient",
             ClientSecret = "OtherSecret",
             Authority = "OtherAuthority",
         };
+        var identityFactory = Substitute.For<IMsalHttpClientFactory>();
+
+        var identityClient = new HttpClient();
+        identityFactory.GetHttpClient().Returns(identityClient);
 
         // Act
         var result = _provider.GetHttpClient(options => options.UseOAuth2TokenAuthentication(opt => {
@@ -567,9 +567,9 @@ public sealed class HttpClientProviderTests : IDisposable  {
             opt.ClientId = "SomeClient";
             opt.ClientSecret = "SomeSecret";
             opt.Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a";
-            opt.Scopes = ["https://graph.microsoft.com/Directory.Read",];
+            opt.Scopes = ["https://graph.microsoft.com/Directory.Read"];
             opt.AuthenticationResult = GenerateResult("SomeToken", Guid.NewGuid());
-        }));
+        }, identityFactory));
 
         // Assert
         var authorization = result.DefaultRequestHeaders.Authorization.Should().BeOfType<AuthenticationHeaderValue>().Subject;
@@ -580,12 +580,12 @@ public sealed class HttpClientProviderTests : IDisposable  {
     [Fact]
     public void UseOAuth2Token_WithInvalidOptions_Throws() {
         // Arrange
-        _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions {
+        _defaultOptions.Authentication = new OAuth2TokenAuthenticationOptions {
             TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
             ClientId = "SomeClient",
             ClientSecret = "SomeSecret",
             Authority = "https://login.microsoftonline.com/a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            Scopes = ["https://graph.microsoft.com/.default",],
+            Scopes = ["https://graph.microsoft.com/.default"],
         };
 
         // Act
@@ -598,7 +598,7 @@ public sealed class HttpClientProviderTests : IDisposable  {
     [Fact]
     public void UseOAuth2Token_WithFailedAuthorization_Throws() {
         // Arrange
-        _defaultConfiguration.Authentication = new OAuth2TokenAuthenticationOptions();
+        _defaultOptions.Authentication = new OAuth2TokenAuthenticationOptions();
 
         // Act
         var result = () => _provider.GetHttpClient();

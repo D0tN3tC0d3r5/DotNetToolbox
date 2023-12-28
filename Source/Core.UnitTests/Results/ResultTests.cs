@@ -13,7 +13,7 @@ public class ResultTests {
     public void CopyConstructor_ClonesObject() {
         // Act
         var result = _success with {
-            Errors = new HashSet<ValidationError> { new("Some error."), },
+            Errors = new HashSet<ValidationError> { new("Some error.") },
         };
 
         // Assert
@@ -33,7 +33,7 @@ public class ResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        Result result = new[] { new ValidationError(nameof(result), "Some error."), };
+        Result result = new[] { new ValidationError(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -42,7 +42,7 @@ public class ResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        Result result = new List<ValidationError> { new(nameof(result), "Some error."), };
+        Result result = new List<ValidationError> { new(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -51,7 +51,7 @@ public class ResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorSet_ReturnsFailure() {
         // Act
-        Result result = new HashSet<ValidationError> { new(nameof(result), "Some error."), };
+        Result result = new HashSet<ValidationError> { new(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -144,7 +144,7 @@ public class ResultTests {
     public void OfT_CopyConstructor_ClonesObject() {
         // Act
         var result = _successWithValue with {
-            Errors = new HashSet<ValidationError> { new("Some error."), },
+            Errors = new HashSet<ValidationError> { new("Some error.") },
         };
 
         // Assert

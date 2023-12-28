@@ -10,24 +10,30 @@ public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
 
     internal IMsalHttpClientFactory? HttpClientFactory { get; set; }
 
-    internal override Result Validate() {
-        var result = base.Validate();
+    public override Result Validate(IDictionary<string, object?>? context = null) {
+        var result = base.Validate(context);
 
         if (string.IsNullOrWhiteSpace(ClientId))
-            result += new ValidationError(nameof(ClientId), ValueCannotBeNullOrWhiteSpace);
+            result += new ValidationError(GetSourcePath(nameof(ClientId)), ValueCannotBeNullOrWhiteSpace);
 
         if (string.IsNullOrEmpty(ClientSecret))
-            result += new ValidationError(nameof(ClientSecret), ValueCannotBeNullOrEmpty);
+            result += new ValidationError(GetSourcePath(nameof(ClientSecret)), ValueCannotBeNullOrEmpty);
 
         if (Scopes.Length == 0)
-            result += new ValidationError(nameof(Scopes), ValueCannotBeNullOrEmpty);
+            result += new ValidationError(GetSourcePath(nameof(Scopes)), ValueCannotBeNullOrEmpty);
 
         return result;
+
+        string GetSourcePath(string source)
+            => context is null || !context.TryGetValue("ClientName", out var name)
+                   ? source
+                   : $"{name}.{source}";
     }
 
-    internal override void Configure(HttpClient client, ref HttpAuthentication authentication) {
+    internal override HttpAuthentication Configure(HttpClient client, HttpAuthentication authentication) {
         if (!authentication.IsValid(OAuth2)) authentication = AcquireOauth2Token();
         client.DefaultRequestHeaders.Authorization = authentication;
+        return authentication;
     }
 
     internal DateTimeProvider DateTimeProvider { get; set; } = new();

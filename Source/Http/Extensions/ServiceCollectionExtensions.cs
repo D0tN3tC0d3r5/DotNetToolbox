@@ -4,7 +4,7 @@ public static class ServiceCollectionExtensions {
     public static IServiceCollection AddHttpClientProvider(this IServiceCollection services, IConfiguration configuration) {
         services.AddHttpClient();
         services.AddOptions();
-        services.Configure<HttpClientConfiguration>(configuration.GetSection(nameof(HttpClientOptions)));
+        services.Configure<HttpClientOptions>(configuration.GetSection(nameof(HttpClientOptions)));
         services.TryAddSingleton<IHttpClientProvider, HttpClientProvider>();
         return services;
     }

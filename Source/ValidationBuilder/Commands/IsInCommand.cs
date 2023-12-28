@@ -6,6 +6,6 @@ public sealed class IsInCommand<TItem>
         : base(source) {
         ValidateAs = i => list.Contains((TItem)i);
         ValidationErrorMessage = MustBeIn;
-        GetErrorMessageArguments = i => new [] { list, i!, };
+        GetErrorMessageArguments = i => new [] { list, i! };
     }
 }

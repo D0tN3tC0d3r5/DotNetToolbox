@@ -67,8 +67,8 @@ public abstract class CommandBase(TokenType type, string name, string? descripti
     private static TValue? GetArgumentValue<TValue>(Argument? argument, string source, string parameterName, bool isRequired, TValue? defaultValue = default)
         => argument switch {
             null => throw new ArgumentException($"Argument '{source}' not found.", parameterName),
-            { IsSet: false, } when isRequired => throw new ArgumentException($"Required {argument.TokenType} '{source}' not set.", parameterName),
-            { IsSet: false, } => defaultValue,
+            { IsSet: false } when isRequired => throw new ArgumentException($"Required {argument.TokenType} '{source}' not set.", parameterName),
+            { IsSet: false } => defaultValue,
             IHasValue<TValue> typedArgument => typedArgument.Value,
             _ => throw ExceptionHelper.CreateGetCastException<TValue>(argument),
     };

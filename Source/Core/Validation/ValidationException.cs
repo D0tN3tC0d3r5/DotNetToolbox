@@ -12,7 +12,7 @@ public class ValidationException(IEnumerable<ValidationError> errors) : Exceptio
     }
 
     public ValidationException(ValidationError error)
-        : this(new[] { error, }) {
+        : this(new[] { error }) {
     }
 
     public IEnumerable<ValidationError> Errors { get; } = errors.ToArray();

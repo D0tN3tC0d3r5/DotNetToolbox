@@ -24,9 +24,6 @@
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Core</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>

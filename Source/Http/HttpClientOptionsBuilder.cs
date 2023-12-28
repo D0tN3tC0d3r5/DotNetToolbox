@@ -1,60 +1,51 @@
 ﻿namespace DotNetToolbox.Http;
 
-internal class HttpClientOptionsBuilder : IHttpClientOptionsBuilder {
+public class HttpClientOptionsBuilder(HttpClientOptions? options = null) {
 
-    private readonly IMsalHttpClientFactory _identityClientFactory;
-    private readonly HttpClientOptions _options;
-    private readonly HttpClientConfiguration _configuration;
+    private readonly HttpClientOptions _options = options ?? new HttpClientOptions();
+    //private string? _name;
 
-    internal HttpClientOptionsBuilder(string? name, HttpClientConfiguration configuration, IMsalHttpClientFactory identityClientFactory) {
-        _configuration = IsNotNull(configuration);
-        _identityClientFactory = IsNotNull(identityClientFactory);
-        _options = _configuration.ResolveOptionsFor(name);
-    }
-
-    public IHttpClientOptionsBuilder SetBaseAddress(string baseAddress) {
+    public HttpClientOptionsBuilder SetBaseAddress(Uri baseAddress) {
         _options.BaseAddress = baseAddress;
         return this;
     }
 
-    public IHttpClientOptionsBuilder SetResponseFormat(string responseFormat) {
-        _options.ResponseFormat = responseFormat;
+    public HttpClientOptionsBuilder SetResponseFormat(string responseFormat) {
+        _options.ResponseFormat = IsNotNullOrWhiteSpace(responseFormat);
         return this;
     }
 
-    public IHttpClientOptionsBuilder AddCustomHeader(string key, string value) {
+    public HttpClientOptionsBuilder AddCustomHeader(string key, string value) {
         if (_options.CustomHeaders.TryGetValue(key, out var values)) {
             if (values.Contains(value)) return this;
             _options.CustomHeaders[key] = [.. values, value];
             return this;
         }
-        _options.CustomHeaders[key] = [value,];
+        _options.CustomHeaders[key] = [value];
         return this;
     }
 
-    public IHttpClientOptionsBuilder UseApiKeyAuthentication(Action<ApiKeyAuthenticationOptions> options)
+    public HttpClientOptionsBuilder UseApiKeyAuthentication(Action<ApiKeyAuthenticationOptions> options)
         => SetAuthentication(options);
 
-    public IHttpClientOptionsBuilder UseSimpleTokenAuthentication(Action<StaticTokenAuthenticationOptions> options)
+    public HttpClientOptionsBuilder UseSimpleTokenAuthentication(Action<StaticTokenAuthenticationOptions> options)
         => SetAuthentication(options);
 
-    public IHttpClientOptionsBuilder UseJsonWebTokenAuthentication(Action<JwtAuthenticationOptions> options)
+    public HttpClientOptionsBuilder UseJsonWebTokenAuthentication(Action<JwtAuthenticationOptions> options)
         => SetAuthentication(options);
 
-    public IHttpClientOptionsBuilder UseOAuth2TokenAuthentication(Action<OAuth2TokenAuthenticationOptions> options)
-        => SetAuthentication(options);
+    public HttpClientOptionsBuilder UseOAuth2TokenAuthentication(Action<OAuth2TokenAuthenticationOptions> options, IMsalHttpClientFactory identityClientFactory)
+        => SetAuthentication(options, IsNotNull(identityClientFactory));
 
-    internal HttpClientOptions Build() {
-        _options.Validate().EnsureIsValid();
-        return _options;
-    }
+    internal HttpClientOptions Build()
+        => IsValid(_options);
 
-    private HttpClientOptionsBuilder SetAuthentication<T>(Action<T> configAuthentication)
+    private HttpClientOptionsBuilder SetAuthentication<T>(Action<T> configAuthentication, IMsalHttpClientFactory? identityClientFactory = null)
         where T : AuthenticationOptions, new() {
-        _options.Authentication = _configuration.Authentication ?? new T();
+        _options.Authentication ??= new T();
         configAuthentication((T)_options.Authentication);
         if (_options.Authentication is OAuth2TokenAuthenticationOptions oAuth2Options)
-            oAuth2Options.HttpClientFactory = _identityClientFactory;
+            oAuth2Options.HttpClientFactory = identityClientFactory;
         return this;
     }
 }
