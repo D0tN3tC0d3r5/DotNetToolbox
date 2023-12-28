@@ -1,30 +1,41 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public class HttpClientOptions : IValidatable  {
+public class HttpClientOptions<TOptions> : INamedOptions<TOptions>, IValidatable
+    where TOptions : HttpClientOptions<TOptions>, new() {
     public const string DefaultResponseFormat = "application/json";
 
-    public Dictionary<string, HttpClientOptions>? Clients { get; set; }
+    public virtual Uri? BaseAddress { get; set; }
 
-    public Uri? BaseAddress { get; set; }
+    public virtual string ResponseFormat { get; set; } = DefaultResponseFormat;
 
-    public string ResponseFormat { get; set; } = DefaultResponseFormat;
+    public virtual Dictionary<string, string[]> CustomHeaders { get; set; } = [];
 
-    public Dictionary<string, string[]> CustomHeaders { get; set; } = [];
+    public virtual AuthenticationOptions? Authentication { get; set; }
 
-    public AuthenticationOptions? Authentication { get; set; }
-
-    public Result Validate(IDictionary<string, object?>? context = null) {
+    public virtual Result Validate(IDictionary<string, object?>? context = null) {
         var result = Success();
 
         if (BaseAddress is null)
             result += new ValidationError(GetSourcePath(nameof(BaseAddress)), ValueCannotBeNullOrWhiteSpace);
 
-        if (string.IsNullOrWhiteSpace(ResponseFormat))
-            result += new ValidationError(GetSourcePath(nameof(ResponseFormat)), ValueCannotBeNullOrWhiteSpace);
-
         result += Authentication?.Validate(context) ?? Success();
 
-        if (Clients is null) return result;
+        return result;
+
+        string GetSourcePath(string source)
+            => context is null || !context.TryGetValue("ClientName", out var name)
+                   ? source
+                   : $"{name}.{source}";
+    }
+}
+
+public class HttpClientOptions : HttpClientOptions<HttpClientOptions>, INamedOptions<HttpClientOptions> {
+    public Dictionary<string, HttpClientOptions> Clients { get; set; } = [];
+
+    public static string SectionName => "HttpClient";
+    
+    public override Result Validate(IDictionary<string, object?>? context = null) {
+        var result = base.Validate(context);
 
         foreach (var client in Clients) {
             var clientContext = new Dictionary<string, object?> { ["ClientName"] = GetSourcePath(client.Key) };

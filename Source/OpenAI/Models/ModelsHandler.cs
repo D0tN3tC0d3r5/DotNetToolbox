@@ -1,63 +1,50 @@
 ﻿namespace DotNetToolbox.OpenAI.Models;
 
-internal class ModelsHandler(IConfiguration configuration, IHttpClientProvider httpClientProvider, ILogger<ModelsHandler>? logger = null)
+internal class ModelsHandler(IOpenAIHttpClientProvider httpClientProvider, ILogger<ModelsHandler> logger)
         : IModelsHandler {
-    private readonly ILogger<ModelsHandler> _logger = logger ?? NullLogger<ModelsHandler>.Instance;
-    private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient(opt => SetOptions(opt, configuration));
-
-    internal static void SetOptions(HttpClientOptionsBuilder opt, IConfiguration configuration)
-    {
-        opt.SetBaseAddress(new("https://api.openai.com/v1/"));
-        opt.UseSimpleTokenAuthentication(auth => SetAuthentication(auth: auth, configuration: configuration));
-    }
-
-    internal static void SetAuthentication(StaticTokenAuthenticationOptions auth, IConfiguration configuration)
-    {
-        auth.Scheme = AuthenticationScheme.Bearer;
-        auth.Token = IsNotNullOrWhiteSpace(configuration.GetValue<string>("OpenAI:ApiKey"));
-    }
+    private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 
     public async Task<Model[]> Get(ModelType type = ModelType.Chat) {
         try {
-            _logger.LogDebug("Getting list of models...");
+            logger.LogDebug("Getting list of models...");
             var models = await GetModelsAsync().ConfigureAwait(false);
             var result = models
                 .Where(m => m.Type == type)
                 .Select(ToModel).OfType<Model>().ToArray();
-            _logger.LogDebug("A list of {numberOfModels} models was found.", result.Length);
+            logger.LogDebug("A list of {numberOfModels} models was found.", result.Length);
             return result;
         }
         catch (Exception ex) {
-            _logger.LogError(ex, "Failed to get list of models.");
+            logger.LogError(ex, "Failed to get list of models.");
             throw;
         }
     }
 
     public async Task<Model?> GetById(string id) {
         try {
-            _logger.LogDebug("Getting model '{id}' details...", id);
+            logger.LogDebug("Getting model '{id}' details...", id);
             var model = await GetModelByIdAsync(id).ConfigureAwait(false);
             var result = ToModel(model);
             // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-            if (result is null) _logger.LogDebug("The model '{id}' was not found.", id);
-            else _logger.LogDebug("The model '{id}' was found.", id);
+            if (result is null) logger.LogDebug("The model '{id}' was not found.", id);
+            else logger.LogDebug("The model '{id}' was found.", id);
             return result;
         }
         catch (Exception ex) {
-            _logger.LogError(ex, "Failed to get the model '{id}' details.", id);
+            logger.LogError(ex, "Failed to get the model '{id}' details.", id);
             throw;
         }
     }
 
     public async Task<bool> Delete(string id) {
         try {
-            _logger.LogDebug("Deleting the model '{id}'...", id);
+            logger.LogDebug("Deleting the model '{id}'...", id);
             var result = await DeleteModelAsync(id).ConfigureAwait(false);
-            _logger.LogDebug("The model '{id}' was deleted.", id);
+            logger.LogDebug("The model '{id}' was deleted.", id);
             return result;
         }
         catch (Exception ex) {
-            _logger.LogError(ex, "Failed to delete the model '{id}'.", id);
+            logger.LogError(ex, "Failed to delete the model '{id}'.", id);
             throw;
         }
     }

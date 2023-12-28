@@ -1,47 +1,28 @@
-using OpenAIDeleteResponse = DotNetToolbox.OpenAI.Models.DataModels.DeleteResponse;
-using OpenAIModel = DotNetToolbox.OpenAI.Models.DataModels.Model;
-using OpenAIModelsResponse = DotNetToolbox.OpenAI.Models.DataModels.ModelsResponse;
-
 namespace DotNetToolbox.OpenAI.Models;
 
 public class ModelsHandlerTests {
     private readonly ModelsHandler _modelsHandler;
-    private readonly IConfiguration _configuration;
     private readonly ILogger<ModelsHandler> _logger;
     private readonly FakeHttpMessageHandler _httpMessageHandler;
 
     public ModelsHandlerTests() {
-        _configuration = Substitute.For<IConfiguration>();
         var configurationSection = Substitute.For<IConfigurationSection>();
         configurationSection.Value.Returns("SomeAPIKey");
-        _configuration.GetSection("OpenAI:ApiKey").Returns(configurationSection);
-        var httpClientProvider = Substitute.For<IHttpClientProvider>();
+        var httpClientProvider = Substitute.For<IOpenAIHttpClientProvider>();
         _httpMessageHandler = new();
         var httpClient = new HttpClient(_httpMessageHandler, true) {
-                                                                       BaseAddress = new("https://somehost.com/"),
-                                                                   };
-        httpClientProvider.GetHttpClient(Arg.Any<Action<HttpClientOptionsBuilder>?>())
+            BaseAddress = new("https://somehost.com/"),
+        };
+        httpClientProvider.GetHttpClient(Arg.Any<Action<OpenAIHttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
         _logger = Substitute.For<ILogger<ModelsHandler>>();
-        _modelsHandler = new(_configuration, httpClientProvider, _logger);
-    }
-
-    [Fact]
-    public void SetOptions_Passes() {
-        var options = new HttpClientOptionsBuilder();
-        ModelsHandler.SetOptions(options, _configuration);
-    }
-
-    [Fact]
-    public void SetAuthentication_Passes() {
-        var options = new StaticTokenAuthenticationOptions();
-        ModelsHandler.SetAuthentication(options, _configuration);
+        _modelsHandler = new(httpClientProvider, _logger);
     }
 
     [Fact]
     public async Task Get_ReturnsModels() {
         // Arrange
-        var response = new OpenAIModelsResponse {
+        var response = new ModelsResponse {
             Data = [
                 new() {
                     Id = "model1",
@@ -145,7 +126,7 @@ public class ModelsHandlerTests {
 
     [Fact]
     public async Task Delete_ReturnsTrue() {
-        var response = new OpenAIDeleteResponse() {
+        var response = new DeleteResponse() {
             Id = "testId",
             Deleted = true,
         };

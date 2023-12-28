@@ -12,6 +12,7 @@ global using DotNetToolbox.Http.Extensions;
 global using DotNetToolbox.Http.Options;
 global using DotNetToolbox.OpenAI.Chats;
 global using DotNetToolbox.OpenAI.Chats.DataModels;
+global using DotNetToolbox.OpenAI.HttpProvider;
 global using DotNetToolbox.OpenAI.Models;
 global using DotNetToolbox.OpenAI.Models.DataModels;
 global using DotNetToolbox.OpenAI.Tools;
@@ -21,6 +22,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.Abstractions;
+global using Microsoft.Extensions.Options;
 
 global using static DotNetToolbox.Ensure;
 

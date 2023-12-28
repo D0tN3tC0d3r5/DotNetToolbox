@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.OpenAI.Chats.DataModels;
 
-internal record CompletionRequest : ChatOptions {
+internal record CompletionRequest(string Model = "gpt-3.5-turbo-1106") : ChatOptions(Model) {
     public required Prompt[] Messages { get; init; }
 
     [JsonPropertyName("max_tokens")]
@@ -8,13 +8,12 @@ internal record CompletionRequest : ChatOptions {
     [JsonPropertyName("n")]
     public override int? NumberOfChoices { get; init; }
     [JsonPropertyName("stop")]
-    public override string[]? StopSignals { get; init; }
+    public override string[] StopSignals { get; init; } = [];
     [JsonPropertyName("top_p")]
     public override int? TopProbability { get; init; }
-
     [JsonPropertyName("stream")]
-    public bool StreamResponse { get; init; }
+    public override bool UseStream { get; init; }
     [JsonPropertyName("tool_choice")]
-    public JsonElement? ResponseType { get; init; }
-    public JsonElement? ResponseFormat { get; init; }
+    public JsonElement? ResponseType { get; init; } = JsonSerializer.SerializeToElement("auto");
+    public JsonElement? ResponseFormat { get; init; } = JsonSerializer.SerializeToElement(new { Type = "json_object" });
 }

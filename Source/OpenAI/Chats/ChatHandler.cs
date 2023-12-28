@@ -1,26 +1,18 @@
 ﻿namespace DotNetToolbox.OpenAI.Chats;
 
-internal class ChatHandler(IChatRepository repository, IConfiguration configuration, IHttpClientProvider httpClientProvider, ILogger<ChatHandler>? logger = null)
+internal class ChatHandler(IChatRepository repository, IOpenAIHttpClientProvider httpClientProvider, ILogger<ChatHandler>? logger = null)
     : IChatHandler {
     private readonly ILogger<ChatHandler> _logger = logger ?? NullLogger<ChatHandler>.Instance;
-    private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient(opt => SetOptions(opt, configuration));
-
-    internal static void SetOptions(HttpClientOptionsBuilder opt, IConfiguration configuration) {
-        opt.SetBaseAddress(new("https://api.openai.com/v1/"));
-        opt.UseSimpleTokenAuthentication(auth => SetAuthentication(auth: auth, configuration: configuration));
-    }
-
-    internal static void SetAuthentication(StaticTokenAuthenticationOptions auth, IConfiguration configuration) {
-        auth.Scheme = AuthenticationScheme.Bearer;
-        auth.Token = IsNotNullOrWhiteSpace(configuration.GetValue<string>("OpenAI:ApiKey"));
-    }
+    private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 
     public async Task<string> Create(ChatOptions options) {
         try {
+            _logger.LogDebug("Creating new chat...");
             var chat = new Chat {
                 Options = options,
             };
             await repository.Add(chat);
+            _logger.LogDebug("Chat '{id}' created.", chat.Id);
             return chat.Id;
         }
         catch (Exception ex) {
@@ -30,15 +22,20 @@ internal class ChatHandler(IChatRepository repository, IConfiguration configurat
     }
 
     public async Task<string?> SendMessage(string id, string message) {
+        _logger.LogDebug("Sending message to chat '{id}'...", id);
         var chat = await repository.GetById(id);
         if (chat is null) return null;
 
         try {
             chat.Messages.Add(new Message {
-                Content = JsonSerializer.Deserialize<JsonElement>(message),
+                Content = JsonSerializer.SerializeToElement(message),
                 Type = MessageType.User,
             });
-            return await GetReplyAsync(chat).ConfigureAwait(false);
+            var reply = await GetReplyAsync(chat).ConfigureAwait(false);
+            // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+            if (reply == string.Empty) _logger.LogDebug("Empty reply received for chat '{id}'.", id);
+            else _logger.LogDebug("Reply for chat '{id}' received.", id);
+            return reply;
         }
         catch (Exception ex) {
             _logger.LogError(ex, "Failed to send query.");
@@ -52,17 +49,20 @@ internal class ChatHandler(IChatRepository repository, IConfiguration configurat
         var response = await _httpClient.PostAsync("chat/completions", content).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var reply = await response.Content.ReadFromJsonAsync<CompletionResponse>().ConfigureAwait(false);
-        var choice = reply!.Choices[0].Message!;
+        if (reply!.Choices.Length == 0) return string.Empty;
+        var choice = reply!.Choices[0];
+        var message = choice is MessageChoice messageChoice
+                          ? messageChoice.Message
+                          : ((DeltaChoice)choice).Delta;
         chat.Messages.Add(new Prompt {
-            Type = choice.Type,
-            Content = choice.Content!,
+            Type = message.Type,
+            Content = message.Content!,
         });
-        return choice.Content.GetValueOrDefault().Deserialize<string>() ?? string.Empty;
+        return message.Content.GetValueOrDefault().Deserialize<string>() ?? string.Empty;
     }
 
     private static CompletionRequest CreateCompletionRequest(Chat chat)
-        => new() {
-            Model = chat.Options.Model,
+        => new(chat.Options.Model) {
             Temperature = 1.0m,
             MaximumNumberOfTokensPerMessage = 8000,
             Messages = chat.Messages.Select(i => new Prompt {

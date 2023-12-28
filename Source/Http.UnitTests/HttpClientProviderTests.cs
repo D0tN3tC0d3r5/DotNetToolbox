@@ -25,7 +25,7 @@ public sealed class HttpClientProviderTests : IDisposable {
     private bool _isDisposed;
     public void Dispose() {
         if (_isDisposed) return;
-        HttpClientProvider.RevokeAuthorization();
+        _provider.RevokeAuthentication();
         _isDisposed = true;
     }
 
@@ -58,7 +58,7 @@ public sealed class HttpClientProviderTests : IDisposable {
     [Fact]
     public void GetHttpClient_WithInvalidOptions_Throws() {
         // Arrange
-        _defaultOptions.ResponseFormat = string.Empty;
+        _defaultOptions.BaseAddress = null;
 
         // Act
         var result = () => _provider.GetHttpClient();
@@ -66,7 +66,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors.First().FormattedMessage.Should().Be("ResponseFormat: Value cannot be null or white space.");
+        exception.Errors.First().FormattedMessage.Should().Be("BaseAddress: Value cannot be null or white space.");
     }
 
     [Fact]
@@ -127,13 +127,13 @@ public sealed class HttpClientProviderTests : IDisposable {
     [Fact]
     public void GetHttpClient_WithInvalidName_Throws() {
         // Arrange
-        _defaultOptions.ResponseFormat = string.Empty;
+        _defaultOptions.BaseAddress = null;
 
         // Act
         var result = () => _provider.GetHttpClient("Invalid");
 
         // Assert
-        result.Should().Throw<ValidationException>();
+        result.Should().Throw<ArgumentException>();
     }
 
     [Fact]
@@ -169,6 +169,7 @@ public sealed class HttpClientProviderTests : IDisposable {
     [Fact]
     public void GetHttpClient_WithInvalidNamedClient_ReturnsHttpClient() {
         // Arrange
+        _defaultOptions.BaseAddress = null;
         _defaultOptions.Clients = new() {
             ["NamedClient1"] = new() {
                 BaseAddress = _defaultOptions.BaseAddress,

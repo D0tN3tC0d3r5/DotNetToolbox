@@ -1,30 +1,23 @@
 ﻿namespace DotNetToolbox.Http;
 
-public class HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpClientOptions> options)
-    : IHttpClientProvider {
-    private readonly HttpClientOptions _options = IsNotNull(options).Value;
+public class HttpClientProvider<TOptionsBuilder, TOptions>(IHttpClientFactory clientFactory, IOptions<TOptions> options)
+    : IHttpClientProvider<TOptionsBuilder, TOptions>
+    where TOptionsBuilder : HttpClientOptionsBuilder<TOptions>
+    where TOptions : HttpClientOptions<TOptions>, new() {
 
-    private static HttpAuthentication _authentication = new();
-    private static readonly object _lock = new();
+    private HttpAuthentication _authentication = new();
 
-    public static void RevokeAuthorization() {
-        lock (_lock) _authentication = new();
+    protected TOptions Options { get; } = IsNotNull(options).Value;
+
+    public void RevokeAuthentication() => _authentication = new();
+
+    public HttpClient GetHttpClient(Action<TOptionsBuilder>? configureBuilder = null) {
+        var builder = Create.Instance<TOptionsBuilder>(Options);
+        configureBuilder?.Invoke(builder);
+        return CreateHttpClient(builder.Build());
     }
 
-    public HttpClient GetHttpClient(Action<HttpClientOptionsBuilder>? configBuilder = null)
-        => GetHttpClient(default!, configBuilder);
-
-    public HttpClient GetHttpClient(string name, Action<HttpClientOptionsBuilder>? configBuilder = null) {
-        var options = _options.Clients?[name] ?? _options;
-        var builder = new HttpClientOptionsBuilder(options);
-        configBuilder?.Invoke(builder);
-        options = builder.Build();
-
-        lock (_lock)
-            return CreateHttpClient(options);
-    }
-
-    private HttpClient CreateHttpClient(HttpClientOptions options) {
+    protected HttpClient CreateHttpClient(TOptions options) {
         var client = clientFactory.CreateClient();
         client.BaseAddress = options.BaseAddress;
         client.DefaultRequestHeaders.Accept.Clear();
@@ -35,5 +28,15 @@ public class HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpC
         _authentication = options.Authentication?.Configure(client, _authentication)!;
 
         return client;
+    }
+}
+
+public class HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpClientOptions> options)
+    : HttpClientProvider<HttpClientOptionsBuilder, HttpClientOptions>(clientFactory, options),
+      IHttpClientProvider {
+    public HttpClient GetHttpClient(string name, Action<HttpClientOptionsBuilder>? configureBuilder = null) {
+        var builder = Create.Instance<HttpClientOptionsBuilder>(Options);
+        configureBuilder?.Invoke(builder);
+        return CreateHttpClient(builder.Build(name));
     }
 }
