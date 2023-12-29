@@ -78,7 +78,7 @@ internal class ModelsHandler(IOpenAIHttpClientProvider httpClientProvider, ILogg
                ? null
                : new() {
                    Id = input.Id,
-                   Name = input.Id,
+                   Name = input.IsFineTuned ? input.Id[3..] : input.Id,
                    IsFineTuned = input.IsFineTuned,
                    Type = input.Type,
                    CreatedOn = DateTimeOffset.FromUnixTimeSeconds(input.Created),

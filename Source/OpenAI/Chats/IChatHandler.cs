@@ -7,9 +7,10 @@ public interface IChatHandler {
     /// <summary>
     /// Creates a new chat with the specified model and setup message.
     /// </summary>
-    /// <param name="options">The options for the chat.</param>
+    /// <param name="model">The model used in the chat.</param>
+    /// <param name="configure">A function to enable te configuration of the chat behavior.</param>
     /// <returns>The ID of the new chat.</returns>
-    Task<string> Create(ChatOptions options);
+    Task<string> Create(string model, Action<ChatOptionsBuilder>? configure = null);
 
     /// <summary>
     /// Sends a message to the specified chat and returns the response.

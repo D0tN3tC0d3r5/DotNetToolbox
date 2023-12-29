@@ -1,19 +1,22 @@
 ﻿namespace DotNetToolbox.OpenAI.Chats.DataModels;
 
-internal record CompletionRequest(string Model = "gpt-3.5-turbo-1106") : ChatOptions(Model) {
-    public required Prompt[] Messages { get; init; }
-
+internal record CompletionRequest(string Model = "gpt-3.5-turbo-1106") {
+    public Prompt[] Messages { get; set; }
+    public decimal FrequencyPenalty { get; set; }
+    public decimal PresencePenalty { get; set; }
+    public decimal Temperature { get; set; }
     [JsonPropertyName("max_tokens")]
-    public override int? MaximumNumberOfTokensPerMessage { get; init; }
+    public int MaximumTokensPerMessage { get; set; }
     [JsonPropertyName("n")]
-    public override int? NumberOfChoices { get; init; }
+    public int NumberOfChoices { get; set; }
     [JsonPropertyName("stop")]
-    public override string[] StopSignals { get; init; } = [];
+    public string[] StopSignals { get; set; } = [];
     [JsonPropertyName("top_p")]
-    public override int? TopProbability { get; init; }
+    public decimal TopProbability { get; set; }
     [JsonPropertyName("stream")]
-    public override bool UseStream { get; init; }
+    public bool UseStreaming { get; set; }
+    public Tool[] Tools { get; set; } = [];
     [JsonPropertyName("tool_choice")]
-    public JsonElement? ResponseType { get; init; } = JsonSerializer.SerializeToElement("auto");
-    public JsonElement? ResponseFormat { get; init; } = JsonSerializer.SerializeToElement(new { Type = "json_object" });
+    public JsonElement? ResponseType { get; set; } = JsonSerializer.SerializeToElement("auto");
+    public JsonElement? ResponseFormat { get; set; } = JsonSerializer.SerializeToElement(new { Type = "json_object" });
 }

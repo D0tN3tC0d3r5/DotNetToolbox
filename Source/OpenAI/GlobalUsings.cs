@@ -16,6 +16,8 @@ global using DotNetToolbox.OpenAI.HttpProvider;
 global using DotNetToolbox.OpenAI.Models;
 global using DotNetToolbox.OpenAI.Models.DataModels;
 global using DotNetToolbox.OpenAI.Tools;
+global using DotNetToolbox.Results;
+global using DotNetToolbox.Validation;
 
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
@@ -27,4 +29,3 @@ global using Microsoft.Extensions.Options;
 global using static DotNetToolbox.Ensure;
 
 global using OpenAiModel = DotNetToolbox.OpenAI.Models.DataModels.Model;
-global using Model = DotNetToolbox.OpenAI.Models.Model;

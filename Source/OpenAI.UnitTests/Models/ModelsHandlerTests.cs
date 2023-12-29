@@ -25,7 +25,7 @@ public class ModelsHandlerTests {
         var response = new ModelsResponse {
             Data = [
                 new() {
-                    Id = "model1",
+                    Id = "ft:model1",
                     Created = DateTimeOffset.Parse("2020-01-01 12:34:56").ToUnixTimeSeconds(),
                     OwnedBy = "user1",
                 },
@@ -43,16 +43,19 @@ public class ModelsHandlerTests {
 
         // Assert
         result.Should().HaveCount(2);
-        result[0].Id.Should().Be("model1");
+        result[0].Id.Should().Be("ft:model1");
         result[0].CreatedOn.Should().Be(DateTimeOffset.Parse("2020-01-01 12:34:56"));
         result[0].OwnedBy.Should().Be("user1");
         result[0].Type.Should().Be(ModelType.Chat);
         result[0].Name.Should().Be("model1");
+        result[0] = result[0] with { Name = "model1" };
+        result[0].IsFineTuned.Should().BeTrue();
         result[1].Id.Should().Be("model2");
         result[1].CreatedOn.Should().Be(DateTimeOffset.Parse("2020-01-01 12:34:56"));
         result[1].OwnedBy.Should().Be("user1");
         result[1].Type.Should().Be(ModelType.Chat);
         result[1].Name.Should().Be("model2");
+        result[1].IsFineTuned.Should().BeFalse();
         _logger.ShouldContain(LogLevel.Debug, "Getting list of models...");
         _logger.ShouldContain(LogLevel.Debug, "A list of 2 models was found.");
     }
@@ -74,7 +77,7 @@ public class ModelsHandlerTests {
     [Fact]
     public async Task GetById_ReturnsModel() {
         // Arrange
-        var response = new OpenAIModel() {
+        var response = new OpenAIModel {
             Id = "model1",
             Created = DateTimeOffset.Parse("2020-01-01 12:34:56")
                                             .ToUnixTimeSeconds(),
@@ -92,6 +95,7 @@ public class ModelsHandlerTests {
         subject.OwnedBy.Should().Be("user1");
         subject.Type.Should().Be(ModelType.Chat);
         subject.Name.Should().Be("model1");
+        subject.IsFineTuned.Should().Be(false);
         _logger.ShouldContain(LogLevel.Debug, "Getting model 'testId' details...");
         _logger.ShouldContain(LogLevel.Debug, "The model 'testId' was found.");
     }
