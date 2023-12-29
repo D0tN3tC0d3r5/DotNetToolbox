@@ -50,6 +50,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI", "Ope
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.UnitTests", "OpenAI.UnitTests\DotNetToolbox.OpenAI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.OpenAI.Console", "OpenAI.Console\DotNetToolbox.OpenAI.Console.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +126,10 @@ Global
 		{857AADEE-5A43-46A0-B598-82918D0B06A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{857AADEE-5A43-46A0-B598-82918D0B06A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{857AADEE-5A43-46A0-B598-82918D0B06A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

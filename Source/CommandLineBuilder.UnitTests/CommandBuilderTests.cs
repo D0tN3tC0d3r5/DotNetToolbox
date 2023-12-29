@@ -10,11 +10,13 @@ public class CommandBuilderTests {
         subject.Path.Should().Be("testhost");
         subject.ToString().Should().Be("Root 'testhost'");
         subject.Tokens.Should().HaveCount(4);
+        subject.Dispose();
+        subject.Dispose();
     }
 
     [Fact]
     public void CommandBuilder_AddOption_CreatesCommandWithOption() {
-        var subject = CommandBuilder.FromDefaultRoot().AddOption<int>("option").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddOption<int>("option").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Option<int>>().Subject.Name.Should().Be("option");
@@ -22,7 +24,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddOption_WithDescription_CreatesCommandWithOption() {
-        var subject = CommandBuilder.FromDefaultRoot().AddOption<int>("option", "Some option.").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddOption<int>("option", "Some option.").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Option<int>>().Subject.Name.Should().Be("option");
@@ -30,7 +32,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddOption_WithDescription_WithAlias_CreatesCommandWithOption() {
-        var subject = CommandBuilder.FromDefaultRoot().AddOption<int>("option", 'o').Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddOption<int>("option", 'o').Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Option<int>>().Subject.Name.Should().Be("option");
@@ -39,7 +41,7 @@ public class CommandBuilderTests {
     [Fact]
     public void CommandBuilder_Add_WithToken_CreatesCommandWithToken() {
         var option = new Option<int>("option");
-        var subject = CommandBuilder.FromDefaultRoot().Add(option).Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddChild(option).Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Option<int>>().Subject.Name.Should().Be("option");
@@ -47,7 +49,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddOptions_CreatesCommandWithOption() {
-        var subject = CommandBuilder.FromDefaultRoot().AddOptions<int>("option").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddOptions<int>("option").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Options<int>>().Subject.Name.Should().Be("option");
@@ -55,7 +57,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddOptions_WithDescription_CreatesCommandWithOption() {
-        var subject = CommandBuilder.FromDefaultRoot().AddOptions<int>("option", "Some option.").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddOptions<int>("option", "Some option.").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Options<int>>().Subject.Name.Should().Be("option");
@@ -63,7 +65,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddOptions_WithDescription_WithAlias_CreatesCommandWithOption() {
-        var subject = CommandBuilder.FromDefaultRoot().AddOptions<int>("option", 'o').Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddOptions<int>("option", 'o').Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Options<int>>().Subject.Name.Should().Be("option");
@@ -71,7 +73,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddFlag_CreatesCommandWithFlag() {
-        var subject = CommandBuilder.FromDefaultRoot().AddFlag("flag").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddFlag("flag").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Flag>().Subject.Name.Should().Be("flag");
@@ -79,7 +81,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddFlag_WithDescription_CreatesCommandWithFlag() {
-        var subject = CommandBuilder.FromDefaultRoot().AddFlag("flag", "Some flag.", true).Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddFlag("flag", "Some flag.", true).Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Flag>().Subject.Name.Should().Be("flag");
@@ -87,7 +89,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddFlag_WithAlias_CreatesCommandWithFlag() {
-        var subject = CommandBuilder.FromDefaultRoot().AddFlag("flag", 'f').Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddFlag("flag", 'f').Build();
 
         subject.Tokens.Should().HaveCount(5);
         var flag = subject.Tokens[4].Should().BeOfType<Flag>().Subject;
@@ -98,7 +100,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddParameter_CreatesCommandWithArgument() {
-        var subject = CommandBuilder.FromDefaultRoot().AddParameter<int>("parameter").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddParameter<int>("parameter").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Parameter<int>>().Subject.Name.Should().Be("parameter");
@@ -106,7 +108,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddParameter_WithDescription_CreatesCommandWithArgument() {
-        var subject = CommandBuilder.FromDefaultRoot().AddParameter<int>("parameter", "Some argument.").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddParameter<int>("parameter", "Some argument.").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Parameter<int>>().Subject.Name.Should().Be("parameter");
@@ -114,7 +116,15 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddCommand_CreatesCommandWithSubCommand() {
-        var subject = CommandBuilder.FromDefaultRoot().AddChildCommand<Command>("sub").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddChild<Command>("sub").Build();
+
+        subject.Tokens.Should().HaveCount(5);
+        subject.Tokens[4].Should().BeOfType<Command>().Subject.Name.Should().Be("sub");
+    }
+
+    [Fact]
+    public void CommandBuilder_AddCommand_CreatesCommandWithNameAndSubCommand() {
+        using var subject = CommandBuilder.FromDefaultRoot().AddChild("sub").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Command>().Subject.Name.Should().Be("sub");
@@ -122,7 +132,16 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddCommand_WithSetup_CreatesCommandWithSubCommand() {
-        var subject = CommandBuilder.FromDefaultRoot().AddChildCommand("sub", build: b => b.AddOption<int>("option")).Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddChild("sub", b => b.AddOption<int>("option")).Build();
+
+        subject.Tokens.Should().HaveCount(5);
+        subject.Tokens[4].Should().BeOfType<Command>().Subject.Name.Should().Be("sub");
+    }
+
+
+    [Fact]
+    public void CommandBuilder_AddCommand_WithSetup_CreatesCommandWithNameAndSubCommand() {
+        using var subject = CommandBuilder.FromDefaultRoot().AddChild<Command>("sub", b => b.AddOption<int>("option")).Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Command>().Subject.Name.Should().Be("sub");
@@ -130,7 +149,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddCommand_WithDescription_CreatesCommandWithSubCommand() {
-        var subject = CommandBuilder.FromDefaultRoot().AddChildCommand("sub", "Some sub-command.").Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddChild("sub", "Some sub-command.").Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Command>().Subject.Name.Should().Be("sub");
@@ -138,7 +157,7 @@ public class CommandBuilderTests {
 
     [Fact]
     public void CommandBuilder_AddCommand_WithDescriptionAndSetup_CreatesCommandWithSubCommand() {
-        var subject = CommandBuilder.FromDefaultRoot().AddChildCommand("sub", "Some sub-command.", b => b.AddOption<int>("option")).Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddChild("sub", "Some sub-command.", b => b.AddOption<int>("option")).Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Command>().Subject.Name.Should().Be("sub");
@@ -147,7 +166,7 @@ public class CommandBuilderTests {
     [Fact]
     public void CommandBuilder_Add_WithCommand_CreatesCommandWithSubCommand() {
         var command = new Command("sub");
-        var subject = CommandBuilder.FromDefaultRoot().Add(command).Build();
+        using var subject = CommandBuilder.FromDefaultRoot().AddChild(command).Build();
 
         subject.Tokens.Should().HaveCount(5);
         subject.Tokens[4].Should().BeOfType<Command>().Subject.Name.Should().Be("sub");

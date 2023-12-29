@@ -4,8 +4,8 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% CommandLineBuilder 8.0.2
-cd CommandLineBuilder
+call Publish %target% OpenAI 8.0.1
+cd OpenAI
 goto :eof
 
 :USAGE

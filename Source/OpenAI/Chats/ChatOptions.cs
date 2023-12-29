@@ -8,7 +8,7 @@ public record ChatOptions : IValidatable {
     public const byte DefaultPresencePenalty = 0;
     public const sbyte MinimumPresencePenalty = -2;
     public const byte MaximumPresencePenalty = 2;
-    public const uint DefaultTokensPerMessage = 8192;
+    public const uint DefaultMaximumTokensPerMessage = 8192;
     public const uint MinimumTokensPerMessage = 1024;
     public const byte DefaultNumberOfChoices = 1;
     public const byte MinimumNumberOfChoices = 1;
@@ -26,7 +26,7 @@ public record ChatOptions : IValidatable {
     }
 
     public string Model { get; } = DefaultChatModel;
-    public virtual uint MaximumTokensPerMessage { get; init; } = DefaultTokensPerMessage;
+    public virtual uint MaximumTokensPerMessage { get; init; } = DefaultMaximumTokensPerMessage;
     public virtual byte NumberOfChoices { get; init; } = DefaultNumberOfChoices;
     public virtual decimal FrequencyPenalty { get; init; } = DefaultFrequencyPenalty;
     public virtual decimal PresencePenalty { get; init; } = DefaultPresencePenalty;

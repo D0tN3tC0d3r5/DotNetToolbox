@@ -2,6 +2,8 @@ using DotNetToolbox.Validation;
 
 using NSubstitute.ExceptionExtensions;
 
+using static DotNetToolbox.OpenAI.Chats.ChatOptions;
+
 namespace DotNetToolbox.OpenAI.Chats;
 
 public class ChatHandlerTests {
@@ -34,9 +36,19 @@ public class ChatHandlerTests {
         var result = await _chatHandler.Create();
 
         // Assert
-        result.Should().NotBeNullOrEmpty();
+        var chat = result.Should().BeOfType<Chat>().Subject;
+        chat.Id.Should().NotBeNullOrEmpty();
+        chat.Options.FrequencyPenalty.Should().Be(DefaultFrequencyPenalty);
+        chat.Options.PresencePenalty.Should().Be(DefaultPresencePenalty);
+        chat.Options.MaximumTokensPerMessage.Should().Be(DefaultMaximumTokensPerMessage);
+        chat.Options.NumberOfChoices.Should().Be(DefaultNumberOfChoices);
+        chat.Options.Temperature.Should().Be(DefaultTemperature);
+        chat.Options.TopProbability.Should().Be(DefaultTopProbability);
+        chat.Options.UseStreaming.Should().BeFalse();
+        chat.Options.StopSignals.Should().BeEmpty();
+        chat.Options.Tools.Should().BeEmpty();
         _logger.ShouldContain(LogLevel.Debug, "Creating new chat...");
-        _logger.ShouldContain(LogLevel.Debug, $"Chat '{result}' created.");
+        _logger.ShouldContain(LogLevel.Debug, $"Chat '{chat.Id}' created.");
     }
 
     [Fact]
@@ -67,9 +79,19 @@ public class ChatHandlerTests {
                                                });
 
         // Assert
-        result.Should().NotBeNullOrEmpty();
+        var chat = result.Should().BeOfType<Chat>().Subject;
+        chat.Id.Should().NotBeNullOrEmpty();
+        chat.Options.FrequencyPenalty.Should().Be(1.5m);
+        chat.Options.PresencePenalty.Should().Be(1.1m);
+        chat.Options.MaximumTokensPerMessage.Should().Be(100000);
+        chat.Options.NumberOfChoices.Should().Be(2);
+        chat.Options.Temperature.Should().Be(0.7m);
+        chat.Options.TopProbability.Should().Be(0.5m);
+        chat.Options.UseStreaming.Should().BeTrue();
+        chat.Options.StopSignals.Should().BeEquivalentTo("Abort!", "Stop!");
+        chat.Options.Tools.Should().HaveCount(2);
         _logger.ShouldContain(LogLevel.Debug, "Creating new chat...");
-        _logger.ShouldContain(LogLevel.Debug, $"Chat '{result}' created.");
+        _logger.ShouldContain(LogLevel.Debug, $"Chat '{chat.Id}' created.");
     }
 
     [Fact]
@@ -167,7 +189,7 @@ public class ChatHandlerTests {
         var result = await _chatHandler.SendMessage("testId", "testMessage");
 
         // Assert
-        chat.Options.Model.Should().Be(ChatOptions.DefaultChatModel);
+        chat.Options.Model.Should().Be(DefaultChatModel);
         chat.Messages.Should().HaveCount(2);
         result.Should().NotBeNull();
         _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");
@@ -197,7 +219,7 @@ public class ChatHandlerTests {
         var result = await _chatHandler.SendMessage("testId", "testMessage");
 
         // Assert
-        chat.Options.Model.Should().Be(ChatOptions.DefaultChatModel);
+        chat.Options.Model.Should().Be(DefaultChatModel);
         chat.Messages.Should().HaveCount(2);
         result.Should().BeEmpty();
         _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");
@@ -227,7 +249,7 @@ public class ChatHandlerTests {
         var result = await _chatHandler.SendMessage("testId", "testMessage");
 
         // Assert
-        chat.Options.Model.Should().Be(ChatOptions.DefaultChatModel);
+        chat.Options.Model.Should().Be(DefaultChatModel);
         chat.Messages.Should().HaveCount(2);
         result.Should().NotBeNull();
         _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");

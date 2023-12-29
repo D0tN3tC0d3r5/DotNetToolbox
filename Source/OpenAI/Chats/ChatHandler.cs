@@ -4,7 +4,7 @@ internal class ChatHandler(IChatRepository repository, IOpenAIHttpClientProvider
     : IChatHandler {
     private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 
-    public async Task<string> Create(string? model = null, Action<ChatOptionsBuilder>? configure = null) {
+    public async Task<Chat> Create(string? model = null, Action<ChatOptionsBuilder>? configure = null) {
         try {
             logger.LogDebug("Creating new chat...");
             var builder = new ChatOptionsBuilder(model);
@@ -12,7 +12,7 @@ internal class ChatHandler(IChatRepository repository, IOpenAIHttpClientProvider
             var chat = new Chat(builder.Build());
             await repository.Add(chat);
             logger.LogDebug("Chat '{id}' created.", chat.Id);
-            return chat.Id;
+            return chat;
         }
         catch (Exception ex) {
             logger.LogError(ex, "Failed to create a new chat.");

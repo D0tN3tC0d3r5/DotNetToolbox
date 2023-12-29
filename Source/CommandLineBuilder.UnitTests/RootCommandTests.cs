@@ -2,29 +2,29 @@
 
 public class RootCommandTests {
     [Fact]
-    public async Task RootCommand_Execute_WithWriter_ExecutesDelegate() {
+    public void RootCommand_Execute_WithWriter_ExecutesDelegate() {
         InMemoryOutputWriter writer = new();
         RootCommand subject = new(writer);
-        subject.OnExecute += (cmd, _, ct) => Task.Run(() => {
+        subject.SetInstanceAction(cmd => {
             var who = cmd.GetValueOrDefault<string>("who");
             cmd.Writer.WriteLine($"Hello {who}!");
-        }, ct);
+        });
         subject.Add(new Parameter<string>("who"));
 
-        await subject.Execute("world");
+        subject.Execute("world");
 
         writer.Output.Should().Be("Hello world!\n");
     }
 
     [Fact]
-    public Task RootCommand_Execute_WithoutWriter_ExecutesDelegate() {
+    public void RootCommand_Execute_WithoutWriter_ExecutesDelegate() {
         RootCommand subject = new();
-        subject.OnExecute += (cmd, _, ct) => Task.Run(() => {
+        subject.SetInstanceAction(cmd => {
             var who = cmd.GetValueOrDefault<string>("who");
             cmd.Writer.WriteLine($"Hello {who}!");
-        }, ct);
+        });
         subject.Add(new Parameter<string>("who"));
 
-        return subject.Execute("world");
+        subject.Execute("world");
     }
 }

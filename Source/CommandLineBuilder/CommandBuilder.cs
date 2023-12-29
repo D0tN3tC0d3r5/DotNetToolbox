@@ -1,11 +1,12 @@
 ﻿namespace DotNetToolbox.CommandLineBuilder;
 
 public static class CommandBuilder {
-    public static CommandBuilder<TRootCommand> From<TRootCommand>(OutputWriter? writer = null)
+    public static CommandBuilder<TRootCommand> From<TRootCommand>()
         where TRootCommand : CommandBase<TRootCommand>
-        => new(writer);
+        => new();
 
-    public static CommandBuilder<RootCommand> FromDefaultRoot(OutputWriter? writer = null) => From<RootCommand>(writer);
+    public static CommandBuilder<RootCommand> FromDefaultRoot()
+        => From<RootCommand>();
 }
 
 public sealed class CommandBuilder<TCommand>
@@ -13,15 +14,13 @@ public sealed class CommandBuilder<TCommand>
     private readonly bool _isRoot;
     private readonly string? _name;
     private readonly string? _description;
-    private readonly OutputWriter? _writer;
-
-    private Func<TCommand, string[], CancellationToken, Task>? _onExecute;
-
     private readonly List<Func<CommandBase, CommandBase>> _steps = [];
 
-    internal CommandBuilder(OutputWriter? writer = null) {
+    private object? _action;
+    private OutputWriter? _writer;
+
+    internal CommandBuilder() {
         _isRoot = true;
-        _writer = writer ?? new OutputWriter();
     }
 
     private CommandBuilder(string name, string? description = null) {
@@ -30,63 +29,68 @@ public sealed class CommandBuilder<TCommand>
         _description = description;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Action onExecute) {
-        _onExecute = (_, _, ct) => Task.Run(onExecute, ct);
+    public CommandBuilder<TCommand> WithWriter(OutputWriter writer) {
+        _writer = writer;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Action<string[]> onExecute) {
-        _onExecute = (_, args, ct) => Task.Run(() => onExecute(args), ct);
+    public CommandBuilder<TCommand> WithStaticAction(Action action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Action<TCommand> onExecute) {
-        _onExecute = (cmd, _, ct) => Task.Run(() => onExecute(cmd), ct);
+    public CommandBuilder<TCommand> WithStaticAction(Action<string[]> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Action<TCommand, string[]> onExecute) {
-        _onExecute = (cmd, args, ct) => Task.Run(() => onExecute(cmd, args), ct);
+    public CommandBuilder<TCommand> WithAsyncStaticAction(Func<Task> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<Task> onExecute) {
-        _onExecute = (_, _, _) => onExecute();
+    public CommandBuilder<TCommand> WithAsyncStaticAction(Func<string[], Task> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<TCommand, Task> onExecute) {
-        _onExecute = (cmd, _, _) => onExecute(cmd);
+    public CommandBuilder<TCommand> WithAsyncStaticAction(Func<CancellationToken, Task> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<string[], Task> onExecute) {
-        _onExecute = (_, args, _) => onExecute(args);
+    public CommandBuilder<TCommand> WithAsyncStaticAction(Func<string[], CancellationToken, Task> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<TCommand, string[], Task> onExecute) {
-        _onExecute = (cmd, args, _) => onExecute(cmd, args);
+    public CommandBuilder<TCommand> WithInstanceAction(Action<TCommand> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<CancellationToken, Task> onExecute) {
-        _onExecute = (_, _, ct) => onExecute(ct);
+    public CommandBuilder<TCommand> WithInstanceAction(Action<TCommand, string[]> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<TCommand, CancellationToken, Task> onExecute) {
-        _onExecute = (cmd, _, ct) => onExecute(cmd, ct);
+    public CommandBuilder<TCommand> WithAsyncInstanceAction(Func<TCommand, Task> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<string[], CancellationToken, Task> onExecute) {
-        _onExecute = (_, args, ct) => onExecute(args, ct);
+    public CommandBuilder<TCommand> WithAsyncInstanceAction(Func<TCommand, string[], Task> action) {
+        _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> OnExecute(Func<TCommand, string[], CancellationToken, Task> onExecute) {
-        _onExecute = onExecute;
+    public CommandBuilder<TCommand> WithAsyncInstanceAction(Func<TCommand, CancellationToken, Task> action) {
+        _action = action;
+        return this;
+    }
+
+    public CommandBuilder<TCommand> WithAsyncInstanceAction(Func<TCommand, string[], CancellationToken, Task> action) {
+        _action = action;
         return this;
     }
 
@@ -94,49 +98,49 @@ public sealed class CommandBuilder<TCommand>
         => AddFlag(name, '\0', description, existsIfSet, onRead);
 
     public CommandBuilder<TCommand> AddFlag(string name, char alias, string? description = null, bool existsIfSet = false, Action<Token>? onRead = null)
-        => Add(new Flag(name, alias, description, existsIfSet, onRead));
+        => AddChild(new Flag(name, alias, description, existsIfSet, onRead));
 
     public CommandBuilder<TCommand> AddOptions<T>(string name, string? description = null, Action<Token>? onRead = null)
         => AddOptions<T>(name, '\0', description, onRead);
 
     public CommandBuilder<TCommand> AddOptions<T>(string name, char alias, string? description = null, Action<Token>? onRead = null)
-        => Add(new Options<T>(name, alias, description, onRead));
+        => AddChild(new Options<T>(name, alias, description, onRead));
 
     public CommandBuilder<TCommand> AddOption<T>(string name, string? description = null, Action<Token>? onRead = null)
         => AddOption<T>(name, '\0', description, onRead);
 
     public CommandBuilder<TCommand> AddOption<T>(string name, char alias, string? description = null, Action<Token>? onRead = null)
-        => Add(new Option<T>(name, alias, description, onRead));
+        => AddChild(new Option<T>(name, alias, description, onRead));
 
     public CommandBuilder<TCommand> AddParameter<T>(string name, string? description = null, Action<Token>? onRead = null)
-        => Add(new Parameter<T>(name, description, onRead));
+        => AddChild(new Parameter<T>(name, description, onRead));
 
-    public CommandBuilder<TCommand> AddChildCommand(string name, string? description = null)
-        => AddChildCommand(name, description, null);
+    public CommandBuilder<TCommand> AddChild(string name, string? description = null)
+        => AddChild(name, description, null);
 
-    public CommandBuilder<TCommand> AddChildCommand(string name, Action<CommandBuilder<Command>> build)
-        => AddChildCommand(name, null, build);
+    public CommandBuilder<TCommand> AddChild(string name, Action<CommandBuilder<Command>> build)
+        => AddChild(name, null, build);
 
-    public CommandBuilder<TCommand> AddChildCommand(string name, string? description, Action<CommandBuilder<Command>>? build)
-        => AddChildCommand<Command>(name, description, build);
+    public CommandBuilder<TCommand> AddChild(string name, string? description, Action<CommandBuilder<Command>>? build)
+        => AddChild<Command>(name, description, build);
 
-    public CommandBuilder<TCommand> AddChildCommand<TChildCommand>(string name, string? description = null)
+    public CommandBuilder<TCommand> AddChild<TChildCommand>(string name, string? description = null)
         where TChildCommand : CommandBase<TChildCommand>
-        => AddChildCommand<TChildCommand>(name, description, null);
+        => AddChild<TChildCommand>(name, description, null);
 
-    public CommandBuilder<TCommand> AddChildCommand<TChildCommand>(string name, Action<CommandBuilder<TChildCommand>> build)
+    public CommandBuilder<TCommand> AddChild<TChildCommand>(string name, Action<CommandBuilder<TChildCommand>> build)
         where TChildCommand : CommandBase<TChildCommand>
-        => AddChildCommand(name, null, build);
+        => AddChild(name, null, build);
 
-    public CommandBuilder<TCommand> AddChildCommand<TChildCommand>(string name, string? description, Action<CommandBuilder<TChildCommand>>? build)
+    public CommandBuilder<TCommand> AddChild<TChildCommand>(string name, string? description, Action<CommandBuilder<TChildCommand>>? build)
         where TChildCommand : CommandBase<TChildCommand> {
         CommandBuilder<TChildCommand> builder = new(name, description);
         build?.Invoke(builder);
-        Add(builder.Build());
+        AddChild(builder.Build());
         return this;
     }
 
-    public CommandBuilder<TCommand> Add(Token token) {
+    public CommandBuilder<TCommand> AddChild(Token token) {
         _steps.Add(parent => {
             parent.Add(token);
             return parent;
@@ -148,7 +152,20 @@ public sealed class CommandBuilder<TCommand>
         var command = _isRoot
             ? (TCommand)Activator.CreateInstance(typeof(TCommand), _writer)!
             : (TCommand)Activator.CreateInstance(typeof(TCommand), _name!, _description)!;
-        if (_onExecute is not null) command.OnExecute += _onExecute;
+        switch (_action) {
+            case Action action: command.SetStaticAction(action); break;
+            case Action<string[]> action: command.SetStaticAction(action); break;
+            case Func<Task> action: command.SetAsyncStaticAction(action); break;
+            case Func<string[], Task> action: command.SetAsyncStaticAction(action); break;
+            case Func<CancellationToken, Task> action: command.SetAsyncStaticAction(action); break;
+            case Func<string[], CancellationToken, Task> action: command.SetAsyncStaticAction(action); break;
+            case Action<TCommand> action: command.SetInstanceAction(action); break;
+            case Action<TCommand, string[]> action: command.SetInstanceAction(action); break;
+            case Func<TCommand, Task> action: command.SetAsyncInstanceAction(action); break;
+            case Func<TCommand, string[], Task> action: command.SetAsyncInstanceAction(action); break;
+            case Func<TCommand, CancellationToken, Task> action: command.SetAsyncInstanceAction(action); break;
+            case Func<TCommand, string[], CancellationToken, Task> action: command.SetAsyncInstanceAction(action); break;
+        }
         return (TCommand)_steps.Aggregate((CommandBase)command, (current, step) => step(current));
     }
 }

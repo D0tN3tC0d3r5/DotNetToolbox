@@ -1,14 +1,25 @@
 ﻿namespace DotNetToolbox.CommandLineBuilder;
 
-public abstract class CommandBase(TokenType type, string name, string? description = null) : Token(type, name, description), IAsyncDisposable {
-    protected virtual ValueTask DisposeAsyncCore()
-        => ValueTask.CompletedTask;
+public abstract class CommandBase(TokenType type, string name, string? description = null)
+    : Token(type, name, description), IDisposable {
 
-    public async ValueTask DisposeAsync() {
-        await DisposeAsyncCore();
-        GC.SuppressFinalize(this);
+    private bool _isDisposed;
+    protected virtual void ExecuteDispose() {
+        var disposables = Tokens.OfType<IDisposable>().ToArray();
+        foreach (var disposable in disposables) {
+            disposable.Dispose();
+        }
     }
 
+    public void Dispose() {
+        if (_isDisposed) return;
+        ExecuteDispose();
+        GC.SuppressFinalize(this);
+        _isDisposed = true;
+    }
+
+    internal abstract Task ExecuteCommand(string[] arguments, CancellationToken ct);
+    
     internal IList<Token> Tokens { get; } = new List<Token>();
 
     public void Add<T>(T token) where T : Token {
@@ -17,8 +28,6 @@ public abstract class CommandBase(TokenType type, string name, string? descripti
         token.Writer = Writer;
         Tokens.Add(token);
     }
-
-    public abstract Task Execute(string[] arguments, CancellationToken ct);
 
     public IReadOnlyList<T> GetValuesOrDefault<T>(string nameOrAlias, IReadOnlyList<T>? defaultValue = null) {
         ValidationHelper.ValidateName(nameOrAlias);
@@ -128,23 +137,67 @@ public abstract class CommandBase(TokenType type, string name, string? descripti
         var subCommand = Tokens.OfType<CommandBase>().FirstOrDefaultByName(name);
         if (subCommand is null) return false;
 
-        await subCommand.Execute(arguments[1..], ct);
+        await subCommand.ExecuteCommand(arguments[1..], ct);
         return true;
     }
 }
 
-public abstract class CommandBase<TCommand>(TokenType type, string name, string? description = null) : CommandBase(type, name, description)
+public abstract class CommandBase<TCommand>
+    : CommandBase
     where TCommand : CommandBase<TCommand> {
-    private static Task DefaultAsyncAction(TCommand c) => Task.Run(() => c.Writer.WriteHelp(c));
+    private Func<string[], CancellationToken, Task> _command;
 
-    protected override ValueTask DisposeAsyncCore() {
-        OnExecute = null;
-        return ValueTask.CompletedTask;
+    protected CommandBase(TokenType type, string name, string? description = null)
+        : base(type, name, description) {
+        _command = (_, ct) => Task.Run(() => Writer.WriteHelp(this), ct);
     }
 
-    public event Func<TCommand, string[], CancellationToken, Task>? OnExecute;
+    public void SetStaticAction(Action action)
+        => _command = (_, ct) => Task.Run(action, ct);
 
-    public override async Task Execute(string[] arguments, CancellationToken ct) {
+    public void SetStaticAction(Action<string[]> action)
+        => _command = (args, ct) => Task.Run(() => action(args), ct);
+
+    public void SetInstanceAction(Action<TCommand> action)
+        => _command = (_, ct) => Task.Run(() => action((TCommand)this), ct);
+
+    public void SetInstanceAction(Action<TCommand, string[]> action)
+        => _command = (args, ct) => Task.Run(() => action((TCommand)this, args), ct);
+
+    public void SetAsyncStaticAction(Func<Task> action)
+        => _command = (_, _) => action();
+
+    public void SetAsyncStaticAction(Func<string[], Task> action)
+        => _command = (args, _) => action(args);
+
+    public void SetAsyncStaticAction(Func<CancellationToken, Task> action)
+        => _command = (_, ct) => action(ct);
+
+    public void SetAsyncStaticAction(Func<string[], CancellationToken, Task> action)
+        => _command = action;
+
+    public void SetAsyncInstanceAction(Func<TCommand, Task> action)
+        => _command = (_, _) => action((TCommand)this);
+
+    public void SetAsyncInstanceAction(Func<TCommand, string[], Task> action)
+        => _command = (args, _) => action((TCommand)this, args);
+
+    public void SetAsyncInstanceAction(Func<TCommand, CancellationToken, Task> action)
+        => _command = (_, ct) => action((TCommand)this, ct);
+
+    public void SetAsyncInstanceAction(Func<TCommand, string[], CancellationToken, Task> action)
+        => _command = (args, ct) => action((TCommand)this, args, ct);
+
+    public void Execute(params string[] arguments)
+        => ExecuteAsync(arguments).GetAwaiter().GetResult();
+
+    public Task ExecuteAsync(params string[] arguments)
+        => ExecuteAsync(arguments, default);
+
+    public Task ExecuteAsync(string[] arguments, CancellationToken ct)
+        => ExecuteCommand(arguments, ct);
+
+    internal override async Task ExecuteCommand(string[] arguments, CancellationToken ct) {
         try {
             while (arguments.Length > 0) {
                 if (TryReadFlag(arguments, out arguments, out var exit)) {
@@ -157,13 +210,10 @@ public abstract class CommandBase<TCommand>(TokenType type, string name, string?
             }
 
             ReadParameters(arguments, out arguments);
-            await (OnExecute?.Invoke((TCommand)this, arguments, ct) ?? DefaultAsyncAction((TCommand)this));
+            await _command(arguments, ct);
         }
         catch (Exception ex) {
             Writer.WriteError($"An error occurred while executing command '{Name}'.", ex);
         }
     }
-
-    public Task Execute(params string[] arguments)
-        => Execute(arguments, default);
 }

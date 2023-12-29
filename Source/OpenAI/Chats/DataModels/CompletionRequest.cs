@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.OpenAI.Chats.DataModels;
 
 internal record CompletionRequest(string Model = "gpt-3.5-turbo-1106") {
-    public Prompt[] Messages { get; set; }
+    public Prompt[] Messages { get; set; } = [];
     public decimal FrequencyPenalty { get; set; }
     public decimal PresencePenalty { get; set; }
     public decimal Temperature { get; set; }

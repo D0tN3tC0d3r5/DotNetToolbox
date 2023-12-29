@@ -20,8 +20,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_WithEmptyName_Throws() {
-        await _testCommand.Execute();
+    public void Command_GetValueOrDefault_WithEmptyName_Throws() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValueOrDefault<string>("");
 
@@ -29,9 +29,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_ReturnsValue() {
+    public void Command_GetValueOrDefault_ReturnsValue() {
         _testCommand.Add(new Option<string>("option"));
-        await _testCommand.Execute("--option", "some value");
+        _testCommand.Execute("--option", "some value");
 
         var value = _testCommand.GetValueOrDefault<string>("option");
 
@@ -39,9 +39,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_ForParameter_WhenNotSet_ReturnsDefault() {
+    public void Command_GetValueOrDefault_ForParameter_WhenNotSet_ReturnsDefault() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var value = _testCommand.GetValueOrDefault<string>("option");
 
@@ -49,9 +49,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_WithWrongType_Throws() {
+    public void Command_GetValueOrDefault_WithWrongType_Throws() {
         _testCommand.Add(new Option<string>("option"));
-        await _testCommand.Execute("--option", "some value");
+        _testCommand.Execute("--option", "some value");
 
         var action = () => _testCommand.GetValueOrDefault<int>("option");
 
@@ -59,9 +59,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_ForParameter_WithWrongType_Throws() {
+    public void Command_GetValueOrDefault_ForParameter_WithWrongType_Throws() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute("--option", "some value");
+        _testCommand.Execute("--option", "some value");
 
         var action = () => _testCommand.GetValueOrDefault<int>("option");
 
@@ -69,9 +69,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_WhenSetByAlias_ReturnsValue() {
+    public void Command_GetValueOrDefault_WhenSetByAlias_ReturnsValue() {
         _testCommand.Add(new Option<string>("option", 'o'));
-        await _testCommand.Execute("-o", "some value");
+        _testCommand.Execute("-o", "some value");
 
         var value = _testCommand.GetValueOrDefault<string>("option");
 
@@ -79,9 +79,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_WhenNotSet_ReturnsDefault() {
+    public void Command_GetValueOrDefault_WhenNotSet_ReturnsDefault() {
         _testCommand.Add(new Option<string>("option"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var value = _testCommand.GetValueOrDefault<string>("option");
 
@@ -89,8 +89,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_WhenNotAdded_ReturnsDefault() {
-        await _testCommand.Execute();
+    public void Command_GetValueOrDefault_WhenNotAdded_ReturnsDefault() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValueOrDefault<string>("option");
 
@@ -107,8 +107,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_WithEmptyName_Throws() {
-        await _testCommand.Execute();
+    public void Command_GetValue_WithEmptyName_Throws() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValue<string>("");
 
@@ -116,9 +116,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ReturnsValue() {
+    public void Command_GetValue_ReturnsValue() {
         _testCommand.Add(new Option<string>("option"));
-        await _testCommand.Execute("--option", "some value");
+        _testCommand.Execute("--option", "some value");
 
         var value = _testCommand.GetValue<string>("option");
 
@@ -126,9 +126,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ForParameter_ReturnsValue() {
+    public void Command_GetValue_ForParameter_ReturnsValue() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute("some value");
+        _testCommand.Execute("some value");
 
         var value = _testCommand.GetValue<string>("option");
 
@@ -136,9 +136,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_WithWrongType_ReturnsValue() {
+    public void Command_GetValue_WithWrongType_ReturnsValue() {
         _testCommand.Add(new Option<string>("option"));
-        await _testCommand.Execute("--option", "some value");
+        _testCommand.Execute("--option", "some value");
 
         var action = () => _testCommand.GetValue<int>("option");
 
@@ -146,9 +146,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ForParameter_WithWrongType_ReturnsValue() {
+    public void Command_GetValue_ForParameter_WithWrongType_ReturnsValue() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute("some value");
+        _testCommand.Execute("some value");
 
         var action = () => _testCommand.GetValue<int>("option");
 
@@ -156,9 +156,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_WhenSetByAlias_ReturnsValue() {
+    public void Command_GetValue_WhenSetByAlias_ReturnsValue() {
         _testCommand.Add(new Option<string>("option", 'o'));
-        await _testCommand.Execute("-o", "some value");
+        _testCommand.Execute("-o", "some value");
 
         var value = _testCommand.GetValue<string>("option");
 
@@ -166,9 +166,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_WhenNotSet_Throws() {
+    public void Command_GetValue_WhenNotSet_Throws() {
         _testCommand.Add(new Option<string>("option"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValue<string>("option");
 
@@ -176,9 +176,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ForParameter_WhenNotSet_ReturnsValue() {
+    public void Command_GetValue_ForParameter_WhenNotSet_ReturnsValue() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValue<string>("option");
 
@@ -186,8 +186,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_WhenNotAdded_Throws() {
-        await _testCommand.Execute();
+    public void Command_GetValue_WhenNotAdded_Throws() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValue<string>("option");
 
@@ -204,9 +204,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_ByIndex_ReturnsValue() {
+    public void Command_GetValueOrDefault_ByIndex_ReturnsValue() {
         _testCommand.Add(new Parameter<string>("argument"));
-        await _testCommand.Execute("some value");
+        _testCommand.Execute("some value");
 
         var value = _testCommand.GetValueOrDefault<string>(0);
 
@@ -214,8 +214,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_ByIndex_WithIndexOutOfRange_ReturnsDefault() {
-        await _testCommand.Execute();
+    public void Command_GetValueOrDefault_ByIndex_WithIndexOutOfRange_ReturnsDefault() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValueOrDefault<string>(0);
 
@@ -223,9 +223,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_ByIndex_WhenNotSet_ReturnsDefault() {
+    public void Command_GetValueOrDefault_ByIndex_WhenNotSet_ReturnsDefault() {
         _testCommand.Add(new Parameter<string>("argument"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var value = _testCommand.GetValueOrDefault<string>(0);
 
@@ -233,9 +233,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValueOrDefault_ByIndex_WithWrongType_Throws() {
+    public void Command_GetValueOrDefault_ByIndex_WithWrongType_Throws() {
         _testCommand.Add(new Parameter<string>("argument"));
-        await _testCommand.Execute("some value");
+        _testCommand.Execute("some value");
 
         var action = () => _testCommand.GetValueOrDefault<int>(0);
 
@@ -243,9 +243,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ByIndex_ReturnsValue() {
+    public void Command_GetValue_ByIndex_ReturnsValue() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute("some value");
+        _testCommand.Execute("some value");
 
         var value = _testCommand.GetValue<string>(0);
 
@@ -253,9 +253,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ByIndex_WithWrongType_Throws() {
+    public void Command_GetValue_ByIndex_WithWrongType_Throws() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute("some value");
+        _testCommand.Execute("some value");
 
         var action = () => _testCommand.GetValue<int>(0);
 
@@ -263,9 +263,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ByIndex_WhenNotSet_Throws() {
+    public void Command_GetValue_ByIndex_WhenNotSet_Throws() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValue<string>(0);
 
@@ -273,9 +273,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ByIndex_WhenOutOfRange_Throws() {
+    public void Command_GetValue_ByIndex_WhenOutOfRange_Throws() {
         _testCommand.Add(new Parameter<string>("option"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValue<string>(2);
 
@@ -283,8 +283,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValue_ByIndex_WhenNotAdded_Throws() {
-        await _testCommand.Execute();
+    public void Command_GetValue_ByIndex_WhenNotAdded_Throws() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValue<string>(0);
 
@@ -292,8 +292,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_IsFlagSet_WithEmptyName_Throws() {
-        await _testCommand.Execute();
+    public void Command_IsFlagSet_WithEmptyName_Throws() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.IsFlagSet("");
 
@@ -301,9 +301,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_IsFlagSet_ReturnsValue() {
+    public void Command_IsFlagSet_ReturnsValue() {
         _testCommand.Add(new Flag("flag"));
-        await _testCommand.Execute("--flag");
+        _testCommand.Execute("--flag");
 
         var value = _testCommand.IsFlagSet("flag");
 
@@ -311,9 +311,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_IsFlagSet_WhenSetByAlias_ReturnsValue() {
+    public void Command_IsFlagSet_WhenSetByAlias_ReturnsValue() {
         _testCommand.Add(new Flag("flag", 'f'));
-        await _testCommand.Execute("-f");
+        _testCommand.Execute("-f");
 
         var value = _testCommand.IsFlagSet("flag");
 
@@ -321,8 +321,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_IsFlagSet_WhenAdded_ReturnsDefault() {
-        await _testCommand.Execute();
+    public void Command_IsFlagSet_WhenAdded_ReturnsDefault() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.IsFlagSet("flag");
 
@@ -330,9 +330,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_IsFlagSet_WhenNotSet_ReturnsDefault() {
+    public void Command_IsFlagSet_WhenNotSet_ReturnsDefault() {
         _testCommand.Add(new Flag("flag"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var value = _testCommand.IsFlagSet("flag");
 
@@ -340,9 +340,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_IsFlagSet_WhenWrongType_ReturnsDefault() {
+    public void Command_IsFlagSet_WhenWrongType_ReturnsDefault() {
         _testCommand.Add(new Option<int>("flag"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var action = () => _testCommand.IsFlagSet("flag");
 
@@ -350,8 +350,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetCollectionOrDefault_WithEmptyName_Throws() {
-        await _testCommand.Execute();
+    public void Command_GetCollectionOrDefault_WithEmptyName_Throws() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValuesOrDefault<string>("");
 
@@ -359,9 +359,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetCollectionOrDefault_ReturnsValue() {
+    public void Command_GetCollectionOrDefault_ReturnsValue() {
         _testCommand.Add(new Options<string>("option", 'o'));
-        await _testCommand.Execute("--option", "value1", "-o", "value2");
+        _testCommand.Execute("--option", "value1", "-o", "value2");
 
         var value = _testCommand.GetValuesOrDefault<string>("option");
 
@@ -369,9 +369,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetCollectionOrDefault_WhenNotSet_ReturnsEmpty() {
+    public void Command_GetCollectionOrDefault_WhenNotSet_ReturnsEmpty() {
         _testCommand.Add(new Options<string>("option"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var value = _testCommand.GetValuesOrDefault<string>("option");
 
@@ -379,9 +379,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetCollectionOrDefault_WithWrongType_Throws() {
+    public void Command_GetCollectionOrDefault_WithWrongType_Throws() {
         _testCommand.Add(new Options<string>("option"));
-        await _testCommand.Execute("--option", "value1", "-o", "value2");
+        _testCommand.Execute("--option", "value1", "-o", "value2");
 
         var action = () => _testCommand.GetValuesOrDefault<int>("option");
 
@@ -389,8 +389,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetCollectionOrDefault_WhenNotAdded_ReturnsEmpty() {
-        await _testCommand.Execute();
+    public void Command_GetCollectionOrDefault_WhenNotAdded_ReturnsEmpty() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValuesOrDefault<string>("option");
 
@@ -398,8 +398,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValues_WithEmptyName_Throws() {
-        await _testCommand.Execute();
+    public void Command_GetValues_WithEmptyName_Throws() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValues<string>("");
 
@@ -407,9 +407,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValues_ReturnsValue() {
+    public void Command_GetValues_ReturnsValue() {
         _testCommand.Add(new Options<string>("option", 'o'));
-        await _testCommand.Execute("--option", "value1", "-o", "value2");
+        _testCommand.Execute("--option", "value1", "-o", "value2");
 
         var value = _testCommand.GetValues<string>("option");
 
@@ -417,9 +417,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValues_WithWrongType_Throws() {
+    public void Command_GetValues_WithWrongType_Throws() {
         _testCommand.Add(new Options<string>("option"));
-        await _testCommand.Execute("--option", "value1", "-o", "value2");
+        _testCommand.Execute("--option", "value1", "-o", "value2");
 
         var action = () => _testCommand.GetValues<int>("option");
 
@@ -427,9 +427,9 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValues_WhenNotSet_ReturnsEmpty() {
+    public void Command_GetValues_WhenNotSet_ReturnsEmpty() {
         _testCommand.Add(new Options<string>("option"));
-        await _testCommand.Execute();
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValues<string>("option");
 
@@ -437,8 +437,8 @@ public class CommandGetDataTests {
     }
 
     [Fact]
-    public async Task Command_GetValues_WhenNotAdd_Throws() {
-        await _testCommand.Execute();
+    public void Command_GetValues_WhenNotAdd_Throws() {
+        _testCommand.Execute();
 
         var action = () => _testCommand.GetValues<string>("option");
 
