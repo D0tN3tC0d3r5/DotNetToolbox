@@ -34,62 +34,62 @@ public sealed class CommandBuilder<TCommand>
         return this;
     }
 
-    public CommandBuilder<TCommand> WithStaticAction(Action action) {
+    public CommandBuilder<TCommand> SetAction(Action action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithStaticAction(Action<string[]> action) {
+    public CommandBuilder<TCommand> SetAction(Action<string[]> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithAsyncStaticAction(Func<Task> action) {
+    public CommandBuilder<TCommand> SetAction(Func<Task> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithAsyncStaticAction(Func<string[], Task> action) {
+    public CommandBuilder<TCommand> SetAction(Func<string[], Task> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithAsyncStaticAction(Func<CancellationToken, Task> action) {
+    public CommandBuilder<TCommand> SetAction(Func<CancellationToken, Task> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithAsyncStaticAction(Func<string[], CancellationToken, Task> action) {
+    public CommandBuilder<TCommand> SetAction(Func<string[], CancellationToken, Task> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithInstanceAction(Action<TCommand> action) {
+    public CommandBuilder<TCommand> SetAction(Action<TCommand> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithInstanceAction(Action<TCommand, string[]> action) {
+    public CommandBuilder<TCommand> SetAction(Action<TCommand, string[]> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithAsyncInstanceAction(Func<TCommand, Task> action) {
+    public CommandBuilder<TCommand> SetAction(Func<TCommand, Task> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithAsyncInstanceAction(Func<TCommand, string[], Task> action) {
+    public CommandBuilder<TCommand> SetAction(Func<TCommand, string[], Task> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithAsyncInstanceAction(Func<TCommand, CancellationToken, Task> action) {
+    public CommandBuilder<TCommand> SetAction(Func<TCommand, CancellationToken, Task> action) {
         _action = action;
         return this;
     }
 
-    public CommandBuilder<TCommand> WithAsyncInstanceAction(Func<TCommand, string[], CancellationToken, Task> action) {
+    public CommandBuilder<TCommand> SetAction(Func<TCommand, string[], CancellationToken, Task> action) {
         _action = action;
         return this;
     }
@@ -153,18 +153,18 @@ public sealed class CommandBuilder<TCommand>
             ? (TCommand)Activator.CreateInstance(typeof(TCommand), _writer)!
             : (TCommand)Activator.CreateInstance(typeof(TCommand), _name!, _description)!;
         switch (_action) {
-            case Action action: command.SetStaticAction(action); break;
-            case Action<string[]> action: command.SetStaticAction(action); break;
-            case Func<Task> action: command.SetAsyncStaticAction(action); break;
-            case Func<string[], Task> action: command.SetAsyncStaticAction(action); break;
-            case Func<CancellationToken, Task> action: command.SetAsyncStaticAction(action); break;
-            case Func<string[], CancellationToken, Task> action: command.SetAsyncStaticAction(action); break;
-            case Action<TCommand> action: command.SetInstanceAction(action); break;
-            case Action<TCommand, string[]> action: command.SetInstanceAction(action); break;
-            case Func<TCommand, Task> action: command.SetAsyncInstanceAction(action); break;
-            case Func<TCommand, string[], Task> action: command.SetAsyncInstanceAction(action); break;
-            case Func<TCommand, CancellationToken, Task> action: command.SetAsyncInstanceAction(action); break;
-            case Func<TCommand, string[], CancellationToken, Task> action: command.SetAsyncInstanceAction(action); break;
+            case Action action: command.SetAction(action); break;
+            case Action<string[]> action: command.SetAction(action); break;
+            case Func<Task> action: command.SetAction(action); break;
+            case Func<string[], Task> action: command.SetAction(action); break;
+            case Func<CancellationToken, Task> action: command.SetAction(action); break;
+            case Func<string[], CancellationToken, Task> action: command.SetAction(action); break;
+            case Action<TCommand> action: command.SetAction(action); break;
+            case Action<TCommand, string[]> action: command.SetAction(action); break;
+            case Func<TCommand, Task> action: command.SetAction(action); break;
+            case Func<TCommand, string[], Task> action: command.SetAction(action); break;
+            case Func<TCommand, CancellationToken, Task> action: command.SetAction(action); break;
+            case Func<TCommand, string[], CancellationToken, Task> action: command.SetAction(action); break;
         }
         return (TCommand)_steps.Aggregate((CommandBase)command, (current, step) => step(current));
     }

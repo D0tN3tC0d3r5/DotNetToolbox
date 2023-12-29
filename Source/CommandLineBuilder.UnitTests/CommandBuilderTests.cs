@@ -138,7 +138,6 @@ public class CommandBuilderTests {
         subject.Tokens[4].Should().BeOfType<Command>().Subject.Name.Should().Be("sub");
     }
 
-
     [Fact]
     public void CommandBuilder_AddCommand_WithSetup_CreatesCommandWithNameAndSubCommand() {
         using var subject = CommandBuilder.FromDefaultRoot().AddChild<Command>("sub", b => b.AddOption<int>("option")).Build();

@@ -7,9 +7,8 @@ public class CommandExecutionTests {
     public void Command_Execute_WithException_AndVerboseFlagAndNoColor_ShowsError() {
         var subject = CommandBuilder
                      .FromDefaultRoot()
-                     .WithWriter(_writer)
-                     .WithStaticAction(() => throw new("Some exception."))
-                     .Build();
+                     .WithWriter(_writer).SetAction((Action)(() => throw new("Some exception.")))
+                       .Build();
 
         subject.Execute("-v", "2", "--no-color");
 
@@ -20,9 +19,8 @@ public class CommandExecutionTests {
     public void Command_Execute_WithException_AndVerboseLevel_Detailed_ShowsError() {
         var subject = CommandBuilder
                      .FromDefaultRoot()
-                     .WithWriter(_writer)
-                     .WithStaticAction(() => throw new("Some exception."))
-                     .Build();
+                     .WithWriter(_writer).SetAction((Action)(() => throw new("Some exception.")))
+                       .Build();
 
         subject.Execute("-v", "2");
 
@@ -33,9 +31,8 @@ public class CommandExecutionTests {
     public void Command_Execute_WithException_AndVerboseLevel_Silent_ShowsNotShowsError() {
         var subject = CommandBuilder
                      .FromDefaultRoot()
-                     .WithWriter(_writer)
-                     .WithStaticAction(() => throw new("Some exception."))
-                     .Build();
+                     .WithWriter(_writer).SetAction((Action)(() => throw new("Some exception.")))
+                       .Build();
 
         subject.Execute("-v", "6");
 
@@ -46,9 +43,8 @@ public class CommandExecutionTests {
     public void Command_Execute_WithException_AndVerboseLevel_Debug_ShowsErrorWithException() {
         var subject = CommandBuilder
                      .FromDefaultRoot()
-                     .WithWriter(_writer)
-                     .WithStaticAction(() => throw new("Some exception."))
-                     .Build();
+                     .WithWriter(_writer).SetAction((Action)(() => throw new("Some exception.")))
+                       .Build();
 
         subject.Execute("-v", "1");
 
@@ -59,9 +55,8 @@ public class CommandExecutionTests {
     public void Command_Execute_WithDelegate_ExecutesDelegate() {
         var subject = CommandBuilder
                      .FromDefaultRoot()
-                     .WithWriter(_writer)
-                     .WithStaticAction(() => throw new("Some exception."))
-                     .Build();
+                     .WithWriter(_writer).SetAction((Action)(() => throw new("Some exception.")))
+                       .Build();
 
         subject.Execute("-v", "1");
 
@@ -73,7 +68,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction(cmd => cmd.Writer.WriteError("Some error."))
+                     .SetAction(cmd => cmd.Writer.WriteError("Some error."))
                      .Build();
 
         subject.Execute("-v", "6");
@@ -86,7 +81,7 @@ public class CommandExecutionTests {
         var subject = new Command("Command", "Command description.") {
             Writer = _writer,
         };
-        subject.SetStaticAction(() => subject.Writer.WriteLine("Executing command..."));
+        subject.SetAction(() => subject.Writer.WriteLine("Executing command..."));
 
         subject.Execute();
 
@@ -98,7 +93,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction(r => r.Writer.WriteLine("You should not be here!"))
+                     .SetAction(r => r.Writer.WriteLine("You should not be here!"))
                      .AddFlag("option", onRead: c => c.Writer.WriteLine("Stop here!"), existsIfSet: true)
             .Build();
 
@@ -112,7 +107,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction(r => r.Writer.WriteLine("Executing command..."))
+                     .SetAction(r => r.Writer.WriteLine("Executing command..."))
                      .Build();
 
         subject.Execute("--option");
@@ -125,7 +120,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithStaticAction(() => { })
+                     .SetAction(() => { })
                      .Build();
 
         subject.Execute("");
@@ -137,9 +132,8 @@ public class CommandExecutionTests {
     public void Command_Execute_Action_WithArgs_ExecutesDelegate() {
         var subject = CommandBuilder
                      .FromDefaultRoot()
-                     .WithWriter(_writer)
-                     .WithStaticAction(_ => { })
-                     .Build();
+                     .WithWriter(_writer).SetAction((string[] _) => { })
+                       .Build();
 
         subject.Execute("");
 
@@ -151,7 +145,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction(_ => { })
+                     .SetAction((RootCommand _) => { })
                      .Build();
 
         subject.Execute("");
@@ -164,7 +158,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction((_, _) => { })
+                     .SetAction((_, _) => { })
                      .Build();
 
         subject.Execute("");
@@ -177,7 +171,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithAsyncStaticAction(() => Task.CompletedTask)
+                     .SetAction(() => Task.CompletedTask)
                      .Build();
 
         subject.Execute("");
@@ -190,7 +184,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithAsyncStaticAction((string[] _) => Task.CompletedTask)
+                     .SetAction((string[] _) => Task.CompletedTask)
                      .Build();
 
         subject.Execute("");
@@ -203,7 +197,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithAsyncInstanceAction(_ => Task.CompletedTask)
+                     .SetAction((RootCommand _) => Task.CompletedTask)
                      .Build();
 
         subject.Execute("");
@@ -216,7 +210,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithAsyncStaticAction((CancellationToken _) => Task.CompletedTask)
+                     .SetAction((CancellationToken _) => Task.CompletedTask)
                      .Build();
 
         subject.Execute("");
@@ -229,7 +223,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithAsyncInstanceAction((RootCommand _, string[] _) => Task.CompletedTask)
+                     .SetAction((RootCommand _, string[] _) => Task.CompletedTask)
                      .Build();
 
         subject.Execute("");
@@ -242,7 +236,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithAsyncInstanceAction((RootCommand _, CancellationToken _) => Task.CompletedTask)
+                     .SetAction((RootCommand _, CancellationToken _) => Task.CompletedTask)
                      .Build();
 
         subject.Execute("");
@@ -254,9 +248,8 @@ public class CommandExecutionTests {
     public void Command_Execute_AsyncFunc_WithStringAndCancellationToken_ExecutesDelegate() {
         var subject = CommandBuilder
                      .FromDefaultRoot()
-                     .WithWriter(_writer)
-                     .WithAsyncStaticAction((_, _) => Task.CompletedTask)
-                     .Build();
+                     .WithWriter(_writer).SetAction((string[] _, CancellationToken _) => Task.CompletedTask)
+                       .Build();
 
         subject.Execute("");
 
@@ -268,7 +261,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithAsyncInstanceAction((_, _, _) => Task.CompletedTask)
+                     .SetAction((_, _, _) => Task.CompletedTask)
                      .Build();
 
         subject.Execute("");
@@ -281,7 +274,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction(r => r.Writer.WriteLine("Executing command..."))
+                     .SetAction(r => r.Writer.WriteLine("Executing command..."))
                      .Build();
 
         subject.Execute("--");
@@ -294,7 +287,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction(r => r.Writer.WriteLine("Executing command..."))
+                     .SetAction(r => r.Writer.WriteLine("Executing command..."))
                      .Build();
 
         subject.Execute("-");
@@ -307,8 +300,8 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction(r => r.Writer.WriteLine("You should not be here!"))
-                     .AddChild("sub", b => b.WithInstanceAction(c => c.Writer.WriteLine("Executing sub-Command...")))
+                     .SetAction(r => r.Writer.WriteLine("You should not be here!"))
+                     .AddChild("sub", b => b.SetAction(c => c.Writer.WriteLine("Executing sub-Command...")))
                      .Build();
 
         subject.Execute("sub");
@@ -320,9 +313,8 @@ public class CommandExecutionTests {
     public void Command_Execute_WithExceptionDuringExecution_ShowsError() {
         var subject = CommandBuilder
                      .FromDefaultRoot()
-                     .WithWriter(_writer)
-                     .WithStaticAction(() => throw new("Some exception."))
-                     .Build();
+                     .WithWriter(_writer).SetAction((Action)(() => throw new("Some exception.")))
+                       .Build();
 
         subject.Execute();
 
@@ -334,8 +326,8 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .AddChild("sub", b => b.WithInstanceAction(c => c.Writer.WriteLine("Executing sub-Command...")))
-                     .WithInstanceAction(r => r.Writer.WriteLine("Executing command..."))
+                     .AddChild("sub", b => b.SetAction(c => c.Writer.WriteLine("Executing sub-Command...")))
+                     .SetAction(r => r.Writer.WriteLine("Executing command..."))
                      .AddOption<string>("option", onRead: _ => throw new("Some exception."))
                      .Build();
 
@@ -377,7 +369,7 @@ public class CommandExecutionTests {
         var subject = CommandBuilder
                      .FromDefaultRoot()
                      .WithWriter(_writer)
-                     .WithInstanceAction(r => r.Writer.WriteLine("You should not be here!"))
+                     .SetAction(r => r.Writer.WriteLine("You should not be here!"))
                      .AddChild("sub-Command")
                      .Build();
 
@@ -412,11 +404,11 @@ public class CommandExecutionTests {
         subject.Add(new Option<string>("options"));
         subject.Add(new Option<string>("very-long-name", 'v', "Some description"));
         var childCommand = new Command("sub-Command");
-        childCommand.SetStaticAction(() => childCommand.Writer.WriteLine("Executing sub-Command..."));
+        childCommand.SetAction(() => childCommand.Writer.WriteLine("Executing sub-Command..."));
         subject.Add(childCommand);
         subject.Add(new Parameter<string>("param"));
         subject.Writer = _writer;
-        subject.SetStaticAction(() => subject.Writer.WriteLine("You should not be here!"));
+        subject.SetAction(() => subject.Writer.WriteLine("You should not be here!"));
 
         subject.Execute("-h");
 

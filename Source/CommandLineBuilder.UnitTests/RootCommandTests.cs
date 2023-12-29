@@ -5,7 +5,7 @@ public class RootCommandTests {
     public void RootCommand_Execute_WithWriter_ExecutesDelegate() {
         InMemoryOutputWriter writer = new();
         RootCommand subject = new(writer);
-        subject.SetInstanceAction(cmd => {
+        subject.SetAction(cmd => {
             var who = cmd.GetValueOrDefault<string>("who");
             cmd.Writer.WriteLine($"Hello {who}!");
         });
@@ -19,7 +19,7 @@ public class RootCommandTests {
     [Fact]
     public void RootCommand_Execute_WithoutWriter_ExecutesDelegate() {
         RootCommand subject = new();
-        subject.SetInstanceAction(cmd => {
+        subject.SetAction(cmd => {
             var who = cmd.GetValueOrDefault<string>("who");
             cmd.Writer.WriteLine($"Hello {who}!");
         });

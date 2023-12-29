@@ -152,40 +152,40 @@ public abstract class CommandBase<TCommand>
         _command = (_, ct) => Task.Run(() => Writer.WriteHelp(this), ct);
     }
 
-    public void SetStaticAction(Action action)
+    public void SetAction(Action action)
         => _command = (_, ct) => Task.Run(action, ct);
 
-    public void SetStaticAction(Action<string[]> action)
+    public void SetAction(Action<string[]> action)
         => _command = (args, ct) => Task.Run(() => action(args), ct);
 
-    public void SetInstanceAction(Action<TCommand> action)
+    public void SetAction(Action<TCommand> action)
         => _command = (_, ct) => Task.Run(() => action((TCommand)this), ct);
 
-    public void SetInstanceAction(Action<TCommand, string[]> action)
+    public void SetAction(Action<TCommand, string[]> action)
         => _command = (args, ct) => Task.Run(() => action((TCommand)this, args), ct);
 
-    public void SetAsyncStaticAction(Func<Task> action)
+    public void SetAction(Func<Task> action)
         => _command = (_, _) => action();
 
-    public void SetAsyncStaticAction(Func<string[], Task> action)
+    public void SetAction(Func<string[], Task> action)
         => _command = (args, _) => action(args);
 
-    public void SetAsyncStaticAction(Func<CancellationToken, Task> action)
+    public void SetAction(Func<CancellationToken, Task> action)
         => _command = (_, ct) => action(ct);
 
-    public void SetAsyncStaticAction(Func<string[], CancellationToken, Task> action)
+    public void SetAction(Func<string[], CancellationToken, Task> action)
         => _command = action;
 
-    public void SetAsyncInstanceAction(Func<TCommand, Task> action)
+    public void SetAction(Func<TCommand, Task> action)
         => _command = (_, _) => action((TCommand)this);
 
-    public void SetAsyncInstanceAction(Func<TCommand, string[], Task> action)
+    public void SetAction(Func<TCommand, string[], Task> action)
         => _command = (args, _) => action((TCommand)this, args);
 
-    public void SetAsyncInstanceAction(Func<TCommand, CancellationToken, Task> action)
+    public void SetAction(Func<TCommand, CancellationToken, Task> action)
         => _command = (_, ct) => action((TCommand)this, ct);
 
-    public void SetAsyncInstanceAction(Func<TCommand, string[], CancellationToken, Task> action)
+    public void SetAction(Func<TCommand, string[], CancellationToken, Task> action)
         => _command = (args, ct) => action((TCommand)this, args, ct);
 
     public void Execute(params string[] arguments)
