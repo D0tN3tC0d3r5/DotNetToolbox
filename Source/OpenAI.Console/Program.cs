@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.OpenAI.Commands;
-
-var builder = new ConfigurationBuilder()
+﻿var builder = new ConfigurationBuilder()
              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
              .AddUserSecrets<Program>(optional: true);
 var configuration = builder.Build();
@@ -10,5 +8,18 @@ services.AddSingleton<IConfiguration>(configuration);
 services.AddSingleton<ILoggerFactory, LoggerFactory>();
 services.AddLogging();
 
-using var main = new MainCommand();
-await main.ExecuteAsync(args);
+CommandRegistry.RegisterCommand(new HelpCommand());
+CommandRegistry.RegisterCommand(new ClearScreenCommand());
+CommandRegistry.RegisterCommand(new ExitCommand());
+
+Console.WriteLine();
+Console.WriteLine("Welcome to OpenAI test console. Type 'exit' to terminate the application.");
+
+while (true) {
+    Console.Write("> ");
+    var userInput = Console.ReadLine() ?? string.Empty;
+    if (string.Equals(userInput, "exit", CurrentCultureIgnoreCase))
+        break;
+
+    ParseAndExecute(userInput);
+}
