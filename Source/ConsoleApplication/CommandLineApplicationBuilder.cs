@@ -1,9 +1,9 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
-public class ConsoleApplicationBuilder<TApplication, TBuilder, TOptions>
+public class CommandLineApplicationBuilder<TApplication, TBuilder, TOptions>
     : IApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TApplication : ConsoleApplication<TApplication, TBuilder, TOptions>
-    where TBuilder : ConsoleApplicationBuilder<TApplication, TBuilder, TOptions>
+    where TApplication : CommandLineApplication<TApplication, TBuilder, TOptions>
+    where TBuilder : CommandLineApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>, INamedOptions<TOptions>, new() {
     private readonly string[] _arguments;
     private string _environment = string.Empty;
@@ -11,7 +11,7 @@ public class ConsoleApplicationBuilder<TApplication, TBuilder, TOptions>
     private readonly List<(string Path, bool IsOptional)> _jsonFiles = [];
     private Type? _userSecretsReference;
 
-    internal ConsoleApplicationBuilder(string[] arguments) {
+    internal CommandLineApplicationBuilder(string[] arguments) {
         _arguments = arguments;
     }
 
@@ -45,9 +45,9 @@ public class ConsoleApplicationBuilder<TApplication, TBuilder, TOptions>
     }
 }
 
-public class ConsoleApplicationBuilder
-    : ConsoleApplicationBuilder<ConsoleApplication, ConsoleApplicationBuilder, ApplicationOptions>  {
-    internal ConsoleApplicationBuilder(string[] arguments)
+public class CommandLineApplicationBuilder
+    : CommandLineApplicationBuilder<CommandLineApplication, CommandLineApplicationBuilder, ApplicationOptions>  {
+    internal CommandLineApplicationBuilder(string[] arguments)
         : base(arguments) {
     }
 }

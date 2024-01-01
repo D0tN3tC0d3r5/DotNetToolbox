@@ -1,13 +1,13 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
-public abstract record ConsoleApplication<TApplication, TBuilder, TOptions>
+public abstract record CommandLineApplication<TApplication, TBuilder, TOptions>
     : IApplication<TApplication, TBuilder, TOptions>
-    where TApplication : ConsoleApplication<TApplication, TBuilder, TOptions>
-    where TBuilder : ConsoleApplicationBuilder<TApplication, TBuilder, TOptions>
+    where TApplication : CommandLineApplication<TApplication, TBuilder, TOptions>
+    where TBuilder : CommandLineApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>, INamedOptions<TOptions>, new() {
     private bool _isDisposed;
 
-    internal ConsoleApplication(string[] args, string environment, IServiceProvider serviceProvider) {
+    internal CommandLineApplication(string[] args, string environment, IServiceProvider serviceProvider) {
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         var options = serviceProvider.GetRequiredService<IOptions<TOptions>>();
         Options = options.Value;
@@ -22,7 +22,7 @@ public abstract record ConsoleApplication<TApplication, TBuilder, TOptions>
         Logger = loggerFactory.CreateLogger<TApplication>();
     }
 
-    internal ConsoleApplication(IServiceProvider services)
+    internal CommandLineApplication(IServiceProvider services)
         : this([], string.Empty, services) {
     }
 
@@ -45,7 +45,7 @@ public abstract record ConsoleApplication<TApplication, TBuilder, TOptions>
     public static TBuilder CreateBuilder(Action<TBuilder>? configure = null)
         => CreateBuilder([], configure);
     public static TBuilder CreateBuilder(string[] args, Action<TBuilder>? configure = null) {
-        var builder = Create.Instance<TBuilder>([]);
+        var builder = Create.Instance<TBuilder>(args)!;
         configure?.Invoke(builder);
         return builder;
     }
@@ -61,11 +61,11 @@ public abstract record ConsoleApplication<TApplication, TBuilder, TOptions>
     }
 }
 
-public record ConsoleApplication : ConsoleApplication<ConsoleApplication, ConsoleApplicationBuilder, ApplicationOptions> {
-    internal ConsoleApplication(string[] args, string environment, IServiceProvider serviceProvider) : base(args, environment, serviceProvider) {
+public record CommandLineApplication : CommandLineApplication<CommandLineApplication, CommandLineApplicationBuilder, ApplicationOptions> {
+    internal CommandLineApplication(string[] args, string environment, IServiceProvider serviceProvider) : base(args, environment, serviceProvider) {
     }
 
-    internal ConsoleApplication(IServiceProvider services) : base(services) {
+    internal CommandLineApplication(IServiceProvider services) : base(services) {
     }
 
     public override Task<int> RunAsync() => throw new NotImplementedException();
