@@ -117,56 +117,6 @@ public class SignInResultTests {
         subject.IsSuccess.Should().Be(isSuccess);
     }
 
-    private class TestDataForEquality : TheoryData<SignInResult, SignInResultType, bool> {
-        public TestDataForEquality() {
-            Add(_success, SignInResultType.Success, true);
-            Add(_success, Failed, false);
-            Add(_success, SignInResultType.Locked, false);
-            Add(_success, SignInResultType.Blocked, false);
-            Add(_success, SignInResultType.Invalid, false);
-            Add(_failure, SignInResultType.Success, false);
-            Add(_failure, Failed, true);
-            Add(_failure, SignInResultType.Locked, false);
-            Add(_failure, SignInResultType.Blocked, false);
-            Add(_failure, SignInResultType.Invalid, false);
-            Add(_locked, SignInResultType.Success, false);
-            Add(_locked, Failed, false);
-            Add(_locked, SignInResultType.Locked, true);
-            Add(_locked, SignInResultType.Blocked, false);
-            Add(_locked, SignInResultType.Invalid, false);
-            Add(_blocked, SignInResultType.Success, false);
-            Add(_blocked, Failed, false);
-            Add(_blocked, SignInResultType.Locked, false);
-            Add(_blocked, SignInResultType.Blocked, true);
-            Add(_blocked, SignInResultType.Invalid, false);
-            Add(_invalid, SignInResultType.Success, false);
-            Add(_invalid, Failed, false);
-            Add(_invalid, SignInResultType.Locked, false);
-            Add(_invalid, SignInResultType.Blocked, false);
-            Add(_invalid, SignInResultType.Invalid, true);
-        }
-    }
-
-    [Theory]
-    [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(SignInResult subject, SignInResultType type, bool expectedResult) {
-        // Act
-        var result = subject == type;
-
-        // Assert
-        result.Should().Be(expectedResult);
-    }
-
-    [Theory]
-    [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(SignInResult subject, SignInResultType type, bool expectedResult) {
-        // Act
-        var result = subject != type;
-
-        // Assert
-        result.Should().Be(!expectedResult);
-    }
-
     [Fact]
     public void GetHashCode_DifferentiatesAsExpected() {
         var expectedResult = new HashSet<SignInResult> {

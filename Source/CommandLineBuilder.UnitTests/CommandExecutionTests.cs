@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.CommandLineBuilder;
 
 public class CommandExecutionTests {
-    private readonly InMemoryOutputWriter _writer = new();
+    private readonly InMemoryOutput _writer = new();
 
     [Fact]
     public void Command_Execute_WithException_AndVerboseFlagAndNoColor_ShowsError() {
@@ -12,7 +12,7 @@ public class CommandExecutionTests {
 
         subject.Execute("-v", "2", "--no-color");
 
-        _writer.Output.Should().StartWith("An error occurred while executing command 'testhost'.\n");
+        _writer.Output.ToString().Should().StartWith("An error occurred while executing command 'testhost'.\r\n");
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class CommandExecutionTests {
 
         subject.Execute("-v", "2");
 
-        _writer.Output.Should().StartWith("An error occurred while executing command 'testhost'.\n");
+        _writer.Output.ToString().Should().StartWith("An error occurred while executing command 'testhost'.\r\n");
     }
 
     [Fact]
@@ -34,9 +34,9 @@ public class CommandExecutionTests {
                      .WithWriter(_writer).SetAction((Action)(() => throw new("Some exception.")))
                        .Build();
 
-        subject.Execute("-v", "6");
+        subject.Execute("-v", "5");
 
-        _writer.Output.Should().BeEmpty();
+        _writer.Output.ToString().Should().BeEmpty();
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class CommandExecutionTests {
 
         subject.Execute("-v", "1");
 
-        _writer.Output.Should().Contain("An error occurred while executing command 'testhost'.\nSystem.Exception: Some exception.");
+        _writer.Output.ToString().Should().Contain("An error occurred while executing command 'testhost'.\r\nSystem.Exception: Some exception.");
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class CommandExecutionTests {
 
         subject.Execute("-v", "1");
 
-        _writer.Output.Should().Contain("An error occurred while executing command 'testhost'.\nSystem.Exception: Some exception.");
+        _writer.Output.ToString().Should().Contain("An error occurred while executing command 'testhost'.\r\nSystem.Exception: Some exception.");
     }
 
     [Fact]
@@ -71,9 +71,9 @@ public class CommandExecutionTests {
                      .SetAction(cmd => cmd.Writer.WriteError("Some error."))
                      .Build();
 
-        subject.Execute("-v", "6");
+        subject.Execute("-v", "5");
 
-        _writer.Output.Should().BeEmpty();
+        _writer.Output.ToString().Should().BeEmpty();
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class CommandExecutionTests {
 
         subject.Execute();
 
-        _writer.Output.Should().Be("Executing command...\n");
+        _writer.Output.ToString().Should().Be("Executing command...\r\n");
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class CommandExecutionTests {
 
         subject.Execute("--option");
 
-        _writer.Output.Should().Be("Stop here!\n");
+        _writer.Output.ToString().Should().Be("Stop here!\r\n");
     }
 
     [Fact]
@@ -112,7 +112,7 @@ public class CommandExecutionTests {
 
         subject.Execute("--option");
 
-        _writer.Output.Should().Be("Executing command...\n");
+        _writer.Output.ToString().Should().Be("Executing command...\r\n");
     }
 
     [Fact]
@@ -125,7 +125,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -137,7 +137,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -189,7 +189,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -202,7 +202,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -215,7 +215,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -228,7 +228,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -241,7 +241,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -253,7 +253,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -266,7 +266,7 @@ public class CommandExecutionTests {
 
         subject.Execute("");
 
-        _writer.Output.Should().Be("");
+        _writer.Output.ToString().Should().Be("");
     }
 
     [Fact]
@@ -279,7 +279,7 @@ public class CommandExecutionTests {
 
         subject.Execute("--");
 
-        _writer.Output.Should().Be("Executing command...\n");
+        _writer.Output.ToString().Should().Be("Executing command...\r\n");
     }
 
     [Fact]
@@ -292,7 +292,7 @@ public class CommandExecutionTests {
 
         subject.Execute("-");
 
-        _writer.Output.Should().Be("Executing command...\n");
+        _writer.Output.ToString().Should().Be("Executing command...\r\n");
     }
 
     [Fact]
@@ -306,7 +306,7 @@ public class CommandExecutionTests {
 
         subject.Execute("sub");
 
-        _writer.Output.Should().Be("Executing sub-Command...\n");
+        _writer.Output.ToString().Should().Be("Executing sub-Command...\r\n");
     }
 
     [Fact]
@@ -318,7 +318,7 @@ public class CommandExecutionTests {
 
         subject.Execute();
 
-        _writer.Output.Should().StartWith("An error occurred while executing command 'testhost'.\n");
+        _writer.Output.ToString().Should().StartWith("An error occurred while executing command 'testhost'.\r\n");
     }
 
     [Fact]
@@ -333,8 +333,8 @@ public class CommandExecutionTests {
 
         subject.Execute("--option", "abc");
 
-        _writer.Output.Should().Contain("An error occurred while reading option 'option'.\n");
-        _writer.Output.Should().Contain("An error occurred while executing command 'testhost'.\n");
+        _writer.Output.ToString().Should().Contain("An error occurred while reading option 'option'.\r\n");
+        _writer.Output.ToString().Should().Contain("An error occurred while executing command 'testhost'.\r\n");
     }
 
     [Fact]
@@ -346,7 +346,7 @@ public class CommandExecutionTests {
 
         subject.Execute();
 
-        _writer.Output.Should().Be("""
+        _writer.Output.ToString().Should().Be("""
 
                                    DotNetToolbox.CommandLineBuilder 8.0.2
 
@@ -361,7 +361,7 @@ public class CommandExecutionTests {
                                      --version                     Show version information and exit.
 
 
-                                   """.Replace("\r", ""));
+                                   """);
     }
 
     [Fact]
@@ -375,15 +375,17 @@ public class CommandExecutionTests {
 
         subject.Execute("sub-Command");
 
-        _writer.Output.Should().Be("""
+        _writer.Output
+               .ToString()
+               .Should().Be("""
 
-                                   Usage: testhost sub-Command
+                            Usage: testhost sub-Command
 
-                                   Options:
-                                     -h, --help                    Show this help information and exit.
+                            Options:
+                              -h, --help                    Show this help information and exit.
 
 
-                                   """.Replace("\r", ""));
+                            """);
     }
 
     [Fact]
@@ -395,7 +397,7 @@ public class CommandExecutionTests {
 
         subject.Execute("--version");
 
-        _writer.Output.Should().Be("DotNetToolbox.CommandLineBuilder\n8.0.2\n");
+        _writer.Output.ToString().Should().Be("DotNetToolbox.CommandLineBuilder\r\n8.0.2\r\n");
     }
 
     [Fact]
@@ -412,7 +414,7 @@ public class CommandExecutionTests {
 
         subject.Execute("-h");
 
-        _writer.Output.Should().Be("""
+        _writer.Output.ToString().Should().Be("""
 
                                    Usage: command [parameters] [options]
                                    Usage: command [options] [command]
@@ -431,6 +433,6 @@ public class CommandExecutionTests {
                                    Use "command [command] --help" for more information about a command.
 
 
-                                   """.Replace("\r", ""));
+                                   """);
     }
 }

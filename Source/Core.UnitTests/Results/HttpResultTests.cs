@@ -9,8 +9,9 @@ public class HttpResultTests {
     private static readonly HttpResult _notFound = NotFound();
     private static readonly HttpResult _conflict = Conflict();
     private static readonly HttpResult _badRequest = BadRequest("Source", "Some error.");
-    private static readonly HttpResult _badRequestWithSameError = new ValidationError("Source", "Some error.");
-    private static readonly HttpResult _badRequestWithWithOtherError = new ValidationError("Source", "Other error.");
+    private static readonly HttpResult _badRequestWithSameError = BadRequest("Source", "Some error.");
+    private static readonly HttpResult _badRequestWithOtherError = BadRequest("Source", "Other error.");
+    private static readonly HttpResult _failure = Error("Some error.");
 
     private static readonly HttpResult<string> _okWithValue = Ok("Value");
     private static readonly HttpResult<string> _createdWithValue = Created("Value");
@@ -18,6 +19,7 @@ public class HttpResultTests {
     private static readonly HttpResult<string> _notFoundWithValue = NotFound<string>();
     private static readonly HttpResult<string> _conflictWithValue = Conflict("Value");
     private static readonly HttpResult<string> _badRequestWithValue = BadRequest("Value", "Source", "Some error.");
+    private static readonly HttpResult<string> _failureWithValue = Error("42", "Some error.");
 
     [Fact]
     public void CopyConstructor_ClonesObject() {
@@ -61,12 +63,14 @@ public class HttpResultTests {
     private class TestDataForProperties : TheoryData<HttpResult, bool, bool, bool, bool, bool, bool> {
         public TestDataForProperties() {
             Add(_badRequest, true, false, false, false, false, false);
+            Add(_failure, false, false, false, false, false, false);
             Add(_ok, false, true, false, false, false, false);
             Add(_notFound, false, false, true, false, false, false);
             Add(_conflict, false, false, false, true, false, false);
             Add(_created, false, false, false, false, true, false);
             Add(_unauthorized, false, false, false, false, false, true);
             Add(_badRequestWithValue, true, false, false, false, false, false);
+            Add(_failureWithValue, true, false, false, false, false, false);
             Add(_okWithValue, false, true, false, false, false, false);
             Add(_notFoundWithValue, false, false, true, false, false, false);
             Add(_conflictWithValue, false, false, false, true, false, false);
@@ -109,7 +113,7 @@ public class HttpResultTests {
             Add(_badRequest, _conflict, false);
             Add(_badRequest, _badRequest, true);
             Add(_badRequest, _badRequestWithSameError, true);
-            Add(_badRequest, _badRequestWithWithOtherError, false);
+            Add(_badRequest, _badRequestWithOtherError, false);
         }
     }
 
@@ -138,7 +142,7 @@ public class HttpResultTests {
         var expectedResult = new HashSet<HttpResult> {
             _ok,
             _badRequest,
-            _badRequestWithWithOtherError,
+            _badRequestWithOtherError,
         };
 
         // Act
@@ -150,7 +154,7 @@ public class HttpResultTests {
             _badRequest,
             _badRequest,
             _badRequestWithSameError,
-            _badRequestWithWithOtherError,
+            _badRequestWithOtherError,
         };
 
         // Assert
@@ -333,7 +337,7 @@ public class HttpResultTests {
         var subject = Ok("42");
 
         // Act
-        var result = subject.MapTo(int.Parse);
+        var result = subject.MapTo(s => s is null ? default : int.Parse(s));
 
         // Assert
         result.Should().BeOfType<HttpResult<int>>();
@@ -346,7 +350,7 @@ public class HttpResultTests {
         var subject = NotFound<string>();
 
         // Act
-        var result = subject.MapTo(int.Parse);
+        var result = subject.MapTo(s => s is null ? default : int.Parse(s));
 
         // Assert
         result.Should().BeOfType<HttpResult<int>>();
@@ -361,7 +365,7 @@ public class HttpResultTests {
         var subject = BadRequest("42", "Field", "Some error.");
 
         // Act
-        var result = subject.MapTo(int.Parse);
+        var result = subject.MapTo(s => s is null ? default : int.Parse(s));
 
         // Assert
         result.Should().BeOfType<HttpResult<int>>();

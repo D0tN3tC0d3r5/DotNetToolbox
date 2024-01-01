@@ -1,11 +1,12 @@
 ﻿namespace DotNetToolbox;
 
 public enum OutputVerboseLevel {
-    Trace = 0,
-    Debug = 1,
-    Normal = 2,
-    Detailed = 3,
-    Warning = 4,
-    Error = 5,
-    Silent = 6,
+    Trace = -2,
+    Debug = -1,
+    Default = 0,
+    Detailed = 1,
+    Warning = 2,
+    Error = 3,
+    Critical = 4,
+    Silent = 5,
 }

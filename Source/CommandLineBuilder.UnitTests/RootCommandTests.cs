@@ -3,7 +3,7 @@
 public class RootCommandTests {
     [Fact]
     public void RootCommand_Execute_WithWriter_ExecutesDelegate() {
-        InMemoryOutputWriter writer = new();
+        InMemoryOutput writer = new();
         RootCommand subject = new(writer);
         subject.SetAction(cmd => {
             var who = cmd.GetValueOrDefault<string>("who");
@@ -13,7 +13,7 @@ public class RootCommandTests {
 
         subject.Execute("world");
 
-        writer.Output.Should().Be("Hello world!\n");
+        writer.Output.ToString().Should().Be("Hello world!\r\n");
     }
 
     [Fact]

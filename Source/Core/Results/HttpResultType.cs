@@ -8,4 +8,6 @@ public enum HttpResultType {
     Unauthorized = HttpStatusCode.Unauthorized, // 401
     NotFound = HttpStatusCode.NotFound, // 404
     Conflict = HttpStatusCode.Conflict, // 409
+
+    Error = HttpStatusCode.InternalServerError, // 500
 }

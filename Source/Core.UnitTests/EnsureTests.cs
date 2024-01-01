@@ -32,14 +32,14 @@ public class EnsureTests {
     [Fact]
     public void DoesNotHaveValue_WhenArgumentIsNullableValueType_ThrowsArgumentNullException() {
         int? input = null;
-        var action = () => HasValue(input);
+        var action = () => IsNotNull(input);
         action.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveValue_WhenArgumentIsNullableValueType_ReturnsInput() {
         int? input = 3;
-        var result = HasValue(input);
+        var result = IsNotNull(input);
         result.Should().Be(input);
     }
 
@@ -95,35 +95,35 @@ public class EnsureTests {
     [Fact]
     public void DoesNotHaveNull_WhenDoesNotHaveNull_ThrowsArgumentException() {
         var input = new[] { default(int?) };
-        var action = () => DoesNotHaveNulls(input);
+        var action = () => HasNoNull(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null value(s). (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmpty_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
         var input = new[] { string.Empty };
-        var action = () => DoesNotHaveNullOrEmptyStrings(input);
+        var action = () => HasNoNullOrEmpty(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or empty string(s). (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmpty_WhenValid_ThrowsArgumentException() {
         var input = new[] { "Hello" };
-        var result = DoesNotHaveNullOrEmptyStrings(input);
+        var result = HasNoNullOrEmpty(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrDoesNotHaveNullOrWhiteSpace_WhenValid_ThrowsArgumentException() {
         var input = new[] { "Hello" };
-        var result = DoesNotHaveNullOrWhiteSpaceStrings(input);
+        var result = HasNoNullOrWhiteSpace(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrDoesNotHaveNull_WhenIsNotEmpty_ReturnsInput() {
         var input = new[] { 1, 2, 3 };
-        var result = DoesNotHaveNulls(input);
+        var result = HasNoNull(input);
         result.Should().BeSameAs(input);
     }
 
@@ -158,35 +158,35 @@ public class EnsureTests {
     [Fact]
     public void DoesNotHaveNulls_WhenDoesNotHaveNull_ThrowsArgumentException() {
         var input = new[] { default(int?) };
-        var action = () => DoesNotHaveNulls(input);
+        var action = () => HasNoNull(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null value(s). (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveNulls_WhenValid_ReturnsSame() {
         var input = new[] { "hello" };
-        var result = DoesNotHaveNulls(input);
+        var result = HasNoNull(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmptyStrings_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
         var input = new[] { string.Empty };
-        var action = () => DoesNotHaveNullOrEmptyStrings(input);
+        var action = () => HasNoNullOrEmpty(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or empty string(s). (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmptyStrings_WhenValid_ReturnsSame() {
         var input = new[] { "Hello" };
-        var result = DoesNotHaveNullOrEmptyStrings(input);
+        var result = HasNoNullOrEmpty(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void DoesNotHaveNullOrWhiteSpaceStrings_WhenDoesNotHaveWhitespace_ThrowsArgumentException() {
         var input = new[] { " " };
-        var action = () => DoesNotHaveNullOrWhiteSpaceStrings(input);
+        var action = () => HasNoNullOrWhiteSpace(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or white space string(s). (Parameter 'input')");
     }
 

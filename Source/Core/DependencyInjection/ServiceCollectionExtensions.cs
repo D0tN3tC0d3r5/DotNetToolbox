@@ -5,6 +5,8 @@ public static class ServiceCollectionExtensions {
         services.AddSingleton<GuidProvider>();
         services.AddSingleton<DateTimeProvider>();
         services.AddSingleton<FileSystemHandler>();
+        services.AddSingleton<StandardOutput>();
+        services.AddSingleton<StandardInput>();
         return services;
     }
 }

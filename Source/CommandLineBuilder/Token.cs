@@ -14,8 +14,8 @@ public abstract partial class Token {
         Description = description ?? string.Empty;
     }
 
-    private OutputWriter _writer = default!;
-    public OutputWriter Writer {
+    private StandardOutput _writer = default!;
+    public StandardOutput Writer {
         get => _writer;
         internal set {
             _writer = value;

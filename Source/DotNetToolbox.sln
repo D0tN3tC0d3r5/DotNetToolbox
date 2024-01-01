@@ -44,13 +44,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.CommandLineBu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetToolbox.ObjectDumper", "ObjectDumper\DotnetToolbox.ObjectDumper.csproj", "{7397C94F-80AD-44EC-8F9E-11C789DD5E9C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetToolbox.ObjectDumper.UnitTests", "ObjectDumper.UnitTests\DotnetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper.UnitTests", "ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI", "OpenAI\DotNetToolbox.OpenAI.csproj", "{7F21AEAC-3285-474E-B19C-333856ACE888}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.UnitTests", "OpenAI.UnitTests\DotNetToolbox.OpenAI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.OpenAI.Console", "OpenAI.Console\DotNetToolbox.OpenAI.Console.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.Console", "OpenAI.Console\DotNetToolbox.OpenAI.Console.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.ConsoleApplication", "ConsoleApplication\DotNetToolbox.ConsoleApplication.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.ConsoleApplication.UnitTests", "ConsoleApplication.UnitTests\DotNetToolbox.ConsoleApplication.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -130,6 +134,14 @@ Global
 		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

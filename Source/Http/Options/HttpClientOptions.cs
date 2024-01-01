@@ -27,13 +27,18 @@ public class HttpClientOptions<TOptions> : INamedOptions<TOptions>, IValidatable
                    ? source
                    : $"{name}.{source}";
     }
+
+    public static string SectionName => GetSectionName();
+
+    protected static string GetSectionName() {
+        var typeName = typeof(TOptions).Name;
+        return typeName.EndsWith("Options") ? typeName.Remove(7) : typeName;
+    }
 }
 
-public class HttpClientOptions : HttpClientOptions<HttpClientOptions>, INamedOptions<HttpClientOptions> {
+public class HttpClientOptions : HttpClientOptions<HttpClientOptions> {
     public Dictionary<string, HttpClientOptions> Clients { get; set; } = [];
 
-    public static string SectionName => "HttpClient";
-    
     public override Result Validate(IDictionary<string, object?>? context = null) {
         var result = base.Validate(context);
 

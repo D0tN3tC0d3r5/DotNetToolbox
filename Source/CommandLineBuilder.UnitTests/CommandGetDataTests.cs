@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.CommandLineBuilder;
 
 public class CommandGetDataTests {
-    private readonly InMemoryOutputWriter _writer = new();
+    private readonly InMemoryOutput _writer = new();
     private readonly Command _testCommand;
 
     public CommandGetDataTests() {

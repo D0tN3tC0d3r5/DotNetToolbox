@@ -32,8 +32,6 @@ public readonly struct ValidationError {
         init => _arguments = value;
     }
 
-    //public string FormattedMessage
-    //    => $"{(string.IsNullOrEmpty(Source) ? string.Empty : $"{Source}: ")}{string.Format($"{MessageTemplate}", Arguments ?? Array.Empty<object>())}";
     public string FormattedMessage {
         get {
             var source = string.IsNullOrEmpty(Source) ? string.Empty : $"{Source}: ";
@@ -41,6 +39,15 @@ public readonly struct ValidationError {
             return $"{source}{message}";
         }
     }
+
+    public static implicit operator ValidationError((string source, string message, object[] args) error)
+        => new(error.source, error.message, error.args);
+    public static implicit operator ValidationError((string message, object[] args) error)
+        => new(error.message, error.args);
+    public static implicit operator ValidationError((string source, string message) error)
+        => new(error.source, error.message);
+    public static implicit operator ValidationError(string error)
+        => new(error);
 
     public override bool Equals(object? other)
         => other is ValidationError ve && Equals(ve);
