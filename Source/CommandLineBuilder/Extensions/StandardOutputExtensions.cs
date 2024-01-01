@@ -1,13 +1,13 @@
 ﻿namespace DotNetToolbox.CommandLineBuilder.Extensions;
 
 public static class StandardOutputExtensions {
-    public static void WriteVersion(this StandardOutput writer, CommandBase command) {
+    public static void WriteVersion(this OutputWriter writer, CommandBase command) {
         var assembly = command.GetType().Assembly;
         writer.WriteLine(GetAssemblyTitle(assembly));
         writer.WriteLine(GetAssemblyVersion(assembly));
     }
 
-    public static void WriteHelp(this StandardOutput writer, CommandBase command) {
+    public static void WriteHelp(this OutputWriter writer, CommandBase command) {
         if (command is IRootCommand) writer.WriteRootHeader(command);
 
         var parameters = command.Tokens.OfType<Parameter>().Cast<Token>().ToArray();
@@ -29,7 +29,7 @@ public static class StandardOutputExtensions {
         writer.WriteLine();
     }
 
-    public static void WriteError(this StandardOutput writer, string message, Exception? ex = null) {
+    public static void WriteError(this OutputWriter writer, string message, Exception? ex = null) {
         if (writer.VerboseLevel == OutputVerboseLevel.Silent) return;
 
         var oldColor = writer.ForegroundColor;
@@ -44,7 +44,7 @@ public static class StandardOutputExtensions {
     }
 
     [ExcludeFromCodeCoverage]
-    private static void WriteRootHeader(this StandardOutput writer, CommandBase command) {
+    private static void WriteRootHeader(this OutputWriter writer, CommandBase command) {
         var assembly = command.GetType().Assembly;
         writer.WriteLine();
         writer.WriteLine($"{GetAssemblyTitle(assembly)} {GetAssemblyVersion(assembly)}");
@@ -55,7 +55,7 @@ public static class StandardOutputExtensions {
         writer.WriteLine(description);
     }
 
-    private static void WriteSection(this StandardOutput writer, string header, IReadOnlyCollection<Token> tokens) {
+    private static void WriteSection(this OutputWriter writer, string header, IReadOnlyCollection<Token> tokens) {
         if (tokens.Count == 0) return;
         writer.WriteLine();
         writer.WriteLine(header);

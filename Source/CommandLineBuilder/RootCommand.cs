@@ -7,7 +7,7 @@ public interface IRootCommand {
 public abstract class RootCommand<TCommand> : CommandBase<TCommand>, IRootCommand
     where TCommand : RootCommand<TCommand> {
 
-    protected RootCommand(StandardOutput? writer = null)
+    protected RootCommand(OutputWriter? writer = null)
         : base(TokenType.Root, IRootCommand.ExecutableName) {
         Writer = writer ?? new();
         Add(new VersionFlag());
@@ -17,4 +17,4 @@ public abstract class RootCommand<TCommand> : CommandBase<TCommand>, IRootComman
     }
 }
 
-public sealed class RootCommand(StandardOutput? writer = null) : RootCommand<RootCommand>(writer);
+public sealed class RootCommand(OutputWriter? writer = null) : RootCommand<RootCommand>(writer);

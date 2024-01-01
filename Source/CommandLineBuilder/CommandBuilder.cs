@@ -17,7 +17,7 @@ public sealed class CommandBuilder<TCommand>
     private readonly List<Func<CommandBase, CommandBase>> _steps = [];
 
     private object? _action;
-    private StandardOutput? _writer;
+    private OutputWriter? _writer;
 
     internal CommandBuilder() {
         _isRoot = true;
@@ -29,7 +29,7 @@ public sealed class CommandBuilder<TCommand>
         _description = description;
     }
 
-    public CommandBuilder<TCommand> WithWriter(StandardOutput writer) {
+    public CommandBuilder<TCommand> WithWriter(OutputWriter writer) {
         _writer = writer;
         return this;
     }

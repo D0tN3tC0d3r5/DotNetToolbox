@@ -1,24 +1,24 @@
-﻿using System.Runtime.Versioning;
-
-namespace DotNetToolbox;
+﻿namespace DotNetToolbox;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
-public class StandardOutput {
-    static StandardOutput() => Console.ResetColor();
-
-    public bool UseColors { get; set; } = true;
-    public OutputVerboseLevel VerboseLevel { get; set; } = OutputVerboseLevel.Default;
+public class Output {
+    public virtual Encoding Encoding {
+        get => Console.OutputEncoding;
+        set => Console.OutputEncoding = value;
+    }
 
     public virtual ConsoleColor ForegroundColor {
         get => Console.ForegroundColor;
-        set => Console.ForegroundColor = UseColors ? value : Console.ForegroundColor;
+        set => Console.ForegroundColor = value;
     }
-
     public virtual ConsoleColor BackgroundColor {
         get => Console.BackgroundColor;
-        set => Console.BackgroundColor = UseColors ? value : Console.BackgroundColor;
+        set => Console.BackgroundColor = value;
     }
+
+    public virtual TextWriter Writer => Console.Out;
+    public virtual TextWriter Error => Console.Error;
 
     public virtual void ResetColor() => Console.ResetColor();
     public virtual void Clear() => Console.Clear();

@@ -2,8 +2,7 @@ namespace DotNetToolbox;
 
 public class CreateTests {
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestClass {
-    }
+    private class TestClass;
 
     [Fact]
     public void Create_NoArgs_CreatesObjectOfTypeT() {
@@ -30,8 +29,8 @@ public class CreateTests {
 
         // Assert
         instance.Should().NotBeNull();
-        instance.Should().BeOfType<TestClassWithArgs>();
-        instance.Value.Should().Be(expectedValue);
+        var subject = instance.Should().BeOfType<TestClassWithArgs>().Subject;
+        subject.Value.Should().Be(expectedValue);
     }
 
     [Fact]

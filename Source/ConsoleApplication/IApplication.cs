@@ -5,6 +5,12 @@ public interface IApplication : IApplicationOptions {
     IServiceProvider ServiceProvider { get; }
     IConfiguration Configuration { get; }
     IDictionary<string, object?> Data { get; }
+
+    Output Output { get; }
+    Input Input { get; }
+    DateTimeProvider DateTime { get; }
+    GuidProvider Guid { get; }
+    FileSystemHandler FileSystem { get; }
 }
 
 public interface IApplication<out TApplication, out TBuilder, TOptions>

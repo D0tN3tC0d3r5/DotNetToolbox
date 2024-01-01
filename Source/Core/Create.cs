@@ -3,8 +3,7 @@
 public static class Create {
     private const BindingFlags _allConstructors = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance;
 
-    public static T? Instance<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>(params object?[] args)
-        where T : class {
+    public static T? Instance<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>(params object?[] args) {
         try {
             return (T?)Activator.CreateInstance(typeof(T), _allConstructors, null, args, null, null);
         }
