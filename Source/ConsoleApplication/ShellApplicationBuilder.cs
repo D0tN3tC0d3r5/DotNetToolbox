@@ -4,7 +4,7 @@ public class ShellApplicationBuilder<TApplication, TBuilder, TOptions>
     : ApplicationBuilder<TApplication, TBuilder, TOptions>
     where TApplication : ShellApplication<TApplication, TBuilder, TOptions>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TOptions : ApplicationOptions<TOptions>, INamedOptions<TOptions>, new() {
+    where TOptions : ApplicationOptions<TOptions>, new() {
     internal ShellApplicationBuilder(string[] arguments)
         : base(arguments) {
     }

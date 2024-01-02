@@ -10,7 +10,7 @@ public interface IApplication : IApplicationOptions {
     Input Input { get; }
     DateTimeProvider DateTime { get; }
     GuidProvider Guid { get; }
-    FileSystemHandler FileSystem { get; }
+    FileSystem FileSystem { get; }
 }
 
 public interface IApplication<out TApplication, out TBuilder, TOptions>

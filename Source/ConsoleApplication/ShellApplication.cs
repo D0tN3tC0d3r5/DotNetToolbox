@@ -4,8 +4,9 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     : Application<TApplication, TBuilder, TOptions>
     where TApplication : ShellApplication<TApplication, TBuilder, TOptions>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TOptions : ApplicationOptions<TOptions>, INamedOptions<TOptions>, new() {
-    internal ShellApplication(string[] args, string environment, IServiceProvider serviceProvider) : base(args, environment, serviceProvider) {
+    where TOptions : ApplicationOptions<TOptions>, new() {
+    internal ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
+        : base(args, environment, serviceProvider) {
     }
 
     public sealed override async Task<int> RunAsync() {
@@ -28,8 +29,11 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     public abstract Task<Result> ProcessInput(string input);
 }
 
-public abstract class ShellApplication
+public class ShellApplication
     : ShellApplication<ShellApplication, ShellApplicationBuilder, ApplicationOptions> {
-    internal ShellApplication(string[] args, string environment, IServiceProvider serviceProvider) : base(args, environment, serviceProvider) {
+    internal ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
+        : base(args, environment, serviceProvider) {
     }
+
+    public override Task<Result> ProcessInput(string input) => Task.FromResult(Result.Success());
 }

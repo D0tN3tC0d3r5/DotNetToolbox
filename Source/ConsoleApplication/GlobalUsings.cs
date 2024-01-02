@@ -1,6 +1,7 @@
 global using System.ComponentModel.DataAnnotations;
 global using System.Reflection;
 
+global using DotNetToolbox.DependencyInjection;
 global using DotNetToolbox.Options;
 global using DotNetToolbox.Results;
 
