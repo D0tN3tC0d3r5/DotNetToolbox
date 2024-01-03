@@ -1,13 +1,13 @@
 namespace DotNetToolbox;
 
-public class CreateTests {
+public class CreateInstanceTests {
     // ReSharper disable once ClassNeverInstantiated.Local
     private class TestClass;
 
     [Fact]
     public void Create_NoArgs_CreatesObjectOfTypeT() {
         // Arrange & Act
-        var instance = Create.Instance<TestClass>();
+        var instance = CreateInstance.Of<TestClass>();
 
         // Assert
         instance.Should().NotBeNull();
@@ -25,7 +25,7 @@ public class CreateTests {
         const string expectedValue = "Test";
 
         // Act
-        var instance = Create.Instance<TestClassWithArgs>(expectedValue);
+        var instance = CreateInstance.Of<TestClassWithArgs>(expectedValue);
 
         // Assert
         instance.Should().NotBeNull();
@@ -36,7 +36,7 @@ public class CreateTests {
     [Fact]
     public void Create_WithWrongArgs_Throws() {
         // Act
-        var action = () => Create.Instance<TestClassWithArgs>();
+        var action = () => CreateInstance.Of<TestClassWithArgs>();
 
         // Assert
         action.Should().Throw<InvalidOperationException>();
@@ -45,10 +45,10 @@ public class CreateTests {
     [Fact]
     public void Create_WithProvider_CreatesObjectOfTypeT() {
         // Arrange
-        var provider = Substitute.For<IServiceProvider>();
+        var provider = For<IServiceProvider>();
 
         // Act
-        var instance = Create.Instance<TestClass>(provider);
+        var instance = CreateInstance.Of<TestClass>(provider);
 
         // Assert
         instance.Should().NotBeNull();
@@ -58,10 +58,10 @@ public class CreateTests {
     [Fact]
     public void Create_WithProvider_WithWrongArgs_CreatesObjectOfTypeT() {
         // Arrange
-        var provider = Substitute.For<IServiceProvider>();
+        var provider = For<IServiceProvider>();
 
         // Act
-        var action = () => Create.Instance<TestClassWithArgs>(provider);
+        var action = () => CreateInstance.Of<TestClassWithArgs>(provider);
 
         // Assert
         action.Should().Throw<InvalidOperationException>();

@@ -192,7 +192,7 @@ public class EnsureTests {
 
     private class ValidatableObject(bool isValid) : IValidatable {
         public Result Validate(IDictionary<string, object?>? context = null)
-            => isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
+            => isValid ? Result.Success() : Result.InvalidData("Source", "Is not valid.");
     }
 
     [Fact]
@@ -212,28 +212,28 @@ public class EnsureTests {
     [Fact]
     public void IsValid_WhenValidSimpleObject_ReturnsSame() {
         var input = new object();
-        var result = IsValid(input, o => Success());
+        var result = IsValid(input, _ => Result.Success());
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void IsValid_WhenInvalidSimpleObject_ReturnsSame() {
         var input = new object();
-        var result = () => IsValid(input, o => Invalid("Some error."));
+        var result = () => IsValid(input, _ => Result.InvalidData("Some error."));
         result.Should().Throw<ValidationException>();
     }
 
     [Fact]
     public void IsValid_WhenValidSimpleObject_AndPredicate_ReturnsSame() {
         var input = new object();
-        var result = IsValid(input, o => true);
+        var result = IsValid(input, _ => true);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void IsValid_WhenInvalidSimpleObject_AndPredicate_ReturnsSame() {
         var input = new object();
-        var result = () => IsValid(input, o => false);
+        var result = () => IsValid(input, _ => false);
         result.Should().Throw<ValidationException>();
     }
 }

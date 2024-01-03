@@ -11,7 +11,7 @@ internal class FakeHttpMessageHandler
         => _exception = exception;
 
     public void SetOkResponse<TData>(TData data) {
-        _response = JsonSerializer.Serialize(data);
+        _response = Serialize(data);
         _statusCode = HttpStatusCode.OK;
     }
 

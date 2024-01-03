@@ -30,7 +30,7 @@ public class ValidationExceptionTests {
     [Fact]
     public void ConstructorWithOneError_CreatesException() {
         // Arrange
-        var error1 = new ValidationError("Some error {0}.", 42);
+        var error1 = new ValidationError("Some error 42.");
 
         // Act
         var exception = new ValidationException(error1);
@@ -43,8 +43,8 @@ public class ValidationExceptionTests {
     [Fact]
     public void ConstructorWithErrorCollection_CreatesException() {
         // Arrange
-        var error1 = new ValidationError("Some global error {0}.", 42);
-        var error2 = new ValidationError("Field1", "Some other error {0}.", 13);
+        var error1 = new ValidationError("Some global error 42.");
+        var error2 = new ValidationError("Field1", "Some other error 13.");
 
         // Act
         var exception = new ValidationException(new[] { error1, error2 });

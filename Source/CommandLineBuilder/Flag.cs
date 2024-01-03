@@ -1,15 +1,7 @@
 ﻿namespace DotNetToolbox.CommandLineBuilder;
 
-public class Flag(string name,
-                  char alias,
-                  string? description = null,
-                  bool existsIfTrue = false,
-                  Action<Token>? onRead = null)
-    : Argument(TokenType.Flag,
-               name,
-               alias,
-               description,
-               onRead),
+public class Flag(string name, char alias, string? description = null, bool existsIfTrue = false, Action<Token>? onRead = null)
+    : Argument(TokenType.Flag, name, alias, description, onRead),
       IHasValue<bool> {
     public Flag(string name, string? description = null, bool existsIfSet = false, Action<Token>? onRead = null)
         : this(name, '\0', description, existsIfSet, onRead) {

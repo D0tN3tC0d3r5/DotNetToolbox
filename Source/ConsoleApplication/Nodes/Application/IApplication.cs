@@ -1,6 +1,12 @@
-﻿namespace DotNetToolbox.ConsoleApplication;
+﻿using DotNetToolbox.ConsoleApplication.Nodes;
 
-public interface IApplication : IApplicationOptions {
+namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+
+public interface IApplication : IExecutableNode {
+    string AssemblyName { get; }
+    string Title { get; }
+    string Version { get; }
+    string Environment { get; }
     string[] Arguments { get; }
     IServiceProvider ServiceProvider { get; }
     IConfiguration Configuration { get; }
@@ -11,6 +17,9 @@ public interface IApplication : IApplicationOptions {
     DateTimeProvider DateTime { get; }
     GuidProvider Guid { get; }
     FileSystem FileSystem { get; }
+
+    ILogger Logger { get; }
+    Task ExitAsync(int exitCode = 0);
 }
 
 public interface IApplication<out TApplication, out TBuilder, TOptions>
@@ -18,10 +27,7 @@ public interface IApplication<out TApplication, out TBuilder, TOptions>
     where TApplication : class, IApplication<TApplication, TBuilder, TOptions>
     where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : class, IApplicationOptions, new() {
-    public static abstract TBuilder CreateBuilder(Action<TBuilder>? configure = null);
-    public static abstract TBuilder CreateBuilder(string[] args, Action<TBuilder>? configure = null);
 
-    ILogger<TApplication> Logger { get; }
     int Run();
-    Task<int> RunAsync();
+    Task<int> RunAsync(CancellationToken ct = default);
 }

@@ -34,8 +34,11 @@
 
   <ItemGroup>
     <Compile Remove="pkgs\**" />
+    <Compile Remove="Properties\**" />
     <EmbeddedResource Remove="pkgs\**" />
+    <EmbeddedResource Remove="Properties\**" />
     <None Remove="pkgs\**" />
+    <None Remove="Properties\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -67,10 +70,6 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

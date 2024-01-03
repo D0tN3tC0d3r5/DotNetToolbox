@@ -2,16 +2,15 @@
 
 public readonly struct ValidationError {
     [SetsRequiredMembers]
-    public ValidationError(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string template, params object[] args)
+    public ValidationError(string source, string message)
         : this() {
         Source = IsNotNull(source).Trim();
-        MessageTemplate = IsNotNullOrEmpty(template);
-        Arguments = IsNotNull(args);
+        Message = IsNotNullOrEmpty(message);
     }
 
     [SetsRequiredMembers]
-    public ValidationError([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string template, params object[] args)
-        : this(string.Empty, template, args) {
+    public ValidationError(string message)
+        : this(string.Empty, message) {
     }
 
     private readonly string? _source;
@@ -21,33 +20,13 @@ public readonly struct ValidationError {
     }
 
     private readonly string? _messageTemplate;
-    public required string MessageTemplate {
+    public required string Message {
         get => _messageTemplate ?? string.Empty;
         init => _messageTemplate = value;
     }
 
-    private readonly object[]? _arguments;
-    public object[] Arguments {
-        get => _arguments ?? [];
-        init => _arguments = value;
-    }
-
-    public string FormattedMessage {
-        get {
-            var source = string.IsNullOrEmpty(Source) ? string.Empty : $"{Source}: ";
-            var message = string.Format(MessageTemplate, Arguments);
-            return $"{source}{message}";
-        }
-    }
-
-    public static implicit operator ValidationError((string source, string message, object[] args) error)
-        => new(error.source, error.message, error.args);
-    public static implicit operator ValidationError((string message, object[] args) error)
-        => new(error.message, error.args);
-    public static implicit operator ValidationError((string source, string message) error)
-        => new(error.source, error.message);
-    public static implicit operator ValidationError(string error)
-        => new(error);
+    public static implicit operator ValidationError(string message)
+        => new(message);
 
     public override bool Equals(object? other)
         => other is ValidationError ve && Equals(ve);
@@ -59,8 +38,8 @@ public readonly struct ValidationError {
         => !left.Equals(right);
 
     public bool Equals(ValidationError other)
-        => FormattedMessage.Equals(other.FormattedMessage);
+        => Source.Equals(other.Source) && Message.Equals(other.Message);
 
     public override int GetHashCode()
-        => FormattedMessage.GetHashCode();
+        => HashCode.Combine(Source, Message);
 }

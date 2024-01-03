@@ -2,7 +2,7 @@ namespace DotNetToolbox.Collections.Concurrent;
 
 public class ConcurrentDictionaryExtensionsTests {
     private readonly ConcurrentDictionary<int, object?> _concurrentDictionary = new();
-    private readonly Func<int, string?> _getValue = Substitute.For<Func<int, string?>>();
+    private readonly Func<int, string?> _getValue = For<Func<int, string?>>();
 
     [Fact]
     public void Get_ReturnsValueFromCache() {

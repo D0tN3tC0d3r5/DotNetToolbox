@@ -12,7 +12,7 @@ public class HttpClientProvider<TOptionsBuilder, TOptions>(IHttpClientFactory cl
     public void RevokeAuthentication() => _authentication = new();
 
     public HttpClient GetHttpClient(Action<TOptionsBuilder>? configureBuilder = null) {
-        var builder = Create.Instance<TOptionsBuilder>(Options);
+        var builder = CreateInstance.Of<TOptionsBuilder>(Options);
         configureBuilder?.Invoke(builder);
         return CreateHttpClient(builder.Build());
     }
@@ -35,7 +35,7 @@ public class HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpC
     : HttpClientProvider<HttpClientOptionsBuilder, HttpClientOptions>(clientFactory, options),
       IHttpClientProvider {
     public HttpClient GetHttpClient(string name, Action<HttpClientOptionsBuilder>? configureBuilder = null) {
-        var builder = Create.Instance<HttpClientOptionsBuilder>(Options);
+        var builder = CreateInstance.Of<HttpClientOptionsBuilder>(Options);
         configureBuilder?.Invoke(builder);
         return CreateHttpClient(builder.Build(name));
     }

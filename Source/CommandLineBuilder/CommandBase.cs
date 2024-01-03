@@ -19,7 +19,7 @@ public abstract class CommandBase(TokenType type, string name, string? descripti
     }
 
     internal abstract Task ExecuteCommand(string[] arguments, CancellationToken ct);
-    
+
     internal IList<Token> Tokens { get; } = new List<Token>();
 
     public void Add<T>(T token) where T : Token {

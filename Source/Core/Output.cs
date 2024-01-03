@@ -21,7 +21,7 @@ public class Output {
     public virtual TextWriter Error => Console.Error;
 
     public virtual void ResetColor() => Console.ResetColor();
-    public virtual void Clear() => Console.Clear();
+    public virtual void ClearScreen() => Console.Clear();
 
     public virtual void Write(bool value) => Console.Write(value);
     public virtual void Write(ulong value) => Console.Write(value);

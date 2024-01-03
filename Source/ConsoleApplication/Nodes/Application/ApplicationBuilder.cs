@@ -1,11 +1,11 @@
-﻿namespace DotNetToolbox.ConsoleApplication;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
 public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     : IApplicationBuilder<TApplication, TBuilder, TOptions>
     where TApplication : Application<TApplication, TBuilder, TOptions>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>, new() {
-    private readonly string[] _arguments;
+    private readonly string[] _args;
     private string? _environment;
     private bool _addEnvironmentVariables;
     private string? _environmentVariablesPrefix;
@@ -14,8 +14,8 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     private Action<ILoggingBuilder> _setLogging = _ => { };
     private string _sectionName = "Application";
 
-    internal ApplicationBuilder(string[] arguments) {
-        _arguments = arguments;
+    internal ApplicationBuilder(string[] args) {
+        _args = args;
     }
 
     public ServiceCollection Services { get; } = [];
@@ -54,7 +54,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
 
     public TApplication Build() {
         var configuration = new ConfigurationManager();
-        configuration.AddCommandLine(_arguments);
+        configuration.AddCommandLine(_args);
         if (_addEnvironmentVariables)
             configuration.AddEnvironmentVariables(_environmentVariablesPrefix);
 
@@ -82,7 +82,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         }
 
         var serviceProvider = Services.BuildServiceProvider();
-        return Create.Instance<TApplication>(_arguments, _environment, serviceProvider)
+        return CreateInstance.Of<TApplication>(_args, _environment, serviceProvider)
             ?? throw new InvalidOperationException("Failed to create application instance.");
     }
 }

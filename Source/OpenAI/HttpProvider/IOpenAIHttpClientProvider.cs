@@ -1,5 +1,5 @@
 ﻿namespace DotNetToolbox.OpenAI.HttpProvider;
 
 public interface IOpenAIHttpClientProvider
-    : IHttpClientProvider<OpenAIHttpClientOptionsBuilder, OpenAIHttpClientOptions> {
+    : IHttpClientProvider<OpenAIHttpClientOptionsBuilder, OpenAIOptions> {
 }

@@ -52,9 +52,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.UnitTe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.Console", "OpenAI.Console\DotNetToolbox.OpenAI.Console.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.ConsoleApplication", "ConsoleApplication\DotNetToolbox.ConsoleApplication.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ConsoleApplication", "ConsoleApplication\DotNetToolbox.ConsoleApplication.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.ConsoleApplication.UnitTests", "ConsoleApplication.UnitTests\DotNetToolbox.ConsoleApplication.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ConsoleApplication.UnitTests", "ConsoleApplication.UnitTests\DotNetToolbox.ConsoleApplication.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.ConsoleApplication.SampleShell", "ConsoleApplication.SampleShell\DotNetToolbox.ConsoleApplication.SampleShell.csproj", "{574B6C14-9D19-4283-AEB9-13754EE6437C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.ConsoleApplication.SampleCommandLineInterface", "ConsoleApplication.SampleCommandLineInterface\DotNetToolbox.ConsoleApplication.SampleCommandLineInterface.csproj", "{88BA5A80-5353-4A03-BFF2-92F4A1951A70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -142,6 +146,14 @@ Global
 		{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{574B6C14-9D19-4283-AEB9-13754EE6437C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{574B6C14-9D19-4283-AEB9-13754EE6437C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{574B6C14-9D19-4283-AEB9-13754EE6437C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{574B6C14-9D19-4283-AEB9-13754EE6437C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88BA5A80-5353-4A03-BFF2-92F4A1951A70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88BA5A80-5353-4A03-BFF2-92F4A1951A70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88BA5A80-5353-4A03-BFF2-92F4A1951A70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88BA5A80-5353-4A03-BFF2-92F4A1951A70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

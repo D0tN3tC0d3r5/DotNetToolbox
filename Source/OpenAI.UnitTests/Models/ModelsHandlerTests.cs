@@ -63,7 +63,7 @@ public class ModelsHandlerTests {
     [Fact]
     public async Task Get_WithFaultyConnection_Throws() {
         // Arrange
-        _httpMessageHandler.ForceException(new InvalidOperationException("Error!"));
+        _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
         var result = () => _modelsHandler.Get();
@@ -117,7 +117,7 @@ public class ModelsHandlerTests {
     [Fact]
     public async Task GetById_WithFaultyConnection_Throws() {
         // Arrange
-        _httpMessageHandler.ForceException(new InvalidOperationException("Error!"));
+        _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
         var result = () => _modelsHandler.GetById("testId");
@@ -148,7 +148,7 @@ public class ModelsHandlerTests {
     [Fact]
     public async Task Delete_WithFaultyConnection_Throws() {
         // Arrange
-        _httpMessageHandler.ForceException(new InvalidOperationException("Error!"));
+        _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
         var result = () => _modelsHandler.Delete("testId");

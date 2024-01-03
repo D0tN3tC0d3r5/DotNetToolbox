@@ -124,7 +124,7 @@ public class ChatHandlerTests {
     [Fact]
     public async Task Create_WithFaultyRepository_Throws() {
         // Arrange
-        _repository.Add(Arg.Any<Chat>()).ThrowsAsync(new InvalidOperationException("Error!"));
+        _repository.Add(Arg.Any<Chat>()).ThrowsAsync(new InvalidOperationException("Break!"));
 
         // Act
         var result = () => _chatHandler.Create("some-model");
@@ -286,7 +286,7 @@ public class ChatHandlerTests {
             Id = "testId",
         };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
-        _httpMessageHandler.ForceException(new InvalidOperationException("Error!"));
+        _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
         var result = () => _chatHandler.SendMessage("testId", "testMessage");
