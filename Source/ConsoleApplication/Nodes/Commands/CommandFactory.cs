@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.ConsoleApplication.Nodes.Application;
-
-namespace DotNetToolbox.ConsoleApplication.Nodes.Commands;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Commands;
 
 public class CommandFactory {
     public static TCommand Create<TCommand>(IApplication application)

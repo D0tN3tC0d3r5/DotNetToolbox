@@ -1,9 +1,6 @@
-﻿var app = ShellApplication
-   .Create(args, builder
+﻿var app = ShellApplication.Create(args, builder
         => builder.AddSettings()
-               .AddUserSecrets<Program>()
-               .SetLogging());
-
-app.Commands.Add(new ClearCommand(app));
+            .AddUserSecrets<Program>()
+            .SetLogging());
 
 await app.RunAsync();

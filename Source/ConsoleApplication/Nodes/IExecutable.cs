@@ -1,5 +1,5 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public interface IExecutableNode : INode {
+public interface IExecutable : INode {
     Task<Result> ExecuteAsync(string[] input, CancellationToken ct);
 }

@@ -1,4 +1,5 @@
 global using DotNetToolbox.ConsoleApplication;
+global using DotNetToolbox.ConsoleApplication.Nodes.Application;
 global using DotNetToolbox.OpenAI.Commands;
 
 global using Microsoft.Extensions.Configuration;

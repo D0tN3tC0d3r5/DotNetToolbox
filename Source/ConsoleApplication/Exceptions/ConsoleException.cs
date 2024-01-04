@@ -1,7 +1,9 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Exceptions;
 public class ConsoleException : Exception {
+    public const int DefaultErrorCode = 1;
+
     public ConsoleException(string message, Exception? innerException = null)
-        : this(1, message, innerException) {
+        : this(DefaultErrorCode, message, innerException) {
     }
 
     public ConsoleException(int exitCode, string message, Exception? innerException = null)

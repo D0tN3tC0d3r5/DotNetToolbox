@@ -1,8 +1,15 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
+public sealed class ShellApplication
+    : ShellApplication<ShellApplication> {
+    private ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
+        : base(args, environment, serviceProvider) {
+    }
+}
+
 public abstract class ShellApplication<TApplication>
     : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>
-    where TApplication : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions> {
+    where TApplication : ShellApplication<TApplication> {
     protected ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
         : base(args, environment, serviceProvider) {
     }
@@ -14,17 +21,21 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ShellApplicationOptions<TOptions>, new() {
 
-    internal ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
+    protected ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
         : base(args, environment, serviceProvider) {
+        AddCommand<ExitCommand>();
+        AddCommand<ClearScreenCommand>();
+        AddCommand<HelpCommand>();
     }
 
-    public sealed override async Task<int> RunAsync(CancellationToken ct = default) {
-        var taskRun = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        await base.RunAsync(taskRun.Token);
-        while (!taskRun.IsCancellationRequested) {
+    public override async Task<Result> ExecuteAsync(string[] input, CancellationToken ct) {
+        await base.ExecuteAsync(input, ct);
+        var result = Success();
+        while (!ct.IsCancellationRequested && !Terminate) {
             Output.Write(Options.Prompt);
             var userInput = Input.ReadLine() ?? string.Empty;
-            var result = await ProcessInput(userInput, taskRun.Token);
+            var arguments = CommandInputParser.Parse(userInput);
+            result = await ProcessInput(arguments, ct);
             if (Terminate) break;
             if (!result.HasException) continue;
             await Output.Error.WriteLineAsync(result.Exception.ToString());
@@ -32,24 +43,6 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
             await ExitAsync(exitCode);
         }
 
-        return ExitCode;
+        return result;
     }
-
-    public virtual async Task<Result> ProcessInput(string input, CancellationToken ct) {
-        var command = Children.OfType<ICommand>().FirstOrDefault(c => c.Ids.Contains(input, StringComparer.InvariantCultureIgnoreCase));
-        if (command is null) return Result.Error($"Command '{input}' not found. For a list of available commands use 'help'.");
-        return await command.ExecuteAsync(Arguments, ct);
-    }
-}
-
-public class ShellApplication
-    : ShellApplication<ShellApplication> {
-    internal ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
-        : base(args, environment, serviceProvider) {
-
-        AddCommand<ExitCommand>();
-        AddCommand<ClearScreenCommand>();
-    }
-
-    public override Task<Result> ProcessInput(string input, CancellationToken ct) => base.ProcessInput(input, ct);
 }

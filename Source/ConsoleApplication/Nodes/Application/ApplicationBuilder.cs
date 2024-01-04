@@ -1,5 +1,14 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
+public class ApplicationBuilder<TApplication, TOptions>
+    : ApplicationBuilder<TApplication, ApplicationBuilder<TApplication, TOptions>, TOptions>
+    where TApplication : Application<TApplication, TOptions>
+    where TOptions : ApplicationOptions<TOptions>, new() {
+    internal ApplicationBuilder(string[] args) : base(args)
+    {
+    }
+}
+
 public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     : IApplicationBuilder<TApplication, TBuilder, TOptions>
     where TApplication : Application<TApplication, TBuilder, TOptions>
@@ -11,7 +20,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     private string? _environmentVariablesPrefix;
     private bool _useAppSettings;
     private Type? _userSecretsReference;
-    private Action<ILoggingBuilder> _setLogging = _ => { };
+    private System.Action<ILoggingBuilder> _setLogging = _ => { };
     private string _sectionName = "Application";
 
     internal ApplicationBuilder(string[] args) {
@@ -47,7 +56,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         return (TBuilder)this;
     }
 
-    public TBuilder SetLogging(Action<ILoggingBuilder>? configure = null) {
+    public TBuilder SetLogging(System.Action<ILoggingBuilder>? configure = null) {
         _setLogging = configure ?? _setLogging;
         return (TBuilder)this;
     }

@@ -1,13 +1,11 @@
-﻿using DotNetToolbox.ConsoleApplication.Nodes.Commands;
-
-namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
 public abstract class Option<TOption, TValue>
     : Argument<TOption>
     , IOption
     where TOption : Option<TOption, TValue> {
-    protected Option(ICommand owner, ArgumentType type, string name, ILoggerFactory loggerFactory)
-        : base(IsNotNull(owner), type, name, loggerFactory) {
+    protected Option(ICommand owner, string name)
+        : base(IsNotNull(owner), "Option", name) {
     }
 
     public TValue Value { get; private set; } = default!;
@@ -17,7 +15,7 @@ public abstract class Option<TOption, TValue>
         }
         catch (Exception ex) {
             Logger.LogError(ex, "Failed to convert {input} to {type}", input, typeof(TValue).Name);
-            return await Result.ErrorTask($"Failed to convert {input} to {typeof(TValue).Name}");
+            return await ErrorTask($"Failed to convert {input} to {typeof(TValue).Name}");
         }
 
         return await OnRead(ct);

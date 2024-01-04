@@ -1,6 +1,3 @@
-global using DotNetToolbox.ConsoleApplication;
-global using DotNetToolbox.ConsoleApplication.Commands;
-global using DotNetToolbox.ConsoleApplication.SampleShell.Commands;
+global using DotNetToolbox.ConsoleApplication.Nodes.Application;
+global using DotNetToolbox.ConsoleApplication.Nodes.Commands;
 global using DotNetToolbox.Results;
-
-global using Microsoft.Extensions.Logging;

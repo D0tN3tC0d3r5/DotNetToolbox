@@ -1,13 +1,9 @@
-﻿using DotNetToolbox.ConsoleApplication.Nodes;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
-namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
-
-public interface IApplication : IExecutableNode {
+public interface IApplication : IRoot, IExecutable {
     string AssemblyName { get; }
-    string Title { get; }
     string Version { get; }
     string Environment { get; }
-    string[] Arguments { get; }
     IServiceProvider ServiceProvider { get; }
     IConfiguration Configuration { get; }
     IDictionary<string, object?> Data { get; }
@@ -29,5 +25,5 @@ public interface IApplication<out TApplication, out TBuilder, TOptions>
     where TOptions : class, IApplicationOptions, new() {
 
     int Run();
-    Task<int> RunAsync(CancellationToken ct = default);
+    Task<int> RunAsync();
 }
