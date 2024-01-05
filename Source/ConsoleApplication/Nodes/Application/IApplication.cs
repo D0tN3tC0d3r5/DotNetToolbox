@@ -1,21 +1,12 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
 public interface IApplication : IRoot, IExecutable {
-    string AssemblyName { get; }
     string Version { get; }
-    string Environment { get; }
+    public string FullName => string.Join(" v", Name, Version);
     IServiceProvider ServiceProvider { get; }
     IConfiguration Configuration { get; }
     IDictionary<string, object?> Data { get; }
-
-    Output Output { get; }
-    Input Input { get; }
-    DateTimeProvider DateTime { get; }
-    GuidProvider Guid { get; }
-    FileSystem FileSystem { get; }
-
-    ILogger Logger { get; }
-    Task ExitAsync(int exitCode = 0);
+    void Exit(int exitCode = 0);
 }
 
 public interface IApplication<out TApplication, out TBuilder, TOptions>

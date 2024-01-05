@@ -1,13 +1,13 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication;
 public sealed class CommandLineApplication
     : CommandLineApplication<CommandLineApplication> {
-    private CommandLineApplication(string[] args, string? environment, IServiceProvider serviceProvider)
+    internal CommandLineApplication(string[] args, string? environment, IServiceProvider serviceProvider)
         : base(args, environment, serviceProvider) {
     }
 }
 
-public class CommandLineApplication<TApplication>
-    : CommandLineApplication<TApplication, CommandLineApplicationBuilder<TApplication>, ApplicationOptions>
+public abstract class CommandLineApplication<TApplication>
+    : CommandLineApplication<TApplication, CommandLineApplicationBuilder<TApplication>, CommandLineApplicationOptions>
     where TApplication : CommandLineApplication<TApplication> {
     protected CommandLineApplication(string[] args, string? environment, IServiceProvider serviceProvider)
         : base(args, environment, serviceProvider) {
@@ -21,21 +21,20 @@ public abstract class CommandLineApplication<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>, new() {
     protected CommandLineApplication(string[] args, string? environment, IServiceProvider serviceProvider)
         : base(args, environment, serviceProvider) {
-        AddArgument<HelpAction>();
+        AddAction<HelpAction>();
+        AddAction<VersionAction>();
     }
 
-    public override async Task<Result> ExecuteAsync(string[] input, CancellationToken ct) {
-        await base.ExecuteAsync(input, ct);
-
-        if (input.Length == 0) {
+    public sealed override async Task<Result> ExecuteAsync(string[] args, CancellationToken ct) {
+        await base.ExecuteAsync(args, ct);
+        if (args.Length == 0) {
             var helpAction = Children.OfType<HelpAction>().First();
-            await helpAction.ExecuteAsync(input, ct);
+            await helpAction.ExecuteAsync(args, ct);
             return Success();
         }
-
-        var command = Children.OfType<IExecutable>().FirstOrDefault(c => c.Ids.Contains(input[0], StringComparer.InvariantCultureIgnoreCase));
-        if (command is null) return Error($"Command '{input}' not found. For a list of available commands use 'help'.");
-        var arguments = input.Length > 1 ? input.Skip(1).ToArray() : [];
+        var command = Children.OfType<IExecutable>().FirstOrDefault(c => c.Ids.Contains(args[0], StringComparer.InvariantCultureIgnoreCase));
+        if (command is null) return Error($"Command '{args}' not found. For a list of available commands use 'help'.");
+        var arguments = args.Length > 1 ? args.Skip(1).ToArray() : [];
         return await command.ExecuteAsync(arguments, ct);
     }
 }

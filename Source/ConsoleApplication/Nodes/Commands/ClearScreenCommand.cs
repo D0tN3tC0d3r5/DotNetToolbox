@@ -1,8 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Commands;
 
 internal class ClearScreenCommand : Command<ClearScreenCommand> {
-    public ClearScreenCommand(IApplication application)
-        : base(application, "ClearScreen", "cls") {
+    public ClearScreenCommand(IHasChildren parent)
+        : base(parent, "ClearScreen", "cls") {
         Description = "Clear the screen.";
     }
 

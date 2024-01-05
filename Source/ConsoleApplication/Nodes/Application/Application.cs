@@ -17,8 +17,8 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>, new() {
     private bool _isDisposed;
 
-    protected bool Terminate { get; private set; }
-    protected int ExitCode { get; private set; }
+    protected bool IsRunning { get; private set; }
+    private int _exitCode;
 
     internal Application(string[] args, string? environment, IServiceProvider serviceProvider) {
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
@@ -62,8 +62,11 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         return builder.ToString();
     }
 
+    public void AppendVersion(StringBuilder builder)
+        => builder.AppendLine($"{Name} v{Version}");
+
     public void AppendHelp(StringBuilder builder) {
-        builder.AppendLine($"{Name} v{Version}");
+        AppendVersion(builder);
         builder.AppendLine(Description);
     }
 
@@ -91,46 +94,94 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         return builder.Build();
     }
 
-    public TApplication AddCommand<TCommand>()
-        where TCommand : ICommand {
-        Children.Add(CreateInstance.Of<TCommand>(this));
+    public TApplication AddCommand<TChildCommand>()
+        where TChildCommand : ICommand {
+        Children.Add(CreateInstance.Of<TChildCommand>(this));
         return (TApplication)this;
     }
 
-    public TApplication AddArgument<TArgument>()
-        where TArgument : IArgument {
-        Children.Add(CreateInstance.Of<TArgument>(this));
+    public TApplication AddAction<TAction>()
+        where TAction : IAction {
+        Children.Add(CreateInstance.Of<TAction>(this));
         return (TApplication)this;
     }
 
-    public Task ExitAsync(int exitCode = 0) {
-        Terminate = true;
-        ExitCode = exitCode;
-        return Task.CompletedTask;
+    public TApplication AddOption(string name, params string[] aliases) {
+        Children.Add(CreateInstance.Of<Option>(this, name, aliases));
+        return (TApplication)this;
+    }
+
+    public TApplication AddOption<TValue>(string name, params string[] aliases) {
+        Children.Add(CreateInstance.Of<Option<TValue>>(this, name, aliases));
+        return (TApplication)this;
+    }
+
+    public TApplication AddParameter(string name, object? defaultValue = default) {
+        Children.Add(CreateInstance.Of<Parameter>(this, name, defaultValue));
+        return (TApplication)this;
+    }
+
+    public TApplication AddParameter<TValue>(string name, TValue? defaultValue = default) {
+        Children.Add(CreateInstance.Of<Parameter<TValue>>(this, name, defaultValue));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, params string[] aliases) {
+        Children.Add(CreateInstance.Of<Flag>(this, name, aliases));
+        return (TApplication)this;
+    }
+
+    public void Exit(int exitCode = 0) {
+        _exitCode = exitCode;
+        IsRunning = false;
     }
 
     public int Run() => RunAsync().GetAwaiter().GetResult();
 
     public async Task<int> RunAsync() {
+        IsRunning = true;
         var taskRun = new CancellationTokenSource();
         var result = await ExecuteAsync(Arguments, taskRun.Token);
-        if (result.IsSuccess) return ExitCode;
         if (result.HasErrors) Output.WriteLine(result.Errors);
         if (result.HasException) Output.WriteLine(result.Exception.ToString());
-        return 1;
+        return _exitCode;
     }
 
-    public virtual Task<Result> ExecuteAsync(string[] input, CancellationToken ct) {
+    public virtual Task<Result> ExecuteAsync(string[] args, CancellationToken ct) {
         if (Options.ClearScreenOnStart) Output.ClearScreen();
-        return SuccessTask();
+        return ReadArguments(args, ct);
     }
 
-    protected async Task<Result> ProcessInput(string[] input, CancellationToken ct) {
-        if (input.Length == 0) return Success();
-        var command = Children.OfType<IExecutable>().FirstOrDefault(c => c.Ids.Contains(input.First(), StringComparer.InvariantCultureIgnoreCase));
-        if (command is null) return Error($"Command '{input}' not found. For a list of available commands use 'help'.");
-        var arguments = input.Length > 1 ? input.Skip(1).ToArray() : [];
-        return await command.ExecuteAsync(arguments, ct);
+    private async Task<Result> ReadArguments(string[] input, CancellationToken ct) {
+        for (var index = 0; index < input.Length; index++) {
+            var argument = Children.FirstOrDefault(arg => arg.Ids.Contains(input[index]));
+            switch (argument) {
+                case IHasValue hasValue:
+                    if (argument is IOption) index++;
+                    if (index >= input.Length) return Error($"Missing value for option '{input[index]}'");
+                    var argumentResult = await hasValue.SetValue(input[index], ct);
+                    if (!argumentResult.IsSuccess) return argumentResult;
+                    break;
+                default:
+                    return await ProcessParameters(input, ct);
+            }
+        }
+        return Success();
+    }
+
+    private async Task<Result> ProcessParameters(string[] input, CancellationToken ct) {
+        var parameters = Children.OfType<IParameter>().OrderBy(p => p.Order).ToArray();
+        var index = 0;
+        foreach (var parameter in parameters) {
+            if (index >= input.Length && parameter.DefaultValue is null)
+                return Error($"Missing value for parameter {index + 1}:'{parameter.Name}'");
+            if (index >= input.Length) break;
+            var result = await parameter.SetValue(input[index], ct);
+            if (!result.IsSuccess) return result;
+            index++;
+        }
+
+        return Success();
     }
 
     public async ValueTask DisposeAsync() {

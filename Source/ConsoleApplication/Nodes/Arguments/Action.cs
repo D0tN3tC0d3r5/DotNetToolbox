@@ -11,6 +11,6 @@ public abstract class Action<TAction>
 
     public string Type => "Action";
 
-    protected sealed override Task<Result> ReadInput(string[] input, CancellationToken ct)
+    protected sealed override Task<Result> ReadArguments(string[] input, CancellationToken ct)
         => SuccessTask();
 }

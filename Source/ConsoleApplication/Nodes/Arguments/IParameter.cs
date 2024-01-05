@@ -2,5 +2,5 @@
 
 public interface IParameter : IArgument, IHasValue {
     int Order { get; }
-    bool IsRequired { get; }
+    object? DefaultValue { get; }
 }

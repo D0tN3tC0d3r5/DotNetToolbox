@@ -5,11 +5,49 @@ public abstract class Command<TCommand>
     , ICommand
     where TCommand : Command<TCommand> {
 
-    protected Command(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, name, aliases) {
+    protected Command(IHasChildren node, string name, params string[] aliases)
+        : base(node, name, aliases) {
+        AddAction<HelpAction>();
     }
 
-    protected sealed override async Task<Result> ReadInput(string[] input, CancellationToken ct) {
+    public TCommand AddCommand<TChildCommand>()
+        where TChildCommand : ICommand {
+        Children.Add(CreateInstance.Of<TChildCommand>(this));
+        return (TCommand)this;
+    }
+
+    public TCommand AddAction<TAction>()
+        where TAction : IAction {
+        Children.Add(CreateInstance.Of<TAction>(this));
+        return (TCommand)this;
+    }
+
+    public TCommand AddOption(string name, params string[] aliases) {
+        Children.Add(CreateInstance.Of<Option>(this, name, aliases));
+        return (TCommand)this;
+    }
+
+    public TCommand AddOption<TValue>(string name, params string[] aliases) {
+        Children.Add(CreateInstance.Of<Option<TValue>>(this, name, aliases));
+        return (TCommand)this;
+    }
+
+    public TCommand AddParameter(string name, object? defaultValue = default) {
+        Children.Add(CreateInstance.Of<Parameter>(this, name, defaultValue));
+        return (TCommand)this;
+    }
+
+    public TCommand AddParameter<TValue>(string name, TValue? defaultValue = default) {
+        Children.Add(CreateInstance.Of<Parameter<TValue>>(this, name, defaultValue));
+        return (TCommand)this;
+    }
+
+    public TCommand AddFlag(string name, params string[] aliases) {
+        Children.Add(CreateInstance.Of<Flag>(this, name, aliases));
+        return (TCommand)this;
+    }
+
+    protected sealed override async Task<Result> ReadArguments(string[] input, CancellationToken ct) {
         for (var index = 0; index < input.Length; index++) {
             var id = input[index];
             var argument = Children.FirstOrDefault(arg => arg.Ids.Contains(id));
@@ -37,7 +75,7 @@ public abstract class Command<TCommand>
         var parameters = Children.OfType<IParameter>().OrderBy(p => p.Order).ToArray();
         var index = 0;
         foreach (var parameter in parameters) {
-            if (index >= input.Length && parameter.IsRequired)
+            if (index >= input.Length && parameter.DefaultValue is null)
                 return Error($"Missing value for parameter {index + 1}:'{parameter.Name}'");
             if (index >= input.Length) break;
             var result = await parameter.SetValue(input[index], ct);

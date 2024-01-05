@@ -4,14 +4,14 @@ public abstract class Node<TNode>
     : IHasParent
     where TNode : Node<TNode> {
     protected Node(IHasChildren parent, string name, params string[] aliases) {
-        Application = FindRoot(parent);
-        Logger = Application.ServiceProvider.GetRequiredService<ILogger<TNode>>();
         Parent = parent;
+        Application = FindRoot(this);
+        Logger = Application.ServiceProvider.GetRequiredService<ILogger<TNode>>();
         Name = name;
         Aliases = aliases;
     }
     private static IApplication FindRoot(INode node) {
-        while (node is IBranch branch) node = branch.Parent;
+        while (node is IHasParent hasParent) node = hasParent.Parent;
         return (IApplication)node;
     }
 
@@ -21,7 +21,7 @@ public abstract class Node<TNode>
     public string Name { get; }
     public string[] Aliases { get; }
     public string[] Ids => [Name, ..Aliases];
-    public required string Description { get; init; }
+    public string Description { get; init; } = string.Empty;
 
     public override string ToString() {
         var builder = new StringBuilder();

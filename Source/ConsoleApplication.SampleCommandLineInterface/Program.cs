@@ -3,4 +3,6 @@
             .AddUserSecrets<Program>()
             .SetLogging());
 
+app.AddCommand<SayCommand>();
+
 await app.RunAsync();
