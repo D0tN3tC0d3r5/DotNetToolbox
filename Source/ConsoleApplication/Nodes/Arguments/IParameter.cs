@@ -2,5 +2,5 @@
 
 public interface IParameter : IArgument, IHasValue {
     int Order { get; }
-    object? DefaultValue { get; }
+    string? DefaultValue { get; }
 }

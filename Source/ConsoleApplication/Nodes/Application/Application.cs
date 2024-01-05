@@ -88,6 +88,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
 
     public static TApplication Create(System.Action<TBuilder>? configureBuilder = null)
         => Create([], configureBuilder);
+
     public static TApplication Create(string[] args, System.Action<TBuilder>? configure = null) {
         var builder = CreateInstance.Of<TBuilder>((object)args);
         configure?.Invoke(builder);
@@ -95,14 +96,14 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     public TApplication AddCommand<TChildCommand>()
-        where TChildCommand : ICommand {
-        Children.Add(CreateInstance.Of<TChildCommand>(this));
+        where TChildCommand : Command<TChildCommand> {
+        Children.Add(CreateInstance.Of<TChildCommand>(ServiceProvider, this));
         return (TApplication)this;
     }
 
     public TApplication AddAction<TAction>()
-        where TAction : IAction {
-        Children.Add(CreateInstance.Of<TAction>(this));
+        where TAction : Arguments.Action<TAction> {
+        Children.Add(CreateInstance.Of<TAction>(ServiceProvider, this));
         return (TApplication)this;
     }
 
@@ -111,8 +112,9 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         return (TApplication)this;
     }
 
-    public TApplication AddOption<TValue>(string name, params string[] aliases) {
-        Children.Add(CreateInstance.Of<Option<TValue>>(this, name, aliases));
+    public TApplication AddOption<TOption>()
+        where TOption : Option<TOption> {
+        Children.Add(CreateInstance.Of<TOption>(ServiceProvider, this));
         return (TApplication)this;
     }
 
@@ -121,13 +123,20 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         return (TApplication)this;
     }
 
-    public TApplication AddParameter<TValue>(string name, TValue? defaultValue = default) {
-        Children.Add(CreateInstance.Of<Parameter<TValue>>(this, name, defaultValue));
+    public TApplication AddParameter<TParameter>()
+        where TParameter : Parameter<TParameter> {
+        Children.Add(CreateInstance.Of<TParameter>(ServiceProvider, this));
         return (TApplication)this;
     }
 
     public TApplication AddFlag(string name, params string[] aliases) {
         Children.Add(CreateInstance.Of<Flag>(this, name, aliases));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag<TFlag>()
+        where TFlag : Flag<TFlag> {
+        Children.Add(CreateInstance.Of<TFlag>(ServiceProvider, this));
         return (TApplication)this;
     }
 

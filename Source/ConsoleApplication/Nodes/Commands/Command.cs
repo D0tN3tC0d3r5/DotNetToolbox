@@ -11,14 +11,14 @@ public abstract class Command<TCommand>
     }
 
     public TCommand AddCommand<TChildCommand>()
-        where TChildCommand : ICommand {
-        Children.Add(CreateInstance.Of<TChildCommand>(this));
+        where TChildCommand : Command<TChildCommand> {
+        Children.Add(CreateInstance.Of<TChildCommand>(Application.ServiceProvider, this));
         return (TCommand)this;
     }
 
     public TCommand AddAction<TAction>()
-        where TAction : IAction {
-        Children.Add(CreateInstance.Of<TAction>(this));
+        where TAction : Arguments.Action<TAction> {
+        Children.Add(CreateInstance.Of<TAction>(Application.ServiceProvider, this));
         return (TCommand)this;
     }
 
@@ -27,8 +27,9 @@ public abstract class Command<TCommand>
         return (TCommand)this;
     }
 
-    public TCommand AddOption<TValue>(string name, params string[] aliases) {
-        Children.Add(CreateInstance.Of<Option<TValue>>(this, name, aliases));
+    public TCommand AddOption<TOption>()
+        where TOption : Option<TOption> {
+        Children.Add(CreateInstance.Of<TOption>(Application.ServiceProvider, this));
         return (TCommand)this;
     }
 
@@ -37,13 +38,20 @@ public abstract class Command<TCommand>
         return (TCommand)this;
     }
 
-    public TCommand AddParameter<TValue>(string name, TValue? defaultValue = default) {
-        Children.Add(CreateInstance.Of<Parameter<TValue>>(this, name, defaultValue));
+    public TCommand AddParameter<TParameter>()
+        where TParameter : Parameter<TParameter> {
+        Children.Add(CreateInstance.Of<TParameter>(Application.ServiceProvider, this));
         return (TCommand)this;
     }
 
     public TCommand AddFlag(string name, params string[] aliases) {
         Children.Add(CreateInstance.Of<Flag>(this, name, aliases));
+        return (TCommand)this;
+    }
+
+    public TCommand AddFlag<TFlag>()
+        where TFlag : Flag<TFlag> {
+        Children.Add(CreateInstance.Of<TFlag>(Application.ServiceProvider, this));
         return (TCommand)this;
     }
 

@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
-public class Flag
+public sealed class Flag
     : Flag<Flag> {
     internal Flag(IHasChildren parent, string name, params string[] aliases)
         : base(parent, name, aliases) {
