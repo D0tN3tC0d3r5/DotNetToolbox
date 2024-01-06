@@ -5,7 +5,7 @@ public sealed class IsPasswordCommand(IPasswordPolicy policy, string source) : V
         if (subject is not string password) return Result.Success();
         var policyResult = policy.Enforce(password);
         if (policyResult.IsSuccess) return Result.Success();
-        var result = Result.Invalid(Source, MustBeAValidPassword, GetErrorMessageArguments(subject));
+        var result = Result.InvalidData(Source, MustBeAValidPassword);
         return policyResult.Errors.Aggregate(result, (current, error) => current + error);
     }
 }

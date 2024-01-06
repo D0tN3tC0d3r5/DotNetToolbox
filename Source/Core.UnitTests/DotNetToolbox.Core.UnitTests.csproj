@@ -7,6 +7,10 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>DotNetToolbox</RootNamespace>
+    <AssemblyName>DotNetToolbox.Core.UnitTests</AssemblyName>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

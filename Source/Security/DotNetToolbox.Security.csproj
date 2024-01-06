@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.Security</RootNamespace>
     <PackageId>DotNetToolbox.Security</PackageId>
     <Title>DotNetToolbox Security Library</Title>
-    <Version>8.0.1</Version>
+    <Version>8.0.2-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Security;Library</PackageTags>
@@ -19,14 +19,19 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.1:
-      - Based on .Net 8.0
+      v8.0.2-rc1:
+      - Release candidate based on .Net 8.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Security</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <Deterministic>false</Deterministic>
+    <AssemblyName>DotNetToolbox.Security</AssemblyName>
+    <AssemblyVersion>8.0.2.*</AssemblyVersion>
+    <FileVersion>8.0.2</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
@@ -39,25 +44,25 @@
 
   <ItemGroup>
     <None Include="..\..\icon.png">
-      <Pack>True</Pack>
+      <Pack>true</Pack>
       <PackagePath>\</PackagePath>
     </None>
     <None Include="README.md">
-      <Pack>True</Pack>
+      <Pack>true</Pack>
       <PackagePath>\</PackagePath>
     </None>
     <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
+      <Pack>true</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.0.1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.0.2-rc1" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
+    <InternalsVisibleTo Include="$(AssemblyName).UnitTests" PublicKey="00240000048000009400000006020000002400005253413100040000010001003d1638cec9e06e22b1e23f1d95d51a425705c4148223b9907aea57442c94edbac4002079cb033dac4db6fe167d36f0a2674bbd95b729eb3130456a967859a5f7b12aa661f1e91f7106524560014fbe3744d5aaba8102cf396bb3ff4481bf7f4b13dfc4259342e76d306dae2ebcd8df7bc170309cd9d69277090e05f513681daf" />
   </ItemGroup>
 
 </Project>
