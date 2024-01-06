@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
 public sealed class Flag
     : Flag<Flag> {

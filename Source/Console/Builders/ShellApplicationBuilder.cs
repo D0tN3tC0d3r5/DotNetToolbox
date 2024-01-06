@@ -1,7 +1,7 @@
-﻿namespace ConsoleApplication.Builders;
+﻿namespace DotNetToolbox.ConsoleApplication.Builders;
 
 public abstract class ShellApplicationBuilder<TApplication>(string[] args)
-    : ShellApplicationBuilder<TApplication, ShellApplicationBuilder<TApplication>, ShellInterfaceOptions>(args)
+    : ShellApplicationBuilder<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>(args)
     where TApplication : ShellApplication<TApplication>;
 
 public abstract class ShellApplicationBuilder<TApplication, TBuilder, TOptions>(string[] args)

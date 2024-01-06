@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
 public interface IApplication : IRoot, IExecutable {
     string Version { get; }

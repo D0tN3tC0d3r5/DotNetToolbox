@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Utilities;
+﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
 
 internal static class CommandInputParser {
     private static readonly RegexOptions _parserOptions = IgnoreCase

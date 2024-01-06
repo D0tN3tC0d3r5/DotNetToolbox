@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Utilities;
+﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
 
 public static class InputReader {
     public static async Task<Result> ParseTokens(INode[] children, string[] tokens, CancellationToken ct) {

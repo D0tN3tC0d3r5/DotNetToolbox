@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
 public abstract class Executable<TExecutable>
     : Node<TExecutable>, IExecutable

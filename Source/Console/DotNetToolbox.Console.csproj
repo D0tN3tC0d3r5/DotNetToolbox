@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <Product>DotNetToolbox.Console</Product>
     <PackageId>DotNetToolbox.Console</PackageId>
-    <RootNamespace>ConsoleApplication</RootNamespace>
+    <RootNamespace>DotNetToolbox.ConsoleApplication</RootNamespace>
     <Title>DotNetToolbox Console Applcation Library</Title>
     <Version>8.0.2-rc1</Version>
     <Authors>Andre Vianna</Authors>

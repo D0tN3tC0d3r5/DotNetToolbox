@@ -41,7 +41,6 @@ public record HttpResult : ResultBase {
     public static Task<HttpResult> ConflictTask() => Task.FromResult(Conflict());
     public static Task<HttpResult> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
 
-
     public static implicit operator HttpResult(ValidationError error)
         => new((Result)error);
     public static implicit operator HttpResult(List<ValidationError> errors)
@@ -63,7 +62,6 @@ public record HttpResult : ResultBase {
         var errors = left.Errors.Union(right.Errors).ToHashSet();
         return new(left.Type, errors, left.Exception ?? right.Exception);
     }
-
 
     public virtual bool Equals(HttpResult? other)
         => base.Equals(other)

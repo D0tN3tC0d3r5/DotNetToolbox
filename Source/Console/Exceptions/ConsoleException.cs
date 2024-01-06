@@ -1,16 +1,11 @@
-﻿namespace ConsoleApplication.Exceptions;
-public class ConsoleException : Exception {
+﻿namespace DotNetToolbox.ConsoleApplication.Exceptions;
+public class ConsoleException(int exitCode, string message, Exception? innerException = null)
+    : Exception(message, innerException) {
     public const int DefaultErrorCode = 1;
 
     public ConsoleException(string message, Exception? innerException = null)
         : this(DefaultErrorCode, message, innerException) {
     }
 
-    public ConsoleException(int exitCode, string message, Exception? innerException = null)
-        : base(message, innerException)
-    {
-        ExitCode = exitCode;
-    }
-
-    public int ExitCode { get; }
+    public int ExitCode { get; } = exitCode;
 }

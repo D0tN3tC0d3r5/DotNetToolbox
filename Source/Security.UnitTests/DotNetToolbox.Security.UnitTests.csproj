@@ -7,6 +7,8 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>DotNetToolbox.Security</RootNamespace>
+    <AssemblyName>DotNetToolbox.Security.UnitTests</AssemblyName>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>

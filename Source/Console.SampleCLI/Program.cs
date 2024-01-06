@@ -1,7 +1,7 @@
-﻿var app = CommandLineApplication.Create(args, builder
-        => builder.AddSettings()
-            .AddUserSecrets<Program>()
-            .SetLogging());
+﻿var app = CommandLineInterfaceApplication.Create(args, builder
+                                                => builder.AddSettings()
+                                                          .AddUserSecrets<Program>()
+                                                          .SetLogging());
 
 app.AddCommand<SayCommand>();
 

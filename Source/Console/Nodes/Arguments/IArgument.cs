@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
 public interface IArgument : ILeaf {
     Task<Result> ClearData(CancellationToken ct);

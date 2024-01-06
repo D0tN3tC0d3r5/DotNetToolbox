@@ -197,7 +197,7 @@ internal sealed class DumpBuilder : IDisposable {
     // ReSharper disable once SuggestBaseTypeForParameter
     // ReSharper disable once ReturnTypeCanBeEnumerable.Local
     private static PropertyInfo[] GetMembers(Type type)
-        => type.GetProperties(_allPublic).ToArray();
+        => [.. type.GetProperties(_allPublic)];
 
     private Member? GetElementOrDefault(object? member, object? item) {
         try {

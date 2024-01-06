@@ -2,15 +2,14 @@ global using System.Reflection;
 global using System.Text;
 global using System.Text.RegularExpressions;
 
-global using ConsoleApplication.Builders;
-global using ConsoleApplication.Exceptions;
-global using ConsoleApplication.Nodes;
-global using ConsoleApplication.Nodes.Application;
-global using ConsoleApplication.Nodes.Arguments;
-global using ConsoleApplication.Nodes.Executables;
-global using ConsoleApplication.Utilities;
-
 global using DotNetToolbox;
+global using DotNetToolbox.ConsoleApplication.Builders;
+global using DotNetToolbox.ConsoleApplication.Exceptions;
+global using DotNetToolbox.ConsoleApplication.Nodes;
+global using DotNetToolbox.ConsoleApplication.Nodes.Application;
+global using DotNetToolbox.ConsoleApplication.Nodes.Arguments;
+global using DotNetToolbox.ConsoleApplication.Nodes.Executables;
+global using DotNetToolbox.ConsoleApplication.Utilities;
 global using DotNetToolbox.DependencyInjection;
 global using DotNetToolbox.Results;
 

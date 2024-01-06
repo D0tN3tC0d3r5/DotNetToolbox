@@ -1,3 +1,3 @@
-﻿namespace ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
 public interface IOption : IArgument;

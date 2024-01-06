@@ -1,10 +1,7 @@
-﻿namespace ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
-public sealed class Option
-    : Option<Option> {
-    public Option(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, name, aliases) {
-    }
+public sealed class Option(IHasChildren parent, string name, params string[] aliases)
+        : Option<Option>(parent, name, aliases) {
 }
 
 public abstract class Option<TOption>

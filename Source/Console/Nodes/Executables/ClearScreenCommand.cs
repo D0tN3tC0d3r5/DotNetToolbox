@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
 internal class ClearScreenCommand : Command<ClearScreenCommand> {
     public ClearScreenCommand(IHasChildren parent)

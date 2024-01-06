@@ -1,3 +1,3 @@
-﻿namespace ConsoleApplication.Nodes;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public interface IRoot : IHasChildren;

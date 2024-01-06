@@ -1,10 +1,7 @@
-﻿namespace ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
-public sealed class Parameter
-    : Parameter<Parameter> {
-    public Parameter(IHasChildren parent, string name, string? defaultValue = null)
-        : base(parent, name, defaultValue) {
-    }
+public sealed class Parameter(IHasChildren parent, string name, string? defaultValue = null)
+        : Parameter<Parameter>(parent, name, defaultValue) {
 }
 
 public abstract class Parameter<TParameter>

@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
 internal sealed class HelpCommand : Command<HelpCommand> {
     private readonly IHasChildren _parent;

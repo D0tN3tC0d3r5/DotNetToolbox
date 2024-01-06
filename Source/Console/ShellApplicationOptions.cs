@@ -1,7 +1,7 @@
-﻿namespace ConsoleApplication;
+﻿namespace DotNetToolbox.ConsoleApplication;
 
-public record ShellInterfaceOptions
-    : ShellApplicationOptions<ShellInterfaceOptions>;
+public record ShellApplicationOptions
+    : ShellApplicationOptions<ShellApplicationOptions>;
 
 public abstract record ShellApplicationOptions<TOptions>
     : ApplicationOptions<TOptions>

@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
 public class ApplicationBuilder<TApplication, TOptions>
     : ApplicationBuilder<TApplication, ApplicationBuilder<TApplication, TOptions>, TOptions>

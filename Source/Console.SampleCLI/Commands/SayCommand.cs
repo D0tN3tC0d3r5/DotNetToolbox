@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.ConsoleApplication.Nodes.Executables;
-
-namespace DotNetToolbox.ConsoleApplication.SampleCommandLineInterface.Commands;
+﻿namespace SampleCLI.Commands;
 
 internal class SayCommand : Command<SayCommand> {
     public SayCommand(IHasChildren node)

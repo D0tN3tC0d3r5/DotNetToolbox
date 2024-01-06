@@ -1,22 +1,14 @@
-﻿namespace ConsoleApplication.Utilities;
+﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
 
-internal class HelpBuilder {
-    private readonly IHasChildren _parent;
-    private readonly IReadOnlyCollection<INode> _options;
-    private readonly IReadOnlyCollection<IParameter> _parameters;
-    private readonly IReadOnlyCollection<ICommand> _commands;
-    private readonly string _path;
-
-    public HelpBuilder(IHasChildren parent, bool includeApplication) {
-        _parent = parent;
-        _path = parent.GetPath(includeApplication);
-        _options = parent.Children.OfType<IFlag>().Cast<INode>()
+internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
+    private readonly IReadOnlyCollection<INode> _options = parent
+                          .Children.OfType<IFlag>().Cast<INode>()
                           .Union(parent.Children.OfType<IOption>())
                           .Union(parent.Children.OfType<IAction>())
                           .OrderBy(i => i.Name).ToArray();
-        _parameters = parent.Children.OfType<IParameter>().OrderBy(i => i.Name).ToArray();
-        _commands = parent.Children.OfType<ICommand>().OrderBy(i => i.Name).ToArray();
-    }
+    private readonly IReadOnlyCollection<IParameter> _parameters = parent.Children.OfType<IParameter>().OrderBy(i => i.Name).ToArray();
+    private readonly IReadOnlyCollection<ICommand> _commands = parent.Children.OfType<ICommand>().OrderBy(i => i.Name).ToArray();
+    private readonly string _path = parent.GetPath(includeApplication);
 
     public string Build() {
         var builder = new StringBuilder();
@@ -30,9 +22,9 @@ internal class HelpBuilder {
     }
 
     protected void ShowDescription(StringBuilder builder) {
-        if (_parent is IApplication app) builder.AppendLine(app.FullName);
-        if (string.IsNullOrWhiteSpace(_parent.Description)) return;
-        builder.AppendLine(_parent.Description);
+        if (parent is IApplication app) builder.AppendLine(app.FullName);
+        if (string.IsNullOrWhiteSpace(parent.Description)) return;
+        builder.AppendLine(parent.Description);
         builder.AppendLine();
     }
 

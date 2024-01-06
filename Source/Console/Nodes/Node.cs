@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public abstract class Node<TNode>
     : IHasParent

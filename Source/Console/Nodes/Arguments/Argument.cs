@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
 public abstract class Argument<TArgument>
     : Node<TArgument>, IArgument
