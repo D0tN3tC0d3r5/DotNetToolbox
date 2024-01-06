@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
 public abstract class Action<TAction>
     : Executable<TAction>
@@ -8,9 +8,4 @@ public abstract class Action<TAction>
     protected Action(IHasChildren parent, string name, params string[] aliases)
         : base(parent, name, aliases) {
     }
-
-    public string Type => "Action";
-
-    protected sealed override Task<Result> ReadArguments(string[] input, CancellationToken ct)
-        => SuccessTask();
 }

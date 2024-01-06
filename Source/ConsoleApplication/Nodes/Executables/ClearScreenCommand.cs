@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Commands;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
 internal class ClearScreenCommand : Command<ClearScreenCommand> {
     public ClearScreenCommand(IHasChildren parent)
@@ -7,7 +7,7 @@ internal class ClearScreenCommand : Command<ClearScreenCommand> {
     }
 
     protected override Task<Result> ExecuteAsync(CancellationToken ct) {
-        Output.ClearScreen();
+        Application.Output.ClearScreen();
         return SuccessTask();
     }
 }

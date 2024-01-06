@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Commands;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
 public class CommandFactory {
     public static TCommand Create<TCommand>(IApplication application)

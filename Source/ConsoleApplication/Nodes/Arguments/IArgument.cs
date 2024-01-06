@@ -1,5 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
 public interface IArgument : ILeaf {
-    string Type { get; }
+    Task<Result> ClearData(CancellationToken ct);
+    Task<Result> ReadData(string? value, CancellationToken ct);
 }

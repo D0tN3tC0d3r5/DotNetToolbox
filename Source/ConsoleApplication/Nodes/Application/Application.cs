@@ -50,7 +50,6 @@ public abstract class Application<TApplication, TBuilder, TOptions>
 
     public string AssemblyName { get; }
     public string Name { get; }
-    public string[] Aliases { get; } = [];
     public string[] Ids => [ Name ];
 
     public string Version { get; }
@@ -102,7 +101,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     public TApplication AddAction<TAction>()
-        where TAction : Arguments.Action<TAction> {
+        where TAction : Executables.Action<TAction> {
         Children.Add(CreateInstance.Of<TAction>(ServiceProvider, this));
         return (TApplication)this;
     }
@@ -158,39 +157,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
 
     public virtual Task<Result> ExecuteAsync(string[] args, CancellationToken ct) {
         if (Options.ClearScreenOnStart) Output.ClearScreen();
-        return ReadArguments(args, ct);
-    }
-
-    private async Task<Result> ReadArguments(string[] input, CancellationToken ct) {
-        for (var index = 0; index < input.Length; index++) {
-            var argument = Children.FirstOrDefault(arg => arg.Ids.Contains(input[index]));
-            switch (argument) {
-                case IHasValue hasValue:
-                    if (argument is IOption) index++;
-                    if (index >= input.Length) return Error($"Missing value for option '{input[index]}'");
-                    var argumentResult = await hasValue.SetValue(input[index], ct);
-                    if (!argumentResult.IsSuccess) return argumentResult;
-                    break;
-                default:
-                    return await ProcessParameters(input, ct);
-            }
-        }
-        return Success();
-    }
-
-    private async Task<Result> ProcessParameters(string[] input, CancellationToken ct) {
-        var parameters = Children.OfType<IParameter>().OrderBy(p => p.Order).ToArray();
-        var index = 0;
-        foreach (var parameter in parameters) {
-            if (index >= input.Length && parameter.DefaultValue is null)
-                return Error($"Missing value for parameter {index + 1}:'{parameter.Name}'");
-            if (index >= input.Length) break;
-            var result = await parameter.SetValue(input[index], ct);
-            if (!result.IsSuccess) return result;
-            index++;
-        }
-
-        return Success();
+        return InputReader.ParseTokens([.. Children], args, ct);
     }
 
     public async ValueTask DisposeAsync() {

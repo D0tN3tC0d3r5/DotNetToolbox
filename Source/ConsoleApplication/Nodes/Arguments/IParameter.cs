@@ -1,6 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
-public interface IParameter : IArgument, IHasValue {
+public interface IParameter : IArgument {
+    bool IsSet { get; }
+    bool IsRequired { get; }
     int Order { get; }
-    string? DefaultValue { get; }
 }

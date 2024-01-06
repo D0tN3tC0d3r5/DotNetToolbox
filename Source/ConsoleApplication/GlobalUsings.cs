@@ -6,7 +6,7 @@ global using DotNetToolbox.ConsoleApplication.Exceptions;
 global using DotNetToolbox.ConsoleApplication.Nodes;
 global using DotNetToolbox.ConsoleApplication.Nodes.Application;
 global using DotNetToolbox.ConsoleApplication.Nodes.Arguments;
-global using DotNetToolbox.ConsoleApplication.Nodes.Commands;
+global using DotNetToolbox.ConsoleApplication.Nodes.Executables;
 global using DotNetToolbox.ConsoleApplication.Utilities;
 global using DotNetToolbox.DependencyInjection;
 global using DotNetToolbox.Results;

@@ -5,22 +5,23 @@ public sealed class Flag
     internal Flag(IHasChildren parent, string name, params string[] aliases)
         : base(parent, name, aliases) {
     }
-
-    protected override Task<Result> OnRead(CancellationToken ct)
-        => SuccessTask();
 }
 
 public abstract class Flag<TFlag>
     : Argument<TFlag>
-    , IFlag, IHasValue<bool>
+    , IFlag
     where TFlag : Flag<TFlag> {
     protected Flag(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, "Flag", name, aliases) {
+        : base(parent, name, aliases) {
     }
 
-    public bool Value { get; private set; }
-    public Task<Result> SetValue(string input, CancellationToken ct) {
-        Value = true;
-        return OnRead(ct);
+    public sealed override Task<Result> ClearData(CancellationToken ct) {
+        Application.Data[Name] = false;
+        return OnDataRead(ct);
+    }
+
+    public sealed override Task<Result> ReadData(string? value, CancellationToken ct) {
+        Application.Data[Name] = true;
+        return OnDataRead(ct);
     }
 }

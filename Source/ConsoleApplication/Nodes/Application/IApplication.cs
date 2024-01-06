@@ -6,6 +6,13 @@ public interface IApplication : IRoot, IExecutable {
     IServiceProvider ServiceProvider { get; }
     IConfiguration Configuration { get; }
     IDictionary<string, object?> Data { get; }
+
+    Output Output { get; }
+    Input Input { get; }
+    DateTimeProvider DateTime { get; }
+    GuidProvider Guid { get; }
+    FileSystem FileSystem { get; }
+
     void Exit(int exitCode = 0);
 }
 

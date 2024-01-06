@@ -1,9 +1,9 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Commands;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-internal class HelpCommand : Command<HelpCommand> {
+internal sealed class HelpCommand : Command<HelpCommand> {
     private readonly IHasChildren _parent;
 
-    protected HelpCommand(IHasChildren parent)
+    public HelpCommand(IHasChildren parent)
         : base(parent, "Help", "?") {
         _parent = parent;
         Description = "Display help information.";
@@ -11,7 +11,7 @@ internal class HelpCommand : Command<HelpCommand> {
 
     protected override Task<Result> ExecuteAsync(CancellationToken ct) {
         var builder = new HelpBuilder(_parent, includeApplication: false);
-        Output.Write(builder.Build());
+        Application.Output.Write(builder.Build());
         return SuccessTask();
     }
 }

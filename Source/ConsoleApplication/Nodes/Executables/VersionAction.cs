@@ -1,7 +1,7 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-internal class VersionAction : Action<VersionAction> {
-    protected VersionAction(IHasChildren parent)
+internal sealed class VersionAction : Action<VersionAction> {
+    public VersionAction(IHasChildren parent)
         : base(parent, "--version") {
         Description = "Display version information.";
     }
@@ -11,7 +11,7 @@ internal class VersionAction : Action<VersionAction> {
         builder.AppendJoin(null, Application.Name, " v", Application.Version);
         builder.AppendLine();
         builder.AppendLine();
-        Output.Write(builder);
+        Application.Output.Write(builder);
         return SuccessTask();
     }
 }

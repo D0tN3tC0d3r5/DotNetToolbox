@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.ConsoleApplication.SampleCommandLineInterface.Commands;
+﻿using DotNetToolbox.ConsoleApplication.Nodes.Executables;
+
+namespace DotNetToolbox.ConsoleApplication.SampleCommandLineInterface.Commands;
 
 internal class SayCommand : Command<SayCommand> {
     public SayCommand(IHasChildren node)
@@ -7,8 +9,8 @@ internal class SayCommand : Command<SayCommand> {
     }
 
     protected override Task<Result> ExecuteAsync(CancellationToken ct) {
-        var parameter = Children.OfType<Parameter>().First(i => i.Name == "Text");
-        Output.WriteLine(parameter.Value);
+        var text = Application.Data["Text"];
+        Application.Output.WriteLine(text);
         return SuccessTask();
     }
 }

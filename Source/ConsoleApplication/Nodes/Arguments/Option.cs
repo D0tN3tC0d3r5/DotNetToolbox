@@ -5,22 +5,25 @@ public sealed class Option
     public Option(IHasChildren parent, string name, params string[] aliases)
         : base(parent, name, aliases) {
     }
-
-    protected override Task<Result> OnRead(CancellationToken ct)
-        => SuccessTask();
 }
 
 public abstract class Option<TOption>
     : Argument<TOption>
-    , IOption, IHasValue<string>
+    , IOption
     where TOption : Option<TOption> {
     protected Option(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, "Option", name, aliases) {
+        : base(parent, name, aliases) {
     }
 
-    public string? Value { get; private set; }
-    public Task<Result> SetValue(string input, CancellationToken ct) {
-        Value = input == "null" ? null : input;
-        return OnRead(ct);
+    public sealed override Task<Result> ClearData(CancellationToken ct) {
+        Application.Data[Name] = null;
+        return OnDataRead(ct);
+    }
+
+    public sealed override Task<Result> ReadData(string? value, CancellationToken ct) {
+        Application.Data[Name] = value is "null" or "default"
+            ? null
+            : value;
+        return OnDataRead(ct);
     }
 }
