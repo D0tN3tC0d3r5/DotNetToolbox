@@ -41,32 +41,32 @@ The `ValidationError` class represents individual validation errors, useful for 
 It has extension methods for collections of `ValidationError`s, such as checking if a specific error is contained within the collection.
 
 3. **Check for an error in a collection:**
-```csharp
-List<ValidationError> errors = new List<ValidationError> {
-    "Email is required",
-    new ValidationError("Password", "Password is too weak")
-};
+    ```csharp
+    List<ValidationError> errors = new List<ValidationError> {
+        "Email is required",
+        new ValidationError("Password", "Password is too weak")
+    };
 
-// Check if a specific error message exists in the collection
-bool hasEmailError = errors.Contains("Email", "Email is required");
-Console.WriteLine($"Email error present: {hasEmailError}");
-```
-
-It also works with a custom exception class that encapsulates a collection of `ValidationError`s, intended to be thrown when validation fails.
+    // Check if a specific error message exists in the collection
+    bool hasEmailError = errors.Contains("Email", "Email is required");
+    Console.WriteLine($"Email error present: {hasEmailError}");
+    ```
+ 
+    It also works with a custom exception class that encapsulates a collection of `ValidationError`s, intended to be thrown when validation fails.
 
 4. **Check for an error in a collection:**
-```csharp
-try {
-    var result = ValidateUserData(userData);
-    if (result.IsInvalid) {
-        throw new ValidationException(result.Errors);
+    ```csharp
+    try {
+        var result = ValidateUserData(userData);
+        if (result.IsInvalid) {
+            throw new ValidationException(result.Errors);
+        }
+    } catch (ValidationException ex) {
+        foreach (var error in ex.Errors) {
+            Console.WriteLine(error);
+        }
     }
-} catch (ValidationException ex) {
-    foreach (var error in ex.Errors) {
-        Console.WriteLine(error);
-    }
-}
-```
+    ```
 
 - **Result**: Core class for generic operation results. Used mostly for validation and error handling.
 
