@@ -3,7 +3,7 @@ global using System.Security.Claims;
 
 global using DotNetToolbox.Http.Extensions;
 global using DotNetToolbox.Http.Options;
-global using DotNetToolbox.Validation;
+global using DotNetToolbox.Results;
 
 global using FluentAssertions;
 

@@ -1,9 +1,3 @@
-using DotNetToolbox.Validation;
-
-using NSubstitute.ExceptionExtensions;
-
-using static DotNetToolbox.OpenAI.Chats.ChatOptions;
-
 namespace DotNetToolbox.OpenAI.Chats;
 
 public class ChatHandlerTests {

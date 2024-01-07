@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public class HttpClientOptions<TOptions> : INamedOptions<TOptions>, IValidatable
+public class HttpClientOptions<TOptions> : NamedOptions<TOptions>, IValidatable
     where TOptions : HttpClientOptions<TOptions>, new() {
     public const string DefaultResponseFormat = "application/json";
 
@@ -26,13 +26,6 @@ public class HttpClientOptions<TOptions> : INamedOptions<TOptions>, IValidatable
             => context is null || !context.TryGetValue("ClientName", out var name)
                    ? source
                    : $"{name}.{source}";
-    }
-
-    public static string SectionName => GetSectionName();
-
-    protected static string GetSectionName() {
-        var typeName = typeof(TOptions).Name;
-        return typeName.EndsWith("Options") ? typeName.Remove(7) : typeName;
     }
 }
 
