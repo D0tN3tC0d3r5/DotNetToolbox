@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace DotNetToolbox.Validation;
+namespace DotNetToolbox.Results;
 
 [DebuggerDisplay("""
                  ValidationError: Source="{Source}", Message="{Message}"

@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 Solution Items", "0 Solut
 		LICENSE = LICENSE
 		Publish.cmd = Publish.cmd
 		PublishAll.cmd = PublishAll.cmd
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "Core\DotNetToolbox.Core.csproj", "{C0308621-0189-4E32-A6FB-B0198D0B7A38}"

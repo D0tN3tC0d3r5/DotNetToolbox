@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Validation;
+﻿namespace DotNetToolbox.Results;
 
 public class ValidationException(IEnumerable<ValidationError> errors) : Exception(_defaultMessage) {
     private const string _defaultMessage = "Validation failed.";
