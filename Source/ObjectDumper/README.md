@@ -1,10 +1,29 @@
-# DotNet Toolbox Object Dumper
+## Object Dumper (DotNetToolbox.ObjectDumper)
 
-## Overview
+### Introduction
+DotNetToolbox.ObjectDumper is a powerful .NET 8 library for converting objects into a human-readable string representations. It provides customizable formatting options, including indentation, maximum depth control, and the ability to specify custom formatters for specific types.
+This library is particularly useful for logging, debugging, and serialization scenarios where a visual representation of an object is needed.
 
-The DotNet Toolbox Object Dumper is a powerful and flexible library for .NET that allows developers to dump the contents of any .NET object in a human-readable format. It's a great tool for debugging and logging, providing a quick and easy way to visualize complex objects and data structures.
+### Table of Contents
+1. [Installation](#installation)
+2. [Dependencies](#dependencies)
+3. [Key Features](#key-features)
+4. [Extension Methods](#extension-methods)
+5. [Object Dumping](#object-dumping)
+6. [JSON Object Dumping](#json-object-dumping)
+7. [Customization](#customization)
 
-## Features
+### Installation
+The DotNet Toolbox Object Dumper is available as a NuGet package. To install it, run the following command in the Package Manager Console:
+
+```shell
+PM> Install-Package DotNetToolbox.ObjectDumper
+```
+
+### Dependencies
+- .NET 8
+
+### Key Features
 
 - **Flexible Formatting**: Choose from several layout options including JSON, Typed JSON, and Console.
 - **Custom Formatters**: Define custom formatters for specific types to control how they are represented.
@@ -12,65 +31,60 @@ The DotNet Toolbox Object Dumper is a powerful and flexible library for .NET tha
 - **Full Type Information**: Option to include full type names in the output.
 - **Culture-Specific Formatting**: Control the culture used for formatting values.
 
-## Installation
+### Extension Methods
+The library extends any object with `Dump` and `DumpAsJson` methods, allowing any object to be dumped easily without requiring manual instantiation of dumper objects.
 
-The DotNet Toolbox Object Dumper is available as a NuGet package. To install it, run the following command in the Package Manager Console:
+#### Examples:
+1. **Dumping an object using default options:**
+    ```csharp
+    var person = new Person { Name = "John Doe", Age = 30 };
+    Console.WriteLine(person.Dump());
+    ```
 
-```shell
-PM> Install-Package DotNetToolbox.ObjectDumper
-```
+2. **Customizing the dump output:**
+    ```csharp
+    Console.WriteLine(person.Dump(options => {
+        options.IndentSize = 2;
+        options.UseTabs = true;
+        options.UseFullNames = true;
+    });
+    ```
 
-## Usage
+3. **Dumping an object as JSON:**
+    ```csharp
+    Console.WriteLine(person.DumpAsJson());
+    ```
 
-The Object Dumper provides extension methods for any object. Here's a simple example of how to use the Object Dumper:
+4. **Customizing JSON dump options:**
+    ```csharp
+    Console.WriteLine(person.DumpAsJson(options => {
+        options.Indented = false;
+        options.MaxDepth = 5;
+    }));
+    ```
 
-```csharp
-var myObject = new MyClass();
+### Object Dumping
+The core feature of DotNetToolbox.ObjectDumper is to create a human-readable string representation of an object. It traverses the object graph and outputs a formatted string that shows the types, properties, and values.
 
-// Dump object with default options
-var result = myObject.Dump();
+### JSON Object Dumping
+In addition to the custom object dumping, the library also provides support for dumping objects as JSON strings using the `System.Text.Json` serializer, offering a familiar and standardized output.
 
-// Dump object with custom options
-var result = myObject.Dump(options => {
-    options.Layout = Layout.Json;
-    options.Indented = true;
-    options.ShowFullNames = true;
-});
+### Customization
+DotNetToolbox.ObjectDumper allows extensive customization of the output format:
 
-Console.WriteLine(result);
-```
+- **DumpBuilderOptions**: Determines the behavior of the main object dumper. Users can configure indentation style, indent size, and whether to use full type names.
+- **JsonDumpBuilderOptions**: Configures the JSON object dumper, with options for indentation and maximum object graph traversal depth.
 
-In this example, `myObject` is the object you want to dump. The `Dump` method is an extension method that dumps the object using the specified options. If no options are specified, it uses the default options.
+One of the powerful features of `DumpBuilderOptions` is the ability to define custom formatters for types. This allows you to control exactly how objects of certain types are represented in the output.
 
-You can also dump an object as JSON:
+#### Custom Formatter Example:
+1. **Defining a custom formatter for a type:**
+    ```csharp
+    string customDump = person.Dump(options => {
+        options.CustomFormatters[typeof(DateTime)] = value => ((DateTime)value).ToString("yyyy-MM-dd");
+    });
+    Console.WriteLine(customDump);
+    ```
 
-```csharp
-var myObject = new MyClass();
+In this example, all `DateTime` objects within the `person` object will be formatted using the `"yyyy-MM-dd"` format.
 
-// Dump object as JSON with default options
-var result = myObject.DumpAsJson();
-
-// Dump object as JSON with custom options
-var result = myObject.DumpAsJson(options => {
-    options.Indented = true;
-    options.ShowFullNames = true;
-});
-
-Console.WriteLine(result);
-```
-
-## Documentation
-
-For more detailed information on how to use the DotNet Toolbox Object Dumper, please refer to the [official documentation](#).
-
-## Contributing
-
-Contributions are welcome! Please read our [contributing guide](#) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to DotNet Toolbox Object Dumper.
-
-## License
-
-The DotNet Toolbox Object Dumper is licensed under the [MIT license](#).
-
-## Contact
-
-If you have any issues or feature requests, please [file an issue](#). For other questions or discussions, please join our [community forum](#).

@@ -1,26 +1,33 @@
-### DotNetToolbox.Core README
+## Core (DotNetToolbox.Core)
 
-#### Introduction
+### Introduction
 DotNetToolbox.Core is a versatile C# library for .NET 8, designed to enhance development by providing a range of utilities and patterns. It simplifies complex tasks and improves code testability.
 
-#### Table of Contents
-1. [Result Patterns](#result-patterns)
-2. [System Utilities](#system-utilities)
-3. [Pagination Utilities](#pagination-utilities)
-4. [Singleton and Options Patterns](#singleton-and-options-patterns)
-5. [Extension Classes](#extension-classes)
-6. [Other Utilities](#other-utilities)
-7. [Installation](#installation)
-8. [Dependencies](#dependencies)
-9. [Contributing](#contributing)
-10. [License](#license)
+### Table of Contents
+1. [Installation](#installation)
+2. [Dependencies](#dependencies)
+3. [Key Features](#key-features)
+4. [Result Pattern](#result-pattern)
+5. [System Utilities](#system-utilities)
+6. [Pagination Utilities](#pagination-utilities)
+7. [Singleton and Options Patterns](#singleton-and-options-patterns)
+8. [Extension Classes](#extension-classes)
+9. [Other Utilities](#other-utilities)
 
-#### Result Patterns
+### Installation
+```shell
+PM> Install-Package DotNetToolbox.Core
+```
+
+### Dependencies
+- .NET 8
+
+### Result Pattern
 - **ValidationError**: Core class for representing generic validation errors.
 
 The `ValidationError` class represents individual validation errors, useful for detailed error tracking in data validation scenarios.
 
-##### Examples:
+#### Examples:
 1. **Creating a ValidationError:**
     ```csharp
     // Create a validation error with a source and message
@@ -72,7 +79,7 @@ It has extension methods for collections of `ValidationError`s, such as checking
 
 The `Result` class provides a flexible way to represent the outcome of operations, whether successful, invalid due to data issues, or errored due to exceptions.
 
-##### Examples:
+#### Examples:
 1. **Creating a Successful Result:**
     ```csharp
     var successResult = Result.Success();
@@ -107,7 +114,7 @@ The `Result` class provides a flexible way to represent the outcome of operation
 
 The `Result<TValue>` class extends the functionality of the `Result` class, allowing you to include a value with the operation outcome. It is particularly useful when an operation needs to return a value on success. Below are examples of how to use the `Result<TValue>` class:
 
-##### Examples:
+#### Examples:
 1. **Returning a Value on Successful Operation:**
     ```csharp
     Result<int> CalculateSquare(int number) {
@@ -145,7 +152,7 @@ The `Result<TValue>` class extends the functionality of the `Result` class, allo
 
 The `CrudResult` class is designed for outcomes of CRUD operations, providing specific status types like `NotFound`, `Conflict`, etc. Here are some examples:
 
-##### Examples:
+#### Examples:
 1. **Indicating a Successful CRUD Operation:**
     ```csharp
     CrudResult CreateRecord(Record record) {
@@ -177,7 +184,7 @@ The `CrudResult` class is designed for outcomes of CRUD operations, providing sp
 
 `CrudResult<TValue>` extends `CrudResult` to include a value with the operation outcome, useful for operations like 'Read'.
 
-##### Examples:
+#### Examples:
 1. **Returning a Value on Successful 'Read' Operation:**
     ```csharp
     CrudResult<Record> ReadRecord(int id) {
@@ -216,7 +223,7 @@ The `CrudResult` class is designed for outcomes of CRUD operations, providing sp
 
 The `HttpResult` class is designed to represent the outcome of HTTP operations, mapping closely to HTTP response statuses. Here are some examples:
 
-##### Examples:
+#### Examples:
 1. **Returning an 'Ok' HTTP Response:**
     ```csharp
     HttpResult GetUserData() {
@@ -248,7 +255,7 @@ The `HttpResult` class is designed to represent the outcome of HTTP operations, 
 
 `HttpResult<TValue>` extends `HttpResult` to include a value with the HTTP response, useful for GET requests or any operation returning data.
 
-##### Examples:
+#### Examples:
 1. **Returning Data on Successful Operation:**
     ```csharp
     HttpResult<UserProfile> GetUserProfile(int userId) {
@@ -287,7 +294,7 @@ The `HttpResult` class is designed to represent the outcome of HTTP operations, 
 
 The `SignInResult` class is designed to encapsulate the outcome of authentication operations, providing specific statuses like `Locked`, `Blocked`, `Failed`, etc. Here are some examples:
 
-##### Examples:
+#### Examples:
 1. **Successful Sign-In:**
     ```csharp
     SignInResult AuthenticateUser(string username, string password) {
@@ -337,12 +344,12 @@ The `SignInResult` class is designed to encapsulate the outcome of authenticatio
     }
     ```
 
-#### System Utilities
+### System Utilities
 System utilities provide abstractions over system resources like Date and Time, GUIDs, File System, and Console Input/Output. These abstractions are instrumental in creating testable code by enabling dependency injection, which allows for the substitution of these system classes with mock objects during testing.
 
 - **DateTimeProvider.cs**: Facilitates working with dates and times in a testable way by abstracting system-specific implementations.
 
-##### Examples:
+#### Examples:
 1. **Injecting DateTimeProvider into a service for testability:**
     ```csharp
     public class TimeSensitiveService {
@@ -372,7 +379,7 @@ System utilities provide abstractions over system resources like Date and Time, 
 
 - **GuidProvider.cs**: Allows generation of GUIDs that can be controlled in a testing environment.
 
-##### Examples:
+#### Examples:
 1. **Using GuidProvider to generate GUIDs in a service:**
     ```csharp
     public class IdentifierService {
@@ -402,7 +409,7 @@ System utilities provide abstractions over system resources like Date and Time, 
 
 - **FileSystem.cs**: Provides an abstraction over file system operations, enabling better testing of file-related functionality.
 
-##### Examples:
+#### Examples:
 1. **Injecting FileSystem into a component:**
     ```csharp
     public class FileManager {
@@ -431,7 +438,7 @@ System utilities provide abstractions over system resources like Date and Time, 
 
 - **Input.cs**, **Output.cs**: Utilities for input and output operations, making console interactions testable.
 
-##### Examples:
+#### Examples:
 1. **Using Output in a service to write messages:**
     ```csharp
     public class ConsoleService {
@@ -466,7 +473,7 @@ System utilities provide abstractions over system resources like Date and Time, 
     outputMock.Received().WriteLine("Hello Test!"); // NSubstitute used to verify interaction
     ```
 
-#### Pagination Utilities
+### Pagination Utilities
 Pagination utilities provide a standardized way to handle the slicing of large datasets into smaller, more manageable blocks or pages. These utilities can be used to define and access specific segments of data, often necessary when implementing APIs that support pagination.
 
 - **IBlock / Block**: Interfaces and classes that represent a contiguous block of items with a specific size and an offset that indicates the starting point or key item.
@@ -475,7 +482,7 @@ Pagination utilities provide a standardized way to handle the slicing of large d
 
 - **BlockSettings**: Provides constants related to pagination, such as default block size and maximum allowable values.
 
-##### Examples:
+#### Examples:
 1. **Creating a Block of items:**
    ```csharp
    var items = new List<string> { "Item1", "Item2", "Item3" };
@@ -492,7 +499,7 @@ Pagination utilities provide a standardized way to handle the slicing of large d
    // page now contains a page of items with information about the total count of items
    ```
 
-#### Singleton and Options Patterns
+### Singleton and Options Patterns
 Pattern utilities offer standardized ways to define and access special instances of classes, such as singleton, default, or empty instances. These utilities are designed to implement common design patterns in a consistent manner across your applications.
 
 - **IHasInstance / HasInstance**: Allows for defining and accessing a singleton instance of a class.
@@ -503,7 +510,7 @@ Pattern utilities offer standardized ways to define and access special instances
 
 - **INamedOptions / NamedOptions**: Used for options classes with a standard way to define the section name used for configuration binding.
 
-##### Examples:
+#### Examples:
 1. **Accessing a singleton instance:**
     ```csharp
     public class SingletonService : HasInstance<SingletonService> {
@@ -561,12 +568,12 @@ Pattern utilities offer standardized ways to define and access special instances
     var noResult = CommandResult.Empty;
     ```
 
-#### Extension Classes
+### Extension Classes
 Extension classes provide additional methods to existing types, enhancing their capabilities and simplifying common operations.
 
 - **EnumerableExtensions.cs**: Extends `IEnumerable<T>` to provide additional transformation and collection generation methods.
 
-##### Examples:
+#### Examples:
 1. **Transforming IEnumerable to Array with custom projection:**
     ```csharp
     IEnumerable<int> numbers = new[] { 1, 2, 3, 4 };
@@ -588,7 +595,7 @@ Extension classes provide additional methods to existing types, enhancing their 
 
 - **QueryableExtensions.cs**: Provides projection and conversion extensions for `IQueryable<T>`.
 
-##### Examples:
+#### Examples:
 1. **Projecting IQueryable to Array:**
     ```csharp
     IQueryable<Person> people = GetPeopleQuery();
@@ -607,7 +614,7 @@ Extension classes provide additional methods to existing types, enhancing their 
 
 - **TaskExtensions.cs**: Adds methods to `Task` and `ValueTask` to handle fire-and-forget scenarios with optional exception handling callbacks.
 
-##### Examples:
+#### Examples:
 1. **Using FireAndForget with a Task:**
     ```csharp
     Task someTask = DoWorkAsync();
@@ -628,13 +635,13 @@ Extension classes provide additional methods to existing types, enhancing their 
     );
     ```
 
-#### Other Utilities
+### Other Utilities
 Other utilities provide additional functionalities and helpers to extend existing concepts, making them more convenient and robust for everyday use.
 
 - **Ensure.cs**: Offers a variety of methods to ensure arguments meet certain conditions, throwing exceptions if they do not. This utility is very useful for validating method inputs and maintaining contracts within the code.
 You can add the `Ensure` class as a static using to simplify the call. 
 
-##### Examples:
+#### Examples:
 1. **Using Ensure to validate arguments:**
     ```csharp
     public void ProcessData(string input) {
@@ -658,7 +665,7 @@ You can add the `Ensure` class as a static using to simplify the call.
 
 - **CreateInstance.cs**: Provides methods to dynamically create instances of types, which can be very helpful for creating types with non-public constructors or when types need to be created based on runtime data.
 
-##### Examples:
+#### Examples:
 1. **Creating an instance of a class with private constructor:**
     ```csharp
     var instance1 = CreateInstance.Of<SomeClassWithPrivateConstructor>();
@@ -681,7 +688,7 @@ You can add the `Ensure` class as a static using to simplify the call.
 
 - **UrlSafeBase64String**: A record struct that represents a base64 encoded string safe for URL use. It can be used to encode and decode bytes, strings, and GUIDs to a URL-safe base64 format.
 
-##### Examples:
+#### Examples:
 1. **Encoding and decoding a URL-safe base64 string:**
     ```csharp
     byte[] original = { 0x1, 0x2, 0x3 };
@@ -704,7 +711,7 @@ You can add the `Ensure` class as a static using to simplify the call.
 
 - **IValidatable**: An interface that classes can implement to provide custom validation logic, returning a `Result` that indicates whether the validation was successful or not.
 
-##### Examples:
+#### Examples:
 1. **Implementing IValidatable in a class:**
    ```csharp
    using static DotNetToolbox.Result;
@@ -738,11 +745,3 @@ You can add the `Ensure` class as a static using to simplify the call.
        // Rest of the method logic
    }
    ```
-
-#### Installation
-```bash
-Install-Package DotNetToolbox.Core -Version 8.0.2-rc2
-```
-
-#### Dependencies
-- .NET 8
