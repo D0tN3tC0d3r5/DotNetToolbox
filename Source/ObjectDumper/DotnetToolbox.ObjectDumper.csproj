@@ -7,22 +7,30 @@
     <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.ObjectDumper</PackageId>
     <Title>DotNetToolbox Object Dumper</Title>
-    <Version>8.0.2-rc2</Version>
+    <Version>8.0.2</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;ObjectDumper;Library;Serialization;Json;Dump</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.ObjectDumper: A comprehensive utility library that provides extension methods for converting an object into a string.</Description>
+    <Description>
+      DotNetToolbox.ObjectDumper is a powerful .NET 8 library for converting objects into a human-readable string representations. It provides customizable formatting options, including indentation, maximum depth control, and the ability to specify custom formatters for specific types.
+      This library is particularly useful for logging, debugging, and serialization scenarios where a visual representation of an object is needed.
+    </Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.2-rc2:
-      - Release candidate based on .Net 8.0
-      v8.0.1:
-      - Initial release based on .Net 8.0
+      v8.0.2
+
+      Stable release of DotNetToolbox.ObjectDumper, a versatile .NET 8 library that revolutionizes the way developers can view and log object states. Offering a rich set of features to transform any object into a readable and informative string format, this library is a must-have for debugging, logging, and understanding complex object hierarchies during application development.
+
+      **Key Features:**
+      - Intuitive extension methods (`Dump` and `DumpAsJson`) for effortless object representation conversion.
+      - Deep customization for both standard object dumping and JSON object dumping.
+      - Advanced control over formatting, including indentation, maximum depth, and custom type formatters.
+      - Seamless integration with .NET 8, providing a modern, efficient, and streamlined experience.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.ObjectDumper</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>

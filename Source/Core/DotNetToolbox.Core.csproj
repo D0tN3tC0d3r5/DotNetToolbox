@@ -7,24 +7,29 @@
     <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.Core</PackageId>
     <Title>DotNetToolbox Core Library</Title>
-    <Version>8.0.2-rc2</Version>
+    <Version>8.0.2</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Common;Library;Pagination;DateTime;FileSystem;Results;Validation;Azure;GUID</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.Core: A comprehensive utility library for pagination, date-time, file handling, results, Azure, GUIDs, and more.</Description>
+    <Description>DotNetToolbox.Core is a versatile C# library for .NET 8, designed to enhance development by providing a range of utilities and patterns. It simplifies complex tasks and improves code testability.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.2-rc2:
-      - Release candidate based on .Net 8.0
-      v8.0.1:
-      - Initial release based on .Net 8.0
-      v8.0.1-rc1:
-      - Release candidate based on .Net 8.0
+      DotNetToolbox.Core Version 8.0.2
+
+      Stable release of the DotNetToolbox.Core library, a comprehensive suite of utilities and patterns designed to enhance .NET 8 development. This library provides developers with a robust set of tools to simplify complex tasks, improve testability, and streamline everyday coding activities.
+
+      **Key Features:**
+      - Result pattern handling, including support for CRUD and HTTP operations.
+      - System utilities for date and time, GUID generation, file system manipulation, and console I/O to facilitate dependency injection and unit testing.
+      - Pagination utilities for efficient data handling in large datasets.
+      - Singleton and options patterns for standardized class instance management.
+      - Extension classes to enhance existing types with useful functionality.
+      - Additional utilities such as argument validation and dynamic object instantiation.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Core</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>

@@ -58,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.0.2-rc2" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.0.2" />
   </ItemGroup>
 
   <ItemGroup>

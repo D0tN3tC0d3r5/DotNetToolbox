@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% ObjectDumper 8.0.2-rc2
+call Publish %target% ObjectDumper 8.0.2
 cd ObjectDumper
 goto :eof
 

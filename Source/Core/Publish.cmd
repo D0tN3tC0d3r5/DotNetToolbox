@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% Core 8.0.2-rc2
+call Publish %target% Core 8.0.2
 cd Core
 goto :eof
 
