@@ -582,7 +582,7 @@ Extension classes provide additional methods to existing types, enhancing their 
     // squaredNumbers would be [1, 4, 9, 16]
     ```
 
-2. **Creating a Dictionary from onother IDictionary with a value transformation:**
+2. **Creating a Dictionary from another IDictionary with a value transformation:**
     ```csharp
     IDictionary<string, int>> original = new Dictionary<string, int> {
         ["one"] = 1,
