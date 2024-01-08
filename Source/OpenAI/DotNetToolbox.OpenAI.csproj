@@ -8,7 +8,7 @@
     <Product>DotNetToolbox.OpenAI</Product>
     <PackageId>DotNetToolbox.OpenAI</PackageId>
     <Title>DotNetToolbox OpenAI Library</Title>
-    <Version>8.0.2-rc1</Version>
+    <Version>8.0.2-rc2</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;OpenAI;Library;GPT;LLM</PackageTags>
@@ -20,7 +20,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.2-rc1:
+      v8.0.2-rc2:
       - Release candidate based on .Net 8.0
     </PackageReleaseNotes>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Http" Version="8.0.2-rc1" />
+    <PackageReference Include="DotNetToolbox.Http" Version="8.0.2-rc2" />
   </ItemGroup>
 
   <ItemGroup>

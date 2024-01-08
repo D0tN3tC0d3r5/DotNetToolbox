@@ -23,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Console" Version="8.0.2-rc1" />
-    <PackageReference Include="DotNetToolbox.OpenAI" Version="8.0.2-rc1" />
+    <PackageReference Include="DotNetToolbox.Console" Version="8.0.2-rc2" />
+    <PackageReference Include="DotNetToolbox.OpenAI" Version="8.0.2-rc2" />
   </ItemGroup>
 
   <ItemGroup>

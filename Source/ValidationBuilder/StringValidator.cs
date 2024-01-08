@@ -80,8 +80,8 @@ public class StringValidator : Validator<string?>, IStringValidator {
         return Connector;
     }
 
-    public IConnector<StringValidator> IsPassword(IPasswordPolicy policy) {
-        var validator = _commandFactory.Create(nameof(IsPassword), policy);
+    public IConnector<StringValidator> IsValidPassword(IValidatable policy) {
+        var validator = _commandFactory.Create(nameof(IsValidPassword), policy);
         ValidateWith(validator);
         return Connector;
     }

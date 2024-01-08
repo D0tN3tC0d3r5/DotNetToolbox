@@ -12,5 +12,5 @@ public interface IStringValidator : IValidator {
     IConnector<StringValidator> LengthIs(int length);
     IConnector<StringValidator> IsIn(params string[] list);
     IConnector<StringValidator> IsEmail();
-    IConnector<StringValidator> IsPassword(IPasswordPolicy policy);
+    IConnector<StringValidator> IsValidPassword(IValidatable policy);
 }

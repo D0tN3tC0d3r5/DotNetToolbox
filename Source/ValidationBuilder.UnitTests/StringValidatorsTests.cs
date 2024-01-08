@@ -2,10 +2,10 @@ namespace DotNetToolbox.ValidationBuilder;
 
 public class StringValidatorsTests {
     public record TestObject : IValidatable {
-        private readonly IPasswordPolicy _fakePolicy = Substitute.For<IPasswordPolicy>();
+        private readonly IValidatable _fakePolicy = Substitute.For<IValidatable>();
 
         public TestObject() {
-            _fakePolicy.Enforce(Arg.Any<string>()).Returns(x => {
+            _fakePolicy.Validate(Arg.Any<Dictionary<string, object?>>()).Returns(x => {
                 var result = Success();
                 if (x[0] is not "Invalid") return result;
 
@@ -34,7 +34,7 @@ public class StringValidatorsTests {
                            .And().IsEmail().Result;
             result += Password.IsOptional()
                            .And().IsNotEmpty()
-                           .And().IsPassword(_fakePolicy).Result;
+                           .And().IsValidPassword(_fakePolicy).Result;
             result += Empty.IsRequired().And().IsEmpty().And().IsEmptyOrWhiteSpace().Result;
             return result;
         }
