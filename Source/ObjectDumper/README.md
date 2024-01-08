@@ -23,14 +23,6 @@ PM> Install-Package DotNetToolbox.ObjectDumper
 ### Dependencies
 - .NET 8
 
-### Key Features
-
-- **Flexible Formatting**: Choose from several layout options including JSON, Typed JSON, and Console.
-- **Custom Formatters**: Define custom formatters for specific types to control how they are represented.
-- **Depth Control**: Control the depth of nested objects and collections that are included in the output.
-- **Full Type Information**: Option to include full type names in the output.
-- **Culture-Specific Formatting**: Control the culture used for formatting values.
-
 ### Extension Methods
 The library extends any object with `Dump` and `DumpAsJson` methods, allowing any object to be dumped easily without requiring manual instantiation of dumper objects.
 
