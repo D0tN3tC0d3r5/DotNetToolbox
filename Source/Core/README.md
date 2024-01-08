@@ -741,7 +741,7 @@ You can add the `Ensure` class as a static using to simplify the call.
 
 #### Installation
 ```bash
-Install-Package DotNetToolbox.Core -Version 8.0.2-rc1
+Install-Package DotNetToolbox.Core -Version 8.0.2-rc2
 ```
 
 #### Dependencies

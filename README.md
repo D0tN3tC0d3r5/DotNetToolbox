@@ -6,8 +6,8 @@ DotNetToolboxe is a comprehensive collections of packages that offers a wide ran
 
 | Package | Stable Version | Latest Version | Description |
 | --- | --- | --- | --- |
-| [DotNetToolbox.Core](Source/Core/README.md) | 8.0.1 | 8.0.2-rc1 | A collection of core that implements common patterns and utilities. |
-| [DotNetToolbox.ObjectDumper](Source/ObjectDumper/README.md) | 8.0.1 | 8.0.2-rc1 | A collection of extensions that extends the functionality of the .NET Framework. |
+| [DotNetToolbox.Core](Source/Core/README.md) | 8.0.1 | 8.0.2-rc2 | A collection of core that implements common patterns and utilities. |
+| [DotNetToolbox.ObjectDumper](Source/ObjectDumper/README.md) | 8.0.1 | 8.0.2-rc2 | A collection of extensions that extends the functionality of the .NET Framework. |
 
 
 #### Contributing
