@@ -1,3 +1,5 @@
+using DotNetToolbox.TestUtilities.Extensions;
+
 namespace DotNetToolbox.OpenAI.Chats;
 
 public class ChatHandlerTests {
@@ -41,8 +43,8 @@ public class ChatHandlerTests {
         chat.Options.UseStreaming.Should().BeFalse();
         chat.Options.StopSignals.Should().BeEmpty();
         chat.Options.Tools.Should().BeEmpty();
-        _logger.ShouldContain(LogLevel.Debug, "Creating new chat...");
-        _logger.ShouldContain(LogLevel.Debug, $"Chat '{chat.Id}' created.");
+        _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
+        _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' created.");
     }
 
     [Fact]
@@ -84,8 +86,8 @@ public class ChatHandlerTests {
         chat.Options.UseStreaming.Should().BeTrue();
         chat.Options.StopSignals.Should().BeEquivalentTo("Abort!", "Stop!");
         chat.Options.Tools.Should().HaveCount(2);
-        _logger.ShouldContain(LogLevel.Debug, "Creating new chat...");
-        _logger.ShouldContain(LogLevel.Debug, $"Chat '{chat.Id}' created.");
+        _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
+        _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' created.");
     }
 
     [Fact]
@@ -111,8 +113,8 @@ public class ChatHandlerTests {
 
         // Assert
         await result.Should().ThrowAsync<ValidationException>();
-        _logger.ShouldContain(LogLevel.Debug, "Creating new chat...");
-        _logger.ShouldContain(LogLevel.Error, "Failed to create a new chat.");
+        _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
+        _logger.Should().Contain(LogLevel.Error, "Failed to create a new chat.");
     }
 
     [Fact]
@@ -125,8 +127,8 @@ public class ChatHandlerTests {
 
         // Assert
         await result.Should().ThrowAsync<InvalidOperationException>();
-        _logger.ShouldContain(LogLevel.Debug, "Creating new chat...");
-        _logger.ShouldContain(LogLevel.Error, "Failed to create a new chat.");
+        _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
+        _logger.Should().Contain(LogLevel.Error, "Failed to create a new chat.");
     }
 
     [Fact]
@@ -139,8 +141,8 @@ public class ChatHandlerTests {
 
         // Assert
         result.Should().BeEmpty();
-        _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.ShouldContain(LogLevel.Debug, "Chat 'testId' not found.");
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Chat 'testId' not found.");
     }
 
     [Fact]
@@ -186,8 +188,8 @@ public class ChatHandlerTests {
         chat.Options.Model.Should().Be(DefaultChatModel);
         chat.Messages.Should().HaveCount(2);
         result.Should().NotBeNull();
-        _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.ShouldContain(LogLevel.Debug, "Reply for chat 'testId' received.");
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Reply for chat 'testId' received.");
     }
 
     [Fact]
@@ -216,8 +218,8 @@ public class ChatHandlerTests {
         chat.Options.Model.Should().Be(DefaultChatModel);
         chat.Messages.Should().HaveCount(2);
         result.Should().BeEmpty();
-        _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.ShouldContain(LogLevel.Debug, "Invalid reply received for chat 'testId'.");
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Invalid reply received for chat 'testId'.");
     }
 
     [Fact]
@@ -246,8 +248,8 @@ public class ChatHandlerTests {
         chat.Options.Model.Should().Be(DefaultChatModel);
         chat.Messages.Should().HaveCount(2);
         result.Should().NotBeNull();
-        _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.ShouldContain(LogLevel.Debug, "Reply for chat 'testId' received.");
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Reply for chat 'testId' received.");
     }
 
     [Fact]
@@ -269,8 +271,8 @@ public class ChatHandlerTests {
         chat.Options.Model.Should().Be("some-model");
         chat.Messages.Should().ContainSingle();
         result.Should().BeEmpty();
-        _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.ShouldContain(LogLevel.Debug, "Invalid reply received for chat 'testId'.");
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Invalid reply received for chat 'testId'.");
     }
 
     [Fact]
@@ -288,7 +290,7 @@ public class ChatHandlerTests {
         // Assert
         chat.Options.Model.Should().Be("some-model");
         await result.Should().ThrowAsync<InvalidOperationException>();
-        _logger.ShouldContain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.ShouldContain(LogLevel.Error, "Failed to send a message to 'testId'.");
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
+        _logger.Should().Contain(LogLevel.Error, "Failed to send a message to 'testId'.");
     }
 }

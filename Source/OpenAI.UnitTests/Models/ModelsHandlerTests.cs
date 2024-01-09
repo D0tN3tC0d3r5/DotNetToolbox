@@ -1,3 +1,5 @@
+using DotNetToolbox.TestUtilities.Extensions;
+
 namespace DotNetToolbox.OpenAI.Models;
 
 public class ModelsHandlerTests {
@@ -56,8 +58,8 @@ public class ModelsHandlerTests {
         result[1].Type.Should().Be(ModelType.Chat);
         result[1].Name.Should().Be("model2");
         result[1].IsFineTuned.Should().BeFalse();
-        _logger.ShouldContain(LogLevel.Debug, "Getting list of models...");
-        _logger.ShouldContain(LogLevel.Debug, "A list of 2 models was found.");
+        _logger.Should().Contain(LogLevel.Debug, "Getting list of models...");
+        _logger.Should().Contain(LogLevel.Debug, "A list of 2 models was found.");
     }
 
     [Fact]
@@ -70,8 +72,8 @@ public class ModelsHandlerTests {
 
         // Assert
         await result.Should().ThrowAsync<InvalidOperationException>();
-        _logger.ShouldContain(LogLevel.Debug, "Getting list of models...");
-        _logger.ShouldContain(LogLevel.Error, "Failed to get list of models.");
+        _logger.Should().Contain(LogLevel.Debug, "Getting list of models...");
+        _logger.Should().Contain(LogLevel.Error, "Failed to get list of models.");
     }
 
     [Fact]
@@ -96,8 +98,8 @@ public class ModelsHandlerTests {
         subject.Type.Should().Be(ModelType.Chat);
         subject.Name.Should().Be("model1");
         subject.IsFineTuned.Should().Be(false);
-        _logger.ShouldContain(LogLevel.Debug, "Getting model 'testId' details...");
-        _logger.ShouldContain(LogLevel.Debug, "The model 'testId' was found.");
+        _logger.Should().Contain(LogLevel.Debug, "Getting model 'testId' details...");
+        _logger.Should().Contain(LogLevel.Debug, "The model 'testId' was found.");
     }
 
     [Fact]
@@ -110,8 +112,8 @@ public class ModelsHandlerTests {
 
         // Assert
         result.Should().BeNull();
-        _logger.ShouldContain(LogLevel.Debug, "Getting model 'testId' details...");
-        _logger.ShouldContain(LogLevel.Debug, "The model 'testId' was not found.");
+        _logger.Should().Contain(LogLevel.Debug, "Getting model 'testId' details...");
+        _logger.Should().Contain(LogLevel.Debug, "The model 'testId' was not found.");
     }
 
     [Fact]
@@ -124,8 +126,8 @@ public class ModelsHandlerTests {
 
         // Assert
         await result.Should().ThrowAsync<InvalidOperationException>();
-        _logger.ShouldContain(LogLevel.Debug, "Getting model 'testId' details...");
-        _logger.ShouldContain(LogLevel.Error, "Failed to get the model 'testId' details.");
+        _logger.Should().Contain(LogLevel.Debug, "Getting model 'testId' details...");
+        _logger.Should().Contain(LogLevel.Error, "Failed to get the model 'testId' details.");
     }
 
     [Fact]
@@ -141,8 +143,8 @@ public class ModelsHandlerTests {
 
         // Assert
         result.Should().BeTrue();
-        _logger.ShouldContain(LogLevel.Debug, "Deleting the model 'testId'...");
-        _logger.ShouldContain(LogLevel.Debug, "The model 'testId' was deleted.");
+        _logger.Should().Contain(LogLevel.Debug, "Deleting the model 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "The model 'testId' was deleted.");
     }
 
     [Fact]
@@ -155,7 +157,7 @@ public class ModelsHandlerTests {
 
         // Assert
         await result.Should().ThrowAsync<InvalidOperationException>();
-        _logger.ShouldContain(LogLevel.Debug, "Deleting the model 'testId'...");
-        _logger.ShouldContain(LogLevel.Error, "Failed to delete the model 'testId'.");
+        _logger.Should().Contain(LogLevel.Debug, "Deleting the model 'testId'...");
+        _logger.Should().Contain(LogLevel.Error, "Failed to delete the model 'testId'.");
     }
 }

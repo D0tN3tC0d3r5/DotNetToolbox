@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% Http 8.0.2-rc2
+call Publish %target% Http 8.0.2-rc3
 cd Http
 goto :eof
 
