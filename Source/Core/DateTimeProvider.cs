@@ -25,11 +25,11 @@ public class DateTimeProvider {
     public virtual bool TryParse(string s, out DateTimeOffset result)
         => DateTimeOffset.TryParse(s, out result);
 
-    public virtual DateTimeOffset ParseExact(string s, [StringSyntax(DateTimeFormat)] string format)
+    public virtual DateTimeOffset ParseExact(string s, [Syntax(Syntax.DateTimeFormat)] string format)
         => DateTimeOffset.ParseExact(s, format, null, DateTimeStyles.None);
     public virtual bool TryParseExact(
         string s,
-        [StringSyntax(DateTimeFormat)] string format,
+        [Syntax(Syntax.DateTimeFormat)] string format,
         out DateTimeOffset result)
         => DateTimeOffset.TryParseExact(s, format, null, DateTimeStyles.None, out result);
 }

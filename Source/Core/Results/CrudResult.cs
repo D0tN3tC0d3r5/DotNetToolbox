@@ -7,10 +7,23 @@ public record CrudResult : ResultBase {
 
     protected CrudResult(CrudResultType type, IEnumerable<ValidationError>? errors = null, Exception? exception = null)
         : base(errors, exception) {
-        Type = HasException ? CrudResultType.Error : HasErrors ? CrudResultType.Invalid : type;
+        SetType(type);
     }
 
-    internal CrudResultType Type { get; init; }
+    internal CrudResultType Type { get; private set; }
+
+    private void SetType(CrudResultType type)
+        => Type = HasException
+                      ? CrudResultType.Error
+                      : HasErrors
+                          ? CrudResultType.Invalid
+                          : type;
+
+    protected override void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors)
+        => SetType(Type);
+
+    protected override void OnExceptionChanged(Exception? exception)
+        => SetType(Type);
 
     public bool IsSuccess => Type is CrudResultType.Success;
     public bool IsInvalid => Type is CrudResultType.Invalid;

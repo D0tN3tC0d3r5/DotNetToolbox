@@ -130,6 +130,7 @@ public class ResultTests {
             _success,
             _invalid,
             _invalidWithOtherError,
+            _failure,
         };
 
         // Act
@@ -236,7 +237,7 @@ public class ResultTests {
         var result = subject.MapTo(s => s is null ? (int?)null : int.Parse(s));
 
         // Assert
-        result.Should().BeOfType<Result<int>>();
+        result.Should().BeOfType<Result<int?>>();
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().BeEmpty();
         result.Exception.Should().NotBeNull();

@@ -70,7 +70,7 @@ public class HttpResultTests {
             Add(_created, false, false, false, false, true, false);
             Add(_unauthorized, false, false, false, false, false, true);
             Add(_badRequestWithValue, true, false, false, false, false, false);
-            Add(_failureWithValue, true, false, false, false, false, false);
+            Add(_failureWithValue, false, false, false, false, false, false);
             Add(_okWithValue, false, true, false, false, false, false);
             Add(_notFoundWithValue, false, false, true, false, false, false);
             Add(_conflictWithValue, false, false, false, true, false, false);

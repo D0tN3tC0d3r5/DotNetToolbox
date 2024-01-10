@@ -4,9 +4,7 @@ public class ValidationErrorTests {
     [Fact]
     public void DefaultConstructor_CreatesNewError() {
         // Arrange
-        var error1 = new ValidationError() {
-            Message = "Some error 42.",
-        };
+        var error1 = new ValidationError("Some error 42.");
 
         // Act
         var error2 = error1;
@@ -22,8 +20,9 @@ public class ValidationErrorTests {
         var error = default(ValidationError);
 
         // Assert
-        error.Source.Should().Be(string.Empty);
-        error.Message.Should().Be(string.Empty);
+        error.Should().NotBeNull();
+        error.Source.Should().BeEmpty();
+        error.Message.Should().BeEmpty();
     }
 
     [Theory]

@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Results;
 
 public interface IResult {
-    ISet<ValidationError> Errors { get; }
+    ICollection<ValidationError> Errors { get; }
     Exception? Exception { get; }
 }
 

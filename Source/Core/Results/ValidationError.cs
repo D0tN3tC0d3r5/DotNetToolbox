@@ -7,12 +7,15 @@ namespace DotNetToolbox.Results;
                  """)]
 public readonly struct ValidationError {
     private readonly string _message;
+    private readonly string _formattedMessage = string.Empty;
+    private readonly string? _source;
 
     [SetsRequiredMembers]
     public ValidationError(string source, string message)
         : this() {
-        Source = IsNotNull(source).Trim();
-        Message = IsNotNullOrWhiteSpace(message).Trim();
+        _source = IsNotNull(source).Trim();
+        _message = IsNotNullOrEmpty(message).Trim();
+        _formattedMessage = $"{(string.IsNullOrEmpty(_source) ? string.Empty : $"{_source}: ")}{_message}";
     }
 
     [SetsRequiredMembers]
@@ -20,19 +23,15 @@ public readonly struct ValidationError {
         : this(string.Empty, message) {
     }
 
-    public string Source { get; } = string.Empty;
+    public string Source => _source ?? string.Empty;
 
-    public required string Message {
-        get => _message;
-        [MemberNotNull(nameof(_message))]
-        init => _message = IsNotNullOrWhiteSpace(value).Trim();
-    }
+    public string Message => _message ?? string.Empty;
 
     public static implicit operator ValidationError(string message)
         => new(message);
 
     public bool Equals(ValidationError other)
-        => Source.Equals(other.Source) && Message.Equals(other.Message);
+        => _formattedMessage.Equals(other._formattedMessage);
 
     public override bool Equals(object? other)
         => other is ValidationError ve && Equals(ve);
@@ -44,8 +43,8 @@ public readonly struct ValidationError {
         => !left.Equals(right);
 
     public override int GetHashCode()
-        => HashCode.Combine(Source, Message);
+        => _formattedMessage.GetHashCode();
 
     public override string ToString()
-        => $"{Source}{(Source == string.Empty ? string.Empty : ": ")}{Message}";
+        => _formattedMessage;
 }

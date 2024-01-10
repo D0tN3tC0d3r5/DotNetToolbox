@@ -6,8 +6,8 @@ DotNetToolboxe is a comprehensive collections of packages that offers a wide ran
 
 | Package | Stable Version | Latest Version | Description |
 | --- | --- | --- | --- |
-| [DotNetToolbox.Core](Source/Core/README.md) | 8.0.2 | 8.0.3-rc1 | A collection of tools that implements commonly used patterns and utilities. |
-| [DotNetToolbox.ObjectDumper](Source/ObjectDumper/README.md) | 8.0.2 | 8.0.3-rc1 | An extension that serializes objects into human friendly readable strings. |
+| [DotNetToolbox.Core](Source/Core/README.md) | 8.0.3 | 8.0.3-rc1 | A collection of tools that implements commonly used patterns and utilities. |
+| [DotNetToolbox.ObjectDumper](Source/ObjectDumper/README.md) | 8.0.3 | 8.0.3-rc1 | An extension that serializes objects into human friendly readable strings. |
 
 
 #### Contributing

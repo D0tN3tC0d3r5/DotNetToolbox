@@ -7,10 +7,21 @@ public record HttpResult : ResultBase {
 
     protected HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = default, Exception? exception = default)
         : base(errors, exception) {
-        Type = HasException ? HttpResultType.Error : HasErrors ? HttpResultType.BadRequest : type;
+        SetType(type);
     }
 
-    internal HttpResultType Type { get; init; }
+    internal HttpResultType Type { get; private set; }
+    private void SetType(HttpResultType type)
+        => Type = HasException
+                      ? HttpResultType.Error
+                      : HasErrors
+                          ? HttpResultType.BadRequest
+                          : type;
+
+    protected override void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors)
+        => SetType(Type);
+    protected override void OnExceptionChanged(Exception? exception)
+        => SetType(Type);
 
     public bool IsSuccess => Type is HttpResultType.Ok or HttpResultType.Created;
     public bool IsInvalid => Type is HttpResultType.BadRequest or HttpResultType.Unauthorized or HttpResultType.NotFound or HttpResultType.Conflict;

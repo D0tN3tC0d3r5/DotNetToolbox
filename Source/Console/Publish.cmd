@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% Console 8.0.2-rc3
+call Publish %target% Console 8.0.3-rc1
 cd ConsoleApplication
 goto :eof
 

@@ -12,11 +12,23 @@ public record SignInResult : ResultBase {
 
     private SignInResult(SignInResultType type, string? token = default, IEnumerable<ValidationError>? errors = default, Exception? exception = default)
         : base(errors, exception) {
-        Type = HasException ? SignInResultType.Error : HasErrors ? SignInResultType.Invalid : type;
+        SetType(type);
         Token = HasException || HasErrors ? default : token;
     }
 
-    internal SignInResultType Type { get; }
+    internal SignInResultType Type { get; private set; }
+    private void SetType(SignInResultType type)
+        => Type = HasException
+                      ? SignInResultType.Error
+                      : HasErrors
+                          ? SignInResultType.Invalid
+                          : type;
+
+    protected override void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors)
+        => SetType(Type);
+    protected override void OnExceptionChanged(Exception? exception)
+        => SetType(Type);
+
     public string? Token { get; init; }
 
     public bool IsLocked => Type is SignInResultType.Locked;

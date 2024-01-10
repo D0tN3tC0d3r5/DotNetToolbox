@@ -5,8 +5,8 @@ public record Result : ResultBase {
         : base(errors, exception) {
     }
 
-    public bool IsSuccess => !HasErrors && !HasException;
-    public bool IsInvalid => HasErrors;
+    public bool IsSuccess => HasNoIssues;
+    public bool IsInvalid => HasErrors && !HasException;
 
     public static Result Success() => new();
     public static Result InvalidData(string message) => InvalidData(string.Empty, message);

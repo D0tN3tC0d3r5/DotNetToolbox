@@ -195,9 +195,7 @@ public class ChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsInvalidReply() {
         // Arrange
-        var chat = new Chat() with {
-            Id = "testId",
-        };
+        var chat = new Chat { Id = "testId" };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
         var response = new CompletionResponse {
             Id = "testId",
@@ -225,9 +223,7 @@ public class ChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsDelta() {
         // Arrange
-        var chat = new Chat() with {
-            Id = "testId",
-        };
+        var chat = new Chat { Id = "testId" };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
         var response = new CompletionResponse {
             Id = "testId",
