@@ -3,13 +3,11 @@
 public static class Ensure {
     [return: NotNull]
     public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        => argument
-        ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
+        => argument ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
 
-    public static TArgument HasValue<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : struct
-        => argument
-        ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
+    //public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    //    where TArgument : struct
+    //    => argument ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
 
     [return: NotNull]
     public static TArgument IsOfType<TArgument>(object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
@@ -21,7 +19,7 @@ public static class Ensure {
     public static TArgument? IsNotEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
-            ICollection { Count: 0, } => throw new ArgumentException(string.Format(ValueCannotBeEmpty, paramName), paramName),
+            ICollection { Count: 0 } => throw new ArgumentException(string.Format(ValueCannotBeEmpty, paramName), paramName),
             _ => argument,
         };
 
@@ -30,8 +28,8 @@ public static class Ensure {
         where TArgument : IEnumerable
         => argument switch {
             null => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
-            string { Length: 0, } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
-            ICollection { Count: 0, } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
+            string { Length: 0 } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
+            ICollection { Count: 0 } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
             _ => argument,
         };
 
@@ -42,7 +40,7 @@ public static class Ensure {
             : argument;
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? DoesNotHaveNulls<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument? HasNoNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
             IEnumerable collection when collection.Cast<object?>().Any(item => item is null)
@@ -51,7 +49,7 @@ public static class Ensure {
         };
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? DoesNotHaveNullOrEmptyStrings<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument? HasNoNullOrEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<string?>
         => argument switch {
             // ReSharper disable once ConvertClosureToMethodGroup - it messes with code coverage
@@ -61,7 +59,7 @@ public static class Ensure {
         };
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? DoesNotHaveNullOrWhiteSpaceStrings<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument? HasNoNullOrWhiteSpace<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<string?>
         => argument switch {
             // ReSharper disable once ConvertClosureToMethodGroup - it messes with code coverage
@@ -78,7 +76,7 @@ public static class Ensure {
     [return: NotNull]
     public static TArgument IsValid<TArgument>(TArgument? argument, Func<TArgument, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
         argument = IsNotNull(argument, paramName);
-        validate(argument).EnsureIsValid();
+        validate(argument).EnsureIsSuccess();
         return argument;
     }
 

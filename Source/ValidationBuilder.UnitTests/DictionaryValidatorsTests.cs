@@ -23,10 +23,10 @@ public class DictionaryValidatorsTests {
 
     private class TestData : TheoryData<TestObject, bool, int> {
         public TestData() {
-            Add(new() { Numbers = new Dictionary<string, int> { ["One"] = 1, ["Three"] = 3, ["Five"] = 5, }, Names = new Dictionary<string, string> { ["Some"] = "Name", }, }, true, 0);
-            Add(new() { Numbers = new Dictionary<string, int>(), Names = new Dictionary<string, string> { ["Name"] = default!, }, }, false, 5);
-            Add(new() { Numbers = new Dictionary<string, int> { ["One"] = 1, ["Two"] = default!, ["Three"] = 3, ["Four"] = 4, ["Nine"] = 9, }, Names = new Dictionary<string, string> { ["Some"] = "Name", }, }, false, 4);
-            Add(new() { Numbers = null!, Names = null!, }, false, 2);
+            Add(new() { Numbers = new Dictionary<string, int> { ["One"] = 1, ["Three"] = 3, ["Five"] = 5 }, Names = new Dictionary<string, string> { ["Some"] = "Name" } }, true, 0);
+            Add(new() { Numbers = new Dictionary<string, int>(), Names = new Dictionary<string, string> { ["Name"] = default! } }, false, 5);
+            Add(new() { Numbers = new Dictionary<string, int> { ["One"] = 1, ["Two"] = default!, ["Three"] = 3, ["Four"] = 4, ["Nine"] = 9 }, Names = new Dictionary<string, string> { ["Some"] = "Name" } }, false, 4);
+            Add(new() { Numbers = null!, Names = null! }, false, 2);
         }
     }
 

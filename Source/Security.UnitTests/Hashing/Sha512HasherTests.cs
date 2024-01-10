@@ -12,7 +12,7 @@ public class Sha512HasherTests {
     [Fact]
     public void Generate_ReturnsHashWithSalt() {
         // Arrange
-        var secret = new byte[] { 1, 2, 3, };
+        var secret = new byte[] { 1, 2, 3 };
 
         // Act
         var result = _sut.Generate(secret);
@@ -40,9 +40,9 @@ public class Sha512HasherTests {
     [Fact]
     public void Validate_WithInvalidHash_ReturnsFalse() {
         // Arrange
-        var secret = new byte[] { 1, 2, 3, };
-        var salt = new byte[] { 4, 5, 6, };
-        var hash = new Hash([7, 8, 9,], salt);
+        var secret = new byte[] { 1, 2, 3 };
+        var salt = new byte[] { 4, 5, 6 };
+        var hash = new Hash([7, 8, 9], salt);
 
         // Act
         var result = _sut.Validate(hash, secret);
@@ -54,7 +54,7 @@ public class Sha512HasherTests {
     [Fact]
     public void Validate_WithValidHash_ReturnsTrue() {
         // Arrange
-        var secret = new byte[] { 1, 2, 3, };
+        var secret = new byte[] { 1, 2, 3 };
         var subject = _sut.Generate(secret);
 
         // Act

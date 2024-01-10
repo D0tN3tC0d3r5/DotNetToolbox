@@ -6,9 +6,9 @@ public class SignInResultTests {
     private static readonly SignInResult _invalid = new ValidationError("Source", "Some error.");
     private static readonly SignInResult _invalidWithSameError = new ValidationError("Source", "Some error.");
     private static readonly SignInResult _invalidWithOtherError = new ValidationError("Source", "Other error.");
-    private static readonly SignInResult _locked = Locked();
-    private static readonly SignInResult _blocked = Blocked();
-    private static readonly SignInResult _failure = Failure();
+    private static readonly SignInResult _locked = LockedAccount();
+    private static readonly SignInResult _blocked = BlockedAccount();
+    private static readonly SignInResult _failure = FailedAttempt();
     private static readonly SignInResult _requiresConfirmation = ConfirmationRequired("SomeToken");
     private static readonly SignInResult _requires2Factor = TwoFactorRequired("SomeToken");
     private static readonly SignInResult _success = Success("SomeToken");
@@ -28,7 +28,7 @@ public class SignInResultTests {
     [Fact]
     public void Invalid_WithMessageOnly_CreatesResult() {
         // Arrange & Act
-        var result = Invalid("Some error.");
+        var result = InvalidData(new ValidationError("Some error."));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -38,7 +38,7 @@ public class SignInResultTests {
     [Fact]
     public void Invalid_WithSourceAndMessage_CreatesResult() {
         // Arrange & Act
-        var result = Invalid("Field1", "Some error.");
+        var result = InvalidData(new ValidationError("Field1", "Some error."));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -50,7 +50,7 @@ public class SignInResultTests {
     [Fact]
     public void Invalid_WithResult_CreatesResult() {
         // Arrange & Act
-        var result = Invalid(Result.Invalid("Some error."));
+        var result = InvalidData(Result.InvalidData("Some error."));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -69,7 +69,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        SignInResult result = new[] { new ValidationError("Source", "Some error."), };
+        SignInResult result = new[] { new ValidationError("Source", "Some error.") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -78,7 +78,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        SignInResult result = new List<ValidationError> { new("Source", "Some error."), };
+        SignInResult result = new List<ValidationError> { new("Source", "Some error.") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -115,56 +115,6 @@ public class SignInResultTests {
         subject.RequiresConfirmation.Should().Be(confirmationRequired);
         subject.RequiresTwoFactor.Should().Be(twoFactorRequired);
         subject.IsSuccess.Should().Be(isSuccess);
-    }
-
-    private class TestDataForEquality : TheoryData<SignInResult, SignInResultType, bool> {
-        public TestDataForEquality() {
-            Add(_success, SignInResultType.Success, true);
-            Add(_success, Failed, false);
-            Add(_success, SignInResultType.Locked, false);
-            Add(_success, SignInResultType.Blocked, false);
-            Add(_success, SignInResultType.Invalid, false);
-            Add(_failure, SignInResultType.Success, false);
-            Add(_failure, Failed, true);
-            Add(_failure, SignInResultType.Locked, false);
-            Add(_failure, SignInResultType.Blocked, false);
-            Add(_failure, SignInResultType.Invalid, false);
-            Add(_locked, SignInResultType.Success, false);
-            Add(_locked, Failed, false);
-            Add(_locked, SignInResultType.Locked, true);
-            Add(_locked, SignInResultType.Blocked, false);
-            Add(_locked, SignInResultType.Invalid, false);
-            Add(_blocked, SignInResultType.Success, false);
-            Add(_blocked, Failed, false);
-            Add(_blocked, SignInResultType.Locked, false);
-            Add(_blocked, SignInResultType.Blocked, true);
-            Add(_blocked, SignInResultType.Invalid, false);
-            Add(_invalid, SignInResultType.Success, false);
-            Add(_invalid, Failed, false);
-            Add(_invalid, SignInResultType.Locked, false);
-            Add(_invalid, SignInResultType.Blocked, false);
-            Add(_invalid, SignInResultType.Invalid, true);
-        }
-    }
-
-    [Theory]
-    [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(SignInResult subject, SignInResultType type, bool expectedResult) {
-        // Act
-        var result = subject == type;
-
-        // Assert
-        result.Should().Be(expectedResult);
-    }
-
-    [Theory]
-    [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(SignInResult subject, SignInResultType type, bool expectedResult) {
-        // Act
-        var result = subject != type;
-
-        // Assert
-        result.Should().Be(!expectedResult);
     }
 
     [Fact]
@@ -231,7 +181,7 @@ public class SignInResultTests {
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = Invalid("Source", "Some error.");
+        var result = InvalidData(new ValidationError("Source", "Some error."));
 
         // Act
         result += new ValidationError("Source", "Other error.");
@@ -244,7 +194,7 @@ public class SignInResultTests {
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = Invalid("Source", "Some error.");
+        var result = InvalidData(new ValidationError("Source", "Some error."));
 
         // Act
         result += new ValidationError("Source", "Some error.");

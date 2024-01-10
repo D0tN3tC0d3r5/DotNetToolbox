@@ -25,9 +25,9 @@ public class ValidatableValidatorsTests {
 
     private class TestData : TheoryData<TestObject, bool, int> {
         public TestData() {
-            Add(new() { Child = new() { Name = "Mario", }, }, true, 0);
-            Add(new() { Child = new() { Name = default!, }, }, false, 1);
-            Add(new() { Child = default!, }, false, 1);
+            Add(new() { Child = new() { Name = "Mario" } }, true, 0);
+            Add(new() { Child = new() { Name = default! } }, false, 1);
+            Add(new() { Child = default! }, false, 1);
         }
     }
 

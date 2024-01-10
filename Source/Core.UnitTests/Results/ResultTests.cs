@@ -1,24 +1,27 @@
 namespace DotNetToolbox.Results;
 
 public class ResultTests {
-    private static readonly Result _success = Success();
-    private static readonly Result _invalid = Invalid("Source", "Some error.");
-    private static readonly Result _invalidWithSameError = Invalid("Source", "Some error.");
-    private static readonly Result _invalidWithOtherError = Invalid("Source", "Other error.");
+    private static readonly Result _success = Result.Success();
+    private static readonly Result _invalid = Result.InvalidData("Some error.");
+    private static readonly Result _invalidWithSameError = Result.InvalidData("Some error.");
+    private static readonly Result _invalidWithOtherError = Result.InvalidData("Other error.");
+    private static readonly Result _failure = Result.Error("Some error.");
 
-    private static readonly Result<string> _successWithValue = Success("42");
-    private static readonly Result<string> _invalidWithValue = Invalid("42", "Source", "Some error.");
+    private static readonly Result<string> _successWithValue = Result.Success("42");
+    private static readonly Result<string> _invalidWithValue = Result.InvalidData<string>("42", "Some error.");
+    private static readonly Result<string> _failureWithValue = Result.Error("42", "Some error.");
 
     [Fact]
     public void CopyConstructor_ClonesObject() {
         // Act
         var result = _success with {
-            Errors = new HashSet<ValidationError> { new("Some error."), },
+            Errors = new HashSet<ValidationError> { new("Some error.") },
         };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
+        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -28,53 +31,58 @@ public class ResultTests {
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+        result.Exception.Should().BeNull();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        Result result = new[] { new ValidationError(nameof(result), "Some error."), };
+        Result result = new[] { new ValidationError(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+        result.Exception.Should().BeNull();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        Result result = new List<ValidationError> { new(nameof(result), "Some error."), };
+        Result result = new List<ValidationError> { new(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+        result.Exception.Should().BeNull();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorSet_ReturnsFailure() {
         // Act
-        Result result = new HashSet<ValidationError> { new(nameof(result), "Some error."), };
+        Result result = new HashSet<ValidationError> { new(nameof(result), "Some error.") };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+        result.Exception.Should().BeNull();
     }
 
-    private class TestDataForProperties : TheoryData<Result, bool, bool> {
-        public TestDataForProperties() {
-            Add(_invalid, true, false);
-            Add(_success, false, true);
-        }
-    }
-    [Theory]
-    [ClassData(typeof(TestDataForProperties))]
-    public void Properties_ShouldReturnAsExpected(Result subject, bool isInvalid, bool isSuccess) {
+    [Fact]
+    public void ImplicitConversion_FromException_ReturnsError() {
+        // Act
+        Result result = new InvalidOperationException("Some error.");
+
         // Assert
-        subject.IsInvalid.Should().Be(isInvalid);
-        subject.IsSuccess.Should().Be(isSuccess);
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().BeEmpty();
+        result.Exception.Should().NotBeNull();
     }
 
     [Fact]
     public void AddOperator_WithError_ReturnsInvalid() {
         // Arrange
-        var result = Success();
+        var result = Result.Success();
 
         // Act
         result += new ValidationError("result", "Some error.");
@@ -122,18 +130,20 @@ public class ResultTests {
             _success,
             _invalid,
             _invalidWithOtherError,
+            _failure,
         };
 
         // Act
         var result = new HashSet<Result> {
-            Success(),
-            Success(),
+            Result.Success(),
+            Result.Success(),
             _success,
             _success,
             _invalid,
             _invalid,
             _invalidWithSameError,
             _invalidWithOtherError,
+            _failure,
         };
 
         // Assert
@@ -144,7 +154,7 @@ public class ResultTests {
     public void OfT_CopyConstructor_ClonesObject() {
         // Act
         var result = _successWithValue with {
-            Errors = new HashSet<ValidationError> { new("Some error."), },
+            Errors = new HashSet<ValidationError> { new("Some error.") },
         };
 
         // Assert
@@ -168,11 +178,10 @@ public class ResultTests {
         var result = _successWithValue;
 
         // Act
-        result += Success();
+        result += Result.Success();
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.IsInvalid.Should().BeFalse();
         result.Value.Should().Be("42");
     }
 
@@ -186,7 +195,6 @@ public class ResultTests {
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.IsInvalid.Should().BeTrue();
         result.Value.Should().Be("42");
     }
 
@@ -196,11 +204,13 @@ public class ResultTests {
         var subject = _successWithValue;
 
         // Act
-        var result = subject.MapTo(int.Parse);
+        var result = subject.MapTo(s => s is null ? default : int.Parse(s));
 
         // Assert
         result.Should().BeOfType<Result<int>>();
         result.IsSuccess.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
+        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -209,10 +219,27 @@ public class ResultTests {
         var subject = _invalidWithValue;
 
         // Act
-        var result = subject.MapTo(int.Parse);
+        var result = subject.MapTo(s => s is null ? default : int.Parse(s));
 
         // Assert
         result.Should().BeOfType<Result<int>>();
         result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().NotBeEmpty();
+        result.Exception.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapTo_WithException_ReturnsError() {
+        // Arrange
+        var subject = _failureWithValue;
+
+        // Act
+        var result = subject.MapTo(s => s is null ? (int?)null : int.Parse(s));
+
+        // Assert
+        result.Should().BeOfType<Result<int?>>();
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().BeEmpty();
+        result.Exception.Should().NotBeNull();
     }
 }

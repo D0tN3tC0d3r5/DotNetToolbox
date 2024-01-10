@@ -17,10 +17,10 @@ public class IntegerValidatorsTests {
 
     private class TestData : TheoryData<TestObject, int> {
         public TestData() {
-            Add(new() { Nullable = 15, Required = 15, }, 0);
-            Add(new() { Nullable = null, Required = null, }, 1);
-            Add(new() { Nullable = 5, Required = 5, }, 3);
-            Add(new() { Nullable = 25, Required = 25, }, 3);
+            Add(new() { Nullable = 15, Required = 15 }, 0);
+            Add(new() { Nullable = null, Required = null }, 1);
+            Add(new() { Nullable = 5, Required = 5 }, 3);
+            Add(new() { Nullable = 25, Required = 25 }, 3);
         }
     }
 

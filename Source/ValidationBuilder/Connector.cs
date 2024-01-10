@@ -22,14 +22,14 @@ public class Connector<TSubject, TValidator>(TValidator left) : IConnector<TVali
         => ProcessOr(validateRight, ValidatorMode.AndNot);
 
     private TValidator ProcessAnd(Func<TValidator, ITerminator> validateRight, ValidatorMode mode) {
-        var rightValidator = Create.Instance<TValidator>(left.Subject!, left.Source, mode);
+        var rightValidator = CreateInstance.Of<TValidator>(left.Subject!, left.Source, mode);
         var rightResult = validateRight(rightValidator).Result;
         left.AddErrors(rightResult.Errors);
         return left;
     }
 
     private TValidator ProcessOr(Func<TValidator, ITerminator> validateRight, ValidatorMode mode) {
-        var rightValidator = Create.Instance<TValidator>(left.Subject!, left.Source, mode);
+        var rightValidator = CreateInstance.Of<TValidator>(left.Subject!, left.Source, mode);
         var rightResult = validateRight(rightValidator).Result;
         if (left.Result.IsInvalid && rightResult.IsInvalid)
             left.AddErrors(rightResult.Errors);

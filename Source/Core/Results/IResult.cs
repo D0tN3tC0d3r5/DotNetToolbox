@@ -1,6 +1,10 @@
 ﻿namespace DotNetToolbox.Results;
 
 public interface IResult {
-    bool IsSuccess { get; }
-    ISet<ValidationError> Errors { get; }
+    ICollection<ValidationError> Errors { get; }
+    Exception? Exception { get; }
+}
+
+public interface IResult<out TValue> : IResult {
+    TValue? Value { get; }
 }

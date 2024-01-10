@@ -6,6 +6,9 @@ public sealed class IsValidCommand(string source) : ValidationCommand(source) {
         return subject is not IValidatable v
                    ? result
                    : v.Validate().Errors
-                      .Aggregate(result, (current, error) => current + error with { Source = $"{Source}.{error.Source}", });
+                      .Aggregate(result, (current, error) => {
+                          var newSource = $"{Source}.{error.Source}";
+                          return current + new ValidationError(newSource, error.Message);
+                      });
     }
 }

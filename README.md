@@ -1,62 +1,41 @@
 # DotNetToolbox
 
-## Version 1.0.0
+DotNetToolboxe is a comprehensive collections of packages that offers a wide range of functionalities.
 
-DotNetToolboxe is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
+### Packages
 
-### Components
+| Package | Stable Version | Latest Version | Description |
+| --- | --- | --- | --- |
+| [DotNetToolbox.Core](Source/Core/README.md) | 8.0.3 | 8.0.3-rc1 | A collection of tools that implements commonly used patterns and utilities. |
+| [DotNetToolbox.ObjectDumper](Source/ObjectDumper/README.md) | 8.0.3 | 8.0.3-rc1 | An extension that serializes objects into human friendly readable strings. |
 
-#### Pagination
 
-- `PagedCollection`: Manages paged collections.
-- `Pagination`: Handles pagination logic.
-- `PaginationSettings`: Stores pagination settings.
+#### Contributing
 
-#### Date and Time
+Contributions are welcome and greatly appreciated! If you're looking to contribute to DotNetToolbox, please follow these steps:
 
-- `DateTimeProvider`: Offers functionalities for date-time management.
+1. **Fork the repository**: Create your own copy of the repository by forking it. You can do this by clicking the "Fork" button on the top right corner of the repository page on GitHub.
 
-#### File System
+2. **Create a branch**: Once you have forked the repository, create a branch for your changes. It's best practice to name your branch something descriptive of the changes you're making.
 
-- `FileSystemHandler`: Handles file manipulation tasks.
+3. **Make your changes**: Implement the new feature, fix a bug, or make the improvements you want to contribute. Be sure to adhere to the existing code style and follow best practices.
 
-#### Results and Validation
+4. **Write tests**: If you're adding new functionality or fixing a bug, write tests to cover the new code. The project uses XUnit, ensure your tests are passing.
 
-- `CrudResult`: Represents the outcomes of CRUD operations.
-- `HttpResult`: Represents the outcomes of HTTP requests.
-- `Result`: Base class for operation results.
-- `SignInResult`: Represents the outcomes of sign-in operations.
-- `ValidationResult`: Represents the outcomes of validation checks.
-- `ValidationError`: Focuses on validation-related errors.
-- `ValidationErrorExtensions`: Extends functionalities for validation errors.
+5. **Update the README**: If your changes warrant it, add an example to the README to demonstrate the new functionality or describe the bug fix.
 
-#### Azure
+6. **Submit a pull request**: Push your changes to your fork and submit a pull request to the original DotNetToolbox repository. Provide a clear description of the changes you've made.
 
-- `AzureSecretReader`: Facilitates reading secrets from Azure.
+7. **Code review**: Wait for the maintainers to review your pull request. Be open to making changes based on their feedback.
 
-#### GUIDs
+8. **Merge**: Once your pull request has been reviewed and approved, a maintainer will merge it into the main codebase.
 
-- `Base64Guid`: Handles Base64 encoding and decoding of GUIDs.
+For any questions or discussions, feel free to open an issue in the repository.
 
-#### Object Creation and Validation
+Thank you for contributing to DotNetToolbox!
 
-- `Create`: Assists in object creation.
-- `Ensure`: Aids in object validation.
+#### License
 
-#### Extensions
+DotNetToolbox is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- `ClientFactoryExtensions`: Provides extensions for client factories.
-- `ConcurrentDictionaryExtensions`: Offers utility functions for concurrent dictionaries.
-- `EnumerableExtensions`: Extends functionalities for enumerable types.
-
-## Usage
-
-Please refer to the API documentation for detailed usage instructions.
-
-## Contributing
-
-This package is intended for internal use. Contributions are restricted to team members.
-
-## License
-
-[MIT License](LICENSE)
+The MIT License is a permissive license that is short and to the point. It lets people do anything they want with your code as long as they provide attribution back to you and don’t hold you liable.

@@ -1,36 +1,50 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public class HttpClientOptions  {
+public class HttpClientOptions<TOptions> : NamedOptions<TOptions>, IValidatable
+    where TOptions : HttpClientOptions<TOptions>, new() {
     public const string DefaultResponseFormat = "application/json";
 
-    public string BaseAddress { get; set; } = default!;
+    public virtual Uri? BaseAddress { get; set; }
 
-    public string ResponseFormat { get; set; } = DefaultResponseFormat;
+    public virtual string ResponseFormat { get; set; } = DefaultResponseFormat;
 
-    public Dictionary<string, string[]> CustomHeaders { get; set; } = [];
+    public virtual Dictionary<string, string[]> CustomHeaders { get; set; } = [];
 
-    public AuthenticationOptions? Authentication { get; set; }
+    public virtual AuthenticationOptions? Authentication { get; set; }
 
-    public Result Validate() {
+    public virtual Result Validate(IDictionary<string, object?>? context = null) {
         var result = Success();
 
-        if (string.IsNullOrWhiteSpace(BaseAddress))
-            result += new ValidationError(nameof(BaseAddress), ValueCannotBeNullOrWhiteSpace);
+        if (BaseAddress is null)
+            result += new ValidationError(GetSourcePath(nameof(BaseAddress)), ValueCannotBeNullOrWhiteSpace);
 
-        if (string.IsNullOrWhiteSpace(ResponseFormat))
-            result += new ValidationError(nameof(ResponseFormat), ValueCannotBeNullOrWhiteSpace);
-
-        result += Authentication?.Validate() ?? Success();
+        result += Authentication?.Validate(context) ?? Success();
 
         return result;
-    }
-    internal void Configure(HttpClient client, ref HttpAuthentication authentication) {
-        client.BaseAddress = new(BaseAddress);
-        client.DefaultRequestHeaders.Accept.Clear();
-        client.DefaultRequestHeaders.Accept.Add(new(ResponseFormat));
-        foreach ((var key, var value) in CustomHeaders)
-            client.DefaultRequestHeaders.Add(key, value);
 
-        Authentication?.Configure(client, ref authentication);
+        string GetSourcePath(string source)
+            => context is null || !context.TryGetValue("ClientName", out var name)
+                   ? source
+                   : $"{name}.{source}";
+    }
+}
+
+public class HttpClientOptions : HttpClientOptions<HttpClientOptions> {
+    public Dictionary<string, HttpClientOptions> Clients { get; set; } = [];
+
+    public override Result Validate(IDictionary<string, object?>? context = null) {
+        var result = base.Validate(context);
+
+        foreach (var client in Clients) {
+            var clientContext = new Dictionary<string, object?> { ["ClientName"] = GetSourcePath(client.Key) };
+            result += client.Value.Validate(clientContext);
+        }
+
+        return result;
+
+        string GetSourcePath(string source)
+            => context is null || !context.TryGetValue("ClientName", out var name)
+                   ? source
+                   : $"{name}.{source}";
     }
 }

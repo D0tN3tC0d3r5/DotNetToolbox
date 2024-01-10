@@ -12,7 +12,7 @@ public class ValidationErrorSetExtensionsTests {
         var errors = new List<ValidationError> {
             new("Field1", "Some message 1."),
             new("Field1", "Some message 2."),
-            new("Field2", "Some message {0}.", 42),
+            new("Field2", "Some message 42."),
         };
 
         // Act & Assert

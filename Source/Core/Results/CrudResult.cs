@@ -1,80 +1,116 @@
 ﻿namespace DotNetToolbox.Results;
 
-public record CrudResult : Result {
-    protected CrudResult(CrudResultType type, IEnumerable<ValidationError>? errors = null)
-        : base(errors) {
-        Type = HasErrors ? CrudResultType.Invalid : type;
+public record CrudResult : ResultBase {
+    private CrudResult(IResult result)
+        : this(CrudResultType.Success, result.Errors, result.Exception) {
     }
 
-    protected CrudResultType Type { get; init; }
+    protected CrudResult(CrudResultType type, IEnumerable<ValidationError>? errors = null, Exception? exception = null)
+        : base(errors, exception) {
+        SetType(type);
+    }
 
-    public override bool IsSuccess => !HasErrors && Type is CrudResultType.Success;
-    public override bool IsInvalid => HasErrors || Type is CrudResultType.Invalid;
-    public bool WasNotFound => !HasErrors && Type is CrudResultType.NotFound;
-    public bool HasConflict => !HasErrors && Type is CrudResultType.Conflict;
+    internal CrudResultType Type { get; private set; }
 
-    public static new CrudResult Success() => new(CrudResultType.Success);
+    private void SetType(CrudResultType type)
+        => Type = HasException
+                      ? CrudResultType.Error
+                      : HasErrors
+                          ? CrudResultType.Invalid
+                          : type;
+
+    protected override void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors)
+        => SetType(Type);
+
+    protected override void OnExceptionChanged(Exception? exception)
+        => SetType(Type);
+
+    public bool IsSuccess => Type is CrudResultType.Success;
+    public bool IsInvalid => Type is CrudResultType.Invalid;
+    public bool WasNotFound => Type is CrudResultType.NotFound;
+    public bool HasConflict => Type is CrudResultType.Conflict;
+
+    public static CrudResult Success() => new(CrudResultType.Success);
     public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
+    public static CrudResult InvalidData(Result result) => new(CrudResultType.Invalid, result.Errors);
+    public static CrudResult Error(Exception exception) => new(CrudResultType.Error, exception: exception);
 
-    public static new CrudResult Invalid([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
-        => Invalid(string.Empty, message, args);
-    public static new CrudResult Invalid(string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
-        => new(new ValidationError(source, message, args));
-    public static new CrudResult Invalid(Result result)
-        => new(CrudResultType.Invalid, result.Errors);
+    public static Task<CrudResult> SuccessTask() => Task.FromResult(Success());
+    public static Task<CrudResult> NotFoundTask() => Task.FromResult(NotFound());
+    public static Task<CrudResult> ConflictTask() => Task.FromResult(Conflict());
+    public static Task<CrudResult> InvalidDataTask(Result result) => Task.FromResult(InvalidData(result));
+    public static Task<CrudResult> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
 
-    public static implicit operator CrudResult(List<ValidationError> errors)
-        => new(CrudResultType.Invalid, DoesNotHaveNulls(errors));
-    public static implicit operator CrudResult(ValidationError[] errors)
-        => new(CrudResultType.Invalid, DoesNotHaveNulls(errors));
-    public static implicit operator CrudResult(ValidationError error)
-        => new(CrudResultType.Invalid, new[] { error, }.AsEnumerable());
+    public static implicit operator CrudResult(ValidationError error) => new((Result)error);
+    public static implicit operator CrudResult(List<ValidationError> errors) => new((Result)errors);
+    public static implicit operator CrudResult(ValidationError[] errors) => new((Result)errors);
+    public static implicit operator CrudResult(HashSet<ValidationError> errors) => new((Result)errors);
+    public static implicit operator CrudResult(Exception exception) => new((Result)exception);
+    public static implicit operator CrudResult(Result result) => new((IResult)result);
 
+    public static CrudResult operator +(CrudResult left, CrudResult right) {
+        var errors = left.Errors.Union(right.Errors).ToHashSet();
+        return new(right.Type, errors, left.Exception ?? right.Exception);
+    }
     public static CrudResult operator +(CrudResult left, Result right) {
         var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return left with {
-            Errors = errors,
-            Type = errors.Count > 0 ? CrudResultType.Invalid : left.Type,
-        };
+        return new(left.Type, errors, left.Exception ?? right.Exception);
     }
 
-    public static new CrudResult<TValue> Success<TValue>(TValue value)
-        => new(CrudResultType.Success, IsNotNull(value));
-    public static CrudResult<TValue> NotFound<TValue>()
-        => new(CrudResultType.NotFound);
-    public static CrudResult<TValue> Conflict<TValue>(TValue value)
-        => new(CrudResultType.Conflict, IsNotNull(value));
-    public static CrudResult<TValue> Invalid<TValue>(TValue value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
-        => Invalid(value, string.Empty, message, args);
-    public static new CrudResult<TValue> Invalid<TValue>(TValue value, string source, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message, params object[] args)
-        => Invalid(value, new ValidationError(source, message, args));
-    public static CrudResult<TValue> Invalid<TValue>(TValue value, Result result)
-        => new(CrudResultType.Invalid, IsNotNull(value), result.Errors);
+    public virtual bool Equals(CrudResult? other)
+        => base.Equals(other)
+        && Type == other.Type;
+
+    public override int GetHashCode()
+        => HashCode.Combine(base.GetHashCode(), Type);
+
+    public static CrudResult<TValue> Success<TValue>(TValue value) => new(CrudResultType.Success, value);
+    public static CrudResult<TValue> NotFound<TValue>() => new(CrudResultType.NotFound);
+    public static CrudResult<TValue> Conflict<TValue>(TValue value) => new(CrudResultType.Conflict, value);
+    public static CrudResult<TValue> InvalidData<TValue>(TValue? value, Result result) => new(CrudResultType.Invalid, value, result.Errors);
+    public static CrudResult<TValue> Error<TValue>(TValue? value, Exception exception) => new(CrudResultType.Error, value, exception: exception);
+
+    public static Task<CrudResult<TValue>> SuccessTask<TValue>(TValue value) => Task.FromResult(Success(value));
+    public static Task<CrudResult<TValue>> NotFoundTask<TValue>() => Task.FromResult(NotFound<TValue>());
+    public static Task<CrudResult<TValue>> ConflictTask<TValue>(TValue value) => Task.FromResult(Conflict(value));
+    public static Task<CrudResult<TValue>> InvalidDataTask<TValue>(TValue? value, Result result) => Task.FromResult(InvalidData(value, result));
+    public static Task<CrudResult<TValue>> ErrorTask<TValue>(TValue? value, Exception exception) => Task.FromResult(Error(value, exception));
 }
 
-public record CrudResult<TResult> : CrudResult {
-    internal CrudResult(CrudResultType type, TResult? value = default, IEnumerable<ValidationError>? errors = null)
-        : base(type, errors) {
+public record CrudResult<TValue> : CrudResult, IResult<TValue> {
+    internal CrudResult(IResult<TValue> result)
+        : this(CrudResultType.Success, result.Value, result.Errors, result.Exception) {
+    }
+
+    internal CrudResult(CrudResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = null, Exception? exception = null)
+        : base(type, errors, exception) {
         Value = value;
     }
 
-    public TResult? Value { get; init; }
+    public TValue? Value { get; init; }
 
-    public static implicit operator CrudResult<TResult>(TResult? value) => new(CrudResultType.Success, value);
-    public static implicit operator CrudResult<TResult>(Result<TResult> result)
-        => new(result.IsInvalid ? CrudResultType.Invalid : CrudResultType.Success, result.Value, result.Errors);
+    public static implicit operator CrudResult<TValue>(TValue? value) => new(CrudResultType.Success, value);
+    public static implicit operator CrudResult<TValue>(Result<TValue> result) => new((IResult<TValue>)result);
 
-    public static CrudResult<TResult> operator +(CrudResult<TResult> left, Result right) {
+    public static CrudResult<TValue> operator +(CrudResult<TValue> left, CrudResult right) {
         var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return left with {
-            Errors = errors,
-            Type = errors.Count > 0 ? CrudResultType.Invalid : left.Type,
-        };
+        return new(right.Type, left.Value, errors, left.Exception ?? right.Exception);
+    }
+    public static CrudResult<TValue> operator +(CrudResult<TValue> left, Result right) {
+        var errors = left.Errors.Union(right.Errors).ToHashSet();
+        return new(left.Type, left.Value, errors, left.Exception ?? right.Exception);
     }
 
-    public CrudResult<TOutput> MapTo<TOutput>(Func<TResult, TOutput> map)
-        => Value is null
-            ? NotFound<TOutput>()
-            : new(Type, map(Value), Errors);
+    public CrudResult<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map)
+        => Type is CrudResultType.NotFound
+            ? NotFound<TNewValue>()
+            : new(Type, map(Value), Errors, Exception);
+
+    public virtual bool Equals(CrudResult<TValue>? other)
+        => base.Equals(other)
+        && Equals(Value, other.Value);
+
+    public override int GetHashCode()
+        => HashCode.Combine(base.GetHashCode(), Value);
 }

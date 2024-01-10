@@ -7,7 +7,8 @@ global using System.Security.Claims;
 global using System.Text;
 
 global using DotNetToolbox.Http.Options;
-global using DotNetToolbox.Validation;
+global using DotNetToolbox.Results;
+global using DotNetToolbox.Singleton;
 
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;

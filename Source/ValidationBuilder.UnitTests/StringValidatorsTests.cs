@@ -2,10 +2,10 @@ namespace DotNetToolbox.ValidationBuilder;
 
 public class StringValidatorsTests {
     public record TestObject : IValidatable {
-        private readonly IPasswordPolicy _fakePolicy = Substitute.For<IPasswordPolicy>();
+        private readonly IValidatable _fakePolicy = Substitute.For<IValidatable>();
 
         public TestObject() {
-            _fakePolicy.Enforce(Arg.Any<string>()).Returns(x => {
+            _fakePolicy.Validate(Arg.Any<Dictionary<string, object?>>()).Returns(x => {
                 var result = Success();
                 if (x[0] is not "Invalid") return result;
 
@@ -34,7 +34,7 @@ public class StringValidatorsTests {
                            .And().IsEmail().Result;
             result += Password.IsOptional()
                            .And().IsNotEmpty()
-                           .And().IsPassword(_fakePolicy).Result;
+                           .And().IsValidPassword(_fakePolicy).Result;
             result += Empty.IsRequired().And().IsEmpty().And().IsEmptyOrWhiteSpace().Result;
             return result;
         }
@@ -42,15 +42,15 @@ public class StringValidatorsTests {
 
     private class TestData : TheoryData<TestObject, int> {
         public TestData() {
-            Add(new() { Name = "Text1", Email = "some@email.com", }, 0);
-            Add(new() { Name = "Text1", Email = "", }, 2);
-            Add(new() { Name = "Text1", Email = "NotEmail", }, 1);
-            Add(new() { Name = null, Password = "AnyTh1n6!", }, 2);
-            Add(new() { Name = "", }, 6);
-            Add(new() { Name = "  ", }, 6);
-            Add(new() { Name = "12", }, 5);
-            Add(new() { Name = "12345678901", }, 5);
-            Add(new() { Name = "Other", Password = "Invalid", }, 6);
+            Add(new() { Name = "Text1", Email = "some@email.com" }, 0);
+            Add(new() { Name = "Text1", Email = "" }, 2);
+            Add(new() { Name = "Text1", Email = "NotEmail" }, 1);
+            Add(new() { Name = null, Password = "AnyTh1n6!" }, 2);
+            Add(new() { Name = "" }, 6);
+            Add(new() { Name = "  " }, 6);
+            Add(new() { Name = "12" }, 5);
+            Add(new() { Name = "12345678901" }, 5);
+            Add(new() { Name = "Other", Password = "Invalid" }, 6);
         }
     }
 

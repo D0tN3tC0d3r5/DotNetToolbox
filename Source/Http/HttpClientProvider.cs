@@ -1,28 +1,42 @@
 ﻿namespace DotNetToolbox.Http;
 
-public class HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpClientConfiguration> options, IMsalHttpClientFactory identityClientFactory)
-    : IHttpClientProvider {
-    private readonly HttpClientConfiguration _config = IsNotNull(options).Value;
-    private readonly IMsalHttpClientFactory _identityClientFactory = IsNotNull(identityClientFactory);
+public class HttpClientProvider<TOptionsBuilder, TOptions>(IHttpClientFactory clientFactory, IOptions<TOptions> options)
+    : IHttpClientProvider<TOptionsBuilder, TOptions>
+    where TOptionsBuilder : HttpClientOptionsBuilder<TOptions>
+    where TOptions : HttpClientOptions<TOptions>, new() {
 
-    private static HttpAuthentication _authentication = new();
-    private static readonly object _lock = new();
+    private HttpAuthentication _authentication = new();
 
-    public static void RevokeAuthorization() {
-        lock (_lock) _authentication = new();
+    protected TOptions Options { get; } = IsNotNull(options).Value;
+
+    public void RevokeAuthentication() => _authentication = new();
+
+    public HttpClient GetHttpClient(Action<TOptionsBuilder>? configureBuilder = null) {
+        var builder = CreateInstance.Of<TOptionsBuilder>(Options);
+        configureBuilder?.Invoke(builder);
+        return CreateHttpClient(builder.Build());
     }
 
-    public HttpClient GetHttpClient(Action<IHttpClientOptionsBuilder>? configBuilder = null)
-        => GetHttpClient(default!, configBuilder);
-
-    public HttpClient GetHttpClient(string name, Action<IHttpClientOptionsBuilder>? configBuilder = null) {
-        var builder = new HttpClientOptionsBuilder(name, _config, _identityClientFactory);
-        configBuilder?.Invoke(builder);
-        var options = builder.Build();
-        options.Validate().EnsureIsValid();
-
+    protected HttpClient CreateHttpClient(TOptions options) {
         var client = clientFactory.CreateClient();
-        lock (_lock) options.Configure(client, ref _authentication);
+        client.BaseAddress = options.BaseAddress;
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new(options.ResponseFormat));
+        foreach ((var key, var value) in options.CustomHeaders)
+            client.DefaultRequestHeaders.Add(key, value);
+
+        _authentication = options.Authentication?.Configure(client, _authentication)!;
+
         return client;
+    }
+}
+
+public class HttpClientProvider(IHttpClientFactory clientFactory, IOptions<HttpClientOptions> options)
+    : HttpClientProvider<HttpClientOptionsBuilder, HttpClientOptions>(clientFactory, options),
+      IHttpClientProvider {
+    public HttpClient GetHttpClient(string name, Action<HttpClientOptionsBuilder>? configureBuilder = null) {
+        var builder = CreateInstance.Of<HttpClientOptionsBuilder>(Options);
+        configureBuilder?.Invoke(builder);
+        return CreateHttpClient(builder.Build(name));
     }
 }

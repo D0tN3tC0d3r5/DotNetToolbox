@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% Security 8.0.1
+call Publish %target% Security 8.0.3-rc1
 cd Security
 goto :eof
 

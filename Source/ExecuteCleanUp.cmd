@@ -10,6 +10,12 @@ for /f "tokens=*" %%g in ('dir /b /ad /s bin') do (
 	rmdir /s /q "%%g"
 )
 
+echo [93mCleaning pkgs folders...[0m
+for /f "tokens=*" %%g in ('dir /b /ad /s pkgs') do (
+	@echo "Removing %%g"
+	rmdir /s /q "%%g"
+)
+
 echo [93mCleaning Test Results...[0m
 for /f "tokens=*" %%g in ('dir /b /ad /s TestResults') do (
 	@echo "Removing %%g"

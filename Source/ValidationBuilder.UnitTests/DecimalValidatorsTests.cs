@@ -17,10 +17,10 @@ public class DecimalValidatorsTests {
 
     private class TestData : TheoryData<TestObject, bool, int> {
         public TestData() {
-            Add(new() { Nullable = 15, Required = 15, }, true, 0);
-            Add(new() { Nullable = null, Required = null, }, false, 1);
-            Add(new() { Nullable = 5, Required = 5, }, false, 3);
-            Add(new() { Nullable = 25, Required = 25, }, false, 3);
+            Add(new() { Nullable = 15, Required = 15 }, true, 0);
+            Add(new() { Nullable = null, Required = null }, false, 1);
+            Add(new() { Nullable = 5, Required = 5 }, false, 3);
+            Add(new() { Nullable = 25, Required = 25 }, false, 3);
         }
     }
 
