@@ -1,62 +1,70 @@
-# DotNetToolbox Core Library
+## TestUtilities (DotNetToolbox.TestUtilities)
 
-## Version 1.0.0
+### Introduction
+DotNetToolbox.TestUtilities is a comprehensive C# library for .NET 8, designed to enhance logging and tracking capabilities in testing environments. It provides robust tools for inspecting, verifying, and validating log outputs. The library includes classes that can be used as mocked instances in test cases where a test subject requires `ILogger`, `ILoggerFactory`, and `ILoggerProvider` to be injected. This makes it particularly useful for unit testing scenarios where you need to verify logging behavior or when testing components that interact with logging services.
 
-The DotNetToolbox Core Library (DotNetToolbox.Core) is a comprehensive utility package that offers a wide range of functionalities, including pagination, date-time management, file system handling, result management, Azure secrets, Base64 GUIDs, and more.
+### Table of Contents
+1. [Installation](#installation)
+2. [Dependencies](#dependencies)
+3. [Features](#features)
+4. [Usage](#usage)
+5. [Examples](#examples)
+6. [Contributors](#contributors)
+7. [License](#license)
 
-### Components
+### Installation
+```shell
+PM> Install-Package DotNetToolbox.TestUtilities
+```
 
-#### Pagination
+### Dependencies
+- .NET 8
 
-- `PagedCollection`: Manages paged collections.
-- `Pagination`: Handles pagination logic.
-- `PaginationSettings`: Stores pagination settings.
+### Features
+- **ITrackedLogger**: Interface for loggers that track and store log entries.
+- **Log**: Data structure for representing individual log entries.
+- **TrackedLogger**: Extends basic logging to include tracking of log messages.
+- **TrackedNullLogger**: An in-memory only logger for capturing and inspecting logs during tests.
+- **TrackedLoggerFactory**: Factory for creating instances of `TrackedLogger`.
+- **TrackedNullLoggerFactory**: Factory for creating instances of `TrackedNullLogger`.
+- **TrackedLoggerProvider**: Provides `TrackedLogger` instances, integrating with existing logging systems.
 
-#### Date and Time
+### Usage
+To use DotNetToolbox.TestUtilities, include it in your test project and instantiate the desired logging components, such as `TrackedNullLogger` or `TrackedLogger`, as per your testing requirements.
 
-- `DateTimeProvider`: Offers functionalities for date-time management.
+### Examples
+Here are some examples demonstrating the usage of the library:
 
-#### File System
+1. **Implementing TrackedLogger**:
+   ```csharp
+   var trackedLogger = new TrackedLogger<MyClass>(logger);
+   trackedLogger.Log(LogLevel.Warning, new EventId(2, "WarningEvent"), "Warning message", null, Formatter);
+   ```
 
-- `FileSystemHandler`: Handles file manipulation tasks.
+2. **Creating Log Entries**:
+   ```csharp
+   var logEntry = new Log(LogLevel.Error, new EventId(3, "ErrorEvent"), "Error message", new Exception("TestException"), "Formatted message");
+   ```
 
-#### Results
+3. **Using TrackedNullLogger**:
+   ```csharp
+   var logger = TrackedNullLogger<MyClass>.Instance;
+   logger.Log(LogLevel.Information, new EventId(1, "TestEvent"), "Test message", null, Formatter);
+   ```
 
-- `CrudResult`: Represents the outcomes of CRUD operations.
-- `HttpResult`: Represents the outcomes of HTTP requests.
-- `Result`: Base class for operation results.
-- `SignInResult`: Represents the outcomes of sign-in operations.
-- `ValidationResult`: Represents the outcomes of validation checks.
+4. **Mocking ILoggerFactory for a Class Constructor**:
+   ```csharp
+   public class MyClass {
+       private readonly ILogger _logger;
 
-#### Validation
+       public MyClass(ILoggerFactory loggerFactory) {
+           _logger = loggerFactory.CreateLogger<MyClass>();
+       }
 
-- `ValidationError`: Focuses on validation-related errors.
+       // Class methods
+   }
 
-#### GUIDs
-
-- `Base64Guid`: Handles Base64 encoding and decoding of GUIDs.
-
-#### Object Creation and Validation
-
-- `Create`: Assists in object creation.
-- `Ensure`: Aids in object validation.
-
-#### Extensions
-
-- `HttpClientFactoryExtensions`: Provides extensions for client factories.
-- `ConcurrentDictionaryExtensions`: Offers utility functions for concurrent dictionaries.
-- `EnumerableExtensions`: Extends functionalities for enumerable types.
-
-#### HTTP Client Options
-
-- `ConfidentialHttpClientOptions`: Defines options for confidential HTTP clients.
-- `HttpClientOptions`: General options for HTTP clients.
-- `IdentifiedHttpClientOptions`: Defines options for identified HTTP clients.
-
-## Usage
-
-Please refer to the API documentation for detailed usage instructions.
-
-## Contributing
-
-This package is intended for internal use. Contributions are restricted to team members.
+   // In your test
+   var loggerFactory = new TrackedLoggerFactory(Substitute.For<ILoggerFactory>());
+   var myClassInstance = new MyClass(loggerFactory);
+   ```

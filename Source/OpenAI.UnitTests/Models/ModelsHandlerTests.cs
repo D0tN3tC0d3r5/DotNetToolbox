@@ -1,5 +1,3 @@
-using DotNetToolbox.TestUtilities.Extensions;
-
 namespace DotNetToolbox.OpenAI.Models;
 
 public class ModelsHandlerTests {
