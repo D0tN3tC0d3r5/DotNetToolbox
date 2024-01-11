@@ -1,5 +1,3 @@
-using DotNetToolbox.TestUtilities.Extensions;
-
 namespace DotNetToolbox.OpenAI.Chats;
 
 public class ChatHandlerTests {

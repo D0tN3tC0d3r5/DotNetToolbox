@@ -6,15 +6,14 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <RootNamespace>DotNetToolbox.OpenAI</RootNamespace>
-    <AssemblyName>DotNetToolbox.OpenAI.UnitTests</AssemblyName>
+    <RootNamespace>DotNetToolbox.TestUtilities</RootNamespace>
+    <AssemblyName>DotNetToolbox.TestUtilities.UnitTests</AssemblyName>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.FluentAssertions" Version="8.0.3-rc1" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="FluentAssertions.Analyzers" Version="0.27.0">
       <PrivateAssets>all</PrivateAssets>
@@ -39,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenAI\DotNetToolbox.OpenAI.csproj" />
+    <ProjectReference Include="..\TestUtilities\DotNetToolbox.TestUtilities.csproj" />
   </ItemGroup>
 
 </Project>

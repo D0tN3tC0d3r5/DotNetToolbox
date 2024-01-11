@@ -23,7 +23,6 @@
                 <ModulePath>.*\.unittests\.dll$</ModulePath>
                 <ModulePath>.*\.integrationtests\.dll$</ModulePath>
                 <ModulePath>.*\.testharness\.dll$</ModulePath>
-                <ModulePath>.*\.testutilities\.dll$</ModulePath>
                 <ModulePath>.*\.testdoubles\.dll$</ModulePath>
               </Exclude>
             </ModulePaths>

@@ -4,8 +4,8 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..
-call Publish %target% TestUtilities 8.0.3
-cd TestUtilities
+call Publish %target% FluentAssertions 8.0.3
+cd FluentAssertions
 goto :eof
 
 :USAGE
