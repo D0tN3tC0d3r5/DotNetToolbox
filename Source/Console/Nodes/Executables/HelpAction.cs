@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-internal sealed class HelpAction : Action<HelpAction> {
+internal sealed class HelpAction : ExecutableAction<HelpAction> {
     private readonly IHasChildren _parent;
 
     public HelpAction(IHasChildren parent)

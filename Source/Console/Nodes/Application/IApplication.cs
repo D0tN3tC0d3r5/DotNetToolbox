@@ -1,17 +1,17 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
-public interface IApplication : IRoot, IExecutable {
+public interface IApplication : IHasChildren {
     string Version { get; }
     public string FullName => string.Join(" v", Name, Version);
     IServiceProvider ServiceProvider { get; }
     IConfiguration Configuration { get; }
     IDictionary<string, object?> Data { get; }
 
-    Output Output { get; }
-    Input Input { get; }
-    DateTimeProvider DateTime { get; }
-    GuidProvider Guid { get; }
-    FileSystem FileSystem { get; }
+    IOutput Output { get; }
+    IInput Input { get; }
+    IDateTimeProvider DateTime { get; }
+    IGuidProvider Guid { get; }
+    IFileSystem FileSystem { get; }
 
     void Exit(int exitCode = 0);
 }

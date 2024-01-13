@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-internal sealed class VersionAction : Action<VersionAction> {
+internal sealed class VersionAction : ExecutableAction<VersionAction> {
     public VersionAction(IHasChildren parent)
         : base(parent, "--version") {
         Description = "Display version information.";

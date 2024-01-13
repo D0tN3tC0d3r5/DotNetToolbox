@@ -8,7 +8,8 @@ public class NamedOptions<TOptions>
     private static readonly string _typeName = typeof(TOptions).Name;
 
     // ReSharper disable once StaticMemberInGenericType
-    public static string SectionName { get; } = _typeName.EndsWith(_suffix)
-                                                    ? _typeName[.._suffix.Length]
-                                                    : _typeName;
+    public static string SectionName { get; }
+        = _typeName.EndsWith(_suffix)
+              ? _typeName.Remove(_typeName.Length - _suffix.Length)
+              : _typeName;
 }

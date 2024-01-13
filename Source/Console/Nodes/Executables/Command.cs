@@ -10,6 +10,15 @@ public abstract class Command<TCommand>
         AddAction<HelpAction>();
     }
 
+    public ICollection<INode> Children { get; } = [];
+
+    public override async Task<Result> ExecuteAsync(string[] args, CancellationToken ct) {
+        var result = await InputReader.ParseTokens([.. Children], args, ct);
+        return result.IsSuccess
+                   ? await ExecuteAsync(ct)
+                   : result;
+    }
+
     public TCommand AddCommand<TChildCommand>()
         where TChildCommand : Command<TChildCommand> {
         Children.Add(CreateInstance.Of<TChildCommand>(Application.ServiceProvider, this));
@@ -17,7 +26,7 @@ public abstract class Command<TCommand>
     }
 
     public TCommand AddAction<TAction>()
-        where TAction : Executables.Action<TAction> {
+        where TAction : Executable<TAction> {
         Children.Add(CreateInstance.Of<TAction>(Application.ServiceProvider, this));
         return (TCommand)this;
     }

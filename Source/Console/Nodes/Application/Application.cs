@@ -1,20 +1,12 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
-public abstract class Application<TApplication, TOptions>
-    : Application<TApplication, ApplicationBuilder<TApplication, TOptions>, TOptions>
-    where TApplication : Application<TApplication, TOptions>
-    where TOptions : ApplicationOptions<TOptions>, new() {
-    protected Application(string[] args, string? environment, IServiceProvider serviceProvider)
-        : base(args, environment, serviceProvider)
-    {
-    }
-}
-
 public abstract class Application<TApplication, TBuilder, TOptions>
     : IApplication<TApplication, TBuilder, TOptions>
     where TApplication : Application<TApplication, TBuilder, TOptions>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TOptions : ApplicationOptions<TOptions>, new() {
+    where TOptions : ApplicationOptions<TOptions>
+                   , IHasDefault<TOptions>
+                   , new() {
     private bool _isDisposed;
 
     protected bool IsRunning { get; private set; }
@@ -23,7 +15,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     internal Application(string[] args, string? environment, IServiceProvider serviceProvider) {
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         var options = serviceProvider.GetService<IOptions<TOptions>>();
-        Options = options?.Value ?? new TOptions();
+        Options = options?.Value ?? TOptions.Default;
         Environment = environment ?? Options.Environment;
         var assembly = Assembly.GetEntryAssembly()!;
         var assemblyName = assembly.GetName();
@@ -35,11 +27,11 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         Configuration = configuration;
         Arguments = args;
 
-        Output = serviceProvider.GetRequiredService<Output>();
-        Input = serviceProvider.GetRequiredService<Input>();
-        DateTime = serviceProvider.GetRequiredService<DateTimeProvider>();
-        Guid = serviceProvider.GetRequiredService<GuidProvider>();
-        FileSystem = serviceProvider.GetRequiredService<FileSystem>();
+        Output = serviceProvider.GetRequiredService<IOutput>();
+        Input = serviceProvider.GetRequiredService<IInput>();
+        DateTime = serviceProvider.GetRequiredService<IDateTimeProvider>();
+        Guid = serviceProvider.GetRequiredService<IGuidProvider>();
+        FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
         var loggerFactory = ServiceProvider.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance;
         Logger = loggerFactory.CreateLogger<TApplication>();
@@ -79,16 +71,16 @@ public abstract class Application<TApplication, TBuilder, TOptions>
 
     public ILogger Logger { get; init; }
 
-    public Output Output { get; init; }
-    public Input Input { get; init; }
-    public DateTimeProvider DateTime { get; init; }
-    public GuidProvider Guid { get; init; }
-    public FileSystem FileSystem { get; init; }
+    public IOutput Output { get; init; }
+    public IInput Input { get; init; }
+    public IDateTimeProvider DateTime { get; init; }
+    public IGuidProvider Guid { get; init; }
+    public IFileSystem FileSystem { get; init; }
 
-    public static TApplication Create(System.Action<TBuilder>? configureBuilder = null)
+    public static TApplication Create(Action<TBuilder>? configureBuilder = null)
         => Create([], configureBuilder);
 
-    public static TApplication Create(string[] args, System.Action<TBuilder>? configure = null) {
+    public static TApplication Create(string[] args, Action<TBuilder>? configure = null) {
         var builder = CreateInstance.Of<TBuilder>((object)args);
         configure?.Invoke(builder);
         return builder.Build();
@@ -101,7 +93,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     public TApplication AddAction<TAction>()
-        where TAction : Executables.Action<TAction> {
+        where TAction : ExecutableAction<TAction> {
         Children.Add(CreateInstance.Of<TAction>(ServiceProvider, this));
         return (TApplication)this;
     }

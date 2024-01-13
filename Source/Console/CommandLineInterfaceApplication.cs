@@ -30,7 +30,7 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
         if (args.Length == 0) {
             var helpAction = Children.OfType<HelpAction>()
                                      .First();
-            await helpAction.ExecuteAsync(args, ct);
+            await helpAction.ExecuteAsync([], ct);
             return Success();
         }
 

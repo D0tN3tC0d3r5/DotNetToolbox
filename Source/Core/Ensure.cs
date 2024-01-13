@@ -5,10 +5,6 @@ public static class Ensure {
     public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
 
-    //public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-    //    where TArgument : struct
-    //    => argument ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
-
     [return: NotNull]
     public static TArgument IsOfType<TArgument>(object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => IsNotNull(argument, paramName) is not TArgument result
@@ -33,7 +29,6 @@ public static class Ensure {
             _ => argument,
         };
 
-    [return: NotNull]
     public static string IsNotNullOrWhiteSpace(string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument is null || argument.Trim().Length == 0
             ? throw new ArgumentException(string.Format(ValueCannotBeNullOrWhiteSpace, paramName), paramName)

@@ -30,36 +30,32 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
 
     public sealed override async Task<Result> ExecuteAsync(string[] args, CancellationToken ct) {
         var result = await base.ExecuteAsync(args, ct);
-        if (result.HasException) {
-            var exitCode = result.Exception is ConsoleException ce ? ce.ExitCode : 1;
-            Exit(exitCode);
-            return result;
-        }
-
-        if (result.HasErrors) {
-            foreach (var error in result.Errors)
-                Output.WriteLine($"Error: {error}");
-            Exit(1);
-            return result;
-        }
+        if (!CanContinue(result, false)) return result;
 
         while (IsRunning && !ct.IsCancellationRequested) {
             Output.Write(Options.Prompt);
             var userInputText = Input.ReadLine() ?? string.Empty;
             var userInputs = CommandInputParser.Parse(userInputText);
             result = await ProcessUserInput(userInputs, ct);
-            if (result.HasException) {
-                var exitCode = result.Exception is ConsoleException ce ? ce.ExitCode : 1;
-                Exit(exitCode);
-                return result;
-            }
-
-            if (!result.HasErrors) continue;
-            foreach (var error in result.Errors)
-                Output.WriteLine($"Error: {error}");
+            if (!CanContinue(result, true)) return result;
         }
 
         return result;
+    }
+
+    private bool CanContinue(ResultBase result, bool continueOnErrors) {
+        if (result.HasException) {
+            var exitCode = result.Exception is ConsoleException ce ? ce.ExitCode : 2;
+            Exit(exitCode);
+            return false;
+        }
+
+        if (!result.HasErrors) return true;
+        foreach (var error in result.Errors)
+            Output.WriteLine($"Error: {error}");
+        if (continueOnErrors) return true;
+        Exit(1);
+        return false;
     }
 
     private async Task<Result> ProcessUserInput(string[] input, CancellationToken ct) {

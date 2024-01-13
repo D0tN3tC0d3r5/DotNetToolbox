@@ -50,7 +50,7 @@ public class StringValidatorsTests {
             Add(new() { Name = "  " }, 6);
             Add(new() { Name = "12" }, 5);
             Add(new() { Name = "12345678901" }, 5);
-            Add(new() { Name = "Other", Password = "Invalid" }, 6);
+            Add(new() { Name = "Other", Password = "Invalid" }, 3);
         }
     }
 

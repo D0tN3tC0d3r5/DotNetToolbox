@@ -1,8 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
-public record CommandLineInterfaceApplicationOptions
+public class CommandLineInterfaceApplicationOptions
     : CommandLineApplicationOptions<CommandLineInterfaceApplicationOptions>;
 
-public abstract record CommandLineApplicationOptions<TOptions>
+public abstract class CommandLineApplicationOptions<TOptions>
     : ApplicationOptions<TOptions>
-    where TOptions : CommandLineApplicationOptions<TOptions>;
+    where TOptions : CommandLineApplicationOptions<TOptions>, new();

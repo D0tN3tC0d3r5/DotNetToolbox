@@ -1,8 +1,18 @@
 ﻿namespace DotNetToolbox;
 
+public interface IInput {
+    Encoding Encoding { get; set; }
+    TextReader Reader { get; }
+
+    bool KeyAvailable();
+    int Read();
+    ConsoleKeyInfo ReadKey(bool intercept = false);
+    string? ReadLine();
+}
+
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
-public class Input {
+public class Input : IInput {
     public virtual Encoding Encoding {
         get => Console.InputEncoding;
         set => Console.InputEncoding = value;

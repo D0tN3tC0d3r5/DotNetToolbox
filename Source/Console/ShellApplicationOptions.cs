@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
-public record ShellApplicationOptions
+public class ShellApplicationOptions
     : ShellApplicationOptions<ShellApplicationOptions>;
 
-public abstract record ShellApplicationOptions<TOptions>
+public abstract class ShellApplicationOptions<TOptions>
     : ApplicationOptions<TOptions>
-    where TOptions : ShellApplicationOptions<TOptions> {
+    where TOptions : ShellApplicationOptions<TOptions>, new() {
     public string Prompt { get; init; } = "> ";
 }

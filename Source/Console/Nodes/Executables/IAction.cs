@@ -1,3 +1,3 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-public interface IAction : IExecutable;
+public interface IAction : IHasParent, IExecutable;

@@ -16,7 +16,6 @@ public class HttpClientOptionsBuilder<TOptions>(TOptions? options = null)
     where TOptions : HttpClientOptions<TOptions>, new() {
 
     protected TOptions Options { get; } = options ?? new TOptions();
-    //private string? _name;
 
     public HttpClientOptionsBuilder<TOptions> SetBaseAddress(Uri baseAddress) {
         Options.BaseAddress = baseAddress;

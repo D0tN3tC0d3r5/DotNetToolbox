@@ -7,13 +7,13 @@ public interface IApplicationBuilder<out TApplication, out TBuilder, TOptions>
 
     TBuilder SetEnvironment(string environment);
 
-    TBuilder SetConfigurationSectionName(string sectionName);
+    //TBuilder SetConfigurationSectionName(string sectionName);
 
     TBuilder AddEnvironmentVariables(string? prefix);
-    TBuilder AddSettings();
+    TBuilder AddSettings(IFileProvider? fileProvider = null);
     TBuilder AddUserSecrets<TReference>() where TReference : class;
 
-    TBuilder SetLogging(System.Action<ILoggingBuilder>? configure = null);
+    TBuilder SetLogging(Action<ILoggingBuilder>? configure = null);
 
     TApplication Build();
 }
