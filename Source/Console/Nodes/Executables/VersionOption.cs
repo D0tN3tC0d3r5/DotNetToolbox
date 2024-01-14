@@ -1,7 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-internal sealed class VersionAction : Trigger<VersionAction> {
-    public VersionAction(IHasChildren parent)
+internal sealed class VersionOption
+    : Command<VersionOption> {
+    public VersionOption(IHasChildren parent)
         : base(parent, "--version") {
         Description = "Display version information.";
     }

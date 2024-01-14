@@ -196,7 +196,7 @@ public class HttpResultTests {
     [Fact]
     public void BadRequest_WithResult_CreatesResult() {
         // Arrange & Act
-        var result = BadRequest(Result.InvalidData("Some error."));
+        var result = BadRequest(Result.Invalid("Some error."));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -294,7 +294,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromBadRequestResult_ReturnsOk() {
         // Act
-        var result = Result.InvalidData("Value", "Some error.", "SomeProperty");
+        var result = Result.Invalid("Value", "Some error.", "SomeProperty");
         HttpResult<string> subject = result;
 
         // Assert
@@ -407,7 +407,7 @@ public class HttpResultTests {
     [Fact]
     public void BadRequestOfT_WithResult_CreatesResult() {
         // Arrange & Act
-        var result = BadRequest(42, Result.InvalidData("Some error."));
+        var result = BadRequest(42, Result.Invalid("Some error."));
 
         // Assert
         result.IsSuccess.Should().BeFalse();

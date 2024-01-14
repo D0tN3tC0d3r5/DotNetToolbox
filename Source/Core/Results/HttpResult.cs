@@ -2,25 +2,23 @@
 
 public record HttpResult : ResultBase {
     private HttpResult(IResult result)
-        : this(HttpResultType.Ok, result.Errors, result.Exception) {
+        : this(HttpResultType.Ok, result.Errors) {
     }
 
-    protected HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = default, Exception? exception = default)
-        : base(errors, exception) {
+    protected HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = default)
+        : base(errors) {
         SetType(type);
     }
 
     internal HttpResultType Type { get; private set; }
     private void SetType(HttpResultType type)
         => Type = HasException
-                      ? HttpResultType.Error
-                      : HasErrors
-                          ? HttpResultType.BadRequest
-                          : type;
+            ? HttpResultType.Error
+            : HasErrors
+                ? HttpResultType.BadRequest
+                : type;
 
     protected override void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors)
-        => SetType(Type);
-    protected override void OnExceptionChanged(Exception? exception)
         => SetType(Type);
 
     public bool IsSuccess => Type is HttpResultType.Ok or HttpResultType.Created;
@@ -42,7 +40,7 @@ public record HttpResult : ResultBase {
     public static HttpResult Unauthorized() => new(HttpResultType.Unauthorized);
     public static HttpResult NotFound() => new(HttpResultType.NotFound);
     public static HttpResult Conflict() => new(HttpResultType.Conflict);
-    public static HttpResult Error(Exception exception) => new(HttpResultType.Error, exception: exception);
+    public static HttpResult Error(Exception exception) => new(HttpResultType.Error, [exception]);
 
     public static Task<HttpResult> OkTask() => Task.FromResult(Ok());
     public static Task<HttpResult> CreatedTask() => Task.FromResult(Created());
@@ -65,14 +63,11 @@ public record HttpResult : ResultBase {
     public static implicit operator HttpResult(Result result)
         => new((IResult)result);
 
-    public static HttpResult operator +(HttpResult left, HttpResult right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(right.Type, errors, left.Exception ?? right.Exception);
-    }
-    public static HttpResult operator +(HttpResult left, Result right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(left.Type, errors, left.Exception ?? right.Exception);
-    }
+    public static HttpResult operator +(HttpResult left, HttpResult right)
+        => new(right.Type, left.Errors.Union(right.Errors));
+
+    public static HttpResult operator +(HttpResult left, Result right)
+        => new(left.Type, left.Errors.Union(right.Errors));
 
     public virtual bool Equals(HttpResult? other)
         => base.Equals(other)
@@ -87,7 +82,7 @@ public record HttpResult : ResultBase {
     public static HttpResult<TValue> Unauthorized<TValue>() => new(HttpResultType.Unauthorized);
     public static HttpResult<TValue> NotFound<TValue>() => new(HttpResultType.NotFound);
     public static HttpResult<TValue> Conflict<TValue>(TValue value) => new(HttpResultType.Conflict, IsNotNull(value));
-    public static HttpResult<TValue> Error<TValue>(TValue? value, Exception exception) => new(HttpResultType.Error, value, exception: exception);
+    public static HttpResult<TValue> Error<TValue>(TValue? value, Exception exception) => new(HttpResultType.Error, value, [exception]);
 
     public static Task<HttpResult<TValue>> OkTask<TValue>(TValue value) => Task.FromResult(Ok(value));
     public static Task<HttpResult<TValue>> CreatedTask<TValue>(TValue value) => Task.FromResult(Created(value));
@@ -100,11 +95,11 @@ public record HttpResult : ResultBase {
 
 public record HttpResult<TValue> : HttpResult, IResult<TValue> {
     internal HttpResult(IResult<TValue> result)
-        : this(HttpResultType.Ok, result.Value, result.Errors, result.Exception) {
+        : this(HttpResultType.Ok, result.Value, result.Errors) {
     }
 
-    internal HttpResult(HttpResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = default, Exception? exception = default)
-        : base(type, errors, exception) {
+    internal HttpResult(HttpResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = default)
+        : base(type, errors) {
         Value = value;
     }
 
@@ -113,19 +108,16 @@ public record HttpResult<TValue> : HttpResult, IResult<TValue> {
     public static implicit operator HttpResult<TValue>(TValue? value) => new(HttpResultType.Ok, value);
     public static implicit operator HttpResult<TValue>(Result<TValue> result) => new((IResult<TValue>)result);
 
-    public static HttpResult<TValue> operator +(HttpResult<TValue> left, HttpResult right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(right.Type, left.Value, errors, left.Exception ?? right.Exception);
-    }
-    public static HttpResult<TValue> operator +(HttpResult<TValue> left, Result right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(left.Type, left.Value, errors, left.Exception ?? right.Exception);
-    }
+    public static HttpResult<TValue> operator +(HttpResult<TValue> left, HttpResult right)
+        => new(right.Type, left.Value, left.Errors.Union(right.Errors));
+
+    public static HttpResult<TValue> operator +(HttpResult<TValue> left, Result right)
+        => new(left.Type, left.Value, left.Errors.Union(right.Errors));
 
     public HttpResult<TOutput> MapTo<TOutput>(Func<TValue?, TOutput?> map)
         => Type is HttpResultType.NotFound
                ? NotFound<TOutput>()
-               : new(Type, map(Value), Errors, Exception);
+               : new(Type, map(Value), Errors);
 
     public virtual bool Equals(HttpResult<TValue>? other)
         => base.Equals(other)

@@ -1,19 +1,15 @@
-﻿using System.Collections.ObjectModel;
-
-namespace DotNetToolbox.Results;
+﻿namespace DotNetToolbox.Results;
 
 public record ResultBase : IResult {
     private readonly ObservableCollection<ValidationError> _errors = [];
-    private readonly Exception? _exception;
 
-    protected ResultBase(IEnumerable<ValidationError>? errors = null, Exception? exception = null) {
-        Errors = (HasNoNull(errors) ?? []).ToList();
-        Exception = exception;
+    protected ResultBase(IEnumerable<ValidationError>? errors = null) {
+        errors = (AllAreNotNull(errors) ?? []).ToArray();
+        var exception = errors.Where(i => i.Exception is not null).Take(1).ToArray();
+        Errors = (exception.Length == 0 ? exception : errors).ToHashSet();
     }
 
     protected virtual void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors) { }
-    protected virtual void OnExceptionChanged(Exception? exception) { }
-
     public ICollection<ValidationError> Errors {
         get => _errors;
         init {
@@ -23,19 +19,14 @@ public record ResultBase : IResult {
         }
     }
 
-    public Exception? Exception {
-        get => _exception;
-        private init {
-            _exception = value;
-            OnExceptionChanged(_exception);
-        }
-    }
-
-    [MemberNotNullWhen(true, nameof(Exception))]
-    public bool HasException => Exception is not null;
     public bool HasErrors => Errors.Count != 0;
-    protected bool HasNoIssues => !HasErrors && !HasException;
+    public bool HasException => Errors.Any(i => i.Exception is not null);
+    protected bool HasNoIssues => !HasErrors;
 
+    public static implicit operator ResultBase(string error)
+        => new((ValidationError)error);
+    public static implicit operator ResultBase(Exception exception)
+        => new((ValidationError)exception);
     public static implicit operator ResultBase(ValidationError error)
         => new([error]);
     public static implicit operator ResultBase(List<ValidationError> errors)
@@ -44,24 +35,20 @@ public record ResultBase : IResult {
         => new([.. errors]);
     public static implicit operator ResultBase(ValidationError[] errors)
         => new(errors.AsEnumerable());
-    public static implicit operator ResultBase(Exception exception)
-        => new(exception: exception);
 
-    public static ResultBase operator +(ResultBase left, IResult right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(errors, left.Exception ?? right.Exception);
-    }
+    public static ResultBase operator +(ResultBase left, IResult right)
+        => new(left.Errors.Union(right.Errors));
 
     public void EnsureIsSuccess() {
-        if (HasException) throw Exception!;
+        var exception = Errors.FirstOrDefault(i => i.Exception is not null).Exception;
+        if (exception is not null) throw exception;
         if (HasErrors) throw new ValidationException(Errors);
     }
 
     public virtual bool Equals(ResultBase? other)
         => other is not null
-        && Errors.SequenceEqual(other.Errors)
-        && Equals(Exception, other.Exception);
+        && Errors.SequenceEqual(other.Errors);
 
     public override int GetHashCode()
-        => HashCode.Combine(Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine), Exception);
+        => HashCode.Combine(Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine));
 }

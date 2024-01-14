@@ -1,10 +1,13 @@
 // Global using directives
 
 global using System.Collections;
+global using System.Collections.ObjectModel;
 global using System.Collections.Specialized;
 global using System.ComponentModel;
+global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Globalization;
+global using System.Linq.Expressions;
 global using System.Net;
 global using System.Reflection;
 global using System.Runtime.CompilerServices;
@@ -15,6 +18,7 @@ global using System.Text.RegularExpressions;
 global using DotNetToolbox.Results;
 
 global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
 
 global using static DotNetToolbox.Constants.Messages;
 global using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;

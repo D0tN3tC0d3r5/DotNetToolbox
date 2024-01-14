@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace DotNetToolbox.DependencyInjection;
+﻿namespace DotNetToolbox.DependencyInjection;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddSystemUtilities(

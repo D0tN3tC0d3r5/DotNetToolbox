@@ -95,35 +95,35 @@ public class EnsureTests {
     [Fact]
     public void DoesNotHaveNull_WhenDoesNotHaveNull_ThrowsArgumentException() {
         var input = new[] { default(int?) };
-        var action = () => HasNoNull(input);
+        var action = () => AllAreNotNull(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null value(s). (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmpty_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
         var input = new[] { string.Empty };
-        var action = () => HasNoNullOrEmpty(input);
+        var action = () => AllAreNotNullOrEmpty(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or empty string(s). (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmpty_WhenValid_ThrowsArgumentException() {
         var input = new[] { "Hello" };
-        var result = HasNoNullOrEmpty(input);
+        var result = AllAreNotNullOrEmpty(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrDoesNotHaveNullOrWhiteSpace_WhenValid_ThrowsArgumentException() {
         var input = new[] { "Hello" };
-        var result = HasNoNullOrWhiteSpace(input);
+        var result = AllAreNotNullOrWhiteSpace(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrDoesNotHaveNull_WhenIsNotEmpty_ReturnsInput() {
         var input = new[] { 1, 2, 3 };
-        var result = HasNoNull(input);
+        var result = AllAreNotNull(input);
         result.Should().BeSameAs(input);
     }
 
@@ -158,41 +158,41 @@ public class EnsureTests {
     [Fact]
     public void DoesNotHaveNulls_WhenDoesNotHaveNull_ThrowsArgumentException() {
         var input = new[] { default(int?) };
-        var action = () => HasNoNull(input);
+        var action = () => AllAreNotNull(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null value(s). (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveNulls_WhenValid_ReturnsSame() {
         var input = new[] { "hello" };
-        var result = HasNoNull(input);
+        var result = AllAreNotNull(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmptyStrings_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
         var input = new[] { string.Empty };
-        var action = () => HasNoNullOrEmpty(input);
+        var action = () => AllAreNotNullOrEmpty(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or empty string(s). (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmptyStrings_WhenValid_ReturnsSame() {
         var input = new[] { "Hello" };
-        var result = HasNoNullOrEmpty(input);
+        var result = AllAreNotNullOrEmpty(input);
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void DoesNotHaveNullOrWhiteSpaceStrings_WhenDoesNotHaveWhitespace_ThrowsArgumentException() {
         var input = new[] { " " };
-        var action = () => HasNoNullOrWhiteSpace(input);
+        var action = () => AllAreNotNullOrWhiteSpace(input);
         action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or white space string(s). (Parameter 'input')");
     }
 
     private class ValidatableObject(bool isValid) : IValidatable {
         public Result Validate(IDictionary<string, object?>? context = null)
-            => isValid ? Result.Success() : Result.InvalidData("Source", "Is not valid.");
+            => isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
     }
 
     [Fact]
@@ -219,7 +219,7 @@ public class EnsureTests {
     [Fact]
     public void IsValid_WhenInvalidSimpleObject_ReturnsSame() {
         var input = new object();
-        var result = () => IsValid(input, _ => Result.InvalidData("Some error."));
+        var result = () => IsValid(input, _ => Result.Invalid("Some error."));
         result.Should().Throw<ValidationException>();
     }
 

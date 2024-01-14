@@ -1,31 +1,33 @@
-﻿using System.Diagnostics;
-
-namespace DotNetToolbox.Results;
+﻿namespace DotNetToolbox.Results;
 
 [DebuggerDisplay("""
-                 ValidationError: Source="{Source}", Message="{Message}"
+                 ValidationError: Message="{Message}, Source="{Source}", Exception="{Exception}"
                  """)]
 public readonly struct ValidationError {
-    private readonly string _message;
     private readonly string _formattedMessage = string.Empty;
-    private readonly string? _source;
 
     [SetsRequiredMembers]
-    public ValidationError(string source, string message)
+    public ValidationError(string source, string message, Exception? exception = null)
         : this() {
-        _source = IsNotNull(source).Trim();
-        _message = IsNotNullOrEmpty(message).Trim();
-        _formattedMessage = $"{(string.IsNullOrEmpty(_source) ? string.Empty : $"{_source}: ")}{_message}";
+        Message = IsNotNullOrWhiteSpace(message).Trim();
+        Source = IsNotNull(source, string.Empty).Trim();
+        Exception = exception;
+        _formattedMessage = (string.IsNullOrEmpty(Source) ? string.Empty : $"{Source}: ")
+                          + Message
+                          + (Exception is null ? string.Empty : $"; {Exception} ");
     }
 
     [SetsRequiredMembers]
-    public ValidationError(string message)
-        : this(string.Empty, message) {
+    public ValidationError(string message, Exception? exception = null)
+        : this(string.Empty, message, exception) {
     }
 
-    public string Source => _source ?? string.Empty;
+    public string Message { get; }
+    public string Source { get; }
+    public Exception? Exception { get; }
 
-    public string Message => _message ?? string.Empty;
+    public static implicit operator ValidationError(Exception innerException)
+        => new(innerException.Message, innerException);
 
     public static implicit operator ValidationError(string message)
         => new(message);

@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace DotNetToolbox.Collections.Generic;
+﻿namespace DotNetToolbox.Collections.Generic;
 
 public static class QueryableExtensions {
     public static TItem[] ToArray<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, TItem>> project)

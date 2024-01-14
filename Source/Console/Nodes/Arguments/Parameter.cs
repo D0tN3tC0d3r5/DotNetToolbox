@@ -27,7 +27,7 @@ public abstract class Parameter<TParameter>
         return OnDataCleared(ct);
     }
 
-    public sealed override Task<Result> ReadData(string? value, CancellationToken ct) {
+    public sealed override Task<Result> SetValue(string? value, CancellationToken ct) {
         Application.Data[Name] = value switch {
             null or "default" => _defaultValue,
             "null" => null,

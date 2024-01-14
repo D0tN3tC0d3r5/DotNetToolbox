@@ -12,12 +12,7 @@ public abstract class Option<TOption>
         : base(parent, name, aliases) {
     }
 
-    public sealed override Task<Result> ClearData(CancellationToken ct) {
-        Application.Data[Name] = null;
-        return OnDataRead(ct);
-    }
-
-    public sealed override Task<Result> ReadData(string? value, CancellationToken ct) {
+    public Task<Result> SetValue(string? value, CancellationToken ct) {
         Application.Data[Name] = value is "null" or "default"
             ? null
             : value;

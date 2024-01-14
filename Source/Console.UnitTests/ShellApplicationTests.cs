@@ -245,7 +245,7 @@ public class ShellApplicationTests {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Error", _ => Result.ErrorTask(new Exception("Some error.")));
+        app.AddCommand("Exception", _ => Result.ErrorTask(new Exception("Some error.")));
 
         // Act
         var actualResult = await app.RunAsync();
@@ -270,7 +270,7 @@ public class ShellApplicationTests {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Error", _ => Result.ErrorTask(new ConsoleException(13, "Some error.")));
+        app.AddCommand("Exception", _ => Result.ErrorTask(new ConsoleException(13, "Some error.")));
 
         // Act
         var actualResult = await app.RunAsync();
@@ -288,7 +288,7 @@ public class ShellApplicationTests {
         const string expectedOutput =
             """
             > error
-            Error: Some error.
+            Exception: Some error.
             > exit
             
             """;
@@ -296,7 +296,7 @@ public class ShellApplicationTests {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Error", _ => Result.InvalidDataTask("Some error."));
+        app.AddCommand("Exception", _ => Result.InvalidDataTask("Some error."));
 
         // Act
         var actualResult = await app.RunAsync();
@@ -314,7 +314,7 @@ public class ShellApplicationTests {
         var input = new TestInput(output, "exit");
         const string expectedOutput =
             """
-            Error: Unknown option: '--invalid'.
+            Exception: Unknown option: '--invalid'.
             System.Collections.ObjectModel.ObservableCollection`1[DotNetToolbox.Results.ValidationError]
             
             """;

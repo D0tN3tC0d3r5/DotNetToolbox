@@ -15,12 +15,7 @@ public abstract class Flag<TFlag>
         : base(parent, name, aliases) {
     }
 
-    public sealed override Task<Result> ClearData(CancellationToken ct) {
-        Application.Data[Name] = false;
-        return OnDataRead(ct);
-    }
-
-    public sealed override Task<Result> ReadData(string? value, CancellationToken ct) {
+    public Task<Result> SetValue(CancellationToken ct) {
         Application.Data[Name] = true;
         return OnDataRead(ct);
     }

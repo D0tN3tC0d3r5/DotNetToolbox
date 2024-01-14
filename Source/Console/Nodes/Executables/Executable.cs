@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
 public abstract class Executable<TExecutable>
-    : Node<TExecutable>, IExecutable
+    : Node<TExecutable>
     where TExecutable : Executable<TExecutable> {
 
     protected Executable(IHasChildren node, string name, params string[] aliases)

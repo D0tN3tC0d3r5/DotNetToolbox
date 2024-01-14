@@ -21,8 +21,8 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
     where TOptions : ApplicationOptions<TOptions>, new() {
     protected CommandLineInterfaceApplication(string[] args, string? environment, IServiceProvider serviceProvider)
         : base(args, environment, serviceProvider) {
-        AddAction<HelpAction>();
-        AddAction<VersionAction>();
+        AddCommand<HelpOption>();
+        AddCommand<VersionOption>();
     }
 
     protected sealed override async Task<Result> ExecuteAsync(CancellationToken ct) {
@@ -32,7 +32,7 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
         if (Arguments.Length != 0)
             return await ProcessInput(Arguments, ct);
 
-        var helpAction = new HelpAction(this);
+        var helpAction = new HelpOption(this);
         return await helpAction.ExecuteAsync([], ct);
     }
 }

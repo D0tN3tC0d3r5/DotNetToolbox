@@ -7,8 +7,10 @@ public abstract class Node<TNode>
         Parent = parent;
         Application = FindRoot(this);
         Logger = Application.ServiceProvider.GetRequiredService<ILogger<TNode>>();
-        Name = name;
-        Aliases = aliases;
+        Name = IsValid(name, n => !string.IsNullOrWhiteSpace(n)
+                               && !n.StartsWith('-')
+                               && n.All(c => char.IsLetterOrDigit(c) || c == '-'))!;
+        Aliases = AllIsValid(aliases);
     }
     private static IApplication FindRoot(INode node) {
         while (node is IHasParent hasParent) node = hasParent.Parent;

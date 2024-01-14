@@ -50,7 +50,7 @@ public class SignInResultTests {
     [Fact]
     public void Invalid_WithResult_CreatesResult() {
         // Arrange & Act
-        var result = InvalidData(Result.InvalidData("Some error."));
+        var result = InvalidData(Result.Invalid("Some error."));
 
         // Assert
         result.IsSuccess.Should().BeFalse();

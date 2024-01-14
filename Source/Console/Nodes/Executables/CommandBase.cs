@@ -7,7 +7,7 @@ public abstract class CommandBase<TCommand>
 
     protected CommandBase(IHasChildren node, string name, params string[] aliases)
         : base(node, name, aliases) {
-        AddAction<HelpAction>();
+        AddAction<HelpOption>();
     }
 
     public ICollection<INode> Children { get; } = [];

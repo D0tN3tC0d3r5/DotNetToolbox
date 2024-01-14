@@ -112,11 +112,11 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         return (TApplication)this;
     }
 
-    public TApplication AddAction<TAction>()
-        where TAction : Trigger<TAction> {
-        Children.Add(CreateInstance.Of<TAction>(ServiceProvider, this));
-        return (TApplication)this;
-    }
+    //public TApplication AddAction<TAction>()
+    //    where TAction : Trigger<TAction> {
+    //    Children.Add(CreateInstance.Of<TAction>(ServiceProvider, this));
+    //    return (TApplication)this;
+    //}
 
     public TApplication AddOption(string name, params string[] aliases) {
         Children.Add(CreateInstance.Of<Option>(this, name, aliases));
@@ -185,7 +185,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         }
 
         foreach (var error in result.Errors)
-            Output.WriteLine("Error: {0}", error);
+            Output.WriteLine("Exception: {0}", error);
 
         if (!stopOnInvalidInput) return true;
         Exit(DefaultErrorCode);
