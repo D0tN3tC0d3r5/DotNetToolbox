@@ -6,6 +6,11 @@ public static class Ensure {
         => argument ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
 
     [return: NotNull]
+    public static TArgument IsNotNullOrDefault<TArgument, TDefault>(TArgument? argument, TDefault @default)
+        where TDefault : notnull, TArgument
+        => argument ?? @default;
+
+    [return: NotNull]
     public static TArgument IsOfType<TArgument>(object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => IsNotNull(argument, paramName) is not TArgument result
             ? throw new ArgumentException(string.Format(ValueMustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName)
@@ -66,20 +71,38 @@ public static class Ensure {
     [return: NotNull]
     public static TArgument IsValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatable
-        => IsValid(argument, arg => arg.Validate(), paramName);
+        => IsValid(argument, arg => IsNotNull(arg).Validate(), paramName)!;
 
     [return: NotNull]
-    public static TArgument IsValid<TArgument>(TArgument? argument, Func<TArgument, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
-        argument = IsNotNull(argument, paramName);
+    public static TArgument IsValidOrDefault<TArgument, TDefault>(TArgument? argument, TDefault @default)
+        where TArgument : IValidatable
+        where TDefault : TArgument {
+        var value = IsNotNull(argument ?? @default);
+        var result = value.Validate();
+        return result switch { { HasException: true } => throw result.Exception, { HasErrors: true } => @default,
+            _ => value,
+        };
+    }
+
+    public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
         validate(argument).EnsureIsSuccess();
         return argument;
     }
 
-    [return: NotNull]
-    public static TArgument IsValid<TArgument>(TArgument? argument, Func<TArgument, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
-        argument = IsNotNull(argument, paramName);
-        return isValid(argument)
-        ? argument
-        : throw new ValidationException(paramName!, ValueMustBeValid);
+    public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? @default) {
+        var result = validate(argument);
+        return result switch { { HasException: true } => throw result.Exception, { HasErrors: true } => @default,
+            _ => argument,
+        };
     }
+
+    public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => isValid(argument)
+               ? argument
+               : throw new ArgumentException(ValueIsNotValid, paramName!);
+
+    public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? @default)
+        => isValid(argument)
+               ? argument
+               : @default;
 }

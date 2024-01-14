@@ -5,7 +5,7 @@ public interface IHasChildren : INode {
     public INode[] Options => [.. Children.OfType<IFlag>()
                                       .Cast<INode>()
                                       .Union(Children.OfType<IOption>())
-                                      .Union(Children.OfType<IAction>())
+                                      .Union(Children.OfType<ITrigger>())
                                       .OrderBy(i => i.Name)];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
     public IExecutable[] Commands => Children.OfType<ICommand>()

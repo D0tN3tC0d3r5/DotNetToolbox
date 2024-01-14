@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
 
-internal static class CommandInputParser {
+internal static class UserInputParser {
     private static readonly RegexOptions _parserOptions = IgnoreCase
                                                         | Singleline
                                                         | Compiled

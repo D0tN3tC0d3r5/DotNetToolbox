@@ -3,6 +3,7 @@
 public static class Messages {
     public const string ValueMustBeNull = "Value must be null.";
     public const string ValueMustBeValid = "Value must be valid.";
+    public const string ValueIsNotValid = "Value is not valid.";
     public const string ValueMustBeOfType = "Value must be of type '{0}'. Found: '{1}'.";
 
     public const string ValueMustBeNullOrEmpty = "Value must be null or empty.";

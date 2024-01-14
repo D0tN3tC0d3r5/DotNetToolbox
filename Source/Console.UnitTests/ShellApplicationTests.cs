@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace DotNetToolbox.ConsoleApplication;
+﻿namespace DotNetToolbox.ConsoleApplication;
 
 public class ShellApplicationTests {
     [Fact]
@@ -125,7 +123,8 @@ public class ShellApplicationTests {
     [Fact]
     public void ReplaceInput_ExecutesUntilExit() {
         // Arrange
-        var input = new TestInput();
+        var output = new TestOutput();
+        var input = new TestInput(output);
 
         // Act
         var app = ShellApplication.Create(b => b.ReplaceInput(input));
@@ -137,12 +136,17 @@ public class ShellApplicationTests {
     [Fact]
     public async Task RunAsync_ExecutesUntilExit() {
         // Arrange
-        var input = new TestInput("exit");
         var output = new TestOutput();
+        var input = new TestInput(output, "exit");
+        const string expectedOutput =
+            """
+            > exit
+            
+            """;
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
-        var app = ShellApplication.Create(b => {
+        await using var app = ShellApplication.Create(b => {
             b.ReplaceDateTimeProvider(dateTimeProvider);
             b.ReplaceGuidProvider(guidProvider);
             b.ReplaceFileSystem(fileSystem);
@@ -155,32 +159,138 @@ public class ShellApplicationTests {
 
         // Assert
         app.Should().BeOfType<ShellApplication>();
-        output.Lines.Should().AllBeEquivalentTo("> ");
+        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
     [Fact]
     public async Task RunAsync_WithClearScreenOnStartSet_ExecutesUntilExit() {
         // Arrange
-        var input = new TestInput("exit");
         var output = new TestOutput();
+        var input = new TestInput(output, "exit");
+        const string expectedOutput =
+            """
+            > exit
+
+            """;
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         var app = ShellApplication.Create(b => {
-                                              b.SetOptions(o => o.ClearScreenOnStart = true);
-                                              b.ReplaceDateTimeProvider(dateTimeProvider);
-                                              b.ReplaceGuidProvider(guidProvider);
-                                              b.ReplaceFileSystem(fileSystem);
-                                              b.ReplaceOutput(output);
-                                              b.ReplaceInput(input);
-                                          });
+            b.SetOptions(o => o.ClearScreenOnStart = true);
+            b.ReplaceDateTimeProvider(dateTimeProvider);
+            b.ReplaceGuidProvider(guidProvider);
+            b.ReplaceFileSystem(fileSystem);
+            b.ReplaceOutput(output);
+            b.ReplaceInput(input);
+        });
 
         // Act
         await app.RunAsync();
 
         // Assert
         app.Should().BeOfType<ShellApplication>();
-        output.Lines.Should().AllBeEquivalentTo("> ");
+        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WithExceptionDuringExecution_ReturnsResultWithException() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "error");
+        const string expectedOutput =
+            """
+            > error
+            System.Exception: Some error.
+            
+            """;
+        var app = ShellApplication.Create(b => {
+            b.ReplaceInput(input);
+            b.ReplaceOutput(output);
+        });
+        app.AddCommand("Error", _ => Result.ErrorTask(new Exception("Some error.")));
+
+        // Act
+        var actualResult = await app.RunAsync();
+
+        // Assert
+        actualResult.Should().Be(Application.DefaultErrorCode);
+        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WithConsoleExceptionDuringExecution_ReturnsResultWithException() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "error");
+        const string expectedOutput =
+            """
+            > error
+            DotNetToolbox.ConsoleApplication.Exceptions.ConsoleException: Some error.
+            
+            """;
+        var app = ShellApplication.Create(b => {
+            b.ReplaceInput(input);
+            b.ReplaceOutput(output);
+        });
+        app.AddCommand("Error", _ => Result.ErrorTask(new ConsoleException(13, "Some error.")));
+
+        // Act
+        var actualResult = await app.RunAsync();
+
+        // Assert
+        actualResult.Should().Be(13);
+        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WithErrorDuringExecution_ReturnsResultWithErrors() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "error", "exit");
+        const string expectedOutput =
+            """
+            > error
+            Error: Some error.
+            > exit
+            
+            """;
+        var app = ShellApplication.Create(b => {
+            b.ReplaceInput(input);
+            b.ReplaceOutput(output);
+        });
+        app.AddCommand("Error", _ => Result.InvalidDataTask("Some error."));
+
+        // Act
+        var actualResult = await app.RunAsync();
+
+        // Assert
+        actualResult.Should().Be(0);
+        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+    }
+
+
+    [Fact]
+    public async Task ExecuteAsync_WithErrorDuringArgumentRead_ReturnsResultWithErrors() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "exit");
+        const string expectedOutput =
+            """
+            Error: Unknown option: '--invalid'.
+            System.Collections.ObjectModel.ObservableCollection`1[DotNetToolbox.Results.ValidationError]
+            
+            """;
+        var app = ShellApplication.Create(["--invalid"], b => {
+            b.ReplaceInput(input);
+            b.ReplaceOutput(output);
+        });
+
+        // Act
+        var actualResult = await app.RunAsync();
+
+        // Assert
+        actualResult.Should().Be(Application.DefaultErrorCode);
+        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
     [Fact]

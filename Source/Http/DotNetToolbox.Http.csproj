@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.Http</RootNamespace>
     <PackageId>DotNetToolbox.Http</PackageId>
     <Title>DotNetToolbox Http Library</Title>
-    <Version>8.0.3-rc1</Version>
+    <Version>8.0.4-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Http;Library</PackageTags>
@@ -19,7 +19,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.3-rc1:
+      v8.0.4-rc1:
       - Release candidate based on .Net 8.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Http</Product>
@@ -27,8 +27,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Http</AssemblyName>
-    <AssemblyVersion>8.0.3.*</AssemblyVersion>
-    <FileVersion>8.0.3</FileVersion>
+    <AssemblyVersion>8.0.4.*</AssemblyVersion>
+    <FileVersion>8.0.4</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -58,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.0.3" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.0.4-rc1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.58.1" />

@@ -1,37 +1,74 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+﻿using static System.StringComparer;
 
-public abstract class Application<TApplication, TBuilder, TOptions>
-    : IApplication<TApplication, TBuilder, TOptions>
-    where TApplication : Application<TApplication, TBuilder, TOptions>
-    where TBuilder : ApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TOptions : ApplicationOptions<TOptions>
-                   , IHasDefault<TOptions>
-                   , new() {
-    private bool _isDisposed;
+namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
 
-    protected bool IsRunning { get; private set; }
-    private int _exitCode;
+public abstract class Application : IApplication {
+    public const int DefaultExitCode = 0;
+    public const int DefaultErrorCode = 1;
 
-    internal Application(string[] args, string? environment, IServiceProvider serviceProvider) {
-        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-        var options = serviceProvider.GetService<IOptions<TOptions>>();
-        Options = options?.Value ?? TOptions.Default;
-        Environment = environment ?? Options.Environment;
+    protected Application(IServiceProvider serviceProvider) {
         var assembly = Assembly.GetEntryAssembly()!;
         var assemblyName = assembly.GetName();
         AssemblyName = assemblyName.Name!;
         Version = assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version ?? assemblyName.Version!.ToString();
         Name = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? AssemblyName;
         Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? string.Empty;
-        ServiceProvider = serviceProvider;
-        Configuration = configuration;
-        Arguments = args;
 
-        Output = serviceProvider.GetRequiredService<IOutput>();
-        Input = serviceProvider.GetRequiredService<IInput>();
-        DateTime = serviceProvider.GetRequiredService<IDateTimeProvider>();
-        Guid = serviceProvider.GetRequiredService<IGuidProvider>();
-        FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+        ServiceProvider = serviceProvider;
+
+        Configuration = ServiceProvider.GetRequiredService<IConfiguration>();
+        Output = ServiceProvider.GetRequiredService<IOutput>();
+        Input = ServiceProvider.GetRequiredService<IInput>();
+        DateTime = ServiceProvider.GetRequiredService<IDateTimeProvider>();
+        Guid = ServiceProvider.GetRequiredService<IGuidProvider>();
+        FileSystem = ServiceProvider.GetRequiredService<IFileSystem>();
+    }
+
+    public string AssemblyName { get; }
+    public string Name { get; }
+    public string[] Ids => [Name];
+
+    public string Version { get; }
+    public required string Description { get; init; }
+
+    public IServiceProvider ServiceProvider { get; }
+    public IConfiguration Configuration { get; }
+
+    public IOutput Output { get; }
+    public IInput Input { get; }
+    public IDateTimeProvider DateTime { get; }
+    public IGuidProvider Guid { get; }
+    public IFileSystem FileSystem { get; }
+
+    public ICollection<INode> Children { get; init; } = new HashSet<INode>();
+    public IDictionary<string, object?> Data { get; init; } = new Dictionary<string, object?>();
+
+    public abstract void AppendHelp(StringBuilder builder);
+    public abstract void Exit(int exitCode = 0);
+
+    public override string ToString() {
+        var builder = new StringBuilder();
+        builder.AppendJoin(null, GetType().Name, ": ", Name, " v", Version, " => ", Description);
+        return builder.ToString();
+    }
+}
+
+public abstract class Application<TApplication, TBuilder, TOptions>
+    : Application, IApplication<TApplication, TBuilder, TOptions>
+    where TApplication : Application<TApplication, TBuilder, TOptions>
+    where TBuilder : ApplicationBuilder<TApplication, TBuilder, TOptions>
+    where TOptions : ApplicationOptions<TOptions>
+                   , IHasDefault<TOptions>
+                   , new() {
+    protected bool IsRunning { get; private set; }
+    private int _exitCode;
+
+    protected Application(string[] args, string? environment, IServiceProvider serviceProvider)
+        : base(serviceProvider) {
+        Arguments = args;
+        var options = ServiceProvider.GetService<IOptions<TOptions>>();
+        Options = options?.Value ?? TOptions.Default;
+        Environment = environment ?? Options.Environment;
 
         var loggerFactory = ServiceProvider.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance;
         Logger = loggerFactory.CreateLogger<TApplication>();
@@ -40,42 +77,19 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     protected virtual ValueTask Dispose()
         => ValueTask.CompletedTask;
 
-    public string AssemblyName { get; }
-    public string Name { get; }
-    public string[] Ids => [ Name ];
-
-    public string Version { get; }
-    public required string Description { get; init; }
-
-    public override string ToString() {
-        var builder = new StringBuilder();
-        builder.AppendJoin(null, GetType().Name, ": ", Name, " v", Version, " => ", Description);
-        return builder.ToString();
-    }
-
     public void AppendVersion(StringBuilder builder)
         => builder.AppendLine($"{Name} v{Version}");
 
-    public void AppendHelp(StringBuilder builder) {
+    public override void AppendHelp(StringBuilder builder) {
         AppendVersion(builder);
         builder.AppendLine(Description);
     }
 
     public string[] Arguments { get; }
     public string Environment { get; }
-    public IServiceProvider ServiceProvider { get; }
-    public IConfiguration Configuration { get; }
     public TOptions Options { get; }
-    public ICollection<INode> Children { get; init; } = new HashSet<INode>();
-    public IDictionary<string, object?> Data { get; init; } = new Dictionary<string, object?>();
 
     public ILogger Logger { get; init; }
-
-    public IOutput Output { get; init; }
-    public IInput Input { get; init; }
-    public IDateTimeProvider DateTime { get; init; }
-    public IGuidProvider Guid { get; init; }
-    public IFileSystem FileSystem { get; init; }
 
     public static TApplication Create(Action<TBuilder>? configureBuilder = null)
         => Create([], configureBuilder);
@@ -87,13 +101,19 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     public TApplication AddCommand<TChildCommand>()
-        where TChildCommand : Command<TChildCommand> {
+        where TChildCommand : CommandBase<TChildCommand> {
         Children.Add(CreateInstance.Of<TChildCommand>(ServiceProvider, this));
         return (TApplication)this;
     }
 
+    public TApplication AddCommand(string name, Func<CancellationToken, Task<Result>> action) {
+        Func<AsyncCommand, CancellationToken, Task<Result>> execute = (_, ct) => action(ct);
+        Children.Add(CreateInstance.Of<AsyncCommand>(this, name, Array.Empty<string>(), execute));
+        return (TApplication)this;
+    }
+
     public TApplication AddAction<TAction>()
-        where TAction : ExecutableAction<TAction> {
+        where TAction : Trigger<TAction> {
         Children.Add(CreateInstance.Of<TAction>(ServiceProvider, this));
         return (TApplication)this;
     }
@@ -131,7 +151,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         return (TApplication)this;
     }
 
-    public void Exit(int exitCode = 0) {
+    public sealed override void Exit(int exitCode = 0) {
         _exitCode = exitCode;
         IsRunning = false;
     }
@@ -141,21 +161,50 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     public async Task<int> RunAsync() {
         IsRunning = true;
         var taskRun = new CancellationTokenSource();
-        var result = await ExecuteAsync(Arguments, taskRun.Token);
+        var result = await ExecuteAsync(taskRun.Token);
         if (result.HasErrors) Output.WriteLine(result.Errors);
         if (result.HasException) Output.WriteLine(result.Exception.ToString());
         return _exitCode;
     }
 
-    public virtual Task<Result> ExecuteAsync(string[] args, CancellationToken ct) {
+    protected virtual Task<Result> ExecuteAsync(CancellationToken ct) {
         if (Options.ClearScreenOnStart) Output.ClearScreen();
-        return InputReader.ParseTokens([.. Children], args, ct);
+        return ArgumentsReader.Read(Arguments, [.. Children], ct);
+    }
+
+    protected bool InputIsParsed(Result result) => IsSuccess(result, true);
+    protected bool CanContinue(Result result) => IsSuccess(result, false);
+
+    private bool IsSuccess(Result result, bool stopOnInvalidInput) {
+        if (result.IsSuccess) return true;
+
+        if (result.HasException) {
+            var exitCode = result.Exception is ConsoleException ce ? ce.ExitCode : DefaultErrorCode;
+            Exit(exitCode);
+            return false;
+        }
+
+        foreach (var error in result.Errors)
+            Output.WriteLine("Error: {0}", error);
+
+        if (!stopOnInvalidInput) return true;
+        Exit(DefaultErrorCode);
+        return false;
+    }
+
+    protected async Task<Result> ProcessInput(string[] input, CancellationToken ct) {
+        if (input.Length == 0) return Success();
+        var candidate = input.First();
+        var executable = Children.OfType<IExecutable>().FirstOrDefault(FindChildById);
+        if (executable is null) return Error($"Command '{candidate}' not found. For a list of available commands use 'help'.");
+        var arguments = input.Length > 1 ? input.Skip(1).ToArray() : [];
+        return await executable.ExecuteAsync(arguments, ct);
+
+        bool FindChildById(IExecutable c) => c.Ids.Contains(input[0], InvariantCultureIgnoreCase);
     }
 
     public async ValueTask DisposeAsync() {
-        if (_isDisposed) return;
         await Dispose();
         GC.SuppressFinalize(this);
-        _isDisposed = true;
     }
 }

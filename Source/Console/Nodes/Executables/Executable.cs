@@ -8,6 +8,5 @@ public abstract class Executable<TExecutable>
         : base(node, name, aliases) {
     }
 
-    public abstract Task<Result> ExecuteAsync(string[] args, CancellationToken ct);
-    protected abstract Task<Result> ExecuteAsync(CancellationToken ct);
+    public abstract Task<Result> ExecuteAsync(string[] args, CancellationToken ct = default);
 }

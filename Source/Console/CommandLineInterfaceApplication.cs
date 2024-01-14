@@ -25,22 +25,14 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
         AddAction<VersionAction>();
     }
 
-    public sealed override async Task<Result> ExecuteAsync(string[] args, CancellationToken ct) {
-        await base.ExecuteAsync(args, ct);
-        if (args.Length == 0) {
-            var helpAction = Children.OfType<HelpAction>()
-                                     .First();
-            await helpAction.ExecuteAsync([], ct);
-            return Success();
-        }
+    protected sealed override async Task<Result> ExecuteAsync(CancellationToken ct) {
+        var result = await base.ExecuteAsync(ct);
+        if (!InputIsParsed(result)) return result;
 
-        var command = Children.OfType<IExecutable>()
-                              .FirstOrDefault(c => c.Ids.Contains(args[0], StringComparer.InvariantCultureIgnoreCase));
-        if (command is null) return Error($"Command '{args}' not found. For a list of available commands use 'help'.");
-        var arguments = args.Length > 1
-                            ? args.Skip(1)
-                                  .ToArray()
-                            : [];
-        return await command.ExecuteAsync(arguments, ct);
+        if (Arguments.Length != 0)
+            return await ProcessInput(Arguments, ct);
+
+        var helpAction = new HelpAction(this);
+        return await helpAction.ExecuteAsync([], ct);
     }
 }

@@ -1,10 +1,11 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Exceptions;
-public class ConsoleException(int exitCode, string message, Exception? innerException = null)
-    : Exception(message, innerException) {
-    public const int DefaultErrorCode = 1;
+[SuppressMessage("Roslynator", "RCS1194:Implement exception constructors", Justification = "All required are constructors implemented.")]
+public class ConsoleException(int exitCode = Application.DefaultErrorCode, string? message = null, Exception? innerException = null)
+    : Exception(message ?? DefaultMessage, innerException) {
+    public const string DefaultMessage = "An error occurred while executing the application.";
 
     public ConsoleException(string message, Exception? innerException = null)
-        : this(DefaultErrorCode, message, innerException) {
+        : this(Application.DefaultErrorCode, IsNotNullOrEmpty(message), innerException) {
     }
 
     public int ExitCode { get; } = exitCode;

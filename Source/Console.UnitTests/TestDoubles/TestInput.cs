@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal class TestInput(params string[] inputs) : IInput {
+internal class TestInput(IOutput output, params string[] inputs) : IInput {
     private readonly Queue<string> _inputQueue = new(inputs);
 
     public bool KeyAvailable() => throw new NotImplementedException();
@@ -9,7 +9,11 @@ internal class TestInput(params string[] inputs) : IInput {
 
     public ConsoleKeyInfo ReadKey(bool intercept = false) => throw new NotImplementedException();
 
-    public string? ReadLine() => _inputQueue.TryDequeue(out var input) ? input : null;
+    public string? ReadLine() {
+        if (!_inputQueue.TryDequeue(out var input)) return null;
+        output.WriteLine(input);
+        return input;
+    }
 
     public Encoding Encoding {
         get => throw new NotImplementedException();

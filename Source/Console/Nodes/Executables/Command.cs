@@ -1,66 +1,32 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-public abstract class Command<TCommand>
-    : Executable<TCommand>
+public sealed class Command : Command<Command> {
+    internal Command(IHasChildren node, string name, string[] aliases, Func<Command, Result> execute)
+        : base(node, name, aliases, execute) {
+    }
+}
+
+public class Command<TCommand>
+    : CommandBase<TCommand>
     , ICommand
     where TCommand : Command<TCommand> {
+    private readonly Func<TCommand, Result>? _execute;
 
     protected Command(IHasChildren node, string name, params string[] aliases)
         : base(node, name, aliases) {
-        AddAction<HelpAction>();
     }
 
-    public ICollection<INode> Children { get; } = [];
+    internal Command(IHasChildren node, string name, string[] aliases, Func<TCommand, Result> execute)
+        : this(node, name, aliases) {
+        _execute = IsNotNull(execute);
+    }
 
-    public override async Task<Result> ExecuteAsync(string[] args, CancellationToken ct) {
-        var result = await InputReader.ParseTokens([.. Children], args, ct);
+    public sealed override async Task<Result> ExecuteAsync(string[] args, CancellationToken ct = default) {
+        var result = await ArgumentsReader.Read(args, Children.ToArray(), ct);
         return result.IsSuccess
-                   ? await ExecuteAsync(ct)
+                   ? await Task.Run(() => _execute?.Invoke((TCommand)this) ?? Execute(), ct)
                    : result;
     }
 
-    public TCommand AddCommand<TChildCommand>()
-        where TChildCommand : Command<TChildCommand> {
-        Children.Add(CreateInstance.Of<TChildCommand>(Application.ServiceProvider, this));
-        return (TCommand)this;
-    }
-
-    public TCommand AddAction<TAction>()
-        where TAction : Executable<TAction> {
-        Children.Add(CreateInstance.Of<TAction>(Application.ServiceProvider, this));
-        return (TCommand)this;
-    }
-
-    public TCommand AddOption(string name, params string[] aliases) {
-        Children.Add(CreateInstance.Of<Option>(this, name, aliases));
-        return (TCommand)this;
-    }
-
-    public TCommand AddOption<TOption>()
-        where TOption : Option<TOption> {
-        Children.Add(CreateInstance.Of<TOption>(Application.ServiceProvider, this));
-        return (TCommand)this;
-    }
-
-    public TCommand AddParameter(string name, object? defaultValue = default) {
-        Children.Add(CreateInstance.Of<Parameter>(this, name, defaultValue));
-        return (TCommand)this;
-    }
-
-    public TCommand AddParameter<TParameter>()
-        where TParameter : Parameter<TParameter> {
-        Children.Add(CreateInstance.Of<TParameter>(Application.ServiceProvider, this));
-        return (TCommand)this;
-    }
-
-    public TCommand AddFlag(string name, params string[] aliases) {
-        Children.Add(CreateInstance.Of<Flag>(this, name, aliases));
-        return (TCommand)this;
-    }
-
-    public TCommand AddFlag<TFlag>()
-        where TFlag : Flag<TFlag> {
-        Children.Add(CreateInstance.Of<TFlag>(Application.ServiceProvider, this));
-        return (TCommand)this;
-    }
+    protected virtual Result Execute() => Success();
 }

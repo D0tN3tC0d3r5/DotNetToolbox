@@ -9,9 +9,9 @@ internal sealed class HelpCommand : Command<HelpCommand> {
         Description = "Display help information.";
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct) {
+    protected override Result Execute() {
         var builder = new HelpBuilder(_parent, includeApplication: false);
         Application.Output.Write(builder.Build());
-        return SuccessTask();
+        return Success();
     }
 }

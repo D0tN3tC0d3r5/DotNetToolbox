@@ -22,9 +22,9 @@ public record Result : ResultBase {
     public static Task<Result> ErrorTask(string message) => ErrorTask(new Exception(message));
     public static Task<Result> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
 
-    public static implicit operator Result(ValidationError error) => new([ error ]);
-    public static implicit operator Result(List<ValidationError> errors) => new([..errors]);
-    public static implicit operator Result(HashSet<ValidationError> errors) => new([..errors]);
+    public static implicit operator Result(ValidationError error) => new([error]);
+    public static implicit operator Result(List<ValidationError> errors) => new([.. errors]);
+    public static implicit operator Result(HashSet<ValidationError> errors) => new([.. errors]);
     public static implicit operator Result(ValidationError[] errors) => new(errors.AsEnumerable());
     public static implicit operator Result(Exception exception) => new(exception: exception);
 

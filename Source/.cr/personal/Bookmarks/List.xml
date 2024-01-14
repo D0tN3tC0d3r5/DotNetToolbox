@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Root Type="DevExpress.CodeRush.Foundation.Markers.SolutionBookmarksContainer">
+  <Options Language="Neutral">
+    <Items>
+      <Item Id="{0f99a9c3-3964-412e-ac88-1e3b6708a1bd}">
+        <Id>1</Id>
+        <File>Source\Console\ShellApplication.cs</File>
+        <Line>28</Line>
+        <Character>5</Character>
+        <ViewportTop>22</ViewportTop>
+        <ViewportTopMax>68</ViewportTopMax>
+        <TopLine>22</TopLine>
+      </Item>
+    </Items>
+  </Options>
+</Root>

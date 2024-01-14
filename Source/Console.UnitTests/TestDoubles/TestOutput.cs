@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
 internal class TestOutput() : IOutput {
-    public List<string> Lines { get; } = [ string.Empty ];
+    public List<string> Lines { get; } = [string.Empty];
 
     public void ClearScreen() {
         Lines.Clear();
@@ -30,16 +30,18 @@ internal class TestOutput() : IOutput {
 
     public void Write(object? value) => throw new NotImplementedException();
 
-    public void Write([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0) => throw new NotImplementedException();
+    public void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0)
+        => Lines[^1] += string.Format(format, arg0);
 
-    public void Write([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1) => throw new NotImplementedException();
+    public void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1) => throw new NotImplementedException();
 
-    public void Write([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) => throw new NotImplementedException();
+    public void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) => throw new NotImplementedException();
 
-    public void Write([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args)
+    public void Write([Syntax(Syntax.CompositeFormat)] string format, params object?[] args)
         => Lines[^1] += string.Format(format, args);
 
-    public void Write(string? value) => Lines[^1] += value ?? string.Empty;
+    public void Write(string? value)
+        => Lines[^1] += value ?? string.Empty;
 
     public void Write(StringBuilder? builder) => throw new NotImplementedException();
 
@@ -67,20 +69,29 @@ internal class TestOutput() : IOutput {
 
     public void WriteLine(long value) => throw new NotImplementedException();
 
-    public void WriteLine(object? value) => throw new NotImplementedException();
+    public void WriteLine(object? value) {
+        Write("{0}", value);
+        WriteLine();
+    }
 
-    public void WriteLine([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0) => throw new NotImplementedException();
+    public void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0) {
+        Write(format, arg0);
+        WriteLine();
+    }
 
-    public void WriteLine([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1) => throw new NotImplementedException();
+    public void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1) => throw new NotImplementedException();
 
-    public void WriteLine([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) => throw new NotImplementedException();
+    public void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) => throw new NotImplementedException();
 
-    public void WriteLine([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args) {
+    public void WriteLine([Syntax(Syntax.CompositeFormat)] string format, params object?[] args) {
         Write(format, args);
         WriteLine();
     }
 
-    public void WriteLine(string? value) => Lines.Add(value ?? string.Empty);
+    public void WriteLine(string? value) {
+        Write(value ?? string.Empty);
+        WriteLine();
+    }
 
     public void WriteLine(StringBuilder? builder) => throw new NotImplementedException();
 

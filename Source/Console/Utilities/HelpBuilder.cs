@@ -4,7 +4,7 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
     private readonly IReadOnlyCollection<INode> _options = parent
                           .Children.OfType<IFlag>().Cast<INode>()
                           .Union(parent.Children.OfType<IOption>())
-                          .Union(parent.Children.OfType<IAction>())
+                          .Union(parent.Children.OfType<ITrigger>())
                           .OrderBy(i => i.Name).ToArray();
     private readonly IReadOnlyCollection<IParameter> _parameters = parent.Children.OfType<IParameter>().OrderBy(i => i.Name).ToArray();
     private readonly IReadOnlyCollection<ICommand> _commands = parent.Children.OfType<ICommand>().OrderBy(i => i.Name).ToArray();

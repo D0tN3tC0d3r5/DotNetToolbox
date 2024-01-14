@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-internal sealed class HelpAction : ExecutableAction<HelpAction> {
+internal sealed class HelpAction : Trigger<HelpAction> {
     private readonly IHasChildren _parent;
 
     public HelpAction(IHasChildren parent)
@@ -9,9 +9,9 @@ internal sealed class HelpAction : ExecutableAction<HelpAction> {
         Description = "Display help information.";
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct) {
+    protected override Result Execute() {
         var builder = new HelpBuilder(_parent, includeApplication: true);
         Application.Output.Write(builder.Build());
-        return SuccessTask();
+        return Success();
     }
 }

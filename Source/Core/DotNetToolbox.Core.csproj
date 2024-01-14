@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.Core</PackageId>
     <Title>DotNetToolbox Core Library</Title>
-    <Version>8.0.3</Version>
+    <Version>8.0.4-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Common;Library;Pagination;DateTime;FileSystem;Results;Validation;Azure;GUID</PackageTags>
@@ -19,20 +19,29 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Core Version 8.0.3
+      DotNetToolbox.Core Version 8.0.4-rc1
 
       Stable release of the DotNetToolbox.Core library, a comprehensive suite of utilities and patterns designed to enhance .NET 8 development. This library provides developers with a robust set of tools to simplify complex tasks, improve testability, and streamline everyday coding activities.
 
       What's new:
-      - Minor bug corrections.
+      1. Added methods with default value the do not throw exception when fails:
+      - `Ensure.IsNotNullOrDefault`;
+      - `Ensure.IsValidOrDefault`;
+      2. Added interfaces for System Utilities to enable partial test doubles (stubs):
+      - `IDateTimeProvider`;
+      - `IGuidProvider`;
+      - `IFileSystem`;
+      - `IOutput`;
+      - `IInput`;
+      3. Minor bug corrections.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Core</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>DotNetToolbox.Core</AssemblyName>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>8.0.3.*</AssemblyVersion>
-    <FileVersion>8.0.3</FileVersion>
+    <AssemblyVersion>8.0.4.*</AssemblyVersion>
+    <FileVersion>8.0.4</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>

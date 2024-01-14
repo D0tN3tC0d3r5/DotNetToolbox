@@ -6,9 +6,9 @@ internal class SayCommand : Command<SayCommand> {
         AddParameter("Text");
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct) {
+    protected override Result Execute() {
         var text = Application.Data["Text"];
         Application.Output.WriteLine(text);
-        return SuccessTask();
+        return Success();
     }
 }
