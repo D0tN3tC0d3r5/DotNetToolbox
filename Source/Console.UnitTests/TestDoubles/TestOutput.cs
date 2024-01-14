@@ -40,8 +40,13 @@ internal class TestOutput() : IOutput {
     public void Write([Syntax(Syntax.CompositeFormat)] string format, params object?[] args)
         => Lines[^1] += string.Format(format, args);
 
-    public void Write(string? value)
-        => Lines[^1] += value ?? string.Empty;
+    public void Write(string? value) {
+        var lines = (value ?? string.Empty).Split(Environment.NewLine);
+        for (var i = 0; i < lines.Length; i++) {
+            Lines[^1] += lines[i];
+            if (i < lines.Length - 1) Lines.Add(string.Empty);
+        }
+    }
 
     public void Write(StringBuilder? builder) => throw new NotImplementedException();
 

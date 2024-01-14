@@ -134,7 +134,7 @@ public class ShellApplicationTests {
     }
 
     [Fact]
-    public async Task RunAsync_ExecutesUntilExit() {
+    public void Run_ExecutesUntilExit() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "exit");
@@ -146,7 +146,7 @@ public class ShellApplicationTests {
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
-        await using var app = ShellApplication.Create(b => {
+        var app = ShellApplication.Create(b => {
             b.ReplaceDateTimeProvider(dateTimeProvider);
             b.ReplaceGuidProvider(guidProvider);
             b.ReplaceFileSystem(fileSystem);
@@ -155,7 +155,7 @@ public class ShellApplicationTests {
         });
 
         // Act
-        await app.RunAsync();
+        app.Run();
 
         // Assert
         app.Should().BeOfType<ShellApplication>();
@@ -175,7 +175,7 @@ public class ShellApplicationTests {
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
-        var app = ShellApplication.Create(b => {
+        await using var app = ShellApplication.Create(b => {
             b.SetOptions(o => o.ClearScreenOnStart = true);
             b.ReplaceDateTimeProvider(dateTimeProvider);
             b.ReplaceGuidProvider(guidProvider);
@@ -193,7 +193,45 @@ public class ShellApplicationTests {
     }
 
     [Fact]
-    public async Task ExecuteAsync_WithExceptionDuringExecution_ReturnsResultWithException() {
+    public async Task RunAsync_WithHelp_ExecutesUntilExit() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "help", "exit");
+        const string expectedOutput =
+            """
+            > help
+            testhost v15.0.0.0
+            
+            Commands:
+              ClearScreen | cls         Clear the screen.
+              Exit                      Exit the application.
+              Help | ?                  Display help information.
+            
+            > exit
+            
+            """;
+        var fileSystem = new TestFileSystem();
+        var guidProvider = new TestGuidProvider();
+        var dateTimeProvider = new TestDateTimeProvider();
+        await using var app = ShellApplication.Create(b => {
+            b.SetOptions(o => o.ClearScreenOnStart = true);
+            b.ReplaceDateTimeProvider(dateTimeProvider);
+            b.ReplaceGuidProvider(guidProvider);
+            b.ReplaceFileSystem(fileSystem);
+            b.ReplaceOutput(output);
+            b.ReplaceInput(input);
+        });
+
+        // Act
+        await app.RunAsync();
+
+        // Assert
+        app.Should().BeOfType<ShellApplication>();
+        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+    }
+
+    [Fact]
+    public async Task RunAsync_WithExceptionDuringExecution_ReturnsResultWithException() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "error");
@@ -218,7 +256,7 @@ public class ShellApplicationTests {
     }
 
     [Fact]
-    public async Task ExecuteAsync_WithConsoleExceptionDuringExecution_ReturnsResultWithException() {
+    public async Task RunAsync_WithConsoleExceptionDuringExecution_ReturnsResultWithException() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "error");
@@ -243,7 +281,7 @@ public class ShellApplicationTests {
     }
 
     [Fact]
-    public async Task ExecuteAsync_WithErrorDuringExecution_ReturnsResultWithErrors() {
+    public async Task RunAsync_WithErrorDuringExecution_ReturnsResultWithErrors() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "error", "exit");
@@ -270,7 +308,7 @@ public class ShellApplicationTests {
 
 
     [Fact]
-    public async Task ExecuteAsync_WithErrorDuringArgumentRead_ReturnsResultWithErrors() {
+    public async Task RunAsync_WithErrorDuringArgumentRead_ReturnsResultWithErrors() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "exit");

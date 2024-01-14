@@ -12,8 +12,8 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
 
     public string Build() {
         var builder = new StringBuilder();
-        builder.AppendLine();
         ShowDescription(builder);
+        builder.AppendLine();
         ShowUsage(builder);
         ShowOptions(builder);
         ShowParameters(builder);
