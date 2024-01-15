@@ -245,7 +245,7 @@ public class ShellApplicationTests {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Exception", _ => Result.ErrorTask(new Exception("Some error.")));
+        app.AddCommand("Exception", _ => Result.ExceptionTask(new Exception("Some error.")));
 
         // Act
         var actualResult = await app.RunAsync();
@@ -270,7 +270,7 @@ public class ShellApplicationTests {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Exception", _ => Result.ErrorTask(new ConsoleException(13, "Some error.")));
+        app.AddCommand("Exception", _ => Result.ExceptionTask(new ConsoleException(13, "Some error.")));
 
         // Act
         var actualResult = await app.RunAsync();
@@ -296,7 +296,7 @@ public class ShellApplicationTests {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Exception", _ => Result.InvalidDataTask("Some error."));
+        app.AddCommand("Exception", _ => Result.ExceptionTask("Some error."));
 
         // Act
         var actualResult = await app.RunAsync();

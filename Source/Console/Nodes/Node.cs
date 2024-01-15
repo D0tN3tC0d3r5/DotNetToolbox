@@ -10,7 +10,9 @@ public abstract class Node<TNode>
         Name = IsValid(name, n => !string.IsNullOrWhiteSpace(n)
                                && !n.StartsWith('-')
                                && n.All(c => char.IsLetterOrDigit(c) || c == '-'))!;
-        Aliases = AllIsValid(aliases);
+        Aliases = AllAreValid<string[], string>(aliases, n => !string.IsNullOrWhiteSpace(n)
+                                         && !n.StartsWith('-')
+                                         && n.All(c => char.IsLetterOrDigit(c) || c == '-'))!;
     }
     private static IApplication FindRoot(INode node) {
         while (node is IHasParent hasParent) node = hasParent.Parent;
@@ -22,7 +24,7 @@ public abstract class Node<TNode>
     public IHasChildren Parent { get; }
     public string Name { get; }
     public string[] Aliases { get; }
-    public string[] Ids => [Name, ..Aliases];
+    public string[] Ids => [Name, .. Aliases];
     public string Description { get; init; } = string.Empty;
 
     public override string ToString() {

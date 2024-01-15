@@ -163,7 +163,6 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         var taskRun = new CancellationTokenSource();
         var result = await ExecuteAsync(taskRun.Token);
         if (result.HasErrors) Output.WriteLine(result.Errors);
-        if (result.HasException) Output.WriteLine(result.Exception.ToString());
         return _exitCode;
     }
 
@@ -179,7 +178,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         if (result.IsSuccess) return true;
 
         if (result.HasException) {
-            var exitCode = result.Exception is ConsoleException ce ? ce.ExitCode : DefaultErrorCode;
+            var exitCode = result.Errors.First().Exception is ConsoleException ce ? ce.ExitCode : DefaultErrorCode;
             Exit(exitCode);
             return false;
         }
@@ -194,9 +193,8 @@ public abstract class Application<TApplication, TBuilder, TOptions>
 
     protected async Task<Result> ProcessInput(string[] input, CancellationToken ct) {
         if (input.Length == 0) return Success();
-        var candidate = input.First();
         var executable = Children.OfType<IExecutable>().FirstOrDefault(FindChildById);
-        if (executable is null) return Error($"Command '{candidate}' not found. For a list of available commands use 'help'.");
+        if (executable is null) return Exception($"Command '{input[0]}' not found. For a list of available commands use 'help'.");
         var arguments = input.Length > 1 ? input.Skip(1).ToArray() : [];
         return await executable.ExecuteAsync(arguments, ct);
 

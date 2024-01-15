@@ -21,13 +21,7 @@ public abstract class Parameter<TParameter>
     public bool IsRequired => _defaultValue is not null;
     public int Order { get; }
 
-    public sealed override Task<Result> ClearData(CancellationToken ct) {
-        Application.Data[Name] = _defaultValue;
-        IsSet = _defaultValue is not null;
-        return OnDataCleared(ct);
-    }
-
-    public sealed override Task<Result> SetValue(string? value, CancellationToken ct) {
+    public Task<Result> SetValue(string? value, CancellationToken ct) {
         Application.Data[Name] = value switch {
             null or "default" => _defaultValue,
             "null" => null,

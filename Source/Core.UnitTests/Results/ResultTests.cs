@@ -21,7 +21,6 @@ public class ResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
-        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -32,7 +31,6 @@ public class ResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
-        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -43,7 +41,6 @@ public class ResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
-        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -54,7 +51,6 @@ public class ResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
-        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -65,7 +61,6 @@ public class ResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
-        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -76,7 +71,6 @@ public class ResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().BeEmpty();
-        result.Exception.Should().NotBeNull();
     }
 
     [Fact]
@@ -210,7 +204,6 @@ public class ResultTests {
         result.Should().BeOfType<Result<int>>();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeEmpty();
-        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -225,7 +218,6 @@ public class ResultTests {
         result.Should().BeOfType<Result<int>>();
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().NotBeEmpty();
-        result.Exception.Should().BeNull();
     }
 
     [Fact]
@@ -240,6 +232,6 @@ public class ResultTests {
         result.Should().BeOfType<Result<int?>>();
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().BeEmpty();
-        result.Exception.Should().NotBeNull();
+        result.IsFaulty.Should().BeTrue();
     }
 }

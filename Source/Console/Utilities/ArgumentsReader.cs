@@ -10,15 +10,14 @@ public static class ArgumentsReader {
 
     private static async Task<(Result result, int index)> TrySetupChild(string[] arguments, int index, IReadOnlyCollection<INode> children, CancellationToken ct) {
         var token = arguments[index];
-        var child = children.FirstOrDefault(arg => arg.Ids.Contains(token));
+        var child = children.OfType<IArgument>().FirstOrDefault(arg => arg.Ids.Contains(token));
         var result = child switch {
-            IFlag flag => await flag.SetValue(arguments[index], ct),
-            IOption option when NoMoreTokens() => InvalidData($"Missing value for option '{option.Name}'."),
+            IFlag flag => await flag.SetValue(ct),
+            IOption option when NoMoreTokens() => Invalid($"Missing value for option '{option.Name}'."),
             IOption option => await option.SetValue(arguments[++index], ct),
             ICommand or IAsyncCommand when NoMoreTokens() => await ((IExecutable)child).ExecuteAsync([], ct),
-            ICommand or IAsyncCommand => ((IExecutable)child).ExecuteAsync(arguments[++index..], ct),
-            //ITrigger or IAsyncTrigger => await ReadAction((IExecutable)child, ct),
-            _ when token.StartsWith("-") => InvalidData($"Unknown option: '{token}'."),
+            ICommand or IAsyncCommand => await ((IExecutable)child).ExecuteAsync(arguments[++index..], ct),
+            _ when token.StartsWith("-") => Invalid($"Unknown option: '{token}'."),
             _ => await ReadParameters(children, arguments, ct),
         };
         return (result, index);
@@ -43,7 +42,7 @@ public static class ArgumentsReader {
     private static Result EnsureAllRequiredParametersAreSet(IParameter[] parameters) {
         var missingParameters = parameters.Where(p => p is { IsRequired: true, IsSet: false }).Select(p => p.Name).ToArray();
         return missingParameters.Length > 0
-                   ? Error($"Missing value for parameters '{string.Join("', '", missingParameters)}'.")
+                   ? Exception($"Missing value for parameters '{string.Join("', '", missingParameters)}'.")
                    : Success();
     }
 }
