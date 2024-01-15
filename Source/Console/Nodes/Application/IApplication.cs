@@ -2,7 +2,7 @@
 
 public interface IApplication : IHasChildren {
     string Version { get; }
-    public string FullName => string.Join(" v", Name, Version);
+    string FullName { get; }
     IServiceProvider ServiceProvider { get; }
     IConfiguration Configuration { get; }
     IDictionary<string, object?> Data { get; }
@@ -21,7 +21,6 @@ public interface IApplication<out TApplication, out TBuilder, TOptions>
     where TApplication : class, IApplication<TApplication, TBuilder, TOptions>
     where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : class, IApplicationOptions, new() {
-
     int Run();
     Task<int> RunAsync();
 }

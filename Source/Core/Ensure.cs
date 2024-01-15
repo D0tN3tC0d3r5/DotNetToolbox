@@ -5,10 +5,10 @@ public static class Ensure {
     public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
 
-    [return: NotNull]
-    public static TArgument IsNotNullOrDefault<TArgument, TDefault>(TArgument? argument, TDefault @default)
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static TArgument? IsNotNullOrDefault<TArgument, TDefault>(TArgument? argument, TDefault? defaultValue)
         where TDefault : notnull, TArgument
-        => argument ?? @default;
+        => argument ?? defaultValue;
 
     [return: NotNull]
     public static TArgument IsOfType<TArgument>(object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
@@ -66,42 +66,47 @@ public static class Ensure {
                : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
     }
 
-    [return: NotNull]
+    [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument IsValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatable
         => IsValid(argument, arg => IsNotNull(arg).Validate(), paramName)!;
 
-    [return: NotNull]
-    public static TArgument IsValidOrDefault<TArgument, TDefault>(TArgument? argument, TDefault @default)
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static TArgument? IsValidOrDefault<TArgument, TDefault>(TArgument? argument, TDefault? defaultValue)
         where TArgument : IValidatable
         where TDefault : TArgument {
-        var value = IsNotNull(argument ?? @default);
-        var result = value.Validate();
+        var value = argument ?? defaultValue;
+        var result = value?.Validate() ?? Result.Success();
         return result.IsSuccess
                    ? value
-                   : @default;
+                   : defaultValue;
     }
 
+    [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
         validate(argument).EnsureIsSuccess();
         return argument;
     }
 
-    public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? @default)
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? defaultValue)
         => validate(argument).IsSuccess
                ? argument
-               : @default;
+               : defaultValue;
 
+    [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => isValid(argument)
                ? argument
                : throw new ValidationException(ValueIsNotValid, paramName!);
 
-    public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? @default)
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue)
         => isValid(argument)
                ? argument
-               : @default;
+               : defaultValue;
 
+    [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? AllAreValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<IValidatable> {
         var invalidItems = GetIndexedItems<TArgument, IValidatable>(argument)
@@ -113,6 +118,7 @@ public static class Ensure {
                    : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
     }
 
+    [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? AllAreValid<TArgument, TValue>(TArgument? argument, Func<TValue?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<TValue> {
         var invalidItems = GetIndexedItems<TArgument, TValue>(argument)
@@ -124,6 +130,7 @@ public static class Ensure {
                    : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
     }
 
+    [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? AllAreValid<TArgument, TValue>(TArgument? argument, Func<TValue?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<TValue> {
         var invalidItems = GetIndexedItems<TArgument, TValue>(argument)

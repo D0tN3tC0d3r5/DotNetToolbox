@@ -1,8 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
 public sealed class Option(IHasChildren parent, string name, params string[] aliases)
-        : Option<Option>(parent, name, aliases) {
-}
+        : Option<Option>(parent, name, aliases);
 
 public abstract class Option<TOption>
     : Argument<TOption>

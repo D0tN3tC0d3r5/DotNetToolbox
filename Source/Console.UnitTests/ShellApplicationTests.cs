@@ -1,13 +1,16 @@
-﻿namespace DotNetToolbox.ConsoleApplication;
+﻿using AppOptions = DotNetToolbox.ConsoleApplication.ShellApplicationOptions;
+using Shell = DotNetToolbox.ConsoleApplication.ShellApplication;
+
+namespace DotNetToolbox.ConsoleApplication;
 
 public class ShellApplicationTests {
     [Fact]
     public void Create_CreatesShellApplication() {
         // Arrange & Act
-        var app = ShellApplication.Create();
+        var app = Shell.Create();
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
         app.Name.Should().Be("testhost");
         app.Environment.Should().Be("");
         app.Arguments.Should().BeEmpty();
@@ -29,19 +32,19 @@ public class ShellApplicationTests {
     [Fact]
     public void Create_AddEnvironmentVariables_CreatesShellApplication() {
         // Act
-        var app = ShellApplication.Create(b => b.AddEnvironmentVariables("MYAPP_"));
+        var app = Shell.Create(b => b.AddEnvironmentVariables("MYAPP_"));
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
     }
 
     [Fact]
     public void Create_AddUserSecrets_CreatesShellApplication() {
         // Act
-        var app = ShellApplication.Create(b => b.AddUserSecrets<ShellApplication>());
+        var app = Shell.Create(b => b.AddUserSecrets<Shell>());
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
     }
 
     [Fact]
@@ -50,10 +53,10 @@ public class ShellApplicationTests {
         string[] args = ["arg1", "arg2"];
 
         // Act
-        var app = ShellApplication.Create(args);
+        var app = Shell.Create(args);
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
         app.Arguments.Should().HaveCount(2);
     }
 
@@ -61,10 +64,10 @@ public class ShellApplicationTests {
     public void Create_WithConfig_CreatesShellApplication() {
         // Arrange & Act
         var wasCalled = false;
-        var app = ShellApplication.Create(_ => wasCalled = true);
+        var app = Shell.Create(_ => wasCalled = true);
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
         app.Arguments.Should().BeEmpty();
         wasCalled.Should().BeTrue();
     }
@@ -76,10 +79,10 @@ public class ShellApplicationTests {
         string[] args = ["arg1", "arg2"];
 
         // Act
-        var app = ShellApplication.Create(args, _ => wasCalled = true);
+        var app = Shell.Create(args, _ => wasCalled = true);
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
         app.Arguments.Should().HaveCount(2);
         wasCalled.Should().BeTrue();
     }
@@ -87,10 +90,10 @@ public class ShellApplicationTests {
     [Fact]
     public void Create_SetEnvironment_CreatesShellApplication() {
         // Arrange & Act
-        var app = ShellApplication.Create(b => b.SetEnvironment("Development"));
+        var app = Shell.Create(b => b.SetEnvironment("Development"));
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
     }
 
     [Fact]
@@ -99,10 +102,10 @@ public class ShellApplicationTests {
         var fileProvider = new TestFileProvider();
 
         // Act
-        var app = ShellApplication.Create(b => b.AddSettings(fileProvider));
+        var app = Shell.Create(b => b.AddSettings(fileProvider));
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
     }
 
     [Fact]
@@ -111,13 +114,13 @@ public class ShellApplicationTests {
         var fileProvider = new TestFileProvider();
 
         // Act
-        var app = ShellApplication.Create(b => {
+        var app = Shell.Create(b => {
             b.SetEnvironment("Development");
             b.AddSettings(fileProvider);
         });
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
     }
 
     [Fact]
@@ -127,10 +130,10 @@ public class ShellApplicationTests {
         var input = new TestInput(output);
 
         // Act
-        var app = ShellApplication.Create(b => b.ReplaceInput(input));
+        var app = Shell.Create(b => b.ReplaceInput(input));
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
     }
 
     [Fact]
@@ -140,13 +143,14 @@ public class ShellApplicationTests {
         var input = new TestInput(output, "exit");
         const string expectedOutput =
             """
+            testhost v15.0.0.0
             > exit
-            
+
             """;
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
-        var app = ShellApplication.Create(b => {
+        var app = Shell.Create(b => {
             b.ReplaceDateTimeProvider(dateTimeProvider);
             b.ReplaceGuidProvider(guidProvider);
             b.ReplaceFileSystem(fileSystem);
@@ -158,24 +162,25 @@ public class ShellApplicationTests {
         app.Run();
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
     [Fact]
-    public async Task RunAsync_WithClearScreenOnStartSet_ExecutesUntilExit() {
+    public async Task RunAsync_WithSetOptionsAndProvidersReplaced_ExecutesUntilExit() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "exit");
         const string expectedOutput =
             """
+            testhost v15.0.0.0
             > exit
 
             """;
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
-        await using var app = ShellApplication.Create(b => {
+        await using var app = Shell.Create(b => {
             b.SetOptions(o => o.ClearScreenOnStart = true);
             b.ReplaceDateTimeProvider(dateTimeProvider);
             b.ReplaceGuidProvider(guidProvider);
@@ -188,7 +193,7 @@ public class ShellApplicationTests {
         await app.RunAsync();
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
@@ -199,25 +204,20 @@ public class ShellApplicationTests {
         var input = new TestInput(output, "help", "exit");
         const string expectedOutput =
             """
+            testhost v15.0.0.0
             > help
             testhost v15.0.0.0
-            
+
             Commands:
               ClearScreen | cls         Clear the screen.
               Exit                      Exit the application.
               Help | ?                  Display help information.
-            
+
             > exit
-            
+
             """;
-        var fileSystem = new TestFileSystem();
-        var guidProvider = new TestGuidProvider();
-        var dateTimeProvider = new TestDateTimeProvider();
-        await using var app = ShellApplication.Create(b => {
+        await using var app = Shell.Create(b => {
             b.SetOptions(o => o.ClearScreenOnStart = true);
-            b.ReplaceDateTimeProvider(dateTimeProvider);
-            b.ReplaceGuidProvider(guidProvider);
-            b.ReplaceFileSystem(fileSystem);
             b.ReplaceOutput(output);
             b.ReplaceInput(input);
         });
@@ -226,7 +226,7 @@ public class ShellApplicationTests {
         await app.RunAsync();
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
@@ -234,18 +234,19 @@ public class ShellApplicationTests {
     public async Task RunAsync_WithExceptionDuringExecution_ReturnsResultWithException() {
         // Arrange
         var output = new TestOutput();
-        var input = new TestInput(output, "error");
+        var input = new TestInput(output, "crash");
         const string expectedOutput =
             """
-            > error
-            System.Exception: Some error.
-            
+            testhost v15.0.0.0
+            > crash
+            Exception: Some error.
+
             """;
-        var app = ShellApplication.Create(b => {
+        var app = Shell.Create(b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Exception", _ => Result.ExceptionTask(new Exception("Some error.")));
+        app.AddCommand("Crash", _ => Result.ErrorTask(new Exception("Some error.")));
 
         // Act
         var actualResult = await app.RunAsync();
@@ -259,24 +260,26 @@ public class ShellApplicationTests {
     public async Task RunAsync_WithConsoleExceptionDuringExecution_ReturnsResultWithException() {
         // Arrange
         var output = new TestOutput();
-        var input = new TestInput(output, "error");
+        var input = new TestInput(output, "crash");
+        const int expectedErrorCode = 13;
         const string expectedOutput =
             """
-            > error
-            DotNetToolbox.ConsoleApplication.Exceptions.ConsoleException: Some error.
-            
+            testhost v15.0.0.0
+            > crash
+            ConsoleException: Some error.
+
             """;
-        var app = ShellApplication.Create(b => {
+        var app = Shell.Create(b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Exception", _ => Result.ExceptionTask(new ConsoleException(13, "Some error.")));
+        app.AddCommand("Crash", _ => Result.ErrorTask(new ConsoleException(expectedErrorCode, "Some error.")));
 
         // Act
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(13);
+        actualResult.Should().Be(expectedErrorCode);
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
@@ -284,28 +287,28 @@ public class ShellApplicationTests {
     public async Task RunAsync_WithErrorDuringExecution_ReturnsResultWithErrors() {
         // Arrange
         var output = new TestOutput();
-        var input = new TestInput(output, "error", "exit");
+        var input = new TestInput(output, "crash", "exit");
         const string expectedOutput =
             """
-            > error
-            Exception: Some error.
+            testhost v15.0.0.0
+            > crash
+            Validation error: Some error.
             > exit
-            
+
             """;
-        var app = ShellApplication.Create(b => {
+        var app = Shell.Create(b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Exception", _ => Result.ExceptionTask("Some error."));
+        app.AddCommand("Crash", _ => Result.InvalidTask("Some error."));
 
         // Act
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(0);
+        actualResult.Should().Be(Application.DefaultExitCode);
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
-
 
     [Fact]
     public async Task RunAsync_WithErrorDuringArgumentRead_ReturnsResultWithErrors() {
@@ -314,11 +317,11 @@ public class ShellApplicationTests {
         var input = new TestInput(output, "exit");
         const string expectedOutput =
             """
-            Exception: Unknown option: '--invalid'.
-            System.Collections.ObjectModel.ObservableCollection`1[DotNetToolbox.Results.ValidationError]
-            
+            testhost v15.0.0.0
+            Validation error: Unknown option: '--invalid'.
+
             """;
-        var app = ShellApplication.Create(["--invalid"], b => {
+        var app = Shell.Create(["--invalid"], b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
@@ -339,10 +342,10 @@ public class ShellApplicationTests {
             Environment = "Development",
             Prompt = "$ ",
         };
-        var app = ShellApplication.Create(b => b.AddConfiguration("ShellApplication", options));
+        var app = Shell.Create(b => b.AddConfiguration("ShellApplication", options));
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
         app.Options.ClearScreenOnStart.Should().BeTrue();
         app.Options.Environment.Should().Be("Development");
         app.Options.Prompt.Should().Be("$ ");
@@ -352,11 +355,11 @@ public class ShellApplicationTests {
     [Fact]
     public void Create_SetLogging_CreatesShellApplication() {
         // Arrange & Act
-        var app = ShellApplication.Create(b
+        var app = Shell.Create(b
             => b.SetLogging(l
                 => l.SetMinimumLevel(LogLevel.Debug)));
 
         // Assert
-        app.Should().BeOfType<ShellApplication>();
+        app.Should().BeOfType<Shell>();
     }
 }

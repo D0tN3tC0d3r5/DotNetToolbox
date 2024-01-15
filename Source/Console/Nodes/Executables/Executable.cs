@@ -3,7 +3,6 @@
 public abstract class Executable<TExecutable>
     : Node<TExecutable>
     where TExecutable : Executable<TExecutable> {
-
     protected Executable(IHasChildren node, string name, params string[] aliases)
         : base(node, name, aliases) {
     }

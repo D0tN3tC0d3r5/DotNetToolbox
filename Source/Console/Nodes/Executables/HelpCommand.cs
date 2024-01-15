@@ -11,7 +11,8 @@ internal sealed class HelpCommand : Command<HelpCommand> {
 
     protected override Result Execute() {
         var builder = new HelpBuilder(_parent, includeApplication: false);
-        Application.Output.Write(builder.Build());
+        var help = builder.Build();
+        Application.Output.Write(help);
         return Success();
     }
 }

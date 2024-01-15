@@ -4,7 +4,6 @@ public class HttpClientProvider<TOptionsBuilder, TOptions>(IHttpClientFactory cl
     : IHttpClientProvider<TOptionsBuilder, TOptions>
     where TOptionsBuilder : HttpClientOptionsBuilder<TOptions>
     where TOptions : HttpClientOptions<TOptions>, new() {
-
     private HttpAuthentication _authentication = new();
 
     protected TOptions Options { get; } = IsNotNull(options).Value;

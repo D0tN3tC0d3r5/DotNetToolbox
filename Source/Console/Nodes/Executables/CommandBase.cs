@@ -4,10 +4,8 @@ public abstract class CommandBase<TCommand>
     : Executable<TCommand>
     , IHasChildren
     where TCommand : CommandBase<TCommand> {
-
     protected CommandBase(IHasChildren node, string name, params string[] aliases)
         : base(node, name, aliases) {
-        AddAction<HelpOption>();
     }
 
     public ICollection<INode> Children { get; } = [];

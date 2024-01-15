@@ -115,7 +115,7 @@ public class LoggerAssertionsTests {
         _loggerAssertions.Invoking(x => x.NotContain(LogLevel.Warning)).Should().NotThrow();
         _loggerAssertions.Invoking(x => x.NotContain(LogLevel.Error)).Should().Throw<Exception>();
         _loggerAssertions.Invoking(x => x.NotContain(LogLevel.Critical)).Should().NotThrow();
-        _loggerAssertions.Invoking(x => x.NotContain(null!)).Should().NotThrow();
+        _loggerAssertions.Invoking(x => x.NotContain(null)).Should().NotThrow();
         _loggerAssertions.Invoking(x => x.NotContain("Test 1.")).Should().Throw<Exception>();
         _loggerAssertions.Invoking(x => x.NotContain("Test 2.")).Should().Throw<Exception>();
         _loggerAssertions.Invoking(x => x.NotContain("Test 3.")).Should().NotThrow();
@@ -124,7 +124,6 @@ public class LoggerAssertionsTests {
         _loggerAssertions.Invoking(x => x.NotContain(LogLevel.Error, "Test 2.")).Should().Throw<Exception>();
         _loggerAssertions.Invoking(x => x.NotContain(LogLevel.Error, "Test 1.")).Should().NotThrow();
     }
-
 
     [Fact]
     public void ContainExactly_ThrowsOnlyWhenFails() {

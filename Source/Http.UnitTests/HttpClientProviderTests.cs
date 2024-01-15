@@ -31,11 +31,11 @@ public sealed class HttpClientProviderTests : IDisposable {
 
     private static AuthenticationResult GenerateResult(string token, Guid correlationId)
         => new(accessToken: token,
-            expiresOn: DateTime.Parse("2022-01-01").AddMinutes(5),
             isExtendedLifeTimeToken: false,
+            uniqueId: null,
+            expiresOn: DateTime.Parse("2022-01-01").AddMinutes(5),
             extendedExpiresOn: default!,
             tenantId: "a4d9d2af-cd3d-40de-945f-0be9ad34658a",
-            uniqueId: null,
             account: null,
             idToken: Guid.NewGuid().ToString(),
             scopes: ["https://graph.microsoft.com/.default"],
@@ -66,7 +66,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors.First().Message.Should().Be("The value cannot be null or white space.");
+        exception.Errors[0].Message.Should().Be("The value cannot be null or white space.");
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors.First().Message.Should().Be("The value cannot be null or white space.");
+        exception.Errors[0].Message.Should().Be("The value cannot be null or white space.");
     }
 
     [Fact]

@@ -17,7 +17,7 @@ public class ChatHandlerTests {
         };
         httpClientProvider.GetHttpClient(Arg.Any<Action<OpenAIHttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
-        _logger = Substitute.For<ILogger<ChatHandler>>();
+        _logger = new TrackedNullLogger<ChatHandler>();
         _chatHandler = new(_repository, httpClientProvider, _logger);
     }
 

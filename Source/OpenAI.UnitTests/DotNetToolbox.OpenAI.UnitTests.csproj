@@ -40,6 +40,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenAI\DotNetToolbox.OpenAI.csproj" />
+    <ProjectReference Include="..\TestUtilities\DotNetToolbox.TestUtilities.csproj" />
   </ItemGroup>
 
 </Project>

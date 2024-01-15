@@ -35,7 +35,7 @@ internal class ChatHandler(IChatRepository repository, IOpenAIHttpClientProvider
             });
             var reply = await GetReplyAsync(chat).ConfigureAwait(false);
             // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-            if (reply == string.Empty) logger.LogDebug("Invalid reply received for chat '{id}'.", id);
+            if (reply?.Length == 0) logger.LogDebug("Invalid reply received for chat '{id}'.", id);
             else logger.LogDebug("Reply for chat '{id}' received.", id);
             return reply;
         }

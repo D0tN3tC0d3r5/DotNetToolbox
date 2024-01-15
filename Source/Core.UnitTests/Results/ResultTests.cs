@@ -5,11 +5,11 @@ public class ResultTests {
     private static readonly Result _invalid = Result.Invalid("Some error.");
     private static readonly Result _invalidWithSameError = Result.Invalid("Some error.");
     private static readonly Result _invalidWithOtherError = Result.Invalid("Other error.");
-    private static readonly Result _failure = Result.Exception("Some error.");
+    private static readonly Result _failure = Result.Error("Some error.");
 
     private static readonly Result<string> _successWithValue = Result.Success("42");
     private static readonly Result<string> _invalidWithValue = Result.Invalid<string>("42", "Some error.");
-    private static readonly Result<string> _failureWithValue = Result.Exception<string>("Some error.");
+    private static readonly Result<string> _failureWithValue = Result.Error<string>("Some error.");
 
     [Fact]
     public void CopyConstructor_ClonesObject() {

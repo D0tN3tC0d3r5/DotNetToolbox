@@ -9,7 +9,8 @@ internal sealed class HelpOption
 
     protected override Result Execute() {
         var builder = new HelpBuilder(Parent, includeApplication: true);
-        Application.Output.Write(builder.Build());
+        var help = builder.Build();
+        Application.Output.Write(help);
         return Success();
     }
 }

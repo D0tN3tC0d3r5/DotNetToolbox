@@ -4,7 +4,7 @@ public record ResultBase : IResult {
     private readonly ObservableCollection<ValidationError> _errors = [];
 
     protected ResultBase(Exception exception) {
-        InnerException = exception;
+        Exception = exception;
     }
 
     protected ResultBase(IEnumerable<ValidationError>? errors = null) {
@@ -22,9 +22,9 @@ public record ResultBase : IResult {
     }
 
     public bool HasErrors => Errors.Count != 0;
-    public Exception? InnerException { get; }
-    [MemberNotNullWhen(true, nameof(InnerException))]
-    public bool HasException => InnerException is not null;
+    public Exception? Exception { get; }
+    [MemberNotNullWhen(true, nameof(Exception))]
+    public bool HasException => Exception is not null;
 
     public static implicit operator ResultBase(string error)
         => new((ValidationError)error);
@@ -42,9 +42,9 @@ public record ResultBase : IResult {
     public static ResultBase operator +(ResultBase left, IResult right)
         => new(left.Errors.Union(right.Errors));
 
-    public void EnsureIsSuccess() {
-        if (InnerException is not null) throw new ValidationException(InnerException);
-        if (HasErrors) throw new ValidationException([.. Errors]);
+    public void EnsureIsSuccess(string? message = null, string? source = null) {
+        if (Exception is not null) throw new ValidationException(message, source, Exception);
+        if (HasErrors) throw new ValidationException(message, source, [.. Errors]);
     }
 
     public virtual bool Equals(ResultBase? other)

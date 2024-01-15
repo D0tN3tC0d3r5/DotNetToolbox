@@ -7,17 +7,17 @@ public abstract class Node<TNode>
         Parent = parent;
         Application = FindRoot(this);
         Logger = Application.ServiceProvider.GetRequiredService<ILogger<TNode>>();
-        Name = IsValid(name, n => !string.IsNullOrWhiteSpace(n)
-                               && !n.StartsWith('-')
-                               && n.All(c => char.IsLetterOrDigit(c) || c == '-'))!;
-        Aliases = AllAreValid<string[], string>(aliases, n => !string.IsNullOrWhiteSpace(n)
-                                         && !n.StartsWith('-')
-                                         && n.All(c => char.IsLetterOrDigit(c) || c == '-'))!;
+        Name = IsValid(IsNotNull(name), IsValidName);
+        Aliases = AllAreValid<string[], string>(aliases, IsValidName)!;
     }
     private static IApplication FindRoot(INode node) {
         while (node is IHasParent hasParent) node = hasParent.Parent;
         return (IApplication)node;
     }
+
+    private static bool IsValidName(string? name)
+        => !string.IsNullOrWhiteSpace(name)
+        && name.All(c => char.IsLetterOrDigit(c) || "-!@#$%?&".Contains(name[0]));
 
     protected ILogger<TNode> Logger { get; }
     public IApplication Application { get; }

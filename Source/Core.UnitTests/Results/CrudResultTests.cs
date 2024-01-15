@@ -9,13 +9,13 @@ public class CrudResultTests {
     private static readonly CrudResult _invalid = Invalid(new ValidationError("Some error.", "Source"));
     private static readonly CrudResult _invalidWithSameError = new ValidationError("Some error.", "Source");
     private static readonly CrudResult _invalidWithWithOtherError = new ValidationError("Other error.", "Source");
-    private static readonly CrudResult _failure = Exception(new("Some error."));
+    private static readonly CrudResult _failure = Error(new("Some error."));
 
     private static readonly CrudResult<string> _successWithValue = Success("Value");
     private static readonly CrudResult<string> _notFoundWithValue = NotFound<string>();
     private static readonly CrudResult<string> _conflictWithValue = Conflict("Value");
     private static readonly CrudResult<string> _invalidWithValue = Invalid("Value", new ValidationError("Some error.", "Source"));
-    private static readonly CrudResult<string> _failureWithValue = Exception<string>(new("Some error."));
+    private static readonly CrudResult<string> _failureWithValue = Error<string>(new("Some error."));
 
     [Fact]
     public void CopyConstructor_ClonesObject() {

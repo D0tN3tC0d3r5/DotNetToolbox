@@ -37,13 +37,13 @@ public record CrudResult : ResultBase {
     public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
     public static CrudResult Invalid(Result result) => new(CrudResultType.Invalid, result.Errors);
-    public static CrudResult Exception(Exception exception) => new(exception);
+    public static CrudResult Error(Exception exception) => new(exception);
 
     public static Task<CrudResult> SuccessTask() => Task.FromResult(Success());
     public static Task<CrudResult> NotFoundTask() => Task.FromResult(NotFound());
     public static Task<CrudResult> ConflictTask() => Task.FromResult(Conflict());
     public static Task<CrudResult> InvalidTask(Result result) => Task.FromResult(Invalid(result));
-    public static Task<CrudResult> ExceptionTask(Exception exception) => Task.FromResult(Exception(exception));
+    public static Task<CrudResult> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
 
     public static implicit operator CrudResult(ValidationError error) => new((Result)error);
     public static implicit operator CrudResult(List<ValidationError> errors) => new((Result)errors);
@@ -69,13 +69,13 @@ public record CrudResult : ResultBase {
     public static CrudResult<TValue> NotFound<TValue>() => new(CrudResultType.NotFound);
     public static CrudResult<TValue> Conflict<TValue>(TValue value) => new(CrudResultType.Conflict, value);
     public static CrudResult<TValue> Invalid<TValue>(TValue? value, Result result) => new(CrudResultType.Invalid, value, result.Errors);
-    public static CrudResult<TValue> Exception<TValue>(Exception exception) => new(exception);
+    public static CrudResult<TValue> Error<TValue>(Exception exception) => new(exception);
 
     public static Task<CrudResult<TValue>> SuccessTask<TValue>(TValue value) => Task.FromResult(Success(value));
     public static Task<CrudResult<TValue>> NotFoundTask<TValue>() => Task.FromResult(NotFound<TValue>());
     public static Task<CrudResult<TValue>> ConflictTask<TValue>(TValue value) => Task.FromResult(Conflict(value));
     public static Task<CrudResult<TValue>> InvalidTask<TValue>(TValue? value, Result result) => Task.FromResult(Invalid(value, result));
-    public static Task<CrudResult<TValue>> ExceptionTask<TValue>(Exception exception) => Task.FromResult(Exception<TValue>(exception));
+    public static Task<CrudResult<TValue>> ErrorTask<TValue>(Exception exception) => Task.FromResult(Error<TValue>(exception));
 }
 
 public record CrudResult<TValue> : CrudResult, IResult<TValue> {
@@ -106,13 +106,13 @@ public record CrudResult<TValue> : CrudResult, IResult<TValue> {
     public CrudResult<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map) {
         try {
             return HasException
-                ? Exception<TNewValue>(InnerException)
+                ? Error<TNewValue>(Exception)
                 : Type is CrudResultType.NotFound
                     ? NotFound<TNewValue>()
                     : new(Type, map(Value), Errors);
         }
         catch (Exception ex) {
-            return Exception<TNewValue>(ex);
+            return Error<TNewValue>(ex);
         }
     }
 

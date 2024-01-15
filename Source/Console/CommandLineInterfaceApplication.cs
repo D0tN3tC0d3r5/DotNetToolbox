@@ -25,14 +25,17 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
         AddCommand<VersionOption>();
     }
 
-    protected sealed override async Task<Result> ExecuteAsync(CancellationToken ct) {
-        var result = await base.ExecuteAsync(ct);
-        if (!InputIsParsed(result)) return result;
+    protected override async Task ExecuteInternalAsync(CancellationToken ct) {
+        if (Options.ClearScreenOnStart) Output.ClearScreen();
+        if (Arguments.Length == 0) {
+            var helpAction = new HelpOption(this);
+            await helpAction.ExecuteAsync([], ct);
+        }
 
-        if (Arguments.Length != 0)
-            return await ProcessInput(Arguments, ct);
-
-        var helpAction = new HelpOption(this);
-        return await helpAction.ExecuteAsync([], ct);
+        var result = await ArgumentsReader.Read(Arguments, [.. Children], ct);
+        EnsureArgumentsAreValid(result);
+        await ExecuteAsync(ct);
     }
+
+    protected virtual Task ExecuteAsync(CancellationToken ct) => Task.CompletedTask;
 }

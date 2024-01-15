@@ -1,8 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
 public sealed class Parameter(IHasChildren parent, string name, string? defaultValue = null)
-        : Parameter<Parameter>(parent, name, defaultValue) {
-}
+        : Parameter<Parameter>(parent, name, defaultValue);
 
 public abstract class Parameter<TParameter>
     : Argument<TParameter>

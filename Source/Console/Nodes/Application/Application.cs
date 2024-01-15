@@ -27,6 +27,7 @@ public abstract class Application : IApplication {
     public string AssemblyName { get; }
     public string Name { get; }
     public string[] Ids => [Name];
+    public string FullName => string.Join(" v", Ids[0], Version);
 
     public string Version { get; }
     public required string Description { get; init; }
@@ -112,12 +113,6 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         return (TApplication)this;
     }
 
-    //public TApplication AddAction<TAction>()
-    //    where TAction : Trigger<TAction> {
-    //    Children.Add(CreateInstance.Of<TAction>(ServiceProvider, this));
-    //    return (TApplication)this;
-    //}
-
     public TApplication AddOption(string name, params string[] aliases) {
         Children.Add(CreateInstance.Of<Option>(this, name, aliases));
         return (TApplication)this;
@@ -161,30 +156,27 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     public async Task<int> RunAsync() {
         IsRunning = true;
         var taskRun = new CancellationTokenSource();
-        var result = await ExecuteAsync(taskRun.Token);
-        if (result.HasErrors) Output.WriteLine(result.Errors);
+        await ExecuteInternalAsync(taskRun.Token);
         return _exitCode;
     }
 
-    protected virtual Task<Result> ExecuteAsync(CancellationToken ct) {
-        if (Options.ClearScreenOnStart) Output.ClearScreen();
-        return ArgumentsReader.Read(Arguments, [.. Children], ct);
-    }
+    protected abstract Task ExecuteInternalAsync(CancellationToken ct);
 
-    protected bool InputIsParsed(Result result) => IsSuccess(result, true);
-    protected bool CanContinue(Result result) => IsSuccess(result, false);
+    protected bool EnsureArgumentsAreValid(Result result) => IsSuccess(result, true);
+    protected bool Terminate(Result result) => !IsSuccess(result, false);
 
     private bool IsSuccess(Result result, bool stopOnInvalidInput) {
         if (result.IsSuccess) return true;
 
         if (result.HasException) {
-            var exitCode = result.InnerException is ConsoleException ce ? ce.ExitCode : DefaultErrorCode;
+            Output.WriteLine($"{result.Exception.GetType().Name}: {result.Exception.Message}");
+            var exitCode = result.Exception is ConsoleException ce ? ce.ExitCode : DefaultErrorCode;
             Exit(exitCode);
             return false;
         }
 
         foreach (var error in result.Errors)
-            Output.WriteLine("Exception: {0}", error);
+            Output.WriteLine("Validation error: {0}", error);
 
         if (!stopOnInvalidInput) return true;
         Exit(DefaultErrorCode);
@@ -194,7 +186,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     protected async Task<Result> ProcessInput(string[] input, CancellationToken ct) {
         if (input.Length == 0) return Success();
         var executable = Children.OfType<IExecutable>().FirstOrDefault(FindChildById);
-        if (executable is null) return Exception($"Command '{input[0]}' not found. For a list of available commands use 'help'.");
+        if (executable is null) return Error($"Command '{input[0]}' not found. For a list of available commands use 'help'.");
         var arguments = input.Length > 1 ? input.Skip(1).ToArray() : [];
         return await executable.ExecuteAsync(arguments, ct);
 

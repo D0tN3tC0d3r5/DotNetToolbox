@@ -126,7 +126,7 @@ public record HttpResult<TValue> : HttpResult, IResult<TValue> {
     public HttpResult<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map) {
         try {
             return HasException
-                ? InternalError<TNewValue>(InnerException)
+                ? InternalError<TNewValue>(((ResultBase)this).Exception)
                 : Type is HttpResultType.NotFound
                     ? NotFound<TNewValue>()
                     : new(Type, map(Value), Errors);

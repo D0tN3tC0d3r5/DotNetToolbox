@@ -42,7 +42,7 @@ public static class ArgumentsReader {
     private static Result EnsureAllRequiredParametersAreSet(IParameter[] parameters) {
         var missingParameters = parameters.Where(p => p is { IsRequired: true, IsSet: false }).Select(p => p.Name).ToArray();
         return missingParameters.Length > 0
-                   ? Exception($"Missing value for parameters '{string.Join("', '", missingParameters)}'.")
+                   ? Error($"Missing value for parameters '{string.Join("', '", missingParameters)}'.")
                    : Success();
     }
 }

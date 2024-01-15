@@ -10,7 +10,7 @@ internal class TestGuidProvider()
     public Guid New(ReadOnlySpan<byte> bytes) => throw new NotImplementedException();
     public Guid New(ReadOnlySpan<byte> bytes, bool bigEndian) => throw new NotImplementedException();
     public Guid New(string text) => throw new NotImplementedException();
-    public Guid New(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k) 
+    public Guid New(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
         => throw new NotImplementedException();
 
     public Guid Parse(ReadOnlySpan<char> input) => throw new NotImplementedException();

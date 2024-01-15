@@ -17,15 +17,15 @@ public record Result : ResultBase {
     public static Result Invalid(string message) => Invalid(string.Empty, message);
     public static Result Invalid(string source, string message) => Invalid(new ValidationError(message, source));
     public static Result Invalid(ResultBase result) => new(result.Errors);
-    public static Result Exception(string message) => Exception(new Exception(message));
-    public static Result Exception(Exception exception) => new(exception);
+    public static Result Error(string message) => Error(new Exception(message));
+    public static Result Error(Exception exception) => new(exception);
 
     public static Task<Result> SuccessTask() => Task.FromResult(Success());
     public static Task<Result> InvalidTask(string message) => InvalidTask(string.Empty, message);
     public static Task<Result> InvalidTask(string source, string message) => InvalidTask(new ValidationError(message, source));
     public static Task<Result> InvalidTask(Result result) => Task.FromResult(Invalid(result));
-    public static Task<Result> ExceptionTask(string message) => ExceptionTask(new Exception(message));
-    public static Task<Result> ExceptionTask(Exception exception) => Task.FromResult(Exception(exception));
+    public static Task<Result> ErrorTask(string message) => ErrorTask(new Exception(message));
+    public static Task<Result> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
 
     public static implicit operator Result(string error) => new((ValidationError)error);
     public static implicit operator Result(Exception exception) => new(exception);
@@ -47,14 +47,14 @@ public record Result : ResultBase {
     public static Result<TValue> Success<TValue>(TValue? value) => new(value);
     public static Result<TValue> Invalid<TValue>(TValue? value, string message, string? source = null) => Invalid(value, new ValidationError(message, source));
     public static Result<TValue> Invalid<TValue>(TValue? value, Result result) => new(value, result.Errors);
-    public static Result<TValue> Exception<TValue>(string message) => Exception<TValue>(new Exception(message));
-    public static Result<TValue> Exception<TValue>(Exception exception) => new(exception);
+    public static Result<TValue> Error<TValue>(string message) => Error<TValue>(new Exception(message));
+    public static Result<TValue> Error<TValue>(Exception exception) => new(exception);
 
     public static Task<Result<TValue>> SuccessTask<TValue>(TValue? value) => Task.FromResult(Success(value));
     public static Task<Result<TValue>> InvalidTask<TValue>(TValue? value, string message, string? source = null) => InvalidTask(value, new ValidationError(message, source));
     public static Task<Result<TValue>> InvalidTask<TValue>(TValue? value, Result result) => Task.FromResult(Invalid(value, result));
-    public static Task<Result<TValue>> ExceptionTask<TValue>(string message) => ExceptionTask<TValue>(new Exception(message));
-    public static Task<Result<TValue>> ExceptionTask<TValue>(Exception exception) => Task.FromResult(Exception<TValue>(exception));
+    public static Task<Result<TValue>> ErrorTask<TValue>(string message) => ErrorTask<TValue>(new Exception(message));
+    public static Task<Result<TValue>> ErrorTask<TValue>(Exception exception) => Task.FromResult(Error<TValue>(exception));
 }
 
 public record Result<TValue> : Result, IResult<TValue> {
@@ -78,11 +78,11 @@ public record Result<TValue> : Result, IResult<TValue> {
     public Result<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map) {
         try {
             return HasException
-                ? Exception<TNewValue>(InnerException)
+                ? Error<TNewValue>(Exception)
                 : new(map(Value), Errors);
         }
         catch (Exception ex) {
-            return Exception<TNewValue>(ex);
+            return Error<TNewValue>(ex);
         }
     }
 

@@ -1,7 +1,6 @@
 ﻿namespace DotNetToolbox.Results;
 
 public record SignInResult : ResultBase {
-
     private SignInResult(SignInResultType type, string token)
         : this(type) {
         Token = token;
@@ -52,7 +51,7 @@ public record SignInResult : ResultBase {
     public static SignInResult BlockedAccount() => new(SignInResultType.Blocked);
     public static SignInResult LockedAccount() => new(SignInResultType.Locked);
     public static SignInResult FailedAttempt() => new(SignInResultType.Failed);
-    public static SignInResult Exception(Exception exception) => new(exception);
+    public static SignInResult Error(Exception exception) => new(exception);
 
     [MemberNotNull(nameof(Token))]
     public static Task<SignInResult> SuccessTask(string token) => Task.FromResult(Success(token));
@@ -64,7 +63,7 @@ public record SignInResult : ResultBase {
     public static Task<SignInResult> BlockedAccountTask() => Task.FromResult(BlockedAccount());
     public static Task<SignInResult> LockedAccountTask() => Task.FromResult(LockedAccount());
     public static Task<SignInResult> FailedAttemptTask() => Task.FromResult(FailedAttempt());
-    public static Task<SignInResult> ExceptionTask(Exception exception) => Task.FromResult(Exception(exception));
+    public static Task<SignInResult> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
 
     public static implicit operator SignInResult(List<ValidationError> errors) => new((Result)errors);
     public static implicit operator SignInResult(ValidationError[] errors) => new((Result)errors);

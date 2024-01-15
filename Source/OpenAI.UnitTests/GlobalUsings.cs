@@ -11,6 +11,7 @@ global using DotNetToolbox.OpenAI.Models;
 global using DotNetToolbox.OpenAI.Models.DataModels;
 global using DotNetToolbox.OpenAI.Utilities;
 global using DotNetToolbox.Results;
+global using DotNetToolbox.TestUtilities.Logging;
 
 global using FluentAssertions;
 

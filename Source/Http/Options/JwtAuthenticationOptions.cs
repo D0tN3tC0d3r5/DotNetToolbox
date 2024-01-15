@@ -1,7 +1,6 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
 public class JwtAuthenticationOptions : AuthenticationOptions {
-
     public string? PrivateKey { get; set; }
     public string? Issuer { get; set; }
     public string? Audience { get; set; }
