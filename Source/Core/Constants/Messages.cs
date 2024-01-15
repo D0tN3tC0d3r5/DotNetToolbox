@@ -12,7 +12,7 @@ public static class Messages {
     public const string ValueMustBeNullOrWhiteSpace = "The value must be null or white space.";
 
     public const string CollectionMustBeEmpty = "The value must be empty.";
-    public const string CollectionIsInvalid = "The collection contains invalid elemeents.";
+    public const string CollectionIsInvalid = "The collection contains invalid elements.";
     public const string ElementAtMustBeNull = "The element at index {0} null.";
     public const string ElementAtMustBeNullOrEmpty = "The element at index {0} or empty.";
     public const string ElementAtMustBeNullOrWhiteSpace = "The element at index {0} must be null or white space.";

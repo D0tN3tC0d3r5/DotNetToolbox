@@ -5,6 +5,11 @@ public record HttpResult : ResultBase {
         : this(HttpResultType.Ok, result.Errors) {
     }
 
+    protected HttpResult(Exception exception)
+        : base(exception) {
+        Type = HttpResultType.Error;
+    }
+
     protected HttpResult(HttpResultType type, IEnumerable<ValidationError>? errors = default)
         : base(errors) {
         SetType(type);
@@ -40,7 +45,7 @@ public record HttpResult : ResultBase {
     public static HttpResult Unauthorized() => new(HttpResultType.Unauthorized);
     public static HttpResult NotFound() => new(HttpResultType.NotFound);
     public static HttpResult Conflict() => new(HttpResultType.Conflict);
-    public static HttpResult Error(Exception exception) => new(HttpResultType.Error, [exception]);
+    public static HttpResult InternalError(Exception exception) => new(exception);
 
     public static Task<HttpResult> OkTask() => Task.FromResult(Ok());
     public static Task<HttpResult> CreatedTask() => Task.FromResult(Created());
@@ -48,7 +53,7 @@ public record HttpResult : ResultBase {
     public static Task<HttpResult> UnauthorizedTask() => Task.FromResult(Unauthorized());
     public static Task<HttpResult> NotFoundTask() => Task.FromResult(NotFound());
     public static Task<HttpResult> ConflictTask() => Task.FromResult(Conflict());
-    public static Task<HttpResult> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
+    public static Task<HttpResult> InternalErrorTask(Exception exception) => Task.FromResult(InternalError(exception));
 
     public static implicit operator HttpResult(ValidationError error)
         => new((Result)error);
@@ -82,7 +87,7 @@ public record HttpResult : ResultBase {
     public static HttpResult<TValue> Unauthorized<TValue>() => new(HttpResultType.Unauthorized);
     public static HttpResult<TValue> NotFound<TValue>() => new(HttpResultType.NotFound);
     public static HttpResult<TValue> Conflict<TValue>(TValue value) => new(HttpResultType.Conflict, IsNotNull(value));
-    public static HttpResult<TValue> Error<TValue>(TValue? value, Exception exception) => new(HttpResultType.Error, value, [exception]);
+    public static HttpResult<TValue> InternalError<TValue>(Exception exception) => new(exception);
 
     public static Task<HttpResult<TValue>> OkTask<TValue>(TValue value) => Task.FromResult(Ok(value));
     public static Task<HttpResult<TValue>> CreatedTask<TValue>(TValue value) => Task.FromResult(Created(value));
@@ -90,7 +95,7 @@ public record HttpResult : ResultBase {
     public static Task<HttpResult<TValue>> UnauthorizedTask<TValue>() => Task.FromResult(Unauthorized<TValue>());
     public static Task<HttpResult<TValue>> NotFoundTask<TValue>() => Task.FromResult(NotFound<TValue>());
     public static Task<HttpResult<TValue>> ConflictTask<TValue>(TValue value) => Task.FromResult(Conflict(value));
-    public static Task<HttpResult<TValue>> ErrorTask<TValue>(TValue? value, Exception exception) => Task.FromResult(Error(value, exception));
+    public static Task<HttpResult<TValue>> InternalErrorTask<TValue>(Exception exception) => Task.FromResult(InternalError<TValue>(exception));
 }
 
 public record HttpResult<TValue> : HttpResult, IResult<TValue> {
@@ -98,8 +103,12 @@ public record HttpResult<TValue> : HttpResult, IResult<TValue> {
         : this(HttpResultType.Ok, result.Value, result.Errors) {
     }
 
+    internal HttpResult(Exception exception)
+        : base(exception) {
+    }
+
     internal HttpResult(HttpResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = default)
-        : base(type, errors) {
+            : base(type, errors) {
         Value = value;
     }
 
@@ -114,10 +123,18 @@ public record HttpResult<TValue> : HttpResult, IResult<TValue> {
     public static HttpResult<TValue> operator +(HttpResult<TValue> left, Result right)
         => new(left.Type, left.Value, left.Errors.Union(right.Errors));
 
-    public HttpResult<TOutput> MapTo<TOutput>(Func<TValue?, TOutput?> map)
-        => Type is HttpResultType.NotFound
-               ? NotFound<TOutput>()
-               : new(Type, map(Value), Errors);
+    public HttpResult<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map) {
+        try {
+            return HasException
+                ? InternalError<TNewValue>(InnerException)
+                : Type is HttpResultType.NotFound
+                    ? NotFound<TNewValue>()
+                    : new(Type, map(Value), Errors);
+        }
+        catch (Exception ex) {
+            return InternalError<TNewValue>(ex);
+        }
+    }
 
     public virtual bool Equals(HttpResult<TValue>? other)
         => base.Equals(other)

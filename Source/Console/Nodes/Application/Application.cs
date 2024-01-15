@@ -178,7 +178,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         if (result.IsSuccess) return true;
 
         if (result.HasException) {
-            var exitCode = result.Errors.First().Exception is ConsoleException ce ? ce.ExitCode : DefaultErrorCode;
+            var exitCode = result.InnerException is ConsoleException ce ? ce.ExitCode : DefaultErrorCode;
             Exit(exitCode);
             return false;
         }

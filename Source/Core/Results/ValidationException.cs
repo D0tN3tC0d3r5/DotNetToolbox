@@ -1,24 +1,44 @@
 ﻿namespace DotNetToolbox.Results;
 
 [SuppressMessage("Roslynator", "RCS1194:Implement exception constructors", Justification = "They are all implemented indirectly.")]
-public class ValidationException(IEnumerable<ValidationError>? errors = null)
-    : Exception(_defaultMessage, null) {
-    private const string _defaultMessage = "Validation failed.";
-    private const string _defaultError = "A validation error was found.";
+public class ValidationException(string message, string? source, ICollection<ValidationError> errors, Exception? innerException = null)
+        : Exception(FormatSource(source) + FormatMessage(message), innerException) {
+    public const string DefaultMessage = "Validation failed.";
 
-    public ValidationError[] Errors { get; init; }
-        = errors is IReadOnlyList<ValidationError> { Count: > 0 }
-            ? errors.ToArray()
-            : [_defaultError];
-    public ValidationException(string error)
-        : this(string.Empty, error) {
+    public ValidationError[] Errors { get; init; } = errors.Count > 0 ? errors.ToArray() : [ValidationError.DefaultErrorMessage];
+
+    public ValidationException(Exception? innerException = null)
+        : this(DefaultMessage, innerException) {
     }
 
-    public ValidationException(string source, string error)
-        : this(new ValidationError(source, error)) {
+    public ValidationException(string message, Exception? innerException = null)
+        : this(message, string.Empty, innerException) {
     }
 
-    public ValidationException(ValidationError error)
-        : this([error]) {
+    public ValidationException(string message, string source, Exception? innerException = null)
+        : this(message, source, ValidationError.DefaultErrorMessage, innerException) {
     }
+
+    public ValidationException(string message, string source, ValidationError error, Exception? innerException = null)
+        : this(message, source, [error], innerException) {
+    }
+
+    public ValidationException(ValidationError error, Exception? innerException = null)
+        : this(DefaultMessage, error, innerException) {
+    }
+
+    public ValidationException(string message, ValidationError error, Exception? innerException = null)
+        : this(message, string.Empty, error, innerException) {
+    }
+
+    public ValidationException(ICollection<ValidationError> errors, Exception? innerException = null)
+        : this(DefaultMessage, errors, innerException) {
+    }
+
+    public ValidationException(string message, ICollection<ValidationError> errors, Exception? innerException = null)
+        : this(message, string.Empty, errors, innerException) {
+    }
+
+    private static string FormatSource(string? source) => string.IsNullOrEmpty(source) ? string.Empty : $"{source}: ";
+    private static string FormatMessage(string message) => string.IsNullOrWhiteSpace(message) ? DefaultMessage : message;
 }

@@ -3,9 +3,9 @@ using static DotNetToolbox.Results.SignInResult;
 namespace DotNetToolbox.Results;
 
 public class SignInResultTests {
-    private static readonly SignInResult _invalid = new ValidationError("Source", "Some error.");
-    private static readonly SignInResult _invalidWithSameError = new ValidationError("Source", "Some error.");
-    private static readonly SignInResult _invalidWithOtherError = new ValidationError("Source", "Other error.");
+    private static readonly SignInResult _invalid = new ValidationError("Some error.", "Source");
+    private static readonly SignInResult _invalidWithSameError = new ValidationError("Some error.", "Source");
+    private static readonly SignInResult _invalidWithOtherError = new ValidationError("Other error.", "Source");
     private static readonly SignInResult _locked = LockedAccount();
     private static readonly SignInResult _blocked = BlockedAccount();
     private static readonly SignInResult _failure = FailedAttempt();
@@ -28,7 +28,7 @@ public class SignInResultTests {
     [Fact]
     public void Invalid_WithMessageOnly_CreatesResult() {
         // Arrange & Act
-        var result = InvalidData(new ValidationError("Some error."));
+        var result = InvalidRequest(new ValidationError("Some error."));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -38,19 +38,19 @@ public class SignInResultTests {
     [Fact]
     public void Invalid_WithSourceAndMessage_CreatesResult() {
         // Arrange & Act
-        var result = InvalidData(new ValidationError("Field1", "Some error."));
+        var result = InvalidRequest(new ValidationError("Some error.", "Field1"));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().BeEquivalentTo(new[] {
-            new ValidationError("Field1", "Some error."),
+            new ValidationError("Some error.", "Field1"),
         });
     }
 
     [Fact]
     public void Invalid_WithResult_CreatesResult() {
         // Arrange & Act
-        var result = InvalidData(Result.Invalid("Some error."));
+        var result = InvalidRequest(Result.Invalid("Some error."));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -60,7 +60,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
-        var result = (SignInResult)new ValidationError("Source", "Some error.");
+        var result = (SignInResult)new ValidationError("Some error.", "Source");
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -69,7 +69,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        SignInResult result = new[] { new ValidationError("Source", "Some error.") };
+        SignInResult result = new[] { new ValidationError("Some error.", "Source") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -78,7 +78,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        SignInResult result = new List<ValidationError> { new("Source", "Some error.") };
+        SignInResult result = new List<ValidationError> { new("Some error.", "Source") };
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -170,7 +170,7 @@ public class SignInResultTests {
         var result = Success("SomeToken");
 
         // Act
-        result += new ValidationError("Source", "Some error.");
+        result += new ValidationError("Some error.", "Source");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -181,7 +181,7 @@ public class SignInResultTests {
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = InvalidData(new ValidationError("Source", "Some error."));
+        var result = InvalidRequest(new ValidationError("Some error.", "Source"));
 
         // Act
         result += new ValidationError("Source", "Other error.");
@@ -194,10 +194,10 @@ public class SignInResultTests {
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = InvalidData(new ValidationError("Source", "Some error."));
+        var result = InvalidRequest(new ValidationError("Some error.", "Source"));
 
         // Act
-        result += new ValidationError("Source", "Some error.");
+        result += new ValidationError("Some error.", "Source");
 
         // Assert
         result.IsSuccess.Should().BeFalse();

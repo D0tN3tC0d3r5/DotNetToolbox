@@ -10,9 +10,9 @@ public class ValidationErrorSetExtensionsTests {
     public void Contains_ReturnsIfHasFormattedMessage(string message, bool expectedResult) {
         // Arrange
         var errors = new List<ValidationError> {
-            new("Field1", "Some message 1."),
-            new("Field1", "Some message 2."),
-            new("Field2", "Some message 42."),
+            new("Some message 1.", "Field1"),
+            new("Some message 2.", "Field1"),
+            new("Some message 42.", "Field2"),
         };
 
         // Act & Assert

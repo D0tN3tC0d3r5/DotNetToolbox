@@ -5,6 +5,11 @@ public record CrudResult : ResultBase {
         : this(CrudResultType.Success, result.Errors) {
     }
 
+    protected CrudResult(Exception exception)
+        : base(exception) {
+        Type = CrudResultType.Error;
+    }
+
     protected CrudResult(CrudResultType type, IEnumerable<ValidationError>? errors = null)
         : base(errors) {
         SetType(type);
@@ -32,7 +37,7 @@ public record CrudResult : ResultBase {
     public static CrudResult NotFound() => new(CrudResultType.NotFound);
     public static CrudResult Conflict() => new(CrudResultType.Conflict);
     public static CrudResult Invalid(Result result) => new(CrudResultType.Invalid, result.Errors);
-    public static CrudResult Exception(Exception exception) => new(CrudResultType.Invalid, [exception]);
+    public static CrudResult Exception(Exception exception) => new(exception);
 
     public static Task<CrudResult> SuccessTask() => Task.FromResult(Success());
     public static Task<CrudResult> NotFoundTask() => Task.FromResult(NotFound());
@@ -44,7 +49,7 @@ public record CrudResult : ResultBase {
     public static implicit operator CrudResult(List<ValidationError> errors) => new((Result)errors);
     public static implicit operator CrudResult(ValidationError[] errors) => new((Result)errors);
     public static implicit operator CrudResult(HashSet<ValidationError> errors) => new((Result)errors);
-    public static implicit operator CrudResult(Exception exception) => new((Result)exception);
+    public static implicit operator CrudResult(Exception exception) => new(exception);
     public static implicit operator CrudResult(Result result) => new((IResult)result);
 
     public static CrudResult operator +(CrudResult left, CrudResult right)
@@ -64,18 +69,22 @@ public record CrudResult : ResultBase {
     public static CrudResult<TValue> NotFound<TValue>() => new(CrudResultType.NotFound);
     public static CrudResult<TValue> Conflict<TValue>(TValue value) => new(CrudResultType.Conflict, value);
     public static CrudResult<TValue> Invalid<TValue>(TValue? value, Result result) => new(CrudResultType.Invalid, value, result.Errors);
-    public static CrudResult<TValue> Exception<TValue>(TValue? value, Exception exception) => new(CrudResultType.Invalid, value, [exception]);
+    public static CrudResult<TValue> Exception<TValue>(Exception exception) => new(exception);
 
     public static Task<CrudResult<TValue>> SuccessTask<TValue>(TValue value) => Task.FromResult(Success(value));
     public static Task<CrudResult<TValue>> NotFoundTask<TValue>() => Task.FromResult(NotFound<TValue>());
     public static Task<CrudResult<TValue>> ConflictTask<TValue>(TValue value) => Task.FromResult(Conflict(value));
     public static Task<CrudResult<TValue>> InvalidTask<TValue>(TValue? value, Result result) => Task.FromResult(Invalid(value, result));
-    public static Task<CrudResult<TValue>> ExceptionTask<TValue>(TValue? value, Exception exception) => Task.FromResult(Exception(value, exception));
+    public static Task<CrudResult<TValue>> ExceptionTask<TValue>(Exception exception) => Task.FromResult(Exception<TValue>(exception));
 }
 
 public record CrudResult<TValue> : CrudResult, IResult<TValue> {
     internal CrudResult(IResult<TValue> result)
         : this(CrudResultType.Success, result.Value, result.Errors) {
+    }
+
+    internal CrudResult(Exception exception)
+        : base(exception) {
     }
 
     internal CrudResult(CrudResultType type, TValue? value = default, IEnumerable<ValidationError>? errors = null)
@@ -94,10 +103,18 @@ public record CrudResult<TValue> : CrudResult, IResult<TValue> {
     public static CrudResult<TValue> operator +(CrudResult<TValue> left, Result right)
         => new(left.Type, left.Value, left.Errors.Union(right.Errors));
 
-    public CrudResult<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map)
-        => Type is CrudResultType.NotFound
-            ? NotFound<TNewValue>()
-            : new(Type, map(Value), Errors);
+    public CrudResult<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map) {
+        try {
+            return HasException
+                ? Exception<TNewValue>(InnerException)
+                : Type is CrudResultType.NotFound
+                    ? NotFound<TNewValue>()
+                    : new(Type, map(Value), Errors);
+        }
+        catch (Exception ex) {
+            return Exception<TNewValue>(ex);
+        }
+    }
 
     public virtual bool Equals(CrudResult<TValue>? other)
         => base.Equals(other)

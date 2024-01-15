@@ -2,18 +2,23 @@
 
 public record SignInResult : ResultBase {
 
-    private SignInResult(string token)
-        : this(SignInResultType.Success, token) {
+    private SignInResult(SignInResultType type, string token)
+        : this(type) {
+        Token = token;
     }
 
     private SignInResult(IResult result)
-        : this(SignInResultType.Success, default, result.Errors) {
+        : this(SignInResultType.Success, result.Errors) {
     }
 
-    private SignInResult(SignInResultType type, string? token = default, IEnumerable<ValidationError>? errors = default)
+    private SignInResult(Exception exception)
+        : base(exception) {
+        Type = SignInResultType.Error;
+    }
+
+    private SignInResult(SignInResultType type, IEnumerable<ValidationError>? errors = default)
         : base(errors) {
         SetType(type);
-        Token = HasException || HasErrors ? default : token;
     }
 
     internal SignInResultType Type { get; private set; }
@@ -43,11 +48,11 @@ public record SignInResult : ResultBase {
     public static SignInResult ConfirmationRequired(string token) => new(SignInResultType.ConfirmationRequired, IsNotNull(token));
     [MemberNotNull(nameof(Token))]
     public static SignInResult TwoFactorRequired(string token) => new(SignInResultType.TwoFactorRequired, IsNotNull(token));
-    public static SignInResult InvalidData(Result result) => new(SignInResultType.Invalid, errors: result.Errors);
+    public static SignInResult InvalidRequest(Result result) => new(SignInResultType.Invalid, result.Errors);
     public static SignInResult BlockedAccount() => new(SignInResultType.Blocked);
     public static SignInResult LockedAccount() => new(SignInResultType.Locked);
     public static SignInResult FailedAttempt() => new(SignInResultType.Failed);
-    public static SignInResult Exception(Exception exception) => new(SignInResultType.Error, errors: [exception]);
+    public static SignInResult Exception(Exception exception) => new(exception);
 
     [MemberNotNull(nameof(Token))]
     public static Task<SignInResult> SuccessTask(string token) => Task.FromResult(Success(token));
@@ -55,7 +60,7 @@ public record SignInResult : ResultBase {
     public static Task<SignInResult> ConfirmationRequiredTask(string token) => Task.FromResult(ConfirmationRequired(token));
     [MemberNotNull(nameof(Token))]
     public static Task<SignInResult> TwoFactorRequiredTask(string token) => Task.FromResult(TwoFactorRequired(token));
-    public static Task<SignInResult> InvalidTask(Result result) => Task.FromResult(InvalidData(result));
+    public static Task<SignInResult> InvalidTask(Result result) => Task.FromResult(InvalidRequest(result));
     public static Task<SignInResult> BlockedAccountTask() => Task.FromResult(BlockedAccount());
     public static Task<SignInResult> LockedAccountTask() => Task.FromResult(LockedAccount());
     public static Task<SignInResult> FailedAttemptTask() => Task.FromResult(FailedAttempt());
@@ -65,15 +70,23 @@ public record SignInResult : ResultBase {
     public static implicit operator SignInResult(ValidationError[] errors) => new((Result)errors);
     public static implicit operator SignInResult(ValidationError error) => new((Result)error);
     public static implicit operator SignInResult(HashSet<ValidationError> errors) => new((Result)errors);
-    public static implicit operator SignInResult(Exception exception) => new((Result)exception);
+    public static implicit operator SignInResult(Exception exception) => new(exception);
     public static implicit operator SignInResult(Result result) => new((IResult)result);
-    public static implicit operator SignInResult(string token) => new(token);
+    public static implicit operator SignInResult(string token) => new(SignInResultType.Success, token);
 
-    public static SignInResult operator +(SignInResult left, SignInResult right)
-        => new(right.Type, left.Token, left.Errors.Union(right.Errors));
+    public static SignInResult operator +(SignInResult left, SignInResult right) {
+        var errors = left.Errors.Union(right.Errors).ToArray();
+        return errors.Length > 0
+            ? new(left.Errors.Count > 0 ? left.Type : right.Type, left.Errors.Union(right.Errors))
+            : new(left.Type, left.Token!);
+    }
 
-    public static SignInResult operator +(SignInResult left, Result right)
-        => new(left.Type, left.Token, left.Errors.Union(right.Errors));
+    public static SignInResult operator +(SignInResult left, Result right) {
+        var errors = left.Errors.Union(right.Errors).ToArray();
+        return errors.Length > 0
+                   ? new(left.Errors.Count > 0 ? left.Type : SignInResultType.Invalid, left.Errors.Union(right.Errors))
+                   : new(left.Type, left.Token!);
+    }
 
     public virtual bool Equals(SignInResult? other)
         => base.Equals(other)

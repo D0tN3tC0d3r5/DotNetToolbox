@@ -14,13 +14,13 @@ public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
         var result = base.Validate(context);
 
         if (string.IsNullOrWhiteSpace(ClientId))
-            result += new ValidationError(GetSourcePath(nameof(ClientId)), ValueCannotBeNullOrWhiteSpace);
+            result += new ValidationError(ValueCannotBeNullOrWhiteSpace, GetSourcePath(nameof(ClientId)));
 
         if (string.IsNullOrEmpty(ClientSecret))
-            result += new ValidationError(GetSourcePath(nameof(ClientSecret)), ValueCannotBeNullOrEmpty);
+            result += new ValidationError(ValueCannotBeNullOrEmpty, GetSourcePath(nameof(ClientSecret)));
 
         if (Scopes.Length == 0)
-            result += new ValidationError(GetSourcePath(nameof(Scopes)), ValueCannotBeNullOrEmpty);
+            result += new ValidationError(ValueCannotBeNullOrEmpty, GetSourcePath(nameof(Scopes)));
 
         return result;
 

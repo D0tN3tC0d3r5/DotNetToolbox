@@ -31,11 +31,11 @@ The `ValidationError` class represents individual validation errors, useful for 
 1. **Creating a ValidationError:**
     ```csharp
     // Create a validation error with a source and message
-    ValidationError emailError = new ValidationError("Email", "Invalid email format");
+    var  emailError = new ValidationError("Invalid email format", "Email");
     Console.WriteLine(emailError);
 
     // Create a validation error with only a message
-    ValidationError generalError = new ValidationError("General error occurred");
+    var generalError = new ValidationError("General error occurred");
     Console.WriteLine(generalError);
     ```
 
@@ -51,7 +51,7 @@ It has extension methods for collections of `ValidationError`s, such as checking
     ```csharp
     List<ValidationError> errors = new List<ValidationError> {
         "Email is required",
-        new ValidationError("Password", "Password is too weak")
+        new ValidationError("Password is too weak.", "Password")
     };
 
     // Check if a specific error message exists in the collection
@@ -108,7 +108,7 @@ The `Result` class provides a flexible way to represent the outcome of operation
 
 5. **Implicit Conversion from `ValidationError` or `Exception`:**
     ```csharp
-    Result resultFromError = new ValidationError("Email", "Invalid email format");
+    Result resultFromError = new ValidationError("Invalid email format", "Email");
     Result resultFromException = new Exception("Database connection failed");
     ```
 

@@ -8,24 +8,24 @@ public class HttpResultTests {
     private static readonly HttpResult _unauthorized = Unauthorized();
     private static readonly HttpResult _notFound = NotFound();
     private static readonly HttpResult _conflict = Conflict();
-    private static readonly HttpResult _badRequest = BadRequest(new ValidationError("Source", "Some error."));
-    private static readonly HttpResult _badRequestWithSameError = BadRequest(new ValidationError("Source", "Some error."));
-    private static readonly HttpResult _badRequestWithOtherError = BadRequest(new ValidationError("Source", "Other error."));
-    private static readonly HttpResult _failure = Error(new("Some error."));
+    private static readonly HttpResult _badRequest = BadRequest(new ValidationError("Some error.", "Source"));
+    private static readonly HttpResult _badRequestWithSameError = BadRequest(new ValidationError("Some error.", "Source"));
+    private static readonly HttpResult _badRequestWithOtherError = BadRequest(new ValidationError("Other error.", "Source"));
+    private static readonly HttpResult _failure = InternalError(new("Some error."));
 
     private static readonly HttpResult<string> _okWithValue = Ok("Value");
     private static readonly HttpResult<string> _createdWithValue = Created("Value");
     private static readonly HttpResult<string> _unauthorizedWithValue = Unauthorized<string>();
     private static readonly HttpResult<string> _notFoundWithValue = NotFound<string>();
     private static readonly HttpResult<string> _conflictWithValue = Conflict("Value");
-    private static readonly HttpResult<string> _badRequestWithValue = BadRequest("Value", new ValidationError("Source", "Some error."));
-    private static readonly HttpResult<string> _failureWithValue = Error("42", new("Some error."));
+    private static readonly HttpResult<string> _badRequestWithValue = BadRequest("Value", new ValidationError("Some error.", "Source"));
+    private static readonly HttpResult<string> _failureWithValue = InternalError<string>(new("Some error."));
 
     [Fact]
     public void CopyConstructor_ClonesObject() {
         // Act
         var result = _ok with {
-            Errors = new HashSet<ValidationError> { new("Some error.") },
+            Errors = new List<ValidationError> { new("Some error.") },
         };
 
         // Assert
@@ -36,7 +36,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
         // Act
-        HttpResult result = new ValidationError(nameof(result), "Some error.");
+        HttpResult result = new ValidationError("Some error.", nameof(result));
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -45,7 +45,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        HttpResult result = new[] { new ValidationError(nameof(result), "Some error.") };
+        HttpResult result = new[] { new ValidationError("Some error.", nameof(result)) };
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -54,7 +54,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
         // Act
-        HttpResult result = new List<ValidationError> { new(nameof(result), "Some error.") };
+        HttpResult result = new List<ValidationError> { new("Some error.", nameof(result)) };
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -184,12 +184,12 @@ public class HttpResultTests {
     [Fact]
     public void BadRequest_WithSourceAndMessage_CreatesResult() {
         // Arrange & Act
-        var result = BadRequest(new ValidationError("Field1", "Some error."));
+        var result = BadRequest(new ValidationError("Some error.", "Field1"));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().BeEquivalentTo(new[] {
-            new ValidationError("Field1", "Some error."),
+            new ValidationError("Some error.", "Field1"),
         });
     }
 
@@ -219,7 +219,7 @@ public class HttpResultTests {
     [Fact]
     public void AddOperator_WithOtherError_ReturnsBothErrors() {
         // Arrange
-        var result = BadRequest(new ValidationError("Source", "Some error."));
+        var result = BadRequest(new ValidationError("Some error.", "Source"));
 
         // Act
         result += new ValidationError("Source", "Other error.");
@@ -232,10 +232,10 @@ public class HttpResultTests {
     [Fact]
     public void AddOperator_WithSameError_ReturnsOnlyOneError() {
         // Arrange
-        var result = BadRequest(new ValidationError("Source", "Some error."));
+        var result = BadRequest(new ValidationError("Some error.", "Source"));
 
         // Act
-        result += new ValidationError("Source", "Some error.");
+        result += new ValidationError("Some error.", "Source");
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -263,7 +263,7 @@ public class HttpResultTests {
         var result = Ok("SomeToken");
 
         // Act
-        result += new ValidationError("Source", "Some error.");
+        result += new ValidationError("Some error.", "Source");
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -323,7 +323,7 @@ public class HttpResultTests {
         var result = Ok("Value");
 
         // Act
-        result += new ValidationError("result", "Some error.");
+        result += new ValidationError("Some error.", "result");
 
         // Assert
         result.IsOk.Should().BeFalse();
@@ -362,7 +362,7 @@ public class HttpResultTests {
     [Fact]
     public void MapTo_WithError_ReturnsBadRequest() {
         // Arrange
-        var subject = BadRequest("42", new ValidationError("Field", "Some error."));
+        var subject = BadRequest("42", new ValidationError("Some error.", "Field1"));
 
         // Act
         var result = subject.MapTo(s => s is null ? default : int.Parse(s));
@@ -395,12 +395,12 @@ public class HttpResultTests {
     [Fact]
     public void BadRequestOfT_WithSourceAndMessage_CreatesResult() {
         // Arrange & Act
-        var result = BadRequest(42, new ValidationError("Field1", "Some error."));
+        var result = BadRequest(42, new ValidationError("Some error.", "Field1"));
 
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().BeEquivalentTo(new[] {
-            new ValidationError("Field1", "Some error."),
+            new ValidationError("Some error.", "Field1"),
         });
     }
 

@@ -83,13 +83,8 @@ public static class Ensure {
     }
 
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
-        try {
-            validate(argument).EnsureIsSuccess();
-            return argument;
-        }
-        catch (Exception ex) {
-            throw new ArgumentException(ex.Message, paramName, ex);
-        }
+        validate(argument).EnsureIsSuccess();
+        return argument;
     }
 
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? @default)
@@ -100,7 +95,7 @@ public static class Ensure {
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => isValid(argument)
                ? argument
-               : throw new ArgumentException(ValueIsNotValid, paramName!);
+               : throw new ValidationException(ValueIsNotValid, paramName!);
 
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? @default)
         => isValid(argument)
@@ -144,8 +139,8 @@ public static class Ensure {
         where TArgument : IEnumerable
         => (argument?.Cast<TValue?>() ?? Enumerable.Empty<TValue?>()).Select((x, i) => new Indexed<TValue>(i, x)).ToArray();
 
-    private static ArgumentException GenerateException(string? paramName, IEnumerable<int> emptyElements, string message) {
-        var errors = emptyElements.Select(i => new ValidationError(string.Format(message, i)));
-        return new(CollectionIsInvalid, paramName, new ValidationException(errors));
+    private static ValidationException GenerateException(string? paramName, IEnumerable<int> emptyElements, string message) {
+        var errors = emptyElements.Select(i => new ValidationError(string.Format(message, i))).ToArray();
+        return new(CollectionIsInvalid, paramName, errors);
     }
 }

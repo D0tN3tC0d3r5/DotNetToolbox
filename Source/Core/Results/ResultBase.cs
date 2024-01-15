@@ -3,30 +3,33 @@
 public record ResultBase : IResult {
     private readonly ObservableCollection<ValidationError> _errors = [];
 
+    protected ResultBase(Exception exception) {
+        InnerException = exception;
+    }
+
     protected ResultBase(IEnumerable<ValidationError>? errors = null) {
-        errors = (AllAreNotNull(errors) ?? []).ToArray();
-        var exception = errors.Where(i => i.Exception is not null).Take(1).ToArray();
-        Errors = (exception.Length == 0 ? exception : errors).ToHashSet();
+        Errors = (AllAreNotNull(errors) ?? []).ToArray();
     }
 
     protected virtual void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors) { }
-    public ICollection<ValidationError> Errors {
-        get => _errors;
+    public IReadOnlyList<ValidationError> Errors {
+        get => _errors.ToArray();
         init {
-            _errors = new(value);
+            _errors = [.. value.Distinct()];
             _errors.CollectionChanged += (_, _) => OnErrorsChanged(_errors);
             OnErrorsChanged(_errors);
         }
     }
 
     public bool HasErrors => Errors.Count != 0;
-    public bool HasException => Errors.Any(i => i.Exception is not null);
-    protected bool HasNoIssues => !HasErrors;
+    public Exception? InnerException { get; }
+    [MemberNotNullWhen(true, nameof(InnerException))]
+    public bool HasException => InnerException is not null;
 
     public static implicit operator ResultBase(string error)
         => new((ValidationError)error);
     public static implicit operator ResultBase(Exception exception)
-        => new((ValidationError)exception);
+        => new(exception);
     public static implicit operator ResultBase(ValidationError error)
         => new([error]);
     public static implicit operator ResultBase(List<ValidationError> errors)
@@ -40,9 +43,8 @@ public record ResultBase : IResult {
         => new(left.Errors.Union(right.Errors));
 
     public void EnsureIsSuccess() {
-        var exception = Errors.FirstOrDefault(i => i.Exception is not null).Exception;
-        if (exception is not null) throw exception;
-        if (HasErrors) throw new ValidationException(Errors);
+        if (InnerException is not null) throw new ValidationException(InnerException);
+        if (HasErrors) throw new ValidationException([.. Errors]);
     }
 
     public virtual bool Equals(ResultBase? other)

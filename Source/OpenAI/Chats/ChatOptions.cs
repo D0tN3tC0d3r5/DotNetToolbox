@@ -39,28 +39,28 @@ public record ChatOptions : IValidatable {
     public Result Validate(IDictionary<string, object?>? context = null) {
         var result = Result.Success();
         if (MaximumTokensPerMessage < MinimumTokensPerMessage)
-            result += new ValidationError(nameof(MaximumTokensPerMessage), $"Value must be greater than {MinimumTokensPerMessage}. Found: {MaximumTokensPerMessage}");
+            result += new ValidationError($"Value must be greater than {MinimumTokensPerMessage}. Found: {MaximumTokensPerMessage}", nameof(MaximumTokensPerMessage));
 
         if (NumberOfChoices is < MinimumNumberOfChoices or > MaximumNumberOfChoices)
-            result += new ValidationError(nameof(NumberOfChoices), $"Value must be between {MinimumNumberOfChoices} and {MaximumNumberOfChoices}. Found: {NumberOfChoices}");
+            result += new ValidationError($"Value must be between {MinimumNumberOfChoices} and {MaximumNumberOfChoices}. Found: {NumberOfChoices}", nameof(NumberOfChoices));
 
         if (FrequencyPenalty is < MinimumFrequencyPenalty or > MaximumFrequencyPenalty)
-            result += new ValidationError(nameof(FrequencyPenalty), $"Value must be between {MinimumFrequencyPenalty} and {MaximumFrequencyPenalty}. Found: {FrequencyPenalty}");
+            result += new ValidationError($"Value must be between {MinimumFrequencyPenalty} and {MaximumFrequencyPenalty}. Found: {FrequencyPenalty}", nameof(FrequencyPenalty));
 
         if (PresencePenalty is < MinimumPresencePenalty or > MaximumPresencePenalty)
-            result += new ValidationError(nameof(PresencePenalty), $"Value must be between {MinimumPresencePenalty} and {MaximumPresencePenalty}. Found: {PresencePenalty}");
+            result += new ValidationError($"Value must be between {MinimumPresencePenalty} and {MaximumPresencePenalty}. Found: {PresencePenalty}", nameof(PresencePenalty));
 
         if (StopSignals.Count > MaximumNumberOfStopSignals)
-            result += new ValidationError(nameof(StopSignals), $"The maximum number of stop signals is {MaximumNumberOfStopSignals}. Found: {StopSignals.Count}.");
+            result += new ValidationError($"The maximum number of stop signals is {MaximumNumberOfStopSignals}. Found: {StopSignals.Count}.", nameof(StopSignals));
 
         if (StopSignals.Count > 0 && StopSignals.Any(string.IsNullOrWhiteSpace))
-            result += new ValidationError(nameof(StopSignals), $"Stop signals cannot be null, empty, or contain only whitespace.");
+            result += new ValidationError("Stop signals cannot be null, empty, or contain only whitespace.", nameof(StopSignals));
 
         if (Temperature is < MinimumTemperature or > MaximumTemperature)
-            result += new ValidationError(nameof(Temperature), $"Value must be between {MinimumTemperature} and {MinimumTemperature}. Found: {Temperature}");
+            result += new ValidationError($"Value must be between {MinimumTemperature} and {MinimumTemperature}. Found: {Temperature}", nameof(Temperature));
 
         if (TopProbability is < MinimumTopProbability or > MaximumTopProbability)
-            result += new ValidationError(nameof(TopProbability), $"Value must be between {MinimumTopProbability} and {MaximumTopProbability}. Found: {TopProbability}");
+            result += new ValidationError($"Value must be between {MinimumTopProbability} and {MaximumTopProbability}. Found: {TopProbability}", nameof(TopProbability));
 
         return result;
     }
