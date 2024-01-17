@@ -1,4 +1,4 @@
-namespace DotNetToolbox.Validation;
+namespace DotNetToolbox.Results;
 
 public class ValidationErrorTests {
     [Fact]
@@ -7,21 +7,28 @@ public class ValidationErrorTests {
         var error1 = new ValidationError();
 
         // Act
-        var error2 = error1;
+        var error2 = error1 with { };
 
         // Assert
-        error2.Should().BeSameAs(error1);
+        error2.Should().NotBeSameAs(error1);
         error1.Message.Should().Be(ValidationError.DefaultErrorMessage);
         error1.Source.Should().BeEmpty();
+        error1.ToString().Should().Be("The value is invalid.");
     }
 
     [Fact]
-    public void FormattedMessage_WithNullError_ReturnsEmptyMessage() {
+    public void WithSourceAndMessage_ReturnsFormattedMessage() {
+        // Arrange
+        var error1 = new ValidationError("Some message.", "Field");
+
         // Act
-        var error = default(ValidationError);
+        var error2 = error1 with { };
 
         // Assert
-        error.Should().BeNull();
+        error2.Should().NotBeSameAs(error1);
+        error1.Message.Should().Be("Some message.");
+        error1.Source.Should().Be("Field");
+        error1.ToString().Should().Be("Field: Some message.");
     }
 
     [Theory]
@@ -39,21 +46,20 @@ public class ValidationErrorTests {
     [Fact]
     public void Equality_ShouldReturnAsExpected() {
         var subject = new ValidationError("Break message data", "field");
-        var otherSource = new ValidationError("Break message data", "otherField");
-        var otherTemplate = new ValidationError("Other message data", "field");
-        var otherData = new ValidationError("Break message other data", "field");
         var same = new ValidationError("Break message data", "field");
+        var otherSource = new ValidationError("Break message data", "otherField");
+        var otherMessage = new ValidationError("Other message data", "field");
 
         //Act
+        var resultForNull = subject == null!;
         var resultForOtherSource = subject != otherSource;
-        var resultForOtherTemplate = subject != otherTemplate;
-        var resultForOtherData = subject != otherData;
+        var resultForOtherTemplate = subject != otherMessage;
         var resultForSame = subject == same;
 
         //Assert
+        resultForNull.Should().BeFalse();
         resultForOtherSource.Should().BeTrue();
         resultForOtherTemplate.Should().BeTrue();
-        resultForOtherData.Should().BeTrue();
         resultForSame.Should().BeTrue();
     }
 

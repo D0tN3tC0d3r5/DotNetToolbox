@@ -2,6 +2,7 @@
 
 public class HttpClientOptions<TOptions> : NamedOptions<TOptions>, IValidatable
     where TOptions : HttpClientOptions<TOptions>, new() {
+    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "<Pending>")]
     public const string DefaultResponseFormat = "application/json";
 
     public virtual Uri? BaseAddress { get; set; }

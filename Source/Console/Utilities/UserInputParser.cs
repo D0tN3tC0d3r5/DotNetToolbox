@@ -1,11 +1,11 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
 
 internal static class UserInputParser {
-    private static readonly RegexOptions _parserOptions = IgnoreCase
-                                                        | Singleline
-                                                        | Compiled
-                                                        | CultureInvariant
-                                                        | NonBacktracking;
+    private const RegexOptions _parserOptions = IgnoreCase
+                                              | Singleline
+                                              | Compiled
+                                              | CultureInvariant
+                                              | NonBacktracking;
     private static readonly Regex _word = new("""
                                               "[^"]*"|\S+
                                               """, _parserOptions);

@@ -1,10 +1,10 @@
 namespace DotNetToolbox.Threading;
 
-public class TaskExtensionTests {
+public class TaskExtensionsTests {
     private static readonly CancellationTokenSource _tokenSource = new();
     private static readonly CancellationToken _token = _tokenSource.Token;
 
-    static TaskExtensionTests() {
+    static TaskExtensionsTests() {
         _tokenSource.Cancel();
     }
 

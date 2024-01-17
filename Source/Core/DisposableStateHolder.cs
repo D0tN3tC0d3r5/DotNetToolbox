@@ -9,5 +9,6 @@ public class DisposableStateHolder<TState>(TState state)
     public void Dispose() {
         if (State is IDisposable disposable)
             disposable.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

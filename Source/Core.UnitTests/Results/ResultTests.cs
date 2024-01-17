@@ -12,15 +12,16 @@ public class ResultTests {
     private static readonly Result<string> _failureWithValue = Result.Error<string>("Some error.");
 
     [Fact]
-    public void CopyConstructor_ClonesObject() {
+    public void Success_CreatesSuccess() {
         // Act
-        var result = _success with {
-            Errors = new List<ValidationError> { new("Some error.") },
-        };
+        var result = _success with { };
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
+        result.Type.Should().Be(ResultType.Success);
+        result.IsSuccess.Should().BeTrue();
+        result.IsInvalid.Should().BeFalse();
+        result.IsFaulty.Should().BeFalse();
+        result.Errors.Should().BeEmpty();
     }
 
     [Fact]
@@ -29,17 +30,22 @@ public class ResultTests {
         Result result = new ValidationError("Some error.", nameof(result));
 
         // Assert
+        result.Type.Should().Be(ResultType.Invalid);
         result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
         result.Errors.Should().ContainSingle();
     }
 
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        Result result = new[] { new ValidationError("Some error.", nameof(result)) };
+        Result result = new [] { new ValidationError("Some error.", nameof(result)) };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
         result.Errors.Should().ContainSingle();
     }
 
@@ -50,6 +56,8 @@ public class ResultTests {
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
         result.Errors.Should().ContainSingle();
     }
 
@@ -60,6 +68,8 @@ public class ResultTests {
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
         result.Errors.Should().ContainSingle();
     }
 
@@ -69,21 +79,86 @@ public class ResultTests {
         Result result = new InvalidOperationException("Some error.");
 
         // Assert
+        result.Type.Should().Be(ResultType.Error);
         result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().BeEmpty();
+        result.IsInvalid.Should().BeFalse();
         result.IsFaulty.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
     }
 
     [Fact]
-    public void AddOperator_WithError_ReturnsInvalid() {
+    public void ImplicitConversion_FromSuccess_ReturnsError() {
+        // Act
+        Exception? exception = _success;
+        ValidationErrors errors = _success;
+
+        // Assert
+        exception.Should().BeNull();
+        errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromFailure_ReturnsError() {
+        // Act
+        Exception? exception = _failure;
+        ValidationErrors errors = _failure;
+
+        // Assert
+        exception.Should().NotBeNull();
+        errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromInvalid_ReturnsError() {
+        // Act
+        Exception? exception = _invalid;
+        ValidationErrors errors = _invalid;
+
+        // Assert
+        exception.Should().BeNull();
+        errors.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void AddOperator_FromSuccess_WithInvalid_ReturnsException() {
         // Arrange
         var result = Result.Success();
+
+        // Act
+        result += Result.Success() + new ValidationError("Some error.", "result");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AddOperator_FromError_WithInvalid_ReturnsInvalid() {
+        // Arrange
+        var result = Result.Error(new Exception("Error"));
 
         // Act
         result += new ValidationError("Some error.", "result");
 
         // Assert
         result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeFalse();
+        result.IsFaulty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AddOperator_FromSuccess_WithError_ReturnsException() {
+        // Arrange
+        var result = Result.Success();
+
+        // Act
+        result += new Exception("Some error.");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeFalse();
+        result.IsFaulty.Should().BeTrue();
     }
 
     private class TestDataForEquality : TheoryData<Result, Result?, bool> {
@@ -143,18 +218,6 @@ public class ResultTests {
 
         // Assert
         result.Should().BeEquivalentTo(expectedResult);
-    }
-
-    [Fact]
-    public void OfT_CopyConstructor_ClonesObject() {
-        // Act
-        var result = _successWithValue with {
-            Errors = new List<ValidationError> { new("Some error.") },
-        };
-
-        // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -225,5 +288,422 @@ public class ResultTests {
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().BeEmpty();
         result.IsFaulty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void SuccessWithValue_CreatesSuccess() {
+        // Act
+        var result = _successWithValue with { };
+
+        // Assert
+        result.Type.Should().Be(ResultType.Success);
+        result.IsSuccess.Should().BeTrue();
+        result.IsInvalid.Should().BeFalse();
+        result.IsFaulty.Should().BeFalse();
+        result.Errors.Should().BeEmpty();
+        result.Value.Should().Be("42");
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromString_ReturnsInvalidResultWithSingleError() {
+        // Act
+        Result result = "Test error";
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().ContainSingle(e => e.Message == "Test error");
+    }
+
+    [Fact]
+    public void ImplicitConversion_WithValue_FromValidationError_ReturnsFailure() {
+        // Act
+        Result<string> result = new ValidationError("Some error.", nameof(result));
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_WithValue_FromValidationErrorArray_ReturnsFailure() {
+        // Act
+        Result<string> result = new[] { new ValidationError("Some error.", nameof(result)) };
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_WithValue_FromValidationErrorList_ReturnsFailure() {
+        // Act
+        Result<string> result = new List<ValidationError> { new("Some error.", nameof(result)) };
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_WithValue_FromValidationErrorSet_ReturnsFailure() {
+        // Act
+        Result<string> result = new HashSet<ValidationError> { new("Some error.", nameof(result)) };
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_WithValue_FromException_ReturnsError() {
+        // Act
+        Result<string> result = new InvalidOperationException("Some error.");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeFalse();
+        result.IsFaulty.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromSuccessWithValue_ReturnsError() {
+        // Act
+        Exception? exception = _successWithValue;
+        ValidationErrors errors = _successWithValue;
+        string? value = _successWithValue;
+
+        // Assert
+        exception.Should().BeNull();
+        errors.Should().BeEmpty();
+        value.Should().Be("42");
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromFailureWithValue_ReturnsError() {
+        // Act
+        Exception? exception = _failureWithValue;
+        ValidationErrors errors = _failureWithValue;
+        string? value = _failureWithValue;
+
+        // Assert
+        exception.Should().NotBeNull();
+        errors.Should().BeEmpty();
+        value.Should().BeNull();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromInvalidWithValue_ReturnsError() {
+        // Act
+        Exception? exception = _invalidWithValue;
+        ValidationErrors errors = _invalidWithValue;
+        string? value = _invalidWithValue;
+
+        // Assert
+        exception.Should().BeNull();
+        errors.Should().NotBeEmpty();
+        value.Should().Be("42");
+    }
+
+    [Fact]
+    public void EnsureIsSuccess_WhenResultHasException_ThrowsValidationException() {
+        // Arrange
+        var result = Result.Error("Test exception");
+
+        // Act & Assert
+        var action = new Action(() => result.EnsureIsSuccess());
+
+        action.Should().Throw<ValidationException>().WithMessage("Validation failed.");
+    }
+
+    [Fact]
+    public void EnsureIsSuccess_WhenResultHasErrors_ThrowsValidationException() {
+        // Arrange
+        var result = Result.Invalid("Test error");
+
+        // Act & Assert
+        var action = new Action(() => result.EnsureIsSuccess());
+
+        action.Should().Throw<ValidationException>().WithMessage("Validation failed.");
+    }
+
+
+    [Fact]
+    public void AddOperator_WithValue_FromSuccess_WithInvalid_ReturnsException() {
+        // Arrange
+        var result = Result.Success("42");
+
+        // Act
+        result += Result.Success() + new ValidationError("Some error.", "result");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeTrue();
+        result.IsFaulty.Should().BeFalse();
+        result.Value.Should().Be("42");
+    }
+
+    [Fact]
+    public void AddOperator_WithValue_FromError_WithInvalid_ReturnsInvalid() {
+        // Arrange
+        var result = Result.Error<string>(new Exception("Error"));
+
+        // Act
+        result += new ValidationError("Some error.", "result");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeFalse();
+        result.IsFaulty.Should().BeTrue();
+        result.Value.Should().BeNull();
+    }
+
+    [Fact]
+    public void AddOperator_WithValue_FromSuccess_WithError_ReturnsException() {
+        // Arrange
+        var result = Result.Success("42");
+
+        // Act
+        result += new Exception("Some error.");
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.IsInvalid.Should().BeFalse();
+        result.IsFaulty.Should().BeTrue();
+        result.Value.Should().BeNull();
+    }
+
+    [Fact]
+    public void SuccessTValue_WithValue_SetsValueProperty() {
+        // Arrange
+        const string value = "Test value";
+
+        // Act
+        var result = Result.Success(value);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(value);
+    }
+
+    [Fact]
+    public void InvalidTValue_WithValue_SetsValueAndErrors() {
+        // Arrange
+        const string value = "Test value";
+        const string message = "Test error";
+
+        // Act
+        var result = Result.Invalid<string>(value, message);
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Value.Should().Be(value);
+        result.Errors.Should().ContainSingle(e => e.Message == message);
+    }
+
+    [Fact]
+    public void ErrorTValue_WithValue_SetsExceptionProperty() {
+        // Arrange
+        var exception = new Exception("Test exception");
+
+        // Act
+        var result = Result.Error<string>(exception);
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Value.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapTo_WhenMappingFunctionThrows_ResultsInErrorResult() {
+        // Arrange
+        var result = Result.Success("42");
+        static int MappingFunction(string _) => throw new InvalidOperationException();
+
+        // Act
+        var mappedResult = result.MapTo(MappingFunction!);
+
+        // Assert
+        mappedResult.Should().BeOfType<Result<int>>();
+        mappedResult.HasException.Should().BeTrue();
+        mappedResult.Exception.Should().BeOfType<InvalidOperationException>();
+    }
+
+    // Additional tests for task-based factory methods
+    [Fact]
+    public async Task SuccessTask_ReturnsTaskWithSuccessResult() {
+        // Act
+        var task = Result.SuccessTask();
+
+        // Assert
+        var result = await task;
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvalidTask_ReturnsTaskWithInvalidResult() {
+        // Act
+        var task = Result.InvalidTask("Test error");
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().ContainSingle(e => e.Message == "Test error");
+    }
+
+    [Fact]
+    public async Task ErrorTask_ReturnsTaskWithErrorResult() {
+        // Act
+        var task = Result.ErrorTask("Test exception");
+
+        // Assert
+        var result = await task;
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeOfType<Exception>().Which.Message.Should().Be("Test exception");
+    }
+    [Fact]
+    public void Invalid_WithoutParameters_ReturnsInvalidResultWithDefaultError() {
+        // Act
+        var result = Result.Invalid<string>("Some value.", "Some error.");
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void Error_WithoutParameters_ReturnsErrorResultWithDefaultException() {
+        // Act
+        var result = Result.Error<string>("Some exception.");
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void ResultTValue_Equals_WithDifferentResults_ReturnsFalse() {
+        // Arrange
+        var resultWithValue1 = Result.Success("Value1");
+        var resultWithValue2 = Result.Invalid("Value1", "Some error");
+
+        // Act
+        var areEqual = resultWithValue1.Equals(resultWithValue2);
+
+        // Assert
+        areEqual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResultTValue_Equals_WithDifferentValues_ReturnsFalse() {
+        // Arrange
+        var resultWithValue1 = Result.Success("Value1");
+        var resultWithValue2 = Result.Success("Value2");
+
+        // Act
+        var areEqual = resultWithValue1.Equals(resultWithValue2);
+
+        // Assert
+        areEqual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResultTValue_Equals_WithSameValues_ReturnsTrue() {
+        // Arrange
+        var resultWithValue1 = Result.Success("Value1");
+        var resultWithValue2 = Result.Success("Value1");
+
+        // Act
+        var areEqual = resultWithValue1.Equals(resultWithValue2);
+
+        // Assert
+        areEqual.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ResultTValue_GetHashCode_WithDifferentValues_ProducesDifferentHashCodes() {
+        // Arrange
+        var resultWithValue1 = Result.Success("Value1");
+        var resultWithValue2 = Result.Success("Value2");
+
+        // Act
+        var hashCode1 = resultWithValue1.GetHashCode();
+        var hashCode2 = resultWithValue2.GetHashCode();
+
+        // Assert
+        hashCode1.Should().NotBe(hashCode2);
+    }
+
+    // Task-based factory methods tests for Result<TValue>
+    [Fact]
+    public async Task SuccessTaskTValue_ReturnsTaskWithSuccessResult() {
+        // Act
+        var task = Result.SuccessTask("Test value");
+
+        // Assert
+        var result = await task;
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be("Test value");
+    }
+
+    [Fact]
+    public async Task InvalidTaskTValue_WithMessageAndSource_ReturnsTaskWithInvalidResult() {
+        // Act
+        var task = Result.InvalidTask("Test value", "Test error", "Test source");
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().ContainSingle(e => e.Message == "Test error" && e.Source == "Test source");
+        result.Value.Should().Be("Test value");
+    }
+
+    [Fact]
+    public async Task InvalidTaskTValue_WithResult_ReturnsTaskWithInvalidResult() {
+        // Arrange
+        var existingResult = Result.Invalid("Existing error");
+
+        // Act
+        var task = Result.InvalidTask("Test value", existingResult);
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().ContainSingle(e => e.Message == "Existing error");
+        result.Value.Should().Be("Test value");
+    }
+
+    [Fact]
+    public async Task ErrorTaskTValue_WithMessage_ReturnsTaskWithErrorResult() {
+        // Act
+        var task = Result.ErrorTask<string>("Test exception");
+
+        // Assert
+        var result = await task;
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeOfType<Exception>().Which.Message.Should().Be("Test exception");
+        result.Value.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ErrorTaskTValue_WithException_ReturnsTaskWithErrorResult() {
+        // Arrange
+        var exception = new InvalidOperationException("Test exception");
+
+        // Act
+        var task = Result.ErrorTask<string>(exception);
+
+        // Assert
+        var result = await task;
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().Be(exception);
     }
 }

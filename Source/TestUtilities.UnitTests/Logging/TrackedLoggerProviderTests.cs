@@ -20,7 +20,7 @@ public class TrackedLoggerProviderTests {
         var trackedLogger = _trackedLoggerProvider.CreateLogger(categoryName);
 
         // Assert
-        Assert.IsType<TrackedLogger>(trackedLogger);
+        trackedLogger.Should().BeOfType<TrackedLogger>();
         _loggerProvider.Received(1).CreateLogger(Arg.Is<string>(s => s == categoryName));
     }
 

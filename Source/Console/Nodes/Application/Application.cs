@@ -79,7 +79,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         => ValueTask.CompletedTask;
 
     public void AppendVersion(StringBuilder builder)
-        => builder.AppendLine($"{Name} v{Version}");
+        => builder.Append(Name).Append(" v").AppendLine(Version);
 
     public override void AppendHelp(StringBuilder builder) {
         AppendVersion(builder);

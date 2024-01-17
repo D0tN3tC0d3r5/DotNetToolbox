@@ -159,6 +159,7 @@ public class ObjectExtensionsTests {
     [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private class CustomClass<T>(T? value) : ICustomClass<T> {
+        [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "<Pending>")]
         public const string Name = "CustomClass";
 
         // ReSharper disable once MemberCanBePrivate.Local
@@ -171,8 +172,12 @@ public class ObjectExtensionsTests {
             return result;
         }
 
+        #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        // ReSharper disable once UnusedType.Local
         public delegate void OnConvertedHandler(object sender, ConvertedArgs e);
-        public event OnConvertedHandler? OnConverted;
+        // ReSharper disable once EventNeverSubscribedTo.Local
+        public event EventHandler<ConvertedArgs> OnConverted = (_, _) => { };
+        #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public class ConvertedArgs : EventArgs {

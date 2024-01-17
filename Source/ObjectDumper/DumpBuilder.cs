@@ -255,7 +255,7 @@ internal sealed class DumpBuilder : IDisposable {
                 AddSpacer();
                 break;
             case MemberKind.Property:
-                _builder.Append("\"").Append(_member.Name).Append("\"");
+                _builder.Append('"').Append(_member.Name).Append('"');
                 AddSymbol(':');
                 AddSpacer();
                 break;

@@ -17,7 +17,7 @@ public static class ArgumentsReader {
             IOption option => await option.SetValue(arguments[++index], ct),
             ICommand or IAsyncCommand when NoMoreTokens() => await ((IExecutable)child).ExecuteAsync([], ct),
             ICommand or IAsyncCommand => await ((IExecutable)child).ExecuteAsync(arguments[++index..], ct),
-            _ when token.StartsWith("-") => Invalid($"Unknown option: '{token}'."),
+            _ when token.StartsWith('-') => Invalid($"Unknown option: '{token}'."),
             _ => await ReadParameters(children, arguments, ct),
         };
         return (result, index);

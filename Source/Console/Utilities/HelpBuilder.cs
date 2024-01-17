@@ -28,7 +28,7 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
 
     protected void ShowUsage(StringBuilder builder) {
         if (string.IsNullOrEmpty(_path)) return;
-        builder.Append($"Usage: {_path}");
+        builder.Append("Usage: ").Append(_path);
         if (_options.Count != 0) builder.Append(" [Options]");
         if (_parameters.Count != 0) builder.Append(" [Parameters]");
         if (_commands.Count != 0) builder.Append(" [Commands]");
@@ -36,7 +36,7 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
     }
 
     protected void ShowOptions(StringBuilder builder) {
-        if (_options.Count <= 0) return;
+        if (_options.Count == 0) return;
         builder.AppendLine("Options:");
         foreach (var option in _options)
             option.AppendHelp(builder);
@@ -44,7 +44,7 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
     }
 
     protected void ShowParameters(StringBuilder builder) {
-        if (_parameters.Count <= 0) return;
+        if (_parameters.Count == 0) return;
         builder.AppendLine("Parameters:");
         foreach (var parameter in _parameters)
             parameter.AppendHelp(builder);
@@ -52,7 +52,7 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
     }
 
     protected void ShowCommands(StringBuilder builder) {
-        if (_commands.Count <= 0) return;
+        if (_commands.Count == 0) return;
         builder.AppendLine("Commands:");
         foreach (var command in _commands)
             command.AppendHelp(builder);

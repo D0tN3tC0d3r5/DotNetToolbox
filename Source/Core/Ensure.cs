@@ -5,10 +5,9 @@ public static class Ensure {
     public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
 
-    [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static TArgument? IsNotNullOrDefault<TArgument, TDefault>(TArgument? argument, TDefault? defaultValue)
-        where TDefault : notnull, TArgument
-        => argument ?? defaultValue;
+    [return: NotNull]
+    public static TArgument IsNotNullOrDefault<TArgument>(TArgument? argument, TArgument defaultValue)
+        => argument ?? IsNotNull(defaultValue);
 
     [return: NotNull]
     public static TArgument IsOfType<TArgument>(object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
@@ -71,46 +70,44 @@ public static class Ensure {
         where TArgument : IValidatable
         => IsValid(argument, arg => IsNotNull(arg).Validate(), paramName)!;
 
-    [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static TArgument? IsValidOrDefault<TArgument, TDefault>(TArgument? argument, TDefault? defaultValue)
-        where TArgument : IValidatable
-        where TDefault : TArgument {
-        var value = argument ?? defaultValue;
-        var result = value?.Validate() ?? Result.Success();
+    [return: NotNullIfNotNull(nameof(validValue))]
+    public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, TArgument? validValue)
+        where TArgument : IValidatable { // null maybe a valid value
+        var result = argument?.Validate() ?? Result.Success();
         return result.IsSuccess
-                   ? value
-                   : defaultValue;
+                   ? argument ?? validValue
+                   : validValue;
     }
 
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
-        validate(argument).EnsureIsSuccess();
+        validate(argument).EnsureIsSuccess(null, paramName);
         return argument;
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? defaultValue)
         => validate(argument).IsSuccess
-               ? argument
+               ? argument ?? defaultValue
                : defaultValue;
 
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => isValid(argument)
                ? argument
-               : throw new ValidationException(ValueIsNotValid, paramName!);
+               : throw new ValidationException(ValueIsNotValid, paramName);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue)
         => isValid(argument)
-               ? argument
+               ? argument ?? defaultValue
                : defaultValue;
 
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? AllAreValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<IValidatable> {
         var invalidItems = GetIndexedItems<TArgument, IValidatable>(argument)
-                          .Where(i => i.Value?.Validate().IsSuccess ?? true)
+                          .Where(i => !i.Value?.Validate().IsSuccess ?? false)
                           .Select(i => i.Index)
                           .ToArray();
         return invalidItems.Length == 0
@@ -142,7 +139,7 @@ public static class Ensure {
                    : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
     }
 
-    private static IEnumerable<Indexed<TValue>> GetIndexedItems<TArgument, TValue>(TArgument? argument)
+    private static Indexed<TValue>[] GetIndexedItems<TArgument, TValue>(TArgument? argument)
         where TArgument : IEnumerable
         => (argument?.Cast<TValue?>() ?? Enumerable.Empty<TValue?>()).Select((x, i) => new Indexed<TValue>(i, x)).ToArray();
 

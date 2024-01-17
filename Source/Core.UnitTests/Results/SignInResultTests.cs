@@ -175,7 +175,7 @@ public class SignInResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
-        result.Token.Should().BeNull();
+        result.Token.Should().BeEmpty();
     }
 
     [Fact]

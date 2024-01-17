@@ -1,56 +1,38 @@
 ﻿namespace DotNetToolbox.Results;
 
-public record ResultBase : IResult {
-    private readonly ObservableCollection<ValidationError> _errors = [];
+public abstract record ResultBase<TType>
+    : IResult<TType>
+    where TType : Enum {
+    private readonly ValidationErrors _errors;
 
-    protected ResultBase(Exception exception) {
-        Exception = exception;
+    protected ResultBase(Exception exception)
+        : this() {
+        Exception = IsNotNull(exception);
     }
 
     protected ResultBase(IEnumerable<ValidationError>? errors = null) {
-        Errors = (AllAreNotNull(errors) ?? []).ToArray();
+        _errors = new(AllAreNotNull(errors ?? []));
     }
 
-    protected virtual void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors) { }
-    public IReadOnlyList<ValidationError> Errors {
-        get => _errors.ToArray();
-        init {
-            _errors = [.. value.Distinct()];
-            _errors.CollectionChanged += (_, _) => OnErrorsChanged(_errors);
-            OnErrorsChanged(_errors);
-        }
-    }
+    public abstract TType Type { get; }
+    public Exception? Exception { get; }
+    public IReadOnlyList<ValidationError> Errors => _errors;
 
     public bool HasErrors => Errors.Count != 0;
-    public Exception? Exception { get; }
     [MemberNotNullWhen(true, nameof(Exception))]
     public bool HasException => Exception is not null;
-
-    public static implicit operator ResultBase(string error)
-        => new((ValidationError)error);
-    public static implicit operator ResultBase(Exception exception)
-        => new(exception);
-    public static implicit operator ResultBase(ValidationError error)
-        => new([error]);
-    public static implicit operator ResultBase(List<ValidationError> errors)
-        => new([.. errors]);
-    public static implicit operator ResultBase(HashSet<ValidationError> errors)
-        => new([.. errors]);
-    public static implicit operator ResultBase(ValidationError[] errors)
-        => new(errors.AsEnumerable());
-
-    public static ResultBase operator +(ResultBase left, IResult right)
-        => new(left.Errors.Union(right.Errors));
 
     public void EnsureIsSuccess(string? message = null, string? source = null) {
         if (Exception is not null) throw new ValidationException(message, source, Exception);
         if (HasErrors) throw new ValidationException(message, source, [.. Errors]);
     }
 
-    public virtual bool Equals(ResultBase? other)
+    public virtual bool Equals(ResultBase<TType>? other)
         => other is not null
-        && Errors.SequenceEqual(other.Errors);
+        && Equals(Type, other.Type)
+        && Errors.SequenceEqual(other.Errors)
+        && Equals(Exception, other.Exception);
 
     public override int GetHashCode()
-        => HashCode.Combine(Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine));
+        => HashCode.Combine(Type, Exception, Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine));
 }

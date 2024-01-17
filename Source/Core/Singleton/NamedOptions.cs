@@ -7,6 +7,7 @@ public class NamedOptions<TOptions>
     private const string _suffix = "Options";
     private static readonly string _typeName = typeof(TOptions).Name;
 
+    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "<Pending>")]
     // ReSharper disable once StaticMemberInGenericType
     public static string SectionName { get; }
         = _typeName.EndsWith(_suffix)

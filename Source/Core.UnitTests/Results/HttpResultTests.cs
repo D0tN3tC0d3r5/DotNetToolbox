@@ -11,7 +11,7 @@ public class HttpResultTests {
     private static readonly HttpResult _badRequest = BadRequest(new ValidationError("Some error.", "Source"));
     private static readonly HttpResult _badRequestWithSameError = BadRequest(new ValidationError("Some error.", "Source"));
     private static readonly HttpResult _badRequestWithOtherError = BadRequest(new ValidationError("Other error.", "Source"));
-    private static readonly HttpResult _failure = InternalError(new("Some error."));
+    private static readonly HttpResult _failure = InternalError(new Exception("Some error."));
 
     private static readonly HttpResult<string> _okWithValue = Ok("Value");
     private static readonly HttpResult<string> _createdWithValue = Created("Value");
@@ -19,19 +19,19 @@ public class HttpResultTests {
     private static readonly HttpResult<string> _notFoundWithValue = NotFound<string>();
     private static readonly HttpResult<string> _conflictWithValue = Conflict("Value");
     private static readonly HttpResult<string> _badRequestWithValue = BadRequest("Value", new ValidationError("Some error.", "Source"));
-    private static readonly HttpResult<string> _failureWithValue = InternalError<string>(new("Some error."));
+    private static readonly HttpResult<string> _failureWithValue = InternalError<string>(new Exception("Some error."));
 
-    [Fact]
-    public void CopyConstructor_ClonesObject() {
-        // Act
-        var result = _ok with {
-            Errors = new List<ValidationError> { new("Some error.") },
-        };
+    //[Fact]
+    //public void CopyConstructor_ClonesObject() {
+    //    // Act
+    //    var result = _ok with {
+    //        Errors = new List<ValidationError> { new("Some error.") },
+    //    };
 
-        // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
-    }
+    //    // Assert
+    //    result.IsSuccess.Should().BeFalse();
+    //    result.Errors.Should().ContainSingle();
+    //}
 
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
@@ -283,11 +283,10 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromOkResult_ReturnsOk() {
         // Act
-        var result = Result.Success("Value");
-        HttpResult<string> subject = result;
+        HttpResult<string> subject = Result.Success("Value");
 
         // Assert
-        subject.Value.Should().Be(result.Value);
+        subject.Value.Should().Be("Value");
         subject.IsOk.Should().BeTrue();
     }
 
@@ -298,7 +297,7 @@ public class HttpResultTests {
         HttpResult<string> subject = result;
 
         // Assert
-        subject.Value.Should().Be(result.Value);
+        subject.Value.Should().Be("Value");
         subject.IsOk.Should().BeFalse();
         subject.Errors.Should().BeEquivalentTo(result.Errors);
     }

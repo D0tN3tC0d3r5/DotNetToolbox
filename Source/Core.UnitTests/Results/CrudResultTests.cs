@@ -7,27 +7,15 @@ public class CrudResultTests {
     private static readonly CrudResult _notFound = NotFound();
     private static readonly CrudResult _conflict = Conflict();
     private static readonly CrudResult _invalid = Invalid(new ValidationError("Some error.", "Source"));
-    private static readonly CrudResult _invalidWithSameError = new ValidationError("Some error.", "Source");
-    private static readonly CrudResult _invalidWithWithOtherError = new ValidationError("Other error.", "Source");
-    private static readonly CrudResult _failure = Error(new("Some error."));
+    private static readonly CrudResult _invalidWithSameError = Invalid(new ValidationError("Some error.", "Source"));
+    private static readonly CrudResult _invalidWithWithOtherError = Invalid(new ValidationError("Other error.", "Source"));
+    private static readonly CrudResult _failure = Error(new Exception("Some error."));
 
     private static readonly CrudResult<string> _successWithValue = Success("Value");
     private static readonly CrudResult<string> _notFoundWithValue = NotFound<string>();
     private static readonly CrudResult<string> _conflictWithValue = Conflict("Value");
     private static readonly CrudResult<string> _invalidWithValue = Invalid("Value", new ValidationError("Some error.", "Source"));
-    private static readonly CrudResult<string> _failureWithValue = Error<string>(new("Some error."));
-
-    [Fact]
-    public void CopyConstructor_ClonesObject() {
-        // Act
-        var result = _success with {
-            Errors = new List<ValidationError> { new("Some error.") },
-        };
-
-        // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().ContainSingle();
-    }
+    private static readonly CrudResult<string> _failureWithValue = Error<string>(new Exception("Some error."));
 
     [Fact]
     public void ImplicitConversion_FromValidationError_ReturnsFailure() {
@@ -397,5 +385,168 @@ public class CrudResultTests {
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromResult_SetsTypeBasedOnErrorPresence() {
+        // Arrange
+        var resultWithErrors = Result.Invalid("Test error");
+        var resultWithoutErrors = Result.Success();
+
+        // Act
+        CrudResult crudResultWithErrors = resultWithErrors;
+        CrudResult crudResultWithoutErrors = resultWithoutErrors;
+
+        // Assert
+        crudResultWithErrors.Type.Should().Be(CrudResultType.Invalid);
+        crudResultWithoutErrors.Type.Should().Be(CrudResultType.Success);
+    }
+
+    [Fact]
+    public void AdditionOperator_CombiningDifferentTypes_PreservesErrorType() {
+        // Arrange
+        var resultError = Error(new Exception("Error"));
+        var resultNotFound = Result.Success();
+
+        // Act
+        var combinedResult = resultError + resultNotFound;
+
+        // Assert
+        combinedResult.Type.Should().Be(CrudResultType.Error);
+    }
+
+    [Fact]
+    public void AdditionOperator_CombiningCrudResultTValueInstances_PreservesValueType() {
+        // Arrange
+        var resultWithValue = Conflict("Test");
+        var resultWithConflict = Result.Success();
+
+        // Act
+        var combinedResult = resultWithValue + resultWithConflict;
+
+        // Assert
+        combinedResult.Type.Should().Be(CrudResultType.Conflict);
+        combinedResult.Value.Should().Be("Test");
+    }
+
+    [Fact]
+    public void ResultTValue_Equals_WithDifferentTypes_ReturnsFalse() {
+        // Arrange
+        var resultSuccess = Success("Value1");
+        var resultNotFound = NotFound();
+
+        // Act
+        var areEqual = resultSuccess.Equals(resultNotFound);
+
+        // Assert
+        areEqual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResultTValue_GetHashCode_WithDifferentTypes_ProducesDifferentHashCodes() {
+        // Arrange
+        var resultSuccess = Success("Value1");
+        var resultNotFound = NotFound();
+
+        // Act
+        var hashCodeSuccess = resultSuccess.GetHashCode();
+        var hashCodeNotFound = resultNotFound.GetHashCode();
+
+        // Assert
+        hashCodeSuccess.Should().NotBe(hashCodeNotFound);
+    }
+
+    // Task-based factory methods tests for CrudResult
+    [Fact]
+    public async Task SuccessTask_ReturnsTaskWithSuccessCrudResult() {
+        // Act
+        var task = SuccessTask();
+
+        // Assert
+        var result = await task;
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task NotFoundTask_ReturnsTaskWithNotFoundCrudResult() {
+        // Act
+        var task = NotFoundTask();
+
+        // Assert
+        var result = await task;
+        result.WasNotFound.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ConflictTask_ReturnsTaskWithConflictCrudResult() {
+        // Act
+        var task = ConflictTask();
+
+        // Assert
+        var result = await task;
+        result.HasConflict.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvalidTask_ReturnsTaskWithInvalidCrudResult() {
+        // Act
+        var task = InvalidTask("Some error.");
+
+        // Assert
+        var result = await task;
+        result.IsInvalid.Should().BeTrue();
+        result.Errors.Should().ContainSingle();
+    }
+
+    //[Fact]
+    //public async Task ErrorTask_ReturnsTaskWithErrorCrudResult() {
+    //    // Act
+    //    var task = ErrorTask("Some error.");
+
+    //    // Assert
+    //    var result = await task;
+    //    result.IsSuccess.Should().BeTrue();
+    //}
+
+    // ... similar tests for NotFoundTask, ConflictTask, InvalidTask, and ErrorTask ...
+
+    // Task-based factory methods tests for CrudResult<TValue>
+    [Fact]
+    public async Task SuccessTaskTValue_ReturnsTaskWithSuccessCrudResult() {
+        // Act
+        var task = SuccessTask("Test value");
+
+        // Assert
+        var result = await task;
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be("Test value");
+    }
+
+    [Fact]
+    public void MapTo_WhenMappingFunctionThrows_ResultsInErrorCrudResult() {
+        // Arrange
+        var result = Success("42");
+        static int MappingFunction(string _) => throw new InvalidOperationException();
+
+        // Act
+        var mappedResult = result.MapTo(MappingFunction!);
+
+        // Assert
+        mappedResult.Should().BeOfType<CrudResult<int>>();
+        mappedResult.HasException.Should().BeTrue();
+        mappedResult.Exception.Should().BeOfType<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void MapTo_WhenTypeIsNotFound_ReturnsNotFoundCrudResult() {
+        // Arrange
+        var result = NotFound<string>();
+
+        // Act
+        var mappedResult = result.MapTo(s => s!.Length);
+
+        // Assert
+        mappedResult.Should().BeOfType<CrudResult<int>>();
+        mappedResult.WasNotFound.Should().BeTrue();
     }
 }
