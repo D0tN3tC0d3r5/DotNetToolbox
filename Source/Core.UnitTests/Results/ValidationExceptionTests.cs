@@ -167,7 +167,7 @@ public class ValidationExceptionTests {
         var error1 = new ValidationError("Some global error 42.");
 
         // Act
-        var exception = new ValidationException("Some message.", null, error1);
+        var exception = new ValidationException("Some message.", null!, error1);
 
         // Assert
         exception.Errors.Should().BeEquivalentTo(new[] { error1 });
@@ -181,7 +181,7 @@ public class ValidationExceptionTests {
         var error1 = new ValidationError("Some global error 42.");
 
         // Act
-        var exception = new ValidationException("Some message.", null, error1, new InvalidOperationException());
+        var exception = new ValidationException("Some message.", null!, error1, new InvalidOperationException());
 
         // Assert
         exception.Errors.Should().BeEquivalentTo(new[] { error1 });
@@ -196,7 +196,7 @@ public class ValidationExceptionTests {
         var error2 = new ValidationError("Some other error 13.", "Field1");
 
         // Act
-        var exception = new ValidationException("Some message.", null, new[] { error1, error2 }, new InvalidOperationException());
+        var exception = new ValidationException("Some message.", null!, new[] { error1, error2 }, new InvalidOperationException());
 
         // Assert
         exception.Errors.Should().BeEquivalentTo(new[] { error1, error2 });

@@ -228,7 +228,7 @@ The `HttpResult` class is designed to represent the outcome of HTTP operations, 
     ```csharp
     HttpResult GetUserData() {
         // Logic to get user data
-        return HttpResult.Ok();
+        return HttpResult.Success();
     }
 
     var response = GetUserData();
@@ -244,7 +244,7 @@ The `HttpResult` class is designed to represent the outcome of HTTP operations, 
             return HttpResult.BadRequest(Result.InvalidData("Invalid profile data"));
         }
         // Update logic
-        return HttpResult.Ok();
+        return HttpResult.Success();
     }
 
     var updateResponse = UpdateUserProfile(new UserProfile());
@@ -263,7 +263,7 @@ The `HttpResult` class is designed to represent the outcome of HTTP operations, 
         if (userProfile == null) {
             return HttpResult<UserProfile>.NotFound();
         }
-        return HttpResult<UserProfile>.Ok(userProfile);
+        return HttpResult<UserProfile>.Success(userProfile);
     }
 
     var profileResponse = GetUserProfile(1);
@@ -281,7 +281,7 @@ The `HttpResult` class is designed to represent the outcome of HTTP operations, 
             return HttpResult<string>.Unauthorized();
         }
         string secretData = FetchSecretData(); // Assume this fetches data
-        return HttpResult<string>.Ok(secretData);
+        return HttpResult<string>.Success(secretData);
     }
 
     var secretDataResponse = GetSecretData("someAuthToken");

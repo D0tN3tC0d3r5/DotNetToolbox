@@ -117,11 +117,4 @@ public record CrudResult<TValue> : CrudResult, IResult<CrudResultType, TValue> {
             return Error<TNewValue>(ex);
         }
     }
-
-    public virtual bool Equals(CrudResult<TValue>? other)
-        => base.Equals(other)
-        && Equals(Value, other.Value);
-
-    public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Value);
 }

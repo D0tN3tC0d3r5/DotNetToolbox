@@ -10,7 +10,6 @@ public record SignInResult : ResultBase<SignInResultType> {
 
     private SignInResult(SignInResultType type, string? token = default, IEnumerable<ValidationError>? errors = default)
         : base(errors) {
-        //Token = token ?? throw new ArgumentNullException(nameof(token));
         _type = type;
         _token = token;
     }
@@ -21,24 +20,27 @@ public record SignInResult : ResultBase<SignInResultType> {
             ? SignInResultType.Invalid
             : _type;
 
-    public string Token => HasException || HasErrors
-        ? string.Empty
-        : _token ?? string.Empty;
+    public string? Token => !HasException && !HasErrors
+                                ? _token
+                                : null;
 
+    [MemberNotNullWhen(true, nameof(Token))]
+    public bool RequiresConfirmation => Type is SignInResultType.ConfirmationPending;
+    [MemberNotNullWhen(true, nameof(Token))]
+    public bool RequiresTwoFactor => Type is SignInResultType.TwoFactorRequired;
+    [MemberNotNullWhen(true, nameof(Token))]
+    public bool IsSuccess => Type is SignInResultType.Success;
+    public bool IsInvalid => Type is SignInResultType.Invalid;
     public bool IsLocked => Type is SignInResultType.Locked;
     public bool IsBlocked => Type is SignInResultType.Blocked;
     public bool IsFailure => Type is SignInResultType.Failed;
-    public bool RequiresConfirmation => Type is SignInResultType.ConfirmationPending;
-    public bool RequiresTwoFactor => Type is SignInResultType.TwoFactorRequired;
-    public bool IsSuccess => Type is SignInResultType.Success;
-    public bool IsInvalid => Type is SignInResultType.Invalid;
 
     [MemberNotNull(nameof(Token))]
     public static SignInResult Success(string token) => new(SignInResultType.Success, IsNotNull(token));
     [MemberNotNull(nameof(Token))]
-    public static SignInResult ConfirmationRequired(string token) => new(SignInResultType.ConfirmationPending, IsNotNull(token));
+    public static SignInResult ConfirmationIsPending(string token) => new(SignInResultType.ConfirmationPending, IsNotNull(token));
     [MemberNotNull(nameof(Token))]
-    public static SignInResult TwoFactorRequired(string token) => new(SignInResultType.TwoFactorRequired, IsNotNull(token));
+    public static SignInResult TwoFactorIsRequired(string token) => new(SignInResultType.TwoFactorRequired, IsNotNull(token));
     public static SignInResult InvalidRequest(Result result) => new(SignInResultType.Invalid, errors: result.Errors);
     public static SignInResult BlockedAccount() => new(SignInResultType.Blocked);
     public static SignInResult LockedAccount() => new(SignInResultType.Locked);
@@ -49,9 +51,9 @@ public record SignInResult : ResultBase<SignInResultType> {
     [MemberNotNull(nameof(Token))]
     public static Task<SignInResult> SuccessTask(string token) => Task.FromResult(Success(token));
     [MemberNotNull(nameof(Token))]
-    public static Task<SignInResult> ConfirmationRequiredTask(string token) => Task.FromResult(ConfirmationRequired(token));
+    public static Task<SignInResult> ConfirmationIsPendingTask(string token) => Task.FromResult(ConfirmationIsPending(token));
     [MemberNotNull(nameof(Token))]
-    public static Task<SignInResult> TwoFactorRequiredTask(string token) => Task.FromResult(TwoFactorRequired(token));
+    public static Task<SignInResult> TwoFactorIsRequiredTask(string token) => Task.FromResult(TwoFactorIsRequired(token));
     public static Task<SignInResult> InvalidTask(Result result) => Task.FromResult(InvalidRequest(result));
     public static Task<SignInResult> BlockedAccountTask() => Task.FromResult(BlockedAccount());
     public static Task<SignInResult> LockedAccountTask() => Task.FromResult(LockedAccount());
@@ -61,7 +63,7 @@ public record SignInResult : ResultBase<SignInResultType> {
 
     public static implicit operator SignInResult(string token) => new(SignInResultType.Success, token);
 
-    public static implicit operator SignInResult(Exception exception) => (Result)exception;
+    public static implicit operator SignInResult(Exception exception) => new(exception);
     public static implicit operator SignInResult(ValidationError error) => (Result)error;
     public static implicit operator SignInResult(ValidationErrors errors) => (Result)errors;
     public static implicit operator SignInResult(ValidationError[] errors) => (Result)errors;

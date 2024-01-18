@@ -39,7 +39,6 @@ public class ValidationErrorsTests {
         errors.Should().ContainSingle(e => e.Message == "Error1");
     }
 
-
     [Fact]
     public void ImplicitConversion_ToList_ShouldCreateCollectionWithSingleError() {
         // Arrange & Act
@@ -309,7 +308,9 @@ public class ValidationErrorsTests {
     [Fact]
     public void Add_WithString_ShouldCreateValidationErrorAndAddIfNotPresent() {
         // Arrange
+        #pragma warning disable IDE0028
         var errors = new ValidationErrors();
+        #pragma warning restore IDE0028
 
         // Act
         errors.Add("Error1");
@@ -321,11 +322,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void Contains_WithString_ShouldReturnTrueIfErrorPresent() {
         // Arrange
-        var errors = new ValidationErrors();
-        errors.Add(new ValidationError("Error1"));
+        var errors = new ValidationErrors { new ValidationError("Error1") };
 
         // Act
-        bool contains = errors.Contains("Error1");
+        var contains = errors.Contains("Error1");
 
         // Assert
         contains.Should().BeTrue();
@@ -334,11 +334,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void IndexOf_WithString_ShouldReturnCorrectIndexIfErrorPresent() {
         // Arrange
-        var errors = new ValidationErrors();
-        errors.Add("Error1");
+        var errors = new ValidationErrors { "Error1" };
 
         // Act
-        int index = errors.IndexOf("Error1");
+        var index = errors.IndexOf("Error1");
 
         // Assert
         index.Should().Be(0);
@@ -347,8 +346,7 @@ public class ValidationErrorsTests {
     [Fact]
     public void Insert_WithString_ShouldCreateValidationErrorAndInsertAtSpecifiedIndex() {
         // Arrange
-        var errors = new ValidationErrors();
-        errors.Add("Error1");
+        var errors = new ValidationErrors { "Error1" };
 
         // Act
         errors.Insert(0, "Error2");
@@ -360,8 +358,7 @@ public class ValidationErrorsTests {
     [Fact]
     public void Remove_WithString_ShouldRemoveValidationErrorIfPresent() {
         // Arrange
-        var errors = new ValidationErrors();
-        errors.Add("Error1");
+        var errors = new ValidationErrors { "Error1" };
 
         // Act
         errors.Remove("Error1");
@@ -379,7 +376,7 @@ public class ValidationErrorsTests {
         errors.Add(error);
 
         // Act
-        bool contains = errors.Contains(error);
+        var contains = errors.Contains(error);
 
         // Assert
         contains.Should().BeTrue();
@@ -393,7 +390,7 @@ public class ValidationErrorsTests {
         errors.Add(error);
 
         // Act
-        int index = errors.IndexOf(error);
+        var index = errors.IndexOf(error);
 
         // Assert
         index.Should().Be(0);
@@ -449,8 +446,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void IList_SetterAtIndex_ShouldUpdateValidationError() {
         // Arrange
+        #pragma warning disable IDE0028
         IList errors = new ValidationErrors();
         errors.Add(new ValidationError("Error1"));
+        #pragma warning restore IDE0028
         var newError = new ValidationError("Error2");
 
         // Act
@@ -463,8 +462,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void IList_SetterAtIndex_WithString_ShouldUpdateValidationError() {
         // Arrange
+        #pragma warning disable IDE0028
         IList errors = new ValidationErrors();
         errors.Add(new ValidationError("Error1"));
+        #pragma warning restore IDE0028
 
         // Act
         errors[0] = "Error2";
@@ -510,8 +511,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void ICollectionOfValidationError_Clear_ShouldRemoveAllErrors() {
         // Arrange
+        #pragma warning disable IDE0028
         ICollection<ValidationError> errors = new ValidationErrors();
         errors.Add(new("Error1"));
+        #pragma warning restore IDE0028
 
         // Act
         errors.Clear();
@@ -523,9 +526,11 @@ public class ValidationErrorsTests {
     [Fact]
     public void IListOfValidationError_RemoveAt_ShouldRemoveErrorAtIndex() {
         // Arrange
+        #pragma warning disable IDE0028
         IList<ValidationError> errors = new ValidationErrors();
         errors.Add(new("Error1"));
         errors.Add(new("Error2"));
+        #pragma warning restore IDE0028
 
         // Act
         errors.RemoveAt(0);
@@ -549,6 +554,7 @@ public class ValidationErrorsTests {
 
         // Act
         var errorsList = new List<ValidationError>();
+        // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (ValidationError error in errorsEnumerable) {
             errorsList.Add(error);
         }

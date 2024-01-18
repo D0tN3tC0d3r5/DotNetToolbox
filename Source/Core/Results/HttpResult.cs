@@ -3,10 +3,6 @@
 public record HttpResult : ResultBase<HttpResultType> {
     private readonly HttpResultType _type = HttpResultType.Ok;
 
-    private HttpResult(IResult result)
-        : this(HttpResultType.Ok, result.Errors) {
-    }
-
     protected HttpResult(Exception exception)
         : base(exception) {
     }

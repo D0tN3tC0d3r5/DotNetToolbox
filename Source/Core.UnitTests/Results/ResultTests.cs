@@ -416,12 +416,12 @@ public class ResultTests {
     [Fact]
     public void EnsureIsSuccess_WhenResultHasException_ThrowsValidationException() {
         // Arrange
-        var result = Result.Error("Test exception");
+        var result = Result.Error("Test exception.");
 
         // Act & Assert
         var action = new Action(() => result.EnsureIsSuccess());
 
-        action.Should().Throw<ValidationException>().WithMessage("Validation failed.");
+        action.Should().Throw<ValidationException>().WithMessage(ValidationException.DefaultMessage);
     }
 
     [Fact]
@@ -432,9 +432,8 @@ public class ResultTests {
         // Act & Assert
         var action = new Action(() => result.EnsureIsSuccess());
 
-        action.Should().Throw<ValidationException>().WithMessage("Validation failed.");
+        action.Should().Throw<ValidationException>().WithMessage(ValidationException.DefaultMessage);
     }
-
 
     [Fact]
     public void AddOperator_WithValue_FromSuccess_WithInvalid_ReturnsException() {

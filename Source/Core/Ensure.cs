@@ -44,7 +44,7 @@ public static class Ensure {
         var invalidItems = GetIndexedItems<TArgument, object?>(argument).Where(i => i.Value is null).Select(i => i.Index).ToArray();
         return invalidItems.Length == 0
                    ? argument
-                   : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNull);
+                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNull);
     }
 
     [return: NotNullIfNotNull(nameof(argument))]
@@ -53,7 +53,7 @@ public static class Ensure {
         var invalidItems = GetIndexedItems<TArgument, string?>(argument).Where(i => string.IsNullOrEmpty(i.Value)).Select(i => i.Index).ToArray();
         return invalidItems.Length == 0
                    ? argument
-                   : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrEmpty);
+                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrEmpty);
     }
 
     [return: NotNullIfNotNull(nameof(argument))]
@@ -62,7 +62,7 @@ public static class Ensure {
         var invalidItems = GetIndexedItems<TArgument, string?>(argument).Where(i => string.IsNullOrWhiteSpace(i.Value)).Select(i => i.Index).ToArray();
         return invalidItems.Length == 0
                ? argument
-               : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
+               : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
     }
 
     [return: NotNullIfNotNull(nameof(argument))]
@@ -95,7 +95,7 @@ public static class Ensure {
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => isValid(argument)
                ? argument
-               : throw new ValidationException(ValueIsNotValid, paramName);
+               : throw new ValidationException(ValueIsNotValid, paramName!);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue)
@@ -112,7 +112,7 @@ public static class Ensure {
                           .ToArray();
         return invalidItems.Length == 0
                    ? argument
-                   : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
+                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
     }
 
     [return: NotNullIfNotNull(nameof(argument))]
@@ -124,7 +124,7 @@ public static class Ensure {
                           .ToArray();
         return invalidItems.Length == 0
                    ? argument
-                   : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
+                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
     }
 
     [return: NotNullIfNotNull(nameof(argument))]
@@ -136,14 +136,14 @@ public static class Ensure {
                           .ToArray();
         return invalidItems.Length == 0
                    ? argument
-                   : throw GenerateException(paramName, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
+                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
     }
 
     private static Indexed<TValue>[] GetIndexedItems<TArgument, TValue>(TArgument? argument)
         where TArgument : IEnumerable
         => (argument?.Cast<TValue?>() ?? Enumerable.Empty<TValue?>()).Select((x, i) => new Indexed<TValue>(i, x)).ToArray();
 
-    private static ValidationException GenerateException(string? paramName, IEnumerable<int> emptyElements, string message) {
+    private static ValidationException GenerateException(string paramName, IEnumerable<int> emptyElements, string message) {
         var errors = emptyElements.Select(i => new ValidationError(string.Format(message, i))).ToArray();
         return new(CollectionIsInvalid, paramName, errors);
     }

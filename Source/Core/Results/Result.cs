@@ -23,7 +23,7 @@ public record Result : ResultBase<ResultType> {
     public static Result Invalid(string message) => Invalid(string.Empty, message);
     public static Result Invalid(string source, string message) => Invalid(new ValidationError(message, source));
     public static Result Invalid(ValidationError error) => new([error]);
-    public static Result Invalid(IResult result) => new(result.Errors);
+    public static Result Invalid(Result result) => new(result.Errors);
     public static Result Error(string message) => Error(new Exception(message));
     public static Result Error(Exception exception) => new(exception);
 

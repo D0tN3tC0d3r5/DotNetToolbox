@@ -270,13 +270,25 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromInvalidResult_ReturnsSuccess() {
         // Act
-        var result = Result.Invalid("Value", "Some error.", "SomeProperty");
-        CrudResult<string> subject = result;
+        var result = Invalid("Some error.");
+        ValidationError[] errors = result;
+        Exception exception = result!;
 
         // Assert
-        subject.Value.Should().Be(result.Value);
-        subject.IsSuccess.Should().BeFalse();
-        subject.Errors.Should().BeEquivalentTo(result.Errors);
+        errors.Should().ContainSingle();
+        exception.Should().BeNull();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromExceptionResult_ReturnsSuccess() {
+        // Act
+        var result = Error("Some error.");
+        ValidationError[] errors = result;
+        Exception exception = result!;
+
+        // Assert
+        errors.Should().BeEmpty();
+        exception.Should().NotBeNull();
     }
 
     [Fact]
@@ -456,7 +468,6 @@ public class CrudResultTests {
         hashCodeSuccess.Should().NotBe(hashCodeNotFound);
     }
 
-    // Task-based factory methods tests for CrudResult
     [Fact]
     public async Task SuccessTask_ReturnsTaskWithSuccessCrudResult() {
         // Act
@@ -498,19 +509,6 @@ public class CrudResultTests {
         result.Errors.Should().ContainSingle();
     }
 
-    //[Fact]
-    //public async Task ErrorTask_ReturnsTaskWithErrorCrudResult() {
-    //    // Act
-    //    var task = ErrorTask("Some error.");
-
-    //    // Assert
-    //    var result = await task;
-    //    result.IsSuccess.Should().BeTrue();
-    //}
-
-    // ... similar tests for NotFoundTask, ConflictTask, InvalidTask, and ErrorTask ...
-
-    // Task-based factory methods tests for CrudResult<TValue>
     [Fact]
     public async Task SuccessTaskTValue_ReturnsTaskWithSuccessCrudResult() {
         // Act
@@ -548,5 +546,527 @@ public class CrudResultTests {
         // Assert
         mappedResult.Should().BeOfType<CrudResult<int>>();
         mappedResult.WasNotFound.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Error_WithString_CreatesResultWithException() {
+        // Arrange
+        const string errorMessage = "Error message";
+
+        // Act
+        var result = Error(errorMessage);
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeOfType<Exception>();
+        result.Exception!.Message.Should().Be(errorMessage);
+    }
+
+    [Fact]
+    public void Error_WithException_CreatesResultWithException() {
+        // Arrange
+        var exception = new Exception("Error message");
+
+        // Act
+        var result = Error(exception);
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(exception);
+    }
+
+    [Fact]
+    public async Task NotFoundTaskTValue_ReturnsTaskWithNotFoundCrudResult() {
+        // Act
+        var task = NotFoundTask<int>();
+
+        // Assert
+        var result = await task;
+        result.WasNotFound.Should().BeTrue();
+        result.Value.Should().Be(default);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationErrorToCrudResultTValue_ReturnsInvalid() {
+        // Act
+        CrudResult<int> result = new ValidationError("Some error.", nameof(result));
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+        result.Value.Should().Be(default);
+    }
+
+    [Fact]
+    public void AdditionOperator_CombiningCrudResultWithError_ReturnsResultWithError() {
+        // Arrange
+        var result = Success();
+        var error = new ValidationError("Error message", "Property");
+
+        // Act
+        var combinedResult = result + error;
+
+        // Assert
+        combinedResult.HasErrors.Should().BeTrue();
+        combinedResult.Errors.Should().ContainSingle(e => e.Message == "Error message" && e.Source == "Property");
+    }
+
+    // ... similar tests for other operator overloads ...
+
+    [Fact]
+    public void MapTo_WithException_ReturnsCrudResultTNewValueWithSameException() {
+        // Arrange
+        var exception = new Exception("Error message");
+        var subject = Error<int>(exception);
+
+        // Act
+        var result = subject.MapTo(value => value * 2);
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(exception);
+    }
+
+    [Fact]
+    public void ValueProperty_IsSetCorrectly() {
+        // Arrange
+        const string expectedValue = "Test value";
+
+        // Act
+        var result = Success(expectedValue);
+
+        // Assert
+        result.Value.Should().Be(expectedValue);
+    }
+
+    // ... similar tests for other factory methods and implicit conversions that set Value ...
+
+    [Fact]
+    public void EnsureIsSuccess_WhenHasErrors_ThrowsValidationException() {
+        // Arrange
+        var result = Invalid(new ValidationError("Error message"));
+
+        // Act & Assert
+        var action = () => result.EnsureIsSuccess();
+
+        action.Should().Throw<ValidationException>().WithMessage(ValidationException.DefaultMessage);
+    }
+
+    [Fact]
+    public void EnsureIsSuccess_WhenHasException_ThrowsValidationException() {
+        // Arrange
+        var exception = new Exception("Original exception");
+        var result = Error(exception);
+
+        // Act & Assert
+        var action = () => result.EnsureIsSuccess();
+
+        action.Should().Throw<ValidationException>().WithInnerException<Exception>().WithMessage("Original exception");
+    }
+
+    [Fact]
+    public void TypeProperty_WhenHasException_ReturnsError() {
+        // Arrange
+        var exception = new Exception("Error message");
+
+        // Act
+        var result = Error(exception);
+
+        // Assert
+        result.Type.Should().Be(CrudResultType.Error);
+    }
+
+    [Fact]
+    public async Task ErrorTask_WithString_ReturnsTaskWithErrorCrudResult() {
+        // Arrange
+        const string errorMessage = "Error message";
+
+        // Act
+        var task = ErrorTask(errorMessage);
+        var result = await task;
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeOfType<Exception>();
+        result.Exception!.Message.Should().Be(errorMessage);
+    }
+
+    [Fact]
+    public async Task ErrorTask_WithException_ReturnsTaskWithErrorCrudResult() {
+        // Arrange
+        var exception = new Exception("Error message");
+
+        // Act
+        var task = ErrorTask(exception);
+        var result = await task;
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(exception);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromExceptionToCrudResult_CreatesResultWithException() {
+        // Arrange
+        var exception = new Exception("Error message");
+
+        // Act
+        CrudResult result = exception;
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(exception);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromStringToCrudResult_CreatesResultWithException() {
+        // Act
+        CrudResult result = "Error message";
+
+        // Assert
+        result.HasException.Should().BeFalse();
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationErrorsToCrudResult_CreatesResultWithErrors() {
+        // Arrange
+        var errors = new ValidationErrors {
+            new ValidationError("Error message", "Property"),
+        };
+
+        // Act
+        CrudResult result = errors;
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().BeEquivalentTo(errors);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromHashSetValidationErrorToCrudResult_CreatesResultWithErrors() {
+        // Arrange
+        var errors = new HashSet<ValidationError> {
+            new("Error message", "Property"),
+        };
+
+        // Act
+        CrudResult result = errors;
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().BeEquivalentTo(errors);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromCrudResultToValidationErrorArray_ReturnsErrors() {
+        // Arrange
+        var errors = new[] { new ValidationError("Error message", "Property") };
+
+        // Act
+        ValidationError[] errorArray = Invalid(errors);
+
+        // Assert
+        errorArray.Should().BeEquivalentTo(errors);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromCrudResultToException_ReturnsException() {
+        // Arrange
+        var exception = new Exception("Error message");
+
+        // Act
+        Exception? resultException = Error(exception);
+
+        // Assert
+        resultException.Should().BeSameAs(exception);
+    }
+
+    [Fact]
+    public void ErrorOfT_WithString_CreatesResultWithException() {
+        // Arrange
+        const string errorMessage = "Error message";
+
+        // Act
+        var result = Error<int>(errorMessage);
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeOfType<Exception>();
+        result.Exception!.Message.Should().Be(errorMessage);
+    }
+
+    [Fact]
+    public async Task ConflictTaskTValue_ReturnsTaskWithConflictCrudResult() {
+        // Arrange
+        const string value = "Test value";
+
+        // Act
+        var task = ConflictTask(value);
+        var result = await task;
+
+        // Assert
+        result.HasConflict.Should().BeTrue();
+        result.Value.Should().Be(value);
+    }
+
+    [Fact]
+    public async Task InvalidTaskTValue_ReturnsTaskWithInvalidCrudResult() {
+        // Arrange
+        const string value = "Test value";
+        var errors = new[] { new ValidationError("Error message", "Property") };
+        var invalidResult = Result.Invalid(errors);
+
+        // Act
+        var task = InvalidTask(value, invalidResult);
+        var result = await task;
+
+        // Assert
+        result.IsInvalid.Should().BeTrue();
+        result.Value.Should().Be(value);
+        result.Errors.Should().BeEquivalentTo(errors);
+    }
+
+    [Fact]
+    public async Task ErrorTaskTValue_WithString_ReturnsTaskWithErrorCrudResult() {
+        // Arrange
+        const string errorMessage = "Error message";
+
+        // Act
+        var task = ErrorTask<int>(errorMessage);
+        var result = await task;
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeOfType<Exception>();
+        result.Exception!.Message.Should().Be(errorMessage);
+    }
+
+    [Fact]
+    public async Task ErrorTaskTValue_WithException_ReturnsTaskWithErrorCrudResult() {
+        // Arrange
+        var exception = new Exception("Error message");
+
+        // Act
+        var task = ErrorTask<int>(exception);
+        var result = await task;
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(exception);
+    }
+
+    [Fact]
+    public void AdditionOperator_LeftHasException_ReturnsLeft() {
+        // Arrange
+        var left = Error(new Exception("Left exception"));
+        var right = Result.Success();
+
+        // Act
+        var result = left + right;
+
+        // Assert
+        result.Should().BeSameAs(left);
+        result.HasException.Should().BeTrue();
+        result.Exception!.Message.Should().Be("Left exception");
+    }
+
+    [Fact]
+    public void AdditionOperator_RightHasException_ReturnsNewCrudResultWithRightException() {
+        // Arrange
+        var left = Success();
+        var rightException = new Exception("Right exception");
+        var right = Result.Error(rightException);
+
+        // Act
+        var result = left + right;
+
+        // Assert
+        result.Should().NotBeSameAs(left);
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(rightException);
+    }
+
+    [Fact]
+    public void AdditionOperator_NeitherHasException_ReturnsCombinedErrors() {
+        // Arrange
+        var leftErrors = new[] { new ValidationError("Left error", "LeftProperty") };
+        var rightErrors = new[] { new ValidationError("Right error", "RightProperty") };
+        var left = Invalid(leftErrors);
+        var right = Result.Invalid(rightErrors);
+
+        // Act
+        var result = left + right;
+
+        // Assert
+        result.HasException.Should().BeFalse();
+        result.Errors.Should().HaveCount(2);
+        result.Errors.Should().Contain(leftErrors.Union(rightErrors));
+    }
+
+    [Fact]
+    public void AdditionOperator_NeitherHasExceptionAndDuplicateErrors_ReturnsDistinctErrors() {
+        // Arrange
+        var sharedError = new ValidationError("Shared error", "SharedProperty");
+        var leftErrors = new[] { sharedError };
+        var rightErrors = new[] { sharedError };
+        var left = Invalid(leftErrors);
+        var right = Result.Invalid(rightErrors);
+
+        // Act
+        var result = left + right;
+
+        // Assert
+        result.HasException.Should().BeFalse();
+        result.Errors.Should().ContainSingle(); // Only one instance of the shared error
+        result.Errors.Should().Contain(sharedError);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromExceptionToCrudResultTValue_CreatesResultWithException() {
+        // Arrange
+        var exception = new Exception("Test exception");
+
+        // Act
+        CrudResult<string> result = exception;
+
+        // Assert
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(exception);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationErrorArrayToCrudResultTValue_CreatesResultWithErrors() {
+        // Arrange
+        var errors = new[] { new ValidationError("Error 1", "Property1"), new ValidationError("Error 2", "Property2") };
+
+        // Act
+        CrudResult<string> result = errors;
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().BeEquivalentTo(errors);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationErrorListToCrudResultTValue_CreatesResultWithErrors() {
+        // Arrange
+        var errors = new List<ValidationError> { new("Error 1", "Property1"), new("Error 2", "Property2") };
+
+        // Act
+        CrudResult<string> result = errors;
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().BeEquivalentTo(errors);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationErrorHashSetToCrudResultTValue_CreatesResultWithErrors() {
+        // Arrange
+        var errors = new HashSet<ValidationError> { new("Error 1", "Property1"), new("Error 2", "Property2") };
+
+        // Act
+        CrudResult<string> result = errors;
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().BeEquivalentTo(errors);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromCrudResultTValueToValidationErrorArray_ReturnsErrors() {
+        // Arrange
+        var errors = new[] { new ValidationError("Error 1", "Property1"), new ValidationError("Error 2", "Property2") };
+        var result = Invalid("Value", errors);
+
+        // Act
+        ValidationError[] errorArray = result;
+        Exception? resultException = result;
+
+        // Assert
+        errorArray.Should().BeEquivalentTo(errors);
+        resultException.Should().BeNull();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromCrudResultTValueToException_ReturnsException() {
+        // Arrange
+        var exception = new Exception("Test exception");
+        var result = Error<string>(exception);
+
+        // Act
+        ValidationError[] errorArray = result;
+        Exception? resultException = result;
+
+        // Assert
+        errorArray.Should().BeEmpty();
+        resultException.Should().BeSameAs(exception);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromCrudResultTValueToTValue_ReturnsValue() {
+        // Arrange
+        const string value = "Test value";
+        var result = Success(value);
+
+        // Act
+        string? resultValue = result;
+
+        // Assert
+        resultValue.Should().Be(value);
+    }
+
+    [Fact]
+    public void AdditionOperator_CombiningCrudResultTValueWithResult_ReturnsCombinedErrors() {
+        // Arrange
+        const string value = "Test value";
+        var leftErrors = new[] { new ValidationError("Left error", "LeftProperty") };
+        var rightErrors = new[] { new ValidationError("Right error", "RightProperty") };
+        var left = Invalid(value, leftErrors);
+        var right = Result.Invalid(rightErrors);
+
+        // Act
+        var result = left + right;
+
+        // Assert
+        result.HasException.Should().BeFalse();
+        result.Value.Should().Be(value);
+        result.Errors.Should().HaveCount(2);
+        result.Errors.Should().Contain(leftErrors.Union(rightErrors));
+    }
+
+    [Fact]
+    public void AdditionOperator_CombiningCrudResultTValueWithResultWhenLeftHasException_ReturnsLeft() {
+        // Arrange
+        var leftException = new Exception("Left exception");
+        var left = Error<string>(leftException);
+        var right = Result.Success();
+
+        // Act
+        var result = left + right;
+
+        // Assert
+        result.Should().BeSameAs(left);
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(leftException);
+    }
+
+    [Fact]
+    public void AdditionOperator_CombiningCrudResultTValueWithResultWhenRightHasException_ReturnsNewCrudResultTValueWithRightException() {
+        // Arrange
+        const string value = "Test value";
+        var left = Success(value);
+        var rightException = new Exception("Right exception");
+        var right = Result.Error(rightException);
+
+        // Act
+        var result = left + right;
+
+        // Assert
+        result.Should().NotBeSameAs(left);
+        result.HasException.Should().BeTrue();
+        result.Exception.Should().BeSameAs(rightException);
     }
 }
