@@ -13,15 +13,6 @@ setlocal EnableDelayedExpansion
 @echo [92m%project% v%version%[0m
 @echo Starting... @[96m%date% %time%[0m
 
-color 1
-@echo Building and packing project...
-color 2
-@echo Building and packing project...
-color 3
-@echo Building and packing project...
-color
-goto :eof
-
 cd %project%
 
 if [!target!]==[local] (

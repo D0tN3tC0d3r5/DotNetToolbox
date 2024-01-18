@@ -1,6 +1,30 @@
 ﻿namespace DotNetToolbox;
 
 public class ObjectExtensionsTests {
+    [Fact]
+    public void JsonDumpBuilderOptions_CopyConstructor_CreateOptions() {
+        // Arrange
+        var options1 = new JsonDumpBuilderOptions();
+
+        // Act
+        var options2 = options1 with { };
+
+        //Assert
+        options2.Should().NotBeSameAs(options1);
+    }
+
+    [Fact]
+    public void DumpBuilderOptions_CopyConstructor_CreateOptions() {
+        // Arrange
+        var options1 = new DumpBuilderOptions();
+
+        // Act
+        var options2 = options1 with { };
+
+        //Assert
+        options2.Should().NotBeSameAs(options1);
+    }
+
     [Theory]
     [ClassData(typeof(TestDataForPrimitives))]
     public void Dump_SimpleTypes_ReturnsString(object? value, string expectedText) {
@@ -22,8 +46,8 @@ public class ObjectExtensionsTests {
     }
 
     private static readonly JsonSerializerOptions _indentedJson = new() {
-                                                                            WriteIndented = true,
-                                                                        };
+        WriteIndented = true,
+    };
     [Theory]
     [ClassData(typeof(TestDataForJson))]
     public void Dump_AsJson_ReturnsString(object? subject) {
@@ -172,12 +196,12 @@ public class ObjectExtensionsTests {
             return result;
         }
 
-        #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         // ReSharper disable once UnusedType.Local
         public delegate void EventHandler<ConvertedArgs>(object sender, ConvertedArgs e);
         // ReSharper disable once EventNeverSubscribedTo.Local
         public event EventHandler<ConvertedArgs> OnConverted = (_, _) => { };
-        #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public class ConvertedArgs : EventArgs {
