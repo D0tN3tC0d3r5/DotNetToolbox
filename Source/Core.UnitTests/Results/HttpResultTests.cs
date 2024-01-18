@@ -739,10 +739,12 @@ public class HttpResultTests {
         var errors = new[] { new ValidationError("Error message", "Property") };
 
         // Act
+        ValidationErrors resultErrors = BadRequest(errors);
         ValidationError[] errorArray = BadRequest(errors);
         Exception? resultException = BadRequest(errors);
 
         // Assert
+        resultErrors.Should().BeEquivalentTo(errors);
         errorArray.Should().BeEquivalentTo(errors);
         resultException.Should().BeNull();
     }
@@ -753,10 +755,12 @@ public class HttpResultTests {
         var exception = new Exception("Error message");
 
         // Act
+        ValidationErrors resultErrors = InternalError(exception);
         ValidationError[] errorArray = InternalError(exception);
         Exception? resultException = InternalError(exception);
 
         // Assert
+        resultErrors.Should().BeEmpty();
         errorArray.Should().BeEmpty();
         resultException.Should().BeSameAs(exception);
     }
@@ -960,10 +964,12 @@ public class HttpResultTests {
         var result = BadRequest("Value", errors);
 
         // Act
+        ValidationErrors resultErrors = result;
         ValidationError[] errorArray = result;
         Exception? resultException = result;
 
         // Assert
+        resultErrors.Should().BeEquivalentTo(errors);
         errorArray.Should().BeEquivalentTo(errors);
         resultException.Should().BeNull();
     }
@@ -975,10 +981,12 @@ public class HttpResultTests {
         var result = InternalError<string>(exception);
 
         // Act
+        ValidationErrors resultErrors = result;
         ValidationError[] errorArray = result;
         Exception? resultException = result;
 
         // Assert
+        resultErrors.Should().BeEmpty();
         errorArray.Should().BeEmpty();
         resultException.Should().BeSameAs(exception);
     }

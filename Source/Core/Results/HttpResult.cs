@@ -57,6 +57,7 @@ public record HttpResult : ResultBase<HttpResultType> {
     public static implicit operator HttpResult(List<ValidationError> errors) => (Result)errors;
     public static implicit operator HttpResult(HashSet<ValidationError> errors) => (Result)errors;
     public static implicit operator HttpResult(Result result) => new(HttpResultType.Ok, result.Errors);
+    public static implicit operator ValidationErrors(HttpResult result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator ValidationError[](HttpResult result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator Exception?(HttpResult result) => result.Exception;
 
@@ -109,6 +110,7 @@ public record HttpResult<TValue> : HttpResult, IResult<HttpResultType, TValue> {
     public static implicit operator HttpResult<TValue>(ValidationError[] errors) => (ValidationErrors)errors;
     public static implicit operator HttpResult<TValue>(List<ValidationError> errors) => (ValidationErrors)errors;
     public static implicit operator HttpResult<TValue>(HashSet<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator ValidationErrors(HttpResult<TValue> result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator ValidationError[](HttpResult<TValue> result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator Exception?(HttpResult<TValue> result) => result.Exception;
     public static implicit operator TValue?(HttpResult<TValue> result) => result.Value;

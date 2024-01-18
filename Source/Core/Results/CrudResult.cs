@@ -46,6 +46,7 @@ public record CrudResult : ResultBase<CrudResultType> {
     public static implicit operator CrudResult(List<ValidationError> errors) => (Result)errors;
     public static implicit operator CrudResult(HashSet<ValidationError> errors) => (Result)errors;
     public static implicit operator CrudResult(Result result) => new(CrudResultType.Success, result.Errors);
+    public static implicit operator ValidationErrors(CrudResult result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator ValidationError[](CrudResult result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator Exception?(CrudResult result) => result.Exception;
 
@@ -94,6 +95,7 @@ public record CrudResult<TValue> : CrudResult, IResult<CrudResultType, TValue> {
     public static implicit operator CrudResult<TValue>(ValidationError[] errors) => (ValidationErrors)errors;
     public static implicit operator CrudResult<TValue>(List<ValidationError> errors) => (ValidationErrors)errors;
     public static implicit operator CrudResult<TValue>(HashSet<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator ValidationErrors(CrudResult<TValue> result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator ValidationError[](CrudResult<TValue> result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator Exception?(CrudResult<TValue> result) => result.Exception;
     public static implicit operator TValue?(CrudResult<TValue> result) => result.Value;

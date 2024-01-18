@@ -269,25 +269,33 @@ public class CrudResultTests {
 
     [Fact]
     public void ImplicitConversion_FromInvalidResult_ReturnsSuccess() {
-        // Act
+        // Arrange
         var result = Invalid("Some error.");
-        ValidationError[] errors = result;
+
+        // Act
+        ValidationErrors errors = result;
+        ValidationError[] errorArray = result;
         Exception exception = result!;
 
         // Assert
         errors.Should().ContainSingle();
+        errorArray.Should().ContainSingle();
         exception.Should().BeNull();
     }
 
     [Fact]
     public void ImplicitConversion_FromExceptionResult_ReturnsSuccess() {
-        // Act
+        // Arrange
         var result = Error("Some error.");
-        ValidationError[] errors = result;
+
+        // Act
+        ValidationErrors errors = result;
+        ValidationError[] errorArray = result;
         Exception exception = result!;
 
         // Assert
         errors.Should().BeEmpty();
+        errorArray.Should().BeEmpty();
         exception.Should().NotBeNull();
     }
 
@@ -982,10 +990,12 @@ public class CrudResultTests {
         var result = Invalid("Value", errors);
 
         // Act
+        ValidationErrors resultErrors = result;
         ValidationError[] errorArray = result;
         Exception? resultException = result;
 
         // Assert
+        resultErrors.Should().BeEquivalentTo(errors);
         errorArray.Should().BeEquivalentTo(errors);
         resultException.Should().BeNull();
     }
@@ -997,10 +1007,12 @@ public class CrudResultTests {
         var result = Error<string>(exception);
 
         // Act
+        ValidationErrors resultErrors = result;
         ValidationError[] errorArray = result;
         Exception? resultException = result;
 
         // Assert
+        resultErrors.Should().BeEmpty();
         errorArray.Should().BeEmpty();
         resultException.Should().BeSameAs(exception);
     }

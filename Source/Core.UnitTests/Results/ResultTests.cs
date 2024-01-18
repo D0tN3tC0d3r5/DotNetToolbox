@@ -100,23 +100,27 @@ public class ResultTests {
     [Fact]
     public void ImplicitConversion_FromFailure_ReturnsError() {
         // Act
-        Exception? exception = _failure;
         ValidationErrors errors = _failure;
+        ValidationError[] array = _failure;
+        Exception? exception = _failure;
 
         // Assert
-        exception.Should().NotBeNull();
+        array.Should().BeEmpty();
         errors.Should().BeEmpty();
+        exception.Should().NotBeNull();
     }
 
     [Fact]
     public void ImplicitConversion_FromInvalid_ReturnsError() {
         // Act
-        Exception? exception = _invalid;
         ValidationErrors errors = _invalid;
+        ValidationError[] array = _invalid;
+        Exception? exception = _invalid;
 
         // Assert
-        exception.Should().BeNull();
+        array.Should().NotBeEmpty();
         errors.Should().NotBeEmpty();
+        exception.Should().BeNull();
     }
 
     [Fact]
@@ -392,10 +396,12 @@ public class ResultTests {
         // Act
         Exception? exception = _failureWithValue;
         ValidationErrors errors = _failureWithValue;
+        ValidationError[] array = _failureWithValue;
         string? value = _failureWithValue;
 
         // Assert
         exception.Should().NotBeNull();
+        array.Should().BeEmpty();
         errors.Should().BeEmpty();
         value.Should().BeNull();
     }
@@ -405,10 +411,12 @@ public class ResultTests {
         // Act
         Exception? exception = _invalidWithValue;
         ValidationErrors errors = _invalidWithValue;
+        ValidationError[] array = _invalidWithValue;
         string? value = _invalidWithValue;
 
         // Assert
         exception.Should().BeNull();
+        array.Should().NotBeEmpty();
         errors.Should().NotBeEmpty();
         value.Should().Be("42");
     }

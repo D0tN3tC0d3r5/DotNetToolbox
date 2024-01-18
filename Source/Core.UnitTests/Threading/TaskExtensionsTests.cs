@@ -8,373 +8,367 @@ public class TaskExtensionsTests {
         _tokenSource.Cancel();
     }
 
-    private static Task TestTask() => Task.CompletedTask;
-    private static Task TestFaultyTask() => Task.FromException(new InvalidOperationException());
-    private static Task TestCanceledTask() => Task.FromCanceled(_token);
-    private static Task<int> TestTaskOfT() => Task.FromResult(42);
-    private static Task<int> TestFaultyTaskOfT() => Task.FromException<int>(new InvalidOperationException());
-    private static Task<int> TestCanceledTaskOfT() => Task.FromCanceled<int>(_token);
-
     private static ValueTask TestValueTask() => ValueTask.CompletedTask;
     private static ValueTask TestFaultyValueTask() => ValueTask.FromException(new InvalidOperationException());
     private static ValueTask TestCanceledValueTask() => ValueTask.FromCanceled(_token);
+
     private static ValueTask<int> TestValueTaskOfT() => ValueTask.FromResult(42);
     private static ValueTask<int> TestFaultyValueTaskOfT() => ValueTask.FromException<int>(new InvalidOperationException());
     private static ValueTask<int> TestCanceledValueTaskOfT() => ValueTask.FromCanceled<int>(_token);
 
-    [Fact]
-    public void FireAndForget_WithValueTask_ShouldDoNothing() {
-        // Act
-        var act = () => TestValueTask().FireAndForget();
+    private static Task TestTask() => Task.CompletedTask;
+    private static Task TestFaultyTask() => Task.FromException(new InvalidOperationException());
+    private static Task TestCanceledTask() => Task.FromCanceled(_token);
 
-        // Assert
-        act.Should().NotThrow();
-    }
+    private static Task<int> TestTaskOfT() => Task.FromResult(42);
+    private static Task<int> TestFaultyTaskOfT() => Task.FromException<int>(new InvalidOperationException());
+    private static Task<int> TestCanceledTaskOfT() => Task.FromCanceled<int>(_token);
 
     [Fact]
-    public void FireAndForget_WithValueTaskAndOnCancel_ShouldCallOnException() {
+    public void FireAndForget_ForValueTask_ShouldCallAppropriateHandler() {
         // Arrange
-        var onCancel = For<Action<ValueTask, OperationCanceledException>>();
+        var goodTask = TestValueTask();
+        var faultyTask = TestFaultyValueTask();
+        var canceledTask = TestCanceledValueTask();
 
-        // Act
-        var act = () => TestValueTask().FireAndForget(onCancel);
+        var onException = For<Action<Exception>>();
+        var onExceptionAndTask = For<Action<ValueTask, Exception>>();
 
-        // Assert
-        act.Should().NotThrow();
-        onCancel.DidNotReceive().Invoke(Any<ValueTask>(), Any<OperationCanceledException>());
+        var onCancel = For<Action<OperationCanceledException>>();
+        var onCancelAndTask = For<Action<ValueTask, OperationCanceledException>>();
+
+        // Act & Assert
+        goodTask.FireAndForget();
+        canceledTask.FireAndForget();
+        faultyTask.FireAndForget();
+
+        goodTask.FireAndForget(onCancel);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+
+        canceledTask.FireAndForget(onCancel);
+        onCancel.Received(1).Invoke(Any<OperationCanceledException>());
+        onCancel.ClearReceivedCalls();
+
+        faultyTask.FireAndForget(onCancel);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+
+        goodTask.FireAndForget(onCancelAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(goodTask, Any<OperationCanceledException>());
+
+        canceledTask.FireAndForget(onCancelAndTask);
+        onCancelAndTask.Received(1).Invoke(canceledTask, Any<OperationCanceledException>());
+        onCancelAndTask.ClearReceivedCalls();
+
+        faultyTask.FireAndForget(onCancelAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(faultyTask, Any<OperationCanceledException>());
+
+        goodTask.FireAndForget(onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        canceledTask.FireAndForget(onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        faultyTask.FireAndForget(onException);
+        onException.Received(1).Invoke(Any<Exception>());
+        onException.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onExceptionAndTask);
+        onExceptionAndTask.DidNotReceive().Invoke(goodTask, Any<Exception>());
+
+        canceledTask.FireAndForget(onExceptionAndTask);
+        onExceptionAndTask.DidNotReceive().Invoke(canceledTask, Any<Exception>());
+
+        faultyTask.FireAndForget(onExceptionAndTask);
+        onExceptionAndTask.Received(1).Invoke(faultyTask, Any<Exception>());
+        onExceptionAndTask.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onCancel, onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        canceledTask.FireAndForget(onCancel, onException);
+        onCancel.Received(1).Invoke(Any<OperationCanceledException>());
+        onCancel.ClearReceivedCalls();
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        faultyTask.FireAndForget(onCancel, onException);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+        onException.Received(1).Invoke(Any<Exception>());
+        onException.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(goodTask, Any<OperationCanceledException>());
+        onExceptionAndTask.DidNotReceive().Invoke(goodTask, Any<Exception>());
+
+        canceledTask.FireAndForget(onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.Received(1).Invoke(canceledTask, Any<OperationCanceledException>());
+        onCancelAndTask.ClearReceivedCalls();
+        onExceptionAndTask.DidNotReceive().Invoke(canceledTask, Any<Exception>());
+
+        faultyTask.FireAndForget(onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(faultyTask, Any<OperationCanceledException>());
+        onExceptionAndTask.Received(1).Invoke(faultyTask, Any<Exception>());
+        onExceptionAndTask.ClearReceivedCalls();
     }
 
     [Fact]
-    public void FireAndForget_WithValueTaskAndOnException_ShouldCallOnException() {
+    public void FireAndForget_ForValueTaskOfT_ShouldCallAppropriateHandler() {
         // Arrange
-        var onException = For<Action<ValueTask, Exception>>();
+        var goodTask = TestValueTaskOfT();
+        var faultyTask = TestFaultyValueTaskOfT();
+        var canceledTask = TestCanceledValueTaskOfT();
 
-        // Act
-        var act = () => TestValueTask().FireAndForget(onException);
-
-        // Assert
-        act.Should().NotThrow();
-        onException.DidNotReceive().Invoke(Any<ValueTask>(), Any<Exception>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithFailingValueTaskAndNoOnException_ShouldDoNothing() {
-        // Act
-        var act = () => TestFaultyValueTask().FireAndForget();
-
-        // Assert
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void FireAndForget_WithCanceledValueTask_ShouldDoNothing() {
-        // Act
-        var act = () => TestCanceledValueTask().FireAndForget();
-
-        // Assert
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void FireAndForget_WithCanceledValueTaskAndOnCancel_ShouldDoNothing() {
-        // Arrange
-        var onCancel = For<Action<ValueTask, OperationCanceledException>>();
-
-        // Act
-        var act = () => TestCanceledValueTask().FireAndForget(onCancel);
-
-        // Assert
-        act.Should().NotThrow();
-        onCancel.Received(1).Invoke(Any<ValueTask>(), Any<OperationCanceledException>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithFailingValueTaskAndOnException_ShouldCallOnException() {
-        // Arrange
-        var onException = For<Action<ValueTask, Exception>>();
-
-        // Act
-        var act = () => TestFaultyValueTask().FireAndForget(onException);
-
-        // Assert
-        act.Should().NotThrow();
-        onException.Received(1).Invoke(Any<ValueTask>(), Any<Exception>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithValueTaskOfT_ShouldDoNothing() {
-        // Arrange
         var onResult = For<Action<int>>();
 
-        // Act
-        var act = () => TestValueTaskOfT().FireAndForget(onResult);
+        var onException = For<Action<Exception>>();
+        var onExceptionAndTask = For<Action<ValueTask<int>, Exception>>();
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.Received(1).Invoke(Any<int>());
+        var onCancel = For<Action<OperationCanceledException>>();
+        var onCancelAndTask = For<Action<ValueTask<int>, OperationCanceledException>>();
+
+        // Act & Assert
+        goodTask.FireAndForget(onResult);
+        canceledTask.FireAndForget(onResult);
+        faultyTask.FireAndForget(onResult);
+
+        goodTask.FireAndForget(onResult, onCancel);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+
+        canceledTask.FireAndForget(onResult, onCancel);
+        onCancel.Received(1).Invoke(Any<OperationCanceledException>());
+        onCancel.ClearReceivedCalls();
+
+        faultyTask.FireAndForget(onResult, onCancel);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+
+        goodTask.FireAndForget(onResult, onCancelAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(goodTask, Any<OperationCanceledException>());
+
+        canceledTask.FireAndForget(onResult, onCancelAndTask);
+        onCancelAndTask.Received(1).Invoke(canceledTask, Any<OperationCanceledException>());
+        onCancelAndTask.ClearReceivedCalls();
+
+        faultyTask.FireAndForget(onResult, onCancelAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(faultyTask, Any<OperationCanceledException>());
+
+        goodTask.FireAndForget(onResult, onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        canceledTask.FireAndForget(onResult, onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        faultyTask.FireAndForget(onResult, onException);
+        onException.Received(1).Invoke(Any<Exception>());
+        onException.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onResult, onExceptionAndTask);
+        onExceptionAndTask.DidNotReceive().Invoke(goodTask, Any<Exception>());
+
+        canceledTask.FireAndForget(onResult, onExceptionAndTask);
+        onExceptionAndTask.DidNotReceive().Invoke(canceledTask, Any<Exception>());
+
+        faultyTask.FireAndForget(onResult, onExceptionAndTask);
+        onExceptionAndTask.Received(1).Invoke(faultyTask, Any<Exception>());
+        onExceptionAndTask.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onResult, onCancel, onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        canceledTask.FireAndForget(onResult, onCancel, onException);
+        onCancel.Received(1).Invoke(Any<OperationCanceledException>());
+        onCancel.ClearReceivedCalls();
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        faultyTask.FireAndForget(onResult, onCancel, onException);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+        onException.Received(1).Invoke(Any<Exception>());
+        onException.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onResult, onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(goodTask, Any<OperationCanceledException>());
+        onExceptionAndTask.DidNotReceive().Invoke(goodTask, Any<Exception>());
+
+        canceledTask.FireAndForget(onResult, onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.Received(1).Invoke(canceledTask, Any<OperationCanceledException>());
+        onCancelAndTask.ClearReceivedCalls();
+        onExceptionAndTask.DidNotReceive().Invoke(canceledTask, Any<Exception>());
+
+        faultyTask.FireAndForget(onResult, onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(faultyTask, Any<OperationCanceledException>());
+        onExceptionAndTask.Received(1).Invoke(faultyTask, Any<Exception>());
+        onExceptionAndTask.ClearReceivedCalls();
     }
 
     [Fact]
-    public void FireAndForget_WithValueTaskOfTAndOnCancel_ShouldCallOnException() {
+    public void FireAndForget_ForTask_ShouldCallAppropriateHandler() {
         // Arrange
-        var onResult = For<Action<int>>();
-        var onCancel = For<Action<ValueTask<int>, OperationCanceledException>>();
+        var goodTask = TestTask();
+        var faultyTask = TestFaultyTask();
+        var canceledTask = TestCanceledTask();
 
-        // Act
-        var act = () => TestValueTaskOfT().FireAndForget(onResult, onCancel);
+        var onException = For<Action<Exception>>();
+        var onExceptionAndTask = For<Action<Task, Exception>>();
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.Received(1).Invoke(Any<int>());
-        onCancel.DidNotReceive().Invoke(Any<ValueTask<int>>(), Any<OperationCanceledException>());
+        var onCancel = For<Action<OperationCanceledException>>();
+        var onCancelAndTask = For<Action<Task, OperationCanceledException>>();
+
+        // Act & Assert
+        goodTask.FireAndForget();
+        canceledTask.FireAndForget();
+        faultyTask.FireAndForget();
+
+        goodTask.FireAndForget(onCancel);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+
+        canceledTask.FireAndForget(onCancel);
+        onCancel.Received(1).Invoke(Any<OperationCanceledException>());
+        onCancel.ClearReceivedCalls();
+
+        faultyTask.FireAndForget(onCancel);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+
+        goodTask.FireAndForget(onCancelAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(goodTask, Any<OperationCanceledException>());
+
+        canceledTask.FireAndForget(onCancelAndTask);
+        onCancelAndTask.Received(1).Invoke(canceledTask, Any<OperationCanceledException>());
+        onCancelAndTask.ClearReceivedCalls();
+
+        faultyTask.FireAndForget(onCancelAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(faultyTask, Any<OperationCanceledException>());
+
+        goodTask.FireAndForget(onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        canceledTask.FireAndForget(onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        faultyTask.FireAndForget(onException);
+        onException.Received(1).Invoke(Any<Exception>());
+        onException.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onExceptionAndTask);
+        onExceptionAndTask.DidNotReceive().Invoke(goodTask, Any<Exception>());
+
+        canceledTask.FireAndForget(onExceptionAndTask);
+        onExceptionAndTask.DidNotReceive().Invoke(canceledTask, Any<Exception>());
+
+        faultyTask.FireAndForget(onExceptionAndTask);
+        onExceptionAndTask.Received(1).Invoke(faultyTask, Any<Exception>());
+        onExceptionAndTask.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onCancel, onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        canceledTask.FireAndForget(onCancel, onException);
+        onCancel.Received(1).Invoke(Any<OperationCanceledException>());
+        onCancel.ClearReceivedCalls();
+        onException.DidNotReceive().Invoke(Any<Exception>());
+
+        faultyTask.FireAndForget(onCancel, onException);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+        onException.Received(1).Invoke(Any<Exception>());
+        onException.ClearReceivedCalls();
+
+        goodTask.FireAndForget(onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(goodTask, Any<OperationCanceledException>());
+        onExceptionAndTask.DidNotReceive().Invoke(goodTask, Any<Exception>());
+
+        canceledTask.FireAndForget(onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.Received(1).Invoke(canceledTask, Any<OperationCanceledException>());
+        onCancelAndTask.ClearReceivedCalls();
+        onExceptionAndTask.DidNotReceive().Invoke(canceledTask, Any<Exception>());
+
+        faultyTask.FireAndForget(onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(faultyTask, Any<OperationCanceledException>());
+        onExceptionAndTask.Received(1).Invoke(faultyTask, Any<Exception>());
+        onExceptionAndTask.ClearReceivedCalls();
     }
 
     [Fact]
-    public void FireAndForget_WithValueTaskOfTAndOnException_ShouldCallOnException() {
+    public void FireAndForget_ForTaskOfT_ShouldCallAppropriateHandler() {
         // Arrange
-        var onResult = For<Action<int>>();
-        var onException = For<Action<ValueTask<int>, Exception>>();
+        var goodTask = TestTaskOfT();
+        var faultyTask = TestFaultyTaskOfT();
+        var canceledTask = TestCanceledTaskOfT();
 
-        // Act
-        var act = () => TestValueTaskOfT().FireAndForget(onResult, onException);
-
-        // Assert
-        act.Should().NotThrow();
-        onResult.Received(1).Invoke(Any<int>());
-        onException.DidNotReceive().Invoke(Any<ValueTask<int>>(), Any<Exception>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithFailingValueTaskOfTAndNoOnException_ShouldDoNothing() {
-        // Arrange
-        var onResult = For<Action<int>>();
-
-        // Act
-        var act = () => TestFaultyValueTaskOfT().FireAndForget(onResult);
-
-        // Assert
-        act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Any<int>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithCanceledValueTaskOfT_ShouldDoNothing() {
-        // Arrange
-        var onResult = For<Action<int>>();
-
-        // Act
-        var act = () => TestCanceledValueTaskOfT().FireAndForget(onResult);
-
-        // Assert
-        act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Any<int>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithCanceledValueTaskOfTAndOnCancel_ShouldDoNothing() {
-        // Arrange
-        var onCancel = For<Action<ValueTask<int>, OperationCanceledException>>();
-        var onResult = For<Action<int>>();
-
-        // Act
-        var act = () => TestCanceledValueTaskOfT().FireAndForget(onResult, onCancel);
-
-        // Assert
-        act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Any<int>());
-        onCancel.Received(1).Invoke(Any<ValueTask<int>>(), Any<OperationCanceledException>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithFailingValueTaskOfTAndOnException_ShouldCallOnException() {
-        // Arrange
-        var onException = For<Action<ValueTask<int>, Exception>>();
-        var onResult = For<Action<int>>();
-
-        // Act
-        var act = () => TestFaultyValueTaskOfT().FireAndForget(onResult, onException);
-
-        // Assert
-        act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Any<int>());
-        onException.Received(1).Invoke(Any<ValueTask<int>>(), Any<Exception>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithTask_ShouldDoNothing() {
-        // Act
-        var act = () => TestTask().FireAndForget();
-
-        // Assert
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void FireAndForget_WithTaskAndOnCancel_ShouldCallOnException() {
-        // Arrange
-        var onCancel = For<Action<Task, OperationCanceledException>>();
-
-        // Act
-        var act = () => TestTask().FireAndForget(onCancel);
-
-        // Assert
-        act.Should().NotThrow();
-        onCancel.DidNotReceive().Invoke(Any<Task>(), Any<OperationCanceledException>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithTaskAndOnException_ShouldCallOnException() {
-        // Arrange
-        var onException = For<Action<Task, Exception>>();
-
-        // Act
-        var act = () => TestTask().FireAndForget(onException);
-
-        // Assert
-        act.Should().NotThrow();
-        onException.DidNotReceive().Invoke(Any<Task>(), Any<Exception>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithFailingTaskAndNoOnException_ShouldDoNothing() {
-        // Act
-        var act = () => TestFaultyTask().FireAndForget();
-
-        // Assert
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void FireAndForget_WithCanceledTask_ShouldDoNothing() {
-        // Act
-        var act = () => TestCanceledTask().FireAndForget();
-
-        // Assert
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void FireAndForget_WithCanceledTaskAndOnCancel_ShouldDoNothing() {
-        // Arrange
-        var onCancel = For<Action<Task, OperationCanceledException>>();
-
-        // Act
-        var act = () => TestCanceledTask().FireAndForget(onCancel);
-
-        // Assert
-        act.Should().NotThrow();
-        onCancel.Received(1).Invoke(Any<Task>(), Any<OperationCanceledException>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithFailingTaskAndOnException_ShouldCallOnException() {
-        // Arrange
-        var onException = For<Action<Task, Exception>>();
-
-        // Act
-        var act = () => TestFaultyTask().FireAndForget(onException);
-
-        // Assert
-        act.Should().NotThrow();
-        onException.Received(1).Invoke(Any<Task>(), Any<Exception>());
-    }
-
-    [Fact]
-    public void FireAndForget_WithTaskOfT_ShouldDoNothing() {
-        // Arrange
         var onResult = For<Action<int>>();
 
-        // Act
-        var act = () => TestTaskOfT().FireAndForget(onResult);
+        var onException = For<Action<Exception>>();
+        var onExceptionAndTask = For<Action<Task<int>, Exception>>();
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.Received(1).Invoke(Any<int>());
-    }
+        var onCancel = For<Action<OperationCanceledException>>();
+        var onCancelAndTask = For<Action<Task<int>, OperationCanceledException>>();
 
-    [Fact]
-    public void FireAndForget_WithTaskOfTAndOnCancel_ShouldCallOnException() {
-        // Arrange
-        var onResult = For<Action<int>>();
-        var onCancel = For<Action<Task<int>, OperationCanceledException>>();
+        // Act & Assert
+        goodTask.FireAndForget(onResult);
+        canceledTask.FireAndForget(onResult);
+        faultyTask.FireAndForget(onResult);
 
-        // Act
-        var act = () => TestTaskOfT().FireAndForget(onResult, onCancel);
+        goodTask.FireAndForget(onResult, onCancel);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.Received(1).Invoke(Any<int>());
-        onCancel.DidNotReceive().Invoke(Any<Task<int>>(), Any<OperationCanceledException>());
-    }
+        canceledTask.FireAndForget(onResult, onCancel);
+        onCancel.Received(1).Invoke(Any<OperationCanceledException>());
+        onCancel.ClearReceivedCalls();
 
-    [Fact]
-    public void FireAndForget_WithTaskOfTAndOnException_ShouldCallOnException() {
-        // Arrange
-        var onResult = For<Action<int>>();
-        var onException = For<Action<Task<int>, Exception>>();
+        faultyTask.FireAndForget(onResult, onCancel);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
 
-        // Act
-        var act = () => TestTaskOfT().FireAndForget(onResult, onException);
+        goodTask.FireAndForget(onResult, onCancelAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(goodTask, Any<OperationCanceledException>());
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.Received(1).Invoke(Any<int>());
-        onException.DidNotReceive().Invoke(Any<Task<int>>(), Any<Exception>());
-    }
+        canceledTask.FireAndForget(onResult, onCancelAndTask);
+        onCancelAndTask.Received(1).Invoke(canceledTask, Any<OperationCanceledException>());
+        onCancelAndTask.ClearReceivedCalls();
 
-    [Fact]
-    public void FireAndForget_WithFailingTaskOfTAndNoOnException_ShouldDoNothing() {
-        // Arrange
-        var onResult = For<Action<int>>();
+        faultyTask.FireAndForget(onResult, onCancelAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(faultyTask, Any<OperationCanceledException>());
 
-        // Act
-        var act = () => TestFaultyTaskOfT().FireAndForget(onResult);
+        goodTask.FireAndForget(onResult, onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Any<int>());
-    }
+        canceledTask.FireAndForget(onResult, onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
 
-    [Fact]
-    public void FireAndForget_WithCanceledTaskOfT_ShouldDoNothing() {
-        // Arrange
-        var onResult = For<Action<int>>();
+        faultyTask.FireAndForget(onResult, onException);
+        onException.Received(1).Invoke(Any<Exception>());
+        onException.ClearReceivedCalls();
 
-        // Act
-        var act = () => TestCanceledTaskOfT().FireAndForget(onResult);
+        goodTask.FireAndForget(onResult, onExceptionAndTask);
+        onExceptionAndTask.DidNotReceive().Invoke(goodTask, Any<Exception>());
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Any<int>());
-    }
+        canceledTask.FireAndForget(onResult, onExceptionAndTask);
+        onExceptionAndTask.DidNotReceive().Invoke(canceledTask, Any<Exception>());
 
-    [Fact]
-    public void FireAndForget_WithCanceledTaskOfTAndOnCancel_ShouldDoNothing() {
-        // Arrange
-        var onCancel = For<Action<Task<int>, OperationCanceledException>>();
-        var onResult = For<Action<int>>();
+        faultyTask.FireAndForget(onResult, onExceptionAndTask);
+        onExceptionAndTask.Received(1).Invoke(faultyTask, Any<Exception>());
+        onExceptionAndTask.ClearReceivedCalls();
 
-        // Act
-        var act = () => TestCanceledTaskOfT().FireAndForget(onResult, onCancel);
+        goodTask.FireAndForget(onResult, onCancel, onException);
+        onException.DidNotReceive().Invoke(Any<Exception>());
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Any<int>());
-        onCancel.Received(1).Invoke(Any<Task<int>>(), Any<OperationCanceledException>());
-    }
+        canceledTask.FireAndForget(onResult, onCancel, onException);
+        onCancel.Received(1).Invoke(Any<OperationCanceledException>());
+        onCancel.ClearReceivedCalls();
+        onException.DidNotReceive().Invoke(Any<Exception>());
 
-    [Fact]
-    public void FireAndForget_WithFailingTaskOfTAndOnException_ShouldCallOnException() {
-        // Arrange
-        var onException = For<Action<Task<int>, Exception>>();
-        var onResult = For<Action<int>>();
+        faultyTask.FireAndForget(onResult, onCancel, onException);
+        onCancel.DidNotReceive().Invoke(Any<OperationCanceledException>());
+        onException.Received(1).Invoke(Any<Exception>());
+        onException.ClearReceivedCalls();
 
-        // Act
-        var act = () => TestFaultyTaskOfT().FireAndForget(onResult, onException);
+        goodTask.FireAndForget(onResult, onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(goodTask, Any<OperationCanceledException>());
+        onExceptionAndTask.DidNotReceive().Invoke(goodTask, Any<Exception>());
 
-        // Assert
-        act.Should().NotThrow();
-        onResult.DidNotReceive().Invoke(Any<int>());
-        onException.Received(1).Invoke(Any<Task<int>>(), Any<Exception>());
+        canceledTask.FireAndForget(onResult, onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.Received(1).Invoke(canceledTask, Any<OperationCanceledException>());
+        onCancelAndTask.ClearReceivedCalls();
+        onExceptionAndTask.DidNotReceive().Invoke(canceledTask, Any<Exception>());
+
+        faultyTask.FireAndForget(onResult, onCancelAndTask, onExceptionAndTask);
+        onCancelAndTask.DidNotReceive().Invoke(faultyTask, Any<OperationCanceledException>());
+        onExceptionAndTask.Received(1).Invoke(faultyTask, Any<Exception>());
+        onExceptionAndTask.ClearReceivedCalls();
     }
 }

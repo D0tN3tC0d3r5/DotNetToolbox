@@ -61,8 +61,6 @@ public record SignInResult : ResultBase<SignInResultType> {
     public static Task<SignInResult> ErrorTask(string error) => ErrorTask(new Exception(error));
     public static Task<SignInResult> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
 
-    public static implicit operator SignInResult(string token) => new(SignInResultType.Success, token);
-
     public static implicit operator SignInResult(Exception exception) => new(exception);
     public static implicit operator SignInResult(ValidationError error) => (Result)error;
     public static implicit operator SignInResult(ValidationErrors errors) => (Result)errors;
@@ -70,6 +68,7 @@ public record SignInResult : ResultBase<SignInResultType> {
     public static implicit operator SignInResult(List<ValidationError> errors) => (Result)errors;
     public static implicit operator SignInResult(HashSet<ValidationError> errors) => (Result)errors;
     public static implicit operator SignInResult(Result result) => new(SignInResultType.Success, errors: result.Errors);
+    public static implicit operator ValidationErrors(SignInResult result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator ValidationError[](SignInResult result) => result.HasException ? [] : result.Errors.ToArray();
     public static implicit operator Exception?(SignInResult result) => result.Exception;
 

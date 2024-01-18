@@ -18,7 +18,7 @@ public class SignInResultTests {
     [Fact]
     public void Success_CreatesResult() {
         // Arrange & Act
-        var result = Success("SomeToken");
+        var result = Success("SomeToken") with { };
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -123,7 +123,6 @@ public class SignInResultTests {
         result.IsFailure.Should().BeFalse();
     }
 
-
     [Fact]
     public void BlockedAccount_WithMessageOnly_CreatesResult() {
         // Arrange & Act
@@ -141,7 +140,6 @@ public class SignInResultTests {
         result.IsLocked.Should().BeFalse();
         result.IsFailure.Should().BeFalse();
     }
-
 
     [Fact]
     public void LockedAccount_CreatesResult() {
@@ -240,15 +238,6 @@ public class SignInResultTests {
 
         // Assert
         result.IsInvalid.Should().BeTrue();
-    }
-
-    [Fact]
-    public void ImplicitConversion_FromToken_ReturnsSuccess() {
-        // Act
-        SignInResult result = "SomeToken";
-
-        // Assert
-        result.IsSuccess.Should().BeTrue();
     }
 
     private class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
@@ -618,6 +607,38 @@ public class SignInResultTests {
     }
 
     [Fact]
+    public void ImplicitConversion_FromHttpResultToValidationErrorArray_ReturnsErrors() {
+        // Arrange
+        var errors = new[] { new ValidationError("Error message", "Property") };
+
+        // Act
+        ValidationErrors resultErrors = InvalidRequest(errors);
+        ValidationError[] errorArray = InvalidRequest(errors);
+        Exception? resultException = InvalidRequest(errors);
+
+        // Assert
+        resultErrors.Should().BeEquivalentTo(errors);
+        errorArray.Should().BeEquivalentTo(errors);
+        resultException.Should().BeNull();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromHttpResultToException_ReturnsException() {
+        // Arrange
+        var exception = new Exception("Error message");
+
+        // Act
+        ValidationErrors resultErrors = Error(exception);
+        ValidationError[] errorArray = Error(exception);
+        Exception? resultException = Error(exception);
+
+        // Assert
+        resultErrors.Should().BeEmpty();
+        errorArray.Should().BeEmpty();
+        resultException.Should().BeSameAs(exception);
+    }
+
+    [Fact]
     public void ImplicitConversion_FromExceptionToSignInResult_CreatesResultWithException() {
         // Arrange
         var exception = new Exception("Error message");
@@ -628,18 +649,6 @@ public class SignInResultTests {
         // Assert
         result.HasException.Should().BeTrue();
         result.Exception.Should().BeSameAs(exception);
-    }
-
-    [Fact]
-    public void ImplicitConversion_FromStringToSignInResult_CreatesResultWithException() {
-        // Act
-        SignInResult result = "SomeToken";
-
-        // Assert
-        result.HasException.Should().BeFalse();
-        result.HasErrors.Should().BeFalse();
-        result.Errors.Should().BeEmpty();
-        result.Token.Should().Be("SomeToken");
     }
 
     [Fact]
