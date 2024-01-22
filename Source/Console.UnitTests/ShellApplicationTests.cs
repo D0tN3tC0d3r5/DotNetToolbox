@@ -1,5 +1,4 @@
-﻿using AppOptions = DotNetToolbox.ConsoleApplication.ShellApplicationOptions;
-using Shell = DotNetToolbox.ConsoleApplication.ShellApplication;
+﻿using Shell = DotNetToolbox.ConsoleApplication.ShellApplication;
 
 namespace DotNetToolbox.ConsoleApplication;
 
@@ -240,8 +239,16 @@ public class ShellApplicationTests {
             testhost v15.0.0.0
             > crash
             Exception: Some error.
-
+                Stack Trace:
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.IsSuccess(Result result, Boolean stopOnInvalidInput)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.Terminate(Result result)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ExecuteInternalAsync(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.RunAsync()*
+            
+            
             """;
+        var expectedLines = expectedOutput.Split(Environment.NewLine);
         var app = Shell.Create(b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
@@ -253,7 +260,11 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(Application.DefaultErrorCode);
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.Lines.Select((line, index) => (line, index)).Should().AllSatisfy(x => {
+            if (expectedLines[x.index].StartsWith('*') || expectedLines[x.index].EndsWith('*'))
+                x.line.Should().Match(expectedLines[x.index]);
+            else x.line.Should().Be(expectedLines[x.index]);
+        });
     }
 
     [Fact]
@@ -267,8 +278,16 @@ public class ShellApplicationTests {
             testhost v15.0.0.0
             > crash
             ConsoleException: Some error.
-
+                Stack Trace:
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.IsSuccess(Result result, Boolean stopOnInvalidInput)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.Terminate(Result result)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ExecuteInternalAsync(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.RunAsync()*
+            
+            
             """;
+        var expectedLines = expectedOutput.Split(Environment.NewLine);
         var app = Shell.Create(b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
@@ -280,7 +299,63 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(expectedErrorCode);
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.Lines.Select((line, index) => (line, index)).Should().AllSatisfy(x => {
+            if (expectedLines[x.index].StartsWith('*') || expectedLines[x.index].EndsWith('*'))
+                x.line.Should().Match(expectedLines[x.index]);
+            else x.line.Should().Be(expectedLines[x.index]);
+        });
+    }
+
+    [Fact]
+    public async Task RunAsync_WithConsoleExceptionDuringExecution_AndInnerException_ReturnsResultWithException() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "crash");
+        const int expectedErrorCode = 13;
+        const string expectedOutput =
+            """
+            testhost v15.0.0.0
+            > crash
+            ConsoleException: Some error.
+                Stack Trace:
+                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests.<>c__DisplayClass15_0.<RunAsync_WithConsoleExceptionDuringExecution_AndInnerException_ReturnsResultWithException>b__1(CancellationToken _)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.<>c__DisplayClass25_0.<AddCommand>b__0(AsyncCommand _, CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.AsyncCommand`1.ExecuteAsync(String[] args, CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.ProcessUserInput(String[] input, CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ExecuteInternalAsync(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.RunAsync()*
+                Inner Exception => InvalidOperationException: Some error.
+                    Stack Trace:
+                           at DotNetToolbox.ConsoleApplication.ShellApplicationTests.<>c__DisplayClass15_0.<RunAsync_WithConsoleExceptionDuringExecution_AndInnerException_ReturnsResultWithException>b__1(CancellationToken _)*
+            
+            
+            """;
+        var expectedLines = expectedOutput.Split(Environment.NewLine);
+        var app = Shell.Create(b => {
+            b.ReplaceInput(input);
+            b.ReplaceOutput(output);
+        });
+        app.AddCommand("Crash",
+                       _ => {
+                           try {
+                               throw new InvalidOperationException("Some error.");
+                           }
+                           catch (Exception ex) {
+                               throw new ConsoleException(expectedErrorCode, "Some error.", ex);
+                           }
+                       });
+
+        // Act
+        var actualResult = await app.RunAsync();
+
+        // Assert
+        actualResult.Should().Be(expectedErrorCode);
+        output.Lines.Select((line, index) => (line, index)).Should().AllSatisfy(x => {
+            if (expectedLines[x.index].StartsWith('*') || expectedLines[x.index].EndsWith('*'))
+                x.line.Should().Match(expectedLines[x.index]);
+            else x.line.Should().Be(expectedLines[x.index]);
+        });
     }
 
     [Fact]
@@ -356,8 +431,7 @@ public class ShellApplicationTests {
     public void Create_SetLogging_CreatesShellApplication() {
         // Arrange & Act
         var app = Shell.Create(b
-            => b.SetLogging(l
-                => l.SetMinimumLevel(LogLevel.Debug)));
+            => b.SetLogging(l => l.SetMinimumLevel(LogLevel.Debug)));
 
         // Assert
         app.Should().BeOfType<Shell>();

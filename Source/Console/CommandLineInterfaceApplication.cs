@@ -33,8 +33,12 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
         }
 
         var result = await ArgumentsReader.Read(Arguments, [.. Children], ct);
-        EnsureArgumentsAreValid(result);
+        if (!EnsureArgumentsAreValid(result)) {
+            Exit(DefaultErrorCode);
+            return;
+        }
         await ExecuteAsync(ct);
+        Exit();
     }
 
     protected virtual Task ExecuteAsync(CancellationToken ct) => Task.CompletedTask;

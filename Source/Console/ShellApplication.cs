@@ -31,14 +31,20 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
         if (Options.ClearScreenOnStart) Output.ClearScreen();
         var result = await ArgumentsReader.Read(Arguments, [.. Children], ct);
         Output.WriteLine(FullName);
-        if (!EnsureArgumentsAreValid(result)) return;
-
-        while (IsRunning && !ct.IsCancellationRequested) {
-            Output.Write(Options.Prompt);
-            var userInputText = Input.ReadLine() ?? string.Empty;
-            var userInputs = UserInputParser.Parse(userInputText);
-            result = await ProcessInput(userInputs, ct);
-            if (Terminate(result)) break;
+        if (!EnsureArgumentsAreValid(result)) {
+            Exit(DefaultErrorCode);
+            return;
         }
+
+        while (IsRunning && !ct.IsCancellationRequested)
+            await ProcessCommandLine(ct);
+    }
+
+    private async Task ProcessCommandLine(CancellationToken ct) {
+        Output.Write(Options.Prompt);
+        var userInputText = Input.ReadLine();
+        var userInputs = UserInputParser.Parse(userInputText);
+        var result = await ProcessUserInput(userInputs, ct);
+        if (Terminate(result)) Exit();
     }
 }

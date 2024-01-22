@@ -67,7 +67,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     }
 
     public TBuilder SetLogging(Action<ILoggingBuilder>? configure = null) {
-        _setLogging = configure ?? _setLogging;
+        _setLogging = b => configure?.Invoke(b);
         return (TBuilder)this;
     }
 
@@ -79,7 +79,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
                                     _fileSystem,
                                     _input,
                                     _output);
-        AddLogging();
+        AddLogging(configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
         var app = CreateInstance.Of<TApplication>(_args, _environment, serviceProvider)
@@ -97,10 +97,11 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         Services.AddSingleton<IConfiguration>(configuration);
     }
 
-    private void AddLogging() {
-        Services.AddSingleton<ILoggerFactory, LoggerFactory>();
-        Services.AddLogging(_setLogging);
-    }
+    private void AddLogging(IConfiguration configuration)
+        => Services.AddLogging(b => {
+            b.AddConfiguration(configuration);
+            _setLogging(b);
+        });
 
     private void AddOptions(IConfiguration configuration) {
         var section = configuration.GetSection(TOptions.SectionName);

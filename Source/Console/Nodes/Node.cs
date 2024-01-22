@@ -6,7 +6,8 @@ public abstract class Node<TNode>
     protected Node(IHasChildren parent, string name, params string[] aliases) {
         Parent = parent;
         Application = FindRoot(this);
-        Logger = Application.ServiceProvider.GetRequiredService<ILogger<TNode>>();
+        var factory = Application.ServiceProvider.GetRequiredService<ILoggerFactory>();
+        Logger = factory.CreateLogger<TNode>();
         Name = IsValid(IsNotNull(name), IsValidName);
         Aliases = AllAreValid<string[], string>(aliases, IsValidName)!;
     }

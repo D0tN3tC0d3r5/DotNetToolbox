@@ -68,7 +68,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         : base(serviceProvider) {
         Arguments = args;
         var options = ServiceProvider.GetService<IOptions<TOptions>>();
-        Options = options?.Value ?? TOptions.Default;
+        Options = options?.Value ?? new TOptions();
         Environment = environment ?? Options.Environment;
 
         var loggerFactory = ServiceProvider.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance;
@@ -90,7 +90,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     public string Environment { get; }
     public TOptions Options { get; }
 
-    public ILogger Logger { get; init; }
+    public ILogger<TApplication> Logger { get; init; }
 
     public static TApplication Create(Action<TBuilder>? configureBuilder = null)
         => Create([], configureBuilder);
@@ -108,8 +108,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     public TApplication AddCommand(string name, Func<CancellationToken, Task<Result>> action) {
-        Func<AsyncCommand, CancellationToken, Task<Result>> execute = (_, ct) => action(ct);
-        Children.Add(CreateInstance.Of<AsyncCommand>(this, name, Array.Empty<string>(), execute));
+        Children.Add(CreateInstance.Of<AsyncCommand>(this, name, Array.Empty<string>(), (AsyncCommand _, CancellationToken ct) => action(ct)));
         return (TApplication)this;
     }
 
@@ -154,10 +153,20 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     public int Run() => RunAsync().GetAwaiter().GetResult();
 
     public async Task<int> RunAsync() {
-        IsRunning = true;
-        var taskRun = new CancellationTokenSource();
-        await ExecuteInternalAsync(taskRun.Token);
-        return _exitCode;
+        try {
+            IsRunning = true;
+            var taskRun = new CancellationTokenSource();
+            await ExecuteInternalAsync(taskRun.Token);
+            return _exitCode;
+        }
+        catch (ConsoleException ex) {
+            Output.WriteLine(ExceptionBuilder.Build(ex));
+            return ex.ExitCode;
+        }
+        catch (Exception ex) {
+            Output.WriteLine(ExceptionBuilder.Build(ex));
+            return DefaultErrorCode;
+        }
     }
 
     protected abstract Task ExecuteInternalAsync(CancellationToken ct);
@@ -167,23 +176,14 @@ public abstract class Application<TApplication, TBuilder, TOptions>
 
     private bool IsSuccess(Result result, bool stopOnInvalidInput) {
         if (result.IsSuccess) return true;
-
-        if (result.HasException) {
-            Output.WriteLine($"{result.Exception.GetType().Name}: {result.Exception.Message}");
-            var exitCode = result.Exception is ConsoleException ce ? ce.ExitCode : DefaultErrorCode;
-            Exit(exitCode);
-            return false;
-        }
-
+        if (result.HasException) throw result.Exception!;
+        if (!result.HasErrors) return true;
         foreach (var error in result.Errors)
             Output.WriteLine("Validation error: {0}", error);
-
-        if (!stopOnInvalidInput) return true;
-        Exit(DefaultErrorCode);
-        return false;
+        return !stopOnInvalidInput;
     }
 
-    protected async Task<Result> ProcessInput(string[] input, CancellationToken ct) {
+    protected async Task<Result> ProcessUserInput(string[] input, CancellationToken ct) {
         if (input.Length == 0) return Success();
         var executable = Children.OfType<IExecutable>().FirstOrDefault(FindChildById);
         if (executable is null) return Error($"Command '{input[0]}' not found. For a list of available commands use 'help'.");

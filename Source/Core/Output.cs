@@ -49,8 +49,8 @@ public interface IOutput {
 }
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
-// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
-public class Output : IOutput {
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
+public class Output : HasDefault<Output>, IOutput {
     public virtual Encoding Encoding {
         get => Console.OutputEncoding;
         set => Console.OutputEncoding = value;

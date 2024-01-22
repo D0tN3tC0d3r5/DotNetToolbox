@@ -21,10 +21,8 @@ public interface IFileSystem {
 }
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
-// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
-public class FileSystem : IFileSystem {
-    public static readonly FileSystem Default = new();
-
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
+public class FileSystem : HasDefault<FileSystem>, IFileSystem {
     public virtual char DirectorySeparatorChar => Path.DirectorySeparatorChar;
     public virtual string CombinePath(params string[] paths) => Path.Combine(paths);
     public virtual string[] GetPath(string filePath)

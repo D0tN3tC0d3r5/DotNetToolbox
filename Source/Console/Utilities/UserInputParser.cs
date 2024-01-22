@@ -7,7 +7,7 @@ internal static class UserInputParser {
                                               | CultureInvariant
                                               | NonBacktracking;
     private static readonly Regex _word = new("""
-                                              "[^"]*"|\S+
+                                              "[^"]+"|\S+
                                               """, _parserOptions);
     public static string[] Parse(string input)
         => _word.Matches(input).Select(m => m.Value).ToArray();

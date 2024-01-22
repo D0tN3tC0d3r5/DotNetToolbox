@@ -9,8 +9,8 @@ internal class TestInput(IOutput output, params string[] inputs) : IInput {
 
     public ConsoleKeyInfo ReadKey(bool intercept = false) => throw new NotImplementedException();
 
-    public string? ReadLine() {
-        if (!_inputQueue.TryDequeue(out var input)) return null;
+    public string ReadLine() {
+        if (!_inputQueue.TryDequeue(out var input)) return string.Empty;
         output.WriteLine(input);
         return input;
     }

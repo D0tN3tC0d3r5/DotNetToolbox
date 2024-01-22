@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "DotNetToolbox.sln",
+    "projects": [
+      "Core.UnitTests\\DotNetToolbox.Core.UnitTests.csproj",
+      "Core\\DotNetToolbox.Core.csproj"
+    ]
+  }
+}

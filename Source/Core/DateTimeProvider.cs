@@ -21,10 +21,8 @@ public interface IDateTimeProvider {
 }
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
-// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
-public class DateTimeProvider : IDateTimeProvider {
-    public static readonly DateTimeProvider Default = new();
-
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
+public class DateTimeProvider : HasDefault<DateTimeProvider>, IDateTimeProvider {
     public virtual DateTimeOffset Now => DateTimeOffset.Now;
     public virtual DateOnly Today => DateOnly.FromDateTime(DateTime.Today);
     public virtual TimeOnly TimeOfDay => TimeOnly.FromDateTime(DateTime.Now);

@@ -24,10 +24,8 @@ public interface IGuidProvider {
 }
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
-// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
-public class GuidProvider : IGuidProvider {
-    public static readonly GuidProvider Default = new();
-
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
+public class GuidProvider : HasDefault<GuidProvider>, IGuidProvider {
     public virtual Guid New() => Guid.NewGuid();
     public virtual Guid New(string text) => new(text);
     public virtual Guid New(byte[] bytes) => new(bytes);

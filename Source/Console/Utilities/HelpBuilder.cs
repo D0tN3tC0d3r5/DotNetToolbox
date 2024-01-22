@@ -8,7 +8,12 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
     private readonly IReadOnlyCollection<ICommand> _commands = parent.Children.OfType<ICommand>().OrderBy(i => i.Name).ToArray();
     private readonly string _path = parent.GetPath(includeApplication);
 
-    public string Build() {
+    public static string Build(IHasChildren parent, bool includeApplication) {
+        var builder = new HelpBuilder(parent, includeApplication);
+        return builder.Build();
+    }
+
+    private string Build() {
         var builder = new StringBuilder();
         ShowDescription(builder);
         builder.AppendLine();
@@ -19,14 +24,14 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
         return builder.ToString();
     }
 
-    protected void ShowDescription(StringBuilder builder) {
+    private void ShowDescription(StringBuilder builder) {
         if (parent is IApplication app) builder.AppendLine(app.FullName);
         if (string.IsNullOrWhiteSpace(parent.Description)) return;
         builder.AppendLine(parent.Description);
         builder.AppendLine();
     }
 
-    protected void ShowUsage(StringBuilder builder) {
+    private void ShowUsage(StringBuilder builder) {
         if (string.IsNullOrEmpty(_path)) return;
         builder.Append("Usage: ").Append(_path);
         if (_options.Count != 0) builder.Append(" [Options]");
@@ -35,7 +40,7 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
         builder.AppendLine();
     }
 
-    protected void ShowOptions(StringBuilder builder) {
+    private void ShowOptions(StringBuilder builder) {
         if (_options.Count == 0) return;
         builder.AppendLine("Options:");
         foreach (var option in _options)
@@ -43,7 +48,7 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
         builder.AppendLine();
     }
 
-    protected void ShowParameters(StringBuilder builder) {
+    private void ShowParameters(StringBuilder builder) {
         if (_parameters.Count == 0) return;
         builder.AppendLine("Parameters:");
         foreach (var parameter in _parameters)
@@ -51,7 +56,7 @@ internal class HelpBuilder(IHasChildren parent, bool includeApplication) {
         builder.AppendLine();
     }
 
-    protected void ShowCommands(StringBuilder builder) {
+    private void ShowCommands(StringBuilder builder) {
         if (_commands.Count == 0) return;
         builder.AppendLine("Commands:");
         foreach (var command in _commands)
