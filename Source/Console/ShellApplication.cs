@@ -29,9 +29,8 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
 
     protected sealed override async Task ExecuteInternalAsync(CancellationToken ct) {
         if (Options.ClearScreenOnStart) Output.ClearScreen();
-        var result = await ArgumentsReader.Read(Arguments, [.. Children], ct);
         Output.WriteLine(FullName);
-        if (!EnsureArgumentsAreValid(result)) {
+        if (await HasInvalidArguments(ct)) {
             Exit(DefaultErrorCode);
             return;
         }
@@ -45,6 +44,6 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
         var userInputText = Input.ReadLine();
         var userInputs = UserInputParser.Parse(userInputText);
         var result = await ProcessUserInput(userInputs, ct);
-        if (Terminate(result)) Exit();
+        ProcessResult(result);
     }
 }

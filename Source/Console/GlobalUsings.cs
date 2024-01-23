@@ -24,7 +24,9 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.Abstractions;
 global using Microsoft.Extensions.Options;
 
+global using static System.StringComparer;
 global using static System.Text.RegularExpressions.RegexOptions;
 
+global using static DotNetToolbox.ConsoleApplication.Utilities.OutputFormatter;
 global using static DotNetToolbox.Ensure;
 global using static DotNetToolbox.Results.Result;

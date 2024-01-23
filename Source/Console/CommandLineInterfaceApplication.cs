@@ -32,8 +32,7 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
             await helpAction.ExecuteAsync([], ct);
         }
 
-        var result = await ArgumentsReader.Read(Arguments, [.. Children], ct);
-        if (!EnsureArgumentsAreValid(result)) {
+        if (await HasInvalidArguments(ct)) {
             Exit(DefaultErrorCode);
             return;
         }
@@ -43,3 +42,4 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
 
     protected virtual Task ExecuteAsync(CancellationToken ct) => Task.CompletedTask;
 }
+

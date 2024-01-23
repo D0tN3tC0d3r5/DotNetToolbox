@@ -8,7 +8,8 @@ public abstract class Node<TNode>
         Application = FindRoot(this);
         var factory = Application.ServiceProvider.GetRequiredService<ILoggerFactory>();
         Logger = factory.CreateLogger<TNode>();
-        Name = IsValid(IsNotNull(name), IsValidName);
+        Name = IsNotNull(name);
+        Name = IsValid(name, IsValidName);
         Aliases = AllAreValid<string[], string>(aliases, IsValidName)!;
     }
     private static IApplication FindRoot(INode node) {
@@ -18,7 +19,9 @@ public abstract class Node<TNode>
 
     private static bool IsValidName(string? name)
         => !string.IsNullOrWhiteSpace(name)
-        && name.All(c => char.IsLetterOrDigit(c) || "-!@#$%?&".Contains(name[0]));
+        && name.Length > 1
+        && (char.IsLetter(name[0]) || name[0] == '-')
+        && name[1..].All(c => char.IsLetterOrDigit(c) || "-!@#$%?&:=".Contains(c));
 
     protected ILogger<TNode> Logger { get; }
     public IApplication Application { get; }

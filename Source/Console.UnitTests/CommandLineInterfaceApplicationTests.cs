@@ -143,16 +143,12 @@ public class CommandLineInterfaceApplicationTests {
             """
             testhost v15.0.0.0
 
-            Usage: testhost [Options] [Commands]
+            Usage: testhost [Options]
             Options:
               --help | -h | -?          Display help information.
               --version                 Display version information.
-
-            Commands:
-              --help | -h | -?          Display help information.
-              --version                 Display version information.
-
-
+            
+            
             """;
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
@@ -184,12 +180,8 @@ public class CommandLineInterfaceApplicationTests {
             """
             testhost v15.0.0.0
 
-            Usage: testhost [Options] [Commands]
+            Usage: testhost [Options]
             Options:
-              --help | -h | -?          Display help information.
-              --version                 Display version information.
-
-            Commands:
               --help | -h | -?          Display help information.
               --version                 Display version information.
 
@@ -220,12 +212,8 @@ public class CommandLineInterfaceApplicationTests {
             """
             testhost v15.0.0.0
 
-            Usage: testhost [Options] [Commands]
+            Usage: testhost [Options]
             Options:
-              --help | -h | -?          Display help information.
-              --version                 Display version information.
-
-            Commands:
               --help | -h | -?          Display help information.
               --version                 Display version information.
 
@@ -252,7 +240,8 @@ public class CommandLineInterfaceApplicationTests {
         const string expectedOutput =
             """
             Validation error: Unknown option: '--invalid'.
-
+            
+            
             """;
         var app = CLI.Create(["--invalid"], b => {
             b.ReplaceInput(input);

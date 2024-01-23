@@ -8,7 +8,7 @@ internal sealed class HelpOption
     }
 
     protected override Result Execute() {
-        var help = HelpBuilder.Build(Parent, includeApplication: true); ;
+        var help = OutputFormatter.FormatHelp(Parent, includeApplication: true); ;
         Application.Output.Write(help);
         return Success();
     }

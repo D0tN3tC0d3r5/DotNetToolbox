@@ -5,13 +5,16 @@ global using System.Text.Json;
 
 global using DotNetToolbox.ConsoleApplication.Builders;
 global using DotNetToolbox.ConsoleApplication.Exceptions;
+global using DotNetToolbox.ConsoleApplication.Nodes;
 global using DotNetToolbox.ConsoleApplication.Nodes.Application;
+global using DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 global using DotNetToolbox.ConsoleApplication.Nodes.Executables;
 global using DotNetToolbox.ConsoleApplication.TestDoubles;
 global using DotNetToolbox.Results;
 
 global using FluentAssertions;
 
+global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.FileProviders;
 global using Microsoft.Extensions.Logging;

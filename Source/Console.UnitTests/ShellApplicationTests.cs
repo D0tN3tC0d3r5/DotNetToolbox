@@ -210,7 +210,7 @@ public class ShellApplicationTests {
             Commands:
               ClearScreen | cls         Clear the screen.
               Exit                      Exit the application.
-              Help | ?                  Display help information.
+              Help                      Display help information.
 
             > exit
 
@@ -240,11 +240,10 @@ public class ShellApplicationTests {
             > crash
             Exception: Some error.
                 Stack Trace:
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.IsSuccess(Result result, Boolean stopOnInvalidInput)*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.Terminate(Result result)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ExecuteInternalAsync(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.RunAsync()*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
             
             
             """;
@@ -279,11 +278,10 @@ public class ShellApplicationTests {
             > crash
             ConsoleException: Some error.
                 Stack Trace:
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.IsSuccess(Result result, Boolean stopOnInvalidInput)*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.Terminate(Result result)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ExecuteInternalAsync(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.RunAsync()*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
             
             
             """;
@@ -318,16 +316,16 @@ public class ShellApplicationTests {
             > crash
             ConsoleException: Some error.
                 Stack Trace:
-                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests.<>c__DisplayClass15_0.<RunAsync_WithConsoleExceptionDuringExecution_AndInnerException_ReturnsResultWithException>b__1(CancellationToken _)*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.<>c__DisplayClass25_0.<AddCommand>b__0(AsyncCommand _, CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.AsyncCommand`1.ExecuteAsync(String[] args, CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.ProcessUserInput(String[] input, CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ExecuteInternalAsync(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.RunAsync()*
+                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.AsyncCommand`1.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
                 Inner Exception => InvalidOperationException: Some error.
                     Stack Trace:
-                           at DotNetToolbox.ConsoleApplication.ShellApplicationTests.<>c__DisplayClass15_0.<RunAsync_WithConsoleExceptionDuringExecution_AndInnerException_ReturnsResultWithException>b__1(CancellationToken _)*
+                           at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
             
             
             """;
@@ -369,7 +367,8 @@ public class ShellApplicationTests {
             > crash
             Validation error: Some error.
             > exit
-
+            
+            
             """;
         var app = Shell.Create(b => {
             b.ReplaceInput(input);
@@ -394,7 +393,8 @@ public class ShellApplicationTests {
             """
             testhost v15.0.0.0
             Validation error: Unknown option: '--invalid'.
-
+            
+            
             """;
         var app = Shell.Create(["--invalid"], b => {
             b.ReplaceInput(input);
@@ -435,5 +435,169 @@ public class ShellApplicationTests {
 
         // Assert
         app.Should().BeOfType<Shell>();
+    }
+
+    [Fact]
+    public void ToString_ReturnsExpectedFormat() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider) {
+            Description = "Test Application",
+        };
+
+        var expectedToString = $"ShellApplication: {app.Name} v{app.Version} => Test Application";
+
+        // Act
+        var actualToString = app.ToString();
+
+        // Assert
+        actualToString.Should().Be(expectedToString);
+    }
+
+    [Fact]
+    public void AppendVersion_AppendsVersionInformation() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider);
+        var builder = new StringBuilder();
+        var expectedVersionInfo = $"{app.Name} v{app.Version}{Environment.NewLine}";
+
+        // Act
+        app.AppendVersion(builder);
+        var actualVersionInfo = builder.ToString();
+
+        // Assert
+        actualVersionInfo.Should().Be(expectedVersionInfo);
+    }
+
+    [Fact]
+    public void AppendHelp_AppendsHelpInformation() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider) {
+            Description = "Test Application",
+        };
+        var builder = new StringBuilder();
+        var expectedHelpInfo = $"{app.Name} v{app.Version}{Environment.NewLine}Test Application{Environment.NewLine}";
+
+        // Act
+        app.AppendHelp(builder);
+        var actualHelpInfo = builder.ToString();
+
+        // Assert
+        actualHelpInfo.Should().Be(expectedHelpInfo);
+    }
+
+    [Fact]
+    public void AddOption_AddsOptionWithAliases() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider);
+        var optionName = "--test-option";
+        var aliases = new[] { "-t", "--test" };
+
+        // Act
+        app.AddOption(optionName, aliases);
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == optionName).Subject;
+        var option = child.Should().BeOfType<Option>().Subject;
+        option.Aliases.Should().BeEquivalentTo(aliases);
+    }
+
+    [Fact]
+    public void AddOption_Generic_AddsOptionOfType() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider);
+
+        // Act
+        app.AddOption<TestOption>();
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == "--option").Subject;
+        var option = child.Should().BeOfType<TestOption>().Subject;
+        option.Aliases.Should().BeEquivalentTo("-o");
+    }
+
+    [Fact]
+    public void AddParameter_AddsParameterWithDefaultValue() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider);
+        var parameterName = "param1";
+        var defaultValue = "default-value";
+
+        // Act
+        app.AddParameter(parameterName, defaultValue);
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == parameterName).Subject;
+        var parameter = child.Should().BeOfType<Parameter>().Subject;
+        parameter.Order.Should().Be(0);
+    }
+
+    [Fact]
+    public void AddParameter_Generic_AddsParameterOfType() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider);
+
+        // Act
+        app.AddParameter<TestParameter>();
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == "Age").Subject;
+        var parameter = child.Should().BeOfType<TestParameter>().Subject;
+        parameter.Aliases.Should().BeEmpty();
+        parameter.Order.Should().Be(0);
+    }
+
+    [Fact]
+    public void AddFlag_AddsFlagWithAliases() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider);
+        var flagName = "--verbose";
+        var aliases = new[] { "-v" };
+
+        // Act
+        app.AddFlag(flagName, aliases);
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == flagName).Subject;
+        var flag = child.Should().BeOfType<Flag>().Subject;
+        flag.Aliases.Should().BeEquivalentTo(aliases);
+    }
+
+    [Fact]
+    public void AddFlag_Generic_AddsFlagOfType() {
+        // Arrange
+        var serviceProvider = CreateMockServiceProvider();
+        var app = new ShellApplication([], null, serviceProvider);
+
+        // Act
+        app.AddFlag<TestFlag>();
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == "--test-flag").Subject;
+        var flag = child.Should().BeOfType<TestFlag>().Subject;
+        flag.Aliases.Should().BeEquivalentTo("-t");
+    }
+
+    private class TestOption(IHasChildren app) : Option<TestOption>(app, "--option", "-o");
+    private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
+    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "--test-flag", "-t");
+
+    private static IServiceProvider CreateMockServiceProvider() {
+        var serviceProvider = Substitute.For<IServiceProvider>();
+        serviceProvider.GetService(typeof(IConfiguration)).Returns(Substitute.For<IConfiguration>());
+        serviceProvider.GetService(typeof(IOutput)).Returns(Substitute.For<IOutput>());
+        serviceProvider.GetService(typeof(IInput)).Returns(Substitute.For<IInput>());
+        serviceProvider.GetService(typeof(IDateTimeProvider)).Returns(Substitute.For<IDateTimeProvider>());
+        serviceProvider.GetService(typeof(IGuidProvider)).Returns(Substitute.For<IGuidProvider>());
+        serviceProvider.GetService(typeof(IFileSystem)).Returns(Substitute.For<IFileSystem>());
+        serviceProvider.GetService(typeof(ILoggerFactory)).Returns(Substitute.For<ILoggerFactory>());
+        return serviceProvider;
     }
 }
