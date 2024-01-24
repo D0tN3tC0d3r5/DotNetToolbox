@@ -11,6 +11,7 @@ public class ShellApplicationTests {
         // Assert
         app.Should().BeOfType<Shell>();
         app.Name.Should().Be("testhost");
+        app.Version.Should().Be("15.0.0.0");
         app.Environment.Should().Be("");
         app.Arguments.Should().BeEmpty();
         app.AssemblyName.Should().Be("testhost");
@@ -26,6 +27,44 @@ public class ShellApplicationTests {
         app.FileSystem.Should().BeOfType<FileSystem>();
         app.Output.Should().BeOfType<Output>();
         app.Input.Should().BeOfType<Input>();
+    }
+
+    [Fact]
+    public void Create_CreatesShellApplication_WithCustomAttributes() {
+        // Arrange & Act
+        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
+        var assemblyAccessor = Substitute.For<IAssemblyAccessor>();
+        assemblyAccessor.GetEntryAssembly().Returns(assemblyDescriptor);
+        assemblyDescriptor.Name.Returns("TestApp");
+        assemblyDescriptor.Version.Returns(new Version(1, 0));
+        assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("My App"));
+        assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("Some description."));
+        var app = Shell.Create(b => b.ReplaceAssemblyAccessor(assemblyAccessor));
+
+        // Assert
+        app.Should().BeOfType<Shell>();
+        app.Name.Should().Be("My App");
+        app.AssemblyName.Should().Be("TestApp");
+        app.Version.Should().Be("1.0");
+        app.Description.Should().Be("Some description.");
+    }
+
+
+    [Fact]
+    public void Create_CreatesShellApplication_WithAssemblyInfo() {
+        // Arrange & Act
+        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
+        var assemblyAccessor = Substitute.For<IAssemblyAccessor>();
+        assemblyAccessor.GetEntryAssembly().Returns(assemblyDescriptor);
+        assemblyDescriptor.Name.Returns("TestApp");
+        assemblyDescriptor.Version.Returns(new Version(1, 0));
+        var app = Shell.Create(b => b.ReplaceAssemblyAccessor(assemblyAccessor));
+
+        // Assert
+        app.Should().BeOfType<Shell>();
+        app.Name.Should().Be("TestApp");
+        app.AssemblyName.Should().Be("TestApp");
+        app.Version.Should().Be("1.0");
     }
 
     [Fact]
@@ -440,8 +479,8 @@ public class ShellApplicationTests {
     [Fact]
     public void ToString_ReturnsExpectedFormat() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider) {
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider) {
             Description = "Test Application",
         };
 
@@ -457,8 +496,8 @@ public class ShellApplicationTests {
     [Fact]
     public void AppendVersion_AppendsVersionInformation() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider);
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider);
         var builder = new StringBuilder();
         var expectedVersionInfo = $"{app.Name} v{app.Version}{Environment.NewLine}";
 
@@ -473,8 +512,8 @@ public class ShellApplicationTests {
     [Fact]
     public void AppendHelp_AppendsHelpInformation() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider) {
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider) {
             Description = "Test Application",
         };
         var builder = new StringBuilder();
@@ -491,8 +530,8 @@ public class ShellApplicationTests {
     [Fact]
     public void AddOption_AddsOptionWithAliases() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider);
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider);
         var optionName = "--test-option";
         var aliases = new[] { "-t", "--test" };
 
@@ -508,8 +547,8 @@ public class ShellApplicationTests {
     [Fact]
     public void AddOption_Generic_AddsOptionOfType() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider);
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider);
 
         // Act
         app.AddOption<TestOption>();
@@ -523,8 +562,8 @@ public class ShellApplicationTests {
     [Fact]
     public void AddParameter_AddsParameterWithDefaultValue() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider);
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider);
         var parameterName = "param1";
         var defaultValue = "default-value";
 
@@ -540,8 +579,8 @@ public class ShellApplicationTests {
     [Fact]
     public void AddParameter_Generic_AddsParameterOfType() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider);
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider);
 
         // Act
         app.AddParameter<TestParameter>();
@@ -556,8 +595,8 @@ public class ShellApplicationTests {
     [Fact]
     public void AddFlag_AddsFlagWithAliases() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider);
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider);
         var flagName = "--verbose";
         var aliases = new[] { "-v" };
 
@@ -573,8 +612,8 @@ public class ShellApplicationTests {
     [Fact]
     public void AddFlag_Generic_AddsFlagOfType() {
         // Arrange
-        var serviceProvider = CreateMockServiceProvider();
-        var app = new ShellApplication([], null, serviceProvider);
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new Shell([], null, serviceProvider);
 
         // Act
         app.AddFlag<TestFlag>();
@@ -589,11 +628,17 @@ public class ShellApplicationTests {
     private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
     private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "--test-flag", "-t");
 
-    private static IServiceProvider CreateMockServiceProvider() {
+    private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
+    private readonly IAssemblyAccessor _assemblyAccessor = Substitute.For<IAssemblyAccessor>();
+    private IServiceProvider CreateFakeServiceProvider() {
         var serviceProvider = Substitute.For<IServiceProvider>();
         serviceProvider.GetService(typeof(IConfiguration)).Returns(Substitute.For<IConfiguration>());
         serviceProvider.GetService(typeof(IOutput)).Returns(Substitute.For<IOutput>());
         serviceProvider.GetService(typeof(IInput)).Returns(Substitute.For<IInput>());
+        _assemblyAccessor.GetEntryAssembly().Returns(_assemblyDescriptor);
+        _assemblyDescriptor.Name.Returns("TestApp");
+        _assemblyDescriptor.Version.Returns(new Version(1, 0));
+        serviceProvider.GetService(typeof(IAssemblyAccessor)).Returns(_assemblyAccessor);
         serviceProvider.GetService(typeof(IDateTimeProvider)).Returns(Substitute.For<IDateTimeProvider>());
         serviceProvider.GetService(typeof(IGuidProvider)).Returns(Substitute.For<IGuidProvider>());
         serviceProvider.GetService(typeof(IFileSystem)).Returns(Substitute.For<IFileSystem>());

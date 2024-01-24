@@ -3,16 +3,23 @@
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddSystemUtilities(
         this IServiceCollection services
-        , IDateTimeProvider? dateTimeProvider = null
-        , IGuidProvider? guidProvider = null
-        , IFileSystem? fileSystem = null
-        , IInput? input = null
-        , IOutput? output = null) {
+      , IAssemblyAccessor? assemblyAccessor = null
+      , IDateTimeProvider? dateTimeProvider = null
+      , IGuidProvider? guidProvider = null
+      , IFileSystem? fileSystem = null
+      , IInput? input = null
+      , IOutput? output = null) {
+        services.AddAssemblyDescriptor(assemblyAccessor);
         services.AddDateTimeProvider(dateTimeProvider);
         services.AddGuidProvider(guidProvider);
         services.AddFileSystem(fileSystem);
         services.AddInput(input);
         services.AddOutput(output);
+        return services;
+    }
+
+    public static IServiceCollection AddAssemblyDescriptor(this IServiceCollection services, IAssemblyAccessor? accessor = null) {
+        services.TryAddSingleton(accessor ?? new AssemblyAccessor());
         return services;
     }
 
@@ -23,7 +30,7 @@ public static class ServiceCollectionExtensions {
 
     public static IServiceCollection AddGuidProvider(this IServiceCollection services, IGuidProvider? provider = null) {
         services.TryAddSingleton(provider ?? new GuidProvider());
-            return services;
+        return services;
     }
 
     public static IServiceCollection AddFileSystem(this IServiceCollection services, IFileSystem? provider = null) {

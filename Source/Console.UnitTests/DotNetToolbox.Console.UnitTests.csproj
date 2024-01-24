@@ -8,6 +8,7 @@
     <IsTestProject>true</IsTestProject>
     <RootNamespace>DotNetToolbox.ConsoleApplication</RootNamespace>
     <AssemblyName>DotNetToolbox.Console.UnitTests</AssemblyName>
+    <Title>ConsoleApplicationUnitTests</Title>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>

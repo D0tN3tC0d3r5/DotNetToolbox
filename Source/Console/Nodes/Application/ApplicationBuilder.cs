@@ -15,6 +15,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     private Type? _userSecretsReference;
     private Action<ILoggingBuilder> _setLogging = _ => { };
     private Action<TOptions>? _setOptions;
+    private IAssemblyAccessor? _assemblyAccessor;
     private IDateTimeProvider? _dateTimeProvider;
     private IGuidProvider? _guidProvider;
     private IFileSystem? _fileSystem;
@@ -27,6 +28,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
 
     public ServiceCollection Services { get; } = [];
 
+    public void ReplaceAssemblyAccessor(IAssemblyAccessor assemblyAccessor) => _assemblyAccessor = IsNotNull(assemblyAccessor);
     public void ReplaceInput(IInput input) => _input = IsNotNull(input);
     public void ReplaceOutput(IOutput output) => _output = IsNotNull(output);
     public void ReplaceFileSystem(IFileSystem fileSystem) => _fileSystem = IsNotNull(fileSystem);
@@ -74,7 +76,8 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     public TApplication Build() {
         var configuration = new ConfigurationManager();
         SetConfiguration(configuration);
-        Services.AddSystemUtilities(_dateTimeProvider,
+        Services.AddSystemUtilities(_assemblyAccessor,
+                                    _dateTimeProvider,
                                     _guidProvider,
                                     _fileSystem,
                                     _input,

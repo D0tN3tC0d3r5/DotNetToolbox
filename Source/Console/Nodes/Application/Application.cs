@@ -5,14 +5,16 @@ public abstract class Application : IApplication {
     public const int DefaultErrorCode = 1;
 
     protected Application(IServiceProvider serviceProvider) {
-        var assembly = Assembly.GetEntryAssembly()!;
-        var assemblyName = assembly.GetName();
-        AssemblyName = assemblyName.Name!;
-        Version = assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version ?? assemblyName.Version!.ToString();
-        Name = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? AssemblyName;
-        Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? string.Empty;
-
         ServiceProvider = serviceProvider;
+
+        var accessor = ServiceProvider.GetRequiredService<IAssemblyAccessor>();
+        var assembly = accessor.GetEntryAssembly()!;
+        AssemblyName = assembly.Name;
+        Version = assembly.Version.ToString();
+        var ata = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
+        Name = ata ?? AssemblyName;
+        var ada = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
+        Description = ada ?? string.Empty;
 
         Configuration = ServiceProvider.GetRequiredService<IConfiguration>();
         Output = ServiceProvider.GetRequiredService<IOutput>();
@@ -69,7 +71,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         Options = options?.Value ?? new TOptions();
         Environment = environment ?? Options.Environment;
 
-        var loggerFactory = ServiceProvider.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance;
+        var loggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
         Logger = loggerFactory.CreateLogger<TApplication>();
     }
 
