@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
 internal class ExitCommand : Command<ExitCommand> {
     public ExitCommand(IHasChildren parent)

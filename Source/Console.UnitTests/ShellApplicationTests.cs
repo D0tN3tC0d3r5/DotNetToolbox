@@ -17,10 +17,10 @@ public class ShellApplicationTests {
         app.AssemblyName.Should().Be("testhost");
         app.Children.Should().HaveCount(5);
         app.Configuration.Should().NotBeNull();
-        app.Options.Should().NotBeNull();
-        app.Options.ClearScreenOnStart.Should().BeFalse();
-        app.Options.Environment.Should().Be("");
-        app.Options.Prompt.Should().Be("> ");
+        app.Settings.Should().NotBeNull();
+        app.Settings.ClearScreenOnStart.Should().BeFalse();
+        app.Settings.Environment.Should().Be("");
+        app.Settings.Prompt.Should().Be("> ");
         app.Data.Should().BeEmpty();
         app.DateTime.Should().BeOfType<DateTimeProvider>();
         app.Guid.Should().BeOfType<GuidProvider>();
@@ -255,6 +255,7 @@ public class ShellApplicationTests {
             > help
             testhost v15.0.0.0
             
+            Usage: testhost [Options] [Commands]
             Options:
               --help, -h, -?            Displays this help information and finishes.
               --version                 Displays the version and exits.
@@ -262,7 +263,7 @@ public class ShellApplicationTests {
             Commands:
               ClearScreen, cls          Clear the screen.
               Exit                      Exit the application.
-              Help                      Display help information.
+              Help, ?                   Display help information.
 
             > exit
 
@@ -286,7 +287,8 @@ public class ShellApplicationTests {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "crash");
-        Result CommandAction() => throw new("Some error.");
+
+        static Result CommandAction() => throw new("Some error.");
         const string expectedOutput =
             """
             testhost v15.0.0.0
@@ -294,19 +296,19 @@ public class ShellApplicationTests {
             Exception: Some error.
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.*
                        at System.Threading.Tasks.Task`1*
                        at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
                     --- End of stack trace from previous location ---
                        at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
                        at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
                     --- End of stack trace from previous location ---
-                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
             
             
             """;
@@ -321,7 +323,7 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(Application.DefaultErrorCode);
+        actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
         output.Lines.Select((line, index) => (line, index)).Should().AllSatisfy(x => {
             if (expectedLines[x.index].StartsWith('*') || expectedLines[x.index].EndsWith('*'))
                 x.line.Should().Match(expectedLines[x.index]);
@@ -336,7 +338,8 @@ public class ShellApplicationTests {
         var output = new TestOutput();
         var input = new TestInput(output, "crash");
         const int expectedErrorCode = 13;
-        Result CommandAction()
+
+        static Result CommandAction()
             => throw new ConsoleException(expectedErrorCode, "Some error.");
         const string expectedOutput =
             """
@@ -345,19 +348,19 @@ public class ShellApplicationTests {
             ConsoleException: Some error.
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.*
                        at System.Threading.Tasks.Task`1*
                        at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
                     --- End of stack trace from previous location ---
                        at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
                        at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
                     --- End of stack trace from previous location ---
-                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
             
             
             """;
@@ -386,7 +389,8 @@ public class ShellApplicationTests {
         var output = new TestOutput();
         var input = new TestInput(output, "crash");
         const int expectedErrorCode = 13;
-        Result CommandAction() {
+
+        static Result CommandAction() {
             try {
                 throw new InvalidOperationException("Some error.");
             }
@@ -401,19 +405,19 @@ public class ShellApplicationTests {
             ConsoleException: Some error.
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.*
                        at System.Threading.Tasks.Task`1*
                        at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
                     --- End of stack trace from previous location ---
                        at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
                        at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
                     --- End of stack trace from previous location ---
-                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
                 Inner Exception => InvalidOperationException: Some error.
                     Stack Trace:
                            at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
@@ -444,7 +448,8 @@ public class ShellApplicationTests {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "crash", "exit");
-        Result CommandAction() => Result.Invalid("Some error.");
+
+        static Result CommandAction() => Result.Invalid("Some error.");
         const string expectedOutput =
             """
             testhost v15.0.0.0
@@ -464,7 +469,7 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(Application.DefaultExitCode);
+        actualResult.Should().Be(ApplicationBase.DefaultExitCode);
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
@@ -476,7 +481,7 @@ public class ShellApplicationTests {
         const string expectedOutput =
             $"""
              testhost v15.0.0.0
-             Validation error: Unknown argument '--invalid'. For a list of arguments use '--help'.
+             Validation error: Unknown argument '--invalid'. For a list of available arguments use '--help'.
 
 
              """;
@@ -489,10 +494,9 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(Application.DefaultErrorCode);
+        actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
-
 
     [Fact]
     public async Task RunAsync_InvalidCommand_ReturnsResultWithErrors() {
@@ -517,7 +521,7 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(Application.DefaultExitCode);
+        actualResult.Should().Be(ApplicationBase.DefaultExitCode);
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
@@ -533,9 +537,9 @@ public class ShellApplicationTests {
 
         // Assert
         app.Should().BeOfType<Shell>();
-        app.Options.ClearScreenOnStart.Should().BeTrue();
-        app.Options.Environment.Should().Be("Development");
-        app.Options.Prompt.Should().Be("$ ");
+        app.Settings.ClearScreenOnStart.Should().BeTrue();
+        app.Settings.Environment.Should().Be("Development");
+        app.Settings.Prompt.Should().Be("$ ");
         app.Environment.Should().Be("Development");
     }
 
@@ -605,8 +609,8 @@ public class ShellApplicationTests {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
         var app = new Shell([], null, serviceProvider);
-        var optionName = "--test-option";
-        var aliases = new[] { "-t", "--test" };
+        var optionName = "test-option";
+        var aliases = new[] { "t", "test" };
 
         // Act
         app.AddOption(optionName, aliases);
@@ -627,9 +631,9 @@ public class ShellApplicationTests {
         app.AddOption<TestOption>();
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "--option").Subject;
+        var child = app.Children.Should().ContainSingle(x => x.Name == "Option").Subject;
         var option = child.Should().BeOfType<TestOption>().Subject;
-        option.Aliases.Should().BeEquivalentTo("-o");
+        option.Aliases.Should().BeEquivalentTo("o");
     }
 
     [Fact]
@@ -670,8 +674,8 @@ public class ShellApplicationTests {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
         var app = new Shell([], null, serviceProvider);
-        var flagName = "--verbose";
-        var aliases = new[] { "-v" };
+        var flagName = "Verbose";
+        var aliases = new[] { "v" };
 
         // Act
         app.AddFlag(flagName, aliases);
@@ -692,16 +696,16 @@ public class ShellApplicationTests {
         app.AddFlag<TestFlag>();
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "--flag").Subject;
+        var child = app.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
         var flag = child.Should().BeOfType<TestFlag>().Subject;
-        flag.Aliases.Should().BeEquivalentTo("-f");
+        flag.Aliases.Should().BeEquivalentTo("f");
     }
 
     [Fact]
     public async Task RunAsync_WithArguments_ExecutesApp() {
         var output = new TestOutput();
         var input = new TestInput(output, "exit");
-        var app = Shell.Create(["--option", "-f", "20"], b => {
+        var app = Shell.Create(["Option", "o", "20"], b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
@@ -715,9 +719,9 @@ public class ShellApplicationTests {
         // Assert
     }
 
-    private class TestOption(IHasChildren app) : Option<TestOption>(app, "--option", "-o");
+    private class TestOption(IHasChildren app) : Option<TestOption>(app, "Option", "o");
     private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
-    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "--flag", "-f");
+    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", "f");
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
     private readonly IAssemblyAccessor _assemblyAccessor = Substitute.For<IAssemblyAccessor>();

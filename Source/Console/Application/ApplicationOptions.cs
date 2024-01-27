@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
 public abstract class ApplicationOptions<TOptions>
     : NamedOptions<TOptions>

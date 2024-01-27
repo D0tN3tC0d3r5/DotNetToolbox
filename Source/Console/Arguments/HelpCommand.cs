@@ -1,10 +1,11 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
-internal sealed class HelpCommand : Command<HelpCommand> {
+internal sealed class HelpCommand
+    : Command<HelpCommand> {
     private readonly IHasChildren _parent;
 
     public HelpCommand(IHasChildren parent)
-        : base(parent, "Help") {
+        : base(parent, "Help", "?") {
         _parent = parent;
         Description = "Display help information.";
     }

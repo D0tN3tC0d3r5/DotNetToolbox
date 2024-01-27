@@ -1,4 +1,7 @@
-﻿namespace DotNetToolbox.ConsoleApplication;
+﻿using DotNetToolbox.ConsoleApplication.Application;
+using DotNetToolbox.ConsoleApplication.Arguments;
+
+namespace DotNetToolbox.ConsoleApplication;
 
 public sealed class ShellApplication
     : ShellApplication<ShellApplication> {
@@ -24,7 +27,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     }
 
     protected sealed override async Task ExecuteInternalAsync(CancellationToken ct) {
-        if (Options.ClearScreenOnStart) Output.ClearScreen();
+        if (Settings.ClearScreenOnStart) Output.ClearScreen();
         Output.WriteLine(FullName);
         if (await HasInvalidArguments(ct)) {
             Exit(DefaultErrorCode);
@@ -36,7 +39,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     }
 
     private async Task ProcessCommandLine(CancellationToken ct) {
-        Output.Write(Options.Prompt);
+        Output.Write(Settings.Prompt);
         var userInputText = Input.ReadLine();
         var userInputs = UserInputParser.Parse(userInputText);
         var result = await ProcessUserInput(userInputs, ct);

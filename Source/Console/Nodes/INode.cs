@@ -2,9 +2,8 @@
 
 public interface INode {
     string Name { get; }
-    string[] Ids { get; }
+    string[] Aliases { get; }
     string Description { get; }
-    Task<Result> ExecuteAsync(CancellationToken ct = default);
     Task<Result> ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct = default);
 
     void AppendHelp(StringBuilder builder);

@@ -1,9 +1,13 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public abstract class NodeWithArguments<TCommand>(IHasChildren node, string name, params string[] aliases)
     : Node<TCommand>(node, name, aliases), IHasChildren
     where TCommand : NodeWithArguments<TCommand> {
     public ICollection<INode> Children { get; } = [];
+
+    public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
+    public IOption[] Options => [.. Children.OfType<IOption>()];
+    public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
 
     public TCommand AddChildCommand<TChildCommand>()
         where TChildCommand : NodeWithArguments<TChildCommand> {

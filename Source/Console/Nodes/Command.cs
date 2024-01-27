@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public sealed class Command : Command<Command> {
     internal Command(IHasChildren node, string name, Func<Command, Result> execute)
@@ -6,7 +6,7 @@ public sealed class Command : Command<Command> {
     }
 
     internal Command(IHasChildren node, string name, string alias, Func<Command, Result> execute)
-        : this(node, name, [ alias ], execute) {
+        : this(node, name, [alias], execute) {
     }
 
     internal Command(IHasChildren node, string name, string[] aliases, Func<Command, Result> execute)
@@ -52,7 +52,7 @@ public class Command<TCommand>
     }
 
     public sealed override async Task<Result> ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct = default) {
-        var result = await ArgumentsReader.Read(args, Children.ToArray(), ct);
+        var result = await ArgumentsReader.Read(this, args, ct);
         return result.IsSuccess
                    ? await (_execute?.Invoke((TCommand)this, ct) ?? Execute())
                    : result;

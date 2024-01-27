@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.ConsoleApplication;
+﻿using DotNetToolbox.ConsoleApplication.Application;
+
+namespace DotNetToolbox.ConsoleApplication;
 public sealed class CommandLineInterfaceApplication
     : CommandLineInterfaceApplication<CommandLineInterfaceApplication> {
     internal CommandLineInterfaceApplication(string[] args, string? environment, IServiceProvider serviceProvider)
@@ -16,9 +18,9 @@ public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TO
     where TBuilder : CommandLineApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>, new() {
     protected override async Task ExecuteInternalAsync(CancellationToken ct) {
-        if (Options.ClearScreenOnStart) Output.ClearScreen();
+        if (Settings.ClearScreenOnStart) Output.ClearScreen();
         if (Arguments.Length == 0) {
-            var helpAction = new HelpOption(this);
+            var helpAction = new HelpFlag(this);
             await helpAction.ExecuteAsync([], ct);
         }
 

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
 public interface IApplicationBuilder<out TApplication, out TBuilder, TOptions>
     where TApplication : class, IApplication<TApplication, TBuilder, TOptions>

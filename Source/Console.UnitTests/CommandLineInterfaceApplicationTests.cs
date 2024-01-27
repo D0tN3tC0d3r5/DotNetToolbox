@@ -17,9 +17,9 @@ public class CommandLineInterfaceApplicationTests {
         app.AssemblyName.Should().Be("testhost");
         app.Children.Should().HaveCount(2);
         app.Configuration.Should().NotBeNull();
-        app.Options.Should().NotBeNull();
-        app.Options.ClearScreenOnStart.Should().BeFalse();
-        app.Options.Environment.Should().Be("");
+        app.Settings.Should().NotBeNull();
+        app.Settings.ClearScreenOnStart.Should().BeFalse();
+        app.Settings.Environment.Should().Be("");
         app.Data.Should().BeEmpty();
         app.DateTime.Should().BeOfType<DateTimeProvider>();
         app.Guid.Should().BeOfType<GuidProvider>();
@@ -239,7 +239,7 @@ public class CommandLineInterfaceApplicationTests {
         var input = new TestInput(output, "exit");
         const string expectedOutput =
             """
-            Validation error: Unknown argument '--invalid'. For a list of arguments use '--help'.
+            Validation error: Unknown argument '--invalid'. For a list of available arguments use '--help'.
 
 
             """;
@@ -252,7 +252,7 @@ public class CommandLineInterfaceApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(Application.DefaultErrorCode);
+        actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
@@ -267,8 +267,8 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         app.Should().BeOfType<CLI>();
-        app.Options.ClearScreenOnStart.Should().BeTrue();
-        app.Options.Environment.Should().Be("Development");
+        app.Settings.ClearScreenOnStart.Should().BeTrue();
+        app.Settings.Environment.Should().Be("Development");
         app.Environment.Should().Be("Development");
     }
 

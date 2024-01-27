@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Builders;
+﻿using DotNetToolbox.ConsoleApplication.Application;
+
+namespace DotNetToolbox.ConsoleApplication;
 
 public class CommandLineApplicationBuilder<TApplication>
     : CommandLineApplicationBuilder<TApplication, CommandLineApplicationBuilder<TApplication>, CommandLineInterfaceApplicationOptions>

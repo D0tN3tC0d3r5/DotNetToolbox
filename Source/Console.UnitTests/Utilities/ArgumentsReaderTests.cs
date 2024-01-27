@@ -10,24 +10,22 @@ public class ArgumentsReaderTests
     private readonly IParameter _parameter;
     private readonly IParameter _requiredParameter;
     private readonly ICommand _command;
-    private readonly ICommand _executableOption;
 
     public ArgumentsReaderTests() {
         _serviceProvider.GetService(typeof(ILoggerFactory)).Returns(_loggerFactory);
         _app.Services.Returns(_serviceProvider);
-        _option = new Option(_app, "--option", "-o");
-        _flag = new Flag(_app, "--flag", "-f");
-        _requiredParameter = new Parameter(_app, "age");
-        _parameter = new Parameter(_app, "age", "18");
-        _command = new Command(_app, "say", _ => Result.Success());
-        _executableOption = new Command(_app, "--list", "-s", _ => Result.Success());
+        _option = new Option(_app, "Option", "o");
+        _flag = new Flag(_app, "Flag", "f");
+        _requiredParameter = new Parameter(_app, "Name");
+        _parameter = new Parameter(_app, "Age", "18");
+        _command = new Command(_app, "Say", "s", _ => Result.Success());
     }
 
     [Fact]
     public async Task Read_WithNoArguments_ShouldReturnSuccess()
     {
         // Arrange & Act
-        var result = await ArgumentsReader.Read([], [], default);
+        var result = await ArgumentsReader.Read(_app, [], default);
 
         // Assert
         result.Should().BeEquivalentTo(Result.Success());
@@ -37,10 +35,10 @@ public class ArgumentsReaderTests
     public async Task Read_WithInvalidArgument_ReturnsInvalid() {
         // Arrange
         var arguments = new[] { "unknown" };
-        const string expectedMessage = "Unknown argument 'unknown'. For a list of arguments use '--help'.";
+        const string expectedMessage = "Unknown argument 'unknown'. For a list of available arguments use '--help'.";
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, [], default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -51,10 +49,10 @@ public class ArgumentsReaderTests
     public async Task Read_WithInvalidOption_ReturnsInvalid() {
         // Arrange
         var arguments = new[] { "--unknown" };
-        const string expectedMessage = "Unknown argument '--unknown'. For a list of arguments use '--help'.";
+        const string expectedMessage = "Unknown argument '--unknown'. For a list of available arguments use '--help'.";
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, [], default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -66,10 +64,10 @@ public class ArgumentsReaderTests
     {
         // Arrange
         var arguments = new[] { "-u" };
-        const string expectedMessage = "Unknown argument '-u'. For a list of arguments use '--help'.";
+        const string expectedMessage = "Unknown argument '-u'. For a list of available arguments use '--help'.";
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, [], default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -77,40 +75,42 @@ public class ArgumentsReaderTests
     }
 
     [Fact]
-    public async Task Read_WithFlagName_AndValue_ReturnsSuccess() {
+    public async Task Read_WithFlagByName_AndValue_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "--flag" };
-        var children = new List<INode> { _flag };
+        _app.Children.Returns(new List<INode> { _flag });
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, children, default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
+        _app.Data["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
     }
 
     [Fact]
-    public async Task Read_WithFlagAlias_AndValue_ReturnsSuccess() {
+    public async Task Read_WithFlagByAlias_AndValue_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "-f" };
-        var children = new List<INode> { _flag };
+        _app.Children.Returns(new List<INode> { _flag });
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, children, default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
+        _app.Data["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
     }
 
     [Fact]
-    public async Task Read_WithOptionName_WithoutValue_ReturnsInvalid() {
+    public async Task Read_WithOptionByName_WithoutValue_ReturnsInvalid() {
         // Arrange
         var arguments = new[] { "--option" };
-        var children = new List<INode> { _option };
+        _app.Children.Returns(new List<INode> { _option });
         const string expectedMessage = "Missing value for option '--option'.";
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, children, default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -118,53 +118,262 @@ public class ArgumentsReaderTests
     }
 
     [Fact]
-    public async Task Read_WithOptionName_AndValue_ReturnsSuccess()
+    public async Task Read_WithOptionByName_AndValue_ReturnsSuccess()
     {
         // Arrange
-        var arguments = new[] { "--option", "32" };
-        var children = new List<INode> { _option };
+        var arguments = new[] { "--option", "42" };
+        _app.Children.Returns(new List<INode> { _option });
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, children, default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
+        _app.Data["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
     }
 
     [Fact]
-    public async Task Read_WithOptionAlias_AndValue_ReturnsSuccess() {
+    public async Task Read_WithOptionByAlias_AndValue_ReturnsSuccess() {
         // Arrange
-        var arguments = new[] { "-o", "32" };
-        var children = new List<INode> { _option };
+        var arguments = new[] { "-o", "42" };
+        _app.Children.Returns(new List<INode> { _option });
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, children, default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
+        _app.Data["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
     }
 
     [Fact]
-    public async Task Read_WithCommandName_ReturnsInvalid() {
+    public async Task Read_WithOptionByName_AndQuotedValue_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "-o", """
+                                      "John Doe"
+                                      """ };
+        _app.Children.Returns(new List<INode> { _option });
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Option"].Should().Be("John Doe");
+    }
+
+    [Fact]
+    public async Task Read_WithOptionByName_AndDefaultKeyWord_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "-o", "default" };
+        _app.Children.Returns(new List<INode> { _option });
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Option"].Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Read_WithOptionByAlias_AndNullKeyWord_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "-o", "null" };
+        _app.Children.Returns(new List<INode> { _option });
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Option"].Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Read_WithValueForParameter_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "42" };
+        _app.Children.Returns(new List<INode> { _parameter });
+        _app.Parameters.Returns([ _parameter ]);
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Age"].Should().BeOfType<string>().Subject.Should().Be("42");
+    }
+
+    [Fact]
+    public async Task Read_WithValueForRequiredParameterOnly_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "John Doe" };
+        _app.Children.Returns(new List<INode> { _requiredParameter, _parameter });
+        _app.Parameters.Returns([_requiredParameter, _parameter]);
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Name"].Should().Be("John Doe");
+        _app.Data["Age"].Should().Be("18");
+    }
+
+
+    [Fact]
+    public async Task Read_WithOptionAfterArgument_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "42", "-o" };
+        _app.Children.Returns(new List<INode> { _requiredParameter, _parameter });
+        _app.Parameters.Returns([_requiredParameter, _parameter]);
+        const string expectedMessage = "Unknown argument '-o'. For a list of available arguments use '--help'.";
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsInvalid.Should().BeTrue();
+        result.Errors[0].Message.Should().Be(expectedMessage);
+    }
+
+    [Fact]
+    public async Task Read_WithNoValueForOptionalParameter_ReturnsSuccess() {
+        // Arrange
+        var arguments = Array.Empty<string>();
+        _app.Children.Returns(new List<INode> { _parameter });
+        _app.Parameters.Returns([_parameter]);
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Age"].Should().BeOfType<string>().Subject.Should().Be("18");
+    }
+
+    [Fact]
+    public async Task Read_WithDefaultKeyWordForParameter_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "default" };
+        _app.Children.Returns(new List<INode> { _parameter });
+        _app.Parameters.Returns([_parameter]);
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Age"].Should().BeOfType<string>().Subject.Should().Be("18");
+    }
+
+    [Fact]
+    public async Task Read_WithNullKeyWordForParameter_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "null" };
+        _app.Children.Returns(new List<INode> { _parameter });
+        _app.Parameters.Returns([_parameter]);
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Age"].Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Read_WithOption_AndNoValueForRequiredParameter_ReturnsInvalid() {
+        // Arrange
+        var arguments = new[] { "-o", """
+                                      "John Doe"
+                                      """ };
+        _app.Children.Returns(new List<INode> { _option, _requiredParameter });
+        _app.Options.Returns([_option]);
+        _app.Parameters.Returns([_requiredParameter]);
+        const string expectedMessage = "Required parameter is missing: 'Name'.";
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsInvalid.Should().BeTrue();
+        result.Errors[0].Message.Should().Be(expectedMessage);
+    }
+
+    [Fact]
+    public async Task Read_WithFullSetOfArguments_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "--flag", "-o", "42", """
+                                                      "John Doe"
+                                                      """, "20" };
+        _app.Children.Returns(new List<INode> { _flag, _option, _requiredParameter, _parameter });
+        _app.Options.Returns([_flag, _option]);
+        _app.Parameters.Returns([_requiredParameter, _parameter]);
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _app.Data["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
+        _app.Data["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
+        _app.Data["Name"].Should().BeOfType<string>().Subject.Should().Be("John Doe");
+        _app.Data["Age"].Should().BeOfType<string>().Subject.Should().Be("20");
+    }
+
+    [Fact]
+    public async Task Read_WithNoValueForRequiredParameter_ReturnsInvalid() {
+        // Arrange
+        var arguments = Array.Empty<string>();
+        _app.Children.Returns(new List<INode> { _requiredParameter });
+        _app.Parameters.Returns([_requiredParameter]);
+        const string expectedMessage = "Required parameter is missing: 'Name'.";
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsInvalid.Should().BeTrue();
+        result.Errors[0].Message.Should().Be(expectedMessage);
+    }
+
+    [Fact]
+    public async Task Read_WithCommandByName_ReturnsInvalid() {
         // Arrange
         var arguments = new[] { "say" };
-        var children = new List<INode> { _command };
+        _app.Children.Returns(new List<INode> { _command });
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, children, default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+    }
+
+
+    [Fact]
+    public async Task Read_WithCommandByAlias_ReturnsInvalid() {
+        // Arrange
+        var arguments = new[] { "s" };
+        _app.Children.Returns(new List<INode> { _command });
+
+        // Act
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Read_WithCommandAlias_AndValue_ReturnsSuccess() {
+    public async Task Read_WithCommandByAlias_AndValue_ReturnsSuccess() {
         // Arrange
-        var arguments = new[] { "-o", "32" };
-        var children = new List<INode> { _option };
+        var arguments = new[] { "-o", "42" };
+        _app.Children.Returns(new List<INode> { _option });
 
         // Act
-        var result = await ArgumentsReader.Read(arguments, children, default);
+        var result = await ArgumentsReader.Read(_app, arguments, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

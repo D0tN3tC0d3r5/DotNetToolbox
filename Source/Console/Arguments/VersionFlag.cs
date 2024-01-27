@@ -1,9 +1,9 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
-internal sealed class VersionOption
-    : Command<VersionOption> {
-    public VersionOption(IHasChildren parent)
-        : base(parent, "--version") {
+internal sealed class VersionFlag
+    : Command<VersionFlag>, IFlag {
+    public VersionFlag(IHasChildren parent)
+        : base(parent, "Version") {
         Description = "Displays the version and exits.";
     }
 

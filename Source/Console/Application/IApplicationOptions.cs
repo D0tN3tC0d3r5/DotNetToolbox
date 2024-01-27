@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
 public interface IApplicationOptions {
     string Environment { get; }

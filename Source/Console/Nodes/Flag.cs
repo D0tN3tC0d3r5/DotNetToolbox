@@ -1,11 +1,7 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public sealed class Flag
-    : Flag<Flag> {
-    internal Flag(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, name, aliases) {
-    }
-}
+public sealed class Flag(IHasChildren parent, string name, params string[] aliases)
+    : Flag<Flag>(parent, name, aliases);
 
 public abstract class Flag<TFlag>(IHasChildren parent, string name, params string[] aliases)
     : Node<TFlag>(parent, name, aliases), IFlag

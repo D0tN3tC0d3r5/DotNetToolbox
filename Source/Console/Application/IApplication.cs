@@ -1,11 +1,11 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
 public interface IApplication : IHasChildren {
     string Version { get; }
     string FullName { get; }
     IServiceProvider Services { get; }
     IConfiguration Configuration { get; }
-    IDictionary<string, object?> Data { get; }
+    IDictionary<string, string?> Data { get; }
 
     IOutput Output { get; }
     IInput Input { get; }

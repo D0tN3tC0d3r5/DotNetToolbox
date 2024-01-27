@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
+﻿using DotNetToolbox.ConsoleApplication.Application;
+
+namespace DotNetToolbox.ConsoleApplication.Utilities;
 
 internal class OutputFormatter {
     public static string FormatException(Exception exception) {
@@ -14,65 +16,40 @@ internal class OutputFormatter {
         return builder.ToString();
     }
 
-    public static string FormatHelp(IHasChildren parent, bool includeApplication) {
-        var path = parent.GetPath(includeApplication);
-        var options = parent
-                     .Children.Where(i => i.Name.StartsWith('-'))
-                     .OrderBy(i => i.Name).ToArray();
-        var parameters = parent.Children.OfType<IParameter>().OrderBy(i => i.Name).ToArray();
-        var commands = parent.Children.OfType<ICommand>().Where(c => !c.Name.StartsWith('-')).OrderBy(i => i.Name).ToArray();
+    public static string FormatHelp(IHasChildren node, bool includeApplication) {
+        var path = node.GetPath(includeApplication);
 
         var builder = new StringBuilder();
-        ShowDescription(builder, parent);
+        ShowDescription(builder, node);
         builder.AppendLine();
-        ShowUsage(builder, path, options, parameters, commands);
-        ShowOptions(builder, options);
-        ShowParameters(builder, parameters);
-        ShowCommands(builder, commands);
+        ShowUsage(builder, path, node);
+        ShowItems(builder, "Options", node.Options);
+        ShowItems(builder, "Parameters", node.Parameters);
+        ShowItems(builder, "Commands", node.Commands);
         return builder.ToString();
     }
 
-    private static void ShowDescription(StringBuilder builder, IHasChildren parent) {
-        if (parent is IApplication app) builder.AppendLine(app.FullName);
-        if (string.IsNullOrWhiteSpace(parent.Description)) return;
-        builder.AppendLine(parent.Description);
+    private static void ShowDescription(StringBuilder builder, INode node) {
+        if (node is IApplication app) builder.AppendLine(app.FullName);
+        if (string.IsNullOrWhiteSpace(node.Description)) return;
+        builder.AppendLine(node.Description);
         builder.AppendLine();
     }
 
-    private static void ShowUsage(StringBuilder builder,
-                                  string? path,
-                                  IReadOnlyCollection<INode> options,
-                                  IReadOnlyCollection<IParameter> parameters,
-                                  IReadOnlyCollection<ICommand> commands) {
+    private static void ShowUsage(StringBuilder builder, string? path, IHasChildren node) {
         if (string.IsNullOrEmpty(path)) return;
         builder.Append("Usage: ").Append(path);
-        if (options.Count != 0) builder.Append(" [Options]");
-        if (parameters.Count != 0) builder.Append(" [Parameters]");
-        if (commands.Count != 0) builder.Append(" [Commands]");
+        if (node.Options.Length != 0) builder.Append(" [Options]");
+        if (node.Parameters.Length != 0) builder.Append(" [Parameters]");
+        if (node.Commands.Length != 0) builder.Append(" [Commands]");
         builder.AppendLine();
     }
 
-    private static void ShowOptions(StringBuilder builder, IReadOnlyCollection<INode> options) {
+    private static void ShowItems(StringBuilder builder, string section, IReadOnlyCollection<INode> options) {
         if (options.Count == 0) return;
-        builder.AppendLine("Options:");
+        builder.AppendLine($"{section}:");
         foreach (var option in options)
             option.AppendHelp(builder);
-        builder.AppendLine();
-    }
-
-    private static void ShowParameters(StringBuilder builder, IReadOnlyCollection<IParameter> parameters) {
-        if (parameters.Count == 0) return;
-        builder.AppendLine("Parameters:");
-        foreach (var parameter in parameters)
-            parameter.AppendHelp(builder);
-        builder.AppendLine();
-    }
-
-    private static void ShowCommands(StringBuilder builder, ICommand[] commands) {
-        if (commands.Length == 0) return;
-        builder.AppendLine("Commands:");
-        foreach (var command in commands)
-            command.AppendHelp(builder);
         builder.AppendLine();
     }
 

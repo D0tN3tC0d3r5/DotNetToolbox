@@ -1,10 +1,10 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
-public abstract class Application : IApplication {
+public abstract class ApplicationBase : IApplication {
     public const int DefaultExitCode = 0;
     public const int DefaultErrorCode = 1;
 
-    protected Application(IServiceProvider serviceProvider) {
+    protected ApplicationBase(IServiceProvider serviceProvider) {
         Services = serviceProvider;
 
         var accessor = Services.GetRequiredService<IAssemblyAccessor>();
@@ -42,10 +42,14 @@ public abstract class Application : IApplication {
     public IFileSystem FileSystem { get; }
 
     public ICollection<INode> Children { get; } = new HashSet<INode>();
-    public IDictionary<string, object?> Data { get; } = new Dictionary<string, object?>();
+    public IDictionary<string, string?> Data { get; } = new Dictionary<string, string?>(CurrentCultureIgnoreCase);
+    string[] INode.Aliases => [];
+
+    public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
+    public IOption[] Options => [.. Children.OfType<IOption>()];
+    public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
 
     public abstract void AppendHelp(StringBuilder builder);
-    Task<Result> INode.ExecuteAsync(CancellationToken ct) => throw new InvalidOperationException();
     Task<Result> INode.ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct) => throw new InvalidOperationException();
     public abstract void Exit(int exitCode = 0);
 
@@ -57,7 +61,7 @@ public abstract class Application : IApplication {
 }
 
 public abstract class Application<TApplication, TBuilder, TOptions>
-    : Application, IApplication<TApplication, TBuilder, TOptions>
+    : ApplicationBase, IApplication<TApplication, TBuilder, TOptions>
     where TApplication : Application<TApplication, TBuilder, TOptions>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>
@@ -70,14 +74,14 @@ public abstract class Application<TApplication, TBuilder, TOptions>
         : base(serviceProvider) {
         Arguments = args;
         var options = Services.GetService<IOptions<TOptions>>();
-        Options = options?.Value ?? new TOptions();
-        Environment = environment ?? Options.Environment;
+        Settings = options?.Value ?? new TOptions();
+        Environment = environment ?? Settings.Environment;
 
         var loggerFactory = Services.GetRequiredService<ILoggerFactory>();
         Logger = loggerFactory.CreateLogger<TApplication>();
 
-        AddCommand<HelpOption>();
-        AddCommand<VersionOption>();
+        AddCommand<HelpFlag>();
+        AddCommand<VersionFlag>();
     }
 
     protected virtual ValueTask Dispose()
@@ -93,7 +97,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
 
     public string[] Arguments { get; }
     public string Environment { get; }
-    public TOptions Options { get; }
+    public TOptions Settings { get; }
 
     public ILogger<TApplication> Logger { get; init; }
 
@@ -197,8 +201,109 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     public TApplication AddCommand<TChildCommand>()
-        where TChildCommand : NodeWithArguments<TChildCommand> {
+        where TChildCommand : NodeWithArguments<TChildCommand>, ICommand {
         Children.Add(CreateInstance.Of<TChildCommand>(Services, this));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, params string[] aliases) {
+        Children.Add(CreateInstance.Of<Flag>(this, name, aliases));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, Func<Result> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, (Func<Command, Result>)((_) => action())));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, Func<Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, (Command _, CancellationToken _) => action()));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, Func<CancellationToken, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, (Command _, CancellationToken ct) => action(ct)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, Func<Command, Result> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, (Command cmd, CancellationToken _) => action(cmd)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, Func<Command, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, (Command cmd, CancellationToken _) => action(cmd)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, Func<Command, CancellationToken, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, action));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string alias, Func<Result> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, alias, (Command _, CancellationToken _) => action()));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string alias, Func<Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, alias, (Command _, CancellationToken _) => action()));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string alias, Func<CancellationToken, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, alias, (Command _, CancellationToken ct) => action(ct)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string alias, Func<Command, Result> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, alias, (Command cmd, CancellationToken _) => action(cmd)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string alias, Func<Command, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, alias, (Command cmd, CancellationToken _) => action(cmd)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string alias, Func<Command, CancellationToken, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, alias, action));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string[] aliases, Func<Result> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, aliases, (Command _, CancellationToken _) => action()));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string[] aliases, Func<Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, aliases, (Command _, CancellationToken _) => action()));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string[] aliases, Func<CancellationToken, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, aliases, (Command _, CancellationToken ct) => action(ct)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string[] aliases, Func<Command, Result> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, aliases, (Command cmd, CancellationToken _) => action(cmd)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string[] aliases, Func<Command, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, aliases, (Command cmd, CancellationToken _) => action(cmd)));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag(string name, string[] aliases, Func<Command, CancellationToken, Task<Result>> action) {
+        Children.Add(CreateInstance.Of<Command>(this, name, aliases, action));
+        return (TApplication)this;
+    }
+
+    public TApplication AddFlag<TFlag>()
+        where TFlag : Node<TFlag>, IFlag {
+        Children.Add(CreateInstance.Of<TFlag>(Services, this));
         return (TApplication)this;
     }
 
@@ -208,7 +313,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     public TApplication AddOption<TOption>()
-        where TOption : Option<TOption>, IOption {
+        where TOption : Node<TOption>, IOption {
         Children.Add(CreateInstance.Of<TOption>(Services, this));
         return (TApplication)this;
     }
@@ -219,19 +324,8 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     public TApplication AddParameter<TParameter>()
-        where TParameter : Parameter<TParameter> {
+        where TParameter : Parameter<TParameter>, IParameter {
         Children.Add(CreateInstance.Of<TParameter>(Services, this));
-        return (TApplication)this;
-    }
-
-    public TApplication AddFlag(string name, params string[] aliases) {
-        Children.Add(CreateInstance.Of<Flag>(this, name, aliases));
-        return (TApplication)this;
-    }
-
-    public TApplication AddFlag<TFlag>()
-        where TFlag : Flag<TFlag> {
-        Children.Add(CreateInstance.Of<TFlag>(Services, this));
         return (TApplication)this;
     }
 
@@ -268,7 +362,7 @@ public abstract class Application<TApplication, TBuilder, TOptions>
     }
 
     protected async Task<bool> HasInvalidArguments(CancellationToken ct) {
-        var result = await ArgumentsReader.Read(Arguments, [.. Children], ct);
+        var result = await ArgumentsReader.Read(this, Arguments, ct);
         if (!result.HasErrors) return false;
         Output.WriteLine(FormatValidationErrors(result.Errors));
         return true;
@@ -276,13 +370,17 @@ public abstract class Application<TApplication, TBuilder, TOptions>
 
     protected async Task<Result> ProcessUserInput(string[] input, CancellationToken ct) {
         if (input.Length == 0) return Success();
-        var child = Children.FirstOrDefault(FindChildById);
+        var child = FindChild(Children, input[0]);
         if (child is null) return Invalid($"Command '{input[0]}' not found. For a list of available commands use 'help'.");
         var arguments = input.Length > 1 ? input.Skip(1).ToArray() : [];
         return await child.ExecuteAsync(arguments, ct);
-
-        bool FindChildById(INode c) => c.Ids.Contains(input[0], InvariantCultureIgnoreCase);
     }
+
+    private static INode? FindChild(IEnumerable<INode> children, string token)
+        => token.StartsWith('"') || token.StartsWith('-')
+               ? null
+               : children.FirstOrDefault(c => c.Name.Contains(token, StringComparison.CurrentCultureIgnoreCase)
+                                           || c.Aliases.Contains(token));
 
     public async ValueTask DisposeAsync() {
         await Dispose();

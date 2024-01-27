@@ -1,9 +1,9 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
+﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
-internal sealed class HelpOption
-    : Command<HelpOption> {
-    public HelpOption(IHasChildren parent)
-        : base(parent, "--help", "-h", "-?") {
+internal sealed class HelpFlag
+    : Command<HelpFlag>, IFlag {
+    public HelpFlag(IHasChildren parent)
+        : base(parent, "Help", "h", "?") {
         Description = "Displays this help information and finishes.";
     }
 

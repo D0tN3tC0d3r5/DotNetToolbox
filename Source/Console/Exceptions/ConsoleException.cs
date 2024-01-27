@@ -3,7 +3,7 @@
 public class ConsoleException(string message, Exception? innerException = null) : Exception(IsNotNullOrEmpty(message), innerException) {
     public const string DefaultMessage = "An error occurred while executing the application.";
 
-    public ConsoleException(int exitCode = Application.DefaultErrorCode, string? message = null, Exception? innerException = null)
+    public ConsoleException(int exitCode = ApplicationBase.DefaultErrorCode, string? message = null, Exception? innerException = null)
         : this(message ?? DefaultMessage, innerException) {
         ExitCode = exitCode;
     }

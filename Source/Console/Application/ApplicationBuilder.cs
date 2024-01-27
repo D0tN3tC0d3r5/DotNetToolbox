@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Application;
+﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
 public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     : IApplicationBuilder<TApplication, TBuilder, TOptions>
@@ -86,7 +86,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
 
         var serviceProvider = Services.BuildServiceProvider();
         var app = CreateInstance.Of<TApplication>(_args, _environment, serviceProvider);
-        _setOptions?.Invoke(app.Options);
+        _setOptions?.Invoke(app.Settings);
         return app;
     }
 
