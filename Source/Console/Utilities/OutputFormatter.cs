@@ -10,7 +10,7 @@ internal class OutputFormatter {
     public static string FormatValidationErrors(IReadOnlyCollection<ValidationError> errors) {
         var builder = new StringBuilder();
         foreach (var error in errors)
-            builder.AppendLine($"Validation error: {error}");
+            builder.AppendLine($"Validation error: {error.Message}");
         return builder.ToString();
     }
 

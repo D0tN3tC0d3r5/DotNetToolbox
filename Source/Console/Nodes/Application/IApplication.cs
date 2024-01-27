@@ -3,7 +3,7 @@
 public interface IApplication : IHasChildren {
     string Version { get; }
     string FullName { get; }
-    IServiceProvider ServiceProvider { get; }
+    IServiceProvider Services { get; }
     IConfiguration Configuration { get; }
     IDictionary<string, object?> Data { get; }
 

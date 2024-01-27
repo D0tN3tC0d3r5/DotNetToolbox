@@ -85,8 +85,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         AddLogging(configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
-        var app = CreateInstance.Of<TApplication>(_args, _environment, serviceProvider)
-            ?? throw new InvalidOperationException("Failed to create application instance.");
+        var app = CreateInstance.Of<TApplication>(_args, _environment, serviceProvider);
         _setOptions?.Invoke(app.Options);
         return app;
     }

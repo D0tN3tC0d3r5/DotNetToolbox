@@ -3,18 +3,16 @@
 public sealed class Option(IHasChildren parent, string name, params string[] aliases)
         : Option<Option>(parent, name, aliases);
 
-public abstract class Option<TOption>
-    : Argument<TOption>
-    , IOption
+public abstract class Option<TOption>(IHasChildren parent, string name, params string[] aliases)
+    : Node<TOption>(parent, name, aliases), IOption
     where TOption : Option<TOption> {
-    protected Option(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, name, aliases) {
+
+    public sealed override Task<Result> ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct = default) {
+        Application.Data[Name] = args[0] is "null" or "default"
+                                     ? null
+                                     : args[0];
+        return SuccessTask();
     }
 
-    public Task<Result> SetValue(string? value, CancellationToken ct) {
-        Application.Data[Name] = value is "null" or "default"
-            ? null
-            : value;
-        return OnDataRead(ct);
-    }
+    protected virtual Result Execute() => Success();
 }

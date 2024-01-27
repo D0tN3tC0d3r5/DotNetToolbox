@@ -6,8 +6,8 @@ internal class ExitCommand : Command<ExitCommand> {
         Description = "Exit the application.";
     }
 
-    protected override Result Execute() {
+    protected override Task<Result> Execute() {
         Application.Exit();
-        return Success();
+        return SuccessTask();
     }
 }

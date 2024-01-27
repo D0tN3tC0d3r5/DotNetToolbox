@@ -4,12 +4,12 @@ internal sealed class HelpOption
     : Command<HelpOption> {
     public HelpOption(IHasChildren parent)
         : base(parent, "--help", "-h", "-?") {
-        Description = "Display help information.";
+        Description = "Displays this help information and finishes.";
     }
 
-    protected override Result Execute() {
-        var help = OutputFormatter.FormatHelp(Parent, includeApplication: true); ;
+    protected override Task<Result> Execute() {
+        var help = FormatHelp(Parent, includeApplication: true); ;
         Application.Output.Write(help);
-        return Success();
+        return SuccessTask();
     }
 }

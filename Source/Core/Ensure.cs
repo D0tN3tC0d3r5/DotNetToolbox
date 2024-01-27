@@ -141,7 +141,7 @@ public static class Ensure {
 
     private static Indexed<TValue>[] GetIndexedItems<TArgument, TValue>(TArgument? argument)
         where TArgument : IEnumerable
-        => (argument?.Cast<TValue?>() ?? Enumerable.Empty<TValue?>()).Select((x, i) => new Indexed<TValue>(i, x)).ToArray();
+        => (argument?.Cast<TValue?>() ?? []).Select((x, i) => new Indexed<TValue>(i, x)).ToArray();
 
     private static ValidationException GenerateException(string paramName, IEnumerable<int> emptyElements, string message) {
         var errors = emptyElements.Select(i => new ValidationError(string.Format(message, i))).ToArray();

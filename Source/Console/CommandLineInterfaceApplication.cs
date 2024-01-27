@@ -6,25 +6,15 @@ public sealed class CommandLineInterfaceApplication
     }
 }
 
-public abstract class CommandLineInterfaceApplication<TApplication>
-    : CommandLineInterfaceApplication<TApplication, CommandLineApplicationBuilder<TApplication>, CommandLineInterfaceApplicationOptions>
-    where TApplication : CommandLineInterfaceApplication<TApplication> {
-    protected CommandLineInterfaceApplication(string[] args, string? environment, IServiceProvider serviceProvider)
-        : base(args, environment, serviceProvider) {
-    }
-}
+public abstract class CommandLineInterfaceApplication<TApplication>(string[] args, string? environment, IServiceProvider serviceProvider)
+    : CommandLineInterfaceApplication<TApplication, CommandLineApplicationBuilder<TApplication>, CommandLineInterfaceApplicationOptions>(args, environment, serviceProvider)
+    where TApplication : CommandLineInterfaceApplication<TApplication>;
 
-public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TOptions>
-    : Application<TApplication, TBuilder, TOptions>
+public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TOptions>(string[] args, string? environment, IServiceProvider serviceProvider)
+    : Application<TApplication, TBuilder, TOptions>(args, environment, serviceProvider)
     where TApplication : CommandLineInterfaceApplication<TApplication, TBuilder, TOptions>
     where TBuilder : CommandLineApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>, new() {
-    protected CommandLineInterfaceApplication(string[] args, string? environment, IServiceProvider serviceProvider)
-        : base(args, environment, serviceProvider) {
-        AddCommand<HelpOption>();
-        AddCommand<VersionOption>();
-    }
-
     protected override async Task ExecuteInternalAsync(CancellationToken ct) {
         if (Options.ClearScreenOnStart) Output.ClearScreen();
         if (Arguments.Length == 0) {

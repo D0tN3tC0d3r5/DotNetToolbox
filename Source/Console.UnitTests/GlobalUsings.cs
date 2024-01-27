@@ -10,6 +10,7 @@ global using DotNetToolbox.ConsoleApplication.Nodes.Application;
 global using DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 global using DotNetToolbox.ConsoleApplication.Nodes.Executables;
 global using DotNetToolbox.ConsoleApplication.TestDoubles;
+global using DotNetToolbox.ConsoleApplication.Utilities;
 global using DotNetToolbox.Results;
 
 global using FluentAssertions;

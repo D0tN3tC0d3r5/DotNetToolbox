@@ -1,24 +1,19 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-public abstract class CommandBase<TCommand>
-    : Executable<TCommand>
-    , IHasChildren
-    where TCommand : CommandBase<TCommand> {
-    protected CommandBase(IHasChildren node, string name, params string[] aliases)
-        : base(node, name, aliases) {
-    }
-
+public abstract class NodeWithArguments<TCommand>(IHasChildren node, string name, params string[] aliases)
+    : Node<TCommand>(node, name, aliases), IHasChildren
+    where TCommand : NodeWithArguments<TCommand> {
     public ICollection<INode> Children { get; } = [];
 
-    public TCommand AddCommand<TChildCommand>()
-        where TChildCommand : CommandBase<TChildCommand> {
-        Children.Add(CreateInstance.Of<TChildCommand>(Application.ServiceProvider, this));
+    public TCommand AddChildCommand<TChildCommand>()
+        where TChildCommand : NodeWithArguments<TChildCommand> {
+        Children.Add(CreateInstance.Of<TChildCommand>(Application.Services, this));
         return (TCommand)this;
     }
 
     public TCommand AddAction<TAction>()
-        where TAction : Executable<TAction> {
-        Children.Add(CreateInstance.Of<TAction>(Application.ServiceProvider, this));
+        where TAction : Node<TAction> {
+        Children.Add(CreateInstance.Of<TAction>(Application.Services, this));
         return (TCommand)this;
     }
 
@@ -29,7 +24,7 @@ public abstract class CommandBase<TCommand>
 
     public TCommand AddOption<TOption>()
         where TOption : Option<TOption> {
-        Children.Add(CreateInstance.Of<TOption>(Application.ServiceProvider, this));
+        Children.Add(CreateInstance.Of<TOption>(Application.Services, this));
         return (TCommand)this;
     }
 
@@ -40,7 +35,7 @@ public abstract class CommandBase<TCommand>
 
     public TCommand AddParameter<TParameter>()
         where TParameter : Parameter<TParameter> {
-        Children.Add(CreateInstance.Of<TParameter>(Application.ServiceProvider, this));
+        Children.Add(CreateInstance.Of<TParameter>(Application.Services, this));
         return (TCommand)this;
     }
 
@@ -51,7 +46,7 @@ public abstract class CommandBase<TCommand>
 
     public TCommand AddFlag<TFlag>()
         where TFlag : Flag<TFlag> {
-        Children.Add(CreateInstance.Of<TFlag>(Application.ServiceProvider, this));
+        Children.Add(CreateInstance.Of<TFlag>(Application.Services, this));
         return (TCommand)this;
     }
 }

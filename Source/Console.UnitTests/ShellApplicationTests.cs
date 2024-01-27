@@ -15,7 +15,7 @@ public class ShellApplicationTests {
         app.Environment.Should().Be("");
         app.Arguments.Should().BeEmpty();
         app.AssemblyName.Should().Be("testhost");
-        app.Children.Should().HaveCount(3);
+        app.Children.Should().HaveCount(5);
         app.Configuration.Should().NotBeNull();
         app.Options.Should().NotBeNull();
         app.Options.ClearScreenOnStart.Should().BeFalse();
@@ -27,6 +27,16 @@ public class ShellApplicationTests {
         app.FileSystem.Should().BeOfType<FileSystem>();
         app.Output.Should().BeOfType<Output>();
         app.Input.Should().BeOfType<Input>();
+        app.Logger.Should().BeOfType<Logger<Shell>>();
+    }
+
+    [Fact]
+    public void Create_WhenCreationFails_Throws() {
+        // Arrange & Act
+        var app = Shell.Create(b => b.SetLogging(l => l.SetMinimumLevel(LogLevel.Information)));
+
+        // Assert
+        app.Should().BeOfType<Shell>();
     }
 
     [Fact]
@@ -48,7 +58,6 @@ public class ShellApplicationTests {
         app.Version.Should().Be("1.0");
         app.Description.Should().Be("Some description.");
     }
-
 
     [Fact]
     public void Create_CreatesShellApplication_WithAssemblyInfo() {
@@ -245,9 +254,13 @@ public class ShellApplicationTests {
             testhost v15.0.0.0
             > help
             testhost v15.0.0.0
-
+            
+            Options:
+              --help, -h, -?            Displays this help information and finishes.
+              --version                 Displays the version and exits.
+            
             Commands:
-              ClearScreen | cls         Clear the screen.
+              ClearScreen, cls          Clear the screen.
               Exit                      Exit the application.
               Help                      Display help information.
 
@@ -273,12 +286,23 @@ public class ShellApplicationTests {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "crash");
+        Result CommandAction() => throw new("Some error.");
         const string expectedOutput =
             """
             testhost v15.0.0.0
             > crash
             Exception: Some error.
                 Stack Trace:
+                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1.*
+                       at System.Threading.Tasks.Task`1*
+                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
+                    --- End of stack trace from previous location ---
+                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
+                       at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
+                    --- End of stack trace from previous location ---
+                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
@@ -291,7 +315,7 @@ public class ShellApplicationTests {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Crash", _ => Result.ErrorTask(new Exception("Some error.")));
+        app.AddCommand("Crash", CommandAction);
 
         // Act
         var actualResult = await app.RunAsync();
@@ -303,6 +327,7 @@ public class ShellApplicationTests {
                 x.line.Should().Match(expectedLines[x.index]);
             else x.line.Should().Be(expectedLines[x.index]);
         });
+
     }
 
     [Fact]
@@ -311,12 +336,24 @@ public class ShellApplicationTests {
         var output = new TestOutput();
         var input = new TestInput(output, "crash");
         const int expectedErrorCode = 13;
+        Result CommandAction()
+            => throw new ConsoleException(expectedErrorCode, "Some error.");
         const string expectedOutput =
             """
             testhost v15.0.0.0
             > crash
             ConsoleException: Some error.
                 Stack Trace:
+                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1.*
+                       at System.Threading.Tasks.Task`1*
+                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
+                    --- End of stack trace from previous location ---
+                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
+                       at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
+                    --- End of stack trace from previous location ---
+                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
@@ -329,7 +366,7 @@ public class ShellApplicationTests {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Crash", _ => Result.ErrorTask(new ConsoleException(expectedErrorCode, "Some error.")));
+        app.AddCommand("Crash", CommandAction);
 
         // Act
         var actualResult = await app.RunAsync();
@@ -349,6 +386,14 @@ public class ShellApplicationTests {
         var output = new TestOutput();
         var input = new TestInput(output, "crash");
         const int expectedErrorCode = 13;
+        Result CommandAction() {
+            try {
+                throw new InvalidOperationException("Some error.");
+            }
+            catch (Exception ex) {
+                throw new ConsoleException(expectedErrorCode, "Some error.", ex);
+            }
+        }
         const string expectedOutput =
             """
             testhost v15.0.0.0
@@ -357,7 +402,14 @@ public class ShellApplicationTests {
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
                        at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.AsyncCommand`1.*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1.*
+                       at System.Threading.Tasks.Task`1*
+                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
+                    --- End of stack trace from previous location ---
+                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
+                       at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
+                    --- End of stack trace from previous location ---
+                       at DotNetToolbox.ConsoleApplication.Nodes.Executables.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Application.Application`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
@@ -365,23 +417,15 @@ public class ShellApplicationTests {
                 Inner Exception => InvalidOperationException: Some error.
                     Stack Trace:
                            at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
-            
-            
+
+
             """;
         var expectedLines = expectedOutput.Split(Environment.NewLine);
         var app = Shell.Create(b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Crash",
-                       _ => {
-                           try {
-                               throw new InvalidOperationException("Some error.");
-                           }
-                           catch (Exception ex) {
-                               throw new ConsoleException(expectedErrorCode, "Some error.", ex);
-                           }
-                       });
+        app.AddCommand("Crash", CommandAction);
 
         // Act
         var actualResult = await app.RunAsync();
@@ -400,20 +444,21 @@ public class ShellApplicationTests {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "crash", "exit");
+        Result CommandAction() => Result.Invalid("Some error.");
         const string expectedOutput =
             """
             testhost v15.0.0.0
             > crash
             Validation error: Some error.
             > exit
-            
-            
+
+
             """;
         var app = Shell.Create(b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
         });
-        app.AddCommand("Crash", _ => Result.InvalidTask("Some error."));
+        app.AddCommand("Crash", CommandAction);
 
         // Act
         var actualResult = await app.RunAsync();
@@ -429,12 +474,12 @@ public class ShellApplicationTests {
         var output = new TestOutput();
         var input = new TestInput(output, "exit");
         const string expectedOutput =
-            """
-            testhost v15.0.0.0
-            Validation error: Unknown option: '--invalid'.
-            
-            
-            """;
+            $"""
+             testhost v15.0.0.0
+             Validation error: Unknown argument '--invalid'. For a list of arguments use '--help'.
+
+
+             """;
         var app = Shell.Create(["--invalid"], b => {
             b.ReplaceInput(input);
             b.ReplaceOutput(output);
@@ -445,6 +490,34 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(Application.DefaultErrorCode);
+        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+    }
+
+
+    [Fact]
+    public async Task RunAsync_InvalidCommand_ReturnsResultWithErrors() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "invalid", "exit");
+        const string expectedOutput =
+            """
+            testhost v15.0.0.0
+            > invalid
+            Validation error: Command 'invalid' not found. For a list of available commands use 'help'.
+
+            > exit
+
+            """;
+        var app = Shell.Create(b => {
+            b.ReplaceInput(input);
+            b.ReplaceOutput(output);
+        });
+
+        // Act
+        var actualResult = await app.RunAsync();
+
+        // Assert
+        actualResult.Should().Be(Application.DefaultExitCode);
         output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
     }
 
@@ -619,22 +692,42 @@ public class ShellApplicationTests {
         app.AddFlag<TestFlag>();
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "--test-flag").Subject;
+        var child = app.Children.Should().ContainSingle(x => x.Name == "--flag").Subject;
         var flag = child.Should().BeOfType<TestFlag>().Subject;
-        flag.Aliases.Should().BeEquivalentTo("-t");
+        flag.Aliases.Should().BeEquivalentTo("-f");
+    }
+
+    [Fact]
+    public async Task RunAsync_WithArguments_ExecutesApp() {
+        var output = new TestOutput();
+        var input = new TestInput(output, "exit");
+        var app = Shell.Create(["--option", "-f", "20"], b => {
+            b.ReplaceInput(input);
+            b.ReplaceOutput(output);
+        });
+        app.AddOption<TestOption>();
+        app.AddFlag<TestFlag>();
+        app.AddParameter<TestParameter>();
+
+        // Act
+        var actualResult = await app.RunAsync();
+
+        // Assert
     }
 
     private class TestOption(IHasChildren app) : Option<TestOption>(app, "--option", "-o");
     private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
-    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "--test-flag", "-t");
+    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "--flag", "-f");
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
     private readonly IAssemblyAccessor _assemblyAccessor = Substitute.For<IAssemblyAccessor>();
     private IServiceProvider CreateFakeServiceProvider() {
+        var output = new TestOutput();
+        var input = new TestInput(output);
         var serviceProvider = Substitute.For<IServiceProvider>();
         serviceProvider.GetService(typeof(IConfiguration)).Returns(Substitute.For<IConfiguration>());
-        serviceProvider.GetService(typeof(IOutput)).Returns(Substitute.For<IOutput>());
-        serviceProvider.GetService(typeof(IInput)).Returns(Substitute.For<IInput>());
+        serviceProvider.GetService(typeof(IOutput)).Returns(output);
+        serviceProvider.GetService(typeof(IInput)).Returns(input);
         _assemblyAccessor.GetEntryAssembly().Returns(_assemblyDescriptor);
         _assemblyDescriptor.Name.Returns("TestApp");
         _assemblyDescriptor.Version.Returns(new Version(1, 0));

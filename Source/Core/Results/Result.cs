@@ -20,16 +20,16 @@ public record Result : ResultBase<ResultType> {
     public bool IsSuccess => !HasException && !HasErrors;
 
     public static Result Success() => new();
-    public static Result Invalid(string message) => Invalid(string.Empty, message);
-    public static Result Invalid(string source, string message) => Invalid(new ValidationError(message, source));
+    public static Result Invalid(string message) => Invalid(message, string.Empty);
+    public static Result Invalid(string message, string source) => Invalid(new ValidationError(message, source));
     public static Result Invalid(ValidationError error) => new([error]);
     public static Result Invalid(Result result) => new(result.Errors);
     public static Result Error(string message) => Error(new Exception(message));
     public static Result Error(Exception exception) => new(exception);
 
     public static Task<Result> SuccessTask() => Task.FromResult(Success());
-    public static Task<Result> InvalidTask(string message) => InvalidTask(string.Empty, message);
-    public static Task<Result> InvalidTask(string source, string message) => InvalidTask(new ValidationError(message, source));
+    public static Task<Result> InvalidTask(string message) => InvalidTask(message, string.Empty);
+    public static Task<Result> InvalidTask(string message, string source) => InvalidTask(new ValidationError(message, source));
     public static Task<Result> InvalidTask(Result result) => Task.FromResult(Invalid(result));
     public static Task<Result> ErrorTask(string message) => ErrorTask(new Exception(message));
     public static Task<Result> ErrorTask(Exception exception)

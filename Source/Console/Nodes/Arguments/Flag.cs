@@ -7,16 +7,12 @@ public sealed class Flag
     }
 }
 
-public abstract class Flag<TFlag>
-    : Argument<TFlag>
-    , IFlag
+public abstract class Flag<TFlag>(IHasChildren parent, string name, params string[] aliases)
+    : Node<TFlag>(parent, name, aliases), IFlag
     where TFlag : Flag<TFlag> {
-    protected Flag(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, name, aliases) {
-    }
 
-    public Task<Result> SetValue(CancellationToken ct) {
-        Application.Data[Name] = true;
-        return OnDataRead(ct);
+    public sealed override Task<Result> ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct = default) {
+        Application.Data[Name] = bool.TrueString;
+        return SuccessTask();
     }
 }

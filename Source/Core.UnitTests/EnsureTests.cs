@@ -327,7 +327,7 @@ public class EnsureTests {
 
     private class ValidatableObject(bool isValid) : IValidatable {
         public Result Validate(IDictionary<string, object?>? context = null)
-            => isValid ? Result.Success() : Result.Invalid("Is not valid.", "Source");
+            => isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
     }
 
     [Fact]

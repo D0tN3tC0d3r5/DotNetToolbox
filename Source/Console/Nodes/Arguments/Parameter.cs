@@ -4,8 +4,7 @@ public sealed class Parameter(IHasChildren parent, string name, string? defaultV
         : Parameter<Parameter>(parent, name, defaultValue);
 
 public abstract class Parameter<TParameter>
-    : Argument<TParameter>
-    , IParameter
+    : Node<TParameter>, IParameter
     where TParameter : Parameter<TParameter> {
     private readonly string? _defaultValue;
 
@@ -20,13 +19,13 @@ public abstract class Parameter<TParameter>
     public bool IsRequired => _defaultValue is not null;
     public int Order { get; }
 
-    public Task<Result> SetValue(string? value, CancellationToken ct) {
-        Application.Data[Name] = value switch {
+    public sealed override Task<Result> ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct = default) {
+        Application.Data[Name] = args[0] switch {
             null or "default" => _defaultValue,
             "null" => null,
-            _ => value,
+            _ => args[0],
         };
         IsSet = true;
-        return OnDataRead(ct);
+        return SuccessTask();
     }
 }

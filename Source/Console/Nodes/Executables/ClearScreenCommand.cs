@@ -6,8 +6,8 @@ internal class ClearScreenCommand : Command<ClearScreenCommand> {
         Description = "Clear the screen.";
     }
 
-    protected override Result Execute() {
+    protected override Task<Result> Execute() {
         Application.Output.ClearScreen();
-        return Success();
+        return SuccessTask();
     }
 }

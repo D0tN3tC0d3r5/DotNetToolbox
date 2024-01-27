@@ -2,18 +2,18 @@
 
 public static class CommandFactory {
     public static TCommand Create<TCommand>(IApplication application)
-        where TCommand : CommandBase<TCommand>
+        where TCommand : NodeWithArguments<TCommand>
         => Create<TCommand>(application, default!, default!);
 
     public static TCommand Create<TCommand>(IApplication application, string name)
-        where TCommand : CommandBase<TCommand>
+        where TCommand : NodeWithArguments<TCommand>
         => Create<TCommand>(application, default!, name);
 
     public static TCommand Create<TCommand>(IApplication application, ICommand owner)
-        where TCommand : CommandBase<TCommand>
-        => CreateInstance.Of<TCommand>(application.ServiceProvider, application, owner, default!);
+        where TCommand : NodeWithArguments<TCommand>
+        => CreateInstance.Of<TCommand>(application.Services, application, owner, default!);
 
     public static TCommand Create<TCommand>(IApplication application, ICommand owner, string name)
-        where TCommand : CommandBase<TCommand>
-        => CreateInstance.Of<TCommand>(application.ServiceProvider, application, owner, name);
+        where TCommand : NodeWithArguments<TCommand>
+        => CreateInstance.Of<TCommand>(application.Services, application, owner, name);
 }

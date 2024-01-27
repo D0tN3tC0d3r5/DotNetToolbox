@@ -9,9 +9,9 @@ internal sealed class HelpCommand : Command<HelpCommand> {
         Description = "Display help information.";
     }
 
-    protected override Result Execute() {
-        var help = OutputFormatter.FormatHelp(_parent, includeApplication: false); ;
+    protected override Task<Result> Execute() {
+        var help = FormatHelp(_parent, includeApplication: false); ;
         Application.Output.Write(help);
-        return Success();
+        return SuccessTask();
     }
 }

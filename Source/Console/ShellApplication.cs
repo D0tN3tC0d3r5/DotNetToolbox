@@ -7,13 +7,9 @@ public sealed class ShellApplication
     }
 }
 
-public abstract class ShellApplication<TApplication>
-    : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>
-    where TApplication : ShellApplication<TApplication> {
-    protected ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
-        : base(args, environment, serviceProvider) {
-    }
-}
+public abstract class ShellApplication<TApplication>(string[] args, string? environment, IServiceProvider serviceProvider)
+    : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>(args, environment, serviceProvider)
+    where TApplication : ShellApplication<TApplication>;
 
 public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     : Application<TApplication, TBuilder, TOptions>

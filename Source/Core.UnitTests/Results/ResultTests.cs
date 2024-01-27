@@ -600,7 +600,7 @@ public class ResultTests {
     public void ResultTValue_Equals_WithDifferentResults_ReturnsFalse() {
         // Arrange
         var resultWithValue1 = Result.Success("Value1");
-        var resultWithValue2 = Result.Invalid("Value1", "Some error");
+        var resultWithValue2 = Result.Invalid("Some error", "Value1");
 
         // Act
         var areEqual = resultWithValue1.Equals(resultWithValue2);

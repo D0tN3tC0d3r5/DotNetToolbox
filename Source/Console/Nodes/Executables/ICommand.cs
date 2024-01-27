@@ -1,5 +1,5 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Executables;
 
-public interface ICommand : IArgument, IHasChildren, IExecutable;
+public interface ICommand : IHasParent, IHasChildren;
 
-public interface IAsyncCommand : IArgument, IHasChildren, IExecutable;
+//public interface IAsyncCommand : IHasParent, IHasChildren;

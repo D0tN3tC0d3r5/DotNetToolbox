@@ -1,3 +1,3 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
+﻿//namespace DotNetToolbox.ConsoleApplication.Nodes.Arguments;
 
-public interface IArgument : IHasParent;
+//public interface IArgument : IHasParent;

@@ -23,7 +23,6 @@ public interface IAssemblyDescriptor {
     IEnumerable<Module> Modules { get; }
 }
 
-
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Assembly functionality.")]
 public class AssemblyDescriptor : IAssemblyDescriptor {
     private readonly Assembly _assembly;

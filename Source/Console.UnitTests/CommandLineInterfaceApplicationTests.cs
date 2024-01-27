@@ -145,10 +145,10 @@ public class CommandLineInterfaceApplicationTests {
 
             Usage: testhost [Options]
             Options:
-              --help | -h | -?          Display help information.
-              --version                 Display version information.
-            
-            
+              --help, -h, -?            Displays this help information and finishes.
+              --version                 Displays the version and exits.
+
+
             """;
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
@@ -182,8 +182,8 @@ public class CommandLineInterfaceApplicationTests {
 
             Usage: testhost [Options]
             Options:
-              --help | -h | -?          Display help information.
-              --version                 Display version information.
+              --help, -h, -?            Displays this help information and finishes.
+              --version                 Displays the version and exits.
 
 
             """;
@@ -214,8 +214,8 @@ public class CommandLineInterfaceApplicationTests {
 
             Usage: testhost [Options]
             Options:
-              --help | -h | -?          Display help information.
-              --version                 Display version information.
+              --help, -h, -?            Displays this help information and finishes.
+              --version                 Displays the version and exits.
 
 
             """;
@@ -239,9 +239,9 @@ public class CommandLineInterfaceApplicationTests {
         var input = new TestInput(output, "exit");
         const string expectedOutput =
             """
-            Validation error: Unknown option: '--invalid'.
-            
-            
+            Validation error: Unknown argument '--invalid'. For a list of arguments use '--help'.
+
+
             """;
         var app = CLI.Create(["--invalid"], b => {
             b.ReplaceInput(input);

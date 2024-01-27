@@ -1,6 +1,5 @@
 ﻿namespace DotNetToolbox.Results;
 
-[SuppressMessage("Roslynator", "RCS1194:Implement exception constructors", Justification = "They are all implemented indirectly.")]
 public class ValidationException(string message, string source, IEnumerable<ValidationError> errors, Exception? innerException = null)
     : Exception(FormatSource(source) + FormatMessage(message), innerException) {
     public const string DefaultMessage = "Validation failed.";
