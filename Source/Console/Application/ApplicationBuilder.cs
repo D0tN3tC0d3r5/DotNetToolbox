@@ -28,12 +28,12 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
 
     public ServiceCollection Services { get; } = [];
 
-    public void ReplaceAssemblyAccessor(IAssemblyAccessor assemblyAccessor) => _assemblyAccessor = IsNotNull(assemblyAccessor);
-    public void ReplaceInput(IInput input) => _input = IsNotNull(input);
-    public void ReplaceOutput(IOutput output) => _output = IsNotNull(output);
-    public void ReplaceFileSystem(IFileSystem fileSystem) => _fileSystem = IsNotNull(fileSystem);
-    public void ReplaceGuidProvider(IGuidProvider guidProvider) => _guidProvider = IsNotNull(guidProvider);
-    public void ReplaceDateTimeProvider(IDateTimeProvider dateTimeProvider) => _dateTimeProvider = IsNotNull(dateTimeProvider);
+    public void SetAssembly(IAssemblyAccessor assemblyAccessor) => _assemblyAccessor = IsNotNull(assemblyAccessor);
+    public void SetInputHandler(IInput input) => _input = IsNotNull(input);
+    public void SetOutputHandler(IOutput output) => _output = IsNotNull(output);
+    public void SetFileSystem(IFileSystem fileSystem) => _fileSystem = IsNotNull(fileSystem);
+    public void SetGuidProvider(IGuidProvider guidProvider) => _guidProvider = IsNotNull(guidProvider);
+    public void SetDateTimeProvider(IDateTimeProvider dateTimeProvider) => _dateTimeProvider = IsNotNull(dateTimeProvider);
 
     public TBuilder SetEnvironment(string environment) {
         _environment = IsNotNullOrWhiteSpace(environment);
@@ -64,12 +64,12 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     }
 
     public TBuilder SetOptions(Action<TOptions> configure) {
-        _setOptions = configure;
+        _setOptions = IsNotNull(configure);
         return (TBuilder)this;
     }
 
-    public TBuilder SetLogging(Action<ILoggingBuilder>? configure = null) {
-        _setLogging = b => configure?.Invoke(b);
+    public TBuilder SetLogging(Action<ILoggingBuilder> configure) {
+        _setLogging = IsNotNull(configure);
         return (TBuilder)this;
     }
 

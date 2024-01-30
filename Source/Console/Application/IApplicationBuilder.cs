@@ -12,7 +12,7 @@ public interface IApplicationBuilder<out TApplication, out TBuilder, TOptions>
     TBuilder AddSettings(IFileProvider? fileProvider = null);
     TBuilder AddUserSecrets<TReference>() where TReference : class;
 
-    TBuilder SetLogging(Action<ILoggingBuilder>? configure = null);
+    TBuilder SetLogging(Action<ILoggingBuilder> configure);
 
     TApplication Build();
 }

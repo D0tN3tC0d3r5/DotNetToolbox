@@ -15,7 +15,7 @@ public class CommandLineInterfaceApplicationTests {
         app.Environment.Should().Be("");
         app.Arguments.Should().BeEmpty();
         app.AssemblyName.Should().Be("testhost");
-        app.Children.Should().HaveCount(2);
+        app.Children.Should().HaveCount(3);
         app.Configuration.Should().NotBeNull();
         app.Settings.Should().NotBeNull();
         app.Settings.ClearScreenOnStart.Should().BeFalse();
@@ -35,6 +35,19 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         app.Should().BeOfType<CLI>();
+    }
+
+    [Fact]
+    public void Create_WithVersionFlag_CreatesCommandLineInterfaceApplication() {
+        // Arrange
+        var output = new TestOutput();
+        var app = CLI.Create([ "--version" ], b => b.SetOutputHandler(output));
+
+        // Act
+        var action = () => app.Run();
+
+        // Assert
+        action.Should().NotThrow();
     }
 
     [Fact]
@@ -129,7 +142,7 @@ public class CommandLineInterfaceApplicationTests {
         var input = new TestInput(output);
 
         // Act
-        var app = CLI.Create(b => b.ReplaceInput(input));
+        var app = CLI.Create(b => b.SetInputHandler(input));
 
         // Assert
         app.Should().BeOfType<CLI>();
@@ -143,10 +156,13 @@ public class CommandLineInterfaceApplicationTests {
             """
             testhost v15.0.0.0
 
-            Usage: testhost [Options]
+            Usage:
+                testhost [Options]
+
             Options:
-              --help, -h, -?            Displays this help information and finishes.
-              --version                 Displays the version and exits.
+                --clear-screen, -cls      Clear the screen.
+                --help, -h, -?            Display this help information.
+                --version                 Display the application's version.
 
 
             """;
@@ -154,10 +170,10 @@ public class CommandLineInterfaceApplicationTests {
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         var app = CLI.Create(b => {
-            b.ReplaceDateTimeProvider(dateTimeProvider);
-            b.ReplaceGuidProvider(guidProvider);
-            b.ReplaceFileSystem(fileSystem);
-            b.ReplaceOutput(output);
+            b.SetDateTimeProvider(dateTimeProvider);
+            b.SetGuidProvider(guidProvider);
+            b.SetFileSystem(fileSystem);
+            b.SetOutputHandler(output);
         });
 
         // Act
@@ -165,7 +181,7 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         app.Should().BeOfType<CLI>();
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().BeEquivalentTo(expectedOutput);
     }
 
     [Fact]
@@ -180,20 +196,23 @@ public class CommandLineInterfaceApplicationTests {
             """
             testhost v15.0.0.0
 
-            Usage: testhost [Options]
+            Usage:
+                testhost [Options]
+
             Options:
-              --help, -h, -?            Displays this help information and finishes.
-              --version                 Displays the version and exits.
+                --clear-screen, -cls      Clear the screen.
+                --help, -h, -?            Display this help information.
+                --version                 Display the application's version.
 
 
             """;
         await using var app = CLI.Create(b => {
             b.SetOptions(o => o.ClearScreenOnStart = true);
-            b.ReplaceDateTimeProvider(dateTimeProvider);
-            b.ReplaceGuidProvider(guidProvider);
-            b.ReplaceFileSystem(fileSystem);
-            b.ReplaceOutput(output);
-            b.ReplaceInput(input);
+            b.SetDateTimeProvider(dateTimeProvider);
+            b.SetGuidProvider(guidProvider);
+            b.SetFileSystem(fileSystem);
+            b.SetOutputHandler(output);
+            b.SetInputHandler(input);
         });
 
         // Act
@@ -201,7 +220,7 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         app.Should().BeOfType<CLI>();
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
     }
 
     [Fact]
@@ -212,16 +231,19 @@ public class CommandLineInterfaceApplicationTests {
             """
             testhost v15.0.0.0
 
-            Usage: testhost [Options]
+            Usage:
+                testhost [Options]
+
             Options:
-              --help, -h, -?            Displays this help information and finishes.
-              --version                 Displays the version and exits.
+                --clear-screen, -cls      Clear the screen.
+                --help, -h, -?            Display this help information.
+                --version                 Display the application's version.
 
 
             """;
         await using var app = CLI.Create(["--help"], b => {
             b.SetOptions(o => o.ClearScreenOnStart = true);
-            b.ReplaceOutput(output);
+            b.SetOutputHandler(output);
         });
 
         // Act
@@ -229,7 +251,7 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         app.Should().BeOfType<CLI>();
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
     }
 
     [Fact]
@@ -244,8 +266,8 @@ public class CommandLineInterfaceApplicationTests {
 
             """;
         var app = CLI.Create(["--invalid"], b => {
-            b.ReplaceInput(input);
-            b.ReplaceOutput(output);
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
         });
 
         // Act
@@ -253,7 +275,7 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
     }
 
     [Fact]

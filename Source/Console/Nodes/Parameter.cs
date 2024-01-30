@@ -19,14 +19,16 @@ public abstract class Parameter<TParameter>
     public bool IsRequired => _defaultValue is null;
     public int Order { get; }
 
-    public sealed override Task<Result> ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct = default) {
-        Application.Data[Name] = args[0] switch {
+    Task<Result> IParameter.Read(string? value, CancellationToken ct) {
+        Application.Data[Name] = value switch {
             null or "default" => _defaultValue,
             "null" => null,
-            ['"',..var text,'"'] => text,
-            _ => args[0],
+            ['"', .. var text, '"'] => text,
+            _ => value,
         };
         IsSet = true;
-        return SuccessTask();
+        return Execute(ct);
     }
+
+    protected virtual Task<Result> Execute(CancellationToken ct = default) => SuccessTask();
 }

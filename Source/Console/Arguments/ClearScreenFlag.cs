@@ -1,14 +1,15 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
 internal sealed class ClearScreenFlag
-    : Command<ClearScreenFlag>, IFlag {
+    : Flag<ClearScreenFlag> {
+    private readonly ClearScreenCommand _command;
+
     public ClearScreenFlag(IHasChildren parent)
-        : base(parent, "ClearScreen", "cls") {
-        Description = "Clear the screen before the application starts.";
+        : base(parent, "Clear-Screen", ["cls"]) {
+        _command = new(parent);
+        Description = _command.Description;
     }
 
-    protected override Task<Result> Execute() {
-        Application.Output.ClearScreen();
-        return SuccessTask();
-    }
+    protected override Task<Result> Execute(CancellationToken ct = default)
+        => _command.Execute(ct);
 }

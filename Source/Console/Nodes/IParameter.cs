@@ -4,4 +4,6 @@ public interface IParameter : IHasParent {
     bool IsSet { get; }
     bool IsRequired { get; }
     int Order { get; }
+
+    Task<Result> Read(string? value, CancellationToken ct = default);
 }

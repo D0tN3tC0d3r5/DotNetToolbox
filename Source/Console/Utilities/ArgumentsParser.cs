@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
 
-public static class ArgumentsReader {
-    public static async Task<Result> Read(IHasChildren parent, IReadOnlyList<string> arguments, CancellationToken ct) {
+public static class ArgumentsParser {
+    public static async Task<Result> Parse(IHasChildren parent, IReadOnlyList<string> arguments, CancellationToken ct) {
         var result = Success();
         for (var index = 0; index < arguments.Count; index++)
             (result, index) = await TrySetupChild(parent, arguments, index, ct);
@@ -11,8 +11,10 @@ public static class ArgumentsReader {
     private static async Task<(Result result, int index)> TrySetupChild(IHasChildren parent, IReadOnlyList<string> arguments, int index, CancellationToken ct) {
         var child = FindChild(parent, arguments[index]);
         return child switch {
-            IFlag => (await child.ExecuteAsync([], ct), index),
-            IOption or ICommand => (await child.ExecuteAsync(arguments.Skip(++index).ToArray(), ct), index),
+            IFlag f => (await f.Read(ct), index),
+            IOption when index >= arguments.Count - 1 => (Invalid($"Missing value for option '{arguments[index]}'."), index + 1),
+            IOption o => (await o.Read(arguments[++index], ct), index),
+            ICommand c => (await c.Set(arguments.Skip(++index).ToArray(), ct), index),
             _ => (await ReadParameters(parent, arguments.Skip(index).ToArray(), ct), arguments.Count - 1),
         };
     }
@@ -35,7 +37,7 @@ public static class ArgumentsReader {
             if (index >= arguments.Count) break;
             result += arguments[index].StartsWith('-')
                 ? Invalid($"Unknown argument '{arguments[index]}'. For a list of available arguments use '--help'.")
-                : await parameter.ExecuteAsync([arguments[index]], ct);
+                : await parameter.Read(arguments[index], ct);
             index++;
         }
 

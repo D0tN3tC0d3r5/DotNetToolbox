@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.ConsoleApplication.Application;
-
-namespace DotNetToolbox.ConsoleApplication;
+﻿namespace DotNetToolbox.ConsoleApplication;
 
 public class ShellApplicationOptions
     : ShellApplicationOptions<ShellApplicationOptions>;
@@ -8,5 +6,5 @@ public class ShellApplicationOptions
 public abstract class ShellApplicationOptions<TOptions>
     : ApplicationOptions<TOptions>
     where TOptions : ShellApplicationOptions<TOptions>, new() {
-    public string Prompt { get; init; } = "> ";
+    public string Prompt { get; set; } = "> ";
 }

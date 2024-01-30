@@ -1,6 +1,5 @@
-﻿using DotNetToolbox.ConsoleApplication.Application;
+﻿namespace DotNetToolbox.ConsoleApplication;
 
-namespace DotNetToolbox.ConsoleApplication;
 public sealed class CommandLineInterfaceApplication
     : CommandLineInterfaceApplication<CommandLineInterfaceApplication> {
     internal CommandLineInterfaceApplication(string[] args, string? environment, IServiceProvider serviceProvider)
@@ -8,30 +7,36 @@ public sealed class CommandLineInterfaceApplication
     }
 }
 
-public abstract class CommandLineInterfaceApplication<TApplication>(string[] args, string? environment, IServiceProvider serviceProvider)
-    : CommandLineInterfaceApplication<TApplication, CommandLineApplicationBuilder<TApplication>, CommandLineInterfaceApplicationOptions>(args, environment, serviceProvider)
-    where TApplication : CommandLineInterfaceApplication<TApplication>;
+public abstract class CommandLineInterfaceApplication<TApplication>
+    : CommandLineInterfaceApplication<TApplication, CommandLineApplicationBuilder<TApplication>, CommandLineInterfaceApplicationOptions>
+    where TApplication : CommandLineInterfaceApplication<TApplication> {
+    protected CommandLineInterfaceApplication(string[] args, string? environment, IServiceProvider serviceProvider)
+        : base(args, environment, serviceProvider) {
+        AddFlag<VersionFlag>();
+    }
+}
 
 public abstract class CommandLineInterfaceApplication<TApplication, TBuilder, TOptions>(string[] args, string? environment, IServiceProvider serviceProvider)
     : Application<TApplication, TBuilder, TOptions>(args, environment, serviceProvider)
     where TApplication : CommandLineInterfaceApplication<TApplication, TBuilder, TOptions>
     where TBuilder : CommandLineApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ApplicationOptions<TOptions>, new() {
-    protected override async Task ExecuteInternalAsync(CancellationToken ct) {
-        if (Settings.ClearScreenOnStart) Output.ClearScreen();
-        if (Arguments.Length == 0) {
-            var helpAction = new HelpFlag(this);
-            await helpAction.ExecuteAsync([], ct);
-        }
 
-        if (await HasInvalidArguments(ct)) {
-            Exit(DefaultErrorCode);
+    internal sealed override async Task Run(CancellationToken ct) {
+        if (Arguments.Length == 0) {
+            await ShowHelp(ct);
             return;
         }
-        await ExecuteAsync(ct);
-        Exit();
+
+        var result = await Execute(ct);
+        ProcessResult(result);
     }
 
-    protected virtual Task ExecuteAsync(CancellationToken ct) => Task.CompletedTask;
+    private Task<Result> ShowHelp(CancellationToken ct) {
+        var help = new HelpCommand(this);
+        return help.Execute(ct);
+    }
+
+    protected override Task<Result> Execute(CancellationToken ct) => SuccessTask();
 }
 

@@ -7,13 +7,15 @@ public abstract class Option<TOption>(IHasChildren parent, string name, params s
     : Node<TOption>(parent, name, aliases), IOption
     where TOption : Option<TOption> {
 
-    public sealed override Task<Result> ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct = default) {
-        if (args.Count == 0) return InvalidTask($"Missing value for option '--{Name.ToLower()}'.");
-        Application.Data[Name] = args[0] switch {
-            "null" or "default" => null,
-            ['"', ..var text, '"'] => text,
-            _ => args[0],
+    Task<Result> IOption.Read(string? value, CancellationToken ct) {
+        Application.Data[Name] = value switch {
+            null or "null" or "default" => null,
+            ['"', .. var text, '"'] => text,
+            _ => value,
         };
-        return SuccessTask();
+
+        return Execute(ct);
     }
+
+    protected virtual Task<Result> Execute(CancellationToken ct = default) => SuccessTask();
 }

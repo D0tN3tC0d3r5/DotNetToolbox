@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.ConsoleApplication.Application;
-
-namespace DotNetToolbox.ConsoleApplication;
+﻿namespace DotNetToolbox.ConsoleApplication;
 
 public class CommandLineInterfaceApplicationOptions
     : CommandLineApplicationOptions<CommandLineInterfaceApplicationOptions>;

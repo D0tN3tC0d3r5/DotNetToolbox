@@ -5,14 +5,14 @@ internal sealed class HelpCommand
     private readonly IHasChildren _parent;
 
     public HelpCommand(IHasChildren parent)
-        : base(parent, "Help", "?") {
+        : base(parent, "Help", ["?"]) {
         _parent = parent;
-        Description = "Display help information.";
+        Description = "Display this help information.";
     }
 
-    protected override Task<Result> Execute() {
-        var help = FormatHelp(_parent, includeApplication: false); ;
-        Application.Output.Write(help);
+    public override Task<Result> Execute(CancellationToken ct = default) {
+        var help = FormatHelp(_parent); ;
+        Application.Output.WriteLine(help);
         return SuccessTask();
     }
 }

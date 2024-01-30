@@ -31,153 +31,13 @@ public class ShellApplicationTests {
     }
 
     [Fact]
-    public void Create_WhenCreationFails_Throws() {
-        // Arrange & Act
-        var app = Shell.Create(b => b.SetLogging(l => l.SetMinimumLevel(LogLevel.Information)));
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-    }
-
-    [Fact]
-    public void Create_CreatesShellApplication_WithCustomAttributes() {
-        // Arrange & Act
-        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
-        var assemblyAccessor = Substitute.For<IAssemblyAccessor>();
-        assemblyAccessor.GetEntryAssembly().Returns(assemblyDescriptor);
-        assemblyDescriptor.Name.Returns("TestApp");
-        assemblyDescriptor.Version.Returns(new Version(1, 0));
-        assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("My App"));
-        assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("Some description."));
-        var app = Shell.Create(b => b.ReplaceAssemblyAccessor(assemblyAccessor));
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-        app.Name.Should().Be("My App");
-        app.AssemblyName.Should().Be("TestApp");
-        app.Version.Should().Be("1.0");
-        app.Description.Should().Be("Some description.");
-    }
-
-    [Fact]
-    public void Create_CreatesShellApplication_WithAssemblyInfo() {
-        // Arrange & Act
-        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
-        var assemblyAccessor = Substitute.For<IAssemblyAccessor>();
-        assemblyAccessor.GetEntryAssembly().Returns(assemblyDescriptor);
-        assemblyDescriptor.Name.Returns("TestApp");
-        assemblyDescriptor.Version.Returns(new Version(1, 0));
-        var app = Shell.Create(b => b.ReplaceAssemblyAccessor(assemblyAccessor));
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-        app.Name.Should().Be("TestApp");
-        app.AssemblyName.Should().Be("TestApp");
-        app.Version.Should().Be("1.0");
-    }
-
-    [Fact]
-    public void Create_AddEnvironmentVariables_CreatesShellApplication() {
-        // Act
-        var app = Shell.Create(b => b.AddEnvironmentVariables("MYAPP_"));
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-    }
-
-    [Fact]
-    public void Create_AddUserSecrets_CreatesShellApplication() {
-        // Act
-        var app = Shell.Create(b => b.AddUserSecrets<Shell>());
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-    }
-
-    [Fact]
-    public void Create_WithArgs_CreatesShellApplication() {
-        // Arrange
-        string[] args = ["arg1", "arg2"];
-
-        // Act
-        var app = Shell.Create(args);
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-        app.Arguments.Should().HaveCount(2);
-    }
-
-    [Fact]
-    public void Create_WithConfig_CreatesShellApplication() {
-        // Arrange & Act
-        var wasCalled = false;
-        var app = Shell.Create(_ => wasCalled = true);
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-        app.Arguments.Should().BeEmpty();
-        wasCalled.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Create_WithArgsAndConfig_CreatesShellApplication() {
-        // Arrange
-        var wasCalled = false;
-        string[] args = ["arg1", "arg2"];
-
-        // Act
-        var app = Shell.Create(args, _ => wasCalled = true);
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-        app.Arguments.Should().HaveCount(2);
-        wasCalled.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Create_SetEnvironment_CreatesShellApplication() {
-        // Arrange & Act
-        var app = Shell.Create(b => b.SetEnvironment("Development"));
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-    }
-
-    [Fact]
-    public void Create_AddSettings_CreatesShellApplication() {
-        // Arrange
-        var fileProvider = new TestFileProvider();
-
-        // Act
-        var app = Shell.Create(b => b.AddSettings(fileProvider));
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-    }
-
-    [Fact]
-    public void Create_AddSettings_WithEnvironmentSet_CreatesShellApplication() {
-        // Arrange
-        var fileProvider = new TestFileProvider();
-
-        // Act
-        var app = Shell.Create(b => {
-            b.SetEnvironment("Development");
-            b.AddSettings(fileProvider);
-        });
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-    }
-
-    [Fact]
     public void ReplaceInput_ExecutesUntilExit() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output);
 
         // Act
-        var app = Shell.Create(b => b.ReplaceInput(input));
+        var app = Shell.Create(b => b.SetInputHandler(input));
 
         // Assert
         app.Should().BeOfType<Shell>();
@@ -187,10 +47,17 @@ public class ShellApplicationTests {
     public void Run_ExecutesUntilExit() {
         // Arrange
         var output = new TestOutput();
-        var input = new TestInput(output, "exit");
+        var input = new TestInput(output, "", "--exit", "\"exit\"", "exit");
         const string expectedOutput =
             """
             testhost v15.0.0.0
+            > 
+            > --exit
+            Validation error: Command '--exit' not found. For a list of available commands use 'help'.
+
+            > "exit"
+            Validation error: Command '"exit"' not found. For a list of available commands use 'help'.
+
             > exit
 
             """;
@@ -198,11 +65,11 @@ public class ShellApplicationTests {
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         var app = Shell.Create(b => {
-            b.ReplaceDateTimeProvider(dateTimeProvider);
-            b.ReplaceGuidProvider(guidProvider);
-            b.ReplaceFileSystem(fileSystem);
-            b.ReplaceOutput(output);
-            b.ReplaceInput(input);
+            b.SetDateTimeProvider(dateTimeProvider);
+            b.SetGuidProvider(guidProvider);
+            b.SetFileSystem(fileSystem);
+            b.SetOutputHandler(output);
+            b.SetInputHandler(input);
         });
 
         // Act
@@ -210,7 +77,7 @@ public class ShellApplicationTests {
 
         // Assert
         app.Should().BeOfType<Shell>();
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
     }
 
     [Fact]
@@ -221,19 +88,22 @@ public class ShellApplicationTests {
         const string expectedOutput =
             """
             testhost v15.0.0.0
-            > exit
+            $ exit
 
             """;
         var fileSystem = new TestFileSystem();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         await using var app = Shell.Create(b => {
-            b.SetOptions(o => o.ClearScreenOnStart = true);
-            b.ReplaceDateTimeProvider(dateTimeProvider);
-            b.ReplaceGuidProvider(guidProvider);
-            b.ReplaceFileSystem(fileSystem);
-            b.ReplaceOutput(output);
-            b.ReplaceInput(input);
+            b.SetOptions(o => {
+                o.ClearScreenOnStart = true;
+                o.Prompt = "$ ";
+            });
+            b.SetDateTimeProvider(dateTimeProvider);
+            b.SetGuidProvider(guidProvider);
+            b.SetFileSystem(fileSystem);
+            b.SetOutputHandler(output);
+            b.SetInputHandler(input);
         });
 
         // Act
@@ -241,45 +111,81 @@ public class ShellApplicationTests {
 
         // Assert
         app.Should().BeOfType<Shell>();
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
     }
 
     [Fact]
     public async Task RunAsync_WithHelp_ExecutesUntilExit() {
         // Arrange
         var output = new TestOutput();
-        var input = new TestInput(output, "help", "exit");
+        var input = new TestInput(output, "help", "?", "exit");
+        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
+        var assemblyAccessor = Substitute.For<IAssemblyAccessor>();
+        assemblyAccessor.GetEntryAssembly().Returns(assemblyDescriptor);
+        assemblyDescriptor.Name.Returns("tsa");
+        assemblyDescriptor.Version.Returns(new Version(1, 0));
+        assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("Test Shell Application"));
+        assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("This is a test application."));
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            Test Shell Application v1.0
             > help
-            testhost v15.0.0.0
-            
-            Usage: testhost [Options] [Commands]
+            Test Shell Application v1.0
+            This is a test application.
+
+            Usage:
+                tsa [Options] [Commands]
+                tsa [Options] [<Timeout>]
+
             Options:
-              --help, -h, -?            Displays this help information and finishes.
-              --version                 Displays the version and exits.
-            
+                --clear-screen, -cls      Clear the screen.
+                --help, -h, -?            Display this help information.
+
+            Parameters:
+                Timeout
+
             Commands:
-              ClearScreen, cls          Clear the screen.
-              Exit                      Exit the application.
-              Help, ?                   Display help information.
+                ClearScreen, cls          Clear the screen.
+                Exit                      Exit the application.
+                Help, ?                   Display this help information.
+
+            > ?
+            Test Shell Application v1.0
+            This is a test application.
+
+            Usage:
+                tsa [Options] [Commands]
+                tsa [Options] [<Timeout>]
+
+            Options:
+                --clear-screen, -cls      Clear the screen.
+                --help, -h, -?            Display this help information.
+
+            Parameters:
+                Timeout
+
+            Commands:
+                ClearScreen, cls          Clear the screen.
+                Exit                      Exit the application.
+                Help, ?                   Display this help information.
 
             > exit
 
             """;
         await using var app = Shell.Create(b => {
             b.SetOptions(o => o.ClearScreenOnStart = true);
-            b.ReplaceOutput(output);
-            b.ReplaceInput(input);
+            b.SetAssembly(assemblyAccessor);
+            b.SetOutputHandler(output);
+            b.SetInputHandler(input);
         });
+        app.AddParameter("Timeout", "5000");
 
         // Act
         await app.RunAsync();
 
         // Assert
         app.Should().BeOfType<Shell>();
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
     }
 
     [Fact]
@@ -297,25 +203,17 @@ public class ShellApplicationTests {
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
                        at DotNetToolbox.ConsoleApplication.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.*
-                       at System.Threading.Tasks.Task`1*
-                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
-                    --- End of stack trace from previous location ---
-                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
-                       at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
-                    --- End of stack trace from previous location ---
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Application.Application`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
                        at DotNetToolbox.ConsoleApplication.Application.Application`3.*
-            
-            
+
+
             """;
-        var expectedLines = expectedOutput.Split(Environment.NewLine);
         var app = Shell.Create(b => {
-            b.ReplaceInput(input);
-            b.ReplaceOutput(output);
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
         });
         app.AddCommand("Crash", CommandAction);
 
@@ -324,12 +222,7 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
-        output.Lines.Select((line, index) => (line, index)).Should().AllSatisfy(x => {
-            if (expectedLines[x.index].StartsWith('*') || expectedLines[x.index].EndsWith('*'))
-                x.line.Should().Match(expectedLines[x.index]);
-            else x.line.Should().Be(expectedLines[x.index]);
-        });
-
+        output.ToString().Should().Match(expectedOutput);
     }
 
     [Fact]
@@ -347,27 +240,19 @@ public class ShellApplicationTests {
             > crash
             ConsoleException: Some error.
                 Stack Trace:
-                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.*
-                       at System.Threading.Tasks.Task`1*
-                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
-                    --- End of stack trace from previous location ---
-                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
-                       at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
-                    --- End of stack trace from previous location ---
+                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
-            
-            
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.ProcessUserInput(String[] input, CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.Run(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.RunAsync()*
+
+
             """;
-        var expectedLines = expectedOutput.Split(Environment.NewLine);
         var app = Shell.Create(b => {
-            b.ReplaceInput(input);
-            b.ReplaceOutput(output);
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
         });
         app.AddCommand("Crash", CommandAction);
 
@@ -376,11 +261,7 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(expectedErrorCode);
-        output.Lines.Select((line, index) => (line, index)).Should().AllSatisfy(x => {
-            if (expectedLines[x.index].StartsWith('*') || expectedLines[x.index].EndsWith('*'))
-                x.line.Should().Match(expectedLines[x.index]);
-            else x.line.Should().Be(expectedLines[x.index]);
-        });
+        output.ToString().Should().Match(expectedOutput);
     }
 
     [Fact]
@@ -404,30 +285,22 @@ public class ShellApplicationTests {
             > crash
             ConsoleException: Some error.
                 Stack Trace:
-                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.*
-                       at System.Threading.Tasks.Task`1*
-                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
-                    --- End of stack trace from previous location ---
-                       at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop*
-                       at System.Threading.Tasks.Task.ExecuteWithThreadLocal*
-                    --- End of stack trace from previous location ---
+                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.Run(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`3.RunAsync()*
                 Inner Exception => InvalidOperationException: Some error.
                     Stack Trace:
-                           at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
+                           at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
 
 
             """;
-        var expectedLines = expectedOutput.Split(Environment.NewLine);
         var app = Shell.Create(b => {
-            b.ReplaceInput(input);
-            b.ReplaceOutput(output);
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
         });
         app.AddCommand("Crash", CommandAction);
 
@@ -436,11 +309,7 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(expectedErrorCode);
-        output.Lines.Select((line, index) => (line, index)).Should().AllSatisfy(x => {
-            if (expectedLines[x.index].StartsWith('*') || expectedLines[x.index].EndsWith('*'))
-                x.line.Should().Match(expectedLines[x.index]);
-            else x.line.Should().Be(expectedLines[x.index]);
-        });
+        output.ToString().Should().Match(expectedOutput);
     }
 
     [Fact]
@@ -455,13 +324,13 @@ public class ShellApplicationTests {
             testhost v15.0.0.0
             > crash
             Validation error: Some error.
-            > exit
 
+            > exit
 
             """;
         var app = Shell.Create(b => {
-            b.ReplaceInput(input);
-            b.ReplaceOutput(output);
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
         });
         app.AddCommand("Crash", CommandAction);
 
@@ -470,7 +339,7 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(ApplicationBase.DefaultExitCode);
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
     }
 
     [Fact]
@@ -480,14 +349,13 @@ public class ShellApplicationTests {
         var input = new TestInput(output, "exit");
         const string expectedOutput =
             $"""
-             testhost v15.0.0.0
              Validation error: Unknown argument '--invalid'. For a list of available arguments use '--help'.
 
 
              """;
         var app = Shell.Create(["--invalid"], b => {
-            b.ReplaceInput(input);
-            b.ReplaceOutput(output);
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
         });
 
         // Act
@@ -495,7 +363,7 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
     }
 
     [Fact]
@@ -513,8 +381,8 @@ public class ShellApplicationTests {
 
             """;
         var app = Shell.Create(b => {
-            b.ReplaceInput(input);
-            b.ReplaceOutput(output);
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
         });
 
         // Act
@@ -522,183 +390,51 @@ public class ShellApplicationTests {
 
         // Assert
         actualResult.Should().Be(ApplicationBase.DefaultExitCode);
-        output.Lines.Should().BeEquivalentTo(expectedOutput.Split(Environment.NewLine));
+        output.ToString().Should().Be(expectedOutput);
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
+    private class TestShellApp(string[] args, string? environment, IServiceProvider serviceProvider)
+        : ShellApplication<TestShellApp>(args, environment, serviceProvider) {
+        protected override Task<Result> Execute(CancellationToken ct) => Result.InvalidTask("Some error.");
     }
 
     [Fact]
-    public void Create_AddConfiguration_CreatesShellApplication() {
-        // Arrange & Act
-        var options = new ShellApplicationOptions {
-            ClearScreenOnStart = true,
-            Environment = "Development",
-            Prompt = "$ ",
-        };
-        var app = Shell.Create(b => b.AddConfiguration("ShellApplication", options));
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-        app.Settings.ClearScreenOnStart.Should().BeTrue();
-        app.Settings.Environment.Should().Be("Development");
-        app.Settings.Prompt.Should().Be("$ ");
-        app.Environment.Should().Be("Development");
-    }
-
-    [Fact]
-    public void Create_SetLogging_CreatesShellApplication() {
-        // Arrange & Act
-        var app = Shell.Create(b
-            => b.SetLogging(l => l.SetMinimumLevel(LogLevel.Debug)));
-
-        // Assert
-        app.Should().BeOfType<Shell>();
-    }
-
-    [Fact]
-    public void ToString_ReturnsExpectedFormat() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider) {
-            Description = "Test Application",
-        };
-
-        var expectedToString = $"ShellApplication: {app.Name} v{app.Version} => Test Application";
+    public async Task RunAsync_WithInvalidAction_ExecutesApp() {
+        var output = new TestOutput();
+        var input = new TestInput(output, "exit");
+        var app = TestShellApp.Create(b => {
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
+        });
 
         // Act
-        var actualToString = app.ToString();
+        var actualResult = await app.RunAsync();
 
         // Assert
-        actualToString.Should().Be(expectedToString);
+        actualResult.Should().Be(1);
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
+    private class TestFaultyShellApp(string[] args, string? environment, IServiceProvider serviceProvider)
+        : ShellApplication<TestFaultyShellApp>(args, environment, serviceProvider) {
+        protected override Task<Result> Execute(CancellationToken ct) => Result.ErrorTask(new ConsoleException(13));
     }
 
     [Fact]
-    public void AppendVersion_AppendsVersionInformation() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider);
-        var builder = new StringBuilder();
-        var expectedVersionInfo = $"{app.Name} v{app.Version}{Environment.NewLine}";
+    public async Task RunAsync_WithFaultyAction_ExecutesApp() {
+        var output = new TestOutput();
+        var input = new TestInput(output, "exit");
+        var app = TestFaultyShellApp.Create(b => {
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
+        });
 
         // Act
-        app.AppendVersion(builder);
-        var actualVersionInfo = builder.ToString();
+        var actualResult = await app.RunAsync();
 
         // Assert
-        actualVersionInfo.Should().Be(expectedVersionInfo);
-    }
-
-    [Fact]
-    public void AppendHelp_AppendsHelpInformation() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider) {
-            Description = "Test Application",
-        };
-        var builder = new StringBuilder();
-        var expectedHelpInfo = $"{app.Name} v{app.Version}{Environment.NewLine}Test Application{Environment.NewLine}";
-
-        // Act
-        app.AppendHelp(builder);
-        var actualHelpInfo = builder.ToString();
-
-        // Assert
-        actualHelpInfo.Should().Be(expectedHelpInfo);
-    }
-
-    [Fact]
-    public void AddOption_AddsOptionWithAliases() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider);
-        var optionName = "test-option";
-        var aliases = new[] { "t", "test" };
-
-        // Act
-        app.AddOption(optionName, aliases);
-
-        // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == optionName).Subject;
-        var option = child.Should().BeOfType<Option>().Subject;
-        option.Aliases.Should().BeEquivalentTo(aliases);
-    }
-
-    [Fact]
-    public void AddOption_Generic_AddsOptionOfType() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider);
-
-        // Act
-        app.AddOption<TestOption>();
-
-        // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Option").Subject;
-        var option = child.Should().BeOfType<TestOption>().Subject;
-        option.Aliases.Should().BeEquivalentTo("o");
-    }
-
-    [Fact]
-    public void AddParameter_AddsParameterWithDefaultValue() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider);
-        var parameterName = "param1";
-        var defaultValue = "default-value";
-
-        // Act
-        app.AddParameter(parameterName, defaultValue);
-
-        // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == parameterName).Subject;
-        var parameter = child.Should().BeOfType<Parameter>().Subject;
-        parameter.Order.Should().Be(0);
-    }
-
-    [Fact]
-    public void AddParameter_Generic_AddsParameterOfType() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider);
-
-        // Act
-        app.AddParameter<TestParameter>();
-
-        // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Age").Subject;
-        var parameter = child.Should().BeOfType<TestParameter>().Subject;
-        parameter.Aliases.Should().BeEmpty();
-        parameter.Order.Should().Be(0);
-    }
-
-    [Fact]
-    public void AddFlag_AddsFlagWithAliases() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider);
-        var flagName = "Verbose";
-        var aliases = new[] { "v" };
-
-        // Act
-        app.AddFlag(flagName, aliases);
-
-        // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == flagName).Subject;
-        var flag = child.Should().BeOfType<Flag>().Subject;
-        flag.Aliases.Should().BeEquivalentTo(aliases);
-    }
-
-    [Fact]
-    public void AddFlag_Generic_AddsFlagOfType() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new Shell([], null, serviceProvider);
-
-        // Act
-        app.AddFlag<TestFlag>();
-
-        // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
-        var flag = child.Should().BeOfType<TestFlag>().Subject;
-        flag.Aliases.Should().BeEquivalentTo("f");
+        actualResult.Should().Be(13);
     }
 
     [Fact]
@@ -706,8 +442,8 @@ public class ShellApplicationTests {
         var output = new TestOutput();
         var input = new TestInput(output, "exit");
         var app = Shell.Create(["Option", "o", "20"], b => {
-            b.ReplaceInput(input);
-            b.ReplaceOutput(output);
+            b.SetInputHandler(input);
+            b.SetOutputHandler(output);
         });
         app.AddOption<TestOption>();
         app.AddFlag<TestFlag>();
@@ -717,29 +453,13 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
+        actualResult.Should().Be(0);
     }
 
-    private class TestOption(IHasChildren app) : Option<TestOption>(app, "Option", "o");
+    // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
+    private class TestOption(IHasChildren app) : Option<TestOption>(app, "Option", ["o"]);
+    // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
-    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", "f");
-
-    private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
-    private readonly IAssemblyAccessor _assemblyAccessor = Substitute.For<IAssemblyAccessor>();
-    private IServiceProvider CreateFakeServiceProvider() {
-        var output = new TestOutput();
-        var input = new TestInput(output);
-        var serviceProvider = Substitute.For<IServiceProvider>();
-        serviceProvider.GetService(typeof(IConfiguration)).Returns(Substitute.For<IConfiguration>());
-        serviceProvider.GetService(typeof(IOutput)).Returns(output);
-        serviceProvider.GetService(typeof(IInput)).Returns(input);
-        _assemblyAccessor.GetEntryAssembly().Returns(_assemblyDescriptor);
-        _assemblyDescriptor.Name.Returns("TestApp");
-        _assemblyDescriptor.Version.Returns(new Version(1, 0));
-        serviceProvider.GetService(typeof(IAssemblyAccessor)).Returns(_assemblyAccessor);
-        serviceProvider.GetService(typeof(IDateTimeProvider)).Returns(Substitute.For<IDateTimeProvider>());
-        serviceProvider.GetService(typeof(IGuidProvider)).Returns(Substitute.For<IGuidProvider>());
-        serviceProvider.GetService(typeof(IFileSystem)).Returns(Substitute.For<IFileSystem>());
-        serviceProvider.GetService(typeof(ILoggerFactory)).Returns(Substitute.For<ILoggerFactory>());
-        return serviceProvider;
-    }
+    // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
+    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
 }

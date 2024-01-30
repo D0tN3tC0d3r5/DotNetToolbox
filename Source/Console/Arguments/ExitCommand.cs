@@ -1,13 +1,15 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
+﻿using static DotNetToolbox.ConsoleApplication.Application.ApplicationBase;
+
+namespace DotNetToolbox.ConsoleApplication.Arguments;
 
 internal class ExitCommand : Command<ExitCommand> {
     public ExitCommand(IHasChildren parent)
-        : base(parent, "Exit") {
+        : base(parent, "Exit", []) {
         Description = "Exit the application.";
     }
 
-    protected override Task<Result> Execute() {
-        Application.Exit();
+    public override Task<Result> Execute(CancellationToken ct = default) {
+        Application.ExitWith(DefaultExitCode);
         return SuccessTask();
     }
 }

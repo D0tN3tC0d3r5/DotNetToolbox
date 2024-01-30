@@ -2,6 +2,7 @@
 
 public interface IApplication : IHasChildren {
     string Version { get; }
+    string AssemblyName { get; }
     string FullName { get; }
     IServiceProvider Services { get; }
     IConfiguration Configuration { get; }
@@ -13,7 +14,7 @@ public interface IApplication : IHasChildren {
     IGuidProvider Guid { get; }
     IFileSystem FileSystem { get; }
 
-    void Exit(int exitCode = 0);
+    void ExitWith(int exitCode);
 }
 
 public interface IApplication<out TApplication, out TBuilder, TOptions>

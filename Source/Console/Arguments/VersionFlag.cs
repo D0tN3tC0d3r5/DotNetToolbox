@@ -1,18 +1,15 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
 internal sealed class VersionFlag
-    : Command<VersionFlag>, IFlag {
+    : Flag<VersionFlag> {
+    private readonly VersionCommand _command;
+
     public VersionFlag(IHasChildren parent)
-        : base(parent, "Version") {
-        Description = "Displays the version and exits.";
+        : base(parent, "Version", []) {
+        _command = new(parent);
+        Description = _command.Description;
     }
 
-    protected override Task<Result> Execute() {
-        var builder = new StringBuilder();
-        builder.AppendJoin(null, Application.Name, " v", Application.Version);
-        builder.AppendLine();
-        builder.AppendLine();
-        Application.Output.Write(builder);
-        return SuccessTask();
-    }
+    protected override Task<Result> Execute(CancellationToken ct = default)
+        => _command.Execute(ct);
 }

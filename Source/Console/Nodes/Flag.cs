@@ -1,14 +1,17 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public sealed class Flag(IHasChildren parent, string name, params string[] aliases)
-    : Flag<Flag>(parent, name, aliases);
+public sealed class Flag(IHasChildren parent, string name, string[] aliases, Func<Flag, CancellationToken, Task<Result>>? execute = null)
+    : Flag<Flag>(parent, name, aliases, execute);
 
-public abstract class Flag<TFlag>(IHasChildren parent, string name, params string[] aliases)
+public abstract class Flag<TFlag>(IHasChildren parent, string name, string[] aliases, Func<TFlag, CancellationToken, Task<Result>>? execute = null)
     : Node<TFlag>(parent, name, aliases), IFlag
     where TFlag : Flag<TFlag> {
 
-    public sealed override Task<Result> ExecuteAsync(IReadOnlyList<string> args, CancellationToken ct = default) {
+    Task<Result> IFlag.Read(CancellationToken ct) {
         Application.Data[Name] = bool.TrueString;
-        return SuccessTask();
+        return Execute(ct);
     }
+
+    protected virtual Task<Result> Execute(CancellationToken ct = default)
+        => execute?.Invoke((TFlag)this, ct) ?? SuccessTask();
 }

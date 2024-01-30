@@ -1,6 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
 internal class TestOutput() : IOutput {
+    public override string ToString() => string.Join(Environment.NewLine, Lines);
+
     public List<string> Lines { get; } = [string.Empty];
 
     public void ClearScreen() {
