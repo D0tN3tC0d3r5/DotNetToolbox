@@ -10,7 +10,7 @@ public interface IAssemblyAccessor {
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Assembly functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
-public class AssemblyAccessor : IAssemblyAccessor {
+public class AssemblyAccessor : HasDefault<AssemblyAccessor>, IAssemblyAccessor {
     public virtual IAssemblyDescriptor GetExecutingAssembly()
         => new AssemblyDescriptor(Assembly.GetExecutingAssembly());
 

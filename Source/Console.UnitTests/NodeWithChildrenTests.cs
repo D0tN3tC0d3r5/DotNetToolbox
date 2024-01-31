@@ -20,9 +20,6 @@ public class NodeWithChildrenTests {
         node.Parent.Should().Be(app);
         node.Application.Should().Be(app);
         node.Children.Should().BeEmpty();
-        node.Options.Should().BeEmpty();
-        node.Parameters.Should().BeEmpty();
-        node.Commands.Should().BeEmpty();
     }
 
     [Fact]
@@ -52,7 +49,7 @@ public class NodeWithChildrenTests {
     }
     [Theory]
     [ClassData(typeof(InvalidCommandDelegates))]
-    public void AddChildCommand_WithInvalidDelegate_AddsCommand(Delegate action) {
+    public void AddCommand_WithInvalidDelegate_AddsCommand(Delegate action) {
         // Arrange
         var app = Substitute.For<IApplication>();
         var serviceProvider = CreateFakeServiceProvider();
@@ -60,20 +57,20 @@ public class NodeWithChildrenTests {
         var node = new TestNode(app, "node", ["n"]);
 
         // Act
-        var result = () => node.AddChildCommand("command", action);
+        var result = () => node.AddCommand("command", action);
 
         // Assert
         result.Should().Throw<ArgumentException>();
     }
 
     [Fact]
-    public async Task AddChildCommand_WithException_AddsCommandThatThrows() {
+    public async Task AddCommand_WithException_AddsCommandThatThrows() {
         // Arrange
         var app = Substitute.For<IApplication>();
         var serviceProvider = CreateFakeServiceProvider();
         app.Services.Returns(serviceProvider);
         var node = new TestNode(app, "node", ["n"]);
-        var command = (Command)node.AddChildCommand("command", (Action)(() => throw new()));
+        var command = (Command)node.AddCommand("command", (Action)(() => throw new()));
 
         // Act
         var result = () => command.Execute();
@@ -101,7 +98,7 @@ public class NodeWithChildrenTests {
     }
     [Theory]
     [ClassData(typeof(CommandDelegates))]
-    public async Task AddChildCommand_AddsCommand(Delegate action) {
+    public async Task AddCommand_AddsCommand(Delegate action) {
         // Arrange
         var app = Substitute.For<IApplication>();
         var serviceProvider = CreateFakeServiceProvider();
@@ -109,13 +106,10 @@ public class NodeWithChildrenTests {
         var node = new TestNode(app, "node", ["n"]);
 
         // Act
-        var subject = node.AddChildCommand("command", action);
+        var subject = node.AddCommand("command", action);
 
         // Assert
         node.Children.Should().ContainSingle(x => x.Name == "command");
-        node.Options.Should().BeEmpty();
-        node.Parameters.Should().BeEmpty();
-        node.Commands.Should().ContainSingle();
         var command = subject.Should().BeOfType<Command>().Subject;
         command.Aliases.Should().BeEmpty();
         var result = await command.Execute();
@@ -124,7 +118,7 @@ public class NodeWithChildrenTests {
 
     [Theory]
     [ClassData(typeof(CommandDelegates))]
-    public void AddChildCommand_WithAlias_AddsCommand(Delegate action) {
+    public void AddCommand_WithAlias_AddsCommand(Delegate action) {
         // Arrange
         var app = Substitute.For<IApplication>();
         var serviceProvider = CreateFakeServiceProvider();
@@ -132,7 +126,7 @@ public class NodeWithChildrenTests {
         var node = new TestNode(app, "node", ["n"]);
 
         // Act
-        node.AddChildCommand("command", "c", action);
+        node.AddCommand("command", "c", action);
 
         // Assert
         var child = node.Children.Should().ContainSingle(x => x.Name == "command").Subject;
@@ -140,7 +134,7 @@ public class NodeWithChildrenTests {
     }
 
     [Fact]
-    public async Task AddChildCommand_OfType_AddsCommandOfType() {
+    public async Task AddCommand_OfType_AddsCommandOfType() {
         // Arrange
         var app = Substitute.For<IApplication>();
         var serviceProvider = CreateFakeServiceProvider();
@@ -148,7 +142,7 @@ public class NodeWithChildrenTests {
         var node = new TestNode(app, "node", ["n"]);
 
         // Act
-        node.AddChildCommand<TestCommand>();
+        node.AddCommand<TestCommand>();
 
         // Assert
         var child = node.Children.Should().ContainSingle(x => x.Name == "Command").Subject;
@@ -173,9 +167,6 @@ public class NodeWithChildrenTests {
 
         // Assert
         var child = node.Children.Should().ContainSingle(x => x.Name == "option").Subject;
-        node.Options.Should().ContainSingle();
-        node.Parameters.Should().BeEmpty();
-        node.Commands.Should().BeEmpty();
         var option = child.Should().BeOfType<Option>().Subject;
         option.Aliases.Should().BeEmpty();
     }
@@ -228,9 +219,6 @@ public class NodeWithChildrenTests {
 
         // Assert
         var child = node.Children.Should().ContainSingle(x => x.Name == parameterName).Subject;
-        node.Options.Should().BeEmpty();
-        node.Parameters.Should().ContainSingle();
-        node.Commands.Should().BeEmpty();
         var parameter = child.Should().BeOfType<Parameter>().Subject;
         parameter.Order.Should().Be(0);
         parameter.IsRequired.Should().BeTrue();
@@ -307,9 +295,10 @@ public class NodeWithChildrenTests {
         app.Services.Returns(serviceProvider);
         var node = new TestNode(app, "node", ["n"]);
         var flag = node.AddFlag("flag", (Action)(() => throw new()));
+        var context = new NodeContext();
 
         // Act
-        var result = () => flag.Read();
+        var result = () => flag.Read(context);
 
         // Assert
         await result.Should().ThrowAsync<Exception>();
@@ -340,18 +329,16 @@ public class NodeWithChildrenTests {
         var serviceProvider = CreateFakeServiceProvider();
         app.Services.Returns(serviceProvider);
         var node = new TestNode(app, "node", ["n"]);
+        var context = new NodeContext();
 
         // Act
         var subject = node.AddFlag("flag", action);
 
         // Assert
         node.Children.Should().ContainSingle(x => x.Name == "flag");
-        node.Options.Should().ContainSingle();
-        node.Parameters.Should().BeEmpty();
-        node.Commands.Should().BeEmpty();
         var flag = subject.Should().BeOfType<Flag>().Subject;
         flag.Aliases.Should().BeEmpty();
-        var result = await subject.Read();
+        var result = await subject.Read(context);
         result.Should().Be(Result.Success());
     }
 
@@ -432,6 +419,6 @@ public class NodeWithChildrenTests {
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestNode(IHasChildren parent, string name, params string[] aliases)
-        : NodeWithChildren<TestNode>(parent, name, aliases) {
+        : Command<TestNode>(parent, name, aliases) {
     }
 }

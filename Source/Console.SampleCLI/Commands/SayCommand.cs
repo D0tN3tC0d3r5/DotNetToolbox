@@ -2,13 +2,13 @@
 
 internal class SayCommand : Command<SayCommand> {
     public SayCommand(IHasChildren node)
-        : base(node, "Say") {
+        : base(node, "Say", []) {
         AddParameter("Text");
     }
 
-    protected override Result Execute() {
-        var text = Application.Data["Text"];
-        Application.Output.WriteLine(text);
-        return Success();
+    public override Task<Result> Execute(CancellationToken ct) {
+        var text = Application.Context["Text"];
+        Environment.Output.WriteLine(text);
+        return SuccessTask();
     }
 }

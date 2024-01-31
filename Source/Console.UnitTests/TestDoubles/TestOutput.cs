@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
 internal class TestOutput() : IOutput {
-    public override string ToString() => string.Join(Environment.NewLine, Lines);
+    public override string ToString() => string.Join(System.Environment.NewLine, Lines);
 
     public List<string> Lines { get; } = [string.Empty];
 
@@ -43,7 +43,7 @@ internal class TestOutput() : IOutput {
         => Lines[^1] += string.Format(format, args);
 
     public void Write(string? value) {
-        var lines = (value ?? string.Empty).Split(Environment.NewLine);
+        var lines = (value ?? string.Empty).Split(System.Environment.NewLine);
         for (var i = 0; i < lines.Length; i++) {
             Lines[^1] += lines[i];
             if (i < lines.Length - 1) Lines.Add(string.Empty);

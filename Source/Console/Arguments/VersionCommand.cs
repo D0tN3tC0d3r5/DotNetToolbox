@@ -7,7 +7,7 @@ internal class VersionCommand : Command<VersionCommand> {
     }
 
     public override Task<Result> Execute(CancellationToken ct = default) {
-        Application.Output.WriteLine(Application.FullName);
+        Environment.Output.WriteLine((Parent as IApplication)!.FullName);
         return SuccessTask();
     }
 }

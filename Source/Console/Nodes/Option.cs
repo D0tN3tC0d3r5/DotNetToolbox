@@ -7,8 +7,8 @@ public abstract class Option<TOption>(IHasChildren parent, string name, params s
     : Node<TOption>(parent, name, aliases), IOption
     where TOption : Option<TOption> {
 
-    Task<Result> IOption.Read(string? value, CancellationToken ct) {
-        Application.Data[Name] = value switch {
+    Task<Result> IOption.Read(string? value, NodeContext context, CancellationToken ct) {
+        context[Name] = value switch {
             null or "null" or "default" => null,
             ['"', .. var text, '"'] => text,
             _ => value,

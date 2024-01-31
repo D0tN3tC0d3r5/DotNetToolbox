@@ -2,13 +2,13 @@
 
 public sealed class ShellApplication
     : ShellApplication<ShellApplication> {
-    internal ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
-        : base(args, environment, serviceProvider) {
+    internal ShellApplication(string[] args, IServiceProvider services)
+        : base(args, services) {
     }
 }
 
-public abstract class ShellApplication<TApplication>(string[] args, string? environment, IServiceProvider serviceProvider)
-    : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>(args, environment, serviceProvider)
+public abstract class ShellApplication<TApplication>(string[] args, IServiceProvider services)
+    : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>(args, services)
     where TApplication : ShellApplication<TApplication>;
 
 public abstract class ShellApplication<TApplication, TBuilder, TOptions>
@@ -17,15 +17,15 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : ShellApplicationOptions<TOptions>, new() {
 
-    protected ShellApplication(string[] args, string? environment, IServiceProvider serviceProvider)
-        : base(args, environment, serviceProvider) {
-        AddCommand<ExitCommand>();
-        AddCommand<ClearScreenCommand>();
-        AddCommand<HelpCommand>();
+    protected ShellApplication(string[] args, IServiceProvider services)
+        : base(args, services) {
+        (this as IHasChildren).AddCommand<ExitCommand>();
+        (this as IHasChildren).AddCommand<ClearScreenCommand>();
+        (this as IHasChildren).AddCommand<HelpCommand>();
     }
 
     internal sealed override async Task Run(CancellationToken ct) {
-        Output.WriteLine(FullName);
+        Environment.Output.WriteLine(FullName);
         var result = await Execute(ct);
         ProcessResult(result);
         if (!result.IsSuccess) {
@@ -40,8 +40,8 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     protected override Task<Result> Execute(CancellationToken ct) => SuccessTask();
 
     private async Task ProcessCommandLine(CancellationToken ct) {
-        Output.Write(Settings.Prompt);
-        var userInputText = Input.ReadLine();
+        Environment.Output.Write(Settings.Prompt);
+        var userInputText = Environment.Input.ReadLine();
         var userInputs = UserInputParser.Parse(userInputText);
         var result = await ProcessUserInput(userInputs, ct);
         ProcessResult(result);

@@ -1,10 +1,12 @@
-﻿
+﻿using Microsoft.Extensions.DependencyInjection;
+
 namespace DotNetToolbox.ConsoleApplication;
 
 public class ApplicationBaseTests {
     [Fact]
     public void Create_WhenCreationFails_Throws() {
         // Arrange & Act
+        var serviceProvider = CreateFakeServiceProvider();
         var app = TestApplication.Create(b => b.SetLogging(l => l.SetMinimumLevel(LogLevel.Information)));
 
         // Assert
@@ -28,13 +30,11 @@ public class ApplicationBaseTests {
     public void Create_CreatesTestApplication_WithCustomAttributes() {
         // Arrange & Act
         var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
-        var assemblyAccessor = Substitute.For<IAssemblyAccessor>();
-        assemblyAccessor.GetEntryAssembly().Returns(assemblyDescriptor);
         assemblyDescriptor.Name.Returns("TestApp");
         assemblyDescriptor.Version.Returns(new Version(1, 0));
         assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("My App"));
         assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("Some description."));
-        var app = TestApplication.Create(b => b.SetAssembly(assemblyAccessor));
+        var app = TestApplication.Create(b => b.SetAssembly(assemblyDescriptor));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -48,11 +48,9 @@ public class ApplicationBaseTests {
     public void Create_CreatesTestApplication_WithAssemblyInfo() {
         // Arrange & Act
         var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
-        var assemblyAccessor = Substitute.For<IAssemblyAccessor>();
-        assemblyAccessor.GetEntryAssembly().Returns(assemblyDescriptor);
         assemblyDescriptor.Name.Returns("TestApp");
         assemblyDescriptor.Version.Returns(new Version(1, 0));
-        var app = TestApplication.Create(b => b.SetAssembly(assemblyAccessor));
+        var app = TestApplication.Create(b => b.SetAssembly(assemblyDescriptor));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -87,7 +85,6 @@ public class ApplicationBaseTests {
 
         // Assert
         app.Should().BeOfType<TestApplication>();
-        app.Arguments.Should().BeEmpty();
         wasCalled.Should().BeTrue();
     }
 
@@ -132,15 +129,12 @@ public class ApplicationBaseTests {
         // Arrange & Act
         var options = new TestApplicationOptions {
             ClearScreenOnStart = true,
-            Environment = "Development",
         };
         var app = TestApplication.Create(b => b.AddConfiguration("TestApplication", options));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
         app.Settings.ClearScreenOnStart.Should().BeTrue();
-        app.Settings.Environment.Should().Be("Development");
-        app.Environment.Should().Be("Development");
     }
 
     [Fact]
@@ -157,7 +151,7 @@ public class ApplicationBaseTests {
     public void ToString_ReturnsExpectedFormat() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider) {
+        var app = new TestApplication([], serviceProvider) {
             Description = "This is a test Application.",
         };
 
@@ -168,22 +162,6 @@ public class ApplicationBaseTests {
 
         // Assert
         actualToString.Should().Be(expectedToString);
-    }
-
-    [Fact]
-    public void AppendVersion_AppendsVersionInformation() {
-        // Arrange
-        var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
-        var builder = new StringBuilder();
-        var expectedVersionInfo = $"{app.Name} v{app.Version}{Environment.NewLine}";
-
-        // Act
-        app.AppendVersion(builder);
-        var actualVersionInfo = builder.ToString();
-
-        // Assert
-        actualVersionInfo.Should().Be(expectedVersionInfo);
     }
 
     private class InvalidCommandDelegates : TheoryData<Delegate> {
@@ -198,7 +176,7 @@ public class ApplicationBaseTests {
     public void AddCommand_WithInvalidDelegate_AddsCommand(Delegate action) {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         var result = () => app.AddCommand("command", action);
@@ -211,11 +189,11 @@ public class ApplicationBaseTests {
     public void AddCommand_AndSubCommand_AddsCommand() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
         var command = (Command)app.AddCommand("command", (Action)(() => throw new()));
 
         // Act
-        var subCommand = command.AddChildCommand("sub-command", (Action)(() => throw new()));
+        var subCommand = command.AddCommand("sub-command", (Action)(() => throw new()));
 
         // Assert
         subCommand.Path.Should().Be("TestApp command sub-command");
@@ -225,7 +203,7 @@ public class ApplicationBaseTests {
     public async Task AddCommand_WithException_AddsCommandThatThrows() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
         var command = (Command)app.AddCommand("command", (Action)(() => throw new()));
 
         // Act
@@ -257,7 +235,7 @@ public class ApplicationBaseTests {
     public async Task AddCommand_AddsCommand(Delegate action) {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         var subject = app.AddCommand("command", action);
@@ -287,7 +265,7 @@ public class ApplicationBaseTests {
     public void AddCommand_WithInvalidNameOrAlias_Throws(string? name, string? alias) {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         var action = () => app.AddCommand(name!, [ alias! ], () => { });
@@ -301,7 +279,7 @@ public class ApplicationBaseTests {
     public void AddCommand_WithAlias_AddsCommand(Delegate action) {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         app.AddCommand("command", "c", action);
@@ -315,7 +293,7 @@ public class ApplicationBaseTests {
     public async Task AddCommand_OfType_AddsCommandOfType() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         app.AddCommand<TestCommand>();
@@ -334,7 +312,7 @@ public class ApplicationBaseTests {
     public void AddOption_AddsOption() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         app.AddOption("option");
@@ -349,7 +327,7 @@ public class ApplicationBaseTests {
     public void AddOption_WithAlias_AddsOption() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         app.AddOption("option", "o");
@@ -364,7 +342,7 @@ public class ApplicationBaseTests {
     public void AddOption_OfType_AddsOptionOfType() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         app.AddOption<TestOption>();
@@ -379,7 +357,7 @@ public class ApplicationBaseTests {
     public void AddParameter_AddsParameter() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
         var parameterName = "param1";
 
         // Act
@@ -397,7 +375,7 @@ public class ApplicationBaseTests {
     public void AddParameter_WithDefaultValue_AddsParameter() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
         var parameterName = "param1";
         var defaultValue = "defaultValue";
 
@@ -416,7 +394,7 @@ public class ApplicationBaseTests {
     public void AddParameter_OfType_AddsParameterOfType() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         app.AddParameter<TestParameter>();
@@ -440,7 +418,7 @@ public class ApplicationBaseTests {
     public void AddFlag_WithInvalidDelegate_AddsFlag(Delegate action) {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         var result = () => app.AddFlag("flag", action);
@@ -453,11 +431,12 @@ public class ApplicationBaseTests {
     public async Task AddFlag_WithException_AddsFlagThatThrows() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
         var flag = app.AddFlag("flag", (Action)(() => throw new()));
+        var context = new NodeContext();
 
         // Act
-        var result = () => flag.Read();
+        var result = () => flag.Read(context);
 
         // Assert
         await result.Should().ThrowAsync<Exception>();
@@ -485,7 +464,8 @@ public class ApplicationBaseTests {
     public async Task AddFlag_AddsFlag(Delegate action) {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
+        var context = new NodeContext();
 
         // Act
         var subject = app.AddFlag("flag", action);
@@ -494,7 +474,7 @@ public class ApplicationBaseTests {
         app.Children.Should().ContainSingle(x => x.Name == "flag");
         var flag = subject.Should().BeOfType<Flag>().Subject;
         flag.Aliases.Should().BeEmpty();
-        var result = await subject.Read();
+        var result = await subject.Read(context);
         result.Should().Be(Result.Success());
     }
 
@@ -503,7 +483,7 @@ public class ApplicationBaseTests {
     public void AddFlag_WithAlias_AddsFlag(Delegate action) {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         app.AddFlag("flag", "c", action);
@@ -517,7 +497,7 @@ public class ApplicationBaseTests {
     public void AddFlag_OfType_AddsFlagOfType() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
-        var app = new TestApplication([], null, serviceProvider);
+        var app = new TestApplication([], serviceProvider);
 
         // Act
         app.AddFlag<TestFlag>();
@@ -550,28 +530,28 @@ public class ApplicationBaseTests {
     private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
-    private readonly IAssemblyAccessor _assemblyAccessor = Substitute.For<IAssemblyAccessor>();
     private IServiceProvider CreateFakeServiceProvider() {
         var output = new TestOutput();
         var input = new TestInput(output);
-        var serviceProvider = Substitute.For<IServiceProvider>();
+        var environment = Substitute.For<IEnvironment>();
+        var serviceProvider = Substitute.For<IKeyedServiceProvider>();
         serviceProvider.GetService(typeof(IConfiguration)).Returns(Substitute.For<IConfiguration>());
-        serviceProvider.GetService(typeof(IOutput)).Returns(output);
-        serviceProvider.GetService(typeof(IInput)).Returns(input);
-        _assemblyAccessor.GetEntryAssembly().Returns(_assemblyDescriptor);
+        serviceProvider.GetRequiredKeyedService(typeof(IAssemblyDescriptor), Arg.Any<string>()).Returns(_assemblyDescriptor);
+        serviceProvider.GetRequiredKeyedService(typeof(IDateTimeProvider), Arg.Any<string>()).Returns(Substitute.For<IDateTimeProvider>());
+        serviceProvider.GetRequiredKeyedService(typeof(IGuidProvider), Arg.Any<string>()).Returns(Substitute.For<IGuidProvider>());
+        serviceProvider.GetRequiredKeyedService(typeof(IFileSystem), Arg.Any<string>()).Returns(Substitute.For<IFileSystem>());
+        serviceProvider.GetRequiredKeyedService(typeof(IOutput), Arg.Any<string>()).Returns(output);
+        serviceProvider.GetRequiredKeyedService(typeof(IInput), Arg.Any<string>()).Returns(input);
+        serviceProvider.GetService(typeof(IEnvironment)).Returns(environment);
         _assemblyDescriptor.Name.Returns("TestApp");
         _assemblyDescriptor.Version.Returns(new Version(1, 0));
-        serviceProvider.GetService(typeof(IAssemblyAccessor)).Returns(_assemblyAccessor);
-        serviceProvider.GetService(typeof(IDateTimeProvider)).Returns(Substitute.For<IDateTimeProvider>());
-        serviceProvider.GetService(typeof(IGuidProvider)).Returns(Substitute.For<IGuidProvider>());
-        serviceProvider.GetService(typeof(IFileSystem)).Returns(Substitute.For<IFileSystem>());
         serviceProvider.GetService(typeof(ILoggerFactory)).Returns(Substitute.For<ILoggerFactory>());
         return serviceProvider;
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestApplication(string[] args, string? environment, IServiceProvider serviceProvider)
-        : Application<TestApplication, TestApplicationBuilder, TestApplicationOptions>(args, environment, serviceProvider) {
+    private class TestApplication(string[] args, IServiceProvider serviceProvider)
+        : Application<TestApplication, TestApplicationBuilder, TestApplicationOptions>(args, serviceProvider) {
         internal override Task Run(CancellationToken ct)
             => Execute(ct);
 

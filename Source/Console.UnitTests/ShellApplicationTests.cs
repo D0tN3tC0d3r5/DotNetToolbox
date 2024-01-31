@@ -12,21 +12,13 @@ public class ShellApplicationTests {
         app.Should().BeOfType<Shell>();
         app.Name.Should().Be("testhost");
         app.Version.Should().Be("15.0.0.0");
-        app.Environment.Should().Be("");
-        app.Arguments.Should().BeEmpty();
+        app.Environment.Name.Should().Be("");
         app.AssemblyName.Should().Be("testhost");
         app.Children.Should().HaveCount(5);
-        app.Configuration.Should().NotBeNull();
         app.Settings.Should().NotBeNull();
         app.Settings.ClearScreenOnStart.Should().BeFalse();
-        app.Settings.Environment.Should().Be("");
         app.Settings.Prompt.Should().Be("> ");
-        app.Data.Should().BeEmpty();
-        app.DateTime.Should().BeOfType<DateTimeProvider>();
-        app.Guid.Should().BeOfType<GuidProvider>();
-        app.FileSystem.Should().BeOfType<FileSystem>();
-        app.Output.Should().BeOfType<Output>();
-        app.Input.Should().BeOfType<Input>();
+        app.Context.Should().BeEmpty();
         app.Logger.Should().BeOfType<Logger<Shell>>();
     }
 
@@ -120,8 +112,6 @@ public class ShellApplicationTests {
         var output = new TestOutput();
         var input = new TestInput(output, "help", "?", "exit");
         var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
-        var assemblyAccessor = Substitute.For<IAssemblyAccessor>();
-        assemblyAccessor.GetEntryAssembly().Returns(assemblyDescriptor);
         assemblyDescriptor.Name.Returns("tsa");
         assemblyDescriptor.Version.Returns(new Version(1, 0));
         assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("Test Shell Application"));
@@ -174,7 +164,7 @@ public class ShellApplicationTests {
             """;
         await using var app = Shell.Create(b => {
             b.SetOptions(o => o.ClearScreenOnStart = true);
-            b.SetAssembly(assemblyAccessor);
+            b.SetAssembly(assemblyDescriptor);
             b.SetOutputHandler(output);
             b.SetInputHandler(input);
         });
@@ -202,7 +192,8 @@ public class ShellApplicationTests {
             Exception: Some error.
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Application.Application`3.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
@@ -241,7 +232,8 @@ public class ShellApplicationTests {
             ConsoleException: Some error.
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3*
+                       at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Application.Application`3.ProcessUserInput(String[] input, CancellationToken ct)*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
@@ -286,7 +278,8 @@ public class ShellApplicationTests {
             ConsoleException: Some error.
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3*
+                       at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Application.Application`3*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
@@ -394,8 +387,8 @@ public class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestShellApp(string[] args, string? environment, IServiceProvider serviceProvider)
-        : ShellApplication<TestShellApp>(args, environment, serviceProvider) {
+    private class TestShellApp(string[] args, IServiceProvider serviceProvider)
+        : ShellApplication<TestShellApp>(args, serviceProvider) {
         protected override Task<Result> Execute(CancellationToken ct) => Result.InvalidTask("Some error.");
     }
 
@@ -416,8 +409,8 @@ public class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestFaultyShellApp(string[] args, string? environment, IServiceProvider serviceProvider)
-        : ShellApplication<TestFaultyShellApp>(args, environment, serviceProvider) {
+    private class TestFaultyShellApp(string[] args, IServiceProvider serviceProvider)
+        : ShellApplication<TestFaultyShellApp>(args, serviceProvider) {
         protected override Task<Result> Execute(CancellationToken ct) => Result.ErrorTask(new ConsoleException(13));
     }
 

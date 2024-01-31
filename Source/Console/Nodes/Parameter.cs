@@ -11,7 +11,7 @@ public abstract class Parameter<TParameter>
     protected Parameter(IHasChildren parent, string name, string? defaultValue = default)
         : base(parent, name) {
         _defaultValue = defaultValue;
-        Application.Data[Name] = _defaultValue;
+        parent.Context[Name] = _defaultValue;
         Order = parent.Children.OfType<IParameter>().Count();
     }
 
@@ -19,8 +19,8 @@ public abstract class Parameter<TParameter>
     public bool IsRequired => _defaultValue is null;
     public int Order { get; }
 
-    Task<Result> IParameter.Read(string? value, CancellationToken ct) {
-        Application.Data[Name] = value switch {
+    Task<Result> IParameter.Read(string? value, NodeContext context, CancellationToken ct) {
+        context[Name] = value switch {
             null or "default" => _defaultValue,
             "null" => null,
             ['"', .. var text, '"'] => text,

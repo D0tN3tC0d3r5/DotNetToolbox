@@ -94,7 +94,7 @@ internal class OutputFormatter {
     private static void ShowStackTrace(StringBuilder builder, Exception ex, byte indent) {
         if (string.IsNullOrEmpty(ex.StackTrace)) return;
         builder.Append(' ', indent * _indentSize).AppendLine("Stack Trace:");
-        var lines = ex.StackTrace.Split(Environment.NewLine);
+        var lines = ex.StackTrace.Split(System.Environment.NewLine);
         _ = lines.Aggregate(builder, (s, l) => s.Append(' ', (indent + 1) * _indentSize).AppendLine(l));
     }
 
@@ -115,7 +115,7 @@ internal class OutputFormatter {
         }
 
         void ShowItemDescription() {
-            var lines = node.Description.Split(Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            var lines = node.Description.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             if (lines.Length == 0) {
                 builder.AppendLine();
                 return;

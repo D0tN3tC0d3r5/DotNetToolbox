@@ -120,11 +120,11 @@ public class OutputFormatterTests {
         node.Options.Returns([option]);
         var parameter = Substitute.For<IParameter>();
         parameter.Name.Returns("parameter");
-        parameter.Description.Returns($"Description for parameter.{Environment.NewLine}");
+        parameter.Description.Returns($"Description for parameter.{System.Environment.NewLine}");
         node.Parameters.Returns([parameter]);
         var command = Substitute.For<ICommand>();
         command.Name.Returns("subcommand");
-        command.Description.Returns($"Description for subcommand line1.{Environment.NewLine}Description for subcommand line2.{Environment.NewLine}");
+        command.Description.Returns($"Description for subcommand line1.{System.Environment.NewLine}Description for subcommand line2.{System.Environment.NewLine}");
         node.Commands.Returns([command]);
         node.Children.Returns([option, parameter, command]);
 

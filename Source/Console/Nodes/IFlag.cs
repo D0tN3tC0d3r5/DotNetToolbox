@@ -1,5 +1,5 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public interface IFlag : IArgument {
-    Task<Result> Read(CancellationToken ct = default);
+    Task<Result> Read(NodeContext context, CancellationToken ct = default);
 }

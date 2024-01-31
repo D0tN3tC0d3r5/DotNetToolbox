@@ -24,8 +24,13 @@ public interface IAssemblyDescriptor {
 }
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Assembly functionality.")]
-public class AssemblyDescriptor : IAssemblyDescriptor {
+public class AssemblyDescriptor
+    : HasDefault<AssemblyDescriptor>, IAssemblyDescriptor {
     private readonly Assembly _assembly;
+
+    public AssemblyDescriptor() {
+        _assembly = Assembly.GetEntryAssembly()!;
+    }
 
     internal AssemblyDescriptor(Assembly assembly) {
         _assembly = assembly;

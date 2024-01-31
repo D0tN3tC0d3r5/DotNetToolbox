@@ -11,8 +11,8 @@ internal sealed class HelpCommand
     }
 
     public override Task<Result> Execute(CancellationToken ct = default) {
-        var help = FormatHelp(_parent); ;
-        Application.Output.WriteLine(help);
+        var help = FormatHelp(_parent);
+        Environment.Output.WriteLine(help);
         return SuccessTask();
     }
 }

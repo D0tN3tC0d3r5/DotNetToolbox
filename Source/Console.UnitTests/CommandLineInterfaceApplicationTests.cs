@@ -12,20 +12,13 @@ public class CommandLineInterfaceApplicationTests {
         // Assert
         app.Should().BeOfType<CLI>();
         app.Name.Should().Be("testhost");
-        app.Environment.Should().Be("");
-        app.Arguments.Should().BeEmpty();
+        app.Environment.Name.Should().Be("");
         app.AssemblyName.Should().Be("testhost");
         app.Children.Should().HaveCount(3);
-        app.Configuration.Should().NotBeNull();
         app.Settings.Should().NotBeNull();
         app.Settings.ClearScreenOnStart.Should().BeFalse();
-        app.Settings.Environment.Should().Be("");
-        app.Data.Should().BeEmpty();
-        app.DateTime.Should().BeOfType<DateTimeProvider>();
-        app.Guid.Should().BeOfType<GuidProvider>();
-        app.FileSystem.Should().BeOfType<FileSystem>();
-        app.Output.Should().BeOfType<Output>();
-        app.Input.Should().BeOfType<Input>();
+        app.Context.Should().BeEmpty();
+        app.Logger.Should().BeOfType<Logger<CLI>>();
     }
 
     [Fact]
@@ -69,7 +62,6 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         app.Should().BeOfType<CLI>();
-        app.Arguments.Should().HaveCount(2);
     }
 
     [Fact]
@@ -80,7 +72,6 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         app.Should().BeOfType<CLI>();
-        app.Arguments.Should().BeEmpty();
         wasCalled.Should().BeTrue();
     }
 
@@ -95,7 +86,6 @@ public class CommandLineInterfaceApplicationTests {
 
         // Assert
         app.Should().BeOfType<CLI>();
-        app.Arguments.Should().HaveCount(2);
         wasCalled.Should().BeTrue();
     }
 
@@ -283,15 +273,12 @@ public class CommandLineInterfaceApplicationTests {
         // Arrange & Act
         var options = new AppOptions {
             ClearScreenOnStart = true,
-            Environment = "Development",
         };
         var app = CLI.Create(b => b.AddConfiguration("CommandLineInterfaceApplication", options));
 
         // Assert
         app.Should().BeOfType<CLI>();
         app.Settings.ClearScreenOnStart.Should().BeTrue();
-        app.Settings.Environment.Should().Be("Development");
-        app.Environment.Should().Be("Development");
     }
 
     [Fact]

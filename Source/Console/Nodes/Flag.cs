@@ -7,8 +7,8 @@ public abstract class Flag<TFlag>(IHasChildren parent, string name, string[] ali
     : Node<TFlag>(parent, name, aliases), IFlag
     where TFlag : Flag<TFlag> {
 
-    Task<Result> IFlag.Read(CancellationToken ct) {
-        Application.Data[Name] = bool.TrueString;
+    Task<Result> IFlag.Read(NodeContext context, CancellationToken ct) {
+        context[Name] = bool.TrueString;
         return Execute(ct);
     }
 

@@ -15,7 +15,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     private Type? _userSecretsReference;
     private Action<ILoggingBuilder> _setLogging = _ => { };
     private Action<TOptions>? _setOptions;
-    private IAssemblyAccessor? _assemblyAccessor;
+    private IAssemblyDescriptor? _assemblyDescriptor;
     private IDateTimeProvider? _dateTimeProvider;
     private IGuidProvider? _guidProvider;
     private IFileSystem? _fileSystem;
@@ -28,7 +28,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
 
     public ServiceCollection Services { get; } = [];
 
-    public void SetAssembly(IAssemblyAccessor assemblyAccessor) => _assemblyAccessor = IsNotNull(assemblyAccessor);
+    public void SetAssembly(IAssemblyDescriptor assemblyDescriptor) => _assemblyDescriptor = IsNotNull(assemblyDescriptor);
     public void SetInputHandler(IInput input) => _input = IsNotNull(input);
     public void SetOutputHandler(IOutput output) => _output = IsNotNull(output);
     public void SetFileSystem(IFileSystem fileSystem) => _fileSystem = IsNotNull(fileSystem);
@@ -76,16 +76,17 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     public TApplication Build() {
         var configuration = new ConfigurationManager();
         SetConfiguration(configuration);
-        Services.AddSystemUtilities(_assemblyAccessor,
-                                    _dateTimeProvider,
-                                    _guidProvider,
-                                    _fileSystem,
-                                    _input,
-                                    _output);
+        Services.AddEnvironment(_environment,
+                                _assemblyDescriptor,
+                                _dateTimeProvider,
+                                _guidProvider,
+                                _fileSystem,
+                                _input,
+                                _output);
         AddLogging(configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
-        var app = CreateInstance.Of<TApplication>(_args, _environment, serviceProvider);
+        var app = CreateInstance.Of<TApplication>(_args, serviceProvider);
         _setOptions?.Invoke(app.Settings);
         return app;
     }

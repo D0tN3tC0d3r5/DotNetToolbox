@@ -5,15 +5,6 @@ public interface IApplication : IHasChildren {
     string AssemblyName { get; }
     string FullName { get; }
     IServiceProvider Services { get; }
-    IConfiguration Configuration { get; }
-    IDictionary<string, string?> Data { get; }
-
-    IOutput Output { get; }
-    IInput Input { get; }
-    IDateTimeProvider DateTime { get; }
-    IGuidProvider Guid { get; }
-    IFileSystem FileSystem { get; }
-
     void ExitWith(int exitCode);
 }
 

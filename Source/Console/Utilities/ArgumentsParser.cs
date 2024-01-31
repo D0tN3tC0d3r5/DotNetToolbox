@@ -8,44 +8,44 @@ public static class ArgumentsParser {
         return EnsureAllRequiredParametersAreSet(parent, result);
     }
 
-    private static async Task<(Result result, int index)> TrySetupChild(IHasChildren parent, IReadOnlyList<string> arguments, int index, CancellationToken ct) {
-        var child = FindChild(parent, arguments[index]);
+    private static async Task<(Result result, int index)> TrySetupChild(IHasChildren node, IReadOnlyList<string> arguments, int index, CancellationToken ct) {
+        var child = FindChild(node, arguments[index]);
         return child switch {
-            IFlag f => (await f.Read(ct), index),
+            IFlag f => (await f.Read(node.Context, ct), index),
             IOption when index >= arguments.Count - 1 => (Invalid($"Missing value for option '{arguments[index]}'."), index + 1),
-            IOption o => (await o.Read(arguments[++index], ct), index),
+            IOption o => (await o.Read(arguments[++index], node.Context, ct), index),
             ICommand c => (await c.Set(arguments.Skip(++index).ToArray(), ct), index),
-            _ => (await ReadParameters(parent, arguments.Skip(index).ToArray(), ct), arguments.Count - 1),
+            _ => (await ReadParameters(node, arguments.Skip(index).ToArray(), ct), arguments.Count - 1),
         };
     }
 
-    private static INode? FindChild(IHasChildren parent, string token)
+    private static INode? FindChild(IHasChildren node, string token)
         => token.StartsWith('"')
                ? null
                : token.StartsWith('-')
                    ? token.StartsWith("--")
-                         ? parent.Children.FirstOrDefault(c => c.Name.Equals(token.TrimStart('-'), StringComparison.CurrentCultureIgnoreCase))
-                         : parent.Children.FirstOrDefault(c => c.Aliases.Contains(token.TrimStart('-')))
-                   : parent.Children.FirstOrDefault(c => c.Name.Contains(token, StringComparison.CurrentCultureIgnoreCase)
+                         ? node.Children.FirstOrDefault(c => c.Name.Equals(token.TrimStart('-'), StringComparison.CurrentCultureIgnoreCase))
+                         : node.Children.FirstOrDefault(c => c.Aliases.Contains(token.TrimStart('-')))
+                   : node.Children.FirstOrDefault(c => c.Name.Contains(token, StringComparison.CurrentCultureIgnoreCase)
                                                || c.Aliases.Contains(token));
 
-    private static async Task<Result> ReadParameters(IHasChildren parent, IReadOnlyList<string> arguments, CancellationToken ct) {
-        if (parent.Parameters.Length == 0) return Invalid($"Unknown argument '{arguments[0]}'. For a list of available arguments use '--help'.");
+    private static async Task<Result> ReadParameters(IHasChildren node, IReadOnlyList<string> arguments, CancellationToken ct) {
+        if (node.Parameters.Length == 0) return Invalid($"Unknown argument '{arguments[0]}'. For a list of available arguments use '--help'.");
         var index = 0;
         var result = Success();
-        foreach (var parameter in parent.Parameters) {
+        foreach (var parameter in node.Parameters) {
             if (index >= arguments.Count) break;
             result += arguments[index].StartsWith('-')
                 ? Invalid($"Unknown argument '{arguments[index]}'. For a list of available arguments use '--help'.")
-                : await parameter.Read(arguments[index], ct);
+                : await parameter.Read(arguments[index], node.Context, ct);
             index++;
         }
 
         return result;
     }
 
-    private static Result EnsureAllRequiredParametersAreSet(IHasChildren parent, Result result) {
-        var missingParameters = parent.Parameters.Where(p => p is { IsRequired: true, IsSet: false }).Select(p => p.Name).ToArray();
+    private static Result EnsureAllRequiredParametersAreSet(IHasChildren node, Result result) {
+        var missingParameters = node.Parameters.Where(p => p is { IsRequired: true, IsSet: false }).Select(p => p.Name).ToArray();
         return missingParameters.Length > 0
                    ? Invalid($"Required parameter is missing: '{string.Join("', '", missingParameters)}'.")
                    : result;
