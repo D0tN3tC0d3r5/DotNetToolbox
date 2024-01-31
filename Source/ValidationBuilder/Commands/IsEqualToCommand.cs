@@ -6,7 +6,7 @@ public sealed class IsEqualToCommand
         : base(source) {
         ValidateAs = o => IsEquivalent(value, o);
         ValidationErrorMessage = MustBeEqualTo;
-        GetErrorMessageArguments = o => new object[] { GetString(value), GetString(o) };
+        GetErrorMessageArguments = o => [GetString(value), GetString(o)];
     }
 
     private static string GetString(object? o) {

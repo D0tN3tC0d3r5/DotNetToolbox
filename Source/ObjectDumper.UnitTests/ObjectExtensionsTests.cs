@@ -198,7 +198,7 @@ public class ObjectExtensionsTests {
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         // ReSharper disable once UnusedType.Local
-        public delegate void EventHandler<ConvertedArgs>(object sender, ConvertedArgs e);
+        public delegate void EventHandler<in TConvertedArgs>(object sender, TConvertedArgs e);
         // ReSharper disable once EventNeverSubscribedTo.Local
         public event EventHandler<ConvertedArgs> OnConverted = (_, _) => { };
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

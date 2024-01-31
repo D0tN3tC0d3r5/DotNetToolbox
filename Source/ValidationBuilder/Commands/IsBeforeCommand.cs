@@ -6,6 +6,6 @@ public sealed class IsBeforeCommand
         : base(source) {
         ValidateAs = dt => (DateTime)dt < @event;
         ValidationErrorMessage = MustBeBefore;
-        GetErrorMessageArguments = dt => new object[] { @event, (DateTime)dt! };
+        GetErrorMessageArguments = dt => [@event, (DateTime)dt!];
     }
 }

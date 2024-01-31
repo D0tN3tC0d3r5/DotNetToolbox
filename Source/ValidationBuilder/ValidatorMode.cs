@@ -1,7 +1,6 @@
 ﻿namespace DotNetToolbox.ValidationBuilder;
 
 [Flags]
-[SuppressMessage("Roslynator", "RCS1135:Declare enum member with zero value (when enum has FlagsAttribute)", Justification = "<Pending>")]
 public enum ValidatorMode {
     And =        0b0001,
     Or =         0b0010,
