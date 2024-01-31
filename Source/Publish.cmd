@@ -29,7 +29,6 @@ if [!target!]==[local] (
 	set task=delete
 	rmdir /Q /S %USERPROFILE%\.nuget\packages\DotNetToolbox.%project%\%version%
 	nuget delete DotNetToolbox.%project% %version% -source c:\nuget\packages -noninteractive
-	if not [!errorlevel!]==[0] goto :ERROR
 
 	@echo [96mPublish package locally...[0m
 	set task=publish

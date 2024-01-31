@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.ObjectDumper</PackageId>
     <Title>DotNetToolbox Object Dumper</Title>
-    <Version>8.0.4-rc1</Version>
+    <Version>8.0.4</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;ObjectDumper;Library;Serialization;Json;Dump</PackageTags>
@@ -22,7 +22,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.4-rc1
+      v8.0.4
 
       Stable release of DotNetToolbox.ObjectDumper, a versatile .NET 8 library that revolutionizes the way developers can view and log object states. Offering a rich set of features to transform any object into a readable and informative string format, this library is a must-have for debugging, logging, and understanding complex object hierarchies during application development.
 

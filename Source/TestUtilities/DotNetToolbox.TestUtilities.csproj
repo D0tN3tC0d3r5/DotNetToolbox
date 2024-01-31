@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.TestUtilities</RootNamespace>
     <PackageId>DotNetToolbox.TestUtilities</PackageId>
     <Title>DotNetToolbox TestUtilities Library</Title>
-    <Version>8.0.4-rc1</Version>
+    <Version>8.0.4</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;TestUtilities;Tests;UnitTests;Log;Logger;Logging;LoggerFactory;Tracking;</PackageTags>
@@ -19,7 +19,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.4-rc1:
+      v8.0.4:
 
       Stable release of the DotNetToolbox.TestUtilities library, a comprehensive C# library for .NET 8, designed to enhance logging and tracking capabilities in testing environments.
 
