@@ -1,8 +1,12 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
-public class ShellApplicationBuilder<TApplication>(string[] args)
-    : ShellApplicationBuilder<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>(args)
-    where TApplication : ShellApplication<TApplication>;
+public class ShellApplicationBuilder<TApplication>
+    : ShellApplicationBuilder<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>
+    where TApplication : ShellApplication<TApplication> {
+    internal ShellApplicationBuilder(string[] args)
+        : base(args) {
+    }
+}
 
 public abstract class ShellApplicationBuilder<TApplication, TBuilder, TOptions>(string[] args)
     : ApplicationBuilder<TApplication, TBuilder, TOptions>(args)

@@ -12,10 +12,7 @@
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;ObjectDumper;Library;Serialization;Json;Dump</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>
-      DotNetToolbox.ObjectDumper is a powerful .NET 8 library for converting objects into a human-readable string representations. It provides customizable formatting options, including indentation, maximum depth control, and the ability to specify custom formatters for specific types.
-      This library is particularly useful for logging, debugging, and serialization scenarios where a visual representation of an object is needed.
-    </Description>
+    <Description>A library with a powerful extension for converting objects into a human-readable string representations.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
@@ -24,7 +21,7 @@
     <PackageReleaseNotes>
       v8.0.4
 
-      Stable release of DotNetToolbox.ObjectDumper, a versatile .NET 8 library that revolutionizes the way developers can view and log object states. Offering a rich set of features to transform any object into a readable and informative string format, this library is a must-have for debugging, logging, and understanding complex object hierarchies during application development.
+      Stable release of DotNetToolbox.ObjectDumper, a .NET 8 library with a powerful extension for converting objects into a human-readable string representations.
 
       What's new:
       - Minor bug corrections.

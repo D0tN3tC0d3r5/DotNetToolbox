@@ -7,7 +7,8 @@ public interface INode {
     public IApplication Application { get; }
     public IEnvironment Environment { get; }
     public string Path => this switch {
-                              IHasParent node => $"{node.Parent.Path} {Name}".Trim(),
-                              _ =>  ((IApplication)this).AssemblyName,
+                              IApplication app => app.AssemblyName,
+                              IHasParent { Parent: not IRunAsShell } node => $"{node.Parent.Path} {Name}".Trim(),
+                              _ => Name,
                           };
 }

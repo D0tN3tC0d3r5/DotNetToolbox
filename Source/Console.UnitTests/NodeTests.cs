@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
-public class NodeWithChildrenTests {
+public class NodeTests {
     [Fact]
     public void Constructor_CreatesNode() {
         // Arrange & Act
@@ -155,6 +155,39 @@ public class NodeWithChildrenTests {
     }
 
     [Fact]
+    public void AddCommand_WithCommand_AddsCommand() {
+        // Arrange
+        var app = Substitute.For<IApplication>();
+        var serviceProvider = CreateFakeServiceProvider();
+        app.Services.Returns(serviceProvider);
+        var parent = new TestNode(app, "node");
+        var node = new TestCommand(parent);
+
+        // Act
+        parent.AddCommand(node);
+
+        // Assert
+        var child = parent.Children.Should().ContainSingle(x => x.Name == "Command").Subject;
+        child.Should().BeOfType<TestCommand>();
+    }
+
+    [Fact]
+    public void AddCommand_ManyTimes_AddsMultipleCommand() {
+        // Arrange
+        var app = Substitute.For<IApplication>();
+        var serviceProvider = CreateFakeServiceProvider();
+        app.Services.Returns(serviceProvider);
+        var parent = new TestNode(app, "node");
+
+        // Act
+        parent.AddCommand("Node1", () => { });
+        parent.AddCommand("Node2", () => { });
+
+        // Assert
+        parent.Commands.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void AddOption_AddsOption() {
         // Arrange
         var app = Substitute.For<IApplication>();
@@ -203,6 +236,23 @@ public class NodeWithChildrenTests {
         var child = node.Children.Should().ContainSingle(x => x.Name == "Option").Subject;
         var option = child.Should().BeOfType<TestOption>().Subject;
         option.Aliases.Should().BeEquivalentTo("o");
+    }
+
+    [Fact]
+    public void AddOption_WithOption_AddsOption() {
+        // Arrange
+        var app = Substitute.For<IApplication>();
+        var serviceProvider = CreateFakeServiceProvider();
+        app.Services.Returns(serviceProvider);
+        var parent = new TestNode(app, "node");
+        var node = new TestOption(parent);
+
+        // Act
+        parent.AddOption(node);
+
+        // Assert
+        var child = parent.Children.Should().ContainSingle(x => x.Name == "Option").Subject;
+        child.Should().BeOfType<TestOption>();
     }
 
     [Fact]
@@ -262,6 +312,23 @@ public class NodeWithChildrenTests {
         var parameter = child.Should().BeOfType<TestParameter>().Subject;
         parameter.Aliases.Should().BeEmpty();
         parameter.Order.Should().Be(0);
+    }
+
+    [Fact]
+    public void AddParameter_WithParameter_AddsParameter() {
+        // Arrange
+        var app = Substitute.For<IApplication>();
+        var serviceProvider = CreateFakeServiceProvider();
+        app.Services.Returns(serviceProvider);
+        var parent = new TestNode(app, "node");
+        var node = new TestParameter(parent);
+
+        // Act
+        parent.AddParameter(node);
+
+        // Assert
+        var child = parent.Children.Should().ContainSingle(x => x.Name == "Age").Subject;
+        child.Should().BeOfType<TestParameter>();
     }
 
     private class InvalidFlagDelegates : TheoryData<Delegate> {
@@ -376,6 +443,23 @@ public class NodeWithChildrenTests {
         flag.Aliases.Should().BeEquivalentTo("f");
     }
 
+    [Fact]
+    public void AddFlag_WithFlag_AddsFlag() {
+        // Arrange
+        var app = Substitute.For<IApplication>();
+        var serviceProvider = CreateFakeServiceProvider();
+        app.Services.Returns(serviceProvider);
+        var parent = new TestNode(app, "node");
+        var node = new TestFlag(parent);
+
+        // Act
+        parent.AddFlag(node);
+
+        // Assert
+        var child = parent.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
+        child.Should().BeOfType<TestFlag>();
+    }
+
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestCommand
         : Command<TestCommand> {
@@ -419,6 +503,5 @@ public class NodeWithChildrenTests {
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestNode(IHasChildren parent, string name, params string[] aliases)
-        : Command<TestNode>(parent, name, aliases) {
-    }
+        : Command<TestNode>(parent, name, aliases);
 }

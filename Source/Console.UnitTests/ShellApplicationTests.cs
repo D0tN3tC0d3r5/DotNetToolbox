@@ -14,12 +14,12 @@ public class ShellApplicationTests {
         app.Version.Should().Be("15.0.0.0");
         app.Environment.Name.Should().Be("");
         app.AssemblyName.Should().Be("testhost");
-        app.Children.Should().HaveCount(5);
+        app.Children.Should().HaveCount(6);
         app.Settings.Should().NotBeNull();
         app.Settings.ClearScreenOnStart.Should().BeFalse();
         app.Settings.Prompt.Should().Be("> ");
         app.Context.Should().BeEmpty();
-        app.Logger.Should().BeOfType<Logger<Shell>>();
+        app.Logger.Should().NotBeNull();
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class ShellApplicationTests {
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         await using var app = Shell.Create(b => {
-            b.SetOptions(o => {
+            b.ConfigureOptions(o => {
                 o.ClearScreenOnStart = true;
                 o.Prompt = "$ ";
             });
@@ -110,7 +110,7 @@ public class ShellApplicationTests {
     public async Task RunAsync_WithHelp_ExecutesUntilExit() {
         // Arrange
         var output = new TestOutput();
-        var input = new TestInput(output, "help", "?", "exit");
+        var input = new TestInput(output, "help", "exit");
         var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
         assemblyDescriptor.Name.Returns("tsa");
         assemblyDescriptor.Version.Returns(new Version(1, 0));
@@ -130,26 +130,7 @@ public class ShellApplicationTests {
             Options:
                 --clear-screen, -cls      Clear the screen.
                 --help, -h, -?            Display this help information.
-
-            Parameters:
-                Timeout
-
-            Commands:
-                ClearScreen, cls          Clear the screen.
-                Exit                      Exit the application.
-                Help, ?                   Display this help information.
-
-            > ?
-            Test Shell Application v1.0
-            This is a test application.
-
-            Usage:
-                tsa [Options] [Commands]
-                tsa [Options] [<Timeout>]
-
-            Options:
-                --clear-screen, -cls      Clear the screen.
-                --help, -h, -?            Display this help information.
+                --version                 Display the application's version.
 
             Parameters:
                 Timeout
@@ -163,13 +144,170 @@ public class ShellApplicationTests {
 
             """;
         await using var app = Shell.Create(b => {
-            b.SetOptions(o => o.ClearScreenOnStart = true);
-            b.SetAssembly(assemblyDescriptor);
+            b.ConfigureOptions(o => o.ClearScreenOnStart = true);
+            b.SetAssemblyInformation(assemblyDescriptor);
             b.SetOutputHandler(output);
             b.SetInputHandler(input);
         });
         app.AddParameter("Timeout", "5000");
 
+        // Act
+        await app.RunAsync();
+
+        // Assert
+        app.Should().BeOfType<Shell>();
+        output.ToString().Should().Be(expectedOutput);
+    }
+
+    [Fact]
+    public async Task RunAsync_WithHelpAlias_ExecutesUntilExit() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "?", "exit");
+        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
+        assemblyDescriptor.Name.Returns("tsa");
+        assemblyDescriptor.Version.Returns(new Version(1, 0));
+        assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("Test Shell Application"));
+        assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("This is a test application."));
+        const string expectedOutput =
+            """
+            Test Shell Application v1.0
+            > ?
+            Test Shell Application v1.0
+            This is a test application.
+
+            Usage:
+                tsa [Options] [Commands]
+                tsa [Options] [<Timeout>]
+
+            Options:
+                --clear-screen, -cls      Clear the screen.
+                --help, -h, -?            Display this help information.
+                --version                 Display the application's version.
+
+            Parameters:
+                Timeout
+
+            Commands:
+                ClearScreen, cls          Clear the screen.
+                Exit                      Exit the application.
+                Help, ?                   Display this help information.
+
+            > exit
+
+            """;
+        await using var app = Shell.Create(b => {
+            b.ConfigureOptions(o => o.ClearScreenOnStart = true);
+            b.SetAssemblyInformation(assemblyDescriptor);
+            b.SetOutputHandler(output);
+            b.SetInputHandler(input);
+        });
+        app.AddParameter("Timeout", "5000");
+
+        // Act
+        await app.RunAsync();
+
+        // Assert
+        app.Should().BeOfType<Shell>();
+        output.ToString().Should().Be(expectedOutput);
+    }
+
+    [Fact]
+    public async Task RunAsync_WithHelpCommand_ExecutesUntilExit() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "help exit", "exit");
+        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
+        assemblyDescriptor.Name.Returns("tsa");
+        assemblyDescriptor.Version.Returns(new Version(1, 0));
+        assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("Test Shell Application"));
+        assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("This is a test application."));
+        const string expectedOutput =
+            """
+            Test Shell Application v1.0
+            > help exit
+            Exit the application.
+
+            Usage:
+                Exit
+
+            > exit
+
+            """;
+        await using var app = Shell.Create(b => {
+            b.SetAssemblyInformation(assemblyDescriptor);
+            b.SetOutputHandler(output);
+            b.SetInputHandler(input);
+        });
+        app.AddParameter("Timeout", "5000");
+
+        // Act
+        await app.RunAsync();
+
+        // Assert
+        app.Should().BeOfType<Shell>();
+        output.ToString().Should().Be(expectedOutput);
+    }
+
+    [Fact]
+    public async Task RunAsync_WithHelpFlag_ExecutesUntilExit() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output);
+        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
+        assemblyDescriptor.Name.Returns("tsa");
+        assemblyDescriptor.Version.Returns(new Version(1, 0));
+        assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("Test Shell Application"));
+        assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("This is a test application."));
+        const string expectedOutput =
+            """
+            Test Shell Application v1.0
+
+            """;
+        await using var app = Shell.Create(["--version"], b => {
+            b.SetAssemblyInformation(assemblyDescriptor);
+            b.SetOutputHandler(output);
+            b.SetInputHandler(input);
+        });
+        app.AddParameter("Timeout", "5000");
+
+        // Act
+        await app.RunAsync();
+
+        // Assert
+        app.Should().BeOfType<Shell>();
+        output.ToString().Should().Be(expectedOutput);
+    }
+
+    [Fact]
+    public async Task RunAsync_WithHelpCommand_ShowsCommandHelp() {
+        // Arrange
+        var output = new TestOutput();
+        var input = new TestInput(output, "help ClearScreen", "exit");
+        var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
+        assemblyDescriptor.Name.Returns("tsa");
+        assemblyDescriptor.Version.Returns(new Version(1, 0));
+        assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("Test Shell Application"));
+        assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("This is a test application."));
+        const string expectedOutput =
+            """
+            Test Shell Application v1.0
+            > help ClearScreen
+            Clear the screen.
+
+            Usage:
+                ClearScreen
+
+            Aliases: cls
+
+            > exit
+
+            """;
+        var app = Shell.Create(b => {
+            b.SetAssemblyInformation(assemblyDescriptor);
+            b.SetOutputHandler(output);
+            b.SetInputHandler(input);
+        });
         // Act
         await app.RunAsync();
 

@@ -2,7 +2,7 @@ namespace DotNetToolbox.ConsoleApplication.Utilities;
 
 public static class NodeFactory
 {
-    internal static TChild AddExecutableNode<TChild>(IHasChildren parent, string name, string[] aliases, Delegate? action = null)
+    internal static TChild Create<TChild>(IHasChildren parent, string name, string[] aliases, Delegate action)
         where TChild : class, IHasParent {
         var actionWrapper = ConvertToActionWrapper<TChild>(action);
         var child = CreateInstance.Of<TChild>(parent, name, aliases, actionWrapper);
@@ -10,21 +10,21 @@ public static class NodeFactory
         return child;
     }
 
-    internal static TChild AddNode<TChild>(IHasChildren parent, string name, string? defaultValue)
+    internal static TChild Create<TChild>(IHasChildren parent, string name, string? defaultValue)
         where TChild : class, IHasParent {
         var child = CreateInstance.Of<TChild>(parent, name, defaultValue);
         parent.Children.Add(child);
         return child;
     }
 
-    internal static TChild AddNode<TChild>(IHasChildren parent, string name, string[] aliases)
+    internal static TChild Create<TChild>(IHasChildren parent, string name, string[] aliases)
         where TChild : class, IHasParent {
         var child = CreateInstance.Of<TChild>(parent, name, aliases);
         parent.Children.Add(child);
         return child;
     }
 
-    internal static TChild AddNode<TChild>(IHasChildren parent)
+    internal static TChild Create<TChild>(IHasChildren parent)
         where TChild : class, IHasParent {
         var child = CreateInstance.Of<TChild>(parent.Application.Services, parent);
         parent.Children.Add(child);

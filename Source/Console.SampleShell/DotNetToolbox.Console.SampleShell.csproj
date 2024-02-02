@@ -5,10 +5,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>SampleShell</RootNamespace>
-    <AssemblyName>SampleShell</AssemblyName>
-    <Description>This a sample console shell application.</Description>
+    <RootNamespace>BigMouth</RootNamespace>
+    <AssemblyName>BigMouth</AssemblyName>
+    <Description>This a application will tell you all the secrets.</Description>
     <Version>1.0.0</Version>
+    <UserSecretsId>3f974a94-d0c1-4cc5-9e2b-d4e1f9df4ed9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,10 +20,6 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Commands\" />
   </ItemGroup>
 
 </Project>

@@ -7,7 +7,7 @@ public class ApplicationBaseTests {
     public void Create_WhenCreationFails_Throws() {
         // Arrange & Act
         var serviceProvider = CreateFakeServiceProvider();
-        var app = TestApplication.Create(b => b.SetLogging(l => l.SetMinimumLevel(LogLevel.Information)));
+        var app = TestApplication.Create(b => b.ConfigureLogging(l => l.SetMinimumLevel(LogLevel.Information)));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -34,7 +34,7 @@ public class ApplicationBaseTests {
         assemblyDescriptor.Version.Returns(new Version(1, 0));
         assemblyDescriptor.GetCustomAttribute<AssemblyTitleAttribute>().Returns(new AssemblyTitleAttribute("My App"));
         assemblyDescriptor.GetCustomAttribute<AssemblyDescriptionAttribute>().Returns(new AssemblyDescriptionAttribute("Some description."));
-        var app = TestApplication.Create(b => b.SetAssembly(assemblyDescriptor));
+        var app = TestApplication.Create(b => b.SetAssemblyInformation(assemblyDescriptor));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -50,7 +50,7 @@ public class ApplicationBaseTests {
         var assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
         assemblyDescriptor.Name.Returns("TestApp");
         assemblyDescriptor.Version.Returns(new Version(1, 0));
-        var app = TestApplication.Create(b => b.SetAssembly(assemblyDescriptor));
+        var app = TestApplication.Create(b => b.SetAssemblyInformation(assemblyDescriptor));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -103,7 +103,7 @@ public class ApplicationBaseTests {
         var fileProvider = new TestFileProvider();
 
         // Act
-        var app = TestApplication.Create(b => b.AddSettings(fileProvider));
+        var app = TestApplication.Create(b => b.AddAppSettings(fileProvider));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -117,7 +117,7 @@ public class ApplicationBaseTests {
         // Act
         var app = TestApplication.Create(b => {
             b.SetEnvironment("Development");
-            b.AddSettings(fileProvider);
+            b.AddAppSettings(fileProvider);
         });
 
         // Assert
@@ -130,7 +130,7 @@ public class ApplicationBaseTests {
         var options = new TestApplicationOptions {
             ClearScreenOnStart = true,
         };
-        var app = TestApplication.Create(b => b.AddConfiguration("TestApplication", options));
+        var app = TestApplication.Create(b => b.AddValue("TestApplication", options));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -141,7 +141,7 @@ public class ApplicationBaseTests {
     public void Create_SetLogging_CreatesTestApplication() {
         // Arrange & Act
         var app = TestApplication.Create(b
-                                   => b.SetLogging(l => l.SetMinimumLevel(LogLevel.Debug)));
+                                   => b.ConfigureLogging(l => l.SetMinimumLevel(LogLevel.Debug)));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -252,7 +252,6 @@ public class ApplicationBaseTests {
     [InlineData(null, "c")]
     [InlineData("", "c")]
     [InlineData("c", "c")]
-    [InlineData("co", "c")]
     [InlineData("2cmd", "c")]
     [InlineData("-c$h", "c")]
     [InlineData("c$h", "c")]
@@ -309,6 +308,21 @@ public class ApplicationBaseTests {
     }
 
     [Fact]
+    public void AddCommand_WithCommand_AddsCommand() {
+        // Arrange
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new TestApplication([], serviceProvider);
+        var node = new TestCommand(app);
+
+        // Act
+        app.AddCommand(node);
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == "Command").Subject;
+        child.Should().BeOfType<TestCommand>();
+    }
+
+    [Fact]
     public void AddOption_AddsOption() {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
@@ -351,6 +365,21 @@ public class ApplicationBaseTests {
         var child = app.Children.Should().ContainSingle(x => x.Name == "Option").Subject;
         var option = child.Should().BeOfType<TestOption>().Subject;
         option.Aliases.Should().BeEquivalentTo("o");
+    }
+
+    [Fact]
+    public void AddOption_WithOption_AddsOption() {
+        // Arrange
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new TestApplication([], serviceProvider);
+        var node = new TestOption(app);
+
+        // Act
+        app.AddOption(node);
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == "Option").Subject;
+        child.Should().BeOfType<TestOption>();
     }
 
     [Fact]
@@ -404,6 +433,21 @@ public class ApplicationBaseTests {
         var parameter = child.Should().BeOfType<TestParameter>().Subject;
         parameter.Aliases.Should().BeEmpty();
         parameter.Order.Should().Be(0);
+    }
+
+    [Fact]
+    public void AddParameter_WithParameter_AddsParameter() {
+        // Arrange
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new TestApplication([], serviceProvider);
+        var node = new TestParameter(app);
+
+        // Act
+        app.AddParameter(node);
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == "Age").Subject;
+        child.Should().BeOfType<TestParameter>();
     }
 
     private class InvalidFlagDelegates : TheoryData<Delegate> {
@@ -506,6 +550,21 @@ public class ApplicationBaseTests {
         var child = app.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
         var flag = child.Should().BeOfType<TestFlag>().Subject;
         flag.Aliases.Should().BeEquivalentTo("f");
+    }
+
+    [Fact]
+    public void AddFlag_WithFlag_AddsFlag() {
+        // Arrange
+        var serviceProvider = CreateFakeServiceProvider();
+        var app = new TestApplication([], serviceProvider);
+        var node = new TestFlag(app);
+
+        // Act
+        app.AddFlag(node);
+
+        // Assert
+        var child = app.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
+        child.Should().BeOfType<TestFlag>();
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.

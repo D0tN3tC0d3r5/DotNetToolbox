@@ -307,6 +307,7 @@ public class ArgumentsParserTests {
         _app.Children.Returns(new List<INode> { _flag, _option, _requiredParameter, _parameter });
         _app.Options.Returns([_flag, _option]);
         _app.Parameters.Returns([_requiredParameter, _parameter]);
+        _app.Context.Returns([]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -362,7 +363,25 @@ public class ArgumentsParserTests {
     }
 
     [Fact]
-    public async Task Read_WithCommandByAlias_AndValue_ReturnsSuccess() {
+    public async Task Read_WithCommand_WithSubCommand_ReturnsSuccess() {
+        // Arrange
+        var arguments = new[] { "s", "-f" };
+        _app.Children.Returns(new List<INode> { _command });
+        _command.AddFlag("Flag", "f");
+        _command.AddCommand("TheCommand", () => { });
+        _command.AddFlag("ACommand", () => { });
+        _command.AddParameter("First", "1");
+        _command.AddParameter("Second", "2");
+
+        // Act
+        var result = await ArgumentsParser.Parse(_app, arguments, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Read_WithCommandWithOption_AndValue_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "-o", "42" };
         _app.Children.Returns(new List<INode> { _option });

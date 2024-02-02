@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
+﻿using static DotNetToolbox.ConsoleApplication.Application.ApplicationBase;
+
+namespace DotNetToolbox.ConsoleApplication.Arguments;
 
 internal sealed class VersionFlag
     : Flag<VersionFlag> {
@@ -10,6 +12,9 @@ internal sealed class VersionFlag
         Description = _command.Description;
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default)
-        => _command.Execute(ct);
+    protected override Task<Result> Execute(CancellationToken ct = default) {
+        var result = _command.Execute(ct);
+        Application.ExitWith(DefaultExitCode);
+        return result;
+    }
 }

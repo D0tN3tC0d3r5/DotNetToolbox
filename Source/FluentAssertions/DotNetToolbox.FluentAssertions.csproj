@@ -12,7 +12,7 @@
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Tests;UnitTests;Log;Logger;Logging;LoggerFactory;Tracking;FluentAssertions;</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.FluentAssertions: An extension of FluentAssertions, tailored for .NET 8, aimed at providing specialized assertion capabilities for logging components in .NET applications.</Description>
+    <Description>An extension of FluentAssertions that provides specialized assertion capabilities for logging components.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>

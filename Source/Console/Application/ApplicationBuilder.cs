@@ -28,7 +28,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
 
     public ServiceCollection Services { get; } = [];
 
-    public void SetAssembly(IAssemblyDescriptor assemblyDescriptor) => _assemblyDescriptor = IsNotNull(assemblyDescriptor);
+    public void SetAssemblyInformation(IAssemblyDescriptor assemblyDescriptor) => _assemblyDescriptor = IsNotNull(assemblyDescriptor);
     public void SetInputHandler(IInput input) => _input = IsNotNull(input);
     public void SetOutputHandler(IOutput output) => _output = IsNotNull(output);
     public void SetFileSystem(IFileSystem fileSystem) => _fileSystem = IsNotNull(fileSystem);
@@ -52,23 +52,23 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         return (TBuilder)this;
     }
 
-    public TBuilder AddSettings(IFileProvider? fileProvider = null) {
+    public TBuilder AddAppSettings(IFileProvider? fileProvider = null) {
         _useAppSettings = true;
         _fileProvider = fileProvider;
         return (TBuilder)this;
     }
 
-    public TBuilder AddConfiguration(string key, object value) {
+    public TBuilder AddValue(string key, object value) {
         _extraValues[key] = value;
         return (TBuilder)this;
     }
 
-    public TBuilder SetOptions(Action<TOptions> configure) {
+    public TBuilder ConfigureOptions(Action<TOptions> configure) {
         _setOptions = IsNotNull(configure);
         return (TBuilder)this;
     }
 
-    public TBuilder SetLogging(Action<ILoggingBuilder> configure) {
+    public TBuilder ConfigureLogging(Action<ILoggingBuilder> configure) {
         _setLogging = IsNotNull(configure);
         return (TBuilder)this;
     }
@@ -88,12 +88,14 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         var serviceProvider = Services.BuildServiceProvider();
         var app = CreateInstance.Of<TApplication>(_args, serviceProvider);
         _setOptions?.Invoke(app.Settings);
+        var items = ((IConfigurationManager)configuration).Build().AsEnumerable().ToList();
+        foreach (var item in items) app.Context.Add(item.Key, item.Value);
         return app;
     }
 
     private void SetConfiguration(IConfigurationManager configuration) {
         AddEnvironmentVariables(configuration);
-        AddSettings(configuration);
+        AddJsonFile(configuration);
         AddUserSecrets(configuration);
         AddConfiguration(configuration);
         AddOptions(configuration);
@@ -125,7 +127,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     private void AddConfiguration(IConfigurationBuilder configuration)
         => configuration.AddJsonStream(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(_extraValues)));
 
-    private void AddSettings(IConfigurationBuilder configuration) {
+    private void AddJsonFile(IConfigurationBuilder configuration) {
         if (!_useAppSettings) return;
         configuration.AddJsonFile(ConfigureSource("appsettings.json"));
         if (!string.IsNullOrWhiteSpace(_environment)) return;

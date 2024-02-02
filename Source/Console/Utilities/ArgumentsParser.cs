@@ -1,11 +1,21 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
 
 public static class ArgumentsParser {
-    public static async Task<Result> Parse(IHasChildren parent, IReadOnlyList<string> arguments, CancellationToken ct) {
+    public static async Task<Result> Parse(IHasChildren node, IReadOnlyList<string> arguments, CancellationToken ct) {
         var result = Success();
+        ResetContext(node);
         for (var index = 0; index < arguments.Count; index++)
-            (result, index) = await TrySetupChild(parent, arguments, index, ct);
-        return EnsureAllRequiredParametersAreSet(parent, result);
+            (result, index) = await TrySetupChild(node, arguments, index, ct);
+        return EnsureAllRequiredParametersAreSet(node, result);
+    }
+
+    private static void ResetContext(IHasChildren node) {
+        if (node is IApplication) return;
+        node.Context.Clear();
+        foreach (var flag in node.Options.Where(o => o is IFlag))
+            node.Context[flag.Name] = bool.FalseString;
+        foreach (var optional in node.Parameters.Where(p => !p.IsRequired))
+            node.Context[optional.Name] = optional.DefaultValue;
     }
 
     private static async Task<(Result result, int index)> TrySetupChild(IHasChildren node, IReadOnlyList<string> arguments, int index, CancellationToken ct) {

@@ -6,13 +6,12 @@ DotNetToolbox.Core is a versatile C# library for .NET 8, designed to enhance dev
 ### Table of Contents
 1. [Installation](#installation)
 2. [Dependencies](#dependencies)
-3. [Key Features](#key-features)
-4. [Result Pattern](#result-pattern)
-5. [System Utilities](#system-utilities)
-6. [Pagination Utilities](#pagination-utilities)
-7. [Singleton and Options Patterns](#singleton-and-options-patterns)
-8. [Extension Classes](#extension-classes)
-9. [Other Utilities](#other-utilities)
+3. [Result Pattern](#result-pattern)
+4. [System Utilities](#system-utilities)
+5. [Pagination Utilities](#pagination-utilities)
+6. [Singleton and Options Patterns](#singleton-and-options-patterns)
+7. [Extension Classes](#extension-classes)
+8. [Other Utilities](#other-utilities)
 
 ### Installation
 ```shell
@@ -148,7 +147,7 @@ The `Result<TValue>` class extends the functionality of the `Result` class, allo
     }
     ```
 
-- **CrudResult.cs**: Specialized for CRUD operations.
+- **CrudResult**: Specialized for CRUD operations.
 
 The `CrudResult` class is designed for outcomes of CRUD operations, providing specific status types like `NotFound`, `Conflict`, etc. Here are some examples:
 
@@ -219,7 +218,7 @@ The `CrudResult` class is designed for outcomes of CRUD operations, providing sp
     }
     ```
 
-- **HttpResult.cs**: Tailored for HTTP transactions.
+- **HttpResult**: Tailored for HTTP transactions.
 
 The `HttpResult` class is designed to represent the outcome of HTTP operations, mapping closely to HTTP response statuses. Here are some examples:
 
@@ -290,7 +289,7 @@ The `HttpResult` class is designed to represent the outcome of HTTP operations, 
     }
     ```
 
-- **SignInResult.cs**: Designed for authentication processes.
+- **SignInResult**: Designed for authentication processes.
 
 The `SignInResult` class is designed to encapsulate the outcome of authentication operations, providing specific statuses like `Locked`, `Blocked`, `Failed`, etc. Here are some examples:
 
@@ -347,7 +346,7 @@ The `SignInResult` class is designed to encapsulate the outcome of authenticatio
 ### System Utilities
 System utilities provide abstractions over system resources like Date and Time, GUIDs, File System, and Console Input/Output. These abstractions are instrumental in creating testable code by enabling dependency injection, which allows for the substitution of these system classes with mock objects during testing.
 
-- **DateTimeProvider.cs**: Facilitates working with dates and times in a testable way by abstracting system-specific implementations.
+- **DateTimeProvider**: Facilitates working with dates and times in a testable way by abstracting system-specific implementations.
 
 #### Examples:
 1. **Injecting DateTimeProvider into a service for testability:**
@@ -377,7 +376,7 @@ System utilities provide abstractions over system resources like Date and Time, 
     result.Should().BeTrue(); // FluentAssertions used here
     ```
 
-- **GuidProvider.cs**: Allows generation of GUIDs that can be controlled in a testing environment.
+- **GuidProvider**: Allows generation of GUIDs that can be controlled in a testing environment.
 
 #### Examples:
 1. **Using GuidProvider to generate GUIDs in a service:**
@@ -407,7 +406,7 @@ System utilities provide abstractions over system resources like Date and Time, 
     id.Should().Be(expectedGuid); // Asserting that the ID is indeed a GUID
     ```
 
-- **FileSystem.cs**: Provides an abstraction over file system operations, enabling better testing of file-related functionality.
+- **FileSystem**: Provides an abstraction over file system operations, enabling better testing of file-related functionality.
 
 #### Examples:
 1. **Injecting FileSystem into a component:**
@@ -436,7 +435,7 @@ System utilities provide abstractions over system resources like Date and Time, 
     exists.Should().BeTrue(); // Validate the expected behavior
     ```
 
-- **Input.cs**, **Output.cs**: Utilities for input and output operations, making console interactions testable.
+- **Input** and **Output**: Utilities for input and output operations, making console interactions testable.
 
 #### Examples:
 1. **Using Output in a service to write messages:**
@@ -571,7 +570,7 @@ Pattern utilities offer standardized ways to define and access special instances
 ### Extension Classes
 Extension classes provide additional methods to existing types, enhancing their capabilities and simplifying common operations.
 
-- **EnumerableExtensions.cs**: Extends `IEnumerable<T>` to provide additional transformation and collection generation methods.
+- **Enumerable Extensions**: Extends `IEnumerable<T>` to provide additional transformation and collection generation methods.
 
 #### Examples:
 1. **Transforming IEnumerable to Array with custom projection:**
@@ -593,7 +592,7 @@ Extension classes provide additional methods to existing types, enhancing their 
     // newDictionary would have values [10, 20]
     ```
 
-- **QueryableExtensions.cs**: Provides projection and conversion extensions for `IQueryable<T>`.
+- **Queryable Extensions**: Provides projection and conversion extensions for `IQueryable<T>`.
 
 #### Examples:
 1. **Projecting IQueryable to Array:**
@@ -612,7 +611,7 @@ Extension classes provide additional methods to existing types, enhancing their 
     // upperCaseNames contains upper case versions of the names from the query
     ```
 
-- **TaskExtensions.cs**: Adds methods to `Task` and `ValueTask` to handle fire-and-forget scenarios with optional exception handling callbacks.
+- **Task Extensions**: Adds methods to `Task` and `ValueTask` to handle fire-and-forget scenarios with optional exception handling callbacks.
 
 #### Examples:
 1. **Using FireAndForget with a Task:**
@@ -638,7 +637,7 @@ Extension classes provide additional methods to existing types, enhancing their 
 ### Other Utilities
 Other utilities provide additional functionalities and helpers to extend existing concepts, making them more convenient and robust for everyday use.
 
-- **Ensure.cs**: Offers a variety of methods to ensure arguments meet certain conditions, throwing exceptions if they do not. This utility is very useful for validating method inputs and maintaining contracts within the code.
+- **Ensure**: Offers a variety of methods to ensure arguments meet certain conditions, throwing exceptions if they do not. This utility is very useful for validating method inputs and maintaining contracts within the code.
 You can add the `Ensure` class as a static using to simplify the call. 
 
 #### Examples:
@@ -663,7 +662,7 @@ You can add the `Ensure` class as a static using to simplify the call.
     }
     ```
 
-- **CreateInstance.cs**: Provides methods to dynamically create instances of types, which can be very helpful for creating types with non-public constructors or when types need to be created based on runtime data.
+- **CreateInstance**: Provides methods to dynamically create instances of types, which can be very helpful for creating types with non-public constructors or when types need to be created based on runtime data.
 
 #### Examples:
 1. **Creating an instance of a class with private constructor:**

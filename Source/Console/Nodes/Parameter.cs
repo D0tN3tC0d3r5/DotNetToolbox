@@ -6,22 +6,22 @@ public sealed class Parameter(IHasChildren parent, string name, string? defaultV
 public abstract class Parameter<TParameter>
     : Node<TParameter>, IParameter
     where TParameter : Parameter<TParameter> {
-    private readonly string? _defaultValue;
 
     protected Parameter(IHasChildren parent, string name, string? defaultValue = default)
         : base(parent, name) {
-        _defaultValue = defaultValue;
-        parent.Context[Name] = _defaultValue;
+        DefaultValue = defaultValue;
+        parent.Context[Name] = DefaultValue;
         Order = parent.Children.OfType<IParameter>().Count();
     }
 
-    public bool IsSet { get; private set; }
-    public bool IsRequired => _defaultValue is null;
     public int Order { get; }
+    public string? DefaultValue { get; }
+    public bool IsRequired => DefaultValue is null;
+    public bool IsSet { get; private set; }
 
     Task<Result> IParameter.Read(string? value, NodeContext context, CancellationToken ct) {
         context[Name] = value switch {
-            null or "default" => _defaultValue,
+            null or "default" => DefaultValue,
             "null" => null,
             ['"', .. var text, '"'] => text,
             _ => value,

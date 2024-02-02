@@ -8,10 +8,12 @@ internal sealed class HelpCommand
         : base(parent, "Help", ["?"]) {
         _parent = parent;
         Description = "Display this help information.";
+        AddParameter("Target", string.Empty);
     }
 
     public override Task<Result> Execute(CancellationToken ct = default) {
-        var help = FormatHelp(_parent);
+        var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(Context["Target"], StringComparison.CurrentCultureIgnoreCase));
+        var help = FormatHelp(command ?? _parent);
         Environment.Output.WriteLine(help);
         return SuccessTask();
     }

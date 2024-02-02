@@ -12,7 +12,7 @@
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Common;Library;Pagination;DateTime;FileSystem;Results;Validation;Azure;GUID</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.Core is a versatile C# library for .NET 8, designed to enhance development by providing a range of utilities and patterns. It simplifies complex tasks and improves code testability.</Description>
+    <Description>A versatile C# library for .NET 8, designed to enhance development by providing a range of utilities and patterns. It simplifies complex tasks and improves code testability.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>

@@ -22,8 +22,8 @@ PM> Install-Package DotNetToolbox.FluentAssertions
 - FluentAssertions >= 6.12.0
 
 ### Features
-- **LoggerAssertions**: Custom assertions for testing logging behavior.
-- **LoggerExtensions**: Extension methods for FluentAssertions to work seamlessly with `ILogger` instances.
+- **Logger Assertions**: Custom assertions for testing logging behavior.
+- **Logger Extensions**: Extension methods for FluentAssertions to work seamlessly with `ILogger` instances.
 
 ### Usage
 The library can be used in unit tests to assert various states and behaviors of loggers in .NET applications. Here are some examples:

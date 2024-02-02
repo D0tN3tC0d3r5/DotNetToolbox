@@ -5,6 +5,8 @@ public interface IApplication : IHasChildren {
     string AssemblyName { get; }
     string FullName { get; }
     IServiceProvider Services { get; }
+    ILogger Logger { get; }
+
     void ExitWith(int exitCode);
 }
 
@@ -13,6 +15,7 @@ public interface IApplication<out TApplication, out TBuilder, TOptions>
     where TApplication : class, IApplication<TApplication, TBuilder, TOptions>
     where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TOptions>
     where TOptions : class, IApplicationOptions, new() {
+
     int Run();
     Task<int> RunAsync();
 }

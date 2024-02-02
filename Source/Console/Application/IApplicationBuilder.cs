@@ -9,10 +9,10 @@ public interface IApplicationBuilder<out TApplication, out TBuilder, TOptions>
     //TBuilder SetConfigurationSectionName(string sectionName);
 
     TBuilder AddEnvironmentVariables(string? prefix);
-    TBuilder AddSettings(IFileProvider? fileProvider = null);
+    TBuilder AddAppSettings(IFileProvider? fileProvider = null);
     TBuilder AddUserSecrets<TReference>() where TReference : class;
 
-    TBuilder SetLogging(Action<ILoggingBuilder> configure);
+    TBuilder ConfigureLogging(Action<ILoggingBuilder> configure);
 
     TApplication Build();
 }

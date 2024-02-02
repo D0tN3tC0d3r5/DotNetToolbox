@@ -41,6 +41,7 @@ internal class OutputFormatter {
     }
 
     private static void ShowDefaultUsage(StringBuilder builder, IHasChildren node) {
+        if (node.Commands.Length == 0 && node.Parameters.Length != 0) return;
         builder.Append(' ', _indentSize).Append(node.Path);
         if (node.Options.Length != 0) builder.Append(" [Options]");
         if (node.Commands.Length != 0) builder.Append(" [Commands]");

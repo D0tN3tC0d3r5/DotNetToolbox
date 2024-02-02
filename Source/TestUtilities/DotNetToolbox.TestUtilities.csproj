@@ -12,7 +12,7 @@
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;TestUtilities;Tests;UnitTests;Log;Logger;Logging;LoggerFactory;Tracking;</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.TestUtilities: A comprehensive C# library for .NET 8, designed to enhance logging and tracking capabilities in testing environments.</Description>
+    <Description>A comprehensive C# library for .NET 8, designed to enhance logging and tracking capabilities in testing environments.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>

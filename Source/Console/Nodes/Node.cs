@@ -33,7 +33,7 @@ public abstract class Node<TNode>
 
     private static bool IsValidName(string? name)
         => name is not null
-        && name.Length > 2
+        && name.Length > 1
         && char.IsLetter(name[0])
         && name[1..].All(c => char.IsLetterOrDigit(c) || "-_".Contains(c));
 

@@ -13,7 +13,7 @@
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>Console;CLI;Shell,; BNuilder;Tools;Library</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>This package provides tools for creating a CLI (Command-Line Interface) and Shell-like console application.</Description>
+    <Description>A library with powerful tools to simplify the creation of CLI (Command-Line Interface) and Shell-like console applications.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
@@ -21,6 +21,9 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
       v8.0.4:
+
+      Stable release of DotNetToolbox.Console, a .NET 8 with powerful tools to simplify the creating of CLI (Command-Line Interface) and Shell-like console applications.
+
       - Release candidate based on .Net 8.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Console</Product>
