@@ -2,7 +2,7 @@ namespace DotNetToolbox.ConsoleApplication.Utilities;
 
 public static class NodeFactory
 {
-    internal static TChild Create<TChild>(IHasChildren parent, string name, string[] aliases, Delegate action)
+    internal static TChild Create<TChild>(IHasChildren parent, string name, string[] aliases, Delegate? action)
         where TChild : class, IHasParent {
         var actionWrapper = ConvertToActionWrapper<TChild>(action);
         var child = CreateInstance.Of<TChild>(parent, name, aliases, actionWrapper);

@@ -153,9 +153,7 @@ public class RunOnceApplicationTests {
 
 
             """;
-        var app = RunOnceApplication.Create(b => {
-            b.SetOutputHandler(output);
-        });
+        var app = RunOnceApplication.Create(b => b.SetOutputHandler(output));
 
         // Act
         app.Run();
@@ -187,9 +185,7 @@ public class RunOnceApplicationTests {
 
 
             """;
-        var app = RunOnceApplication.Create(b => {
-                                                b.SetOutputHandler(output);
-                                            });
+        var app = RunOnceApplication.Create(b => b.SetOutputHandler(output));
         app.AddCommand("say-it", (Command c) => c.Environment.Output.WriteLine("Hello world!"));
         app.AddCommand("magic", (Command c) => c.Environment.Output.WriteLine("Please..."));
 
@@ -222,9 +218,7 @@ public class RunOnceApplicationTests {
 
 
             """;
-        var app = RunOnceApplication.Create(b => {
-                                                b.SetOutputHandler(output);
-                                            });
+        var app = RunOnceApplication.Create(b => b.SetOutputHandler(output));
         app.AddParameter("Project", "");
 
         // Act
@@ -244,9 +238,7 @@ public class RunOnceApplicationTests {
             Hello world!
 
             """;
-        var app = RunOnceApplication.Create([ "say-it" ], b => {
-            b.SetOutputHandler(output);
-        });
+        var app = RunOnceApplication.Create([ "say-it" ], b => b.SetOutputHandler(output));
         app.AddCommand("say-it", (Command c) => c.Environment.Output.WriteLine("Hello world!"));
 
         // Act
