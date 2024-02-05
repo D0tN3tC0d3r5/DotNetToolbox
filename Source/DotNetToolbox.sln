@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security.Unit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities", "TestUtilities\DotNetToolbox.TestUtilities.csproj", "{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetToolbox.ObjectDumper", "ObjectDumper\DotnetToolbox.ObjectDumper.csproj", "{7397C94F-80AD-44EC-8F9E-11C789DD5E9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper", "ObjectDumper\DotNetToolbox.ObjectDumper.csproj", "{7397C94F-80AD-44EC-8F9E-11C789DD5E9C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper.UnitTests", "ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
 EndProject
