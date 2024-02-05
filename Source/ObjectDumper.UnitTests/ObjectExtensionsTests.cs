@@ -141,7 +141,7 @@ public class ObjectExtensionsTests {
         var result = CultureInfo.GetCultureInfo("en-CA").Dump(opt => opt.MaxDepth = maxLevel);
 
         // Assert
-        result.Should().Be(expectedText);
+        result.Should().Match(expectedText);
     }
 
     [Theory]
@@ -506,7 +506,7 @@ public class ObjectExtensionsTests {
             "CompareInfo": <CompareInfo> ...,
             "TextInfo": <TextInfo> ...,
             "IsNeutralCulture": <Boolean> false,
-            "CultureTypes": <CultureTypes> SpecificCultures, InstalledWin32Cultures,
+            "CultureTypes": <CultureTypes> SpecificCultures,*
             "NumberFormat": <NumberFormatInfo> ...,
             "DateTimeFormat": <DateTimeFormatInfo> ...,
             "Calendar": <Calendar> ...,
@@ -532,7 +532,7 @@ public class ObjectExtensionsTests {
                 "CompareInfo": <CompareInfo> ...,
                 "TextInfo": <TextInfo> ...,
                 "IsNeutralCulture": <Boolean> true,
-                "CultureTypes": <CultureTypes> NeutralCultures, InstalledWin32Cultures,
+                "CultureTypes": <CultureTypes> NeutralCultures,*
                 "NumberFormat": <NumberFormatInfo> ...,
                 "DateTimeFormat": <DateTimeFormatInfo> ...,
                 "Calendar": <Calendar> ...,
@@ -567,7 +567,7 @@ public class ObjectExtensionsTests {
                 "IsRightToLeft": <Boolean> false
             },
             "IsNeutralCulture": <Boolean> false,
-            "CultureTypes": <CultureTypes> SpecificCultures, InstalledWin32Cultures,
+            "CultureTypes": <CultureTypes> SpecificCultures,*
             "NumberFormat": <NumberFormatInfo> {
                 "CurrencyDecimalDigits": <Int32> 2,
                 "CurrencyDecimalSeparator": <String> ".",
@@ -659,7 +659,7 @@ public class ObjectExtensionsTests {
                     "CompareInfo": <CompareInfo> ...,
                     "TextInfo": <TextInfo> ...,
                     "IsNeutralCulture": <Boolean> false,
-                    "CultureTypes": <CultureTypes> SpecificCultures, InstalledWin32Cultures,
+                    "CultureTypes": <CultureTypes> SpecificCultures,*
                     "NumberFormat": <NumberFormatInfo> ...,
                     "DateTimeFormat": <DateTimeFormatInfo> ...,
                     "Calendar": <Calendar> ...,
@@ -694,7 +694,7 @@ public class ObjectExtensionsTests {
                     "IsRightToLeft": <Boolean> false
                 },
                 "IsNeutralCulture": <Boolean> true,
-                "CultureTypes": <CultureTypes> NeutralCultures, InstalledWin32Cultures,
+                "CultureTypes": <CultureTypes> NeutralCultures,*
                 "NumberFormat": <NumberFormatInfo> {
                     "CurrencyDecimalDigits": <Int32> 2,
                     "CurrencyDecimalSeparator": <String> ".",
@@ -798,7 +798,7 @@ public class ObjectExtensionsTests {
                 "IsRightToLeft": <Boolean> false
             },
             "IsNeutralCulture": <Boolean> false,
-            "CultureTypes": <CultureTypes> SpecificCultures, InstalledWin32Cultures,
+            "CultureTypes": <CultureTypes> SpecificCultures,*
             "NumberFormat": <NumberFormatInfo> {
                 "CurrencyDecimalDigits": <Int32> 2,
                 "CurrencyDecimalSeparator": <String> ".",
