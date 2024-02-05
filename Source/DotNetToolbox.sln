@@ -26,9 +26,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.UnitTests", "Core.UnitTests\DotNetToolbox.Core.UnitTests.csproj", "{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure", "Azure\DotNetToolbox.Azure.csproj", "{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C0308621-0189-4E32-A6FB-B0198D0B7A38} = {C0308621-0189-4E32-A6FB-B0198D0B7A38}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure.UnitTests", "Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj", "{310680D3-C24B-4F79-A18A-944F9B6AC096}"
 EndProject
@@ -37,16 +34,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http.UnitTests", "Http.UnitTests\DotNetToolbox.Http.UnitTests.csproj", "{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder", "ValidationBuilder\DotNetToolbox.ValidationBuilder.csproj", "{527E226A-DC59-406A-B525-387921A7EEB4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C0308621-0189-4E32-A6FB-B0198D0B7A38} = {C0308621-0189-4E32-A6FB-B0198D0B7A38}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder.UnitTests", "ValidationBuilder.UnitTests\DotNetToolbox.ValidationBuilder.UnitTests.csproj", "{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security", "Security\DotNetToolbox.Security.csproj", "{1C6644F0-167D-4E79-AC42-DA5669FE110F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C0308621-0189-4E32-A6FB-B0198D0B7A38} = {C0308621-0189-4E32-A6FB-B0198D0B7A38}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security.UnitTests", "Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj", "{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}"
 EndProject
@@ -57,34 +48,18 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper.UnitTests", "ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI", "OpenAI\DotNetToolbox.OpenAI.csproj", "{7F21AEAC-3285-474E-B19C-333856ACE888}"
-	ProjectSection(ProjectDependencies) = postProject
-		{474DF468-8CB0-4DB5-A31A-28609A61FEA7} = {474DF468-8CB0-4DB5-A31A-28609A61FEA7}
-		{C0308621-0189-4E32-A6FB-B0198D0B7A38} = {C0308621-0189-4E32-A6FB-B0198D0B7A38}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.UnitTests", "OpenAI.UnitTests\DotNetToolbox.OpenAI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.ShellApp", "OpenAI.Console\DotNetToolbox.OpenAI.ShellApp.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{7F21AEAC-3285-474E-B19C-333856ACE888} = {7F21AEAC-3285-474E-B19C-333856ACE888}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C0308621-0189-4E32-A6FB-B0198D0B7A38} = {C0308621-0189-4E32-A6FB-B0198D0B7A38}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.UnitTests", "Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleShell", "Console.SampleShell\DotNetToolbox.Console.SampleShell.csproj", "{574B6C14-9D19-4283-AEB9-13754EE6437C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6} = {39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleCLI", "Console.SampleCLI\DotNetToolbox.Console.SampleCLI.csproj", "{88BA5A80-5353-4A03-BFF2-92F4A1951A70}"
-	ProjectSection(ProjectDependencies) = postProject
-		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6} = {39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Core", "1 Core", "{26704704-EAF1-48B3-825A-7471AA3B59ED}"
 EndProject

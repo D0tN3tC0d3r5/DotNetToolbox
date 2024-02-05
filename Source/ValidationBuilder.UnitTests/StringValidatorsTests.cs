@@ -9,7 +9,7 @@ public class StringValidatorsTests {
                 var result = Success();
                 if (x[0] is not "Invalid") return result;
 
-                result += new ValidationError("Password", "Some error.");
+                result += new ValidationError("Some error.", "Password");
                 result += new ValidationError("Password", "Some other error.");
                 return result;
             });
@@ -50,7 +50,7 @@ public class StringValidatorsTests {
             Add(new() { Name = "  " }, 6);
             Add(new() { Name = "12" }, 5);
             Add(new() { Name = "12345678901" }, 5);
-            Add(new() { Name = "Other", Password = "Invalid" }, 6);
+            Add(new() { Name = "Other", Password = "Invalid" }, 3);
         }
     }
 

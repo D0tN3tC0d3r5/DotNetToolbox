@@ -15,7 +15,7 @@ public class ModelsHandlerTests {
         };
         httpClientProvider.GetHttpClient(Arg.Any<Action<OpenAIHttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
-        _logger = Substitute.For<ILogger<ModelsHandler>>();
+        _logger = new TrackedNullLogger<ModelsHandler>();
         _modelsHandler = new(httpClientProvider, _logger);
     }
 

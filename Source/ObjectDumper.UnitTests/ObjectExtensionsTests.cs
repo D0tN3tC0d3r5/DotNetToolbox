@@ -1,6 +1,30 @@
 ﻿namespace DotNetToolbox;
 
 public class ObjectExtensionsTests {
+    [Fact]
+    public void JsonDumpBuilderOptions_CopyConstructor_CreateOptions() {
+        // Arrange
+        var options1 = new JsonDumpBuilderOptions();
+
+        // Act
+        var options2 = options1 with { };
+
+        //Assert
+        options2.Should().NotBeSameAs(options1);
+    }
+
+    [Fact]
+    public void DumpBuilderOptions_CopyConstructor_CreateOptions() {
+        // Arrange
+        var options1 = new DumpBuilderOptions();
+
+        // Act
+        var options2 = options1 with { };
+
+        //Assert
+        options2.Should().NotBeSameAs(options1);
+    }
+
     [Theory]
     [ClassData(typeof(TestDataForPrimitives))]
     public void Dump_SimpleTypes_ReturnsString(object? value, string expectedText) {
@@ -22,8 +46,8 @@ public class ObjectExtensionsTests {
     }
 
     private static readonly JsonSerializerOptions _indentedJson = new() {
-                                                                            WriteIndented = true,
-                                                                        };
+        WriteIndented = true,
+    };
     [Theory]
     [ClassData(typeof(TestDataForJson))]
     public void Dump_AsJson_ReturnsString(object? subject) {
@@ -159,6 +183,7 @@ public class ObjectExtensionsTests {
     [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private class CustomClass<T>(T? value) : ICustomClass<T> {
+        [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "<Pending>")]
         public const string Name = "CustomClass";
 
         // ReSharper disable once MemberCanBePrivate.Local
@@ -171,8 +196,12 @@ public class ObjectExtensionsTests {
             return result;
         }
 
-        public delegate void OnConvertedHandler(object sender, ConvertedArgs e);
-        public event OnConvertedHandler? OnConverted;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        // ReSharper disable once UnusedType.Local
+        public delegate void EventHandler<in TConvertedArgs>(object sender, TConvertedArgs e);
+        // ReSharper disable once EventNeverSubscribedTo.Local
+        public event EventHandler<ConvertedArgs> OnConverted = (_, _) => { };
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public class ConvertedArgs : EventArgs {
@@ -1007,7 +1036,7 @@ public class ObjectExtensionsTests {
                 <Constructor> .ctor(T value)
             ],
             "DeclaredEvents": <IEnumerable<EventInfo>> [
-                <Event> OnConvertedHandler OnConverted
+                <Event> ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> OnConverted
             ],
             "DeclaredFields": <IEnumerable<FieldInfo>> [
                 <Field> T Default,
@@ -1016,19 +1045,19 @@ public class ObjectExtensionsTests {
             "DeclaredMembers": <IEnumerable<MemberInfo>> [
                 <Method> T get_Value(),
                 <Method> TValue ConvertTo(Object obj),
-                <Method> Void add_OnConverted(OnConvertedHandler value),
-                <Method> Void remove_OnConverted(OnConvertedHandler value),
+                <Method> Void add_OnConverted(ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> value),
+                <Method> Void remove_OnConverted(ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> value),
                 <Constructor> .ctor(T value),
                 <Property> T Value,
-                <Event> OnConvertedHandler OnConverted,
+                <Event> ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> OnConverted,
                 <Field> T Default,
                 <Field> String Name
             ],
             "DeclaredMethods": <IEnumerable<MethodInfo>> [
                 <Method> T get_Value(),
                 <Method> TValue ConvertTo(Object obj),
-                <Method> Void add_OnConverted(OnConvertedHandler value),
-                <Method> Void remove_OnConverted(OnConvertedHandler value)
+                <Method> Void add_OnConverted(ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> value),
+                <Method> Void remove_OnConverted(ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> value)
             ],
             "DeclaredNestedTypes": <IEnumerable<TypeInfo>> [
             ],
@@ -1117,7 +1146,7 @@ public class ObjectExtensionsTests {
                 <Constructor> .ctor(T value)
             ],
             "DeclaredEvents": <System.Collections.Generic.IEnumerable<System.Reflection.EventInfo>> [
-                <Event> OnConvertedHandler OnConverted
+                <Event> DotNetToolbox.ObjectExtensionsTests+DotNetToolbox.ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> OnConverted
             ],
             "DeclaredFields": <System.Collections.Generic.IEnumerable<System.Reflection.FieldInfo>> [
                 <Field> T Default,
@@ -1126,19 +1155,19 @@ public class ObjectExtensionsTests {
             "DeclaredMembers": <System.Collections.Generic.IEnumerable<System.Reflection.MemberInfo>> [
                 <Method> T get_Value(),
                 <Method> TValue ConvertTo(System.Object obj),
-                <Method> System.Void add_OnConverted(OnConvertedHandler value),
-                <Method> System.Void remove_OnConverted(OnConvertedHandler value),
+                <Method> System.Void add_OnConverted(DotNetToolbox.ObjectExtensionsTests+DotNetToolbox.ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> value),
+                <Method> System.Void remove_OnConverted(DotNetToolbox.ObjectExtensionsTests+DotNetToolbox.ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> value),
                 <Constructor> .ctor(T value),
                 <Property> T Value,
-                <Event> OnConvertedHandler OnConverted,
+                <Event> DotNetToolbox.ObjectExtensionsTests+DotNetToolbox.ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> OnConverted,
                 <Field> T Default,
                 <Field> System.String Name
             ],
             "DeclaredMethods": <System.Collections.Generic.IEnumerable<System.Reflection.MethodInfo>> [
                 <Method> T get_Value(),
                 <Method> TValue ConvertTo(System.Object obj),
-                <Method> System.Void add_OnConverted(OnConvertedHandler value),
-                <Method> System.Void remove_OnConverted(OnConvertedHandler value)
+                <Method> System.Void add_OnConverted(DotNetToolbox.ObjectExtensionsTests+DotNetToolbox.ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> value),
+                <Method> System.Void remove_OnConverted(DotNetToolbox.ObjectExtensionsTests+DotNetToolbox.ObjectExtensionsTests+CustomClass<T>+EventHandler<T, ConvertedArgs> value)
             ],
             "DeclaredNestedTypes": <System.Collections.Generic.IEnumerable<System.Reflection.TypeInfo>> [
             ],

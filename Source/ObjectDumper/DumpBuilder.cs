@@ -193,7 +193,7 @@ internal sealed class DumpBuilder : IDisposable {
             _ => GetMembers(value.GetType()).AsEnumerable(),
         };
 
-    private static readonly BindingFlags _allPublic = BindingFlags.Public | BindingFlags.Instance;
+    private const BindingFlags _allPublic = BindingFlags.Public | BindingFlags.Instance;
     // ReSharper disable once SuggestBaseTypeForParameter
     // ReSharper disable once ReturnTypeCanBeEnumerable.Local
     private static PropertyInfo[] GetMembers(Type type)
@@ -255,7 +255,7 @@ internal sealed class DumpBuilder : IDisposable {
                 AddSpacer();
                 break;
             case MemberKind.Property:
-                _builder.Append($"\"{_member.Name}\"");
+                _builder.Append('"').Append(_member.Name).Append('"');
                 AddSymbol(':');
                 AddSpacer();
                 break;

@@ -6,6 +6,6 @@ public sealed class HasAtMostCommand<TItem>
         : base(source) {
         ValidateAs = o => ((ICollection<TItem?>)o).Count <= count;
         ValidationErrorMessage = MustHaveAMaximumCountOf;
-        GetErrorMessageArguments = c => new object[] { count, ((ICollection<TItem?>)c!).Count };
+        GetErrorMessageArguments = c => [count, ((ICollection<TItem?>)c!).Count];
     }
 }

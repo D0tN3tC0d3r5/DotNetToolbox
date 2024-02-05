@@ -3,237 +3,623 @@ namespace DotNetToolbox;
 public class EnsureTests {
     [Fact]
     public void IsOfType_WhenArgumentIsOfWrongType_ThrowsArgumentNullException() {
+        // Arrange
         const int input = 12;
+
+        // Act
         var action = () => IsOfType<string>(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value must be of type 'String'. Found: 'Int32'. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value must be of type 'String'. Found: 'Int32'. (Parameter 'input')");
     }
 
     [Fact]
     public void IsOfType_WhenArgumentIsOfRightType_ReturnsInput() {
+        // Arrange
         const string input = "value";
+
+        // Act
         var result = IsOfType<string>(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNull_WhenArgumentIsNull_ThrowsArgumentNullException() {
+        // Arrange
         const object? input = null;
+
+        // Act
         var action = () => IsNotNull(input);
-        action.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentNullException>().WithMessage("The value cannot be null. (Parameter 'input')");
     }
 
     [Fact]
     public void NotNull_WhenArgumentIsNotNull_ReturnsInput() {
+        // Arrange
         var input = new object();
+
+        // Act
         var result = IsNotNull(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void DoesNotHaveValue_WhenArgumentIsNullableValueType_ThrowsArgumentNullException() {
+        // Arrange
         int? input = null;
+
+        // Act
         var action = () => IsNotNull(input);
-        action.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentNullException>().WithMessage("The value cannot be null. (Parameter 'input')");
     }
 
     [Fact]
     public void DoesNotHaveValue_WhenArgumentIsNullableValueType_ReturnsInput() {
+        // Arrange
         int? input = 3;
+
+        // Act
         var result = IsNotNull(input);
+
+        // Assert
         result.Should().Be(input);
     }
 
     [Fact]
     public void NotNullOrEmpty_WhenStringIsNull_ThrowsArgumentException() {
+        // Arrange
         const string? input = null;
+
+        // Act
         var action = () => IsNotNullOrEmpty(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or empty. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be null or empty. (Parameter 'input')");
     }
 
     [Fact]
     public void NotNullOrEmpty_WhenStringIsEmpty_ThrowsArgumentException() {
+        // Arrange
         var input = string.Empty;
+
+        // Act
         var action = () => IsNotNullOrEmpty(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or empty. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be null or empty. (Parameter 'input')");
     }
 
     [Fact]
     public void NotNullOrEmpty_WhenStringIsNotEmpty_ReturnsInput() {
+        // Arrange
         const string input = "Hello";
+
+        // Act
         var result = IsNotNullOrEmpty(input);
+
+        // Assert
         result.Should().Be(input);
     }
 
     [Fact]
     public void NotNullOrWhiteSpace_WhenStringIsNull_ThrowsArgumentException() {
+        // Arrange
         const string? input = null;
+
+        // Act
         var action = () => IsNotNullOrWhiteSpace(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or white space. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be null or white space. (Parameter 'input')");
     }
 
     [Fact]
     public void NotNullOrWhiteSpace_WhenStringIsEmpty_ThrowsArgumentException() {
+        // Arrange
         var input = string.Empty;
+
+        // Act
         var action = () => IsNotNullOrWhiteSpace(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or white space. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be null or white space. (Parameter 'input')");
     }
 
     [Fact]
     public void NotNullOrWhiteSpace_WhenStringIsWhiteSpace_ThrowsArgumentException() {
+        // Arrange
         const string input = " ";
+
+        // Act
         var action = () => IsNotNullOrWhiteSpace(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or white space. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be null or white space. (Parameter 'input')");
     }
 
     [Fact]
     public void NotNullOrWhiteSpace_WhenStringIsNotEmpty_ReturnsInput() {
+        // Arrange
         const string input = "Hello";
+
+        // Act
         var result = IsNotNullOrWhiteSpace(input);
+
+        // Assert
         result.Should().Be(input);
     }
 
     [Fact]
     public void DoesNotHaveNull_WhenDoesNotHaveNull_ThrowsArgumentException() {
+        // Arrange
         var input = new[] { default(int?) };
-        var action = () => HasNoNull(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null value(s). (Parameter 'input')");
+
+        // Act
+        var action = () => AllAreNotNull(input);
+
+        // Assert
+        action.Should().Throw<ValidationException>().WithMessage("input: The collection contains invalid elements.");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmpty_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
+        // Arrange
         var input = new[] { string.Empty };
-        var action = () => HasNoNullOrEmpty(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or empty string(s). (Parameter 'input')");
+
+        // Act
+        var action = () => AllAreNotNullOrEmpty(input);
+
+        // Assert
+        action.Should().Throw<ValidationException>().WithMessage("input: The collection contains invalid elements.");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmpty_WhenValid_ThrowsArgumentException() {
+        // Arrange
         var input = new[] { "Hello" };
-        var result = HasNoNullOrEmpty(input);
+
+        // Act
+        var result = AllAreNotNullOrEmpty(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrDoesNotHaveNullOrWhiteSpace_WhenValid_ThrowsArgumentException() {
+        // Arrange
         var input = new[] { "Hello" };
-        var result = HasNoNullOrWhiteSpace(input);
+
+        // Act
+        var result = AllAreNotNullOrWhiteSpace(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrDoesNotHaveNull_WhenIsNotEmpty_ReturnsInput() {
+        // Arrange
         var input = new[] { 1, 2, 3 };
-        var result = HasNoNull(input);
+
+        // Act
+        var result = AllAreNotNull(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void NotNullOrEmpty_WhenIsNull_ThrowsArgumentException() {
+        // Arrange
         const ICollection<int> input = default!;
+
+        // Act
         var result = IsNotEmpty(input);
+
+        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
     public void NotNullOrEmpty_WhenIsEmpty_ThrowsArgumentException() {
+        // Arrange
         var input = Array.Empty<int>();
+
+        // Act
         var action = () => IsNotNullOrEmpty(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null or empty. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be null or empty. (Parameter 'input')");
     }
 
     [Fact]
     public void NoEmpty_WhenIsEmpty_ThrowsArgumentException() {
+        // Arrange
         var input = Array.Empty<int>();
+
+        // Act
         var action = () => IsNotEmpty(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be empty. (Parameter 'input')");
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be empty. (Parameter 'input')");
     }
 
     [Fact]
     public void NotNullOrEmpty_WhenIsNotEmpty_ReturnsInput() {
+        // Arrange
         var input = new[] { 1, 2, 3 };
+
+        // Act
         var result = IsNotEmpty(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void DoesNotHaveNulls_WhenDoesNotHaveNull_ThrowsArgumentException() {
+        // Arrange
         var input = new[] { default(int?) };
-        var action = () => HasNoNull(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null value(s). (Parameter 'input')");
+
+        // Act
+        var action = () => AllAreNotNull(input);
+
+        // Assert
+        action.Should().Throw<ValidationException>().WithMessage("input: The collection contains invalid elements.");
     }
 
     [Fact]
     public void DoesNotHaveNulls_WhenValid_ReturnsSame() {
+        // Arrange
         var input = new[] { "hello" };
-        var result = HasNoNull(input);
+
+        // Act
+        var result = AllAreNotNull(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmptyStrings_WhenDoesNotHaveEmpty_ThrowsArgumentException() {
+        // Arrange
         var input = new[] { string.Empty };
-        var action = () => HasNoNullOrEmpty(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or empty string(s). (Parameter 'input')");
+
+        // Act
+        var action = () => AllAreNotNullOrEmpty(input);
+
+        // Assert
+        action.Should().Throw<ValidationException>().WithMessage("input: The collection contains invalid elements.");
     }
 
     [Fact]
     public void DoesNotHaveNullOrEmptyStrings_WhenValid_ReturnsSame() {
+        // Arrange
         var input = new[] { "Hello" };
-        var result = HasNoNullOrEmpty(input);
+
+        // Act
+        var result = AllAreNotNullOrEmpty(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void DoesNotHaveNullOrWhiteSpaceStrings_WhenDoesNotHaveWhitespace_ThrowsArgumentException() {
+        // Arrange
         var input = new[] { " " };
-        var action = () => HasNoNullOrWhiteSpace(input);
-        action.Should().Throw<ArgumentException>().WithMessage("Value cannot contain null or white space string(s). (Parameter 'input')");
+
+        // Act
+        var action = () => AllAreNotNullOrWhiteSpace(input);
+
+        // Assert
+        action.Should().Throw<ValidationException>().WithMessage("input: The collection contains invalid elements.");
     }
 
     private class ValidatableObject(bool isValid) : IValidatable {
         public Result Validate(IDictionary<string, object?>? context = null)
-            => isValid ? Result.Success() : Result.InvalidData("Source", "Is not valid.");
+            => isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
     }
 
     [Fact]
     public void IsValid_WhenInvalidValidatable_ThrowsValidationException() {
+        // Arrange
         var input = new ValidatableObject(isValid: false);
+
+        // Act
         var result = () => IsValid(input);
+
+        // Assert
         result.Should().Throw<ValidationException>();
     }
 
     [Fact]
     public void IsValid_WhenValidValidatable_ReturnsSame() {
+        // Arrange
         var input = new ValidatableObject(isValid: true);
+
+        // Act
         var result = IsValid(input);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void IsValid_WhenValidSimpleObject_ReturnsSame() {
         var input = new object();
+
+        // Act
         var result = IsValid(input, _ => Result.Success());
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void IsValid_WhenInvalidSimpleObject_ReturnsSame() {
+        // Arrange
         var input = new object();
-        var result = () => IsValid(input, _ => Result.InvalidData("Some error."));
+
+        // Act
+        var result = () => IsValid(input, _ => Result.Invalid("Some error."));
+
+        // Assert
         result.Should().Throw<ValidationException>();
     }
 
     [Fact]
     public void IsValid_WhenValidSimpleObject_AndPredicate_ReturnsSame() {
+        // Arrange
         var input = new object();
+
+        // Act
         var result = IsValid(input, _ => true);
+
+        // Assert
         result.Should().BeSameAs(input);
     }
 
     [Fact]
     public void IsValid_WhenInvalidSimpleObject_AndPredicate_ReturnsSame() {
+        // Arrange
         var input = new object();
+
+        // Act
         var result = () => IsValid(input, _ => false);
+
+        // Assert
         result.Should().Throw<ValidationException>();
+    }
+
+    [Fact]
+    public void IsNotNullOrDefault_WhenArgumentIsNull_ReturnsDefault() {
+        // Arrange
+        const string? argument = null;
+        const string defaultValue = "default";
+
+        // Act
+        var result = IsNotNullOrDefault(argument, defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsNotNullOrDefault_WhenArgumentIsNotNull_ReturnsArgument() {
+        // Arrange
+        const string argument = "test";
+        const string defaultValue = "default";
+
+        // Act
+        var result = IsNotNullOrDefault(argument, defaultValue);
+
+        // Assert
+        result.Should().Be(argument);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenValidatableIsValid_ReturnsArgument() {
+        // Arrange
+        var argument = For<IValidatable>();
+        argument.Validate().Returns(Result.Success());
+
+        // Act
+        var result = IsValidOrDefault(argument, argument);
+
+        // Assert
+        result.Should().Be(argument);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenValidatableIsInvalid_ReturnsDefault() {
+        // Arrange
+        var argument = new ValidatableObject(false);
+        var defaultValue = new ValidatableObject(true);
+
+        // Act
+        var result = IsValidOrDefault(argument, defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenValidatableIsNull_ReturnsDefault() {
+        // Arrange
+        var argument = default(IValidatable);
+        var defaultValue = new ValidatableObject(true);
+
+        // Act
+        var result = IsValidOrDefault(argument, defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenArgumentIsValid_ReturnsArgument() {
+        // Arrange
+        const string argument = "Valid";
+
+        // Act
+        var result = IsValidOrDefault(argument, _ => Result.Success(), argument);
+
+        // Assert
+        result.Should().Be(argument);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenArgumentIsInvalid_ReturnsDefault() {
+        // Arrange
+        const string argument = "Invalid";
+        const string defaultValue = "Valid";
+
+        // Act
+        var result = IsValidOrDefault(argument, _ => Result.Invalid("Error"), defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenArgumentIsNull_ReturnsDefault() {
+        // Arrange
+        const string argument = default!;
+        const string defaultValue = "Valid";
+
+        // Act
+        var result = IsValidOrDefault(argument, _ => Result.Success(), defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenIsValid_ReturnsArgument() {
+        // Arrange
+        const string argument = "Valid";
+
+        // Act
+        var result = IsValidOrDefault(argument, _ => true, argument);
+
+        // Assert
+        result.Should().Be(argument);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenIsInvalid_ReturnsDefault() {
+        // Arrange
+        const string argument = "Invalid";
+        const string defaultValue = "Valid";
+
+        // Act
+        var result = IsValidOrDefault(argument, _ => false, defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenIsNull_ReturnsDefault() {
+        // Arrange
+        const string argument = default!;
+        const string defaultValue = "Valid";
+
+        // Act
+        var result = IsValidOrDefault(argument, _ => true, defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void AllAreValid_WhenAllAreValidatableAndValid_ReturnsArgument() {
+        // Arrange
+        var argument = new List<ValidatableObject> { default!, new(true), new(true) };
+
+        // Act
+        var result = AllAreValid(argument);
+
+        // Assert
+        result.Should().BeEquivalentTo(argument);
+    }
+
+    [Fact]
+    public void AllAreValid_WhenAllAreValidatableAndAnyIsInvalid_ThrowsValidationException() {
+        // Arrange
+        var argument = new List<ValidatableObject> { default!, new(true), new(false) };
+
+        // Act
+        Action act = () => AllAreValid(argument);
+
+        // Assert
+        act.Should().Throw<ValidationException>().WithMessage($"*{nameof(argument)}*");
+    }
+
+    [Fact]
+    public void AllAreValid_WhenAllElementsAreValid_ReturnsArgument() {
+        // Arrange
+        var argument = new List<string> { default!, "Valid", "Valid" };
+
+        // Act
+        var result = AllAreValid<List<string>, string>(argument, _ => Result.Success());
+
+        // Assert
+        result.Should().BeEquivalentTo(argument);
+    }
+
+    [Fact]
+    public void AllAreValid_WhenAnyElementIsInvalid_ThrowsValidationException() {
+        // Arrange
+        var argument = new List<string> { default!, "Valid", "Invalid" };
+
+        // Act
+        Action act = () => AllAreValid<List<string>, string>(argument, _ => Result.Invalid("Error"));
+
+        // Assert
+        act.Should().Throw<ValidationException>().WithMessage($"*{nameof(argument)}*");
+    }
+
+    [Fact]
+    public void AllAreValid_WhenArgumentIsNull_ReturnsArgument() {
+        // Act
+        var result = AllAreValid<string[], string>(default, _ => true);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void AllAreValid_WhenAllAreValid_ReturnsArgument() {
+        // Arrange
+        string[] argument = [default!, "One", "Two"];
+
+        // Act
+        var result = AllAreValid<string[], string>(argument, _ => true);
+
+        // Assert
+        result.Should().BeEquivalentTo(argument);
+    }
+
+    [Fact]
+    public void AllAreValid_WhenAnyIsInvalid_ThrowsValidationException() {
+        // Arrange
+        string[] argument = [default!, "One", "Invalid"];
+
+        // Act
+        Action act = () => AllAreValid<string[], string>(argument, _ => false);
+
+        // Assert
+        act.Should().Throw<ValidationException>().WithMessage($"*{nameof(argument)}*");
     }
 }

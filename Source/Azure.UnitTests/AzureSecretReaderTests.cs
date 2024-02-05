@@ -24,14 +24,13 @@ public class AzureSecretReaderTests {
         clientField.SetValue(reader, _secretClient);
 
         return reader;
-
     }
 
     [Fact]
     public void GetSecretOrDefault_WhenUsingLocalSecrets_ReturnsDefault() {
         // Arrange
-        var secretName = "SecretName";
-        var defaultValue = "This is a secret value";
+        const string secretName = "SecretName";
+        const string defaultValue = "This is a secret value";
         var azureSecretReader = CreateAzureSecretReader(true);
 
         // Act
@@ -44,8 +43,8 @@ public class AzureSecretReaderTests {
     [Fact]
     public void GetSecretOrDefault_WhenValueExists_ReturnsValue() {
         // Arrange
-        var secretName = "SecretName";
-        var secretValue = "This is a secret value";
+        const string secretName = "SecretName";
+        const string secretValue = "This is a secret value";
         var azureSecretReader = CreateAzureSecretReader(false);
 
         var secret = new KeyVaultSecret(secretName, secretValue);
@@ -63,8 +62,8 @@ public class AzureSecretReaderTests {
     [Fact]
     public void GetSecretOrDefault_WhenValueDoesNotExist_ReturnsDefaultValue() {
         // Arrange
-        var secretName = "SecretName";
-        var defaultValue = "This is a default value";
+        const string secretName = "SecretName";
+        const string defaultValue = "This is a default value";
         var azureSecretReader = CreateAzureSecretReader(false);
         _secretClient!.GetSecret(secretName).Throws<Exception>();
 
@@ -78,7 +77,7 @@ public class AzureSecretReaderTests {
     [Fact]
     public void GetSecretOrKey_WhenUsingLocalSecrets_ReturnsKey() {
         // Arrange
-        var secretName = "SecretName";
+        const string secretName = "SecretName";
         var azureSecretReader = CreateAzureSecretReader(true);
 
         // Act
@@ -91,8 +90,8 @@ public class AzureSecretReaderTests {
     [Fact]
     public void GetSecretOrKey_WhenValueExists_ReturnsValue() {
         // Arrange
-        var secretName = "SecretName";
-        var secretValue = "This is a secret value";
+        const string secretName = "SecretName";
+        const string secretValue = "This is a secret value";
         var azureSecretReader = CreateAzureSecretReader(false);
 
         var secret = new KeyVaultSecret(secretName, secretValue);
@@ -110,7 +109,7 @@ public class AzureSecretReaderTests {
     [Fact]
     public void GetSecretOrKey_WhenValueDoesNotExist_ReturnsKey() {
         // Arrange
-        var secretName = "SecretName";
+        const string secretName = "SecretName";
         var azureSecretReader = CreateAzureSecretReader(false);
 
         _secretClient!.GetSecret(secretName).Throws<Exception>();

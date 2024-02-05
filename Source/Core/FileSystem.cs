@@ -1,10 +1,28 @@
 ﻿namespace DotNetToolbox;
 
-[ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
-// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
-public class FileSystem {
-    public static readonly FileSystem Default = new();
+public interface IFileSystem {
+    char DirectorySeparatorChar { get; }
 
+    string CombinePath(params string[] paths);
+    void CopyFile(string sourcePath, string targetPath, bool overwrite = false);
+    void CreateFolder(string folderPath);
+    Stream CreateNewOrOverwriteFile(string filePath, bool blockExternalAccess = true);
+    void DeleteFile(string sourcePath);
+    void DeleteFolder(string folderPath, bool includeAllContent = false);
+    bool FileExists(string filePath);
+    string GetFileExtension(string filePath);
+    string GetFileName(string filePath);
+    string GetFileNameOnly(string filePath);
+    string[] GetFilesFrom(string folderPath, string searchPattern, SearchOption searchOptions);
+    string[] GetPath(string filePath);
+    void MoveFile(string sourcePath, string targetPath, bool overwrite = false);
+    Stream OpenFileAsReadOnly(string filePath, bool blockExternalAccess = true);
+    Stream OpenOrCreateFile(string filePath, bool blockExternalAccess = true);
+}
+
+[ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
+public class FileSystem : HasDefault<FileSystem>, IFileSystem {
     public virtual char DirectorySeparatorChar => Path.DirectorySeparatorChar;
     public virtual string CombinePath(params string[] paths) => Path.Combine(paths);
     public virtual string[] GetPath(string filePath)

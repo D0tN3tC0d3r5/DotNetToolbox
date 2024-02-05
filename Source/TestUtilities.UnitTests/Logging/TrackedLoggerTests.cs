@@ -118,7 +118,7 @@ public class TrackedLoggerTests {
     [Fact]
     public void BeginScope_WhenStateIsDisposable_ReturnsState() {
         // Arrange
-        var originalScope = new MockedDisposable<object>(new());
+        var originalScope = Substitute.For<IDisposable>();
         _logger.BeginScope(Arg.Any<object>()).Returns(originalScope);
 
         // Act

@@ -12,13 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Console" Version="8.0.3-rc1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <PackageReference Include="DotNetToolbox.Console" Version="8.0.4" />
   </ItemGroup>
 
 </Project>

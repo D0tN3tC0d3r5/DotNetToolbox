@@ -2,13 +2,13 @@
 
 public interface INode {
     string Name { get; }
-    string[] Ids { get; }
+    string[] Aliases { get; }
     string Description { get; }
-    void AppendHelp(StringBuilder builder);
-    public string GetPath(bool includeApplication)
-        => (this is IHasParent hasParent
-               ? $"{hasParent.Parent.GetPath(includeApplication)} {Name}"
-               : includeApplication
-                   ? Name
-                   : string.Empty).Trim();
+    public IApplication Application { get; }
+    public IEnvironment Environment { get; }
+    public string Path => this switch {
+                              IApplication app => app.AssemblyName,
+                              IHasParent { Parent: not IRunAsShell } node => $"{node.Parent.Path} {Name}".Trim(),
+                              _ => Name,
+                          };
 }

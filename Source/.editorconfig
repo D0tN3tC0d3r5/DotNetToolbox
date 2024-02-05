@@ -3771,6 +3771,7 @@ resharper_xaml_x_key_attribute_disallowed_highlighting = error
 resharper_xunit_xunit_test_with_console_output_highlighting = warning
 resharper_zero_index_from_end_highlighting = warning
 csharp_prefer_braces = when_multiline:suggestion
+dotnet_diagnostic.FAA0001.severity = silent
 
 [*.{appxmanifest,asax,ascx,aspx,axaml,axml,build,cc,ccm,cginc,compute,config,cshtml,csproj,cu,cuh,cxx,cxxm,dbml,discomap,dtd,fx,fxh,hlsl,hlsli,hlslinc,hpp,htm,html,hxx,inc,inl,ino,ipp,ixx,jsproj,lsproj,master,mpp,mq4,mq5,mqh,mxx,njsproj,nuspec,paml,proj,props,razor,resw,resx,skin,StyleCop,targets,tasks,tpp,usf,ush,vbproj,xaml,xamlx,xml,xoml,xsd}]
 indent_size = 2
@@ -3811,3 +3812,16 @@ dotnet_style_qualification_for_field = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_event = false:suggestion
+
+[*.{cs,vb}]
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+tab_width = 4
+indent_size = 4
+end_of_line = crlf
+dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
+dotnet_style_prefer_auto_properties = true:suggestion
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion

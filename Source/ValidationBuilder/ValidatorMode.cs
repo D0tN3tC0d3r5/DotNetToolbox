@@ -2,11 +2,11 @@
 
 [Flags]
 public enum ValidatorMode {
-    Not = 0b0001,
-    And = 0b0010,
-    Or = 0b0100,
-    AndNot = And | Not,
-    OrNot = Or | Not,
+    And =        0b0001,
+    Or =         0b0010,
+    Not =        0b0100,
+    AndNot =  And | Not,
+    OrNot =    Or | Not,
 }
 
 public static class ValidatorModeExtensions {

@@ -6,7 +6,7 @@ public sealed class IsValidPasswordCommand(IValidatable policy, string source) :
         var context = new Dictionary<string, object?> { ["Password"] = password };
         var policyResult = policy.Validate(context);
         if (policyResult.IsSuccess) return Result.Success();
-        var result = Result.InvalidData(Source, MustBeAValidPassword);
+        var result = Result.Invalid(Source, MustBeAValidPassword);
         return policyResult.Errors.Aggregate(result, (current, error) => current + error);
     }
 }

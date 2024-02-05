@@ -1,89 +1,81 @@
 ﻿namespace DotNetToolbox.Results;
 
-public record SignInResult : ResultBase {
+public record SignInResult : ResultBase<SignInResultType> {
+    private readonly SignInResultType _type = SignInResultType.Success;
+    private readonly string? _token;
 
-    private SignInResult(string token)
-        : this(SignInResultType.Success, token) {
+    private SignInResult(Exception exception)
+        : base(exception) {
     }
 
-    private SignInResult(IResult result)
-        : this(SignInResultType.Success, default, result.Errors, result.Exception) {
+    private SignInResult(SignInResultType type, string? token = default, IEnumerable<ValidationError>? errors = default)
+        : base(errors) {
+        _type = type;
+        _token = token;
     }
 
-    private SignInResult(SignInResultType type, string? token = default, IEnumerable<ValidationError>? errors = default, Exception? exception = default)
-        : base(errors, exception) {
-        SetType(type);
-        Token = HasException || HasErrors ? default : token;
-    }
+    public override SignInResultType Type => HasException
+        ? SignInResultType.Error
+        : HasErrors
+            ? SignInResultType.Invalid
+            : _type;
 
-    internal SignInResultType Type { get; private set; }
-    private void SetType(SignInResultType type)
-        => Type = HasException
-                      ? SignInResultType.Error
-                      : HasErrors
-                          ? SignInResultType.Invalid
-                          : type;
+    public string? Token => !HasException && !HasErrors
+                                ? _token
+                                : null;
 
-    protected override void OnErrorsChanged(IReadOnlyCollection<ValidationError> errors)
-        => SetType(Type);
-    protected override void OnExceptionChanged(Exception? exception)
-        => SetType(Type);
-
-    public string? Token { get; init; }
-
+    [MemberNotNullWhen(true, nameof(Token))]
+    public bool RequiresConfirmation => Type is SignInResultType.ConfirmationPending;
+    [MemberNotNullWhen(true, nameof(Token))]
+    public bool RequiresTwoFactor => Type is SignInResultType.TwoFactorRequired;
+    [MemberNotNullWhen(true, nameof(Token))]
+    public bool IsSuccess => Type is SignInResultType.Success;
+    public bool IsInvalid => Type is SignInResultType.Invalid;
     public bool IsLocked => Type is SignInResultType.Locked;
     public bool IsBlocked => Type is SignInResultType.Blocked;
     public bool IsFailure => Type is SignInResultType.Failed;
-    public bool RequiresConfirmation => Type is SignInResultType.ConfirmationRequired;
-    public bool RequiresTwoFactor => Type is SignInResultType.TwoFactorRequired;
-    public bool IsSuccess => Type is SignInResultType.Success;
-    public bool IsInvalid => Type is SignInResultType.Invalid;
 
     [MemberNotNull(nameof(Token))]
     public static SignInResult Success(string token) => new(SignInResultType.Success, IsNotNull(token));
     [MemberNotNull(nameof(Token))]
-    public static SignInResult ConfirmationRequired(string token) => new(SignInResultType.ConfirmationRequired, IsNotNull(token));
+    public static SignInResult ConfirmationIsPending(string token) => new(SignInResultType.ConfirmationPending, IsNotNull(token));
     [MemberNotNull(nameof(Token))]
-    public static SignInResult TwoFactorRequired(string token) => new(SignInResultType.TwoFactorRequired, IsNotNull(token));
-    public static SignInResult InvalidData(Result result) => new(SignInResultType.Invalid, default, result.Errors);
+    public static SignInResult TwoFactorIsRequired(string token) => new(SignInResultType.TwoFactorRequired, IsNotNull(token));
+    public static SignInResult InvalidRequest(Result result) => new(SignInResultType.Invalid, errors: result.Errors);
     public static SignInResult BlockedAccount() => new(SignInResultType.Blocked);
     public static SignInResult LockedAccount() => new(SignInResultType.Locked);
     public static SignInResult FailedAttempt() => new(SignInResultType.Failed);
-    public static SignInResult Error(Exception exception) => new(SignInResultType.Error, exception: exception);
+    public static SignInResult Error(string error) => Error(new Exception(error));
+    public static SignInResult Error(Exception exception) => new(exception);
 
     [MemberNotNull(nameof(Token))]
     public static Task<SignInResult> SuccessTask(string token) => Task.FromResult(Success(token));
     [MemberNotNull(nameof(Token))]
-    public static Task<SignInResult> ConfirmationRequiredTask(string token) => Task.FromResult(ConfirmationRequired(token));
+    public static Task<SignInResult> ConfirmationIsPendingTask(string token) => Task.FromResult(ConfirmationIsPending(token));
     [MemberNotNull(nameof(Token))]
-    public static Task<SignInResult> TwoFactorRequiredTask(string token) => Task.FromResult(TwoFactorRequired(token));
-    public static Task<SignInResult> InvalidTask(Result result) => Task.FromResult(InvalidData(result));
+    public static Task<SignInResult> TwoFactorIsRequiredTask(string token) => Task.FromResult(TwoFactorIsRequired(token));
+    public static Task<SignInResult> InvalidTask(Result result) => Task.FromResult(InvalidRequest(result));
     public static Task<SignInResult> BlockedAccountTask() => Task.FromResult(BlockedAccount());
     public static Task<SignInResult> LockedAccountTask() => Task.FromResult(LockedAccount());
     public static Task<SignInResult> FailedAttemptTask() => Task.FromResult(FailedAttempt());
+    public static Task<SignInResult> ErrorTask(string error) => ErrorTask(new Exception(error));
     public static Task<SignInResult> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
 
-    public static implicit operator SignInResult(List<ValidationError> errors) => new((Result)errors);
-    public static implicit operator SignInResult(ValidationError[] errors) => new((Result)errors);
-    public static implicit operator SignInResult(ValidationError error) => new((Result)error);
-    public static implicit operator SignInResult(HashSet<ValidationError> errors) => new((Result)errors);
-    public static implicit operator SignInResult(Exception exception) => new((Result)exception);
-    public static implicit operator SignInResult(Result result) => new((IResult)result);
-    public static implicit operator SignInResult(string token) => new(token);
+    public static implicit operator SignInResult(Exception exception) => new(exception);
+    public static implicit operator SignInResult(ValidationError error) => (Result)error;
+    public static implicit operator SignInResult(ValidationErrors errors) => (Result)errors;
+    public static implicit operator SignInResult(ValidationError[] errors) => (Result)errors;
+    public static implicit operator SignInResult(List<ValidationError> errors) => (Result)errors;
+    public static implicit operator SignInResult(HashSet<ValidationError> errors) => (Result)errors;
+    public static implicit operator SignInResult(Result result) => new(SignInResultType.Success, errors: result.Errors);
+    public static implicit operator ValidationErrors(SignInResult result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator ValidationError[](SignInResult result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator Exception?(SignInResult result) => result.Exception;
 
-    public static SignInResult operator +(SignInResult left, SignInResult right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(right.Type, left.Token, errors, left.Exception ?? right.Exception);
-    }
-    public static SignInResult operator +(SignInResult left, Result right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(left.Type, left.Token, errors, left.Exception ?? right.Exception);
-    }
-
-    public virtual bool Equals(SignInResult? other)
-        => base.Equals(other)
-        && Type == other.Type;
-
-    public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Type);
+    public static SignInResult operator +(SignInResult left, Result right)
+        => left.HasException
+               ? left
+               : right.HasException
+                   ? new(right.Exception)
+                   : new(left._type, left.Token, left.Errors.Union(right.Errors));
 }

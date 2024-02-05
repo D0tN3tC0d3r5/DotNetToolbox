@@ -1,83 +1,119 @@
 ﻿namespace DotNetToolbox.Results;
 
-public record Result : ResultBase {
-    protected Result(IEnumerable<ValidationError>? errors = null, Exception? exception = null)
-        : base(errors, exception) {
+public record Result : ResultBase<ResultType> {
+    protected Result(Exception exception)
+        : base(exception) {
     }
 
-    public bool IsSuccess => HasNoIssues;
-    public bool IsInvalid => HasErrors && !HasException;
+    protected Result(IEnumerable<ValidationError>? errors = null)
+        : base(errors) {
+    }
+
+    public override ResultType Type => HasException
+                                           ? ResultType.Error
+                                           : HasErrors
+                                               ? ResultType.Invalid
+                                               : ResultType.Success;
+
+    public bool IsFaulty => HasException;
+    public bool IsInvalid => !HasException && HasErrors;
+    public bool IsSuccess => !HasException && !HasErrors;
 
     public static Result Success() => new();
-    public static Result InvalidData(string message) => InvalidData(string.Empty, message);
-    public static Result InvalidData(string source, string message) => InvalidData(new ValidationError(source, message));
-    public static Result InvalidData(ResultBase result) => new(result.Errors);
+    public static Result Invalid(string message) => Invalid(message, string.Empty);
+    public static Result Invalid(string message, string source) => Invalid(new ValidationError(message, source));
+    public static Result Invalid(ValidationError error) => new([error]);
+    public static Result Invalid(Result result) => new(result.Errors);
     public static Result Error(string message) => Error(new Exception(message));
-    public static Result Error(Exception exception) => new(exception: exception);
+    public static Result Error(Exception exception) => new(exception);
 
     public static Task<Result> SuccessTask() => Task.FromResult(Success());
-    public static Task<Result> InvalidDataTask(string message) => InvalidDataTask(string.Empty, message);
-    public static Task<Result> InvalidDataTask(string source, string message) => InvalidDataTask(new ValidationError(source, message));
-    public static Task<Result> InvalidDataTask(Result result) => Task.FromResult(InvalidData(result));
+    public static Task<Result> InvalidTask(string message) => InvalidTask(message, string.Empty);
+    public static Task<Result> InvalidTask(string message, string source) => InvalidTask(new ValidationError(message, source));
+    public static Task<Result> InvalidTask(Result result) => Task.FromResult(Invalid(result));
     public static Task<Result> ErrorTask(string message) => ErrorTask(new Exception(message));
-    public static Task<Result> ErrorTask(Exception exception) => Task.FromResult(Error(exception));
+    public static Task<Result> ErrorTask(Exception exception)
+        => Task.FromResult(Error(exception));
 
-    public static implicit operator Result(ValidationError error) => new([ error ]);
-    public static implicit operator Result(List<ValidationError> errors) => new([..errors]);
-    public static implicit operator Result(HashSet<ValidationError> errors) => new([..errors]);
-    public static implicit operator Result(ValidationError[] errors) => new(errors.AsEnumerable());
-    public static implicit operator Result(Exception exception) => new(exception: exception);
+    public static implicit operator Result(Exception exception) => new(exception);
+    public static implicit operator Result(string error) => (ValidationErrors)error;
+    public static implicit operator Result(ValidationError error) => (ValidationErrors)error;
+    public static implicit operator Result(ValidationErrors errors) => new(errors.AsEnumerable());
+    public static implicit operator Result(ValidationError[] errors) => (ValidationErrors)errors;
+    public static implicit operator Result(List<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator Result(HashSet<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator ValidationErrors(Result result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator ValidationError[](Result result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator Exception?(Result result) => result.Exception;
 
-    public static Result operator +(Result left, Result right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(errors, left.Exception ?? right.Exception);
-    }
+    public static Result operator +(Result left, Result right)
+        => left.HasException
+               ? left
+               : right.HasException
+                   ? new(right.Exception)
+                   : new(left.Errors.Union(right.Errors));
 
     public virtual bool Equals(Result? other)
         => other is not null
-        && Errors.SequenceEqual(other.Errors)
-        && Equals(Exception, other.Exception);
+        && Errors.SequenceEqual(other.Errors);
 
     public override int GetHashCode()
-        => HashCode.Combine(Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine), Exception);
+        => Errors.Aggregate(Array.Empty<ValidationError>().GetHashCode(), HashCode.Combine);
 
     public static Result<TValue> Success<TValue>(TValue? value) => new(value);
-    public static Result<TValue> InvalidData<TValue>(TValue? value, string message) => InvalidData(value, string.Empty, message);
-    public static Result<TValue> InvalidData<TValue>(TValue? value, string source, string message) => InvalidData(value, new ValidationError(source, message));
-    public static Result<TValue> InvalidData<TValue>(TValue? value, Result result) => new(value, result.Errors);
-    public static Result<TValue> Error<TValue>(TValue? value, string message) => Error(value, new Exception(message));
-    public static Result<TValue> Error<TValue>(TValue? value, Exception exception) => new(value, exception: exception);
+    public static Result<TValue> Invalid<TValue>(TValue? value, string message, string? source = null) => Invalid(value, new ValidationError(message, source));
+    public static Result<TValue> Invalid<TValue>(TValue? value, Result result) => new(value, result.Errors);
+    public static Result<TValue> Error<TValue>(string message) => Error<TValue>(new Exception(message));
+    public static Result<TValue> Error<TValue>(Exception exception)
+        => new(exception);
 
     public static Task<Result<TValue>> SuccessTask<TValue>(TValue? value) => Task.FromResult(Success(value));
-    public static Task<Result<TValue>> InvalidDataTask<TValue>(TValue? value, string message) => InvalidDataTask(value, string.Empty, message);
-    public static Task<Result<TValue>> InvalidDataTask<TValue>(TValue? value, string source, string message) => InvalidDataTask(value, new ValidationError(source, message));
-    public static Task<Result<TValue>> InvalidDataTask<TValue>(TValue? value, Result result) => Task.FromResult(InvalidData(value, result));
-    public static Task<Result<TValue>> ErrorTask<TValue>(TValue? value, string message) => ErrorTask(value, new Exception(message));
-    public static Task<Result<TValue>> ErrorTask<TValue>(TValue? value, Exception exception) => Task.FromResult(Error(value, exception));
+    public static Task<Result<TValue>> InvalidTask<TValue>(TValue? value, string message, string? source = null) => InvalidTask(value, new ValidationError(message, source));
+    public static Task<Result<TValue>> InvalidTask<TValue>(TValue? value, Result result) => Task.FromResult(Invalid(value, result));
+    public static Task<Result<TValue>> ErrorTask<TValue>(string message) => ErrorTask<TValue>(new Exception(message));
+    public static Task<Result<TValue>> ErrorTask<TValue>(Exception exception)
+        => Task.FromResult(Error<TValue>(exception));
 }
 
-public record Result<TValue> : Result, IResult<TValue> {
-    internal Result(TValue? value = default, IEnumerable<ValidationError>? errors = null, Exception? exception = null)
-        : base(errors, exception) {
+public record Result<TValue> : Result, IResult<ResultType, TValue> {
+    internal Result(Exception exception)
+        : base(exception) {
+    }
+
+    internal Result(TValue? value = default, IEnumerable<ValidationError>? errors = null)
+        : base(errors) {
         Value = value;
     }
 
-    public TValue? Value { get; init; }
+    public TValue? Value { get; }
 
     public static implicit operator Result<TValue>(TValue? value) => new(value);
+    public static implicit operator Result<TValue>(Exception exception) => new(exception);
+    public static implicit operator Result<TValue>(ValidationError error) => (ValidationErrors)error;
+    public static implicit operator Result<TValue>(ValidationErrors errors) => new(default!, errors.AsEnumerable());
+    public static implicit operator Result<TValue>(ValidationError[] errors) => (ValidationErrors)errors;
+    public static implicit operator Result<TValue>(List<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator Result<TValue>(HashSet<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator ValidationErrors(Result<TValue> result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator ValidationError[](Result<TValue> result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator Exception?(Result<TValue> result) => result.Exception;
+    public static implicit operator TValue?(Result<TValue> result) => result.Value;
 
-    public static Result<TValue> operator +(Result<TValue> left, Result right) {
-        var errors = left.Errors.Union(right.Errors).ToHashSet();
-        return new(left.Value, errors, left.Exception ?? right.Exception);
+    public static Result<TValue> operator +(Result<TValue> left, Result right)
+        => left.HasException
+               ? left
+               : right.HasException
+                   ? new(right.Exception)
+                   : new(left.Value, left.Errors.Union(right.Errors));
+
+    public Result<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map) {
+        try {
+            return HasException
+                ? Error<TNewValue>(Exception)
+                : new(map(Value), Errors);
+        }
+        catch (Exception ex) {
+            return Error<TNewValue>(ex);
+        }
     }
-
-    public Result<TNewValue> MapTo<TNewValue>(Func<TValue?, TNewValue?> map)
-        => new(map(Value), Errors, Exception);
-
-    public virtual bool Equals(Result<TValue>? other)
-        => base.Equals(other)
-        && Equals(Value, other.Value);
-
-    public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Value);
 }

@@ -3,7 +3,6 @@
 public class Page<TItem>
     : Block<TItem, uint>,
       IPage<TItem> {
-
     [SetsRequiredMembers]
     public Page() {
     }

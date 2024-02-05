@@ -6,6 +6,6 @@ public sealed class LengthIsAtMostCommand
         : base(source) {
         ValidateAs = s => ((string)s).Length <= length;
         ValidationErrorMessage = MustHaveAMaximumLengthOf;
-        GetErrorMessageArguments = s => new object[] { length, ((string)s!).Length };
+        GetErrorMessageArguments = s => [length, ((string)s!).Length];
     }
 }

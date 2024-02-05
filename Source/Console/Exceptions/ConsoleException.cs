@@ -1,11 +1,12 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Exceptions;
-public class ConsoleException(int exitCode, string message, Exception? innerException = null)
-    : Exception(message, innerException) {
-    public const int DefaultErrorCode = 1;
 
-    public ConsoleException(string message, Exception? innerException = null)
-        : this(DefaultErrorCode, message, innerException) {
+public class ConsoleException(string message, Exception? innerException = null) : Exception(IsNotNullOrEmpty(message), innerException) {
+    public const string DefaultMessage = "An error occurred while executing the application.";
+
+    public ConsoleException(int exitCode = ApplicationBase.DefaultErrorCode, string? message = null, Exception? innerException = null)
+        : this(message ?? DefaultMessage, innerException) {
+        ExitCode = exitCode;
     }
 
-    public int ExitCode { get; } = exitCode;
+    public int ExitCode { get; }
 }

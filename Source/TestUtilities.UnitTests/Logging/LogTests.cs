@@ -9,7 +9,7 @@ public class LogTests {
         var eventId = new EventId(1, "TestEvent");
         var state = new { Message = "TestMessage" };
         var exception = new Exception("TestException");
-        var message = "TestMessage";
+        const string message = "TestMessage";
 
         // Act
         var subject = log with {

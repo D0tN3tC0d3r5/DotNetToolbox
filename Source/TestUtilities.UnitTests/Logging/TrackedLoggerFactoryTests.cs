@@ -32,7 +32,7 @@ public class TrackedLoggerFactoryTests {
         var trackedLogger = _trackedLoggerFactory.CreateLogger(categoryName);
 
         // Assert
-        Assert.IsType<TrackedLogger>(trackedLogger);
+        trackedLogger.Should().BeOfType<TrackedLogger>();
         _loggerFactory.Received(1).CreateLogger(Arg.Is<string>(s => s == categoryName));
     }
 

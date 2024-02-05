@@ -1,46 +1,31 @@
-﻿using System.Diagnostics;
-
-namespace DotNetToolbox.Results;
+﻿namespace DotNetToolbox.Results;
 
 [DebuggerDisplay("""
-                 ValidationError: Source="{Source}", Message="{Message}"
+                 ValidationError: Message="{Message}, Source="{Source}""
                  """)]
-public readonly struct ValidationError {
-    private readonly string _message;
-    private readonly string _formattedMessage = string.Empty;
-    private readonly string? _source;
+public sealed record ValidationError {
+    private readonly string _formattedMessage;
+    public const string DefaultErrorMessage = "The value is invalid.";
 
-    [SetsRequiredMembers]
-    public ValidationError(string source, string message)
-        : this() {
-        _source = IsNotNull(source).Trim();
-        _message = IsNotNullOrEmpty(message).Trim();
-        _formattedMessage = $"{(string.IsNullOrEmpty(_source) ? string.Empty : $"{_source}: ")}{_message}";
+    public ValidationError()
+        : this(DefaultErrorMessage, string.Empty) {
     }
 
-    [SetsRequiredMembers]
-    public ValidationError(string message)
-        : this(string.Empty, message) {
+    public ValidationError(string message, string? source = null) {
+        Message = IsNotNullOrWhiteSpace(message).Trim();
+        Source = IsNotNullOrDefault(source, string.Empty).Trim();
+        _formattedMessage = (string.IsNullOrEmpty(Source) ? string.Empty : $"{Source}: ")
+                          + Message;
     }
 
-    public string Source => _source ?? string.Empty;
-
-    public string Message => _message ?? string.Empty;
+    public string Message { get; }
+    public string Source { get; }
 
     public static implicit operator ValidationError(string message)
         => new(message);
 
-    public bool Equals(ValidationError other)
-        => _formattedMessage.Equals(other._formattedMessage);
-
-    public override bool Equals(object? other)
-        => other is ValidationError ve && Equals(ve);
-
-    public static bool operator ==(ValidationError left, object? right)
-        => left.Equals(right);
-
-    public static bool operator !=(ValidationError left, object? right)
-        => !left.Equals(right);
+    public bool Equals(ValidationError? other)
+        => _formattedMessage.Equals(other?._formattedMessage);
 
     public override int GetHashCode()
         => _formattedMessage.GetHashCode();

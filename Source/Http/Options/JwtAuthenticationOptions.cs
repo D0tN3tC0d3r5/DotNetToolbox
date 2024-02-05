@@ -1,7 +1,6 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
 public class JwtAuthenticationOptions : AuthenticationOptions {
-
     public string? PrivateKey { get; set; }
     public string? Issuer { get; set; }
     public string? Audience { get; set; }
@@ -12,7 +11,7 @@ public class JwtAuthenticationOptions : AuthenticationOptions {
         var result = base.Validate(context);
 
         if (string.IsNullOrWhiteSpace(PrivateKey))
-            result += new ValidationError(GetSourcePath(nameof(PrivateKey)), ValueCannotBeNullOrWhiteSpace);
+            result += new ValidationError(ValueCannotBeNullOrWhiteSpace, GetSourcePath(nameof(PrivateKey)));
 
         return result;
 

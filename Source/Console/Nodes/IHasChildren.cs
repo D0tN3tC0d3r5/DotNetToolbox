@@ -1,15 +1,33 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public interface IHasChildren : INode {
+    public NodeContext Context { get; }
+
     ICollection<INode> Children { get; }
-    public INode[] Options => [.. Children.OfType<IFlag>()
-                                      .Cast<INode>()
-                                      .Union(Children.OfType<IOption>())
-                                      .Union(Children.OfType<IAction>())
-                                      .OrderBy(i => i.Name)];
-    public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
-    public IExecutable[] Commands => Children.OfType<ICommand>()
-                                             .OrderBy(i => i.Name)
-                                             .Cast<IExecutable>()
-                                             .ToArray();
+    IArgument[] Options { get; }
+    IParameter[] Parameters { get; }
+    ICommand[] Commands { get; }
+
+    ICommand AddCommand(string name, Delegate action);
+    ICommand AddCommand(string name, string alias, Delegate action);
+    ICommand AddCommand(string name, string[] aliases, Delegate action);
+    ICommand AddCommand<TChildCommand>() where TChildCommand : Command<TChildCommand>, ICommand;
+    void AddCommand(ICommand command);
+
+    IFlag AddFlag(string name, Delegate? action = null);
+    IFlag AddFlag(string name, string alias, Delegate? action = null);
+    IFlag AddFlag(string name, string[] aliases, Delegate? action = null);
+    IFlag AddFlag<TFlag>() where TFlag : Flag<TFlag>, IFlag;
+    void AddFlag(IFlag flag);
+
+    IOption AddOption(string name);
+    IOption AddOption(string name, string alias);
+    IOption AddOption(string name, string[] aliases);
+    IOption AddOption<TOption>() where TOption : Option<TOption>, IOption;
+    void AddOption(IOption option);
+
+    IParameter AddParameter(string name);
+    IParameter AddParameter(string name, string defaultValue);
+    IParameter AddParameter<TParameter>() where TParameter : Parameter<TParameter>, IParameter;
+    void AddParameter(IParameter parameter);
 }

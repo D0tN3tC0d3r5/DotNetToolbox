@@ -8,19 +8,22 @@
     <PackageId>DotNetToolbox.Console</PackageId>
     <RootNamespace>DotNetToolbox.ConsoleApplication</RootNamespace>
     <Title>DotNetToolbox Console Applcation Library</Title>
-    <Version>8.0.3-rc1</Version>
+    <Version>8.0.4</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>Console;CLI;Shell,; BNuilder;Tools;Library</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>This package provides tools for creating a CLI (Command-Line Interface) and Shell-like console application.</Description>
+    <Description>A library with powerful tools to simplify the creation of CLI (Command-Line Interface) and Shell-like console applications.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.3-rc1:
+      v8.0.4:
+
+      Stable release of DotNetToolbox.Console, a .NET 8 with powerful tools to simplify the creating of CLI (Command-Line Interface) and Shell-like console applications.
+
       - Release candidate based on .Net 8.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Console</Product>
@@ -28,8 +31,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Console</AssemblyName>
-    <AssemblyVersion>8.0.3.*</AssemblyVersion>
-    <FileVersion>8.0.3</FileVersion>
+    <AssemblyVersion>8.0.4.*</AssemblyVersion>
+    <FileVersion>8.0.4</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -62,7 +65,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.0.3" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />

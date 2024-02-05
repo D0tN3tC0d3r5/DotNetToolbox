@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Results;
 
-public enum HttpResultType {
+public enum HttpResultType : ushort {
     Ok = HttpStatusCode.OK, // 200
     Created = HttpStatusCode.Created, // 201
 

@@ -8,7 +8,7 @@ public sealed class IsValidCommand(string source) : ValidationCommand(source) {
                    : v.Validate().Errors
                       .Aggregate(result, (current, error) => {
                           var newSource = $"{Source}.{error.Source}";
-                          return current + new ValidationError(newSource, error.Message);
+                          return current + new ValidationError(error.Message, newSource);
                       });
     }
 }

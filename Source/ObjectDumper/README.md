@@ -7,11 +7,10 @@ This library is particularly useful for logging, debugging, and serialization sc
 ### Table of Contents
 1. [Installation](#installation)
 2. [Dependencies](#dependencies)
-3. [Key Features](#key-features)
-4. [Extension Methods](#extension-methods)
-5. [Object Dumping](#object-dumping)
-6. [JSON Object Dumping](#json-object-dumping)
-7. [Customization](#customization)
+3. [Extension Methods](#extension-methods)
+4. [Object Dumping](#object-dumping)
+5. [JSON Object Dumping](#json-object-dumping)
+6. [Customization](#customization)
 
 ### Installation
 The DotNet Toolbox Object Dumper is available as a NuGet package. To install it, run the following command in the Package Manager Console:
@@ -24,7 +23,7 @@ PM> Install-Package DotNetToolbox.ObjectDumper
 - .NET 8
 
 ### Extension Methods
-The library extends any object with `Dump` and `DumpAsJson` methods, allowing any object to be dumped easily without requiring manual instantiation of dumper objects.
+**Dump** and **DumpAsJson** The library extends any object with `Dump` and `DumpAsJson` methods, allowing any object to be dumped easily without requiring manual instantiation of dumper objects.
 
 #### Examples:
 1. **Dumping an object using default options:**

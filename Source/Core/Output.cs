@@ -1,8 +1,56 @@
 ﻿namespace DotNetToolbox;
 
+public interface IOutput {
+    ConsoleColor BackgroundColor { get; set; }
+    Encoding Encoding { get; set; }
+    TextWriter Error { get; }
+    ConsoleColor ForegroundColor { get; set; }
+    TextWriter Writer { get; }
+
+    void ClearScreen();
+    void ResetColor();
+    void Write(bool value);
+    void Write(char value);
+    void Write(char[] buffer, int index, int count);
+    void Write(char[]? buffer);
+    void Write(decimal value);
+    void Write(double value);
+    void Write(float value);
+    void Write(int value);
+    void Write(long value);
+    void Write(object? value);
+    void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0);
+    void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1);
+    void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);
+    void Write([Syntax(Syntax.CompositeFormat)] string format, params object?[] arg);
+    void Write(string? value);
+    void Write(StringBuilder? builder);
+    void Write(uint value);
+    void Write(ulong value);
+    void WriteLine();
+    void WriteLine(bool value);
+    void WriteLine(char value);
+    void WriteLine(char[] buffer, int index, int count);
+    void WriteLine(char[]? buffer);
+    void WriteLine(decimal value);
+    void WriteLine(double value);
+    void WriteLine(float value);
+    void WriteLine(int value);
+    void WriteLine(long value);
+    void WriteLine(object? value);
+    void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0);
+    void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1);
+    void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);
+    void WriteLine([Syntax(Syntax.CompositeFormat)] string format, params object?[] arg);
+    void WriteLine(string? value);
+    void WriteLine(StringBuilder? builder);
+    void WriteLine(uint value);
+    void WriteLine(ulong value);
+}
+
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
-// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for testing.
-public class Output {
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
+public class Output : HasDefault<Output>, IOutput {
     public virtual Encoding Encoding {
         get => Console.OutputEncoding;
         set => Console.OutputEncoding = value;
@@ -37,10 +85,10 @@ public class Output {
 
     public virtual void Write(StringBuilder? builder) => Console.Write(builder);
 
-    public virtual void Write(string format, object? arg0) => Console.Write(format, arg0);
-    public virtual void Write(string format, object? arg0, object? arg1) => Console.Write(format, arg0, arg1);
-    public virtual void Write(string format, object? arg0, object? arg1, object? arg2) => Console.Write(format, arg0, arg1, arg2);
-    public virtual void Write(string format, params object?[] arg) => Console.Write(format, arg);
+    public virtual void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0) => Console.Write(format, arg0);
+    public virtual void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1) => Console.Write(format, arg0, arg1);
+    public virtual void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) => Console.Write(format, arg0, arg1, arg2);
+    public virtual void Write([Syntax(Syntax.CompositeFormat)] string format, params object?[] arg) => Console.Write(format, arg);
 
     public virtual void Write(char[]? buffer) => Console.Write(buffer);
     public virtual void Write(char[] buffer, int index, int count) => Console.Write(buffer, index, count);
@@ -61,10 +109,10 @@ public class Output {
 
     public virtual void WriteLine(StringBuilder? builder) => Console.WriteLine(builder);
 
-    public virtual void WriteLine(string format, object? arg0) => Console.WriteLine(format, arg0);
-    public virtual void WriteLine(string format, object? arg0, object? arg1) => Console.WriteLine(format, arg0, arg1);
-    public virtual void WriteLine(string format, object? arg0, object? arg1, object? arg2) => Console.WriteLine(format, arg0, arg1, arg2);
-    public virtual void WriteLine(string format, params object?[] arg) => Console.WriteLine(format, arg);
+    public virtual void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0) => Console.WriteLine(format, arg0);
+    public virtual void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1) => Console.WriteLine(format, arg0, arg1);
+    public virtual void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) => Console.WriteLine(format, arg0, arg1, arg2);
+    public virtual void WriteLine([Syntax(Syntax.CompositeFormat)] string format, params object?[] arg) => Console.WriteLine(format, arg);
 
     public virtual void WriteLine(char[]? buffer) => Console.WriteLine(buffer);
     public virtual void WriteLine(char[] buffer, int index, int count) => Console.WriteLine(buffer, index, count);
