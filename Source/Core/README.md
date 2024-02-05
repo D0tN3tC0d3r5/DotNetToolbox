@@ -22,329 +22,267 @@ PM> Install-Package DotNetToolbox.Core
 - .NET 8
 
 ### Result Pattern
-- **ValidationError**: Core class for representing generic validation errors.
 
-The `ValidationError` class represents individual validation errors, useful for detailed error tracking in data validation scenarios.
+The exploration of the `Result` class and its specialized forms, including `CrudResult`, `HttpResult`, and `SignInResult`, underscores the pattern's versatility and utility in diverse application domains. By providing a structured approach to operation outcome management, these patterns enhance the clarity, maintainability, and reliability of software, facilitating robust error handling and streamlined communication of operation results. 
 
-#### Examples:
-1. **Creating a ValidationError:**
-    ```csharp
-    // Create a validation error with a source and message
-    var  emailError = new ValidationError("Invalid email format", "Email");
-    Console.WriteLine(emailError);
+### ValidationError and ValidationErrors
 
-    // Create a validation error with only a message
-    var generalError = new ValidationError("General error occurred");
-    Console.WriteLine(generalError);
-    ```
+The `ValidationError` class encapsulates information about errors that occur during validation processes. It is designed as a sealed record for immutability and type safety, with a default error message indicating invalid values. This class supports initializing with custom messages and an optional source, enhancing error specificity and traceability.
 
-2. **Using Implicit Conversion:**
-    ```csharp
-    ValidationError implicitError = "Username is required";
-    Console.WriteLine(implicitError);
-    ```
+```csharp
+var error = new ValidationError("Custom error message", "FieldName");
+```
 
-It has extension methods for collections of `ValidationError`s, such as checking if a specific error is contained within the collection.
+An implicit conversion from string to `ValidationError` is provided, allowing for straightforward error creation:
 
-3. **Check for an error in a collection:**
-    ```csharp
-    List<ValidationError> errors = new List<ValidationError> {
-        "Email is required",
-        new ValidationError("Password is too weak.", "Password")
-    };
+```csharp
+ValidationError error = "This is an error message";
+```
 
-    // Check if a specific error message exists in the collection
-    bool hasEmailError = errors.Contains("Email", "Email is required");
-    Console.WriteLine($"Email error present: {hasEmailError}");
-    ```
- 
-    It also works with a custom exception class that encapsulates a collection of `ValidationError`s, intended to be thrown when validation fails.
+`ValidationErrors` acts as a collection for `ValidationError` objects, implementing standard list and collection interfaces for easy manipulation. It supports initializing from various sources, including single errors, arrays, lists, and hash sets, each ensuring uniqueness of error entries:
 
-4. **Check for an error in a collection:**
-    ```csharp
+```csharp
+ValidationErrors errors = new ValidationError[] {
+    "Error 1",
+    new ValidationError("Error 2"),
+    "Error 3"
+};
+```
+
+This collection facilitates aggregating and handling multiple validation errors in a coherent and structured manner, streamlining error management in validation scenarios:
+
+```csharp
+if (errors.Any()) {
+    foreach (var err in errors) {
+        Console.WriteLine(err);
+    }
+}
+```
+
+These utilities serve as foundational elements within the Result Pattern, enabling detailed and flexible error reporting in validation operations.
+
+### Result Pattern Implementation
+
+The Result pattern is a robust framework feature designed to encapsulate the outcome of operations, offering a unified approach to error handling and validation. It provides a clear and consistent method for functions to return success or failure information, along with any relevant data or errors.
+
+#### IResult and Result Usage
+
+The `IResult` interface is the foundation of the Result pattern, defining a contract for operation outcomes. Implementing classes can specify more details, such as success status, error messages, or returned data. The `Result` class, deriving from `ResultBase`, offers a concrete implementation that can be used directly in applications:
+
+```csharp
+public Result DoSomething() {
     try {
-        var result = ValidateUserData(userData);
-        if (result.IsInvalid) {
-            throw new ValidationException(result.Errors);
+        // Operation logic
+        return Result.Success();
+    } catch (Exception ex) {
+        return Result.Failure(ex.Message);
+    }
+}
+```
+
+#### Integrating Validation with IValidatable
+
+The `IValidatable` interface allows for the integration of custom validation logic into models or data transfer objects, returning a `Result` to indicate the validation outcome. This pattern ensures that validation logic can be encapsulated within the objects themselves, promoting a clean and maintainable codebase:
+
+```csharp
+public class MyModel : IValidatable {
+    public string Property { get; set; }
+
+    public Result Validate() {
+        if (string.IsNullOrEmpty(Property)) {
+            return Result.Failure("Property cannot be null or empty.");
         }
-    } catch (ValidationException ex) {
-        foreach (var error in ex.Errors) {
-            Console.WriteLine(error);
-        }
+        return Result.Success();
     }
-    ```
+}
+```
 
-- **Result**: Core class for generic operation results. Used mostly for validation and error handling.
+#### Handling Validation Errors
 
-The `Result` class provides a flexible way to represent the outcome of operations, whether successful, invalid due to data issues, or errored due to exceptions.
+When validation fails, a `ValidationException` can be thrown, leveraging the `Result` pattern for consistent error handling across the application. This exception specifically addresses validation failures, allowing for targeted catch blocks and error processing:
 
-#### Examples:
-1. **Creating a Successful Result:**
-    ```csharp
-    var successResult = Result.Success();
-    Console.WriteLine($"Operation Successful: {successResult.IsSuccess}");
-    ```
-
-2. **Creating a Result with Data Validation Error:**
-    ```csharp
-    var invalidResult = Result.InvalidData("Invalid input data");
-    Console.WriteLine($"Data is Valid: {!invalidResult.IsInvalid}");
-    ```
-
-3. **Creating a Result Representing an Error:**
-    ```csharp
-    var errorResult = Result.Error(new Exception("Unexpected error occurred"));
-    Console.WriteLine($"Operation Successful: {errorResult.IsSuccess}");
-    ```
-
-4. **Using Asynchronous Methods:**
-    ```csharp
-    async Task PerformOperationAsync() {
-        var result = await Result.ErrorTask("Async operation failed");
-        Console.WriteLine($"Operation Successful: {result.IsSuccess}");
+```csharp
+try {
+    var model = new MyModel();
+    var result = model.Validate();
+    if (!result.IsSuccess) {
+        throw new ValidationException(result.Errors);
     }
-    ```
+} catch (ValidationException ex) {
+    // Handle validation errors
+}
+```
 
-5. **Implicit Conversion from `ValidationError` or `Exception`:**
-    ```csharp
-    Result resultFromError = new ValidationError("Invalid email format", "Email");
-    Result resultFromException = new Exception("Database connection failed");
-    ```
+#### Result Types and Error Management
 
-The `Result<TValue>` class extends the functionality of the `Result` class, allowing you to include a value with the operation outcome. It is particularly useful when an operation needs to return a value on success. Below are examples of how to use the `Result<TValue>` class:
+The `ResultType` enum and `ResultBase` class support extending the Result pattern with custom outcomes and sophisticated error management strategies. Developers can define additional result types beyond the basic success and failure, accommodating complex business logic and operation outcomes:
 
-#### Examples:
-1. **Returning a Value on Successful Operation:**
-    ```csharp
-    Result<int> CalculateSquare(int number) {
-        int square = number * number;
-        return Result.Success(square);
+```csharp
+public enum MyCustomResultType : int {
+    CustomSuccess = 1,
+    CustomFailure = -1
+}
+
+public class MyCustomResult : ResultBase {
+    // Custom implementation
+}
+```
+
+### CrudResult Pattern for CRUD Operations
+
+The `CrudResult` class extends the foundational `Result` pattern specifically for CRUD (Create, Read, Update, Delete) operations, providing a clear and expressive way to communicate the outcomes of these common database or resource manipulation tasks.
+
+#### Understanding CrudResult Types
+
+At the heart of the `CrudResult` design is the `CrudResultType` enum, which categorizes the outcomes of CRUD operations into statuses like `Success`, `NotFound`, and `Conflict`. This detailed classification aids in handling the varied results of CRUD operations with precision:
+
+```csharp
+public enum CrudResultType {
+    Invalid, // The request validation failed.
+    NotFound, // The requested resource was not found.
+    Conflict, // A conflict has occured blocking the operation.
+    Success, // The operation was successful.
+    Error, // An internal error has occurred.
+}
+```
+
+#### Using CrudResult in Operations
+
+`CrudResult` simplifies returning detailed operation outcomes. For instance, when updating a resource, `CrudResult` can distinctly indicate whether the operation was successful, the target resource was not found, or a conflict occurred:
+
+```csharp
+public CrudResult UpdateResource(Resource resource) {
+    if (!ResourceExists(resource.Id)) {
+        return CrudResult.NotFound();
     }
-
-    var squareResult = CalculateSquare(5);
-    if (squareResult.IsSuccess) {
-        Console.WriteLine($"Square of 5 is {squareResult.Value}");
+    if (ResourceConflictExists(resource)) {
+        return CrudResult.Conflict();
     }
-    ```
+    // Update logic here
+    return CrudResult.Success();
+}
+```
 
-2. **Handling an Error with `Result<TValue>`:**
-    ```csharp
-    Result<string> FetchData(string url) {
-        try {
-            // Assuming GetData is a method that fetches data from a source
-            string data = GetData(url); 
-            return Result.Success(data);
-        } catch (Exception ex) {
-            return Result<string>.Error(ex);
-        }
+#### Leveraging Generic CrudResult
+
+For operations that return a value, such as retrieving a resource, `CrudResult<T>` comes into play, allowing the inclusion of the resource itself in the success case:
+
+```csharp
+public CrudResult<Resource> GetResource(int id) {
+    var resource = FindResourceById(id);
+    if (resource == null) {
+        return CrudResult<Resource>.NotFound();
     }
+    return CrudResult<Resource>.Success(resource);
+}
+```
 
-    var apiResult = FetchDataFromApi("https://example.com/data");
-    if (apiResult.IsSuccess) {
-        Console.WriteLine($"Fetched data: {apiResult.Value}");
-    } else {
-        Console.WriteLine("Failed to fetch data");
+#### Benefits of CrudResult
+
+The `CrudResult` class and its generic counterpart `CrudResult<T>` provide a robust, type-safe way to handle the outcomes of CRUD operations, enhancing code clarity and maintainability. By clearly communicating operation results, developers can implement more reliable and understandable error handling and response logic in applications dealing with data manipulation.
+
+
+### HttpResult for Web API Responses
+
+The `HttpResult` class is a specialized adaptation of the Result pattern, tailored specifically for handling the outcomes of web API operations. It provides a seamless way to align the internal operation results with the standardized semantics of HTTP responses.
+
+#### Overview of HttpResult
+
+`HttpResult` facilitates the expression of HTTP response statuses through its methods, which correspond to common HTTP status codes. This design allows developers to directly return HTTP responses from API operations, enhancing clarity and consistency:
+
+```csharp
+public enum HttpResultType {
+    Ok = HttpStatusCode.OK, // 200
+    Created = HttpStatusCode.Created, // 201
+
+    BadRequest = HttpStatusCode.BadRequest, // 400
+    Unauthorized = HttpStatusCode.Unauthorized, // 401
+    NotFound = HttpStatusCode.NotFound, // 404
+    Conflict = HttpStatusCode.Conflict, // 409
+
+    Error = HttpStatusCode.InternalServerError, // 500
+}
+```
+
+#### Utilizing HttpResult in APIs
+
+`HttpResult` can be employed to indicate the outcome of API operations succinctly, mapping directly to HTTP response codes. Here's how it can be used to return different responses based on operation results:
+
+```csharp
+public HttpResult GetUser(int id) {
+    var user = UserRepository.FindById(id);
+    if (user == null) {
+        return HttpResult.NotFound("User not found.");
     }
-    ```
+    return HttpResult.Ok(user);
+}
+```
 
-- **CrudResult**: Specialized for CRUD operations.
+#### Including Data in Responses
 
-The `CrudResult` class is designed for outcomes of CRUD operations, providing specific status types like `NotFound`, `Conflict`, etc. Here are some examples:
+One of the key features of `HttpResult` is its ability to carry data along with the response status. This capability is particularly useful for returning entities or detailed error information in API responses:
 
-#### Examples:
-1. **Indicating a Successful CRUD Operation:**
-    ```csharp
-    CrudResult CreateRecord(Record record) {
-        // Logic to create a record
-        return CrudResult.Success();
+```csharp
+public HttpResult CreateUser(UserDto newUser) {
+    var validationResult = ValidateNewUser(newUser);
+    if (!validationResult.IsSuccess) {
+        return HttpResult.BadRequest(validationResult.Errors);
     }
+    var user = CreateUserFromDto(newUser);
+    return HttpResult.Created(user);
+}
+```
 
-    var creationResult = CreateRecord(new Record());
-    if (creationResult.IsSuccess) {
-        Console.WriteLine("Record created successfully.");
-    }
-    ```
+#### Advantages of Using HttpResult
 
-2. **Handling a 'Not Found' Scenario in CRUD Operations:**
-    ```csharp
-    CrudResult DeleteRecord(int id) {
-        // Logic to delete a record
-        if (recordNotFound) {
-            return CrudResult.NotFound();
-        }
-        return CrudResult.Success();
-    }
-
-    var deletionResult = DeleteRecord(5);
-    if (deletionResult.WasNotFound) {
-        Console.WriteLine("Record not found.");
-    }
-    ```
-
-`CrudResult<TValue>` extends `CrudResult` to include a value with the operation outcome, useful for operations like 'Read'.
-
-#### Examples:
-1. **Returning a Value on Successful 'Read' Operation:**
-    ```csharp
-    CrudResult<Record> ReadRecord(int id) {
-        Record? record = // Logic to read a record
-        if (record == null) {
-            return CrudResult<Record>.NotFound();
-        }
-        return CrudResult<Record>.Success(record);
-    }
-
-    var readResult = ReadRecord(3);
-    if (readResult.IsSuccess) {
-        Console.WriteLine($"Record read: {readResult.Value}");
-    } else if (readResult.WasNotFound) {
-        Console.WriteLine("Record not found.");
-    }
-    ```
-
-2. **Handling a 'Conflict' in CRUD Operations:**
-    ```csharp
-    CrudResult<Record> UpdateRecord(Record updatedRecord) {
-        // Logic to update a record
-        if (recordHasConflict) {
-            return CrudResult<Record>.Conflict();
-        }
-        return CrudResult<Record>.Success(updatedRecord);
-    }
-
-    var updateResult = UpdateRecord(new Record());
-    if (updateResult.HasConflict) {
-        Console.WriteLine("Record update conflict occurred.");
-    }
-    ```
-
-- **HttpResult**: Tailored for HTTP transactions.
-
-The `HttpResult` class is designed to represent the outcome of HTTP operations, mapping closely to HTTP response statuses. Here are some examples:
-
-#### Examples:
-1. **Returning an 'Ok' HTTP Response:**
-    ```csharp
-    HttpResult GetUserData() {
-        // Logic to get user data
-        return HttpResult.Success();
-    }
-
-    var response = GetUserData();
-    if (response.IsOk) {
-        Console.WriteLine("User data retrieved successfully.");
-    }
-    ```
-
-2. **Handling a 'Bad Request' Scenario:**
-    ```csharp
-    HttpResult UpdateUserProfile(UserProfile profile) {
-        if (!IsValid(profile)) {
-            return HttpResult.BadRequest(Result.InvalidData("Invalid profile data"));
-        }
-        // Update logic
-        return HttpResult.Success();
-    }
-
-    var updateResponse = UpdateUserProfile(new UserProfile());
-    if (updateResponse.IsBadRequest) {
-        Console.WriteLine("Profile update failed due to invalid data.");
-    }
-    ```
-
-`HttpResult<TValue>` extends `HttpResult` to include a value with the HTTP response, useful for GET requests or any operation returning data.
-
-#### Examples:
-1. **Returning Data on Successful Operation:**
-    ```csharp
-    HttpResult<UserProfile> GetUserProfile(int userId) {
-        UserProfile? userProfile = // Fetch user profile logic
-        if (userProfile == null) {
-            return HttpResult<UserProfile>.NotFound();
-        }
-        return HttpResult<UserProfile>.Success(userProfile);
-    }
-
-    var profileResponse = GetUserProfile(1);
-    if (profileResponse.IsOk) {
-        Console.WriteLine($"User Profile: {profileResponse.Value}");
-    } else if (profileResponse.WasNotFound) {
-        Console.WriteLine("User profile not found.");
-    }
-    ```
-
-2. **Handling an Unauthorized Access:**
-    ```csharp
-    HttpResult<string> GetSecretData(string authToken) {
-        if (!IsAuthorized(authToken)) {
-            return HttpResult<string>.Unauthorized();
-        }
-        string secretData = FetchSecretData(); // Assume this fetches data
-        return HttpResult<string>.Success(secretData);
-    }
-
-    var secretDataResponse = GetSecretData("someAuthToken");
-    if (secretDataResponse.IsUnauthorized) {
-        Console.WriteLine("Unauthorized access.");
-    }
-    ```
+Employing `HttpResult` in web API development offers several benefits:
+- **Consistency**: Ensures that API responses are standardized across different operations, facilitating easier consumption and integration.
+- **Type Safety**: Reduces the risk of returning incorrect HTTP status codes, as responses are defined through explicit methods.
+- **Simplicity**: Simplifies error handling and response construction, allowing developers to focus on the core logic of API operations.
 
 - **SignInResult**: Designed for authentication processes.
 
-The `SignInResult` class is designed to encapsulate the outcome of authentication operations, providing specific statuses like `Locked`, `Blocked`, `Failed`, etc. Here are some examples:
+### SignInResult for Authentication Outcomes
 
-#### Examples:
-1. **Successful Sign-In:**
-    ```csharp
-    SignInResult AuthenticateUser(string username, string password) {
-        // Logic to authenticate user
-        if (isAuthenticated) {
-            string token = GenerateToken(user); // Assume GenerateToken generates a token
-            return new SignInResult(token);
-        }
+The `SignInResult` class is specifically tailored to encapsulate the outcomes of authentication processes, providing a clear and nuanced way to indicate the success or specific reasons for failure of sign-in attempts. This specialized result type ensures that authentication logic is both expressive and consistent.
+
+```csharp
+public enum SignInResultType {
+    Error, // An internal error has occurred.
+    Invalid, // request validation failed. No attempt was made.
+    Failed, // attempt failed.
+    Blocked, // account is blocked. (8 | 4) Counts as Failed.
+    Locked, // account is locked. (16 | 4) Counts as Failed.
+    Success, // attempt succeeded.
+    ConfirmationPending, // attempt succeeded but email is not confirmed. (64 | 32).
+    TwoFactorRequired, // attempt succeeded, but requires 2-factor authentication. (128 | 32).
+}
+```
+
+#### Example Usage of SignInResult
+
+```csharp
+public SignInResult SignInUser(string username, string password) {
+    var user = FindUserByUsername(username);
+    if (user == null || !VerifyPassword(user, password)) {
         return SignInResult.Failed();
     }
-
-    var signInResult = AuthenticateUser("user1", "password123");
-    if (signInResult.IsSuccess) {
-        Console.WriteLine($"Authentication successful. Token: {signInResult.Token}");
-    } else {
-        Console.WriteLine("Authentication failed.");
+    if (user.IsLockedOut) {
+        return SignInResult.LockedOut();
     }
-    ```
+    // Additional sign-in logic here
+    return SignInResult.Success();
+}
+```
 
-2. **Handling Locked Account:**
-    ```csharp
-    SignInResult CheckAccountStatus(User user) {
-        if (user.IsLocked) {
-            return SignInResult.Locked();
-        }
-        // Further checks
-    }
+#### Advantages of SignInResult
 
-    var accountStatus = CheckAccountStatus(someUser);
-    if (accountStatus.IsLocked) {
-        Console.WriteLine("Account is locked.");
-    }
-    ```
-
-3. **Two-Factor Authentication Required:**
-    ```csharp
-    SignInResult PerformTwoFactorCheck(User user) {
-        if (user.RequiresTwoFactor) {
-            return SignInResult.TwoFactorRequired();
-        }
-        return SignInResult.Success(GenerateToken(user)); // Success with token
-    }
-
-    var twoFactorResult = PerformTwoFactorCheck(someUser);
-    if (twoFactorResult.RequiresTwoFactor) {
-        Console.WriteLine("Two-factor authentication required.");
-    }
-    ```
+- **Clarity and Precision**: Distinguishes between various outcomes of sign-in attempts, such as failure due to invalid credentials or account lockout, enhancing error handling and user feedback.
+- **Seamless Integration**: Fits neatly within the broader Result pattern framework, maintaining a consistent approach to handling operation outcomes across the application.
+- **Customization and Extension**: Allows for the introduction of additional `SignInResultType` values to cater to complex authentication scenarios, offering flexibility and adaptability.
 
 ### System Utilities
-System utilities provide abstractions over system resources like Date and Time, GUIDs, File System, and Console Input/Output. These abstractions are instrumental in creating testable code by enabling dependency injection, which allows for the substitution of these system classes with mock objects during testing.
+System utilities offer essential abstractions over system resources such as Date and Time, GUIDs, File System, Assembly Information, and Console Input/Output. By enabling dependency injection, these abstractions support the creation of testable code, allowing the substitution of system classes with mock objects during testing.
 
 - **DateTimeProvider**: Facilitates working with dates and times in a testable way by abstracting system-specific implementations.
 
@@ -471,6 +409,65 @@ System utilities provide abstractions over system resources like Date and Time, 
 
     outputMock.Received().WriteLine("Hello Test!"); // NSubstitute used to verify interaction
     ```
+
+- **Assembly Information (AssemblyAccessor and AssemblyDescriptor)**: These utilities provide detailed access to assembly metadata, supporting a wide range of operations from version checking to attribute inspection.
+
+Here is the information available through the `IAssemblyDescriptor` interface:
+ - Name: The short name of the assembly.
+ - FullName: The full name of the assembly, including the version, culture, and public key token.
+ - Version: The version of the assembly.
+ - RuntimeVersion: The runtime version of the assembly.
+ - CultureInfo: The culture information of the assembly.
+ - PublicKey: The public key of the assembly.
+ - PublicKeyToken: The public key token of the assembly.
+ - Location: The location of the assembly file.
+ - EntryPoint: The entry point of the assembly.
+ - ManifestModule: The manifest module of the assembly.
+ - GetCustomAttributes() : Returns an array of all custom attributes applied to the assembly.
+ - GetCustomAttributes(Type attributeType) : Returns an array of custom attributes applied to the assembly and identified by the specified type.
+ - GetCustomAttributes<TAttribute>(): Returns an array of custom attributes applied to the assembly and identified by the specified type.
+ - GetCustomAttribute<TAttribute>(): Returns the custom attribute applied to the assembly and identified by the specified type.
+ - GetCustomAttribute(Type attributeType): Returns the custom attribute applied to the assembly and identified by the specified type.
+ - DefinedTypes: Returns a collection of types defined in the assembly.
+ - ExportedTypes: Returns a collection of types that are visible outside the assembly.
+ - Modules: Returns a collection of modules in the assembly.
+
+#### Examples:
+1. **Retrieving Assembly Version:**
+   ```csharp
+   public class VersionService {
+       private readonly IAssemblyAccessor _accessor;
+
+       public VersionService(IAssemblyAccessor accessor) {
+           _accessor = accessor;
+       }
+
+       public string GetCurrentAssemblyVersion() {
+           return _accessor.GetExecutingAssembly().Version.ToString();
+       }
+   }
+   ```
+
+- **Environment Abstraction (Environment)**: Offers a unified interface to access various system utilities, facilitating easy mocking and dependency management.
+
+#### Examples:
+1. **Accessing System Utilities through Environment:**
+   ```csharp
+   public class ApplicationService {
+       private readonly IEnvironment _environment;
+
+       public ApplicationService(IEnvironment environment) {
+           _environment = environment;
+       }
+
+       public void PerformOperation() {
+           var assemblyVersion = _environment.Assembly.Version.ToString();
+           var currentTime = _environment.DateTime.Now;
+           // Use other system utilities as needed
+       }
+   }
+   ```
+
 
 ### Pagination Utilities
 Pagination utilities provide a standardized way to handle the slicing of large datasets into smaller, more manageable blocks or pages. These utilities can be used to define and access specific segments of data, often necessary when implementing APIs that support pagination.
@@ -742,5 +739,28 @@ You can add the `Ensure` class as a static using to simplify the call.
        person = IsValid(person); // throws ValidationException if validation fails.
 
        // Rest of the method logic
+   }
+   ```
+
+- **DisposableStateHolder**: A utility designed to hold and manage the lifecycle of a disposable state. It ensures that if the state is disposable, it is properly disposed of, simplifying resource management and cleanup.
+
+#### Examples:
+1. **Using DisposableStateHolder with Disposable State:**
+   ```csharp
+   var disposableResource = new MemoryStream();
+   using var stateHolder = new DisposableStateHolder(disposableResource);
+   // The MemoryStream will be disposed of when stateHolder is disposed.
+   ```
+
+
+- **Indexed**: This struct pairs elements with their indices, enhancing the handling of sequences by keeping track of each element's position. It's invaluable for operations requiring index information alongside elements.
+
+#### Examples:
+1. **Enumerating Items with Indices:**
+   ```csharp
+   var items = new[] { "apple", "banana", "cherry" };
+   var indexedItems = items.Select((value, index) => new Indexed<string>(index, value));
+   foreach (var item in indexedItems) {
+       Console.WriteLine($"Item {item.Index}: {item.Value}");
    }
    ```
