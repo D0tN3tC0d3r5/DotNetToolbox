@@ -1,9 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
-public interface IApplicationBuilder<out TApplication, out TBuilder, TOptions>
-    where TApplication : class, IApplication<TApplication, TBuilder, TOptions>
-    where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TOptions : class, IApplicationOptions, new() {
+public interface IApplicationBuilder<out TApplication, out TBuilder>
+    where TApplication : class, IApplication<TApplication, TBuilder>
+    where TBuilder : class, IApplicationBuilder<TApplication, TBuilder> {
     TBuilder SetEnvironment(string environment);
 
     //TBuilder SetConfigurationSectionName(string sectionName);

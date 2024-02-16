@@ -161,9 +161,9 @@ public class OutputFormatterTests {
         node.Name.Returns("test-command");
         node.Path.Returns("test-command");
         node.Description.Returns("Test command description.");
-        node.Options.Returns(Array.Empty<IArgument>());
-        node.Parameters.Returns(Array.Empty<IParameter>());
-        node.Commands.Returns(Array.Empty<ICommand>());
+        node.Options.Returns([]);
+        node.Parameters.Returns([]);
+        node.Commands.Returns([]);
 
         const string expectedResult = """
                                   Test command description.

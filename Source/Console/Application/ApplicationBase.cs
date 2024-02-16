@@ -9,6 +9,7 @@ public abstract class ApplicationBase : IApplication {
         Arguments = args;
         Logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
         Environment = services.GetRequiredService<IEnvironment>();
+        Ask = new QuestionFactory(Environment.Output, Environment.Input);
 
         var assembly = services.GetRequiredKeyedService<IAssemblyDescriptor>(Environment.Name);
         AssemblyName = assembly.Name;
@@ -34,6 +35,7 @@ public abstract class ApplicationBase : IApplication {
     public IServiceProvider Services { get; }
     public IEnvironment Environment { get; }
     public NodeContext Context { get; } = [];
+    public IQuestionFactory Ask { get; }
 
     public ICollection<INode> Children { get; } = new HashSet<INode>();
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
@@ -52,7 +54,7 @@ public abstract class ApplicationBase : IApplication {
     protected abstract Task<Result> Execute(CancellationToken ct = default);
 
     public ICommand AddCommand(string name, Delegate action)
-        => AddCommand(name, Array.Empty<string>(), action);
+        => AddCommand(name, aliases: [], action);
     public ICommand AddCommand(string name, string alias, Delegate action)
         => AddCommand(name, [alias], action);
     public ICommand AddCommand(string name, string[] aliases, Delegate action)
@@ -63,7 +65,7 @@ public abstract class ApplicationBase : IApplication {
     public void AddCommand(ICommand command) => Children.Add(command);
 
     public IFlag AddFlag(string name, Delegate? action = null)
-        => AddFlag(name, Array.Empty<string>(), action);
+        => AddFlag(name, aliases: [], action);
     public IFlag AddFlag(string name, string alias, Delegate? action = null)
         => AddFlag(name, [alias], action);
     public IFlag AddFlag(string name, string[] aliases, Delegate? action = null)
@@ -74,7 +76,7 @@ public abstract class ApplicationBase : IApplication {
     public void AddFlag(IFlag flag) => Children.Add(flag);
 
     public IOption AddOption(string name)
-        => AddOption(name, Array.Empty<string>());
+        => AddOption(name, aliases: []);
     public IOption AddOption(string name, string alias)
         => AddOption(name, [alias]);
     public IOption AddOption(string name, string[] aliases)

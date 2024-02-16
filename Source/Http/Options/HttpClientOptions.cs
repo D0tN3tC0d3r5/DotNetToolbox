@@ -16,7 +16,7 @@ public class HttpClientOptions<TOptions> : NamedOptions<TOptions>, IValidatable
         var result = Success();
 
         if (BaseAddress is null)
-            result += new ValidationError(ValueCannotBeNullOrWhiteSpace, GetSourcePath(nameof(BaseAddress)));
+            result += new ValidationError(StringCannotBeNullOrWhiteSpace, GetSourcePath(nameof(BaseAddress)));
 
         result += Authentication?.Validate(context) ?? Success();
 

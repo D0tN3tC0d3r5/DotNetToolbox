@@ -15,9 +15,6 @@ public class ShellApplicationTests {
         app.Environment.Name.Should().Be("");
         app.AssemblyName.Should().Be("testhost");
         app.Children.Should().HaveCount(6);
-        app.Settings.Should().NotBeNull();
-        app.Settings.ClearScreenOnStart.Should().BeFalse();
-        app.Settings.Prompt.Should().Be("> ");
         app.Context.Should().BeEmpty();
         app.Logger.Should().NotBeNull();
     }
@@ -87,10 +84,6 @@ public class ShellApplicationTests {
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         await using var app = Shell.Create(b => {
-            b.ConfigureOptions(o => {
-                o.ClearScreenOnStart = true;
-                o.Prompt = "$ ";
-            });
             b.SetDateTimeProvider(dateTimeProvider);
             b.SetGuidProvider(guidProvider);
             b.SetFileSystem(fileSystem);
@@ -144,7 +137,6 @@ public class ShellApplicationTests {
 
             """;
         await using var app = Shell.Create(b => {
-            b.ConfigureOptions(o => o.ClearScreenOnStart = true);
             b.SetAssemblyInformation(assemblyDescriptor);
             b.SetOutputHandler(output);
             b.SetInputHandler(input);
@@ -197,7 +189,6 @@ public class ShellApplicationTests {
 
             """;
         await using var app = Shell.Create(b => {
-            b.ConfigureOptions(o => o.ClearScreenOnStart = true);
             b.SetAssemblyInformation(assemblyDescriptor);
             b.SetOutputHandler(output);
             b.SetInputHandler(input);

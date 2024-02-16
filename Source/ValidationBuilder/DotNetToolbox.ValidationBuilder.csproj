@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.ValidationBuilder</RootNamespace>
     <PackageId>DotNetToolbox.ValidationBuilder</PackageId>
     <Title>DotNetToolbox Validation Builder Library</Title>
-    <Version>8.0.4-rc1</Version>
+    <Version>8.0.5-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Validation;Library</PackageTags>
@@ -19,7 +19,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.0.4-rc1:
+      v8.0.5-rc1:
       - Release candidate based on .Net 8.0
     </PackageReleaseNotes>
     <Product>DotNetToolbox.ValidationBuilder</Product>
@@ -27,8 +27,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.ValidationBuilder</AssemblyName>
-    <AssemblyVersion>8.0.4.*</AssemblyVersion>
-    <FileVersion>8.0.4</FileVersion>
+    <AssemblyVersion>8.0.5.*</AssemblyVersion>
+    <FileVersion>8.0.5</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -58,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.0.4" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.0.5-rc1" />
   </ItemGroup>
 
   <ItemGroup>

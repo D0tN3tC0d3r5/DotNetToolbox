@@ -3,10 +3,12 @@ global using System.Text;
 global using System.Text.Json;
 global using System.Text.RegularExpressions;
 
+global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.ConsoleApplication.Application;
 global using DotNetToolbox.ConsoleApplication.Arguments;
 global using DotNetToolbox.ConsoleApplication.Exceptions;
 global using DotNetToolbox.ConsoleApplication.Nodes;
+global using DotNetToolbox.ConsoleApplication.Questions;
 global using DotNetToolbox.ConsoleApplication.Utilities;
 global using DotNetToolbox.DependencyInjection;
 global using DotNetToolbox.Results;
@@ -19,7 +21,6 @@ global using Microsoft.Extensions.FileProviders;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;
 
-global using static System.StringComparer;
 global using static System.Text.RegularExpressions.RegexOptions;
 global using static DotNetToolbox.ConsoleApplication.Utilities.OutputFormatter;
 global using static DotNetToolbox.Ensure;

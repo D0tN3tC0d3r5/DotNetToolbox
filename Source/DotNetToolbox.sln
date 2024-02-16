@@ -17,8 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 Solution Items", "0 Solut
 		LICENSE = LICENSE
 		Publish.cmd = Publish.cmd
 		PublishAll.cmd = PublishAll.cmd
-		PublishRelease.cmd = PublishRelease.cmd
 		..\README.md = ..\README.md
+		PublishSome.cmd = PublishSome.cmd
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "Core\DotNetToolbox.Core.csproj", "{C0308621-0189-4E32-A6FB-B0198D0B7A38}"
@@ -79,9 +79,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Testing", "1 Testing", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions", "FluentAssertions\DotNetToolbox.FluentAssertions.csproj", "{7B5CE993-A346-4550-B2CD-6C18889DB7B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.TestUtilities.UnitTests", "TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj", "{069556EA-B66F-4176-8F24-5092B1A1183A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities.UnitTests", "TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj", "{069556EA-B66F-4176-8F24-5092B1A1183A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.FluentAssertions.UnitTests", "FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj", "{CCD73170-0753-468E-A633-5BA56D44C634}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions.UnitTests", "FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj", "{CCD73170-0753-468E-A633-5BA56D44C634}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

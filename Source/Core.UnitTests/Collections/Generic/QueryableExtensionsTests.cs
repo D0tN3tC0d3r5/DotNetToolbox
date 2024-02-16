@@ -8,7 +8,7 @@ public class QueryableExtensionsTests {
         Expression<Func<int, int>> project = x => x * 2;
 
         // Act
-        var result = source.ToArray<int>(project);
+        var result = source.ToArray(project);
 
         // Assert
         result.Should().Equal([2, 4, 6]);

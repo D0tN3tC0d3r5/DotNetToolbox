@@ -27,7 +27,7 @@ public class Command<TCommand>(IHasChildren parent, string name, string[] aliase
         => execute?.Invoke((TCommand)this, ct) ?? SuccessTask();
 
     public ICommand AddCommand(string name, Delegate action)
-        => AddCommand(name, Array.Empty<string>(), action);
+        => AddCommand(name, aliases: [], action);
     public ICommand AddCommand(string name, string alias, Delegate action)
         => AddCommand(name, [alias], action);
     public ICommand AddCommand(string name, string[] aliases, Delegate action)
@@ -38,7 +38,7 @@ public class Command<TCommand>(IHasChildren parent, string name, string[] aliase
     public void AddCommand(ICommand command) => Children.Add(command);
 
     public IFlag AddFlag(string name, Delegate? action = null)
-        => AddFlag(name, Array.Empty<string>(), action);
+        => AddFlag(name, aliases: [], action);
     public IFlag AddFlag(string name, string alias, Delegate? action = null)
         => AddFlag(name, [alias], action);
     public IFlag AddFlag(string name, string[] aliases, Delegate? action = null)
@@ -49,7 +49,7 @@ public class Command<TCommand>(IHasChildren parent, string name, string[] aliase
     public void AddFlag(IFlag flag) => Children.Add(flag);
 
     public IOption AddOption(string name)
-        => AddOption(name, Array.Empty<string>());
+        => AddOption(name, aliases: []);
     public IOption AddOption(string name, string alias)
         => AddOption(name, [alias]);
     public IOption AddOption(string name, string[] aliases)

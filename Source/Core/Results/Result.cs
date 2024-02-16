@@ -42,8 +42,8 @@ public record Result : ResultBase<ResultType> {
     public static implicit operator Result(ValidationError[] errors) => (ValidationErrors)errors;
     public static implicit operator Result(List<ValidationError> errors) => (ValidationErrors)errors;
     public static implicit operator Result(HashSet<ValidationError> errors) => (ValidationErrors)errors;
-    public static implicit operator ValidationErrors(Result result) => result.HasException ? [] : result.Errors.ToArray();
-    public static implicit operator ValidationError[](Result result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator ValidationErrors(Result result) => result.HasException ? [] : [.. result.Errors];
+    public static implicit operator ValidationError[](Result result) => result.HasException ? [] : [.. result.Errors];
     public static implicit operator Exception?(Result result) => result.Exception;
 
     public static Result operator +(Result left, Result right)
@@ -94,8 +94,8 @@ public record Result<TValue> : Result, IResult<ResultType, TValue> {
     public static implicit operator Result<TValue>(ValidationError[] errors) => (ValidationErrors)errors;
     public static implicit operator Result<TValue>(List<ValidationError> errors) => (ValidationErrors)errors;
     public static implicit operator Result<TValue>(HashSet<ValidationError> errors) => (ValidationErrors)errors;
-    public static implicit operator ValidationErrors(Result<TValue> result) => result.HasException ? [] : result.Errors.ToArray();
-    public static implicit operator ValidationError[](Result<TValue> result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator ValidationErrors(Result<TValue> result) => result.HasException ? [] : [.. result.Errors];
+    public static implicit operator ValidationError[](Result<TValue> result) => result.HasException ? [] : [.. result.Errors];
     public static implicit operator Exception?(Result<TValue> result) => result.Exception;
     public static implicit operator TValue?(Result<TValue> result) => result.Value;
 

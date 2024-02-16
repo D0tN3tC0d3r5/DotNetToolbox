@@ -8,7 +8,7 @@ public class ArgumentsParserTests {
     private readonly IOption _option;
     private readonly IParameter _parameter;
     private readonly IParameter _requiredParameter;
-    private readonly ICommand _command;
+    private readonly Command _command;
 
     public ArgumentsParserTests() {
         _serviceProvider.GetService(typeof(ILoggerFactory)).Returns(_loggerFactory);
@@ -18,7 +18,7 @@ public class ArgumentsParserTests {
         _flag = new Flag(_app, "Flag", ["f"]);
         _requiredParameter = new Parameter(_app, "Name");
         _parameter = new Parameter(_app, "Age", "18");
-        _command = new Command(_app, "Say", ["s"], (_, _) => Result.SuccessTask());
+        _command = new(_app, "Say", ["s"], (_, _) => Result.SuccessTask());
     }
 
     [Fact]

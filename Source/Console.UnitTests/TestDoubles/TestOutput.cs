@@ -1,9 +1,11 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal class TestOutput() : IOutput {
+internal class TestOutput : IOutput {
+    public string Prompt { get; set; } = "> ";
+
     public override string ToString() => string.Join(System.Environment.NewLine, Lines);
 
-    public List<string> Lines { get; } = [string.Empty];
+    public List<string> Lines { get; } = [];
 
     public void ClearScreen() {
         Lines.Clear();
@@ -44,10 +46,10 @@ internal class TestOutput() : IOutput {
 
     public void Write(string? value) {
         var lines = (value ?? string.Empty).Split(System.Environment.NewLine);
-        for (var i = 0; i < lines.Length; i++) {
-            Lines[^1] += lines[i];
-            if (i < lines.Length - 1) Lines.Add(string.Empty);
-        }
+        if (lines.Length == 0) return;
+        if (Lines.Count == 0) Lines.Add(lines[0]);
+        else Lines[^1] += lines[0];
+        foreach (var line in lines.Skip(1)) Lines.Add(line);
     }
 
     public void Write(StringBuilder? builder) => throw new NotImplementedException();
@@ -55,6 +57,11 @@ internal class TestOutput() : IOutput {
     public void Write(uint value) => throw new NotImplementedException();
 
     public void Write(ulong value) => throw new NotImplementedException();
+
+    public void WritePrompt() {
+        if (Lines.Count == 0) Lines.Add(Prompt);
+        else Lines[^1] += Prompt;
+    }
 
     public void WriteLine() => Lines.Add(string.Empty);
 

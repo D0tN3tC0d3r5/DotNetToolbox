@@ -5,16 +5,14 @@ public interface IApplication : IHasChildren {
     string AssemblyName { get; }
     string FullName { get; }
     IServiceProvider Services { get; }
-    ILogger Logger { get; }
 
     void ExitWith(int exitCode);
 }
 
-public interface IApplication<out TApplication, out TBuilder, TOptions>
+public interface IApplication<out TApplication, out TBuilder>
     : IApplication, IAsyncDisposable
-    where TApplication : class, IApplication<TApplication, TBuilder, TOptions>
-    where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TOptions : class, IApplicationOptions, new() {
+    where TApplication : class, IApplication<TApplication, TBuilder>
+    where TBuilder : class, IApplicationBuilder<TApplication, TBuilder> {
 
     int Run();
     Task<int> RunAsync();

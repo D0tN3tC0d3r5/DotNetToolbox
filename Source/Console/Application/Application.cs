@@ -1,21 +1,11 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
-public abstract class Application<TApplication, TBuilder, TSettings>
-    : ApplicationBase, IApplication<TApplication, TBuilder, TSettings>
-    where TApplication : Application<TApplication, TBuilder, TSettings>
-    where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>
-    where TSettings : ApplicationOptions<TSettings>
-  , IHasDefault<TSettings>
-  , new() {
+public abstract class Application<TApplication, TBuilder>(string[] args, IServiceProvider services)
+    : ApplicationBase(args, services),
+      IApplication<TApplication, TBuilder>
+    where TApplication : Application<TApplication, TBuilder>
+    where TBuilder : ApplicationBuilder<TApplication, TBuilder> {
     private int _exitCode = DefaultExitCode;
-
-    protected Application(string[] args, IServiceProvider services)
-        : base(args, services) {
-        var settings = Services.GetService<IOptions<TSettings>>();
-        Settings = settings?.Value ?? new TSettings();
-    }
-
-    public TSettings Settings { get; }
 
     protected virtual ValueTask Dispose()
         => ValueTask.CompletedTask;
@@ -43,7 +33,7 @@ public abstract class Application<TApplication, TBuilder, TSettings>
         try {
             IsRunning = true;
             var taskRun = new CancellationTokenSource();
-            if (Settings.ClearScreenOnStart) Environment.Output.ClearScreen();
+            if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen == "true") Environment.Output.ClearScreen();
             if (await TryParseArguments(taskRun.Token)) return DefaultErrorCode;
             if (!IsRunning) return _exitCode;
             await Run(taskRun.Token);

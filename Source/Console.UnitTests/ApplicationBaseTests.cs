@@ -125,19 +125,6 @@ public class ApplicationBaseTests {
     }
 
     [Fact]
-    public void Create_AddConfiguration_CreatesTestApplication() {
-        // Arrange & Act
-        var options = new TestApplicationOptions {
-            ClearScreenOnStart = true,
-        };
-        var app = TestApplication.Create(b => b.AddValue("TestApplication", options));
-
-        // Assert
-        app.Should().BeOfType<TestApplication>();
-        app.Settings.ClearScreenOnStart.Should().BeTrue();
-    }
-
-    [Fact]
     public void Create_SetLogging_CreatesTestApplication() {
         // Arrange & Act
         var app = TestApplication.Create(b
@@ -610,17 +597,14 @@ public class ApplicationBaseTests {
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestApplication(string[] args, IServiceProvider serviceProvider)
-        : Application<TestApplication, TestApplicationBuilder, TestApplicationOptions>(args, serviceProvider) {
-        internal override Task Run(CancellationToken ct)
+        : Application<TestApplication, TestApplicationBuilder>(args, serviceProvider) {
+        internal override Task Run(CancellationToken ct = default)
             => Execute(ct);
 
-        protected override Task<Result> Execute(CancellationToken ct) => Result.SuccessTask();
+        protected override Task<Result> Execute(CancellationToken ct = default) => Result.SuccessTask();
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestApplicationBuilder(string[] args)
-        : ApplicationBuilder<TestApplication, TestApplicationBuilder, TestApplicationOptions>(args);
-
-    // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestApplicationOptions : ApplicationOptions<TestApplicationOptions>;
+        : ApplicationBuilder<TestApplication, TestApplicationBuilder>(args);
 }

@@ -1,10 +1,11 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Application;
+﻿using System.Diagnostics.CodeAnalysis;
 
-public class ApplicationBuilder<TApplication, TBuilder, TOptions>
-    : IApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TApplication : Application<TApplication, TBuilder, TOptions>
-    where TBuilder : ApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TOptions : ApplicationOptions<TOptions>, INamedOptions<TOptions>, new() {
+namespace DotNetToolbox.ConsoleApplication.Application;
+
+public class ApplicationBuilder<TApplication, TBuilder>
+    : IApplicationBuilder<TApplication, TBuilder>
+    where TApplication : Application<TApplication, TBuilder>
+    where TBuilder : ApplicationBuilder<TApplication, TBuilder> {
     private readonly string[] _args;
     private string? _environment;
     private bool _addEnvironmentVariables;
@@ -14,7 +15,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     private IFileProvider? _fileProvider;
     private Type? _userSecretsReference;
     private Action<ILoggingBuilder> _setLogging = _ => { };
-    private Action<TOptions>? _setOptions;
+    private IConfigurationManager? _configuration;
     private IAssemblyDescriptor? _assemblyDescriptor;
     private IDateTimeProvider? _dateTimeProvider;
     private IGuidProvider? _guidProvider;
@@ -27,6 +28,13 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
     }
 
     public ServiceCollection Services { get; } = [];
+
+    public IConfigurationManager Configuration {
+        get {
+            BuildConfiguration();
+            return _configuration;
+        }
+    }
 
     public void SetAssemblyInformation(IAssemblyDescriptor assemblyDescriptor) => _assemblyDescriptor = IsNotNull(assemblyDescriptor);
     public void SetInputHandler(IInput input) => _input = IsNotNull(input);
@@ -63,19 +71,18 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         return (TBuilder)this;
     }
 
-    public TBuilder ConfigureOptions(Action<TOptions> configure) {
-        _setOptions = IsNotNull(configure);
-        return (TBuilder)this;
-    }
-
     public TBuilder ConfigureLogging(Action<ILoggingBuilder> configure) {
         _setLogging = IsNotNull(configure);
         return (TBuilder)this;
     }
 
+    [MemberNotNull(nameof(_configuration))]
+    public void BuildConfiguration() {
+        _configuration = new ConfigurationManager();
+        SetConfiguration(_configuration);
+    }
+
     public TApplication Build() {
-        var configuration = new ConfigurationManager();
-        SetConfiguration(configuration);
         Services.AddEnvironment(_environment,
                                 _assemblyDescriptor,
                                 _dateTimeProvider,
@@ -83,12 +90,11 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
                                 _fileSystem,
                                 _input,
                                 _output);
-        AddLogging(configuration);
+        AddLogging(Configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
         var app = CreateInstance.Of<TApplication>(_args, serviceProvider);
-        _setOptions?.Invoke(app.Settings);
-        var items = ((IConfigurationManager)configuration).Build().AsEnumerable().ToList();
+        var items = Configuration.Build().AsEnumerable().ToList();
         foreach (var item in items) app.Context.Add(item.Key, item.Value);
         return app;
     }
@@ -98,7 +104,6 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         AddJsonFile(configuration);
         AddUserSecrets(configuration);
         AddConfiguration(configuration);
-        AddOptions(configuration);
         Services.AddSingleton<IConfiguration>(configuration);
     }
 
@@ -107,12 +112,6 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
             b.AddConfiguration(configuration);
             _setLogging(b);
         });
-
-    private void AddOptions(IConfiguration configuration) {
-        var section = configuration.GetSection(TOptions.SectionName);
-        if (!section.Exists()) return;
-        Services.Configure<TOptions>(section);
-    }
 
     private void AddUserSecrets(IConfigurationBuilder configuration) {
         if (_userSecretsReference is null) return;
@@ -132,16 +131,14 @@ public class ApplicationBuilder<TApplication, TBuilder, TOptions>
         configuration.AddJsonFile(ConfigureSource("appsettings.json"));
         if (!string.IsNullOrWhiteSpace(_environment)) return;
         configuration.AddJsonFile(ConfigureSource($"appsettings.{_environment}.json", isOptional: true));
-
-        return;
-
-        Action<JsonConfigurationSource> ConfigureSource(string path, bool isOptional = false)
-            => s => {
-                s.FileProvider = _fileProvider;
-                s.Path = path;
-                s.Optional = isOptional;
-                s.ReloadOnChange = true;
-                s.ResolveFileProvider();
-            };
     }
+
+    private Action<JsonConfigurationSource> ConfigureSource(string path, bool isOptional = false)
+        => s => {
+            s.FileProvider = _fileProvider;
+            s.Path = path;
+            s.Optional = isOptional;
+            s.ReloadOnChange = true;
+            s.ResolveFileProvider();
+        };
 }

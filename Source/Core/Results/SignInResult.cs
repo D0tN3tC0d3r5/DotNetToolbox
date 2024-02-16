@@ -68,8 +68,8 @@ public record SignInResult : ResultBase<SignInResultType> {
     public static implicit operator SignInResult(List<ValidationError> errors) => (Result)errors;
     public static implicit operator SignInResult(HashSet<ValidationError> errors) => (Result)errors;
     public static implicit operator SignInResult(Result result) => new(SignInResultType.Success, errors: result.Errors);
-    public static implicit operator ValidationErrors(SignInResult result) => result.HasException ? [] : result.Errors.ToArray();
-    public static implicit operator ValidationError[](SignInResult result) => result.HasException ? [] : result.Errors.ToArray();
+    public static implicit operator ValidationErrors(SignInResult result) => result.HasException ? [] : [.. result.Errors];
+    public static implicit operator ValidationError[](SignInResult result) => result.HasException ? [] : [.. result.Errors];
     public static implicit operator Exception?(SignInResult result) => result.Exception;
 
     public static SignInResult operator +(SignInResult left, Result right)

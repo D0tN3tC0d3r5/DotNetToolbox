@@ -8,14 +8,16 @@ public abstract class Node<TNode>
         Parent = parent;
         Application = FindRoot(this);
         Environment = Application.Environment;
+        Ask = new QuestionFactory(Environment.Output, Environment.Input);
         var factory = Application.Services.GetRequiredService<ILoggerFactory>();
         Logger = factory.CreateLogger<TNode>();
         Name = IsValid(name, IsValidName);
-        Aliases = AllAreValid<string[], string>(aliases, IsValidAlias);
+        Aliases = DoesNotContainInvalidItems<string[], string>(aliases, IsValidAlias);
     }
 
     public IApplication Application { get; }
     public IEnvironment Environment { get; }
+    public IQuestionFactory Ask { get; }
     public IHasChildren Parent { get; }
     public string Name { get; }
     public string[] Aliases { get; }

@@ -11,7 +11,7 @@ public abstract record ResultBase<TType>
     }
 
     protected ResultBase(IEnumerable<ValidationError>? errors = null) {
-        _errors = new(AllAreNotNull(errors ?? []));
+        _errors = new(DoesNotContainNullItems(errors ?? []));
     }
 
     public abstract TType Type { get; }

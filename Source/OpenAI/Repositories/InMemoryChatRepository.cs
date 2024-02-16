@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.OpenAI.Utilities;
+﻿namespace DotNetToolbox.OpenAI.Repositories;
 
 internal sealed class InMemoryChatRepository(ILogger<InMemoryChatRepository>? logger = null)
     : IChatRepository {

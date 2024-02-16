@@ -8,14 +8,13 @@ public sealed class ShellApplication
 }
 
 public abstract class ShellApplication<TApplication>(string[] args, IServiceProvider services)
-    : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>, ShellApplicationOptions>(args, services)
+    : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>>(args, services)
     where TApplication : ShellApplication<TApplication>;
 
-public abstract class ShellApplication<TApplication, TBuilder, TOptions>
-    : Application<TApplication, TBuilder, TOptions>, IRunAsShell
-    where TApplication : ShellApplication<TApplication, TBuilder, TOptions>
-    where TBuilder : ShellApplicationBuilder<TApplication, TBuilder, TOptions>
-    where TOptions : ShellApplicationOptions<TOptions>, new() {
+public abstract class ShellApplication<TApplication, TBuilder>
+    : Application<TApplication, TBuilder>, IRunAsShell
+    where TApplication : ShellApplication<TApplication, TBuilder>
+    where TBuilder : ShellApplicationBuilder<TApplication, TBuilder> {
 
     protected ShellApplication(string[] args, IServiceProvider services)
         : base(args, services) {
@@ -40,7 +39,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TOptions>
     protected override Task<Result> Execute(CancellationToken ct = default) => SuccessTask();
 
     private async Task ProcessCommandLine(CancellationToken ct) {
-        Environment.Output.Write(Settings.Prompt);
+        Environment.Output.WritePrompt();
         var userInputText = Environment.Input.ReadLine();
         var userInputs = UserInputParser.Parse(userInputText);
         var result = await ProcessUserInput(userInputs, ct);

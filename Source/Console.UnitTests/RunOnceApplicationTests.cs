@@ -12,8 +12,6 @@ public class RunOnceApplicationTests {
         app.Environment.Name.Should().Be("");
         app.AssemblyName.Should().Be("testhost");
         app.Children.Should().HaveCount(3);
-        app.Settings.Should().NotBeNull();
-        app.Settings.ClearScreenOnStart.Should().BeFalse();
         app.Context.Should().BeEmpty();
         app.Logger.Should().NotBeNull();
     }
@@ -272,7 +270,6 @@ public class RunOnceApplicationTests {
 
             """;
         await using var app = RunOnceApplication.Create(b => {
-            b.ConfigureOptions(o => o.ClearScreenOnStart = true);
             b.SetDateTimeProvider(dateTimeProvider);
             b.SetGuidProvider(guidProvider);
             b.SetFileSystem(fileSystem);
@@ -306,10 +303,7 @@ public class RunOnceApplicationTests {
 
 
             """;
-        await using var app = RunOnceApplication.Create(["--help"], b => {
-            b.ConfigureOptions(o => o.ClearScreenOnStart = true);
-            b.SetOutputHandler(output);
-        });
+        await using var app = RunOnceApplication.Create(["--help"], b => b.SetOutputHandler(output));
 
         // Act
         await app.RunAsync();
@@ -341,19 +335,6 @@ public class RunOnceApplicationTests {
         // Assert
         actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
         output.ToString().Should().Be(expectedOutput);
-    }
-
-    [Fact]
-    public void Create_AddConfiguration_CreatesRunOnceApplication() {
-        // Arrange & Act
-        var options = new RunOnceApplicationOptions {
-            ClearScreenOnStart = true,
-        };
-        var app = RunOnceApplication.Create(b => b.AddValue("RunOnceApplication", options));
-
-        // Assert
-        app.Should().BeOfType<RunOnceApplication>();
-        app.Settings.ClearScreenOnStart.Should().BeTrue();
     }
 
     [Fact]

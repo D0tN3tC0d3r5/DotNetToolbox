@@ -3,7 +3,7 @@
 public static class Ensure {
     [return: NotNull]
     public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        => argument ?? throw new ArgumentNullException(paramName, string.Format(ValueCannotBeNull, paramName));
+        => argument ?? throw new ArgumentNullException(paramName, ValueCannotBeNull);
 
     [return: NotNull]
     public static TArgument IsNotNullOrDefault<TArgument>(TArgument? argument, TArgument defaultValue)
@@ -19,7 +19,7 @@ public static class Ensure {
     public static TArgument? IsNotEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
-            ICollection { Count: 0 } => throw new ArgumentException(string.Format(CollectionCannotBeEmpty, paramName), paramName),
+            ICollection { Count: 0 } => throw new ArgumentException(CollectionCannotBeEmpty, paramName),
             _ => argument,
         };
 
@@ -27,43 +27,16 @@ public static class Ensure {
     public static TArgument IsNotNullOrEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
-            null => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
-            string { Length: 0 } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
-            ICollection { Count: 0 } => throw new ArgumentException(string.Format(ValueCannotBeNullOrEmpty, paramName), paramName),
+            null => throw new ArgumentException(ValueCannotBeNull, paramName),
+            string { Length: 0 } => throw new ArgumentException(StringCannotBeNullOrEmpty, paramName),
+            ICollection { Count: 0 } => throw new ArgumentException(CollectionCannotBeEmpty, paramName),
             _ => argument,
         };
 
     public static string IsNotNullOrWhiteSpace(string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument is null || argument.Trim().Length == 0
-            ? throw new ArgumentException(string.Format(ValueCannotBeNullOrWhiteSpace, paramName), paramName)
+            ? throw new ArgumentException(StringCannotBeNullOrWhiteSpace, paramName)
             : argument;
-
-    [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? AllAreNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : IEnumerable {
-        var invalidItems = GetIndexedItems<TArgument, object?>(argument).Where(i => i.Value is null).Select(i => i.Index).ToArray();
-        return invalidItems.Length == 0
-                   ? argument
-                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNull);
-    }
-
-    [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? AllAreNotNullOrEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : IEnumerable<string?> {
-        var invalidItems = GetIndexedItems<TArgument, string?>(argument).Where(i => string.IsNullOrEmpty(i.Value)).Select(i => i.Index).ToArray();
-        return invalidItems.Length == 0
-                   ? argument
-                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrEmpty);
-    }
-
-    [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? AllAreNotNullOrWhiteSpace<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : IEnumerable<string?> {
-        var invalidItems = GetIndexedItems<TArgument, string?>(argument).Where(i => string.IsNullOrWhiteSpace(i.Value)).Select(i => i.Index).ToArray();
-        return invalidItems.Length == 0
-               ? argument
-               : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
-    }
 
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument IsValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
@@ -80,9 +53,10 @@ public static class Ensure {
     }
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
-        validate(argument).EnsureIsSuccess(null, paramName);
-        return argument;
+    public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument, Result> validate, [CallerArgumentExpression(nameof(argument))]string? paramName = null) {
+        if (argument is null) return argument;
+        var result = validate(argument);
+        return result.IsSuccess ? argument : throw new ValidationException(ValueIsInvalid, paramName!);
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
@@ -95,7 +69,7 @@ public static class Ensure {
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => isValid(argument)
                ? argument
-               : throw new ValidationException(ValueIsNotValid, paramName!);
+               : throw new ValidationException(ValueIsInvalid, paramName!);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue)
@@ -104,47 +78,30 @@ public static class Ensure {
                : defaultValue;
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? AllAreValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : IEnumerable<IValidatable> {
-        var invalidItems = GetIndexedItems<TArgument, IValidatable>(argument)
-                          .Where(i => !i.Value?.Validate().IsSuccess ?? false)
-                          .Select(i => i.Index)
-                          .ToArray();
-        return invalidItems.Length == 0
-                   ? argument
-                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
-    }
-
-    [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? AllAreValid<TArgument, TValue>(TArgument? argument, Func<TValue?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : IEnumerable<TValue> {
-        var invalidItems = GetIndexedItems<TArgument, TValue>(argument)
-                          .Where(i => !validate(i.Value).IsSuccess)
-                          .Select(i => i.Index)
-                          .ToArray();
-        return invalidItems.Length == 0
-                   ? argument
-                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
-    }
-
-    [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? AllAreValid<TArgument, TValue>(TArgument? argument, Func<TValue?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : IEnumerable<TValue> {
-        var invalidItems = GetIndexedItems<TArgument, TValue>(argument)
-                          .Where(i => !isValid(i.Value))
-                          .Select(i => i.Index)
-                          .ToArray();
-        return invalidItems.Length == 0
-                   ? argument
-                   : throw GenerateException(paramName!, invalidItems, ElementAtCannotBeNullOrWhiteSpace);
-    }
-
-    private static Indexed<TValue>[] GetIndexedItems<TArgument, TValue>(TArgument? argument)
+    public static TArgument? DoesNotContainNullItems<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
-        => (argument?.Cast<TValue?>() ?? []).Select((x, i) => new Indexed<TValue>(i, x)).ToArray();
+        => argument?.Cast<object?>().All(i => i is not null) ?? true
+               ? argument
+               : throw new ValidationException(CollectionContainsNull, paramName!);
 
-    private static ValidationException GenerateException(string paramName, IEnumerable<int> emptyElements, string message) {
-        var errors = emptyElements.Select(i => new ValidationError(string.Format(message, i))).ToArray();
-        return new(CollectionIsInvalid, paramName, errors);
-    }
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? DoesNotContainInvalidItems<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable<IValidatable>
+        => argument?.All(i => i?.Validate().IsSuccess ?? true) ?? true
+               ? argument
+               : throw new ValidationException(CollectionContainsInvalid, paramName!);
+
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? DoesNotContainInvalidItems<TArgument, TValue>(TArgument? argument, Func<TValue?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable<TValue?>
+        => argument?.All(i => validate(i).IsSuccess) ?? true
+               ? argument
+               : throw new ValidationException(CollectionContainsInvalid, paramName!);
+
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? DoesNotContainInvalidItems<TArgument, TValue>(TArgument? argument, Func<TValue?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable<TValue?>
+        => argument?.All(isValid) ?? true
+                   ? argument
+                   : throw new ValidationException(CollectionContainsInvalid, paramName!);
 }

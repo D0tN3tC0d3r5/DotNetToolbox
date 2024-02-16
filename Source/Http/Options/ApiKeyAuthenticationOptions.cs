@@ -9,7 +9,7 @@ public class ApiKeyAuthenticationOptions : AuthenticationOptions {
         var result = base.Validate(context);
 
         if (string.IsNullOrWhiteSpace(ApiKey))
-            result += new ValidationError(ValueCannotBeNullOrWhiteSpace, GetSourcePath(nameof(ApiKey)));
+            result += new ValidationError(StringCannotBeNullOrWhiteSpace, GetSourcePath(nameof(ApiKey)));
 
         return result;
 

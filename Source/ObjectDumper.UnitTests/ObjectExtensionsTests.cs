@@ -256,9 +256,9 @@ public class ObjectExtensionsTests {
             Add(42.7, "<Double> 42.7");
             Add(42.7m, "<Decimal> 42.7");
             Add("Text", "<String> \"Text\"");
-            Add(new DateTime(2001, 10, 12), "<DateTime> 2001-10-12 00:00:00");
-            Add(new DateTimeOffset(new DateTime(2001, 10, 12), TimeSpan.FromHours(-5)), "<DateTimeOffset> 2001-10-12 00:00:00 -05:00");
-            Add(new DateOnly(2001, 10, 12), "<DateOnly> 2001-10-12");
+            Add(new DateTime(2001, 10, 12), $"<DateTime> {new DateOnly(2001, 10, 12).ToString(CultureInfo.CurrentCulture)} 00:00:00");
+            Add(new DateTimeOffset(new DateTime(2001, 10, 12), TimeSpan.FromHours(-5)), $"<DateTimeOffset> {new DateOnly(2001, 10, 12).ToString(CultureInfo.CurrentCulture)} 00:00:00 -05:00");
+            Add(new DateOnly(2001, 10, 12), $"<DateOnly> {new DateOnly(2001, 10, 12).ToString(CultureInfo.CurrentCulture)}");
             Add(new TimeOnly(23, 15, 52), "<TimeOnly> 23:15");
             Add(new TimeSpan(23, 15, 52), "<TimeSpan> 23:15:52");
             Add(Guid.Parse("b6d3aec4-daca-4dca-ada7-cda51623ed50"), "<Guid> b6d3aec4-daca-4dca-ada7-cda51623ed50");

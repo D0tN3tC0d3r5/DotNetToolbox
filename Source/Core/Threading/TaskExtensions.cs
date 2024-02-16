@@ -25,9 +25,9 @@ public static class TaskExtensions {
     public static void FireAndForget<TResult>(this ValueTask<TResult> task, Action<TResult> onResult, Action<OperationCanceledException> onCancel, Action<Exception> onException)
         => HandleFireAndForget(task, onResult, IsNotNull(onCancel), IsNotNull(onException));
     public static void FireAndForget<TResult>(this ValueTask<TResult> task, Action<TResult> onResult, Action<ValueTask<TResult>, Exception> onException)
-        => HandleFireAndForget(task, IsNotNull(onResult), default(Action<ValueTask<TResult>, OperationCanceledException>), IsNotNull(onException));
+        => HandleFireAndForget(task, IsNotNull(onResult), default, IsNotNull(onException));
     public static void FireAndForget<TResult>(this ValueTask<TResult> task, Action<TResult> onResult, Action<ValueTask<TResult>, OperationCanceledException> onCancel)
-        => HandleFireAndForget(task, onResult, IsNotNull(onCancel), default(Action<ValueTask<TResult>, Exception>));
+        => HandleFireAndForget(task, onResult, IsNotNull(onCancel), default);
     public static void FireAndForget<TResult>(this ValueTask<TResult> task, Action<TResult> onResult, Action<ValueTask<TResult>, OperationCanceledException> onCancel, Action<ValueTask<TResult>, Exception> onException)
         => HandleFireAndForget(task, onResult, IsNotNull(onCancel), IsNotNull(onException));
 
@@ -55,9 +55,9 @@ public static class TaskExtensions {
     public static void FireAndForget<TResult>(this Task<TResult> task, Action<TResult> onResult, Action<OperationCanceledException> onCancel, Action<Exception> onException)
         => HandleFireAndForget(task, IsNotNull(onResult), IsNotNull(onCancel), IsNotNull(onException));
     public static void FireAndForget<TResult>(this Task<TResult> task, Action<TResult> onResult, Action<Task<TResult>, Exception> onException)
-        => HandleFireAndForget(task, IsNotNull(onResult), default(Action<Task<TResult>, OperationCanceledException>), IsNotNull(onException));
+        => HandleFireAndForget(task, IsNotNull(onResult), default, IsNotNull(onException));
     public static void FireAndForget<TResult>(this Task<TResult> task, Action<TResult> onResult, Action<Task<TResult>, OperationCanceledException> onCancel)
-        => HandleFireAndForget(task, IsNotNull(onResult), IsNotNull(onCancel), default(Action<Task<TResult>, Exception>));
+        => HandleFireAndForget(task, IsNotNull(onResult), IsNotNull(onCancel), default);
     public static void FireAndForget<TResult>(this Task<TResult> task, Action<TResult> onResult, Action<Task<TResult>, OperationCanceledException> onCancel, Action<Task<TResult>, Exception> onException)
         => HandleFireAndForget(task, IsNotNull(onResult), IsNotNull(onCancel), IsNotNull(onException));
 

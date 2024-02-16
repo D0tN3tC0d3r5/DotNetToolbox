@@ -52,7 +52,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("The value cannot be null or white space.");
+        exception.Errors[0].Message.Should().Be("The value is invalid.");
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("The value cannot be null or white space.");
+        exception.Errors[0].Message.Should().Be("The value is invalid.");
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("The value cannot be null or white space.");
+        exception.Errors[0].Message.Should().Be("The value is invalid.");
     }
 
     [Fact]
@@ -606,6 +606,6 @@ public sealed class HttpClientProviderTests : IDisposable {
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().HaveCount(3);
+        exception.Errors.Should().HaveCount(1);
     }
 }
