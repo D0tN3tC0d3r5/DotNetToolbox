@@ -599,9 +599,9 @@ public class ApplicationBaseTests {
     private class TestApplication(string[] args, IServiceProvider serviceProvider)
         : Application<TestApplication, TestApplicationBuilder>(args, serviceProvider) {
         internal override Task Run(CancellationToken ct = default)
-            => Execute(ct);
+            => OnStart(ct);
 
-        protected override Task<Result> Execute(CancellationToken ct = default) => Result.SuccessTask();
+        protected virtual Task<Result> OnStart(CancellationToken ct = default) => Result.SuccessTask();
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.

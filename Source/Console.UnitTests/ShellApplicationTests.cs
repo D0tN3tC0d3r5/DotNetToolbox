@@ -42,11 +42,7 @@ public class ShellApplicationTests {
             testhost v15.0.0.0
             > 
             > --exit
-            Validation error: Command '--exit' not found. For a list of available commands use 'help'.
-
             > "exit"
-            Validation error: Command '"exit"' not found. For a list of available commands use 'help'.
-
             > exit
 
             """;
@@ -77,7 +73,7 @@ public class ShellApplicationTests {
         const string expectedOutput =
             """
             testhost v15.0.0.0
-            $ exit
+            > exit
 
             """;
         var fileSystem = new TestFileSystem();
@@ -241,7 +237,7 @@ public class ShellApplicationTests {
     }
 
     [Fact]
-    public async Task RunAsync_WithHelpFlag_ExecutesUntilExit() {
+    public async Task RunAsync_WithHelpOption_ShowsHelpAndExits() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output);
@@ -253,9 +249,28 @@ public class ShellApplicationTests {
         const string expectedOutput =
             """
             Test Shell Application v1.0
+            This is a test application.
+
+            Usage:
+                tsa [Options] [Commands]
+                tsa [Options] [<Timeout>]
+
+            Options:
+                --clear-screen, -cls      Clear the screen.
+                --help, -h, -?            Display this help information.
+                --version                 Display the application's version.
+
+            Parameters:
+                Timeout
+
+            Commands:
+                ClearScreen, cls          Clear the screen.
+                Exit                      Exit the application.
+                Help, ?                   Display this help information.
+
 
             """;
-        await using var app = Shell.Create(["--version"], b => {
+        await using var app = Shell.Create(["--help"], b => {
             b.SetAssemblyInformation(assemblyDescriptor);
             b.SetOutputHandler(output);
             b.SetInputHandler(input);
@@ -271,7 +286,7 @@ public class ShellApplicationTests {
     }
 
     [Fact]
-    public async Task RunAsync_WithHelpCommand_ShowsCommandHelp() {
+    public async Task RunAsync_WithHelpCommand_ShowsHelp() {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output, "help ClearScreen", "exit");
@@ -324,10 +339,10 @@ public class ShellApplicationTests {
                        at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`2.*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`2.*
 
 
             """;
@@ -364,10 +379,10 @@ public class ShellApplicationTests {
                        at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.ProcessUserInput(String[] input, CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.Run(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.RunAsync()*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`2.ProcessCommand(String[] input, CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.Run(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`2.RunAsync()*
 
 
             """;
@@ -410,10 +425,10 @@ public class ShellApplicationTests {
                        at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessCommandLine(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`3.Run(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`3.RunAsync()*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`2*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.Run(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Application.Application`2.RunAsync()*
                 Inner Exception => InvalidOperationException: Some error.
                     Stack Trace:
                            at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
@@ -470,11 +485,11 @@ public class ShellApplicationTests {
         var output = new TestOutput();
         var input = new TestInput(output, "exit");
         const string expectedOutput =
-            $"""
-             Validation error: Unknown argument '--invalid'. For a list of available arguments use '--help'.
+            """
+            Validation error: Unknown argument '--invalid'. For a list of available arguments use '--help'.
 
 
-             """;
+            """;
         var app = Shell.Create(["--invalid"], b => {
             b.SetInputHandler(input);
             b.SetOutputHandler(output);
@@ -497,8 +512,6 @@ public class ShellApplicationTests {
             """
             testhost v15.0.0.0
             > invalid
-            Validation error: Command 'invalid' not found. For a list of available commands use 'help'.
-
             > exit
 
             """;
@@ -518,7 +531,7 @@ public class ShellApplicationTests {
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestShellApp(string[] args, IServiceProvider serviceProvider)
         : ShellApplication<TestShellApp>(args, serviceProvider) {
-        protected override Task<Result> Execute(CancellationToken ct) => Result.InvalidTask("Some error.");
+        protected override Task<Result> OnStart(CancellationToken ct) => Result.InvalidTask("Some error.");
     }
 
     [Fact]
@@ -540,7 +553,7 @@ public class ShellApplicationTests {
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestFaultyShellApp(string[] args, IServiceProvider serviceProvider)
         : ShellApplication<TestFaultyShellApp>(args, serviceProvider) {
-        protected override Task<Result> Execute(CancellationToken ct) => Result.ErrorTask(new ConsoleException(13));
+        protected override Task<Result> OnStart(CancellationToken ct = default) => Result.ErrorTask(new ConsoleException(13));
     }
 
     [Fact]

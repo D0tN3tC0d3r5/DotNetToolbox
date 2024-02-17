@@ -50,8 +50,7 @@ public abstract class ApplicationBase : IApplication {
     IApplication INode.Application => this;
     string[] INode.Aliases => [];
 
-    internal abstract Task Run(CancellationToken ct = default);
-    protected abstract Task<Result> Execute(CancellationToken ct = default);
+    internal abstract Task Run(CancellationToken ct);
 
     public ICommand AddCommand(string name, Delegate action)
         => AddCommand(name, aliases: [], action);

@@ -15,17 +15,18 @@ public abstract class ShellApplication<TApplication, TBuilder>
     : Application<TApplication, TBuilder>, IRunAsShell
     where TApplication : ShellApplication<TApplication, TBuilder>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder> {
+    private readonly bool _allowMultiLine;
 
     protected ShellApplication(string[] args, IServiceProvider services)
         : base(args, services) {
         AddCommand<ExitCommand>();
         AddCommand<ClearScreenCommand>();
         AddCommand<HelpCommand>();
+        _allowMultiLine = Context.TryGetValue("AllowMultiLine", out var isAllowed) && isAllowed == "true";
     }
 
-    internal sealed override async Task Run(CancellationToken ct = default) {
-        Environment.Output.WriteLine(FullName);
-        var result = await Execute(ct);
+    internal sealed override async Task Run(CancellationToken ct) {
+        var result = await OnStart(ct);
         ProcessResult(result);
         if (!result.IsSuccess) {
             ExitWith(DefaultErrorCode);
@@ -33,16 +34,33 @@ public abstract class ShellApplication<TApplication, TBuilder>
         }
 
         while (IsRunning && !ct.IsCancellationRequested)
-            await ProcessCommandLine(ct);
+            await ProcessInput(ct);
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) => SuccessTask();
+    protected virtual Task<Result> OnStart(CancellationToken ct) {
+        Environment.Output.WriteLine(FullName);
+        return SuccessTask();
+    }
 
-    private async Task ProcessCommandLine(CancellationToken ct) {
+    private async Task ProcessInput(CancellationToken ct) {
         Environment.Output.WritePrompt();
-        var userInputText = Environment.Input.ReadLine();
-        var userInputs = UserInputParser.Parse(userInputText);
-        var result = await ProcessUserInput(userInputs, ct);
+        var input = Environment.Input.ReadLine();
+        var tokens = UserInputParser.Parse(input);
+        var result = StartsWithCommand(tokens.FirstOrDefault())
+                     ? await ProcessCommand(tokens, ct)
+                     : await ProcessFreeText(input, ct);
+
         ProcessResult(result);
     }
+
+    private Task<Result> ProcessFreeText(string input, CancellationToken ct) {
+        if (_allowMultiLine) input += Environment.Input.ReadMultiLine(Enter, Control);
+        return ExecuteDefault(input, ct);
+    }
+
+    protected virtual Task<Result> ExecuteDefault(string input, CancellationToken ct) => SuccessTask();
+
+    private bool StartsWithCommand(string? firstWord)
+        => Commands.Any(c => c.Name.Equals(firstWord, StringComparison.OrdinalIgnoreCase)
+                          || c.Aliases.Contains(firstWord));
 }

@@ -33,7 +33,8 @@ public abstract class Application<TApplication, TBuilder>(string[] args, IServic
         try {
             IsRunning = true;
             var taskRun = new CancellationTokenSource();
-            if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen == "true") Environment.Output.ClearScreen();
+            if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen == "true")
+                Environment.Output.ClearScreen();
             if (await TryParseArguments(taskRun.Token)) return DefaultErrorCode;
             if (!IsRunning) return _exitCode;
             await Run(taskRun.Token);
@@ -61,7 +62,7 @@ public abstract class Application<TApplication, TBuilder>(string[] args, IServic
         return result.HasErrors;
     }
 
-    protected async Task<Result> ProcessUserInput(string[] input, CancellationToken ct) {
+    protected async Task<Result> ProcessCommand(string[] input, CancellationToken ct) {
         if (input.Length == 0) return Success();
         var command = FindCommand((this as IHasChildren).Commands, input[0]);
         if (command is null) return Invalid($"Command '{input[0]}' not found. For a list of available commands use 'help'.");

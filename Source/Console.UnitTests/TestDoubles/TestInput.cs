@@ -15,6 +15,16 @@ internal class TestInput(IOutput output, params string[] inputs) : IInput {
         return input;
     }
 
+    public string ReadMultiLine(ConsoleKey submitKey = ConsoleKey.Enter,
+                                ConsoleModifiers submitKeyModifiers = ConsoleModifiers.None) {
+        var input = string.Empty;
+        while (_inputQueue.TryDequeue(out var line) && !line.EndsWith("[Ctrl+Enter]")) {
+            output.WriteLine(line);
+            input += line + System.Environment.NewLine;
+        }
+        return input;
+    }
+
     public Encoding Encoding {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();

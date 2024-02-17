@@ -7,9 +7,10 @@ public class BigMouth
         AddCommand<SayCommand>();
     }
 
-    protected override Task<Result> Execute(CancellationToken ct) {
+    protected override Task<Result> OnStart(CancellationToken ct = default) {
+        var result = base.OnStart(ct);
         var name = Context["MyName"];
         Environment.Output.WriteLine($"Hello {name}.");
-        return base.Execute(ct);
+        return result;
     }
 }
