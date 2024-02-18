@@ -18,7 +18,7 @@ public class StaticTokenAuthenticationOptions : AuthenticationOptions {
                    : $"{name}.{source}";
     }
 
-    internal override HttpAuthentication Configure(HttpClient client, HttpAuthentication _) {
+    public override HttpAuthentication Configure(HttpClient client, HttpAuthentication _) {
         var authentication = new HttpAuthentication() {
             Type = Jwt,
             Scheme = Scheme,

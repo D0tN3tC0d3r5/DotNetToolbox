@@ -6,14 +6,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>3d759408-1744-4bfe-9c4d-a88419ec7339</UserSecretsId>
-    <RootNamespace>Lola</RootNamespace>
-    <AssemblyName>chat</AssemblyName>
-    <ProductName>DotNetToolbox.OpenAI.ShellApp</ProductName>
+    <RootNamespace>Sophia</RootNamespace>
+    <AssemblyName>sophia</AssemblyName>
+    <ProductName>DotNetToolbox.Sophia</ProductName>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
-    <Version>1.0.0</Version>
+    <Version>0.1.0</Version>
     <VersionSufix>alpha</VersionSufix>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>chat-gpt</ToolCommandName>
+    <ToolCommandName>sophia</ToolCommandName>
   </PropertyGroup>
 
   <ItemGroup>

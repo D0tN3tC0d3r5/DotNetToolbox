@@ -3,6 +3,8 @@
 public class ChatOptionsBuilder(string? model = null) {
     private ChatOptions _options = new(model);
 
+    public string SystemMessage { get; init; } = "You are a helpful agent.";
+
     public ChatOptionsBuilder WithFrequencyPenalty(decimal frequencyPenalty) {
         _options = _options with { FrequencyPenalty = frequencyPenalty };
         return this;
@@ -43,7 +45,7 @@ public class ChatOptionsBuilder(string? model = null) {
             Tools = [.. _options.Tools,
                 new() {
                     Function = function,
-                }]
+                }],
         };
         return this;
     }

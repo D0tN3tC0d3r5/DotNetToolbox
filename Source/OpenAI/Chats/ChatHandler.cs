@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.OpenAI.Chats;
 
-internal class ChatHandler(IChatRepository repository, IOpenAIHttpClientProvider httpClientProvider, ILogger<ChatHandler> logger)
+internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpClientProvider, ILogger<ChatHandler> logger)
     : IChatHandler {
     private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 
@@ -10,6 +10,10 @@ internal class ChatHandler(IChatRepository repository, IOpenAIHttpClientProvider
             var builder = new ChatOptionsBuilder(model);
             configure?.Invoke(builder);
             var chat = new Chat(builder.Build());
+            chat.Messages.Add(new() {
+                Type = MessageType.System,
+                Content = JsonSerializer.SerializeToElement(builder.SystemMessage),
+            });
             await repository.Add(chat);
             logger.LogDebug("Chat '{id}' created.", chat.Id);
             return chat;

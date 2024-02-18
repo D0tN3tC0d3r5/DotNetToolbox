@@ -11,7 +11,7 @@ public abstract class RunOnceApplication<TApplication>(string[] args, IServicePr
     : RunOnceApplication<TApplication, RunOnceApplicationBuilder<TApplication>>(args, services)
     where TApplication : RunOnceApplication<TApplication>;
 
-public abstract class RunOnceApplication<TApplication, TBuilder>(string[] args, IServiceProvider services) : Application<TApplication, TBuilder>(args, services), IRunOnce
+public abstract class RunOnceApplication<TApplication, TBuilder>(string[] args, IServiceProvider services) : ApplicationBase<TApplication, TBuilder>(args, services), IRunOnce
     where TApplication : RunOnceApplication<TApplication, TBuilder>
     where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder> {
     internal sealed override async Task Run(CancellationToken ct) {

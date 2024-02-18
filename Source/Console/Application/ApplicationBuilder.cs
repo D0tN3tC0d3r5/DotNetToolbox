@@ -4,7 +4,7 @@ namespace DotNetToolbox.ConsoleApplication.Application;
 
 public class ApplicationBuilder<TApplication, TBuilder>
     : IApplicationBuilder<TApplication, TBuilder>
-    where TApplication : Application<TApplication, TBuilder>
+    where TApplication : ApplicationBase<TApplication, TBuilder>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder> {
     private readonly string[] _args;
     private string? _environment;

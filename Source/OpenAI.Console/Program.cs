@@ -1,12 +1,8 @@
-﻿var app = ShellApplication.Create(args, builder => {
-    builder.AddAppSettings()
-           .AddUserSecrets<Program>();
+﻿var app = SophiaShellApplication.Create(args, builder => {
+                                                  builder.AddAppSettings()
+                                                         .AddUserSecrets<Program>();
 
-    builder.Services.AddOpenAI(builder.Configuration);
-});
-
-app.AddCommand<StartChatCommand>();
-app.AddCommand<EndChatCommand>();
-app.AddCommand<SendMessageCommand>();
+                                                  builder.Services.AddOpenAI(builder.Configuration);
+                                              });
 
 await app.RunAsync();

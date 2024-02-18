@@ -12,7 +12,7 @@ public abstract class ShellApplication<TApplication>(string[] args, IServiceProv
     where TApplication : ShellApplication<TApplication>;
 
 public abstract class ShellApplication<TApplication, TBuilder>
-    : Application<TApplication, TBuilder>, IRunAsShell
+    : ApplicationBase<TApplication, TBuilder>, IRunAsShell
     where TApplication : ShellApplication<TApplication, TBuilder>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder> {
     private readonly bool _allowMultiLine;

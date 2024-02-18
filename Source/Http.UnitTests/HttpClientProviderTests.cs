@@ -109,7 +109,7 @@ public sealed class HttpClientProviderTests : IDisposable {
     public void GetHttpClient_FromParameters_ReturnsHttpClient() {
         // Arrange
         // Act
-        var result = _provider.GetHttpClient(opt => {
+        var result = _provider.GetHttpClient(configureBuilder: opt => {
             opt.SetBaseAddress(new("http://example.com/api/v2/"));
             opt.SetResponseFormat("text/xml");
             opt.AddCustomHeader("x-custom-string", "SomeValue");
@@ -139,7 +139,7 @@ public sealed class HttpClientProviderTests : IDisposable {
     [Fact]
     public void GetHttpClient_WithNamedClient_ReturnsHttpClient() {
         // Arrange
-        _defaultOptions.Clients = new() {
+        _defaultOptions.NamedClients = new() {
             ["NamedClient1"] = new() {
                 BaseAddress = _defaultOptions.BaseAddress,
                 ResponseFormat = "text/xml",
@@ -170,7 +170,7 @@ public sealed class HttpClientProviderTests : IDisposable {
     public void GetHttpClient_WithInvalidNamedClient_ReturnsHttpClient() {
         // Arrange
         _defaultOptions.BaseAddress = null;
-        _defaultOptions.Clients = new() {
+        _defaultOptions.NamedClients = new() {
             ["NamedClient1"] = new() {
                 BaseAddress = _defaultOptions.BaseAddress,
                 ResponseFormat = "text/xml",
@@ -208,7 +208,7 @@ public sealed class HttpClientProviderTests : IDisposable {
     [Fact]
     public void UseApiKey_FromParameter_OverridesOptions() {
         // Act
-        var result = _provider.GetHttpClient(options => options.UseApiKeyAuthentication(opt => opt.ApiKey = "abc123"));
+        var result = _provider.GetHttpClient(configureBuilder: options => options.UseApiKeyAuthentication(opt => opt.ApiKey = "abc123"));
 
         // Assert
         result.DefaultRequestHeaders.GetValue("x-api-key").Should().Be("abc123");
@@ -259,7 +259,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         };
 
         // Act
-        var result = _provider.GetHttpClient(options => options.UseSimpleTokenAuthentication(opt => {
+        var result = _provider.GetHttpClient(configureBuilder: options => options.UseSimpleTokenAuthentication(opt => {
             opt.Token = expectedToken;
             opt.Scheme = Bearer;
         }));
@@ -407,15 +407,15 @@ public sealed class HttpClientProviderTests : IDisposable {
         dateTimeProvider.UtcNow.Returns(DateTime.Parse("2022-01-01"));
 
         // Act
-        var result = _provider.GetHttpClient(options => options.UseJsonWebTokenAuthentication(opt => {
+        var result = _provider.GetHttpClient(configureBuilder: options => options.UseJsonWebTokenAuthentication(opt => {
             opt.DateTimeProvider = dateTimeProvider;
             opt.PrivateKey = "ASecretValueWith256BitsOr32Chars";
             opt.Audience = "SomeAudience";
             opt.Issuer = "SomeIssue";
             opt.Claims = new Claim[] {
-                new ("SubmittedClaim", "ClaimValue"),
-                new ("RequestedClaim", string.Empty),
-            };
+                                                                                                                                                 new ("SubmittedClaim", "ClaimValue"),
+                                                                                                                                                 new ("RequestedClaim", string.Empty),
+                                                                                                                                             };
             opt.ExpiresAfter = TimeSpan.FromMinutes(5);
         }));
 
@@ -563,7 +563,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         identityFactory.GetHttpClient().Returns(identityClient);
 
         // Act
-        var result = _provider.GetHttpClient(options => options.UseOAuth2TokenAuthentication(opt => {
+        var result = _provider.GetHttpClient(configureBuilder: options => options.UseOAuth2TokenAuthentication(opt => {
             opt.TenantId = "a4d9d2af-cd3d-40de-945f-0be9ad34658a";
             opt.ClientId = "SomeClient";
             opt.ClientSecret = "SomeSecret";

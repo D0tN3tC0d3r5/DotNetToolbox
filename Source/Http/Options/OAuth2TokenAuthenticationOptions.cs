@@ -30,7 +30,7 @@ public class OAuth2TokenAuthenticationOptions : AuthenticationOptions {
                    : $"{name}.{source}";
     }
 
-    internal override HttpAuthentication Configure(HttpClient client, HttpAuthentication authentication) {
+    public override HttpAuthentication Configure(HttpClient client, HttpAuthentication authentication) {
         if (!authentication.IsValid(OAuth2)) authentication = AcquireOauth2Token();
         client.DefaultRequestHeaders.Authorization = authentication;
         return authentication;

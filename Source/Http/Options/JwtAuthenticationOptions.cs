@@ -21,7 +21,7 @@ public class JwtAuthenticationOptions : AuthenticationOptions {
                    : $"{name}.{source}";
     }
 
-    internal override HttpAuthentication Configure(HttpClient client, HttpAuthentication authentication) {
+    public override HttpAuthentication Configure(HttpClient client, HttpAuthentication authentication) {
         if (!authentication.IsValid(Jwt)) authentication = CreateJwtToken();
         client.DefaultRequestHeaders.Authorization = authentication;
         return authentication;

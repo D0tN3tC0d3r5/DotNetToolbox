@@ -1,4 +1,4 @@
-﻿namespace Lola.Commands;
+﻿namespace Sophia.Commands;
 
 public class EndChatCommand : Command<EndChatCommand> {
     public EndChatCommand(IHasChildren parent)

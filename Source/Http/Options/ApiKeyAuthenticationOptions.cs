@@ -19,7 +19,7 @@ public class ApiKeyAuthenticationOptions : AuthenticationOptions {
                    : $"{name}.{source}";
     }
 
-    internal override HttpAuthentication Configure(HttpClient client, HttpAuthentication _) {
+    public override HttpAuthentication Configure(HttpClient client, HttpAuthentication _) {
         var authentication = new HttpAuthentication {
             Type = AuthenticationType.ApiKey,
             Value = ApiKey,

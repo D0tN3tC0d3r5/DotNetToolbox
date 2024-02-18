@@ -1,8 +1,10 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public class HttpClientOptions<TOptions> : NamedOptions<TOptions>, IValidatable
-    where TOptions : HttpClientOptions<TOptions>, new() {
+public class HttpClientOptions
+    : NamedOptions<HttpClientOptions>, IValidatable {
     public const string DefaultResponseFormat = "application/json";
+
+    public Dictionary<string, HttpClientOptions> NamedClients { get; set; } = [];
 
     public virtual Uri? BaseAddress { get; set; }
 
@@ -20,22 +22,7 @@ public class HttpClientOptions<TOptions> : NamedOptions<TOptions>, IValidatable
 
         result += Authentication?.Validate(context) ?? Success();
 
-        return result;
-
-        string GetSourcePath(string source)
-            => context is null || !context.TryGetValue("ClientName", out var name)
-                   ? source
-                   : $"{name}.{source}";
-    }
-}
-
-public class HttpClientOptions : HttpClientOptions<HttpClientOptions> {
-    public Dictionary<string, HttpClientOptions> Clients { get; set; } = [];
-
-    public override Result Validate(IDictionary<string, object?>? context = null) {
-        var result = base.Validate(context);
-
-        foreach (var client in Clients) {
+        foreach (var client in NamedClients) {
             var clientContext = new Dictionary<string, object?> { ["ClientName"] = GetSourcePath(client.Key) };
             result += client.Value.Validate(clientContext);
         }

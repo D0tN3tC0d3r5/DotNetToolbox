@@ -1,32 +1,19 @@
 ﻿namespace DotNetToolbox.Http;
 
-public class HttpClientOptionsBuilder(HttpClientOptions? options = null)
-    : HttpClientOptionsBuilder<HttpClientOptions>(options) {
-    internal HttpClientOptions Build(string? name) {
-        if (name is null) return IsValid(Options);
-        if (!Options.Clients.TryGetValue(name, out var clientOptions))
-            throw new ArgumentException("Client '{name}' not found.", nameof(name));
-        clientOptions.BaseAddress ??= Options.BaseAddress;
-        clientOptions.Authentication ??= Options.Authentication;
-        return IsValid(clientOptions);
-    }
-}
+public class HttpClientOptionsBuilder(HttpClientOptions? options = null) {
+    protected HttpClientOptions Options { get; } = options ?? new HttpClientOptions();
 
-public class HttpClientOptionsBuilder<TOptions>(TOptions? options = null)
-    where TOptions : HttpClientOptions<TOptions>, new() {
-    protected TOptions Options { get; } = options ?? new TOptions();
-
-    public HttpClientOptionsBuilder<TOptions> SetBaseAddress(Uri baseAddress) {
+    public HttpClientOptionsBuilder SetBaseAddress(Uri baseAddress) {
         Options.BaseAddress = baseAddress;
         return this;
     }
 
-    public HttpClientOptionsBuilder<TOptions> SetResponseFormat(string responseFormat) {
+    public HttpClientOptionsBuilder SetResponseFormat(string responseFormat) {
         Options.ResponseFormat = IsNotNullOrWhiteSpace(responseFormat);
         return this;
     }
 
-    public HttpClientOptionsBuilder<TOptions> AddCustomHeader(string key, string value) {
+    public HttpClientOptionsBuilder AddCustomHeader(string key, string value) {
         if (Options.CustomHeaders.TryGetValue(key, out var values)) {
             if (values.Contains(value)) return this;
             Options.CustomHeaders[key] = [.. values, value];
@@ -36,22 +23,28 @@ public class HttpClientOptionsBuilder<TOptions>(TOptions? options = null)
         return this;
     }
 
-    public HttpClientOptionsBuilder<TOptions> UseApiKeyAuthentication(Action<ApiKeyAuthenticationOptions> options)
+    public HttpClientOptionsBuilder UseApiKeyAuthentication(Action<ApiKeyAuthenticationOptions> options)
         => SetAuthentication(options);
 
-    public HttpClientOptionsBuilder<TOptions> UseSimpleTokenAuthentication(Action<StaticTokenAuthenticationOptions> options)
+    public HttpClientOptionsBuilder UseSimpleTokenAuthentication(Action<StaticTokenAuthenticationOptions> options)
         => SetAuthentication(options);
 
-    public HttpClientOptionsBuilder<TOptions> UseJsonWebTokenAuthentication(Action<JwtAuthenticationOptions> options)
+    public HttpClientOptionsBuilder UseJsonWebTokenAuthentication(Action<JwtAuthenticationOptions> options)
         => SetAuthentication(options);
 
-    public HttpClientOptionsBuilder<TOptions> UseOAuth2TokenAuthentication(Action<OAuth2TokenAuthenticationOptions> options, IMsalHttpClientFactory identityClientFactory)
+    public HttpClientOptionsBuilder UseOAuth2TokenAuthentication(Action<OAuth2TokenAuthenticationOptions> options, IMsalHttpClientFactory identityClientFactory)
         => SetAuthentication(options, IsNotNull(identityClientFactory));
 
-    internal TOptions Build()
-        => IsValid(Options);
+    public HttpClientOptions Build(string? name = null) {
+        if (name is null) return IsValid(Options);
+        if (!Options.NamedClients.TryGetValue(name, out var clientOptions))
+            throw new ArgumentException("Client '{name}' not found.", nameof(name));
+        clientOptions.BaseAddress ??= Options.BaseAddress;
+        clientOptions.Authentication ??= Options.Authentication;
+        return IsValid(clientOptions);
+    }
 
-    private HttpClientOptionsBuilder<TOptions> SetAuthentication<T>(Action<T> configAuthentication, IMsalHttpClientFactory? identityClientFactory = null)
+    private HttpClientOptionsBuilder SetAuthentication<T>(Action<T> configAuthentication, IMsalHttpClientFactory? identityClientFactory = null)
         where T : AuthenticationOptions, new() {
         Options.Authentication ??= new T();
         configAuthentication((T)Options.Authentication);

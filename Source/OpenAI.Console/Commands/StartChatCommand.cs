@@ -1,4 +1,4 @@
-﻿namespace Lola.Commands;
+﻿namespace Sophia.Commands;
 
 public class StartChatCommand : Command<StartChatCommand> {
     private readonly IChatHandler _chatHandler;

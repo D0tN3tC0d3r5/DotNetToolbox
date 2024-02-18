@@ -10,12 +10,13 @@ public class ChatHandlerTests {
         _repository = Substitute.For<IChatRepository>();
         var configurationSection = Substitute.For<IConfigurationSection>();
         configurationSection.Value.Returns("SomeAPIKey");
-        var httpClientProvider = Substitute.For<IOpenAIHttpClientProvider>();
+        var httpClientProvider = Substitute.For<IHttpClientProvider>();
         _httpMessageHandler = new();
         var httpClient = new HttpClient(_httpMessageHandler, true) {
             BaseAddress = new("https://somehost.com/"),
         };
-        httpClientProvider.GetHttpClient(Arg.Any<Action<OpenAIHttpClientOptionsBuilder>?>())
+        httpClientProvider.GetHttpClient(Arg.Any<string?>(),
+                                         Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
         _logger = new TrackedNullLogger<ChatHandler>();
         _chatHandler = new(_repository, httpClientProvider, _logger);
