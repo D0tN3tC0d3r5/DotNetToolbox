@@ -1,4 +1,4 @@
-﻿namespace Sophia.Commands;
+﻿namespace DotNetToolbox.Sophia.Commands;
 
 public class StartChatCommand : Command<StartChatCommand> {
     private readonly IChatHandler _chatHandler;
@@ -15,7 +15,7 @@ public class StartChatCommand : Command<StartChatCommand> {
             return Result.Success();
         }
 
-        var chat = await _chatHandler.Create("gpt-4-0125-preview");
+        var chat = await _chatHandler.Create();
         Application.Context["CurrentChatId"] = chat.Id;
         Environment.Output.WriteLine($"Chat session '{chat.Id}' started.");
         return Result.Success();

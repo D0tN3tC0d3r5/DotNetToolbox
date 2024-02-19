@@ -1,8 +1,10 @@
-﻿var app = SophiaShellApplication.Create(args, builder => {
-                                                  builder.AddAppSettings()
-                                                         .AddUserSecrets<Program>();
+﻿using DotNetToolbox.Sophia;
 
-                                                  builder.Services.AddOpenAI(builder.Configuration);
-                                              });
+var app = Sophia.Create(args, builder => {
+    builder.AddAppSettings()
+           .AddUserSecrets<Program>();
+
+    builder.Services.AddOpenAI(builder.Configuration);
+});
 
 await app.RunAsync();

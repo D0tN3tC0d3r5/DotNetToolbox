@@ -1,9 +1,5 @@
 ﻿namespace DotNetToolbox.OpenAI.Chats;
 public record Chat {
-    public Chat(string model)
-        : this(new ChatOptions(model)) {
-    }
-
     public Chat(ChatOptions? options = null) {
         Options = options ?? Options;
     }

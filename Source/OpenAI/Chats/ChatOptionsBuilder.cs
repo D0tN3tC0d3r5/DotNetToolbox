@@ -1,9 +1,15 @@
 ﻿namespace DotNetToolbox.OpenAI.Chats;
 
-public class ChatOptionsBuilder(string? model = null) {
-    private ChatOptions _options = new(model);
+public class ChatOptionsBuilder() {
+    private ChatOptions _options = new();
 
     public string SystemMessage { get; init; } = "You are a helpful agent.";
+
+    public ChatOptionsBuilder Use(string model) {
+        _options = _options with { Model = IsNotNull(model) };
+        return this;
+    }
+
 
     public ChatOptionsBuilder WithFrequencyPenalty(decimal frequencyPenalty) {
         _options = _options with { FrequencyPenalty = frequencyPenalty };
@@ -47,11 +53,6 @@ public class ChatOptionsBuilder(string? model = null) {
                     Function = function,
                 }],
         };
-        return this;
-    }
-
-    public ChatOptionsBuilder EnableStreaming() {
-        _options = _options with { UseStreaming = true };
         return this;
     }
 

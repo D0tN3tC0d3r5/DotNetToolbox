@@ -39,7 +39,7 @@ public class ChatHandlerTests {
         chat.Options.NumberOfChoices.Should().Be(DefaultNumberOfChoices);
         chat.Options.Temperature.Should().Be(DefaultTemperature);
         chat.Options.TopProbability.Should().Be(DefaultTopProbability);
-        chat.Options.UseStreaming.Should().BeFalse();
+        chat.Options.UseStreaming.Should().BeTrue();
         chat.Options.StopSignals.Should().BeEmpty();
         chat.Options.Tools.Should().BeEmpty();
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
@@ -52,25 +52,23 @@ public class ChatHandlerTests {
         _repository.Add(Arg.Any<Chat>()).Returns(Task.CompletedTask);
 
         // Act
-        var result = await _chatHandler.Create("some-model",
-                                               opt => {
+        var result = await _chatHandler.Create(opt => {
                                                    opt.WithFrequencyPenalty(1.5m);
                                                    opt.WithPresencePenalty(1.1m);
                                                    opt.WithMaximumTokensPerMessage(100000);
                                                    opt.WithNumberOfChoices(2);
                                                    opt.WithTemperature(0.7m);
                                                    opt.WithTopProbability(0.5m);
-                                                   opt.EnableStreaming();
                                                    opt.AddStopSignal("Abort!");
                                                    opt.AddStopSignal("Stop!");
                                                    opt.AddTool(new() {
-                                                       Name = "MyFunction1",
-                                                       Description = "This is my first custom function",
-                                                   });
+                                                                         Name = "MyFunction1",
+                                                                         Description = "This is my first custom function",
+                                                                     });
                                                    opt.AddTool(new() {
-                                                       Name = "MyFunction2",
-                                                       Description = "This is my second custom function",
-                                                   });
+                                                                         Name = "MyFunction2",
+                                                                         Description = "This is my second custom function",
+                                                                     });
                                                });
 
         // Assert
@@ -95,8 +93,7 @@ public class ChatHandlerTests {
         _repository.Add(Arg.Any<Chat>()).Returns(Task.CompletedTask);
 
         // Act
-        var result = () => _chatHandler.Create("some-model",
-                                               opt => {
+        var result = () => _chatHandler.Create(opt => {
                                                    opt.WithFrequencyPenalty(2.5m);
                                                    opt.WithPresencePenalty(2.1m);
                                                    opt.WithNumberOfChoices(10);
@@ -122,7 +119,7 @@ public class ChatHandlerTests {
         _repository.Add(Arg.Any<Chat>()).ThrowsAsync(new InvalidOperationException("Break!"));
 
         // Act
-        var result = () => _chatHandler.Create("some-model");
+        var result = () => _chatHandler.Create();
 
         // Assert
         await result.Should().ThrowAsync<InvalidOperationException>();
@@ -154,7 +151,6 @@ public class ChatHandlerTests {
         builder.WithNumberOfChoices(2);
         builder.WithTemperature(0.7m);
         builder.WithTopProbability(0.5m);
-        builder.EnableStreaming();
         builder.AddStopSignal("Abort!");
         builder.AddStopSignal("Stop!");
         builder.AddTool(new() {
@@ -168,12 +164,12 @@ public class ChatHandlerTests {
 
         var chat = new Chat(builder.Build());
         _repository.GetById(Arg.Any<string>()).Returns(chat);
-        var response = new CompletionResponse {
+        var response = new MessageResponse {
             Id = "testId",
             Choices = [
                 new MessageChoice {
                     Message = new Message {
-                        Content = SerializeToElement("testReply"),
+                        Content = "testReply",
                     } with { Name = "SomeName" },
                 },
             ],
@@ -196,12 +192,12 @@ public class ChatHandlerTests {
         // Arrange
         var chat = new Chat { Id = "testId" };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
-        var response = new CompletionResponse {
+        var response = new MessageResponse {
             Id = "testId",
             Choices = [
                 new MessageChoice {
                     Message = new() {
-                        Content = SerializeToElement<string?>(null),
+                        Content = null!,
                     },
                 },
             ],
@@ -224,12 +220,12 @@ public class ChatHandlerTests {
         // Arrange
         var chat = new Chat { Id = "testId" };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
-        var response = new CompletionResponse {
+        var response = new StreamResponse {
             Id = "testId",
             Choices = [
                 new DeltaChoice {
                     Delta = new() {
-                        Content = SerializeToElement("testReply"),
+                        Content = "testReply",
                     },
                 },
             ],
@@ -250,7 +246,7 @@ public class ChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithEmptyReply_ReturnsEmptyString() {
         // Arrange
-        var chat = new Chat("some-model") {
+        var chat = new Chat() {
             Id = "testId",
         };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
@@ -273,7 +269,7 @@ public class ChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithFaultyConnection_Throws() {
         // Arrange
-        var chat = new Chat(new ChatOptions("some-model")) {
+        var chat = new Chat(new ChatOptions()) {
             Id = "testId",
         };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
@@ -283,7 +279,7 @@ public class ChatHandlerTests {
         var result = () => _chatHandler.SendMessage("testId", "testMessage");
 
         // Assert
-        chat.Options.Model.Should().Be("some-model");
+        chat.Options.Model.Should().Be("gpt-3.5-turbo-1106");
         await result.Should().ThrowAsync<InvalidOperationException>();
         _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
         _logger.Should().Contain(LogLevel.Error, "Failed to send a message to 'testId'.");

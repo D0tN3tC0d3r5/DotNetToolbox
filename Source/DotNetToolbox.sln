@@ -17,8 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 Solution Items", "0 Solut
 		LICENSE = LICENSE
 		Publish.cmd = Publish.cmd
 		PublishAll.cmd = PublishAll.cmd
-		..\README.md = ..\README.md
 		PublishSome.cmd = PublishSome.cmd
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "Core\DotNetToolbox.Core.csproj", "{C0308621-0189-4E32-A6FB-B0198D0B7A38}"
@@ -51,7 +51,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI", "Ope
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.UnitTests", "OpenAI.UnitTests\DotNetToolbox.OpenAI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.ShellApp", "OpenAI.Console\DotNetToolbox.OpenAI.ShellApp.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.Sophia", "OpenAI.Console\DotNetToolbox.OpenAI.Sophia.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
 EndProject

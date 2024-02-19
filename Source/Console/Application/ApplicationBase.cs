@@ -27,7 +27,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
         IsRunning = false;
     }
 
-    public int Run() => RunAsync().GetAwaiter().GetResult();
+    public int Run() => RunAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
     public async Task<int> RunAsync() {
         try {
@@ -35,9 +35,10 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             var taskRun = new CancellationTokenSource();
             if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen == "true")
                 Environment.Output.ClearScreen();
-            if (await TryParseArguments(taskRun.Token)) return DefaultErrorCode;
+            if (await TryParseArguments(taskRun.Token).ConfigureAwait(false))
+                return DefaultErrorCode;
             if (!IsRunning) return _exitCode;
-            await Run(taskRun.Token);
+            await Run(taskRun.Token).ConfigureAwait(false);
             return _exitCode;
         }
         catch (ConsoleException ex) {
@@ -57,7 +58,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     }
 
     protected async Task<bool> TryParseArguments(CancellationToken ct) {
-        var result = await ArgumentsParser.Parse(this, Arguments, ct);
+        var result = await ArgumentsParser.Parse(this, Arguments, ct).ConfigureAwait(false);
         ProcessResult(result);
         return result.HasErrors;
     }
@@ -67,7 +68,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
         var command = FindCommand((this as IHasChildren).Commands, input[0]);
         if (command is null) return Invalid($"Command '{input[0]}' not found. For a list of available commands use 'help'.");
         var arguments = input.Skip(1).ToArray();
-        return await command.Set(arguments, ct);
+        return await command.Set(arguments, ct).ConfigureAwait(false);
     }
 
     private static ICommand? FindCommand(IEnumerable<ICommand> commands, string token)

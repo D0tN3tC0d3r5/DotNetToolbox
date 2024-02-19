@@ -16,11 +16,11 @@ public abstract class RunOnceApplication<TApplication, TBuilder>(string[] args, 
     where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder> {
     internal sealed override async Task Run(CancellationToken ct) {
         if (Arguments.Length == 0) {
-            await ShowHelp(ct);
+            await ShowHelp(ct).ConfigureAwait(false);
             return;
         }
 
-        var result = await ExecuteDefault(ct);
+        var result = await ExecuteDefault(ct).ConfigureAwait(false);
         ProcessResult(result);
     }
 

@@ -10,7 +10,7 @@ public interface IChatHandler {
     /// <param name="model">The model used in the chat.</param>
     /// <param name="configure">A function to enable te configuration of the chat behavior.</param>
     /// <returns>The new chat.</returns>
-    Task<Chat> Create(string model, Action<ChatOptionsBuilder>? configure = null);
+    Task<Chat> Create(Action<ChatOptionsBuilder>? configure = null);
 
     /// <summary>
     /// Sends a message to the specified chat and returns the response.
@@ -19,4 +19,5 @@ public interface IChatHandler {
     /// <param name="message">The message to send.</param>
     /// <returns>The response to the message.</returns>
     Task<string?> SendMessage(string id, string message);
+    Task SendMessage(string id, string message, Func<string, Task> processChunk);
 }

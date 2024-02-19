@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>3d759408-1744-4bfe-9c4d-a88419ec7339</UserSecretsId>
-    <RootNamespace>Sophia</RootNamespace>
+    <RootNamespace>DotNetToolbox.Sophia</RootNamespace>
     <AssemblyName>sophia</AssemblyName>
     <ProductName>DotNetToolbox.Sophia</ProductName>
     <ApplicationIcon>Icon.ico</ApplicationIcon>

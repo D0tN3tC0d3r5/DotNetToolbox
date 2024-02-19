@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.OpenAI.Chats;
 
 public record ChatOptions : IValidatable {
-    public const string DefaultChatModel = "gpt-3.5-turbo-1106";
+    public const string DefaultChatModel = "gpt-4-turbo-preview";
     public const byte DefaultFrequencyPenalty = 0;
     public const sbyte MinimumFrequencyPenalty = -2;
     public const byte MaximumFrequencyPenalty = 2;
@@ -21,20 +21,16 @@ public record ChatOptions : IValidatable {
     public const byte MinimumTopProbability = 0;
     public const byte MaximumTopProbability = 1;
 
-    public ChatOptions(string? model = null) {
-        Model = model ?? Model;
-    }
-
-    public string Model { get; } = DefaultChatModel;
-    public virtual uint MaximumTokensPerMessage { get; init; } = DefaultMaximumTokensPerMessage;
-    public virtual byte NumberOfChoices { get; init; } = DefaultNumberOfChoices;
-    public virtual decimal FrequencyPenalty { get; init; } = DefaultFrequencyPenalty;
-    public virtual decimal PresencePenalty { get; init; } = DefaultPresencePenalty;
-    public virtual HashSet<string> StopSignals { get; init; } = [];
-    public virtual decimal Temperature { get; init; } = DefaultTemperature;
-    public virtual decimal TopProbability { get; init; } = DefaultTopProbability;
-    public virtual HashSet<Tool> Tools { get; init; } = [];
-    public virtual bool UseStreaming { get; init; }
+    public virtual string Model { get; init; } = DefaultChatModel;
+    public virtual uint? MaximumTokensPerMessage { get; init; }
+    public virtual byte? NumberOfChoices { get; init; }
+    public virtual decimal? FrequencyPenalty { get; init; }
+    public virtual decimal? PresencePenalty { get; init; }
+    public virtual HashSet<string>? StopSignals { get; init; }
+    public virtual decimal? Temperature { get; init; }
+    public virtual decimal? TopProbability { get; init; }
+    public virtual HashSet<Tool>? Tools { get; init; }
+    public virtual bool UseStreaming => true;
 
     public Result Validate(IDictionary<string, object?>? context = null) {
         var result = Result.Success();
@@ -50,10 +46,10 @@ public record ChatOptions : IValidatable {
         if (PresencePenalty is < MinimumPresencePenalty or > MaximumPresencePenalty)
             result += new ValidationError($"Value must be between {MinimumPresencePenalty} and {MaximumPresencePenalty}. Found: {PresencePenalty}", nameof(PresencePenalty));
 
-        if (StopSignals.Count > MaximumNumberOfStopSignals)
+        if (StopSignals?.Count > MaximumNumberOfStopSignals)
             result += new ValidationError($"The maximum number of stop signals is {MaximumNumberOfStopSignals}. Found: {StopSignals.Count}.", nameof(StopSignals));
 
-        if (StopSignals.Count > 0 && StopSignals.Any(string.IsNullOrWhiteSpace))
+        if (StopSignals?.Count > 0 && StopSignals.Any(string.IsNullOrWhiteSpace))
             result += new ValidationError("Stop signals cannot be null, empty, or contain only whitespace.", nameof(StopSignals));
 
         if (Temperature is < MinimumTemperature or > MaximumTemperature)

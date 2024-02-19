@@ -26,7 +26,7 @@ public abstract class ShellApplication<TApplication, TBuilder>
     }
 
     internal sealed override async Task Run(CancellationToken ct) {
-        var result = await OnStart(ct);
+        var result = await OnStart(ct).ConfigureAwait(false);
         ProcessResult(result);
         if (!result.IsSuccess) {
             ExitWith(DefaultErrorCode);
@@ -34,7 +34,7 @@ public abstract class ShellApplication<TApplication, TBuilder>
         }
 
         while (IsRunning && !ct.IsCancellationRequested)
-            await ProcessInput(ct);
+            await ProcessInput(ct).ConfigureAwait(false);
     }
 
     protected virtual Task<Result> OnStart(CancellationToken ct) {
@@ -47,8 +47,8 @@ public abstract class ShellApplication<TApplication, TBuilder>
         var input = Environment.Input.ReadLine();
         var tokens = UserInputParser.Parse(input);
         var result = StartsWithCommand(tokens.FirstOrDefault())
-                     ? await ProcessCommand(tokens, ct)
-                     : await ProcessFreeText(input, ct);
+                     ? await ProcessCommand(tokens, ct).ConfigureAwait(false)
+                     : await ProcessFreeText(input, ct).ConfigureAwait(false);
 
         ProcessResult(result);
     }

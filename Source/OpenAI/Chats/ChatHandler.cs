@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text;
 
 namespace DotNetToolbox.OpenAI.Chats;
 
@@ -7,17 +8,24 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
     : IChatHandler {
     private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 
-    public async Task<Chat> Create(string? model = null, Action<ChatOptionsBuilder>? configure = null) {
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new() {
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower), },
+    };
+
+    public async Task<Chat> Create(Action<ChatOptionsBuilder>? configure = null) {
         try {
             logger.LogDebug("Creating new chat...");
-            var builder = new ChatOptionsBuilder(model);
+            var builder = new ChatOptionsBuilder();
             configure?.Invoke(builder);
             var chat = new Chat(builder.Build());
             chat.Messages.Add(new() {
                 Type = MessageType.System,
-                Content = JsonSerializer.SerializeToElement(builder.SystemMessage),
+                Content = builder.SystemMessage,
             });
-            await repository.Add(chat);
+            await repository.Add(chat).ConfigureAwait(false);
             logger.LogDebug("Chat '{id}' created.", chat.Id);
             return chat;
         }
@@ -29,7 +37,7 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
 
     public async Task<string?> SendMessage(string id, string message) {
         logger.LogDebug("Sending message to chat '{id}'...", id);
-        var chat = await repository.GetById(id);
+        var chat = await repository.GetById(id).ConfigureAwait(false);
         if (chat is null) {
             logger.LogDebug("Chat '{id}' not found.", id);
             return string.Empty;
@@ -37,12 +45,12 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
 
         try {
             chat.Messages.Add(new() {
-                Content = JsonSerializer.SerializeToElement(message),
                 Type = MessageType.User,
+                Content = message,
             });
             var reply = await GetReplyAsync(chat).ConfigureAwait(false);
             // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-            if (reply?.Length == 0) logger.LogDebug("Invalid reply received for chat '{id}'.", id);
+            if (reply.Length == 0) logger.LogDebug("Invalid reply received for chat '{id}'.", id);
             else logger.LogDebug("Reply for chat '{id}' received.", id);
             return reply;
         }
@@ -52,48 +60,80 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
         }
     }
 
-    private async Task<string> GetReplyAsync(Chat chat) {
-        var request = CreateCompletionRequest(chat);
-        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions {
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            PropertyNamingPolicy =  JsonNamingPolicy.SnakeCaseLower,
-            Converters = { new JsonStringEnumConverter() },
-        });
-        var content = new StringContent(json);
-        content.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json);
-        var response = await _httpClient.PostAsync("chat/completions", content).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode) {
-            return json + System.Environment.NewLine + await response.Content.ReadAsStringAsync();
+    public async Task SendMessage(string id, string message, Func<string, Task> processChunk) {
+        logger.LogDebug("Sending message to chat '{id}'...", id);
+        var chat = await repository.GetById(id);
+        if (chat is null) {
+            logger.LogDebug("Chat '{id}' not found.", id);
+            return;
         }
-        var reply = await response.Content.ReadFromJsonAsync<CompletionResponse>().ConfigureAwait(false);
-        if (reply!.Choices.Length == 0) return string.Empty;
-        var choice = reply.Choices[0];
-        var message = choice is MessageChoice messageChoice
-                          ? messageChoice.Message
-                          : ((DeltaChoice)choice).Delta;
-        chat.Messages.Add(new Prompt {
-            Type = message.Type,
-            Content = message.Content,
-        });
-        return message.Content.Deserialize<string>() ?? string.Empty;
+
+        try {
+            chat.Messages.Add(new() {
+                Type = MessageType.User,
+                Content = message,
+            });
+            var reply = await GetReplyAsync(chat, IsNotNull(processChunk)).ConfigureAwait(false);
+            // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+            if (reply.Length == 0) logger.LogDebug("Invalid reply received for chat '{id}'.", id);
+            else logger.LogDebug("Reply for chat '{id}' received.", id);
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "Failed to send a message to '{id}'.", id);
+            throw;
+        }
+    }
+
+    private async Task<string> GetReplyAsync(Chat chat, Func<string, Task>? processChunk = null) {
+        var request = CreateCompletionRequest(chat);
+        var content = JsonContent.Create(request, null, _jsonSerializerOptions);
+        var response = await _httpClient.PostAsync("chat/completions", content).ConfigureAwait(false);
+        try {
+            response.EnsureSuccessStatusCode();
+            return await ReadMessageAsStream(chat, response, processChunk).ConfigureAwait(false);
+        }
+        catch (Exception ex) {
+            Console.WriteLine(await content.ReadAsStringAsync());
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            Console.WriteLine(ex.ToString());
+            return string.Empty;
+        }
+    }
+
+    private static async Task<string> ReadMessageAsStream(Chat chat, HttpResponseMessage response, Func<string, Task>? processChunk) {
+        var contentBuilder = new StringBuilder();
+        await using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        using var reader = new StreamReader(stream);
+        while (await reader.ReadLineAsync().ConfigureAwait(false) is { } line) {
+            if (string.IsNullOrWhiteSpace(line) || !line.StartsWith("data: ")) continue;
+            if (line[6..] == "[DONE]") break;
+            var reply = JsonSerializer.Deserialize<StreamResponse>(line[6..], _jsonSerializerOptions);
+            var chunk = reply!.Choices[0].Delta;
+            if (chat.Messages[^1].Type != MessageType.Assistant)
+                chat.Messages.Add(chunk);
+            else
+                chat.Messages[^1] = chat.Messages[^1] with { Content = chat.Messages[^1].Content + chunk.Content };
+            contentBuilder.Append(chunk.Content);
+            await (processChunk?.Invoke(chunk.Content) ?? Task.CompletedTask).ConfigureAwait(false);
+        }
+        return contentBuilder.ToString();
     }
 
     private static CompletionRequest CreateCompletionRequest(Chat chat)
-        => new(chat.Options.Model) {
-            Temperature = chat.Options.Temperature,
-            MaximumTokensPerMessage = (int)chat.Options.MaximumTokensPerMessage,
-            FrequencyPenalty = chat.Options.FrequencyPenalty,
-            PresencePenalty = chat.Options.PresencePenalty,
-            NumberOfChoices = chat.Options.NumberOfChoices,
-            StopSignals = [.. chat.Options.StopSignals],
-            TopProbability = chat.Options.TopProbability,
-            UseStreaming = chat.Options.UseStreaming,
-            Tools = [.. chat.Options.Tools],
-            Messages = chat.Messages.Select(i => new Prompt {
-                Content = i.Content,
-                Type = i.Type,
-                Name = i.Name,
-            }).ToArray(),
-        };
+            => new(chat.Options.Model) {
+                Temperature = chat.Options.Temperature,
+                MaximumTokensPerMessage = (int?)chat.Options.MaximumTokensPerMessage,
+                FrequencyPenalty = chat.Options.FrequencyPenalty,
+                PresencePenalty = chat.Options.PresencePenalty,
+                NumberOfChoices = chat.Options.NumberOfChoices,
+                StopSignals = chat.Options.StopSignals?.ToArray(),
+                TopProbability = chat.Options.TopProbability,
+                UseStreaming = chat.Options.UseStreaming,
+                Tools = chat.Options.Tools?.ToArray(),
+                Messages = chat.Messages.Select(i => new Message {
+                    Type = i.Type,
+                    Name = i.Name,
+                    Content = i.Content,
+                }).ToArray(),
+            };
 }
