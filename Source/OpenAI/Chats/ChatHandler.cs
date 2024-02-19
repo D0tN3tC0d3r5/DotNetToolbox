@@ -48,7 +48,7 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
                 Type = MessageType.User,
                 Content = message,
             });
-            var reply = await GetReplyAsync(chat).ConfigureAwait(false);
+            var reply = await GetReplyAsync(chat, null).ConfigureAwait(false);
             // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
             if (reply.Length == 0) logger.LogDebug("Invalid reply received for chat '{id}'.", id);
             else logger.LogDebug("Reply for chat '{id}' received.", id);
@@ -60,7 +60,7 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
         }
     }
 
-    public async Task SendMessage(string id, string message, Func<string, Task> processChunk) {
+    public async Task SendMessage(string id, string message, Action<string> processChunk) {
         logger.LogDebug("Sending message to chat '{id}'...", id);
         var chat = await repository.GetById(id);
         if (chat is null) {
@@ -84,7 +84,7 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
         }
     }
 
-    private async Task<string> GetReplyAsync(Chat chat, Func<string, Task>? processChunk = null) {
+    private async Task<string> GetReplyAsync(Chat chat, Action<string>? processChunk) {
         var request = CreateCompletionRequest(chat);
         var content = JsonContent.Create(request, null, _jsonSerializerOptions);
         var response = await _httpClient.PostAsync("chat/completions", content).ConfigureAwait(false);
@@ -100,7 +100,7 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
         }
     }
 
-    private static async Task<string> ReadMessageAsStream(Chat chat, HttpResponseMessage response, Func<string, Task>? processChunk) {
+    private static async Task<string> ReadMessageAsStream(Chat chat, HttpResponseMessage response, Action<string>? processChunk) {
         var contentBuilder = new StringBuilder();
         await using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
         using var reader = new StreamReader(stream);
@@ -109,12 +109,12 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
             if (line[6..] == "[DONE]") break;
             var reply = JsonSerializer.Deserialize<StreamResponse>(line[6..], _jsonSerializerOptions);
             var chunk = reply!.Choices[0].Delta;
-            if (chat.Messages[^1].Type != MessageType.Assistant)
+            processChunk?.Invoke(chunk.Content);
+            if (chunk.Type == MessageType.Assistant)
                 chat.Messages.Add(chunk);
             else
                 chat.Messages[^1] = chat.Messages[^1] with { Content = chat.Messages[^1].Content + chunk.Content };
             contentBuilder.Append(chunk.Content);
-            await (processChunk?.Invoke(chunk.Content) ?? Task.CompletedTask).ConfigureAwait(false);
         }
         return contentBuilder.ToString();
     }

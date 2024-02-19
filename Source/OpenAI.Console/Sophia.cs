@@ -20,7 +20,7 @@ public class Sophia : ShellApplication<Sophia> {
         }
 
         Environment.Output.Write("- ");
-        await _chatHandler.SendMessage(chatId, input, c => Task.Run(() => Environment.Output.Write(c), ct)).ConfigureAwait(false);
+        await _chatHandler.SendMessage(chatId, input, Environment.Output.Write);
         Environment.Output.WriteLine();
         return Result.Success();
     }

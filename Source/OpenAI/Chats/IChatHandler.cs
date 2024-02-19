@@ -19,5 +19,5 @@ public interface IChatHandler {
     /// <param name="message">The message to send.</param>
     /// <returns>The response to the message.</returns>
     Task<string?> SendMessage(string id, string message);
-    Task SendMessage(string id, string message, Func<string, Task> processChunk);
+    Task SendMessage(string id, string message, Action<string> processChunk);
 }
