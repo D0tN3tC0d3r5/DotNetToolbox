@@ -1,4 +1,7 @@
-﻿namespace DotNetToolbox.OpenAI.Chats;
+﻿using System.Net.Http.Headers;
+using System.Net.Mime;
+
+namespace DotNetToolbox.OpenAI.Chats;
 
 internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpClientProvider, ILogger<ChatHandler> logger)
     : IChatHandler {
@@ -51,9 +54,18 @@ internal class ChatHandler(IChatRepository repository, IHttpClientProvider httpC
 
     private async Task<string> GetReplyAsync(Chat chat) {
         var request = CreateCompletionRequest(chat);
-        var content = JsonContent.Create(request);
+        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions {
+            WriteIndented = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNamingPolicy =  JsonNamingPolicy.SnakeCaseLower,
+            Converters = { new JsonStringEnumConverter() },
+        });
+        var content = new StringContent(json);
+        content.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json);
         var response = await _httpClient.PostAsync("chat/completions", content).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode) {
+            return json + System.Environment.NewLine + await response.Content.ReadAsStringAsync();
+        }
         var reply = await response.Content.ReadFromJsonAsync<CompletionResponse>().ConfigureAwait(false);
         if (reply!.Choices.Length == 0) return string.Empty;
         var choice = reply.Choices[0];

@@ -93,7 +93,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
         AddLogging(Configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
-        var app = CreateInstance.Of<TApplication>(_args, serviceProvider);
+        var app = CreateInstance.Of<TApplication>(serviceProvider, (object)_args);
         var items = Configuration.Build().AsEnumerable().ToList();
         foreach (var item in items) app.Context.Add(item.Key, item.Value);
         return app;

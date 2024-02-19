@@ -11,7 +11,7 @@ public class SophiaShellApplication : ShellApplication<SophiaShellApplication> {
         AddCommand<SendMessageCommand>();
     }
 
-    protected override async Task<Result> ExecuteDefault(string input, CancellationToken ct = new CancellationToken()) {
+    protected override async Task<Result> ExecuteDefault(string input, CancellationToken ct) {
         var chatId = Context.GetValueOrDefault("CurrentChatId");
         if (string.IsNullOrEmpty(chatId)) {
             var chat = await _chatHandler.Create("gpt-4-0125-preview");
@@ -19,8 +19,7 @@ public class SophiaShellApplication : ShellApplication<SophiaShellApplication> {
             Environment.Output.WriteLine($"Chat session '{chatId}' started.");
         }
 
-        var message = Context["message"];
-        var response = await _chatHandler.SendMessage(chatId, message!);
+        var response = await _chatHandler.SendMessage(chatId, input);
         Environment.Output.WriteLine($"- {response}");
         return Result.Success();
     }

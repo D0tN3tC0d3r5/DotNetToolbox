@@ -22,13 +22,22 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <PackageReference Include="DotNetToolbox.Console" Version="8.0.5-rc1" />
     <PackageReference Include="DotNetToolbox.OpenAI" Version="8.0.5-rc1" />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <ItemGroup>
     <InternalsVisibleTo Include="$(ProductName).UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Console\DotNetToolbox.Console.csproj" />
+    <ProjectReference Include="..\OpenAI\DotNetToolbox.OpenAI.csproj" />
   </ItemGroup>
 
 </Project>
