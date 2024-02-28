@@ -129,4 +129,6 @@ internal class TestOutput : IOutput {
     }
 
     public TextWriter Writer => throw new NotImplementedException();
+
+    public string NewLine => throw new NotImplementedException();
 }

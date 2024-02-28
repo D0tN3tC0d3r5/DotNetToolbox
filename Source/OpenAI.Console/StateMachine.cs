@@ -8,7 +8,7 @@ public class StateMachine {
     private readonly IQuestionFactory _ask;
     private readonly IApplication _app;
     private readonly IAgentHandler _chatHandler;
-    private const string _baseDataFolder = "Data";
+    private const string _missionsFolder = "Missions";
 
     public StateMachine(IApplication app, IAgentHandler chatHandler) {
         _app = app;
@@ -16,7 +16,7 @@ public class StateMachine {
         _io = app.Environment.FileSystem;
         _out = app.Environment.Output;
         _ask = app.Ask;
-        _io.CreateFolder(_baseDataFolder);
+        _io.CreateFolder(_missionsFolder);
     }
 
     public Agent? CurrentChat { get; set; }
@@ -35,9 +35,9 @@ public class StateMachine {
     internal Task Process(string input, CancellationToken ct) {
         switch (CurrentState) {
             case 0: ShowMainMenu(); break;
-            case 1: return CreateChat(ct);
-            case 2: return ResumeChat(ct);
-            case 3: DeleteChat(); break;
+            case 1: return CreateMission(ct);
+            case 2: return ResumeMission(ct);
+            case 3: CancelMission(); break;
             case 4: _app.Exit(); break;
             case 5: return GetResponse(input, ct);
         }
@@ -45,47 +45,47 @@ public class StateMachine {
         return Task.CompletedTask;
     }
 
-    internal async Task CreateChat(CancellationToken ct) {
+    internal async Task CreateMission(CancellationToken ct) {
         CurrentChat = await _chatHandler.Create(ct).ConfigureAwait(false);
-        _io.CreateFolder($"{_baseDataFolder}/{CurrentChat.Id}");
-        await using var chatFile = _io.OpenOrCreateFile($"{_baseDataFolder}/{CurrentChat.Id}/chat.json");
+        _io.CreateFolder($"{_missionsFolder}/{CurrentChat.Id}");
+        await using var chatFile = _io.OpenOrCreateFile($"{_missionsFolder}/{CurrentChat.Id}/chat.json");
         await JsonSerializer.SerializeAsync(chatFile, CurrentChat, cancellationToken: ct);
-        _out.WriteLine($"Chat session '{CurrentChat.Id}' started.");
+        _out.WriteLine($"Mission '{CurrentChat.Id}' started.");
         CurrentState = 5;
     }
 
-    internal async Task ResumeChat(CancellationToken ct) {
-        var folders = _io.GetFolders(_baseDataFolder).ToArray();
+    internal async Task ResumeMission(CancellationToken ct) {
+        var folders = _io.GetFolders(_missionsFolder).Select(f => _io.GetFilePath(f)[^1]).ToArray();
         if (folders.Length == 0) {
-            _out.WriteLine("No chat sessions found.");
+            _out.WriteLine("No missions found.");
             CurrentState = 0;
             return;
         }
-        var chatIndex = _ask.MultipleChoice("Select a chat session to resume:",
+        var chatIndex = _ask.MultipleChoice("Select a mission to resume:",
                                             opt => {
                                                 foreach (var folder in folders) opt.AddChoice(folder);
                                             });
         var chatId = folders[chatIndex];
-        await using var chatFile = _io.OpenFileAsReadOnly($"{_baseDataFolder}/{chatId}/chat.json");
+        await using var chatFile = _io.OpenFileAsReadOnly($"{_missionsFolder}/{chatId}/chat.json");
         CurrentChat = await JsonSerializer.DeserializeAsync<Agent>(chatFile, cancellationToken: ct);
-        _out.WriteLine($"Resuming chat session '{chatId}'.");
+        _out.WriteLine($"Resuming mission '{chatId}'.");
         CurrentState = 5;
     }
 
-    internal void DeleteChat() {
-        var folders = _io.GetFolders(_baseDataFolder).ToArray();
+    internal void CancelMission() {
+        var folders = _io.GetFolders(_missionsFolder).Select(f => _io.GetFilePath(f)[^1]).ToArray();
         if (folders.Length == 0) {
-            _out.WriteLine("No chat sessions found.");
+            _out.WriteLine("No missions found.");
             CurrentState = 0;
             return;
         }
-        var chatIndex = _ask.MultipleChoice("Select a chat session to resume:",
+        var chatIndex = _ask.MultipleChoice("Select a mission to cancel:",
                                             opt => {
                                                 foreach (var folder in folders) opt.AddChoice(folder);
                                             });
         var chatId = folders[chatIndex];
-        _io.DeleteFolder($"Data/{chatId}", true);
-        _out.WriteLine($"Chat session '{chatId}' deleted.");
+        _io.DeleteFolder($"{_missionsFolder}/{chatId}", true);
+        _out.WriteLine($"mission '{chatId}' cancelled.");
         CurrentState = 0;
     }
 

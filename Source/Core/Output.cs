@@ -29,6 +29,8 @@ public interface IOutput {
     void Write(uint value);
     void Write(ulong value);
     void WritePrompt();
+
+    string NewLine { get; }
     void WriteLine();
     void WriteLine(bool value);
     void WriteLine(char value);
@@ -98,6 +100,7 @@ public class Output : HasDefault<Output>, IOutput {
     public virtual void Write(char[] buffer, int index, int count) => Console.Write(buffer, index, count);
 
     public virtual void WritePrompt() => Console.Write(Prompt);
+    public virtual string NewLine => System.Environment.NewLine;
     public virtual void WriteLine() => Console.WriteLine();
 
     public virtual void WriteLine(bool value) => Console.WriteLine(value);

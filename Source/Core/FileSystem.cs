@@ -12,8 +12,9 @@ public interface IFileSystem {
     bool FileExists(string filePath);
     string[] GetFilePath(string filePath);
     string GetFileName(string filePath, bool includeExtension = false);
-    string GetFileExtension(string filePath);
-    string GetCurrentFolder();
+    string GetFileExtension(string filePath, bool includeDot = true);
+    char FolderSeparator { get; }
+    string CurrentFolder { get; set; }
     bool FolderExists(string folderPath);
     IEnumerable<string> GetEntries(string baseFolder);
     IEnumerable<string> GetEntries(string baseFolder, string searchPattern);
@@ -38,15 +39,21 @@ public class FileSystem : HasDefault<FileSystem>, IFileSystem {
     public virtual char DirectorySeparatorChar => Path.DirectorySeparatorChar;
     public virtual string CombinePath(params string[] paths) => Path.Combine(paths);
     public virtual string[] GetFilePath(string filePath)
-        => [.. Path.GetDirectoryName(filePath)?.Split(DirectorySeparatorChar) ?? [], Path.GetFileName(filePath)];
+        => [.. Path.GetDirectoryName(filePath)?.Split(DirectorySeparatorChar) ?? [], GetFileName(filePath, true)];
     public virtual string GetFileName(string filePath, bool includeExtension = false)
         => includeExtension
                ? Path.GetFileName(filePath)
                : Path.GetFileNameWithoutExtension(filePath);
-    public virtual string GetFileExtension(string filePath) => Path.GetExtension(filePath).TrimStart('.');
+    public virtual string GetFileExtension(string filePath, bool includeDot = true)
+        => includeDot
+               ? Path.GetExtension(filePath)
+               : Path.GetExtension(filePath).TrimStart('.');
 
-    public virtual string GetCurrentFolder()
-        => Directory.GetCurrentDirectory();
+    public virtual string CurrentFolder {
+        get => Directory.GetCurrentDirectory();
+        set => Directory.SetCurrentDirectory(value);
+    }
+
     public virtual bool FolderExists(string folderPath)
         => Directory.Exists(folderPath);
     public virtual IEnumerable<string> GetEntries(string baseFolder)
@@ -73,6 +80,8 @@ public class FileSystem : HasDefault<FileSystem>, IFileSystem {
         => Directory.EnumerateDirectories(baseFolder, "*", enumerationOptions);
     public virtual IEnumerable<string> GetFolders(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions)
         => Directory.EnumerateDirectories(baseFolder, searchPattern, enumerationOptions);
+
+    public virtual char FolderSeparator => Path.DirectorySeparatorChar;
     public virtual void CreateFolder(string folderPath)
         => Directory.CreateDirectory(folderPath);
     public virtual void DeleteFolder(string folderPath, bool includeAllContent = false)
