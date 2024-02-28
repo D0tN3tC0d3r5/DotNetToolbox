@@ -10,11 +10,23 @@ public interface IFileSystem {
     void DeleteFile(string sourcePath);
     void DeleteFolder(string folderPath, bool includeAllContent = false);
     bool FileExists(string filePath);
+    string[] GetFilePath(string filePath);
+    string GetFileName(string filePath, bool includeExtension = false);
     string GetFileExtension(string filePath);
-    string GetFileName(string filePath);
-    string GetFileNameOnly(string filePath);
-    string[] GetFilesFrom(string folderPath, string searchPattern, SearchOption searchOptions);
-    string[] GetPath(string filePath);
+    string GetCurrentFolder();
+    bool FolderExists(string folderPath);
+    IEnumerable<string> GetEntries(string baseFolder);
+    IEnumerable<string> GetEntries(string baseFolder, string searchPattern);
+    IEnumerable<string> GetEntries(string baseFolder, EnumerationOptions enumerationOptions);
+    IEnumerable<string> GetEntries(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions);
+    IEnumerable<string> GetFiles(string baseFolder);
+    IEnumerable<string> GetFiles(string baseFolder, string searchPattern);
+    IEnumerable<string> GetFiles(string baseFolder, EnumerationOptions enumerationOptions);
+    IEnumerable<string> GetFiles(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions);
+    IEnumerable<string> GetFolders(string baseFolder);
+    IEnumerable<string> GetFolders(string baseFolder, string searchPattern);
+    IEnumerable<string> GetFolders(string baseFolder, EnumerationOptions enumerationOptions);
+    IEnumerable<string> GetFolders(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions);
     void MoveFile(string sourcePath, string targetPath, bool overwrite = false);
     Stream OpenFileAsReadOnly(string filePath, bool blockExternalAccess = true);
     Stream OpenOrCreateFile(string filePath, bool blockExternalAccess = true);
@@ -25,14 +37,42 @@ public interface IFileSystem {
 public class FileSystem : HasDefault<FileSystem>, IFileSystem {
     public virtual char DirectorySeparatorChar => Path.DirectorySeparatorChar;
     public virtual string CombinePath(params string[] paths) => Path.Combine(paths);
-    public virtual string[] GetPath(string filePath)
+    public virtual string[] GetFilePath(string filePath)
         => [.. Path.GetDirectoryName(filePath)?.Split(DirectorySeparatorChar) ?? [], Path.GetFileName(filePath)];
-    public virtual string GetFileName(string filePath) => Path.GetFileName(filePath);
-    public virtual string GetFileNameOnly(string filePath) => Path.GetFileNameWithoutExtension(filePath);
+    public virtual string GetFileName(string filePath, bool includeExtension = false)
+        => includeExtension
+               ? Path.GetFileName(filePath)
+               : Path.GetFileNameWithoutExtension(filePath);
     public virtual string GetFileExtension(string filePath) => Path.GetExtension(filePath).TrimStart('.');
 
-    public virtual string[] GetFilesFrom(string folderPath, string searchPattern, SearchOption searchOptions)
-        => Directory.GetFiles(folderPath, searchPattern, searchOptions);
+    public virtual string GetCurrentFolder()
+        => Directory.GetCurrentDirectory();
+    public virtual bool FolderExists(string folderPath)
+        => Directory.Exists(folderPath);
+    public virtual IEnumerable<string> GetEntries(string baseFolder)
+        => Directory.EnumerateFileSystemEntries(baseFolder);
+    public virtual IEnumerable<string> GetEntries(string baseFolder, string searchPattern)
+        => Directory.EnumerateFileSystemEntries(baseFolder, searchPattern);
+    public virtual IEnumerable<string> GetEntries(string baseFolder, EnumerationOptions enumerationOptions)
+        => Directory.EnumerateFileSystemEntries(baseFolder, "*", enumerationOptions);
+    public virtual IEnumerable<string> GetEntries(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions)
+        => Directory.EnumerateFileSystemEntries(baseFolder, searchPattern, enumerationOptions);
+    public virtual IEnumerable<string> GetFiles(string baseFolder)
+        => Directory.EnumerateFiles(baseFolder);
+    public virtual IEnumerable<string> GetFiles(string baseFolder, string searchPattern)
+        => Directory.EnumerateFiles(baseFolder, searchPattern);
+    public virtual IEnumerable<string> GetFiles(string baseFolder, EnumerationOptions enumerationOptions)
+        => Directory.EnumerateFiles(baseFolder, "*", enumerationOptions);
+    public virtual IEnumerable<string> GetFiles(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions)
+        => Directory.EnumerateFiles(baseFolder, searchPattern, enumerationOptions);
+    public virtual IEnumerable<string> GetFolders(string baseFolder)
+        => Directory.EnumerateDirectories(baseFolder);
+    public virtual IEnumerable<string> GetFolders(string baseFolder, string searchPattern)
+        => Directory.EnumerateDirectories(baseFolder, searchPattern);
+    public virtual IEnumerable<string> GetFolders(string baseFolder, EnumerationOptions enumerationOptions)
+        => Directory.EnumerateDirectories(baseFolder, "*", enumerationOptions);
+    public virtual IEnumerable<string> GetFolders(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions)
+        => Directory.EnumerateDirectories(baseFolder, searchPattern, enumerationOptions);
     public virtual void CreateFolder(string folderPath)
         => Directory.CreateDirectory(folderPath);
     public virtual void DeleteFolder(string folderPath, bool includeAllContent = false)

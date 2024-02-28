@@ -1,9 +1,11 @@
-﻿namespace DotNetToolbox.Sophia.Commands;
+﻿using DotNetToolbox.OpenAI.Agents;
+
+namespace DotNetToolbox.Sophia.Commands;
 
 public class StartChatCommand : Command<StartChatCommand> {
-    private readonly IChatHandler _chatHandler;
+    private readonly IAgentHandler _chatHandler;
 
-    public StartChatCommand(IHasChildren parent, IChatHandler chatHandler)
+    public StartChatCommand(IHasChildren parent, IAgentHandler chatHandler)
         : base(parent, "Start-Chat", ["sc"]) {
         _chatHandler = chatHandler;
         Description = "Starts a new chat session with OpenAI.";
@@ -15,7 +17,7 @@ public class StartChatCommand : Command<StartChatCommand> {
             return Result.Success();
         }
 
-        var chat = await _chatHandler.Create();
+        var chat = await _chatHandler.Create(ct);
         Application.Context["CurrentChatId"] = chat.Id;
         Environment.Output.WriteLine($"Chat session '{chat.Id}' started.");
         return Result.Success();

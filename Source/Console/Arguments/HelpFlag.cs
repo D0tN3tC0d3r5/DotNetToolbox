@@ -1,6 +1,4 @@
-﻿using static DotNetToolbox.ConsoleApplication.Application.ApplicationBase;
-
-namespace DotNetToolbox.ConsoleApplication.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
 internal sealed class HelpFlag
     : Flag<HelpFlag> {
@@ -14,7 +12,7 @@ internal sealed class HelpFlag
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
         var result = _command.Execute(ct);
-        Application.ExitWith(DefaultExitCode);
+        Application.Exit();
         return result;
     }
 }

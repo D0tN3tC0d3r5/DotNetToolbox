@@ -1,13 +1,11 @@
-﻿using DotNetToolbox.OpenAI.Repositories;
-
-namespace DotNetToolbox.OpenAI.Extensions;
+﻿namespace DotNetToolbox.OpenAI.Extensions;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddOpenAI(this IServiceCollection services, IConfiguration configuration) {
         services.AddHttpClientProvider<IHttpClientProvider, OpenAIHttpClientProvider>(configuration);
-        services.TryAddSingleton<IChatRepository, InMemoryChatRepository>();
+        services.TryAddSingleton<IAgentRepository, InMemoryChatRepository>();
         services.TryAddSingleton<IModelsHandler, ModelsHandler>();
-        services.TryAddSingleton<IChatHandler, ChatHandler>();
+        services.TryAddSingleton<IAgentHandler, AgentHandler>();
         return services;
     }
 }

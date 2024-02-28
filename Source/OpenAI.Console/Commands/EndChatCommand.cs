@@ -7,8 +7,8 @@ public class EndChatCommand : Command<EndChatCommand> {
     }
 
     public override Task<Result> Execute(CancellationToken ct = default) {
-        var chatId = Application.Context.GetValueOrDefault("CurrentChatId");
-        if (string.IsNullOrEmpty(chatId)) {
+        var chat = Application.Context.GetValueOrDefault("CurrentChat");
+        if (chat is null) {
             Environment.Output.WriteLine("No active chat session to end.");
             return Result.SuccessTask();
         }

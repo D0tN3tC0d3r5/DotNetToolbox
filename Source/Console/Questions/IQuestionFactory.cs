@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Questions;
 
 public interface IQuestionFactory {
-    Result<bool> YesOrNo(string text, Action<YesOrNo>? configure = null);
-    Result<int> MultipleChoice(string text, Action<MultipleChoice> configure);
-    Result<string> FreeText(string text, Action<FreeText>? configure = null);
+    bool YesOrNo(string question, Action<YesOrNoOptions>? configure = null);
+    uint MultipleChoice(string question, Action<MultipleChoiceOptions> configure);
+    string FreeText(string question, Action<FreeTextOptions>? configure = null);
 }

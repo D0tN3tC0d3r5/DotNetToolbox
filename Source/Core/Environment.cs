@@ -12,10 +12,10 @@ public interface IEnvironment {
 
 public class Environment(IServiceProvider services, string? name = null) : IEnvironment {
     public virtual string Name { get; } = name ?? string.Empty;
-    public virtual IAssemblyDescriptor Assembly { get; } = services.GetRequiredKeyedService<IAssemblyDescriptor>(name ?? string.Empty);
-    public virtual IOutput Output { get; } = services.GetRequiredKeyedService<IOutput>(name ?? string.Empty);
-    public virtual IInput Input { get; } = services.GetRequiredKeyedService<IInput>(name ?? string.Empty);
-    public virtual IDateTimeProvider DateTime { get; } = services.GetRequiredKeyedService<IDateTimeProvider>(name ?? string.Empty);
-    public virtual IGuidProvider Guid { get; } = services.GetRequiredKeyedService<IGuidProvider>(name ?? string.Empty);
-    public virtual IFileSystem FileSystem { get; } = services.GetRequiredKeyedService<IFileSystem>(name ?? string.Empty);
+    public virtual IAssemblyDescriptor Assembly { get; } = services.GetRequiredService<IAssemblyDescriptor>();
+    public virtual IOutput Output { get; } = services.GetRequiredService<IOutput>();
+    public virtual IInput Input { get; } = services.GetRequiredService<IInput>();
+    public virtual IDateTimeProvider DateTime { get; } = services.GetRequiredService<IDateTimeProvider>();
+    public virtual IGuidProvider Guid { get; } = services.GetRequiredService<IGuidProvider>();
+    public virtual IFileSystem FileSystem { get; } = services.GetRequiredService<IFileSystem>();
 }

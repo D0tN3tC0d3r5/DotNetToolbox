@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 namespace DotNetToolbox.ConsoleApplication.Application;
 
 public class ApplicationBuilder<TApplication, TBuilder>
@@ -90,6 +92,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
                                 _fileSystem,
                                 _input,
                                 _output);
+        Services.TryAddSingleton<IQuestionFactory, QuestionFactory>();
         AddLogging(Configuration);
 
         var serviceProvider = Services.BuildServiceProvider();

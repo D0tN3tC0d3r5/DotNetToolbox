@@ -1,6 +1,4 @@
-﻿using static DotNetToolbox.ConsoleApplication.Application.ApplicationBase;
-
-namespace DotNetToolbox.ConsoleApplication.Arguments;
+﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
 internal class ExitCommand : Command<ExitCommand> {
     public ExitCommand(IHasChildren parent)
@@ -9,7 +7,7 @@ internal class ExitCommand : Command<ExitCommand> {
     }
 
     public override Task<Result> Execute(CancellationToken ct = default) {
-        Application.ExitWith(DefaultExitCode);
+        Application.Exit();
         return SuccessTask();
     }
 }

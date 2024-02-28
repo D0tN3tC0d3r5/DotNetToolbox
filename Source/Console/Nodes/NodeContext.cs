@@ -1,3 +1,3 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public class NodeContext : Dictionary<string, string?>;
+public class NodeContext : Dictionary<string, object?>;

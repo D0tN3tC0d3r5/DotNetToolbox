@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Sophia;
-
-var app = Sophia.Create(args, builder => {
+﻿var app = Sophia.Create(args, builder => {
     builder.AddAppSettings()
            .AddUserSecrets<Program>();
 

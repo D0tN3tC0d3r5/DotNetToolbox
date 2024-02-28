@@ -5,7 +5,6 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
       IApplication<TApplication, TBuilder>
     where TApplication : ApplicationBase<TApplication, TBuilder>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder> {
-    private int _exitCode = DefaultExitCode;
 
     protected virtual ValueTask Dispose()
         => ValueTask.CompletedTask;
@@ -22,24 +21,19 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     public override string ToString()
         => $"{GetType().Name}: {Name} v{Version} => {Description}";
 
-    public sealed override void ExitWith(int exitCode = 0) {
-        _exitCode = exitCode;
-        IsRunning = false;
-    }
-
     public int Run() => RunAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
     public async Task<int> RunAsync() {
         try {
             IsRunning = true;
             var taskRun = new CancellationTokenSource();
-            if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen == "true")
+            if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen is true)
                 Environment.Output.ClearScreen();
             if (await TryParseArguments(taskRun.Token).ConfigureAwait(false))
-                return DefaultErrorCode;
-            if (!IsRunning) return _exitCode;
+                return IApplication.DefaultErrorCode;
+            if (!IsRunning) return ExitCode;
             await Run(taskRun.Token).ConfigureAwait(false);
-            return _exitCode;
+            return ExitCode;
         }
         catch (ConsoleException ex) {
             Environment.Output.WriteLine(FormatException(ex));
@@ -47,7 +41,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
         }
         catch (Exception ex) {
             Environment.Output.WriteLine(FormatException(ex));
-            return DefaultErrorCode;
+            return IApplication.DefaultErrorCode;
         }
     }
 
@@ -63,7 +57,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
         return result.HasErrors;
     }
 
-    protected async Task<Result> ProcessCommand(string[] input, CancellationToken ct) {
+    protected virtual async Task<Result> ProcessCommand(string[] input, CancellationToken ct) {
         if (input.Length == 0) return Success();
         var command = FindCommand((this as IHasChildren).Commands, input[0]);
         if (command is null) return Invalid($"Command '{input[0]}' not found. For a list of available commands use 'help'.");
@@ -84,22 +78,20 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
 }
 
 public abstract class ApplicationBase : IApplication {
-    public const int DefaultExitCode = 0;
-    public const int DefaultErrorCode = 1;
+    public int ExitCode { get; protected set; } = IApplication.DefaultExitCode;
 
     protected ApplicationBase(string[] args, IServiceProvider services) {
         Services = services;
         Arguments = args;
         Logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
         Environment = services.GetRequiredService<IEnvironment>();
-        Ask = new QuestionFactory(Environment.Output, Environment.Input);
+        Ask = services.GetRequiredService<IQuestionFactory>();
 
-        var assembly = services.GetRequiredKeyedService<IAssemblyDescriptor>(Environment.Name);
-        AssemblyName = assembly.Name;
-        Version = assembly.Version.ToString();
-        var ata = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
+        AssemblyName = Environment.Assembly.Name;
+        Version = Environment.Assembly.Version.ToString();
+        var ata = Environment.Assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
         Name = ata ?? AssemblyName;
-        var ada = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
+        var ada = Environment.Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
         Description = ada ?? string.Empty;
 
         AddFlag<HelpFlag>();
@@ -125,7 +117,10 @@ public abstract class ApplicationBase : IApplication {
     public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
     public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
 
-    public abstract void ExitWith(int exitCode = 0);
+    public virtual void Exit(int exitCode = IApplication.DefaultExitCode) {
+        ExitCode = exitCode;
+        IsRunning = false;
+    }
 
     protected string[] Arguments { get; }
     protected bool IsRunning { get; set; }

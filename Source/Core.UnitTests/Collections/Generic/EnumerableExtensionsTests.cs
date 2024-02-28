@@ -116,10 +116,10 @@ public class EnumerableExtensionsTests {
         var result = Enumerable.Range(0, 100).ToIndexedItems();
 
         // Assert
-        result.Should().BeOfType<ReadOnlyCollection<Indexed<int>>>();
+        result.Should().BeOfType<ReadOnlyCollection<IndexedItem<int>>>();
         result.Should().HaveCount(100);
-        result[0].Should().Be(new Indexed<int>(0u, 0, false));
-        result[99].Should().Be(new Indexed<int>(99u, 99, true));
+        result[0].Should().Be(new IndexedItem<int>(0u, 0, false));
+        result[99].Should().Be(new IndexedItem<int>(99u, 99, true));
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public class EnumerableExtensionsTests {
         var result = Enumerable.Range(0, 100).ToIndexedItems(i => $"{i + 2}");
 
         // Assert
-        result.Should().BeOfType<ReadOnlyCollection<Indexed<string>>>();
+        result.Should().BeOfType<ReadOnlyCollection<IndexedItem<string>>>();
         result.Should().HaveCount(100);
         result[0].Index.Should().Be(0u);
         result[0].Value.Should().Be("2");

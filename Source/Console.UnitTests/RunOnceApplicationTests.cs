@@ -333,7 +333,7 @@ public class RunOnceApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
+        actualResult.Should().Be(IApplication.DefaultErrorCode);
         output.ToString().Should().Be(expectedOutput);
     }
 

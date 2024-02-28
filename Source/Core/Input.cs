@@ -7,11 +7,11 @@ public interface IInput {
     bool KeyAvailable();
     int Read();
     ConsoleKeyInfo ReadKey(bool intercept = false);
-    string ReadLine();
+    string? ReadLine();
     string ReadMultiLine(ConsoleKey submitKey = ConsoleKey.Enter, ConsoleModifiers submitKeyModifiers = ConsoleModifiers.None);
 }
 
-    [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
+[ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
 public class Input() : HasDefault<Input>, IInput {
     private readonly IOutput _output = new Output();
@@ -28,9 +28,9 @@ public class Input() : HasDefault<Input>, IInput {
     public virtual TextReader Reader => Console.In;
 
     public virtual bool KeyAvailable() => Console.KeyAvailable;
-    public virtual int Read() => Console.In.Read();
+    public virtual int Read() => Reader.Read();
     public virtual ConsoleKeyInfo ReadKey(bool intercept = false) => Console.ReadKey(intercept);
-    public virtual string ReadLine() => Console.In.ReadLine()!; // ReadLine is only null when the stream is closed.
+    public virtual string? ReadLine() => Reader.ReadLine()!; // ReadLine is only null when the stream is closed.
 
     public virtual string ReadMultiLine(ConsoleKey submitKey = ConsoleKey.Enter, ConsoleModifiers submitKeyModifiers = ConsoleModifiers.None) {
         var result = new StringBuilder();

@@ -356,7 +356,7 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
+        actualResult.Should().Be(IApplication.DefaultErrorCode);
         output.ToString().Should().Match(expectedOutput);
     }
 
@@ -475,7 +475,7 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(ApplicationBase.DefaultExitCode);
+        actualResult.Should().Be(IApplication.DefaultExitCode);
         output.ToString().Should().Be(expectedOutput);
     }
 
@@ -499,7 +499,7 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(ApplicationBase.DefaultErrorCode);
+        actualResult.Should().Be(IApplication.DefaultErrorCode);
         output.ToString().Should().Be(expectedOutput);
     }
 
@@ -524,7 +524,7 @@ public class ShellApplicationTests {
         var actualResult = await app.RunAsync();
 
         // Assert
-        actualResult.Should().Be(ApplicationBase.DefaultExitCode);
+        actualResult.Should().Be(IApplication.DefaultExitCode);
         output.ToString().Should().Be(expectedOutput);
     }
 

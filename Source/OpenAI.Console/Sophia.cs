@@ -1,27 +1,41 @@
-﻿namespace DotNetToolbox.Sophia;
+﻿using DotNetToolbox.OpenAI.Agents;
+
+namespace DotNetToolbox.Sophia;
 
 public class Sophia : ShellApplication<Sophia> {
-    private readonly IChatHandler _chatHandler;
+    private readonly StateMachine _stateMachine;
 
-    public Sophia(string[] args, IServiceProvider services, IChatHandler chatHandler)
+    public Sophia(string[] args, IServiceProvider services, IAgentHandler chatHandler)
         : base(args, services) {
-        _chatHandler = chatHandler;
         AddCommand<StartChatCommand>();
         AddCommand<EndChatCommand>();
-        AddCommand<SendMessageCommand>();
+        _stateMachine = new(this, chatHandler);
     }
 
-    protected override async Task<Result> ExecuteDefault(string input, CancellationToken ct) {
-        var chatId = Context.GetValueOrDefault("CurrentChatId");
-        if (string.IsNullOrEmpty(chatId)) {
-            var chat = await _chatHandler.Create().ConfigureAwait(false);
-            Context["CurrentChatId"] = chatId = chat.Id;
-            Environment.Output.WriteLine($"Chat session '{chatId}' started.");
-        }
+    protected override string GetPrePromptText() => $"[{TotalNumberOfTokens}] ";
 
-        Environment.Output.Write("- ");
-        await _chatHandler.SendMessage(chatId, input, Environment.Output.Write);
-        Environment.Output.WriteLine();
-        return Result.Success();
+    private int TotalNumberOfTokens => _stateMachine.CurrentChat?.TotalNumberOfTokens ?? 0;
+
+    protected override async Task<Result> OnStart(CancellationToken ct) {
+        _stateMachine.Start();
+        await _stateMachine.Process(string.Empty, ct);
+        return await base.OnStart(ct);
+    }
+
+    protected override async Task<Result> ExecuteDefault(CancellationToken ct) {
+        await _stateMachine.Process(string.Empty, ct);
+        return _stateMachine.CurrentState != 5
+                   ? Result.Success()
+                   : await base.ExecuteDefault(ct);
+    }
+
+    protected override async Task<Result> ProcessInput(string input, CancellationToken ct) {
+        await _stateMachine.Process(input, ct);
+        return await base.ProcessInput(input, ct);
+    }
+
+    public override void Exit(int code = IApplication.DefaultExitCode) {
+        if (_stateMachine.CurrentState == 4) base.Exit(code);
+        _stateMachine.CurrentState = 0;
     }
 }

@@ -8,7 +8,7 @@ public abstract class Node<TNode>
         Parent = parent;
         Application = FindRoot(this);
         Environment = Application.Environment;
-        Ask = new QuestionFactory(Environment.Output, Environment.Input);
+        Ask = new QuestionFactory(Environment);
         var factory = Application.Services.GetRequiredService<ILoggerFactory>();
         Logger = factory.CreateLogger<TNode>();
         Name = IsValid(name, IsValidName);

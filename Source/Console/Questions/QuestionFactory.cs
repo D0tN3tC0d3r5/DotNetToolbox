@@ -1,19 +1,19 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public class QuestionFactory(IOutput output, IInput input)
+public class QuestionFactory(IEnvironment environment)
     : IQuestionFactory {
-    public Result<bool> YesOrNo(string text, Action<YesOrNo>? configure = null) {
-        var question = new YesOrNoQuestion(output, input, text, configure);
-        return question.Ask();
+    public bool YesOrNo(string question, Action<YesOrNoOptions>? configure = null) {
+        var prompt = new YesOrNoPrompt(question, environment, configure);
+        return prompt.Ask();
     }
 
-    public Result<int> MultipleChoice(string text, Action<MultipleChoice> configure) {
-        var question = new MultipleChoiceQuestion(output, input, text, configure);
-        return question.Ask();
+    public uint MultipleChoice(string question, Action<MultipleChoiceOptions> configure) {
+        var prompt = new MultipleChoicePrompt(question, environment, configure);
+        return prompt.Ask();
     }
 
-    public Result<string> FreeText(string text, Action<FreeText>? configure = null) {
-        var question = new FreeTextQuestion(output, input, text, configure);
-        return question.Ask();
+    public string FreeText(string question, Action<FreeTextOptions>? configure = null) {
+        var prompt = new FreeTextPrompt(question, environment, configure);
+        return prompt.Ask();
     }
 }

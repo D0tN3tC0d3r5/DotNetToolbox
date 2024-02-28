@@ -22,43 +22,43 @@ public abstract class ShellApplication<TApplication, TBuilder>
         AddCommand<ExitCommand>();
         AddCommand<ClearScreenCommand>();
         AddCommand<HelpCommand>();
-        _allowMultiLine = Context.TryGetValue("AllowMultiLine", out var isAllowed) && isAllowed == "true";
+        _allowMultiLine = Context.TryGetValue("AllowMultiLine", out var isAllowed) && isAllowed is true;
     }
 
     internal sealed override async Task Run(CancellationToken ct) {
+        Environment.Output.WriteLine(FullName);
         var result = await OnStart(ct).ConfigureAwait(false);
         ProcessResult(result);
         if (!result.IsSuccess) {
-            ExitWith(DefaultErrorCode);
+            Exit();
             return;
         }
 
         while (IsRunning && !ct.IsCancellationRequested)
-            await ProcessInput(ct).ConfigureAwait(false);
+            await ExecuteDefault(ct).ConfigureAwait(false);
     }
 
-    protected virtual Task<Result> OnStart(CancellationToken ct) {
-        Environment.Output.WriteLine(FullName);
-        return SuccessTask();
-    }
+    protected virtual Task<Result> OnStart(CancellationToken ct = default) => SuccessTask();
 
-    private async Task ProcessInput(CancellationToken ct) {
-        Environment.Output.WritePrompt();
-        var input = Environment.Input.ReadLine();
-        var tokens = UserInputParser.Parse(input);
-        var result = StartsWithCommand(tokens.FirstOrDefault())
-                     ? await ProcessCommand(tokens, ct).ConfigureAwait(false)
-                     : await ProcessFreeText(input, ct).ConfigureAwait(false);
-
-        ProcessResult(result);
-    }
+    protected virtual string GetPrePromptText() => string.Empty;
 
     private Task<Result> ProcessFreeText(string input, CancellationToken ct) {
         if (_allowMultiLine) input += Environment.Input.ReadMultiLine(Enter, Control);
-        return ExecuteDefault(input, ct);
+        return ProcessInput(input, ct);
     }
 
-    protected virtual Task<Result> ExecuteDefault(string input, CancellationToken ct) => SuccessTask();
+    protected virtual Task<Result> ProcessInput(string input, CancellationToken ct)
+        => SuccessTask();
+
+    protected virtual async Task<Result> ExecuteDefault(CancellationToken ct) {
+        Environment.Output.Write(GetPrePromptText());
+        Environment.Output.WritePrompt();
+        var input = Environment.Input.ReadLine() ?? string.Empty;
+        var tokens = UserInputParser.Parse(input);
+        return StartsWithCommand(tokens.FirstOrDefault())
+                         ? await ProcessCommand(tokens, ct).ConfigureAwait(false)
+                         : await ProcessFreeText(input!, ct).ConfigureAwait(false);
+    }
 
     private bool StartsWithCommand(string? firstWord)
         => Commands.Any(c => c.Name.Equals(firstWord, StringComparison.OrdinalIgnoreCase)
