@@ -10,6 +10,9 @@ public static class EnumerableExtensions {
     public static TOutput[] ToArray<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform)
         => [.. IsNotNull(source).Select(transform)];
 
+    public static List<TOutput> ToList<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform)
+        => [.. IsNotNull(source).Select(transform)];
+
     public static Dictionary<TKey, TOutputValue> ToDictionary<TKey, TInputValue, TOutputValue>(this IEnumerable<KeyValuePair<TKey, TInputValue>> source, Func<TInputValue, TOutputValue> transformValue)
         where TKey : notnull
         => IsNotNull(source).ToDictionary(i => i.Key, i => transformValue(i.Value));

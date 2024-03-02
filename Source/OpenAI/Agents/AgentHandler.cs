@@ -51,11 +51,17 @@ internal class AgentHandler(IAgentRepository repository, IHttpClientProvider htt
         var request = CreateCompletionRequest(chat);
         var content = JsonContent.Create(request, null, _jsonSerializerOptions);
         var response = await _httpClient.PostAsync("chat/completions", content, ct).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        var reply = JsonSerializer.Deserialize<MessageResponse>(json, _jsonSerializerOptions)!;
-        chat.TotalNumberOfTokens = reply.Usage!.TotalTokens;
-        chat.Messages.Add(new() { Content = reply.Choices[0].Message.Content });
+        try {
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var reply = JsonSerializer.Deserialize<MessageResponse>(json, _jsonSerializerOptions)!;
+            chat.TotalNumberOfTokens = reply.Usage!.TotalTokens;
+            chat.Messages.Add(new() { Content = reply.Choices[0].Message.Content });
+        }
+        catch (Exception ex) {
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            throw new HttpRequestException(HttpRequestError.InvalidResponse, error, ex, response.StatusCode);
+        }
     }
 
     private static CompletionRequest CreateCompletionRequest(Agent chat)
@@ -66,10 +72,10 @@ internal class AgentHandler(IAgentRepository repository, IHttpClientProvider htt
                 FrequencyPenalty = chat.Options.FrequencyPenalty,
                 PresencePenalty = chat.Options.PresencePenalty,
                 NumberOfChoices = chat.Options.NumberOfChoices,
-                StopSignals = chat.Options.StopSignals?.ToArray(),
+                StopSignals = chat.Options.StopSignals.Count == 0 ? null : [.. chat.Options.StopSignals],
                 TopProbability = chat.Options.TopProbability,
                 UseStreaming = chat.Options.UseStreaming,
-                Tools = chat.Options.Tools?.ToArray(),
+                Tools = chat.Options.Tools.Count == 0 ? null : [.. chat.Options.Tools],
                 Messages = chat.Messages.Select(i => new Message {
                     Type = i.Type,
                     Name = i.Name,

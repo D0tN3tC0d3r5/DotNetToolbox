@@ -1,4 +1,9 @@
-﻿using DotNetToolbox.OpenAI.Agents;
+﻿using System.Text.Json.Serialization;
+
+using DotNetToolbox.Collections.Generic;
+
+using DotNetToolbox.OpenAI.Agents;
+using DotNetToolbox.OpenAI.Tools;
 
 namespace DotNetToolbox.Sophia;
 
@@ -7,19 +12,29 @@ public class StateMachine {
     private readonly IFileSystem _io;
     private readonly IQuestionFactory _ask;
     private readonly IApplication _app;
-    private readonly IAgentHandler _chatHandler;
-    private const string _missionsFolder = "Missions";
+    private readonly IAgentHandler _missions;
 
-    public StateMachine(IApplication app, IAgentHandler chatHandler) {
+    private static readonly JsonSerializerOptions _fileSerializationOptions = new() {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() },
+        IgnoreReadOnlyProperties = true,
+    };
+
+    private const string _missionsFolder = "Missions";
+    private const string _agentsFolder = "Agents";
+    private const string _skillsFolder = "Skills";
+
+    public StateMachine(IApplication app, IAgentHandler missions) {
         _app = app;
-        _chatHandler = chatHandler;
+        _missions = missions;
         _io = app.Environment.FileSystem;
         _out = app.Environment.Output;
         _ask = app.Ask;
         _io.CreateFolder(_missionsFolder);
     }
 
-    public Agent? CurrentChat { get; set; }
+    public Agent? Mission { get; set; }
     public uint CurrentState { get; set; }
 
     internal void ShowMainMenu()
@@ -46,52 +61,71 @@ public class StateMachine {
     }
 
     internal async Task CreateMission(CancellationToken ct) {
-        CurrentChat = await _chatHandler.Create(ct).ConfigureAwait(false);
-        _io.CreateFolder($"{_missionsFolder}/{CurrentChat.Id}");
-        await using var chatFile = _io.OpenOrCreateFile($"{_missionsFolder}/{CurrentChat.Id}/chat.json");
-        await JsonSerializer.SerializeAsync(chatFile, CurrentChat, cancellationToken: ct);
-        _out.WriteLine($"Mission '{CurrentChat.Id}' started.");
-        CurrentState = 5;
+        try {
+            await using var agentFile = _io.OpenOrCreateFile($"{_agentsFolder}/TimeKeeper.json");
+            var agent = JsonSerializer.Deserialize<Agents.Agent>(agentFile, _fileSerializationOptions)!;
+            Mission = await _missions.Create(ct).ConfigureAwait(false);
+            agent.Skills.ToList(s => {
+                using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{s}.json");
+                var skill = JsonSerializer.Deserialize<Skills.Skill>(skillFile, _fileSerializationOptions)!;
+                return new Tool(new() {
+                    Name = skill.Name,
+                    Description = skill.Description,
+                });
+            }).ForEach(t => Mission.Options.Tools.Add(t));
+            Mission.Messages[0].Name = agent.Name;
+            Mission.Messages[0].Content = agent.Profile;
+            _io.CreateFolder($"{_missionsFolder}/{Mission.Id}");
+            await using var missionFile = _io.OpenOrCreateFile($"{_missionsFolder}/{Mission.Id}/agent.json");
+            await JsonSerializer.SerializeAsync(missionFile, Mission, _fileSerializationOptions, ct);
+            _out.WriteLine($"Agent '{Mission.Id}' started.");
+            CurrentState = 99;
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 
     internal async Task ResumeMission(CancellationToken ct) {
-        var folders = _io.GetFolders(_missionsFolder).Select(f => _io.GetFilePath(f)[^1]).ToArray();
+        var folders = _io.GetFolders(_missionsFolder).ToArray();
         if (folders.Length == 0) {
             _out.WriteLine("No missions found.");
             CurrentState = 0;
             return;
         }
-        var chatIndex = _ask.MultipleChoice("Select a mission to resume:",
+        var missionIndex = _ask.MultipleChoice("Select a mission to resume:",
                                             opt => {
                                                 foreach (var folder in folders) opt.AddChoice(folder);
                                             });
-        var chatId = folders[chatIndex];
-        await using var chatFile = _io.OpenFileAsReadOnly($"{_missionsFolder}/{chatId}/chat.json");
-        CurrentChat = await JsonSerializer.DeserializeAsync<Agent>(chatFile, cancellationToken: ct);
-        _out.WriteLine($"Resuming mission '{chatId}'.");
+        var missionId = folders[missionIndex];
+        await using var agentFile = _io.OpenFileAsReadOnly($"{_missionsFolder}/{missionId}/agent.json");
+        Mission = await JsonSerializer.DeserializeAsync<Agent>(agentFile, _fileSerializationOptions, cancellationToken: ct);
+        _out.WriteLine($"Resuming mission '{missionId}'.");
         CurrentState = 5;
     }
 
     internal void CancelMission() {
-        var folders = _io.GetFolders(_missionsFolder).Select(f => _io.GetFilePath(f)[^1]).ToArray();
+        var folders = _io.GetFolders(_missionsFolder).ToArray();
         if (folders.Length == 0) {
             _out.WriteLine("No missions found.");
             CurrentState = 0;
             return;
         }
-        var chatIndex = _ask.MultipleChoice("Select a mission to cancel:",
+        var missionIndex = _ask.MultipleChoice("Select a mission to cancel:",
                                             opt => {
                                                 foreach (var folder in folders) opt.AddChoice(folder);
                                             });
-        var chatId = folders[chatIndex];
-        _io.DeleteFolder($"{_missionsFolder}/{chatId}", true);
-        _out.WriteLine($"mission '{chatId}' cancelled.");
+        var missionId = folders[missionIndex];
+        _io.DeleteFolder($"{_missionsFolder}/{missionId}", true);
+        _out.WriteLine($"mission '{missionId}' cancelled.");
         CurrentState = 0;
     }
 
     internal async Task GetResponse(string input, CancellationToken ct) {
         _out.Write("- ");
-        await _chatHandler.GetResponse(CurrentChat!, input, ct);
-        _out.WriteLine(CurrentChat!.Messages[^1].Content);
+        await _missions.GetResponse(Mission!, input, ct);
+        _out.WriteLine(Mission!.Messages[^1].Content);
+        CurrentState = 99;
     }
 }

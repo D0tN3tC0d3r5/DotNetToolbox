@@ -46,12 +46,7 @@ public class AgentBuilder() {
     }
 
     public AgentBuilder AddTool(Function function) {
-        _options = _options with {
-            Tools = [.. _options.Tools,
-                new() {
-                    Function = function,
-                }],
-        };
+        _options = _options with { Tools = [.. _options.Tools, new(function) ] };
         return this;
     }
 

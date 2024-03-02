@@ -15,15 +15,14 @@ public abstract class ShellApplication<TApplication, TBuilder>
     : ApplicationBase<TApplication, TBuilder>, IRunAsShell
     where TApplication : ShellApplication<TApplication, TBuilder>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder> {
-    private readonly bool _allowMultiLine;
 
     protected ShellApplication(string[] args, IServiceProvider services)
         : base(args, services) {
         AddCommand<ExitCommand>();
         AddCommand<ClearScreenCommand>();
         AddCommand<HelpCommand>();
-        _allowMultiLine = Context.TryGetValue("AllowMultiLine", out var isAllowed) && isAllowed is true;
     }
+    protected bool AllowMultiLine { get; set; }
 
     internal sealed override async Task Run(CancellationToken ct) {
         Environment.Output.WriteLine(FullName);
@@ -38,26 +37,30 @@ public abstract class ShellApplication<TApplication, TBuilder>
             await ExecuteDefault(ct).ConfigureAwait(false);
     }
 
-    protected virtual Task<Result> OnStart(CancellationToken ct = default) => SuccessTask();
+    protected virtual Task<Result> OnStart(CancellationToken ct) => SuccessTask();
 
     protected virtual string GetPrePromptText() => string.Empty;
 
-    private Task<Result> ProcessFreeText(string input, CancellationToken ct) {
-        if (_allowMultiLine) input += Environment.Input.ReadMultiLine(Enter, Control);
-        return ProcessInput(input, ct);
-    }
-
-    protected virtual Task<Result> ProcessInput(string input, CancellationToken ct)
-        => SuccessTask();
-
-    protected virtual async Task<Result> ExecuteDefault(CancellationToken ct) {
-        Environment.Output.Write(GetPrePromptText());
-        Environment.Output.WritePrompt();
-        var input = Environment.Input.ReadLine() ?? string.Empty;
+    private async Task<Result> ProcessInput(string input, CancellationToken ct) {
+        var lines = input.Split(Environment.Output.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (AllowMultiLine && lines.Length > 1)
+            return await ProcessFreeText(lines, ct).ConfigureAwait(false);
         var tokens = UserInputParser.Parse(input);
         return StartsWithCommand(tokens.FirstOrDefault())
-                         ? await ProcessCommand(tokens, ct).ConfigureAwait(false)
-                         : await ProcessFreeText(input!, ct).ConfigureAwait(false);
+                   ? await ProcessCommand(tokens, ct).ConfigureAwait(false)
+                   : await ProcessFreeText(lines, ct).ConfigureAwait(false);
+    }
+
+    protected virtual Task<Result> ProcessFreeText(string[] lines, CancellationToken ct)
+        => SuccessTask();
+
+    protected virtual Task<Result> ExecuteDefault(CancellationToken ct) {
+        Environment.Output.Write(GetPrePromptText());
+        Environment.Output.WritePrompt();
+        var input = AllowMultiLine
+                        ? Environment.Input.ReadMultiLine(Enter, Control)
+                        : Environment.Input.ReadLine() ?? string.Empty;
+        return ProcessInput(input, ct);
     }
 
     private bool StartsWithCommand(string? firstWord)

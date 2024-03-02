@@ -56,30 +56,49 @@ public class FileSystem : HasDefault<FileSystem>, IFileSystem {
 
     public virtual bool FolderExists(string folderPath)
         => Directory.Exists(folderPath);
+
+    private static readonly EnumerationOptions _defaultEnumerationOptions = new();
+    private static IEnumerable<string> GetFileSystemEntries(string baseFolder, SearchTarget target, string searchPattern = "*", EnumerationOptions? enumerationOptions = null) {
+        baseFolder = baseFolder == "." ? ".\\" : baseFolder;
+        var list = target switch {
+            SearchTarget.File => Directory.EnumerateFiles(baseFolder, searchPattern, enumerationOptions ?? _defaultEnumerationOptions),
+            SearchTarget.Folder => Directory.EnumerateDirectories(baseFolder, searchPattern, enumerationOptions ?? _defaultEnumerationOptions),
+            _ => Directory.EnumerateFileSystemEntries(baseFolder, searchPattern, enumerationOptions ?? _defaultEnumerationOptions),
+        };
+        return list.Select(f => f[..baseFolder.Length]);
+    }
+
+    private enum SearchTarget {
+        Both,
+        File,
+        Folder,
+    }
+
     public virtual IEnumerable<string> GetEntries(string baseFolder)
-        => Directory.EnumerateFileSystemEntries(baseFolder);
+        => GetFileSystemEntries(baseFolder, SearchTarget.Both);
+
     public virtual IEnumerable<string> GetEntries(string baseFolder, string searchPattern)
-        => Directory.EnumerateFileSystemEntries(baseFolder, searchPattern);
+        => GetFileSystemEntries(baseFolder, SearchTarget.Both, searchPattern);
     public virtual IEnumerable<string> GetEntries(string baseFolder, EnumerationOptions enumerationOptions)
-        => Directory.EnumerateFileSystemEntries(baseFolder, "*", enumerationOptions);
+        => GetFileSystemEntries(baseFolder, SearchTarget.Both, enumerationOptions: enumerationOptions);
     public virtual IEnumerable<string> GetEntries(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions)
-        => Directory.EnumerateFileSystemEntries(baseFolder, searchPattern, enumerationOptions);
+        => GetFileSystemEntries(baseFolder, SearchTarget.Both, searchPattern, enumerationOptions);
     public virtual IEnumerable<string> GetFiles(string baseFolder)
-        => Directory.EnumerateFiles(baseFolder);
+        => GetFileSystemEntries(baseFolder, SearchTarget.File);
     public virtual IEnumerable<string> GetFiles(string baseFolder, string searchPattern)
-        => Directory.EnumerateFiles(baseFolder, searchPattern);
+        => GetFileSystemEntries(baseFolder, SearchTarget.File, searchPattern);
     public virtual IEnumerable<string> GetFiles(string baseFolder, EnumerationOptions enumerationOptions)
-        => Directory.EnumerateFiles(baseFolder, "*", enumerationOptions);
+        => GetFileSystemEntries(baseFolder, SearchTarget.File, enumerationOptions: enumerationOptions);
     public virtual IEnumerable<string> GetFiles(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions)
-        => Directory.EnumerateFiles(baseFolder, searchPattern, enumerationOptions);
+        => GetFileSystemEntries(baseFolder, SearchTarget.File, searchPattern, enumerationOptions);
     public virtual IEnumerable<string> GetFolders(string baseFolder)
-        => Directory.EnumerateDirectories(baseFolder);
+        => GetFileSystemEntries(baseFolder, SearchTarget.Folder);
     public virtual IEnumerable<string> GetFolders(string baseFolder, string searchPattern)
-        => Directory.EnumerateDirectories(baseFolder, searchPattern);
+        => GetFileSystemEntries(baseFolder, SearchTarget.Folder, searchPattern);
     public virtual IEnumerable<string> GetFolders(string baseFolder, EnumerationOptions enumerationOptions)
-        => Directory.EnumerateDirectories(baseFolder, "*", enumerationOptions);
+        => GetFileSystemEntries(baseFolder, SearchTarget.Folder, enumerationOptions: enumerationOptions);
     public virtual IEnumerable<string> GetFolders(string baseFolder, string searchPattern, EnumerationOptions enumerationOptions)
-        => Directory.EnumerateDirectories(baseFolder, searchPattern, enumerationOptions);
+        => GetFileSystemEntries(baseFolder, SearchTarget.Folder, searchPattern, enumerationOptions);
 
     public virtual char FolderSeparator => Path.DirectorySeparatorChar;
     public virtual void CreateFolder(string folderPath)

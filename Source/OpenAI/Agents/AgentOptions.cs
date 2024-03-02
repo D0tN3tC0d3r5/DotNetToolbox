@@ -26,10 +26,10 @@ public record AgentOptions : IValidatable {
     public virtual byte? NumberOfChoices { get; init; }
     public virtual decimal? FrequencyPenalty { get; init; }
     public virtual decimal? PresencePenalty { get; init; }
-    public virtual HashSet<string>? StopSignals { get; init; }
+    public virtual HashSet<string> StopSignals { get; init; } = [];
     public virtual decimal? Temperature { get; init; }
     public virtual decimal? TopProbability { get; init; }
-    public virtual HashSet<Tool>? Tools { get; init; }
+    public virtual HashSet<Tool> Tools { get; init; } = [];
     public virtual bool UseStreaming => false;
 
     public Result Validate(IDictionary<string, object?>? context = null) {

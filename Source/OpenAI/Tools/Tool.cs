@@ -1,6 +1,5 @@
 ﻿namespace DotNetToolbox.OpenAI.Tools;
 
-public record Tool {
+public record Tool(Function Function) {
     public ToolType Type { get; init; } = ToolType.Function;
-    public required Function Function { get; init; }
 }
