@@ -1,51 +1,51 @@
-﻿namespace DotNetToolbox.OpenAI.Agents;
+﻿namespace DotNetToolbox.OpenAI.Chats;
 
-public class AgentBuilder() {
+public class ChatBuilder() {
     private ChatOptions _options = new();
 
     public string SystemMessage { get; init; } = "You are a helpful agent.";
 
-    public AgentBuilder Use(string model) {
+    public ChatBuilder Use(string model) {
         _options = _options with { Model = IsNotNull(model) };
         return this;
     }
 
-    public AgentBuilder WithFrequencyPenalty(decimal frequencyPenalty) {
+    public ChatBuilder WithFrequencyPenalty(decimal frequencyPenalty) {
         _options = _options with { FrequencyPenalty = frequencyPenalty };
         return this;
     }
 
-    public AgentBuilder WithPresencePenalty(decimal presencePenalty) {
+    public ChatBuilder WithPresencePenalty(decimal presencePenalty) {
         _options = _options with { PresencePenalty = presencePenalty };
         return this;
     }
 
-    public AgentBuilder WithMaximumTokensPerMessage(uint maximumTokensPerMessage) {
+    public ChatBuilder WithMaximumTokensPerMessage(uint maximumTokensPerMessage) {
         _options = _options with { MaximumTokensPerMessage = maximumTokensPerMessage };
         return this;
     }
 
-    public AgentBuilder WithNumberOfChoices(byte numberOfChoices) {
+    public ChatBuilder WithNumberOfChoices(byte numberOfChoices) {
         _options = _options with { NumberOfChoices = numberOfChoices };
         return this;
     }
 
-    public AgentBuilder AddStopSignal(string stopSignal) {
+    public ChatBuilder AddStopSignal(string stopSignal) {
         _options = _options with { StopSignals = [.. _options.StopSignals, stopSignal] };
         return this;
     }
 
-    public AgentBuilder WithTemperature(decimal temperature) {
+    public ChatBuilder WithTemperature(decimal temperature) {
         _options = _options with { Temperature = temperature };
         return this;
     }
 
-    public AgentBuilder WithTopProbability(decimal topProbability) {
+    public ChatBuilder WithTopProbability(decimal topProbability) {
         _options = _options with { TopProbability = topProbability };
         return this;
     }
 
-    public AgentBuilder AddTool(Function function) {
+    public ChatBuilder AddTool(Function function) {
         _options = _options with { Tools = [.. _options.Tools, new(function) ] };
         return this;
     }

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.OpenAI.Agents;
+﻿namespace DotNetToolbox.OpenAI.Chats;
 
 public record ChatOptions : IValidatable {
     public const string DefaultChatModel = "gpt-4-turbo-preview";

@@ -2,7 +2,7 @@
 
 internal record CompletionRequest() {
     public required string Model { get; init; }
-    public Message[] Messages { get; set; } = [];
+    public Completion[] Messages { get; set; } = [];
     public decimal? FrequencyPenalty { get; set; }
     public decimal? PresencePenalty { get; set; }
     public decimal? Temperature { get; set; }

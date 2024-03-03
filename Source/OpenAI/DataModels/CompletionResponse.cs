@@ -2,7 +2,7 @@
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "object")]
 [JsonDerivedType(typeof(MessageResponse), typeDiscriminator: "chat.completion")]
-[JsonDerivedType(typeof(StreamResponse), typeDiscriminator: "chat.completion.chunk")]
+[JsonDerivedType(typeof(DeltaResponse), typeDiscriminator: "chat.completion.chunk")]
 internal record CompletionResponse {
     public required string Id { get; init; }
     public string? Model { get; init; }

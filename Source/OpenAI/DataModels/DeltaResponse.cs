@@ -1,5 +1,5 @@
 ﻿namespace DotNetToolbox.OpenAI.DataModels;
 
-internal record StreamResponse : CompletionResponse {
+internal record DeltaResponse : CompletionResponse {
     public DeltaChoice[] Choices { get; init; } = [];
 }

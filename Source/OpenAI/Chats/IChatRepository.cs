@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.OpenAI.Agents;
+﻿namespace DotNetToolbox.OpenAI.Chats;
 
 internal interface IChatRepository : IDisposable {
     Task<Chat[]> Get(CancellationToken ct = default);

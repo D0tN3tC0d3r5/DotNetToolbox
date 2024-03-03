@@ -10,7 +10,6 @@ global using System.Text.Json.Serialization;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.Http.Extensions;
 global using DotNetToolbox.Http.Options;
-global using DotNetToolbox.OpenAI.Agents;
 global using DotNetToolbox.OpenAI.DataModels;
 global using DotNetToolbox.OpenAI.HttpProvider;
 global using DotNetToolbox.OpenAI.Models;

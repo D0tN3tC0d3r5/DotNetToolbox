@@ -1,4 +1,8 @@
-﻿namespace DotNetToolbox.Sophia;
+﻿using System.Globalization;
+
+using DotNetToolbox.OpenAI.Chats;
+
+namespace DotNetToolbox.Sophia;
 
 public class StateMachine {
     private readonly IOutput _out;
@@ -51,7 +55,7 @@ public class StateMachine {
             case 3: return ResumeMission(ct);
             case 4: CancelMission(); break;
             case 5: _app.Exit(); break;
-            case 6: return GetResponse(input, ct);
+            case 6: return SendMessage(input, ct);
         }
 
         return Task.CompletedTask;
@@ -66,14 +70,15 @@ public class StateMachine {
         try {
             await using var agentFile = _io.OpenOrCreateFile($"{_agentsFolder}/TimeKeeper.json");
             var agent = JsonSerializer.Deserialize<Agent>(agentFile, _fileSerializationOptions)!;
-            Mission = await _missions.Create(ct).ConfigureAwait(false);
+            Mission = await _missions.Create("Argus", ct).ConfigureAwait(false);
             agent.Skills.ToList(s => {
                 using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{s}.json");
                 var skill = JsonSerializer.Deserialize<Skills.Skill>(skillFile, _fileSerializationOptions)!;
-                return new Tool(new() {
+                var function = new Function {
                     Name = skill.Name,
                     Description = skill.Description,
-                });
+                };
+                return new Tool(function);
             }).ForEach(t => Mission.Options.Tools.Add(t));
             Mission.Messages[0].Name = agent.Name;
             Mission.Messages[0].Content = agent.Profile;
@@ -137,11 +142,21 @@ public class StateMachine {
         return missionId;
     }
 
-    private async Task GetResponse(string input, CancellationToken ct) {
+    private async Task SendMessage(string input, CancellationToken ct) {
         _out.Write("- ");
-        await _missions.GetResponse(Mission!, input, ct);
-        var response = Mission!.Messages[^1];
+        var response = await _missions.SendUserMessage(Mission!, input, ct);
+        while (response.ToolCalls is not null) {
+            var toolCalls = response.ToolCalls!;
+            var results = toolCalls.ToArray(ExecuteTool);
+            response = await _missions.SendToolResult(Mission!, results, ct);
+        }
         _out.WriteLine(response.Content);
         CurrentState = Idle;
     }
+
+    private static ToolResult ExecuteTool(ToolCall toolCall)
+        => toolCall.Function.Name switch {
+            "GetDateTime" => new(toolCall.Id, DateTime.Now.ToString(CultureInfo.InvariantCulture)),
+            _ => throw new NotImplementedException(),
+        };
 }

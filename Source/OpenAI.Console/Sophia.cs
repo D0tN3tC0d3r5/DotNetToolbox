@@ -1,4 +1,6 @@
-﻿using static DotNetToolbox.Sophia.StateMachine;
+﻿using DotNetToolbox.OpenAI.Chats;
+
+using static DotNetToolbox.Sophia.StateMachine;
 
 namespace DotNetToolbox.Sophia;
 

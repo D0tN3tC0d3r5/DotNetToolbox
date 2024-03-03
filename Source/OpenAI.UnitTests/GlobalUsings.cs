@@ -1,6 +1,7 @@
 global using System.Net;
 
 global using DotNetToolbox.Http;
+global using DotNetToolbox.OpenAI.Chats;
 global using DotNetToolbox.OpenAI.DataModels;
 global using DotNetToolbox.OpenAI.Utilities;
 global using DotNetToolbox.Results;
@@ -18,6 +19,6 @@ global using Xunit;
 
 global using static System.Text.Json.JsonSerializer;
 
-global using static DotNetToolbox.OpenAI.Agents.ChatOptions;
+global using static DotNetToolbox.OpenAI.Chats.ChatOptions;
 
 global using OpenAIModel = DotNetToolbox.OpenAI.DataModels.Model;
