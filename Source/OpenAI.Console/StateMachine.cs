@@ -1,18 +1,12 @@
-﻿using System.Text.Json.Serialization;
-
-using DotNetToolbox.Collections.Generic;
-
-using DotNetToolbox.OpenAI.Agents;
-using DotNetToolbox.OpenAI.Tools;
-
-namespace DotNetToolbox.Sophia;
+﻿namespace DotNetToolbox.Sophia;
 
 public class StateMachine {
     private readonly IOutput _out;
     private readonly IFileSystem _io;
-    private readonly IQuestionFactory _ask;
+    private readonly IPromptFactory _promptFactory;
     private readonly IApplication _app;
-    private readonly IAgentHandler _missions;
+    private readonly IChatHandler _missions;
+    private readonly MultipleChoicePrompt _mainMenu;
 
     private static readonly JsonSerializerOptions _fileSerializationOptions = new() {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -25,45 +19,53 @@ public class StateMachine {
     private const string _agentsFolder = "Agents";
     private const string _skillsFolder = "Skills";
 
-    public StateMachine(IApplication app, IAgentHandler missions) {
+    public StateMachine(IApplication app, IChatHandler missions) {
         _app = app;
         _missions = missions;
         _io = app.Environment.FileSystem;
         _out = app.Environment.Output;
-        _ask = app.Ask;
+        _promptFactory = app.PromptFactory;
         _io.CreateFolder(_missionsFolder);
+        _mainMenu = _promptFactory.CreateMultipleChoiceQuestion("What do you want to do?", opt => {
+            opt.AddChoice(2, "Start a new chat");
+            opt.AddChoice(3, "Continue a existing chat");
+            opt.AddChoice(4, "Delete an existing chat");
+            opt.AddChoice(5, "Exit");
+        });
     }
 
-    public Agent? Mission { get; set; }
+    public const uint Idle = 0;
+
+    public Chat? Mission { get; set; }
     public uint CurrentState { get; set; }
 
-    internal void ShowMainMenu()
-        => CurrentState = _ask.MultipleChoice("What do you want to do?", opt => {
-            opt.AddChoice("Start a new chat");
-            opt.AddChoice("Continue a existing chat");
-            opt.AddChoice("Delete an existing chat");
-            opt.AddChoice("Exit");
-        }) + 1;
-
-    internal void Start() => ShowMainMenu();
+    internal Task Start(uint initialState, CancellationToken ct) {
+        CurrentState = initialState;
+        return Process(string.Empty, ct);
+    }
 
     internal Task Process(string input, CancellationToken ct) {
         switch (CurrentState) {
-            case 0: ShowMainMenu(); break;
-            case 1: return CreateMission(ct);
-            case 2: return ResumeMission(ct);
-            case 3: CancelMission(); break;
-            case 4: _app.Exit(); break;
-            case 5: return GetResponse(input, ct);
+            case 1: return ShowMainMenu(ct);
+            case 2: return CreateMission(ct);
+            case 3: return ResumeMission(ct);
+            case 4: CancelMission(); break;
+            case 5: _app.Exit(); break;
+            case 6: return GetResponse(input, ct);
         }
 
         return Task.CompletedTask;
     }
 
-    internal async Task CreateMission(CancellationToken ct) {
+    private Task ShowMainMenu(CancellationToken ct) {
+        CurrentState = _mainMenu.Ask();
+        return Process(string.Empty, ct);
+    }
+
+    private async Task CreateMission(CancellationToken ct) {
         try {
             await using var agentFile = _io.OpenOrCreateFile($"{_agentsFolder}/TimeKeeper.json");
-            var agent = JsonSerializer.Deserialize<Agents.Agent>(agentFile, _fileSerializationOptions)!;
+            var agent = JsonSerializer.Deserialize<Agent>(agentFile, _fileSerializationOptions)!;
             Mission = await _missions.Create(ct).ConfigureAwait(false);
             agent.Skills.ToList(s => {
                 using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{s}.json");
@@ -78,8 +80,8 @@ public class StateMachine {
             _io.CreateFolder($"{_missionsFolder}/{Mission.Id}");
             await using var missionFile = _io.OpenOrCreateFile($"{_missionsFolder}/{Mission.Id}/agent.json");
             await JsonSerializer.SerializeAsync(missionFile, Mission, _fileSerializationOptions, ct);
-            _out.WriteLine($"Agent '{Mission.Id}' started.");
-            CurrentState = 99;
+            _out.WriteLine($"Chat '{Mission.Id}' started.");
+            CurrentState = Idle;
         }
         catch (Exception ex) {
             Console.WriteLine(ex);
@@ -87,45 +89,59 @@ public class StateMachine {
         }
     }
 
-    internal async Task ResumeMission(CancellationToken ct) {
+    private async Task ResumeMission(CancellationToken ct) {
         var folders = _io.GetFolders(_missionsFolder).ToArray();
         if (folders.Length == 0) {
             _out.WriteLine("No missions found.");
-            CurrentState = 0;
+            CurrentState = 1;
             return;
         }
-        var missionIndex = _ask.MultipleChoice("Select a mission to resume:",
-                                            opt => {
-                                                foreach (var folder in folders) opt.AddChoice(folder);
-                                            });
-        var missionId = folders[missionIndex];
+
+        var missionId = SelectMission("Select a mission to resume:", folders);
+        if (missionId == string.Empty) {
+            CurrentState = 1;
+            return;
+        }
+
         await using var agentFile = _io.OpenFileAsReadOnly($"{_missionsFolder}/{missionId}/agent.json");
-        Mission = await JsonSerializer.DeserializeAsync<Agent>(agentFile, _fileSerializationOptions, cancellationToken: ct);
+        Mission = await JsonSerializer.DeserializeAsync<Chat>(agentFile, _fileSerializationOptions, cancellationToken: ct);
         _out.WriteLine($"Resuming mission '{missionId}'.");
-        CurrentState = 5;
+        CurrentState = Idle;
     }
 
-    internal void CancelMission() {
+    private void CancelMission() {
         var folders = _io.GetFolders(_missionsFolder).ToArray();
         if (folders.Length == 0) {
             _out.WriteLine("No missions found.");
-            CurrentState = 0;
+            CurrentState = 1;
             return;
         }
-        var missionIndex = _ask.MultipleChoice("Select a mission to cancel:",
-                                            opt => {
-                                                foreach (var folder in folders) opt.AddChoice(folder);
-                                            });
-        var missionId = folders[missionIndex];
+
+        var missionId = SelectMission("Select a mission to cancel:", folders);
+        if (missionId == string.Empty) {
+            CurrentState = 1;
+            return;
+        }
+
         _io.DeleteFolder($"{_missionsFolder}/{missionId}", true);
         _out.WriteLine($"mission '{missionId}' cancelled.");
-        CurrentState = 0;
+        CurrentState = 1;
     }
 
-    internal async Task GetResponse(string input, CancellationToken ct) {
+    private string SelectMission(string question, string[] folders) {
+        var missions = _promptFactory.CreateMultipleChoiceQuestion<string>(question, opt => {
+            foreach (var folder in folders) opt.AddChoice(folder, folder);
+            opt.AddChoice(string.Empty, "Back to the main menu.");
+        });
+        var missionId = missions.Ask();
+        return missionId;
+    }
+
+    private async Task GetResponse(string input, CancellationToken ct) {
         _out.Write("- ");
         await _missions.GetResponse(Mission!, input, ct);
-        _out.WriteLine(Mission!.Messages[^1].Content);
-        CurrentState = 99;
+        var response = Mission!.Messages[^1];
+        _out.WriteLine(response.Content);
+        CurrentState = Idle;
     }
 }

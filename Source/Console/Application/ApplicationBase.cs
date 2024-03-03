@@ -28,7 +28,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             IsRunning = true;
             var taskRun = new CancellationTokenSource();
             if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen is true)
-                Environment.Output.ClearScreen();
+                Output.ClearScreen();
             if (await TryParseArguments(taskRun.Token).ConfigureAwait(false))
                 return IApplication.DefaultErrorCode;
             if (!IsRunning) return ExitCode;
@@ -36,11 +36,11 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             return ExitCode;
         }
         catch (ConsoleException ex) {
-            Environment.Output.WriteLine(FormatException(ex));
+            Output.WriteLine(FormatException(ex));
             return ex.ExitCode;
         }
         catch (Exception ex) {
-            Environment.Output.WriteLine(FormatException(ex));
+            Output.WriteLine(FormatException(ex));
             return IApplication.DefaultErrorCode;
         }
     }
@@ -48,7 +48,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     protected void ProcessResult(Result result) {
         if (result.HasException) throw result.Exception!;
         if (!result.HasErrors) return;
-        Environment.Output.WriteLine(FormatValidationErrors(result.Errors));
+        Output.WriteLine(FormatValidationErrors(result.Errors));
     }
 
     protected async Task<bool> TryParseArguments(CancellationToken ct) {
@@ -85,7 +85,7 @@ public abstract class ApplicationBase : IApplication {
         Arguments = args;
         Logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
         Environment = services.GetRequiredService<IEnvironment>();
-        Ask = services.GetRequiredService<IQuestionFactory>();
+        PromptFactory = services.GetRequiredService<IPromptFactory>();
 
         AssemblyName = Environment.Assembly.Name;
         Version = Environment.Assembly.Version.ToString();
@@ -109,8 +109,15 @@ public abstract class ApplicationBase : IApplication {
 
     public IServiceProvider Services { get; }
     public IEnvironment Environment { get; }
+    protected IOutput Output => Environment.Output;
+    protected IInput Input => Environment.Input;
+    protected IFileSystem FileSystem => Environment.FileSystem;
+    protected IAssemblyDescriptor Assembly => Environment.Assembly;
+    protected IDateTimeProvider DateTime => Environment.DateTime;
+    protected IGuidProvider Guid => Environment.Guid;
+    public IPromptFactory PromptFactory { get; }
+
     public NodeContext Context { get; } = [];
-    public IQuestionFactory Ask { get; }
 
     public ICollection<INode> Children { get; } = new HashSet<INode>();
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];

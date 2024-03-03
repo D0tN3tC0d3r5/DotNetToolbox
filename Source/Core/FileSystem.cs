@@ -59,13 +59,13 @@ public class FileSystem : HasDefault<FileSystem>, IFileSystem {
 
     private static readonly EnumerationOptions _defaultEnumerationOptions = new();
     private static IEnumerable<string> GetFileSystemEntries(string baseFolder, SearchTarget target, string searchPattern = "*", EnumerationOptions? enumerationOptions = null) {
-        baseFolder = baseFolder == "." ? ".\\" : baseFolder;
+        baseFolder += IsNotNullOrWhiteSpace(baseFolder)[^1] is '\\' or '/' ? string.Empty : '\\';
         var list = target switch {
             SearchTarget.File => Directory.EnumerateFiles(baseFolder, searchPattern, enumerationOptions ?? _defaultEnumerationOptions),
             SearchTarget.Folder => Directory.EnumerateDirectories(baseFolder, searchPattern, enumerationOptions ?? _defaultEnumerationOptions),
             _ => Directory.EnumerateFileSystemEntries(baseFolder, searchPattern, enumerationOptions ?? _defaultEnumerationOptions),
         };
-        return list.Select(f => f[..baseFolder.Length]);
+        return list.Select(f => f[baseFolder.Length..]);
     }
 
     private enum SearchTarget {

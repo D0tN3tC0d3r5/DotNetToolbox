@@ -1,9 +1,20 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public class YesOrNoPrompt(string question, IEnvironment environment, Action<YesOrNoOptions>? configure = null)
-    : QuestionPrompt<bool, YesOrNoOptions>(question, environment, configure ?? (_ => { })) {
+public class YesOrNoPrompt(string question, IEnvironment environment, YesOrNoOptions options)
+    : QuestionPrompt<bool>(question, environment) {
     protected override void ShowPrompt() {
-        Output.Write($"Please select {Choices[0].Text} or {Choices[1].Text} ");
+        Output.Write($"Please select {options.Yes.Display} or {options.No.Display} ");
         base.ShowPrompt();
+    }
+
+    public override bool Validate(string input, out bool result) {
+        result = default;
+        if (options.Yes.Matches(input)) {
+            result = true;
+            return true;
+        }
+        if (!options.No.Matches(input)) return false;
+        result = false;
+        return true;
     }
 }

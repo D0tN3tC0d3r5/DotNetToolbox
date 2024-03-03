@@ -2,12 +2,12 @@ namespace DotNetToolbox.OpenAI.Agents;
 
 public class AgentHandlerTests {
     private readonly AgentHandler _chatHandler;
-    private readonly IAgentRepository _repository;
+    private readonly IChatRepository _repository;
     private readonly FakeHttpMessageHandler _httpMessageHandler;
     private readonly ILogger<AgentHandler> _logger;
 
     public AgentHandlerTests() {
-        _repository = Substitute.For<IAgentRepository>();
+        _repository = Substitute.For<IChatRepository>();
         var configurationSection = Substitute.For<IConfigurationSection>();
         configurationSection.Value.Returns("SomeAPIKey");
         var httpClientProvider = Substitute.For<IHttpClientProvider>();
@@ -25,13 +25,13 @@ public class AgentHandlerTests {
     [Fact]
     public async Task Create_ReturnsChatId() {
         // Arrange
-        _repository.Add(Arg.Any<Agent>()).Returns(Task.CompletedTask);
+        _repository.Add(Arg.Any<Chat>()).Returns(Task.CompletedTask);
 
         // Act
         var result = await _chatHandler.Create();
 
         // Assert
-        var chat = result.Should().BeOfType<Agent>().Subject;
+        var chat = result.Should().BeOfType<Chat>().Subject;
         chat.Id.Should().NotBeNullOrEmpty();
         chat.Options.FrequencyPenalty.Should().Be(DefaultFrequencyPenalty);
         chat.Options.PresencePenalty.Should().Be(DefaultPresencePenalty);
@@ -49,7 +49,7 @@ public class AgentHandlerTests {
     [Fact]
     public async Task Create_WithConfiguration_ReturnsChatId() {
         // Arrange
-        _repository.Add(Arg.Any<Agent>()).Returns(Task.CompletedTask);
+        _repository.Add(Arg.Any<Chat>()).Returns(Task.CompletedTask);
 
         // Act
         var result = await _chatHandler.Create(opt => {
@@ -72,7 +72,7 @@ public class AgentHandlerTests {
         });
 
         // Assert
-        var chat = result.Should().BeOfType<Agent>().Subject;
+        var chat = result.Should().BeOfType<Chat>().Subject;
         chat.Id.Should().NotBeNullOrEmpty();
         chat.Options.FrequencyPenalty.Should().Be(1.5m);
         chat.Options.PresencePenalty.Should().Be(1.1m);
@@ -90,7 +90,7 @@ public class AgentHandlerTests {
     [Fact]
     public async Task Create_WithInvalidConfiguration_Throws() {
         // Arrange
-        _repository.Add(Arg.Any<Agent>()).Returns(Task.CompletedTask);
+        _repository.Add(Arg.Any<Chat>()).Returns(Task.CompletedTask);
 
         // Act
         var result = () => _chatHandler.Create(opt => {
@@ -116,7 +116,7 @@ public class AgentHandlerTests {
     [Fact]
     public async Task Create_WithFaultyRepository_Throws() {
         // Arrange
-        _repository.Add(Arg.Any<Agent>()).ThrowsAsync(new InvalidOperationException("Break!"));
+        _repository.Add(Arg.Any<Chat>()).ThrowsAsync(new InvalidOperationException("Break!"));
 
         // Act
         var result = () => _chatHandler.Create();
@@ -130,7 +130,7 @@ public class AgentHandlerTests {
     [Fact]
     public async Task SendMessage_WithInvalidChatId_ReturnsReply() {
         // Arrange
-        _repository.GetById(Arg.Any<string>()).Returns(default(Agent));
+        _repository.GetById(Arg.Any<string>()).Returns(default(Chat));
 
         // Act
         await _chatHandler.GetResponse(default!, "testMessage");
@@ -161,7 +161,7 @@ public class AgentHandlerTests {
             Description = "This is my second custom function",
         });
 
-        var chat = new Agent(builder.Build());
+        var chat = new Chat(builder.Build());
         _repository.GetById(Arg.Any<string>()).Returns(chat);
         var response = new MessageResponse {
             Id = "testId",
@@ -189,7 +189,7 @@ public class AgentHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsInvalidReply() {
         // Arrange
-        var chat = new Agent { Id = "testId" };
+        var chat = new Chat { Id = "testId" };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
         var response = new MessageResponse {
             Id = "testId",
@@ -216,7 +216,7 @@ public class AgentHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsDelta() {
         // Arrange
-        var chat = new Agent { Id = "testId" };
+        var chat = new Chat { Id = "testId" };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
         var response = new StreamResponse {
             Id = "testId",
@@ -243,7 +243,7 @@ public class AgentHandlerTests {
     [Fact]
     public async Task SendMessage_WithEmptyReply_ReturnsEmptyString() {
         // Arrange
-        var chat = new Agent() {
+        var chat = new Chat() {
             Id = "testId",
         };
         _repository.GetById(Arg.Any<string>()).Returns(chat);
@@ -265,7 +265,7 @@ public class AgentHandlerTests {
     [Fact]
     public async Task SendMessage_WithFaultyConnection_Throws() {
         // Arrange
-        var chat = new Agent(new AgentOptions()) {
+        var chat = new Chat(new ChatOptions()) {
             Id = "testId",
         };
         _repository.GetById(Arg.Any<string>()).Returns(chat);

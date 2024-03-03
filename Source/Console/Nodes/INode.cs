@@ -6,7 +6,7 @@ public interface INode {
     string Description { get; }
     IApplication Application { get; }
     IEnvironment Environment { get; }
-    IQuestionFactory Ask { get; }
+    IPromptFactory PromptFactory { get; }
 
     public string Path => this switch {
                               IApplication app => app.AssemblyName,

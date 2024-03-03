@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.OpenAI.Agents;
 
 public class AgentBuilder() {
-    private AgentOptions _options = new();
+    private ChatOptions _options = new();
 
     public string SystemMessage { get; init; } = "You are a helpful agent.";
 
@@ -50,5 +50,5 @@ public class AgentBuilder() {
         return this;
     }
 
-    public AgentOptions Build() => IsValid(_options);
+    public ChatOptions Build() => IsValid(_options);
 }

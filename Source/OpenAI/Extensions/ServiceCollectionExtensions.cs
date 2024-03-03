@@ -3,9 +3,9 @@
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddOpenAI(this IServiceCollection services, IConfiguration configuration) {
         services.AddHttpClientProvider<IHttpClientProvider, OpenAIHttpClientProvider>(configuration);
-        services.TryAddSingleton<IAgentRepository, InMemoryChatRepository>();
+        services.TryAddSingleton<IChatRepository, InMemoryChatRepository>();
         services.TryAddSingleton<IModelsHandler, ModelsHandler>();
-        services.TryAddSingleton<IAgentHandler, AgentHandler>();
+        services.TryAddSingleton<IChatHandler, AgentHandler>();
         return services;
     }
 }

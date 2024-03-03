@@ -18,6 +18,6 @@ global using Xunit;
 
 global using static System.Text.Json.JsonSerializer;
 
-global using static DotNetToolbox.OpenAI.Agents.AgentOptions;
+global using static DotNetToolbox.OpenAI.Agents.ChatOptions;
 
 global using OpenAIModel = DotNetToolbox.OpenAI.DataModels.Model;

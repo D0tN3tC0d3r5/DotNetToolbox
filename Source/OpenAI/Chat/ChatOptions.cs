@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.OpenAI.Agents;
 
-public record AgentOptions : IValidatable {
+public record ChatOptions : IValidatable {
     public const string DefaultChatModel = "gpt-4-turbo-preview";
     public const byte DefaultFrequencyPenalty = 0;
     public const sbyte MinimumFrequencyPenalty = -2;

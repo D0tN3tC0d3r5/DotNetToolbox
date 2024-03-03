@@ -92,7 +92,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
                                 _fileSystem,
                                 _input,
                                 _output);
-        Services.TryAddSingleton<IQuestionFactory, QuestionFactory>();
+        Services.TryAddSingleton<IPromptFactory, PromptFactory>();
         AddLogging(Configuration);
 
         var serviceProvider = Services.BuildServiceProvider();

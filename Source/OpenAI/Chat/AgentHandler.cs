@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.OpenAI.Agents;
 
-internal class AgentHandler(IAgentRepository repository, IHttpClientProvider httpClientProvider, ILogger<AgentHandler> logger)
-    : IAgentHandler {
+internal class AgentHandler(IChatRepository repository, IHttpClientProvider httpClientProvider, ILogger<AgentHandler> logger)
+    : IChatHandler {
     private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new() {
@@ -11,17 +11,14 @@ internal class AgentHandler(IAgentRepository repository, IHttpClientProvider htt
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower), },
     };
 
-    public Task<Agent> Create(CancellationToken ct = default) => Create(_ => { }, ct);
-    public async Task<Agent> Create(Action<AgentBuilder> configure, CancellationToken ct = default) {
+    public Task<Chat> Create(CancellationToken ct = default) => Create(_ => { }, ct);
+    public async Task<Chat> Create(Action<AgentBuilder> configure, CancellationToken ct = default) {
         try {
             logger.LogDebug("Creating new chat...");
             var builder = new AgentBuilder();
             IsNotNull(configure)(builder);
-            var chat = new Agent(builder.Build());
-            chat.Messages.Add(new() {
-                Type = MessageType.System,
-                Content = builder.SystemMessage,
-            });
+            var chat = new Chat(builder.Build());
+            chat.Messages.Add(new(MessageType.System) { Content = builder.SystemMessage });
             await repository.Add(chat, ct).ConfigureAwait(false);
             logger.LogDebug("Chat '{id}' created.", chat.Id);
             return chat;
@@ -32,12 +29,9 @@ internal class AgentHandler(IAgentRepository repository, IHttpClientProvider htt
         }
     }
 
-    public async Task GetResponse(Agent chat, string message, CancellationToken ct = default) {
+    public async Task GetResponse(Chat chat, string message, CancellationToken ct = default) {
         try {
-            chat.Messages.Add(new() {
-                Type = MessageType.User,
-                Content = message,
-            });
+            chat.Messages.Add(new(MessageType.User) { Content = message });
             await GetReplyAsync(chat, ct).ConfigureAwait(false);
             logger.LogDebug("Reply for chat '{id}' received.", chat.Id);
         }
@@ -47,7 +41,7 @@ internal class AgentHandler(IAgentRepository repository, IHttpClientProvider htt
         }
     }
 
-    private async Task GetReplyAsync(Agent chat, CancellationToken ct = default) {
+    private async Task GetReplyAsync(Chat chat, CancellationToken ct = default) {
         var request = CreateCompletionRequest(chat);
         var content = JsonContent.Create(request, null, _jsonSerializerOptions);
         var response = await _httpClient.PostAsync("chat/completions", content, ct).ConfigureAwait(false);
@@ -56,7 +50,12 @@ internal class AgentHandler(IAgentRepository repository, IHttpClientProvider htt
             var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var reply = JsonSerializer.Deserialize<MessageResponse>(json, _jsonSerializerOptions)!;
             chat.TotalNumberOfTokens = reply.Usage!.TotalTokens;
-            chat.Messages.Add(new() { Content = reply.Choices[0].Message.Content });
+            chat.Messages.Add(new(MessageType.Assistant) {
+                Content = reply.Choices[0].Message.Content,
+                ToolCallId = reply.Choices[0].Message.ToolCallId,
+                ToolCalls = reply.Choices[0].Message.ToolCalls,
+                Name = reply.Choices[0].Message.Name,
+            });
         }
         catch (Exception ex) {
             var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -64,7 +63,7 @@ internal class AgentHandler(IAgentRepository repository, IHttpClientProvider htt
         }
     }
 
-    private static CompletionRequest CreateCompletionRequest(Agent chat)
+    private static CompletionRequest CreateCompletionRequest(Chat chat)
             => new() {
                 Model = chat.Options.Model,
                 Temperature = chat.Options.Temperature,
@@ -76,8 +75,7 @@ internal class AgentHandler(IAgentRepository repository, IHttpClientProvider htt
                 TopProbability = chat.Options.TopProbability,
                 UseStreaming = chat.Options.UseStreaming,
                 Tools = chat.Options.Tools.Count == 0 ? null : [.. chat.Options.Tools],
-                Messages = chat.Messages.Select(i => new Message {
-                    Type = i.Type,
+                Messages = chat.Messages.Select(i => new Message(i.Type) {
                     Name = i.Name,
                     Content = i.Content,
                 }).ToArray(),
