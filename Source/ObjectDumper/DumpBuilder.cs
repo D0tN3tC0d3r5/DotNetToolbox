@@ -27,17 +27,17 @@ internal sealed class DumpBuilder : IDisposable {
         if (value is null) return "null";
         var member = new Member(MemberKind.Object, null, value.GetType(), value);
         using var dumper = new DumpBuilder(0, member, options);
-        dumper.AddType(member);
+        dumper.AddType(member.Type);
         dumper.AddFormattedValue(member);
         return dumper._builder.ToString();
     }
 
-    private void AddType(Member member) {
-        if (member.Type is null) return;
+    private void AddType(Type? type) {
+        if (type is null) return;
         AddSymbol('<');
-        _builder.Append(member.Type.IsSubclassOf(typeof(Attribute))
-                           ? nameof(Attribute)
-                           : GetDescription(member.Type));
+        _builder.Append(type.IsSubclassOf(typeof(Attribute))
+                            ? nameof(Attribute)
+                            : GetDescription(type));
         AddSymbol('>');
         AddSpacer();
     }
@@ -48,7 +48,7 @@ internal sealed class DumpBuilder : IDisposable {
         if (TryUseDefaultFormatter(member.Value)) return true;
         if (TryFormatSpecialType(member.Value)) return true;
         if (_memberIsHidden) return false;
-        AddFormattedComplexType(member.Value!);
+        AddFormattedComplexType(member.Value);
         return true;
     }
 
@@ -167,11 +167,11 @@ internal sealed class DumpBuilder : IDisposable {
         return true;
     }
 
-    private void AddMembers(object value) {
-        var items = GetItems(value).Cast<object?>().Select((item, index) => (Value: item, Index: index)).ToArray();
+    private void AddMembers(object parent) {
+        var items = GetItems(parent).Cast<object?>().Select((item, index) => (Value: item, Index: index)).ToArray();
         var lastIndex = items.Length > 0 ? items.Max(i => i.Index) : 0;
         foreach (var item in items) {
-            var member = GetElementOrDefault(value, item.Value);
+            var member = GetElementOrDefault(parent, item.Value);
             if (!TryAddValue(member)) continue;
             if (item.Index != lastIndex) AddSymbol(',');
             AddNewLine();
@@ -201,10 +201,9 @@ internal sealed class DumpBuilder : IDisposable {
 
     private Member? GetElementOrDefault(object? member, object? item) {
         try {
-            if (item is null) return default(Member);
             if (HasCircularReference()) return new(MemberKind.KeyWord, null, null, "CircularReference");
-            if (member is IDictionary) {
-                var itemType = item.GetType();
+            if (member is IDictionary dic) {
+                var itemType = item?.GetType() ?? dic.GetType().GetElementType()!;
                 var key = itemType.GetProperty("Key")!.GetValue(item);
                 var value = itemType.GetProperty("Value")!.GetValue(item);
                 return new(MemberKind.KeyValuePair, key, null, value);
@@ -230,13 +229,13 @@ internal sealed class DumpBuilder : IDisposable {
 
     private bool TryAddValue(Member? member) {
         if (member is null) return false;
-        if (_ancestors.Any(a => ReferenceEquals(a, member.Value.Value))) return false;
+        if (_ancestors.Any(a => ReferenceEquals(a, member.Value))) return false;
 
-        using var dumper = new DumpBuilder((byte)(_level + 1), member.Value, _options, _ancestors);
+        using var dumper = new DumpBuilder((byte)(_level + 1), member, _options, _ancestors);
         dumper.AddIndentation();
-        dumper.AddFormattedName(member.Value);
-        dumper.AddType(member.Value);
-        var success = dumper.AddFormattedValue(member.Value);
+        dumper.AddFormattedName(member);
+        dumper.AddType(member.Type);
+        var success = dumper.AddFormattedValue(member);
         if (dumper._memberIsHidden) return false;
         if (success) _builder.Append(dumper._builder);
         return success;

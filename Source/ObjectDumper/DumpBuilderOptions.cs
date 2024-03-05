@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox;
 
-public record DumpBuilderOptions : JsonDumpBuilderOptions {
+public record DumpBuilderOptions : BasicDumpBuilderOptions {
     public bool UseTabs { get; set; }
     public int IndentSize { get; set; } = 4;
     public bool UseFullNames { get; set; }
