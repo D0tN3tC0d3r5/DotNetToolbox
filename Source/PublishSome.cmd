@@ -9,7 +9,7 @@ REM call Publish %target% TestUtilities 8.0.5-rc1
 REM call Publish %target% FluentAssertions 8.0.5-rc1
 call Publish %target% Console 8.0.5-rc1
 REM call Publish %target% Http 8.0.5-rc1
-REM call Publish %target% OpenAI 8.0.5-rc1
+REM call Publish %target% AI 8.0.5-rc1
 REM call Publish %target% ValidationBuilder 8.0.5-rc1
 REM call Publish %target% Azure 8.0.5-rc1
 REM call Publish %target% Security 8.0.5-rc1

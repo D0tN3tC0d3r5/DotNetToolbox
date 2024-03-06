@@ -12,7 +12,7 @@ call Publish %target% ValidationBuilder 8.0.5-rc1
 call Publish %target% Azure 8.0.5-rc1
 call Publish %target% Http 8.0.5-rc1
 call Publish %target% Security 8.0.5-rc1
-call Publish %target% OpenAI 8.0.5-rc1
+call Publish %target% AI 8.0.5-rc1
 goto :eof
 
 :USAGE

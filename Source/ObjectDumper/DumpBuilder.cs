@@ -212,7 +212,7 @@ internal sealed class DumpBuilder : IDisposable {
             if (member is IEnumerable)
                 return new(MemberKind.Element, null, null, item);
 
-            var prop = (PropertyInfo)item;
+            var prop = (PropertyInfo)item!;
             return new(MemberKind.Property, prop.Name, prop.PropertyType, prop.GetValue(member));
 
             bool HasCircularReference() => _ancestors.Any(a => ReferenceEquals(a, item));

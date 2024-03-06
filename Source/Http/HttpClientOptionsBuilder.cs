@@ -23,6 +23,9 @@ public class HttpClientOptionsBuilder(HttpClientOptions? options = null) {
         return this;
     }
 
+    public HttpClientOptionsBuilder UseApiKeyAuthentication(string apiKey)
+        => UseApiKeyAuthentication(options => options.ApiKey = apiKey);
+
     public HttpClientOptionsBuilder UseApiKeyAuthentication(Action<ApiKeyAuthenticationOptions> options)
         => SetAuthentication(options);
 
