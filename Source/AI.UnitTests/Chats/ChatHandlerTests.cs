@@ -27,7 +27,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task Start_ReturnsChatId() {
         // Act
-        var result = await _chatHandler.Start("User");
+        var result = await _chatHandler.Start();
 
         // Assert
         var chat = result.Should().BeOfType<Chat>().Subject;
@@ -48,7 +48,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task Start_WithConfiguration_ReturnsChatId() {
         // Act
-        var result = await _chatHandler.Start("User", opt => {
+        var result = await _chatHandler.Start(opt => {
             opt.FrequencyPenalty = 1.5m;
             opt.PresencePenalty = 1.1m;
             opt.MaximumTokensPerMessage = 100000;
@@ -86,7 +86,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task Start_WithInvalidConfiguration_Throws() {
         // Act
-        var result = () => _chatHandler.Start("User", opt => {
+        var result = () => _chatHandler.Start(opt => {
             opt.FrequencyPenalty = 2.5m;
             opt.PresencePenalty = 2.1m;
             opt.NumberOfChoices = 10;
@@ -109,7 +109,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task Start_WithFaultyRepository_Throws() {
         // Act
-        var result = () => _chatHandler.Start("User");
+        var result = () => _chatHandler.Start();
 
         // Assert
         await result.Should().ThrowAsync<InvalidOperationException>();
@@ -149,7 +149,7 @@ public class OpenAIChatHandlerTests {
             Description = "This is my second custom function",
         }));
 
-        var chat = new Chat("User", options);
+        var chat = new Chat(options);
         var message = new Message("assistant", "testReply") {
             Name = "SomeName",
         };
@@ -175,7 +175,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsInvalidReply() {
         // Arrange
-        var chat = new Chat("User");
+        var chat = new Chat();
         var choice = new Choice {
             Message = null!,
         };
@@ -198,7 +198,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsDelta() {
         // Arrange
-        var chat = new Chat("User");
+        var chat = new Chat();
         var message = new Message("assistant", "testReply") {
             Name = "SomeName",
         };
@@ -224,7 +224,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithEmptyReply_ReturnsEmptyString() {
         // Arrange
-        var chat = new Chat("User");
+        var chat = new Chat();
         var response = new ChatCompletionResponse {
             Id = "testId",
         };
@@ -243,7 +243,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithFaultyConnection_Throws() {
         // Arrange
-        var chat = new Chat("User");
+        var chat = new Chat();
         _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act

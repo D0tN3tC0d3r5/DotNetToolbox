@@ -65,7 +65,7 @@ public class StateMachine {
     private async Task Start(CancellationToken ct) {
         try {
             var agent = await LoadAgentProfile("TimeKeeper");
-            Chat = await _chatHandler.Start("Argus", opt => opt.SystemMessage = agent.Profile, ct).ConfigureAwait(false);
+            Chat = await _chatHandler.Start(opt => opt.SystemMessage = agent.Profile, ct).ConfigureAwait(false);
             agent.Skills.ToList(LoadTool).ForEach(t => Chat.Options.Tools.Add(t));
             Chat.Messages[0].Name = agent.Name;
             _io.CreateFolder($"{_chatsFolder}/{Chat.Id}");
@@ -160,7 +160,7 @@ public class StateMachine {
             Name = skill.Name,
             Description = skill.Description,
         };
-        return new Tool(function);
+        return new(function);
     }
 
     private Skill LoadSkill(string skillName) {
