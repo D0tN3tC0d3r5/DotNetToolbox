@@ -6,7 +6,11 @@ internal class Agent(Chats.IChatHandler chatHandler)
 
     public async Task Start(CancellationToken ct) {
         while (!ct.IsCancellationRequested) {
-            if (!_requests.TryDequeue(out var request)) continue;
+            if (!_requests.TryDequeue(out var request)) {
+                await Task.Delay(100, ct);
+                continue;
+            }
+
             (var agent, var chat, var content, var token) = request;
             var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token, ct).Token;
             await ProcessRequest(agent, chat, content, linkedToken);
