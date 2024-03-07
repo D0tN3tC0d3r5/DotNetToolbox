@@ -2,7 +2,6 @@
 
 public interface IChat {
     string Id { get; }
-    string UserName { get; }
     IEnumerable<IMessage> Messages { get; }
     IChatOptions Options { get; }
     public int TotalNumberOfTokens { get; set; }

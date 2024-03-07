@@ -11,15 +11,15 @@ internal class ChatHandler(IHttpClientProvider httpClientProvider, ILogger<ChatH
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
     };
 
-    public Task<Chat> Start(string userName, CancellationToken ct = default)
-        => Start(userName, _ => { }, ct);
+    public Task<Chat> Start(CancellationToken ct = default)
+        => Start(_ => { }, ct);
 
-    public Task<Chat> Start(string userName, Action<ChatOptions> configure, CancellationToken ct = default) {
+    public Task<Chat> Start(Action<ChatOptions> configure, CancellationToken ct = default) {
         try {
             logger.LogDebug("Creating new chat...");
             var options = new ChatOptions();
             IsNotNull(configure)(options);
-            var chat = new Chat(userName, options);
+            var chat = new Chat(options);
             var message = new Message("system", options.SystemMessage);
             chat.Messages.Add(message);
             logger.LogDebug("Chat '{id}' created.", chat.Id);
@@ -33,7 +33,7 @@ internal class ChatHandler(IHttpClientProvider httpClientProvider, ILogger<ChatH
 
     public async Task<Message> SendMessage(Chat chat, string message, CancellationToken ct = default) {
         try {
-            var userMessage = new Message("user", message) { Name = chat.UserName };
+            var userMessage = new Message("user", message);
             chat.Messages.Add(userMessage);
             var request = CreateCompletionRequest(chat);
             var response = await SendMessage(chat, request, ct).ConfigureAwait(false);

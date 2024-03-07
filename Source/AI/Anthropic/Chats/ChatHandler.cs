@@ -13,15 +13,15 @@ public class ChatHandler(IHttpClientProvider httpClientProvider, ILogger<ChatHan
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
     };
 
-    public Task<Chat> Start(string userName, CancellationToken ct = default)
-        => Start(userName, _ => { }, ct);
+    public Task<Chat> Start(CancellationToken ct = default)
+        => Start(_ => { }, ct);
 
-    public Task<Chat> Start(string userName, Action<ChatOptions> configure, CancellationToken ct = default) {
+    public Task<Chat> Start(Action<ChatOptions> configure, CancellationToken ct = default) {
         try {
             logger.LogDebug("Creating new chat...");
             var options = new ChatOptions();
             IsNotNull(configure)(options);
-            var chat = new Chat(userName, options);
+            var chat = new Chat(options);
             logger.LogDebug("Chat '{id}' created.", chat.Id);
             return Task.FromResult(chat);
         }
