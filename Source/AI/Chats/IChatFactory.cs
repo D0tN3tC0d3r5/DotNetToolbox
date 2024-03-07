@@ -2,7 +2,7 @@
 
 public interface IChatFactory {
     Task<TChat> Create<TChat, TBuilder, TOptions, TMessage>(string userName, Action<TBuilder> configure, CancellationToken ct = default)
-        where TChat : IChat<TOptions>
-        where TOptions : ChatOptions, new()
-        where TMessage : Message;
+        where TChat : class, IChat<TOptions, TMessage>
+        where TOptions : class, IChatOptions, new()
+        where TMessage : class, IMessage;
 }

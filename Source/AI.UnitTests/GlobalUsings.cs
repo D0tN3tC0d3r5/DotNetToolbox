@@ -1,6 +1,5 @@
 global using System.Net;
 
-global using DotNetToolbox.AI.OpenAI;
 global using DotNetToolbox.AI.OpenAI.DataModels;
 global using DotNetToolbox.AI.Utilities;
 global using DotNetToolbox.Http;
@@ -18,5 +17,3 @@ global using NSubstitute.ExceptionExtensions;
 global using Xunit;
 
 global using static System.Text.Json.JsonSerializer;
-
-global using OpenAIModel = DotNetToolbox.AI.OpenAI.DataModels.Model;

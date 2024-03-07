@@ -1,15 +1,15 @@
-using static DotNetToolbox.AI.OpenAI.OpenAIChatOptions;
+using DotNetToolbox.AI.OpenAI.Chats;
+
+using static DotNetToolbox.AI.OpenAI.Chats.ChatOptions;
 
 namespace DotNetToolbox.AI.Chats;
 
 public class OpenAIChatHandlerTests {
-    private readonly OpenAIChatHandler _chatHandler;
-    private readonly IChatRepository<OpenAIChat> _repository;
+    private readonly ChatHandler _chatHandler;
     private readonly FakeHttpMessageHandler _httpMessageHandler;
-    private readonly ILogger<OpenAIChatHandler> _logger;
+    private readonly ILogger<ChatHandler> _logger;
 
     public OpenAIChatHandlerTests() {
-        _repository = Substitute.For<IChatRepository<OpenAIChat>>();
         var configurationSection = Substitute.For<IConfigurationSection>();
         configurationSection.Value.Returns("SomeAPIKey");
         var httpClientProvider = Substitute.For<IHttpClientProvider>();
@@ -20,29 +20,26 @@ public class OpenAIChatHandlerTests {
         httpClientProvider.GetHttpClient(Arg.Any<string?>(),
                                          Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
-        _logger = new TrackedNullLogger<OpenAIChatHandler>();
-        _chatHandler = new(_repository, httpClientProvider, _logger);
+        _logger = new TrackedNullLogger<ChatHandler>();
+        _chatHandler = new(httpClientProvider, _logger);
     }
 
     [Fact]
     public async Task Start_ReturnsChatId() {
-        // Arrange
-        _repository.Add(Arg.Any<OpenAIChat>()).Returns(Task.CompletedTask);
-
         // Act
         var result = await _chatHandler.Start("User");
 
         // Assert
-        var chat = result.Should().BeOfType<OpenAIChat>().Subject;
+        var chat = result.Should().BeOfType<Chat>().Subject;
         chat.Id.Should().NotBeNullOrEmpty();
         chat.Options.FrequencyPenalty.Should().Be(DefaultFrequencyPenalty);
         chat.Options.PresencePenalty.Should().Be(DefaultPresencePenalty);
         chat.Options.MaximumTokensPerMessage.Should().Be(DefaultMaximumTokensPerMessage);
         chat.Options.NumberOfChoices.Should().Be(DefaultNumberOfChoices);
         chat.Options.Temperature.Should().Be(DefaultTemperature);
-        chat.Options.TopProbability.Should().Be(DefaultTopProbability);
+        chat.Options.MinimumTokenProbability.Should().Be(DefaultTopProbability);
         chat.Options.UseStreaming.Should().BeTrue();
-        chat.Options.StopSignals.Should().BeEmpty();
+        chat.Options.StopSequences.Should().BeEmpty();
         chat.Options.Tools.Should().BeEmpty();
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
         _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' Started.");
@@ -50,9 +47,6 @@ public class OpenAIChatHandlerTests {
 
     [Fact]
     public async Task Start_WithConfiguration_ReturnsChatId() {
-        // Arrange
-        _repository.Add(Arg.Any<OpenAIChat>()).Returns(Task.CompletedTask);
-
         // Act
         var result = await _chatHandler.Start("User", opt => {
             opt.FrequencyPenalty = 1.5m;
@@ -60,9 +54,9 @@ public class OpenAIChatHandlerTests {
             opt.MaximumTokensPerMessage = 100000;
             opt.NumberOfChoices = 2;
             opt.Temperature = 0.7m;
-            opt.TopProbability = 0.5m;
-            opt.StopSignals.Add("Abort!");
-            opt.StopSignals.Add("Stop!");
+            opt.MinimumTokenProbability = 0.5m;
+            opt.StopSequences.Add("Abort!");
+            opt.StopSequences.Add("Stop!");
             opt.Tools.Add(new(new() {
                 Name = "MyFunction1",
                 Description = "This is my first custom function",
@@ -74,16 +68,16 @@ public class OpenAIChatHandlerTests {
         });
 
         // Assert
-        var chat = result.Should().BeOfType<OpenAIChat>().Subject;
+        var chat = result.Should().BeOfType<Chat>().Subject;
         chat.Id.Should().NotBeNullOrEmpty();
         chat.Options.FrequencyPenalty.Should().Be(1.5m);
         chat.Options.PresencePenalty.Should().Be(1.1m);
         chat.Options.MaximumTokensPerMessage.Should().Be(100000);
         chat.Options.NumberOfChoices.Should().Be(2);
         chat.Options.Temperature.Should().Be(0.7m);
-        chat.Options.TopProbability.Should().Be(0.5m);
+        chat.Options.MinimumTokenProbability.Should().Be(0.5m);
         chat.Options.UseStreaming.Should().BeTrue();
-        chat.Options.StopSignals.Should().BeEquivalentTo("Abort!", "Stop!");
+        chat.Options.StopSequences.Should().BeEquivalentTo("Abort!", "Stop!");
         chat.Options.Tools.Should().HaveCount(2);
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
         _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' Started.");
@@ -91,9 +85,6 @@ public class OpenAIChatHandlerTests {
 
     [Fact]
     public async Task Start_WithInvalidConfiguration_Throws() {
-        // Arrange
-        _repository.Add(Arg.Any<OpenAIChat>()).Returns(Task.CompletedTask);
-
         // Act
         var result = () => _chatHandler.Start("User", opt => {
             opt.FrequencyPenalty = 2.5m;
@@ -101,12 +92,12 @@ public class OpenAIChatHandlerTests {
             opt.NumberOfChoices = 10;
             opt.MaximumTokensPerMessage = 100;
             opt.Temperature = 2.7m;
-            opt.TopProbability = 1.5m;
-            opt.StopSignals.Add("Abort1!");
-            opt.StopSignals.Add("");
-            opt.StopSignals.Add(null!);
-            opt.StopSignals.Add("  ");
-            opt.StopSignals.Add("Abort5!");
+            opt.MinimumTokenProbability = 1.5m;
+            opt.StopSequences.Add("Abort1!");
+            opt.StopSequences.Add("");
+            opt.StopSequences.Add(null!);
+            opt.StopSequences.Add("  ");
+            opt.StopSequences.Add("Abort5!");
         });
 
         // Assert
@@ -117,9 +108,6 @@ public class OpenAIChatHandlerTests {
 
     [Fact]
     public async Task Start_WithFaultyRepository_Throws() {
-        // Arrange
-        _repository.Add(Arg.Any<OpenAIChat>()).ThrowsAsync(new InvalidOperationException("Break!"));
-
         // Act
         var result = () => _chatHandler.Start("User");
 
@@ -131,9 +119,6 @@ public class OpenAIChatHandlerTests {
 
     [Fact]
     public async Task SendMessage_WithInvalidChatId_ReturnsReply() {
-        // Arrange
-        _repository.GetById(Arg.Any<string>()).Returns(default(OpenAIChat));
-
         // Act
         await _chatHandler.SendMessage(default!, "testMessage");
 
@@ -145,16 +130,16 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsReply() {
         // Arrange
-        var options = new OpenAIChatOptions {
+        var options = new ChatOptions {
             FrequencyPenalty = 1.5m,
             PresencePenalty = 1.1m,
             MaximumTokensPerMessage = 100000,
             NumberOfChoices = 2,
             Temperature = 0.7m,
-            TopProbability = 0.5m,
+            MinimumTokenProbability = 0.5m,
         };
-        options.StopSignals.Add("Abort!");
-        options.StopSignals.Add("Stop!");
+        options.StopSequences.Add("Abort!");
+        options.StopSequences.Add("Stop!");
         options.Tools.Add(new(new() {
             Name = "MyFunction1",
             Description = "This is my first custom function",
@@ -164,18 +149,16 @@ public class OpenAIChatHandlerTests {
             Description = "This is my second custom function",
         }));
 
-        var chat = new OpenAIChat("User", options);
-        _repository.GetById(Arg.Any<string>()).Returns(chat);
-        var response = new MessageResponse {
+        var chat = new Chat("User", options);
+        var message = new Message("assistant", "testReply") {
+            Name = "SomeName",
+        };
+        var choice = new Choice {
+            Message = message,
+        };
+        var response = new ChatCompletionResponse {
             Id = "testId",
-            Choices = [
-                new () {
-                    Message = new() {
-                        Content = "testReply",
-                        Name = "SomeName",
-                    },
-                },
-            ],
+            Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
 
@@ -192,17 +175,13 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsInvalidReply() {
         // Arrange
-        var chat = new OpenAIChat("User");
-        _repository.GetById(Arg.Any<string>()).Returns(chat);
-        var response = new MessageResponse {
+        var chat = new Chat("User");
+        var choice = new Choice {
+            Message = null!,
+        };
+        var response = new ChatCompletionResponse {
             Id = "testId",
-            Choices = [
-                new () {
-                    Message = new() {
-                        Content = null!,
-                    },
-                },
-            ],
+            Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
 
@@ -219,17 +198,16 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsDelta() {
         // Arrange
-        var chat = new OpenAIChat("User");
-        _repository.GetById(Arg.Any<string>()).Returns(chat);
-        var response = new DeltaResponse {
+        var chat = new Chat("User");
+        var message = new Message("assistant", "testReply") {
+            Name = "SomeName",
+        };
+        var choice = new Choice {
+            Delta = message,
+        };
+        var response = new ChatCompletionResponse {
             Id = "testId",
-            Choices = [
-                new () {
-                    Delta = new OpenAIMessage(MessageType.Assistant) {
-                        Content = "testReply",
-                    },
-                },
-            ],
+            Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
 
@@ -246,9 +224,8 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithEmptyReply_ReturnsEmptyString() {
         // Arrange
-        var chat = new OpenAIChat("User");
-        _repository.GetById(Arg.Any<string>()).Returns(chat);
-        var response = new CompletionResponse {
+        var chat = new Chat("User");
+        var response = new ChatCompletionResponse {
             Id = "testId",
         };
         _httpMessageHandler.SetOkResponse(response);
@@ -266,8 +243,7 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithFaultyConnection_Throws() {
         // Arrange
-        var chat = new OpenAIChat("User");
-        _repository.GetById(Arg.Any<string>()).Returns(chat);
+        var chat = new Chat("User");
         _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act

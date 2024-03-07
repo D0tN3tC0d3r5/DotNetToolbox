@@ -5,7 +5,7 @@ public class StateMachine {
     private readonly IFileSystem _io;
     private readonly IPromptFactory _promptFactory;
     private readonly IApplication _app;
-    private readonly IOpenAIChatHandler _missions;
+    private readonly IChatHandler _chatHandler;
     private readonly MultipleChoicePrompt _mainMenu;
 
     private static readonly JsonSerializerOptions _fileSerializationOptions = new() {
@@ -15,17 +15,17 @@ public class StateMachine {
         IgnoreReadOnlyProperties = true,
     };
 
-    private const string _missionsFolder = "Missions";
+    private const string _chatsFolder = "Chats";
     private const string _agentsFolder = "Agents";
     private const string _skillsFolder = "Skills";
 
-    public StateMachine(IApplication app, IOpenAIChatHandler missions) {
+    public StateMachine(IApplication app, IChatHandler chatHandler) {
         _app = app;
-        _missions = missions;
+        _chatHandler = chatHandler;
         _io = app.Environment.FileSystem;
         _out = app.Environment.Output;
         _promptFactory = app.PromptFactory;
-        _io.CreateFolder(_missionsFolder);
+        _io.CreateFolder(_chatsFolder);
         _mainMenu = _promptFactory.CreateMultipleChoiceQuestion("What do you want to do?", opt => {
             opt.AddChoice(2, "Start a new chat");
             opt.AddChoice(3, "Continue a existing chat");
@@ -36,7 +36,7 @@ public class StateMachine {
 
     public const uint Idle = 0;
 
-    public OpenAIChat? Mission { get; set; }
+    public Chat? Chat { get; set; }
     public uint CurrentState { get; set; }
 
     internal Task Start(uint initialState, CancellationToken ct) {
@@ -47,9 +47,9 @@ public class StateMachine {
     internal Task Process(string input, CancellationToken ct) {
         switch (CurrentState) {
             case 1: return ShowMainMenu(ct);
-            case 2: return StartMission(ct);
-            case 3: return ResumeMission(ct);
-            case 4: CancelMission(); break;
+            case 2: return Start(ct);
+            case 3: return Resume(ct);
+            case 4: Terminate(); break;
             case 5: _app.Exit(); break;
             case 6: return SendMessage(input, ct);
         }
@@ -62,26 +62,15 @@ public class StateMachine {
         return Process(string.Empty, ct);
     }
 
-    private async Task StartMission(CancellationToken ct) {
+    private async Task Start(CancellationToken ct) {
         try {
-            await using var agentFile = _io.OpenOrCreateFile($"{_agentsFolder}/TimeKeeper.json");
-            var agent = JsonSerializer.Deserialize<Agent>(agentFile, _fileSerializationOptions)!;
-            Mission = await _missions.Start("Argus", ct).ConfigureAwait(false);
-            agent.Skills.ToList(s => {
-                using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{s}.json");
-                var skill = JsonSerializer.Deserialize<Skills.Skill>(skillFile, _fileSerializationOptions)!;
-                var function = new Function {
-                    Name = skill.Name,
-                    Description = skill.Description,
-                };
-                return new Tool(function);
-            }).ForEach(t => Mission.Options.Tools.Add(t));
-            Mission.Messages[0].Name = agent.Name;
-            Mission.Messages[0].Content = agent.Profile;
-            _io.CreateFolder($"{_missionsFolder}/{Mission.Id}");
-            await using var missionFile = _io.OpenOrCreateFile($"{_missionsFolder}/{Mission.Id}/agent.json");
-            await JsonSerializer.SerializeAsync(missionFile, Mission, _fileSerializationOptions, ct);
-            _out.WriteLine($"Chat '{Mission.Id}' started.");
+            var agent = await LoadAgentProfile("TimeKeeper");
+            Chat = await _chatHandler.Start("Argus", opt => opt.SystemMessage = agent.Profile, ct).ConfigureAwait(false);
+            agent.Skills.ToList(LoadTool).ForEach(t => Chat.Options.Tools.Add(t));
+            Chat.Messages[0].Name = agent.Name;
+            _io.CreateFolder($"{_chatsFolder}/{Chat.Id}");
+            await SaveAgentData(Chat.Id, ct);
+            _out.WriteLine($"Chat '{Chat.Id}' started.");
             CurrentState = Idle;
         }
         catch (Exception ex) {
@@ -90,61 +79,60 @@ public class StateMachine {
         }
     }
 
-    private async Task ResumeMission(CancellationToken ct) {
-        var folders = _io.GetFolders(_missionsFolder).ToArray();
+    private async Task Resume(CancellationToken ct) {
+        var folders = _io.GetFolders(_chatsFolder).ToArray();
         if (folders.Length == 0) {
-            _out.WriteLine("No missions found.");
+            _out.WriteLine("No chatHandler found.");
             CurrentState = 1;
             return;
         }
 
-        var missionId = SelectMission("Select a mission to resume:", folders);
-        if (missionId == string.Empty) {
+        var chatId = SelectChat("Select a chat to resume:", folders);
+        if (chatId == string.Empty) {
             CurrentState = 1;
             return;
         }
 
-        await using var agentFile = _io.OpenFileAsReadOnly($"{_missionsFolder}/{missionId}/agent.json");
-        Mission = await JsonSerializer.DeserializeAsync<OpenAIChat>(agentFile, _fileSerializationOptions, cancellationToken: ct);
-        _out.WriteLine($"Resuming mission '{missionId}'.");
+        Chat = await LoadAgentData(chatId, ct);
+        _out.WriteLine($"Resuming chat '{chatId}'.");
         CurrentState = Idle;
     }
 
-    private void CancelMission() {
-        var folders = _io.GetFolders(_missionsFolder).ToArray();
+    private void Terminate() {
+        var folders = _io.GetFolders(_chatsFolder).ToArray();
         if (folders.Length == 0) {
-            _out.WriteLine("No missions found.");
+            _out.WriteLine("No chatHandler found.");
             CurrentState = 1;
             return;
         }
 
-        var missionId = SelectMission("Select a mission to cancel:", folders);
-        if (missionId == string.Empty) {
+        var chatId = SelectChat("Select a chat to cancel:", folders);
+        if (chatId == string.Empty) {
             CurrentState = 1;
             return;
         }
 
-        _io.DeleteFolder($"{_missionsFolder}/{missionId}", true);
-        _out.WriteLine($"mission '{missionId}' cancelled.");
+        _io.DeleteFolder($"{_chatsFolder}/{chatId}", true);
+        _out.WriteLine($"chat '{chatId}' cancelled.");
         CurrentState = 1;
     }
 
-    private string SelectMission(string question, string[] folders) {
-        var missions = _promptFactory.CreateMultipleChoiceQuestion<string>(question, opt => {
+    private string SelectChat(string question, string[] folders) {
+        var chats = _promptFactory.CreateMultipleChoiceQuestion<string>(question, opt => {
             foreach (var folder in folders) opt.AddChoice(folder, folder);
             opt.AddChoice(string.Empty, "Back to the main menu.");
         });
-        var missionId = missions.Ask();
-        return missionId;
+        var chatId = chats.Ask();
+        return chatId;
     }
 
     private async Task SendMessage(string input, CancellationToken ct) {
         _out.Write("- ");
-        var response = await _missions.SendMessage(Mission!, input, ct);
+        var response = await _chatHandler.SendMessage(Chat!, input, ct);
         while (response.ToolCalls is not null) {
             var toolCalls = response.ToolCalls!;
             var results = toolCalls.ToArray(ExecuteTool);
-            response = await _missions.SendToolResult(Mission!, results, ct);
+            response = await _chatHandler.SendToolResult(Chat!, results, ct);
         }
         _out.WriteLine(response.Content);
         CurrentState = Idle;
@@ -155,4 +143,34 @@ public class StateMachine {
             "GetDateTime" => new(toolCall.Id, DateTime.Now.ToString(CultureInfo.InvariantCulture)),
             _ => throw new NotImplementedException(),
         };
+
+    private async Task SaveAgentData(string chatId, CancellationToken ct) {
+        await using var chatFile = _io.OpenOrCreateFile($"{_chatsFolder}/{chatId}/agent.json");
+        await JsonSerializer.SerializeAsync(chatFile, Chat, _fileSerializationOptions, ct);
+    }
+
+    private async Task<Chat?> LoadAgentData(string chatId, CancellationToken ct) {
+        await using var agentFile = _io.OpenFileAsReadOnly($"{_chatsFolder}/{chatId}/agent.json");
+        return await JsonSerializer.DeserializeAsync<Chat>(agentFile, _fileSerializationOptions, cancellationToken: ct);
+    }
+
+    private Tool LoadTool(string name) {
+        var skill = LoadSkill(name);
+        var function = new Function {
+            Name = skill.Name,
+            Description = skill.Description,
+        };
+        return new Tool(function);
+    }
+
+    private Skill LoadSkill(string skillName) {
+        using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{skillName}.json");
+        var skill = JsonSerializer.Deserialize<Skill>(skillFile, _fileSerializationOptions)!;
+        return skill;
+    }
+
+    private async Task<Agent> LoadAgentProfile(string profileName) {
+        await using var agentFile = _io.OpenOrCreateFile($"{_agentsFolder}/{profileName}.json");
+        return JsonSerializer.Deserialize<Agent>(agentFile, _fileSerializationOptions)!;
+    }
 }

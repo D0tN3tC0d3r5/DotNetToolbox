@@ -1,5 +1,5 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.DataModels;
 
 internal record ModelsResponse {
-    public required OpenAiModel[] Data { get; init; }
+    public required Model[] Data { get; init; }
 }

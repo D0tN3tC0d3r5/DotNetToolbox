@@ -3,7 +3,7 @@
 public class Sophia : ShellApplication<Sophia> {
     private readonly StateMachine _stateMachine;
 
-    public Sophia(string[] args, IServiceProvider services, IOpenAIChatHandler chatHandler)
+    public Sophia(string[] args, IServiceProvider services, IChatHandler chatHandler)
         : base(args, services) {
         AllowMultiLine = true;
         _stateMachine = new(this, chatHandler);
@@ -11,7 +11,7 @@ public class Sophia : ShellApplication<Sophia> {
 
     protected override string GetPrePromptText() => $"[{TotalNumberOfTokens}] ";
 
-    private int TotalNumberOfTokens => _stateMachine.Mission?.TotalNumberOfTokens ?? 0;
+    private int TotalNumberOfTokens => _stateMachine.Chat?.TotalNumberOfTokens ?? 0;
 
     protected override async Task<Result> OnStart(CancellationToken ct) {
         await _stateMachine.Start(1, ct);
