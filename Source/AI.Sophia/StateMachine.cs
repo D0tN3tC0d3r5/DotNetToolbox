@@ -5,7 +5,7 @@ public class StateMachine {
     private readonly IFileSystem _io;
     private readonly IPromptFactory _promptFactory;
     private readonly IApplication _app;
-    private readonly OpenAIChatHandler _chatHandler;
+    private readonly IChatHandler _chatHandler;
     private readonly MultipleChoicePrompt _mainMenu;
 
     private static readonly JsonSerializerOptions _fileSerializationOptions = new() {
@@ -17,9 +17,9 @@ public class StateMachine {
 
     private const string _chatsFolder = "Chats";
     private const string _agentsFolder = "Agents";
-    private const string _skillsFolder = "Skills";
+    //private const string _skillsFolder = "Skills";
 
-    public StateMachine(IApplication app, OpenAIChatHandler chatHandler) {
+    public StateMachine(IApplication app, IChatHandler chatHandler) {
         _app = app;
         _chatHandler = chatHandler;
         _io = app.Environment.FileSystem;
@@ -36,7 +36,7 @@ public class StateMachine {
 
     public const uint Idle = 0;
 
-    public OpenAIChat? Chat { get; set; }
+    public IChat? Chat { get; set; }
     public uint CurrentState { get; set; }
 
     internal Task Start(uint initialState, CancellationToken ct) {
@@ -65,8 +65,8 @@ public class StateMachine {
     private async Task Start(CancellationToken ct) {
         try {
             var agent = await LoadAgentProfile("TimeKeeper");
-            Chat = (OpenAIChat)_chatHandler.Start(opt => opt.SystemMessage = agent.Profile);
-            agent.Skills.ToList(LoadTool).ForEach(t => Chat.Options.Tools.Add(t));
+            Chat = _chatHandler.Start(opt => opt.SystemMessage = agent.Profile);
+            //agent.Skills.ToList(LoadTool).ForEach(t => Chat.Options.Tools.Add(t));
             //Chat.Messages[0].Name = agent.Name;
             _io.CreateFolder($"{_chatsFolder}/{Chat.Id}");
             await SaveAgentData(Chat.Id, ct);
@@ -156,20 +156,20 @@ public class StateMachine {
         return await JsonSerializer.DeserializeAsync<OpenAIChat>(agentFile, _fileSerializationOptions, cancellationToken: ct);
     }
 
-    private OpenAITool LoadTool(string name) {
-        var skill = LoadSkill(name);
-        var function = new OpenAIFunction {
-            Name = skill.Name,
-            Description = skill.Description,
-        };
-        return new(function);
-    }
+    //private OpenAITool LoadTool(string name) {
+    //    var skill = LoadSkill(name);
+    //    var function = new OpenAIFunction {
+    //        Name = skill.Name,
+    //        Description = skill.Description,
+    //    };
+    //    return new(function);
+    //}
 
-    private Skill LoadSkill(string skillName) {
-        using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{skillName}.json");
-        var skill = JsonSerializer.Deserialize<Skill>(skillFile, _fileSerializationOptions)!;
-        return skill;
-    }
+    //private Skill LoadSkill(string skillName) {
+    //    using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{skillName}.json");
+    //    var skill = JsonSerializer.Deserialize<Skill>(skillFile, _fileSerializationOptions)!;
+    //    return skill;
+    //}
 
     private async Task<Agent> LoadAgentProfile(string profileName) {
         await using var agentFile = _io.OpenOrCreateFile($"{_agentsFolder}/{profileName}.json");
