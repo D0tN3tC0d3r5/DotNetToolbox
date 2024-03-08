@@ -6,7 +6,7 @@ public class AnthropicHttpClientProvider(IHttpClientFactory clientFactory, IConf
         var builder = new HttpClientOptionsBuilder(Options);
         var apiKey = IsNotNull(configuration["Anthropic:ApiKey"]);
         builder.UseApiKeyAuthentication(apiKey);
-        builder.AddCustomHeader("Content-Role", "application/json");
+        builder.AddCustomHeader("AnthropicMessageContent-Role", "application/json");
         Options = builder.Build();
         return base.CreateHttpClient();
     }

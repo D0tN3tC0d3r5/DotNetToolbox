@@ -1,9 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
-public abstract class Chat<TOptions, TMessage>
-    : IChat<TOptions, TMessage>
-    where TOptions : class, IChatOptions, new()
-    where TMessage : class, IMessage {
+public abstract class Chat<TOptions>
+    : IChat
+    where TOptions : class, IChatOptions, new() {
     protected Chat(TOptions? options = null) {
         Options = options ?? Options;
     }
@@ -13,7 +12,5 @@ public abstract class Chat<TOptions, TMessage>
 
     IChatOptions IChat.Options => Options;
     public TOptions Options { get; } = new();
-
-    IEnumerable<IMessage> IChat.Messages => Messages;
-    public List<TMessage> Messages { get; } = [];
+    public List<Message> Messages { get; } = [];
 }

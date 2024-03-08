@@ -1,10 +1,9 @@
-global using System.Globalization;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 
+global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Extensions;
 global using DotNetToolbox.AI.OpenAI.Chats;
-global using DotNetToolbox.AI.Tools;
 global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.ConsoleApplication;
 global using DotNetToolbox.ConsoleApplication.Application;

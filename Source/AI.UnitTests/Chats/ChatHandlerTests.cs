@@ -1,13 +1,13 @@
 using DotNetToolbox.AI.OpenAI.Chats;
 
-using static DotNetToolbox.AI.OpenAI.Chats.ChatOptions;
+using static DotNetToolbox.AI.OpenAI.Chats.OpenAIChatOptions;
 
 namespace DotNetToolbox.AI.Chats;
 
 public class OpenAIChatHandlerTests {
-    private readonly ChatHandler _chatHandler;
+    private readonly OpenAIChatHandler _chatHandler;
     private readonly FakeHttpMessageHandler _httpMessageHandler;
-    private readonly ILogger<ChatHandler> _logger;
+    private readonly ILogger<OpenAIChatHandler> _logger;
 
     public OpenAIChatHandlerTests() {
         var configurationSection = Substitute.For<IConfigurationSection>();
@@ -20,17 +20,17 @@ public class OpenAIChatHandlerTests {
         httpClientProvider.GetHttpClient(Arg.Any<string?>(),
                                          Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
-        _logger = new TrackedNullLogger<ChatHandler>();
+        _logger = new TrackedNullLogger<OpenAIChatHandler>();
         _chatHandler = new(httpClientProvider, _logger);
     }
 
     [Fact]
-    public async Task Start_ReturnsChatId() {
+    public void Start_ReturnsChatId() {
         // Act
-        var result = await _chatHandler.Start();
+        var result = _chatHandler.Start();
 
         // Assert
-        var chat = result.Should().BeOfType<Chat>().Subject;
+        var chat = result.Should().BeOfType<OpenAIChat>().Subject;
         chat.Id.Should().NotBeNullOrEmpty();
         chat.Options.FrequencyPenalty.Should().Be(DefaultFrequencyPenalty);
         chat.Options.PresencePenalty.Should().Be(DefaultPresencePenalty);
@@ -42,13 +42,13 @@ public class OpenAIChatHandlerTests {
         chat.Options.StopSequences.Should().BeEmpty();
         chat.Options.Tools.Should().BeEmpty();
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
-        _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' Started.");
+        _logger.Should().Contain(LogLevel.Debug, $"AnthropicChat '{chat.Id}' Started.");
     }
 
     [Fact]
-    public async Task Start_WithConfiguration_ReturnsChatId() {
+    public void Start_WithConfiguration_ReturnsChatId() {
         // Act
-        var result = await _chatHandler.Start(opt => {
+        var result = _chatHandler.Start(opt => {
             opt.FrequencyPenalty = 1.5m;
             opt.PresencePenalty = 1.1m;
             opt.MaximumTokensPerMessage = 100000;
@@ -68,7 +68,7 @@ public class OpenAIChatHandlerTests {
         });
 
         // Assert
-        var chat = result.Should().BeOfType<Chat>().Subject;
+        var chat = result.Should().BeOfType<OpenAIChat>().Subject;
         chat.Id.Should().NotBeNullOrEmpty();
         chat.Options.FrequencyPenalty.Should().Be(1.5m);
         chat.Options.PresencePenalty.Should().Be(1.1m);
@@ -80,11 +80,11 @@ public class OpenAIChatHandlerTests {
         chat.Options.StopSequences.Should().BeEquivalentTo("Abort!", "Stop!");
         chat.Options.Tools.Should().HaveCount(2);
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
-        _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' Started.");
+        _logger.Should().Contain(LogLevel.Debug, $"AnthropicChat '{chat.Id}' Started.");
     }
 
     [Fact]
-    public async Task Start_WithInvalidConfiguration_Throws() {
+    public void Start_WithInvalidConfiguration_Throws() {
         // Act
         var result = () => _chatHandler.Start(opt => {
             opt.FrequencyPenalty = 2.5m;
@@ -101,18 +101,18 @@ public class OpenAIChatHandlerTests {
         });
 
         // Assert
-        await result.Should().ThrowAsync<ValidationException>();
+        result.Should().Throw<ValidationException>();
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
         _logger.Should().Contain(LogLevel.Error, "Failed to Start a new chat.");
     }
 
     [Fact]
-    public async Task Start_WithFaultyRepository_Throws() {
+    public void Start_WithFaultyRepository_Throws() {
         // Act
         var result = () => _chatHandler.Start();
 
         // Assert
-        await result.Should().ThrowAsync<InvalidOperationException>();
+        result.Should().Throw<InvalidOperationException>();
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
         _logger.Should().Contain(LogLevel.Error, "Failed to Start a new chat.");
     }
@@ -120,17 +120,17 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithInvalidChatId_ReturnsReply() {
         // Act
-        await _chatHandler.SendMessage(default!, "testMessage");
+        await _chatHandler.SendMessage(default!, new("user", [new("text", "testMessage")]));
 
         // Assert
         _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.Should().Contain(LogLevel.Debug, "Chat 'testId' not found.");
+        _logger.Should().Contain(LogLevel.Debug, "AnthropicChat 'testId' not found.");
     }
 
     [Fact]
     public async Task SendMessage_ReturnsReply() {
         // Arrange
-        var options = new ChatOptions {
+        var options = new OpenAIChatOptions {
             FrequencyPenalty = 1.5m,
             PresencePenalty = 1.1m,
             MaximumTokensPerMessage = 100000,
@@ -149,21 +149,21 @@ public class OpenAIChatHandlerTests {
             Description = "This is my second custom function",
         }));
 
-        var chat = new Chat(options);
-        var message = new Message("assistant", "testReply") {
-            Name = "SomeName",
+        var chat = new OpenAIChat(options);
+        var message = new OpenAIResponseMessage {
+            Content = "testReply",
         };
-        var choice = new Choice {
+        var choice = new OpenAIChatResponseChoice {
             Message = message,
         };
-        var response = new ChatCompletionResponse {
+        var response = new OpenAIChatResponse {
             Id = "testId",
             Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
 
         // Act
-        await _chatHandler.SendMessage(chat, "testMessage");
+        await _chatHandler.SendMessage(chat, new("user", [new("text", "testMessage")]));
 
         // Assert
         chat.Options.Model.Should().Be(DefaultChatModel);
@@ -175,18 +175,18 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsInvalidReply() {
         // Arrange
-        var chat = new Chat();
-        var choice = new Choice {
+        var chat = new OpenAIChat();
+        var choice = new OpenAIChatResponseChoice {
             Message = null!,
         };
-        var response = new ChatCompletionResponse {
+        var response = new OpenAIChatResponse {
             Id = "testId",
             Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
 
         // Act
-        await _chatHandler.SendMessage(chat, "testMessage");
+        await _chatHandler.SendMessage(chat, new("user", [new("text", "testMessage")]));
 
         // Assert
         chat.Options.Model.Should().Be(DefaultChatModel);
@@ -198,21 +198,21 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_ReturnsDelta() {
         // Arrange
-        var chat = new Chat();
-        var message = new Message("assistant", "testReply") {
-            Name = "SomeName",
+        var chat = new OpenAIChat();
+        var message = new OpenAIResponseMessage {
+            Content = "testReply",
         };
-        var choice = new Choice {
+        var choice = new OpenAIChatResponseChoice {
             Delta = message,
         };
-        var response = new ChatCompletionResponse {
+        var response = new OpenAIChatResponse {
             Id = "testId",
             Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
 
         // Act
-        await _chatHandler.SendMessage(chat, "testMessage");
+        await _chatHandler.SendMessage(chat, new("user", [new("text", "testMessage")]));
 
         // Assert
         chat.Options.Model.Should().Be(DefaultChatModel);
@@ -224,14 +224,14 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithEmptyReply_ReturnsEmptyString() {
         // Arrange
-        var chat = new Chat();
-        var response = new ChatCompletionResponse {
+        var chat = new OpenAIChat();
+        var response = new OpenAIChatResponse {
             Id = "testId",
         };
         _httpMessageHandler.SetOkResponse(response);
 
         // Act
-        await _chatHandler.SendMessage(chat, "testMessage");
+        await _chatHandler.SendMessage(chat, new("user", [new("text", "testMessage")]));
 
         // Assert
         chat.Options.Model.Should().Be("some-model");
@@ -243,11 +243,11 @@ public class OpenAIChatHandlerTests {
     [Fact]
     public async Task SendMessage_WithFaultyConnection_Throws() {
         // Arrange
-        var chat = new Chat();
+        var chat = new OpenAIChat();
         _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
-        var result = () => _chatHandler.SendMessage(chat, "testMessage");
+        var result = () => _chatHandler.SendMessage(chat, new("user", [new("text", "testMessage")]));
 
         // Assert
         chat.Options.Model.Should().Be("gpt-3.5-turbo-1106");

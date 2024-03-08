@@ -6,7 +6,7 @@ public class Sophia : ShellApplication<Sophia> {
     public Sophia(string[] args, IServiceProvider services, IChatHandler chatHandler)
         : base(args, services) {
         AllowMultiLine = true;
-        _stateMachine = new(this, chatHandler);
+        _stateMachine = new(this, (OpenAIChatHandler)chatHandler);
     }
 
     protected override string GetPrePromptText() => $"[{TotalNumberOfTokens}] ";

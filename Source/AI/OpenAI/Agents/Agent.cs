@@ -1,8 +1,8 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Agents;
 
-internal class Agent(Chats.IChatHandler chatHandler)
+internal class Agent(IChatHandler chatHandler)
     : IAgent {
-    private readonly Queue<(IAgent Agent, Chats.Chat Chat, object Content, CancellationToken Token)> _requests = [];
+    private readonly Queue<(IAgent Agent, IChat Chat, Message Message, CancellationToken Token)> _requests = [];
 
     public async Task Start(CancellationToken ct) {
         while (!ct.IsCancellationRequested) {
@@ -11,25 +11,25 @@ internal class Agent(Chats.IChatHandler chatHandler)
                 continue;
             }
 
-            (var agent, var chat, var content, var token) = request;
+            (var agent, var chat, var message, var token) = request;
             var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token, ct).Token;
-            await ProcessRequest(agent, chat, content, linkedToken);
+            await ProcessRequest(agent, chat, message, linkedToken);
         }
     }
 
-    public CancellationTokenSource EnqueueRequest(IAgent source, Chats.Chat chat, object content) {
+    public CancellationTokenSource EnqueueRequest(IAgent source, IChat chat, Message message) {
         var tokenSource = new CancellationTokenSource();
-        _requests.Enqueue((source, chat, content, tokenSource.Token));
+        _requests.Enqueue((source, chat, message, tokenSource.Token));
         return tokenSource;
     }
 
     // Do something with the response from the processing agent.
-    public Task ProcessResponse(string chatId, Chats.Message response, CancellationToken ct)
+    public Task ProcessResponse(string chatId, Message response, CancellationToken ct)
         => Task.CompletedTask;
 
-    private async Task ProcessRequest(IAgent source, Chats.Chat chat, object content, CancellationToken ct) {
+    private async Task ProcessRequest(IAgent source, IChat chat, Message content, CancellationToken ct) {
         if (ct.IsCancellationRequested) return;
-        var response = await chatHandler.SendMessage(chat, (string)content, ct);
+        var response = await chatHandler.SendMessage(chat, content, ct);
         await source.ProcessResponse(chat.Id, response, ct);
     }
 }
