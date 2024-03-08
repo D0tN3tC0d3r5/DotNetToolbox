@@ -12,5 +12,5 @@ public class OpenAIChatResponse {
     [JsonPropertyName("system_fingerprint")]
     public string? SystemFingerprint { get; init; }
     [JsonPropertyName("usage")]
-    public OpenAIChatUsage? Usage { get; init; }
+    public OpenAIChatResponseUsage? Usage { get; init; }
 }

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.OpenAI.Agents;
+﻿namespace DotNetToolbox.AI.Agent;
 
 internal class Agent(IChatHandler chatHandler)
     : IAgent {

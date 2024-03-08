@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
-public class OpenAIRequestMessage {
-    public OpenAIRequestMessage(object content) {
+public class OpenAIChatRequestMessage {
+    public OpenAIChatRequestMessage(object content) {
         switch (content) {
             case Message { Parts.Length: 1 } c:
                 Role = c.Role;
@@ -9,14 +9,14 @@ public class OpenAIRequestMessage {
                 break;
             case Message c:
                 Role = c.Role;
-                Content = c.Parts.ToArray(p => new OpenAIMessageContent(p.Value));
+                Content = c.Parts.ToArray(p => new OpenAIChatRequestMessageContent(p.Value));
                 break;
-            case OpenAIToolResult c:
+            case OpenAIChatRequestMessageToolCallResult c:
                 Role = "tool";
                 Content = c.Value;
                 ToolCallId = c.CallId;
                 break;
-            case OpenAIToolCall[] c:
+            case OpenAIChatResponseToolCall[] c:
                 Role = "assistant";
                 ToolCalls = c;
                 break;
@@ -31,7 +31,7 @@ public class OpenAIRequestMessage {
     [JsonPropertyName("name")]
     public string? Name { get; set; }
     [JsonPropertyName("tool_calls")]
-    public OpenAIToolCall[]? ToolCalls { get; set; }
+    public OpenAIChatResponseToolCall[]? ToolCalls { get; set; }
     [JsonPropertyName("tool_call_id")]
     public string? ToolCallId { get; set; }
 }

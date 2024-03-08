@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
-public record OpenAIChatUsage {
+public record OpenAIChatResponseUsage {
     [JsonPropertyName("prompt_tokens")]
     public int PromptTokens { get; init; }
     [JsonPropertyName("completion_tokens")]

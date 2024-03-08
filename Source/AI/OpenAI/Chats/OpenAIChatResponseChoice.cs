@@ -6,7 +6,7 @@ public class OpenAIChatResponseChoice {
     [JsonPropertyName("finish_reason")]
     public string? StopReason { get; set; }
     [JsonPropertyName("message")]
-    public OpenAIResponseMessage Message { get; set; } = default!;
+    public OpenAIChatResponseMessage Message { get; set; } = default!;
     [JsonPropertyName("delta")]
-    public OpenAIResponseMessage? Delta { set => Message = value ?? Message; }
+    public OpenAIChatResponseMessage? Delta { set => Message = value ?? Message; }
 }

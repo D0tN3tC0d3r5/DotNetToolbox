@@ -3,7 +3,7 @@
 public abstract class Chat<TOptions>
     : IChat
     where TOptions : class, IChatOptions, new() {
-    protected Chat(TOptions? options = null) {
+    protected Chat(TOptions? options) {
         Options = options ?? Options;
     }
 

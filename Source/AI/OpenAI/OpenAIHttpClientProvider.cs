@@ -6,7 +6,10 @@ public class OpenAIHttpClientProvider(IHttpClientFactory clientFactory, IConfigu
         var builder = new HttpClientOptionsBuilder(Options);
         var key = IsNotNull(configuration["OpenAI:ApiKey"]);
         var organization = IsNotNull(configuration["OpenAI:Organization"]);
-        builder.UseApiKeyAuthentication(opt => opt.ApiKey = key);
+        builder.UseSimpleTokenAuthentication(opt => {
+            opt.Scheme = AuthenticationScheme.Bearer;
+            opt.Token = key;
+        });
         builder.AddCustomHeader("OpenAI-Organization", organization);
         Options = builder.Build();
         return base.CreateHttpClient();

@@ -42,7 +42,7 @@ public class OpenAIChatHandlerTests {
         chat.Options.StopSequences.Should().BeEmpty();
         chat.Options.Tools.Should().BeEmpty();
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
-        _logger.Should().Contain(LogLevel.Debug, $"AnthropicChat '{chat.Id}' Started.");
+        _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' started.");
     }
 
     [Fact]
@@ -57,14 +57,8 @@ public class OpenAIChatHandlerTests {
             opt.MinimumTokenProbability = 0.5m;
             opt.StopSequences.Add("Abort!");
             opt.StopSequences.Add("Stop!");
-            opt.Tools.Add(new(new() {
-                Name = "MyFunction1",
-                Description = "This is my first custom function",
-            }));
-            opt.Tools.Add(new(new() {
-                Name = "MyFunction2",
-                Description = "This is my second custom function",
-            }));
+            opt.Tools.Add(new("MyFunction1", description: "This is my first custom function"));
+            opt.Tools.Add(new("MyFunction2", description: "This is my second custom function"));
         });
 
         // Assert
@@ -80,7 +74,7 @@ public class OpenAIChatHandlerTests {
         chat.Options.StopSequences.Should().BeEquivalentTo("Abort!", "Stop!");
         chat.Options.Tools.Should().HaveCount(2);
         _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
-        _logger.Should().Contain(LogLevel.Debug, $"AnthropicChat '{chat.Id}' Started.");
+        _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' started.");
     }
 
     [Fact]
@@ -124,7 +118,7 @@ public class OpenAIChatHandlerTests {
 
         // Assert
         _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.Should().Contain(LogLevel.Debug, "AnthropicChat 'testId' not found.");
+        _logger.Should().Contain(LogLevel.Debug, "Chat 'testId' not found.");
     }
 
     [Fact]
@@ -140,17 +134,11 @@ public class OpenAIChatHandlerTests {
         };
         options.StopSequences.Add("Abort!");
         options.StopSequences.Add("Stop!");
-        options.Tools.Add(new(new() {
-            Name = "MyFunction1",
-            Description = "This is my first custom function",
-        }));
-        options.Tools.Add(new(new() {
-            Name = "MyFunction2",
-            Description = "This is my second custom function",
-        }));
+        options.Tools.Add(new("MyFunction1", description: "This is my first custom function"));
+        options.Tools.Add(new("MyFunction2", description: "This is my second custom function"));
 
         var chat = new OpenAIChat(options);
-        var message = new OpenAIResponseMessage {
+        var message = new OpenAIChatResponseMessage {
             Content = "testReply",
         };
         var choice = new OpenAIChatResponseChoice {
@@ -199,7 +187,7 @@ public class OpenAIChatHandlerTests {
     public async Task SendMessage_ReturnsDelta() {
         // Arrange
         var chat = new OpenAIChat();
-        var message = new OpenAIResponseMessage {
+        var message = new OpenAIChatResponseMessage {
             Content = "testReply",
         };
         var choice = new OpenAIChatResponseChoice {

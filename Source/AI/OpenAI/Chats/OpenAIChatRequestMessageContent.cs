@@ -1,9 +1,9 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
-public class OpenAIMessageContent {
-    public OpenAIMessageContent(object value) {
+public class OpenAIChatRequestMessageContent {
+    public OpenAIChatRequestMessageContent(object value) {
         Text = value as string;
-        Image = value as OpenAIImageData;
+        Image = value as OpenAIChatRequestMessageContentImageData;
         Type = Text is null ? "image_url" : "text";
     }
 
@@ -12,5 +12,5 @@ public class OpenAIMessageContent {
     [JsonPropertyName("text")]
     public string? Text { get; init; }
     [JsonPropertyName("image_url")]
-    public OpenAIImageData? Image { get; init; }
+    public OpenAIChatRequestMessageContentImageData? Image { get; init; }
 }

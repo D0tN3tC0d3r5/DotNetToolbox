@@ -2,15 +2,16 @@
 
 public class OpenAIChatOptions
     : IChatOptions {
+    public const string DefaultApiEndpoint = "v1/chat/completions";
+    public const string DefaultChatModel = "gpt-3.5-turbo-0125";
     public const string DefaultSystemMessage = "You are a helpful agent.";
-    public const string DefaultChatModel = "gpt-4-turbo-preview";
     public const byte DefaultFrequencyPenalty = 0;
     public const sbyte MinimumFrequencyPenalty = -2;
     public const byte MaximumFrequencyPenalty = 2;
     public const byte DefaultPresencePenalty = 0;
     public const sbyte MinimumPresencePenalty = -2;
     public const byte MaximumPresencePenalty = 2;
-    public const uint DefaultMaximumTokensPerMessage = 8192;
+    public const uint DefaultMaximumTokensPerMessage = 4096;
     public const uint MinimumTokensPerMessage = 1024;
     public const byte DefaultNumberOfChoices = 1;
     public const byte MinimumNumberOfChoices = 1;
@@ -23,18 +24,20 @@ public class OpenAIChatOptions
     public const byte MinimumTopProbability = 0;
     public const byte MaximumTopProbability = 1;
 
+    public string ApiEndpoint { get; set; } = DefaultApiEndpoint;
     public string Model { get; set; } = DefaultChatModel;
     public string SystemMessage { get; set; } = DefaultSystemMessage;
-    public uint MaximumTokensPerMessage { get; set; }
+    public uint MaximumTokensPerMessage { get; set; } = DefaultMaximumTokensPerMessage;
     public decimal? Temperature { get; set; }
     public decimal? MinimumTokenProbability { get; set; }
     public HashSet<string> StopSequences { get; set; } = [];
     public bool UseStreaming { get; set; }
 
+    public string? AgentName { get; set; }
     public byte? NumberOfChoices { get; set; }
     public decimal? FrequencyPenalty { get; set; }
     public decimal? PresencePenalty { get; set; }
-    public HashSet<OpenAITool> Tools { get; set; } = [];
+    public HashSet<OpenAIChatTool> Tools { get; set; } = [];
 
     public Result Validate(IDictionary<string, object?>? context = null) {
         var result = Result.Success();

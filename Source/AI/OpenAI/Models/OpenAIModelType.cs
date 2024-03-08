@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Models;
 
-public enum ModelType {
+public enum OpenAIModelType {
     Chat,
     DallE,
     Whisper,

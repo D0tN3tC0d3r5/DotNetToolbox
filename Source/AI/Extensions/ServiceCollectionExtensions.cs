@@ -4,7 +4,7 @@ public static class ServiceCollectionExtensions {
     public static IServiceCollection AddOpenAI(this IServiceCollection services, IConfiguration configuration) {
         services.AddHttpClientProvider<IHttpClientProvider, OpenAIHttpClientProvider>(configuration);
         services.TryAddScoped<IChatHandler, OpenAIChatHandler>();
-        services.TryAddScoped<IModelsHandler, ModelsHandler>();
+        services.TryAddScoped<IModelsHandler, OpenAIModelsHandler>();
         return services;
     }
 

@@ -4,7 +4,7 @@ public class OpenAIChatRequest {
     [JsonPropertyName("model")]
     public required string Model { get; init; }
     [JsonPropertyName("messages")]
-    public OpenAIRequestMessage[] Messages { get; init; } = [];
+    public OpenAIChatRequestMessage[] Messages { get; init; } = [];
     [JsonPropertyName("frequency_penalty")]
     public decimal? FrequencyPenalty { get; set; }
     [JsonPropertyName("presence_penalty")]
@@ -22,9 +22,9 @@ public class OpenAIChatRequest {
     [JsonPropertyName("stream")]
     public bool? UseStreaming { get; set; }
     [JsonPropertyName("tools")]
-    public OpenAITool[]? Tools { get; set; }
+    public OpenAIChatRequestToolCall[]? Tools { get; set; }
     [JsonPropertyName("tool_choice")]
-    public JsonElement? ToolChoice { get; set; }
+    public OpenAIChatRequestForceToolCall? ForceToolCall { get; set; }
     [JsonPropertyName("response_format")]
-    public JsonElement? ResponseFormat { get; set; }
+    public OpenAIChatRequestResponseFormat? ResponseFormat { get; set; }
 }

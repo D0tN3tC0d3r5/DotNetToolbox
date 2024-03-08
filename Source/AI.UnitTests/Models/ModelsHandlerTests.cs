@@ -3,8 +3,8 @@ using DotNetToolbox.AI.OpenAI.Models;
 namespace DotNetToolbox.AI.Models;
 
 public class ModelsHandlerTests {
-    private readonly ModelsHandler _modelsHandler;
-    private readonly ILogger<ModelsHandler> _logger;
+    private readonly OpenAIModelsHandler _modelsHandler;
+    private readonly ILogger<OpenAIModelsHandler> _logger;
     private readonly FakeHttpMessageHandler _httpMessageHandler;
 
     public ModelsHandlerTests() {
@@ -18,14 +18,14 @@ public class ModelsHandlerTests {
         httpClientProvider.GetHttpClient(Arg.Any<string?>(),
                                          Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
-        _logger = new TrackedNullLogger<ModelsHandler>();
+        _logger = new TrackedNullLogger<OpenAIModelsHandler>();
         _modelsHandler = new(httpClientProvider, _logger);
     }
 
     [Fact]
     public async Task Get_ReturnsModels() {
         // Arrange
-        var response = new ModelsResponse {
+        var response = new OpenAIModelsResponse {
             Data = [
                 new() {
                     Id = "ft:model1",
@@ -42,7 +42,7 @@ public class ModelsHandlerTests {
         _httpMessageHandler.SetOkResponse(response);
 
         // Act
-        var result = await _modelsHandler.Get();
+        var result = await _modelsHandler.GetIds();
 
         // Assert
         result.Should().HaveCount(2);
@@ -58,7 +58,7 @@ public class ModelsHandlerTests {
         _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
-        var result = () => _modelsHandler.Get();
+        var result = () => _modelsHandler.GetIds();
 
         // Assert
         await result.Should().ThrowAsync<InvalidOperationException>();

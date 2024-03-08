@@ -2,14 +2,16 @@
 
 public class AnthropicChatOptions
     : IChatOptions {
+    public const string DefaultApiEndpoint = "v1/messages";
+    public const string DefaultChatModel = "claude-2.1";
     public const string DefaultSystemMessage = "You are a helpful agent.";
-    public const string DefaultChatModel = "claude-v1";
     public const uint MinimumTokensPerMessage = 1024;
     public const byte MinimumTemperature = 0;
     public const byte MaximumTemperature = 2;
     public const byte MinimumTopProbability = 0;
     public const byte MaximumTopProbability = 1;
 
+    public string ApiEndpoint { get; set; } = DefaultApiEndpoint;
     public string Model { get; set; } = DefaultChatModel;
     public string SystemMessage { get; set; } = DefaultSystemMessage;
     public uint MaximumTokensPerMessage { get; set; }

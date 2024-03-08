@@ -10,15 +10,15 @@ public abstract class ChatHandler<THandler, TChat, TOptions, TRequest, TResponse
     private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 
     IChat IChatHandler.Start(Action<IChatOptions>? configure)
-        => (TChat)Start(o => configure?.Invoke(o));
+        => Start(o => configure?.Invoke(o));
 
-    public IChat Start(Action<TOptions>? configure = null) {
+    public TChat Start(Action<TOptions>? configure = null) {
         try {
             logger.LogDebug("Creating new chat...");
             var options = new TOptions();
             configure?.Invoke(options);
             var chat = CreateInstance.Of<TChat>(options);
-            logger.LogDebug("AnthropicChat '{id}' created.", chat.Id);
+            logger.LogDebug("Chat '{id}' started.", chat.Id);
             return chat;
         }
         catch (Exception ex) {
@@ -33,8 +33,8 @@ public abstract class ChatHandler<THandler, TChat, TOptions, TRequest, TResponse
     public async Task<Message> SendMessage(TChat chat, Message input, CancellationToken ct = default) {
         chat.Messages.Add(input);
         var request = CreateRequest(chat);
-        var content = JsonContent.Create(request);
-        var httpResult = await _httpClient.PostAsync("v1/complete", content, ct).ConfigureAwait(false);
+        var content = JsonContent.Create(request, options: IChatOptions.SerializerOptions);
+        var httpResult = await _httpClient.PostAsync(chat.Options.ApiEndpoint, content, ct).ConfigureAwait(false);
         try {
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -48,10 +48,11 @@ public abstract class ChatHandler<THandler, TChat, TOptions, TRequest, TResponse
             logger.LogError(ex, "Failed to send a inputMessage to '{id}'.", chat.Id);
             var error = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var errorMessage = $"""
-                           StatusCode: {httpResult.StatusCode};
-                           AnthropicMessageContent: {error};
-                           Error: {ex};
-                           """;
+                                Request: {JsonSerializer.Serialize(request, IChatOptions.SerializerOptions)}
+                                StatusCode: {httpResult.StatusCode};
+                                MessageContent: {error};
+                                Error: {ex};
+                                """;
             return new("error", [new("text", errorMessage)]);
         }
     }
