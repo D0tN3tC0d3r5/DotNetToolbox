@@ -1,35 +1,49 @@
 ﻿namespace DotNetToolbox.AI.Agent;
 
-internal class Agent(IChatHandler chatHandler)
+public class Agent
     : IAgent {
-    private readonly Queue<(IAgent Agent, IChat Chat, Message Message, CancellationToken Token)> _requests = [];
+    private readonly Queue<Package> _receivedRequests = [];
+    private readonly Queue<Package> _receivedResponses = [];
+
+    public string Id { get; } = Guid.NewGuid().ToString();
 
     public async Task Start(CancellationToken ct) {
         while (!ct.IsCancellationRequested) {
-            if (!_requests.TryDequeue(out var request)) {
-                await Task.Delay(100, ct);
-                continue;
-            }
-
-            (var agent, var chat, var message, var token) = request;
-            var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token, ct).Token;
-            await ProcessRequest(agent, chat, message, linkedToken);
+            if (_receivedRequests.TryDequeue(out var request))
+                await ProcessReceivedRequest(request, ct);
+            if (_receivedResponses.TryDequeue(out var response))
+                await ProcessReceivedResponse(response, ct);
+            await Task.Delay(100, ct);
         }
     }
 
-    public CancellationTokenSource EnqueueRequest(IAgent source, IChat chat, Message message) {
+    public CancellationTokenSource AddRequest(IAgent source, IChat chat) {
         var tokenSource = new CancellationTokenSource();
-        _requests.Enqueue((source, chat, message, tokenSource.Token));
+        var request = new Package(source, chat, tokenSource.Token);
+        _receivedRequests.Enqueue(request);
         return tokenSource;
     }
 
+    public void AddResponse(Package request) {
+        if (request.Agent.Id != Id) return;
+        _receivedResponses.Enqueue(request);
+    }
+
     // Do something with the response from the processing agent.
-    public Task ProcessResponse(string chatId, Message response, CancellationToken ct)
+    private async Task ProcessReceivedRequest(Package request, CancellationToken ct) {
+        var ts = CancellationTokenSource.CreateLinkedTokenSource(request.Token, ct);
+        if (ts.IsCancellationRequested) return;
+        var result = await request.Chat.Submit(ts.Token);
+        if (!result.IsOk) return;
+        var isFinished = false;
+        while (!isFinished)
+            isFinished = await ProcessSubmissionResult(request, ct);
+        request.Agent.AddResponse(request);
+    }
+
+    private Task ProcessReceivedResponse(Package response, CancellationToken ct)
         => Task.CompletedTask;
 
-    private async Task ProcessRequest(IAgent source, IChat chat, Message content, CancellationToken ct) {
-        if (ct.IsCancellationRequested) return;
-        var response = await chatHandler.SendMessage(chat, content, ct);
-        await source.ProcessResponse(chat.Id, response, ct);
-    }
+    private Task<bool> ProcessSubmissionResult(Package request, CancellationToken ct)
+        => Task.FromResult(true);
 }

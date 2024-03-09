@@ -1,7 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Agent;
 
-internal interface IAgent {
+public interface IAgent {
+    string Id { get; }
     Task Start(CancellationToken ct);
-    CancellationTokenSource EnqueueRequest(IAgent source, IChat chat, Message message);
-    Task ProcessResponse(string chatId, Message response, CancellationToken ct);
+    CancellationTokenSource AddRequest(IAgent source, IChat chat);
+    void AddResponse(Package request);
 }

@@ -12,7 +12,7 @@ public class OpenAIChatRequest {
     [JsonPropertyName("temperature")]
     public decimal? Temperature { get; set; }
     [JsonPropertyName("max_tokens")]
-    public int? MaximumTokensPerMessage { get; set; }
+    public int MaximumTokensPerMessage { get; set; }
     [JsonPropertyName("n")]
     public int? NumberOfChoices { get; set; }
     [JsonPropertyName("stop")]

@@ -5,4 +5,5 @@ public interface IChat {
     List<Message> Messages { get; }
     IChatOptions Options { get; }
     public int TotalNumberOfTokens { get; set; }
+    Task<HttpResult> Submit(CancellationToken ct = default);
 }
