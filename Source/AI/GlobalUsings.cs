@@ -1,6 +1,7 @@
 // Global using directives
 
 global using System.Linq;
+global using System.Net;
 global using System.Net.Http.Json;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;

@@ -3,10 +3,10 @@
 public class Sophia : ShellApplication<Sophia> {
     private readonly StateMachine _stateMachine;
 
-    public Sophia(string[] args, IServiceProvider services, IChatFactory chatFactory)
+    public Sophia(string[] args, IServiceProvider services, IChatHandlerFactory chatHandlerFactory)
         : base(args, services) {
         AllowMultiLine = true;
-        _stateMachine = new(this, (OpenAIChatFactory)chatFactory);
+        _stateMachine = new(this, (OpenAIChatHandlerFactory)chatHandlerFactory);
     }
 
     protected override string GetPrePromptText() => $"[{TotalNumberOfTokens}] ";

@@ -5,7 +5,7 @@ public class StateMachine {
     private readonly IFileSystem _io;
     private readonly IPromptFactory _promptFactory;
     private readonly IApplication _app;
-    private readonly OpenAIChatFactory _chatFactory;
+    private readonly OpenAIChatHandlerFactory _chatHandlerFactory;
     private readonly MultipleChoicePrompt _mainMenu;
 
     private static readonly JsonSerializerOptions _fileSerializationOptions = new() {
@@ -19,9 +19,9 @@ public class StateMachine {
     private const string _agentsFolder = "Agents";
     private const string _skillsFolder = "Skills";
 
-    public StateMachine(IApplication app, IChatFactory chatFactory) {
+    public StateMachine(IApplication app, IChatHandlerFactory chatHandlerFactory) {
         _app = app;
-        _chatFactory = (OpenAIChatFactory)chatFactory;
+        _chatHandlerFactory = (OpenAIChatHandlerFactory)chatHandlerFactory;
         _io = app.Environment.FileSystem;
         _out = app.Environment.Output;
         _promptFactory = app.PromptFactory;
@@ -36,7 +36,7 @@ public class StateMachine {
 
     public const uint Idle = 0;
 
-    public OpenAIChat? Chat { get; set; }
+    public OpenAIChatHandler? Chat { get; set; }
     public uint CurrentState { get; set; }
 
     internal Task Start(uint initialState, CancellationToken ct) {
@@ -65,10 +65,10 @@ public class StateMachine {
     private async Task Start(CancellationToken ct) {
         try {
             var agent = await LoadAgentProfile("TimeKeeper");
-            Chat = _chatFactory.Create(opt => {
-                opt.Model = "gpt-3.5-turbo-0125";
-                opt.Tools = agent.Skills.ToHashSet(LoadSkill);
-                opt.AgentName = agent.Name;
+            Chat = _chatHandlerFactory.Create(new() {
+                Model = "gpt-3.5-turbo-0125",
+                Tools = agent.Skills.ToHashSet(LoadSkill),
+                AgentName = agent.Name,
             });
             _io.CreateFolder($"{_chatsFolder}/{Chat.Id}");
             await SaveAgentData(Chat.Id, ct);
@@ -154,9 +154,9 @@ public class StateMachine {
         await JsonSerializer.SerializeAsync(chatFile, Chat, _fileSerializationOptions, ct);
     }
 
-    private async Task<OpenAIChat?> LoadAgentData(string chatId, CancellationToken ct) {
+    private async Task<OpenAIChatHandler?> LoadAgentData(string chatId, CancellationToken ct) {
         await using var agentFile = _io.OpenFileAsReadOnly($"{_chatsFolder}/{chatId}/agent.json");
-        return await JsonSerializer.DeserializeAsync<OpenAIChat>(agentFile, _fileSerializationOptions, cancellationToken: ct);
+        return await JsonSerializer.DeserializeAsync<OpenAIChatHandler>(agentFile, _fileSerializationOptions, cancellationToken: ct);
     }
 
     private OpenAIChatTool LoadSkill(string name) {

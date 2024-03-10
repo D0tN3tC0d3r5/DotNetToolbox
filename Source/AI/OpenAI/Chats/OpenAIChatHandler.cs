@@ -1,10 +1,11 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
-public class OpenAIChat
-    : Chat<OpenAIChat, OpenAIChatOptions, OpenAIChatRequest, OpenAIChatResponse> {
-    public OpenAIChat(IHttpClientProvider httpClientProvider, OpenAIChatOptions? options = null)
+public class OpenAIChatHandler
+    : ChatHandler<OpenAIChatHandler, OpenAIChatOptions, OpenAIChatRequest, OpenAIChatResponse> {
+
+    public OpenAIChatHandler(IHttpClientProvider httpClientProvider, OpenAIChatOptions options)
         : base(httpClientProvider, options) {
-        Messages.Add(new("system", [new("text", Options.SystemMessage)]));
+        System = new("system", [new("text", Options.SystemMessage)]);
     }
 
     protected override OpenAIChatRequest CreateRequest()
@@ -19,7 +20,7 @@ public class OpenAIChat
             MinimumTokenProbability = Options.MinimumTokenProbability,
             UseStreaming = Options.UseStreaming,
             Tools = Options.Tools.Count == 0 ? null : Options.Tools.ToArray(ToRequestToolCall),
-            Messages = Messages.ToArray(o => new OpenAIChatRequestMessage(o) { Name = Options.AgentName }),
+            Messages = [new(System), ..Messages.ToArray(o => new OpenAIChatRequestMessage(o) { Name = Options.AgentName })],
         };
 
     protected override Message CreateMessage(OpenAIChatResponse response) {

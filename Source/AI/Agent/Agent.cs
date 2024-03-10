@@ -1,9 +1,19 @@
 ﻿namespace DotNetToolbox.AI.Agent;
 
-public class Agent
-    : IAgent {
+public class Agent<TOptions>
+    : IAgent
+    where TOptions : class, IChatOptions, new() {
+
     private readonly Queue<Package> _receivedRequests = [];
     private readonly Queue<Package> _receivedResponses = [];
+    private readonly IChatHandlerFactory _chatHandlerFactory;
+    private readonly TOptions _options;
+
+    public Agent(IChatHandlerFactory chatHandlerFactory, Action<TOptions>? configure = null) {
+        _chatHandlerFactory = chatHandlerFactory;
+        _options = new();
+        configure?.Invoke(_options);
+    }
 
     public string Id { get; } = Guid.NewGuid().ToString();
 
@@ -33,7 +43,8 @@ public class Agent
     private async Task ProcessReceivedRequest(Package request, CancellationToken ct) {
         var ts = CancellationTokenSource.CreateLinkedTokenSource(request.Token, ct);
         if (ts.IsCancellationRequested) return;
-        var result = await request.Chat.Submit(ts.Token);
+        var chat = _chatHandlerFactory.Create(_options);
+        var result = await chat.Submit(ts.Token);
         if (!result.IsOk) return;
         var isFinished = false;
         while (!isFinished)

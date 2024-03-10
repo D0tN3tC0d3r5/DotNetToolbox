@@ -1,30 +1,21 @@
-﻿
-using System.Net;
+﻿namespace DotNetToolbox.AI.Chats;
 
-namespace DotNetToolbox.AI.Chats;
-
-public abstract class Chat<TChat, TOptions, TRequest, TResponse>
-    : IChat
-    where TChat : Chat<TChat, TOptions, TRequest, TResponse>
+public abstract class ChatHandler<TChatHandler, TOptions, TRequest, TResponse>(IHttpClientProvider httpClientProvider, TOptions options)
+    : IChatHandler
+    where TChatHandler : ChatHandler<TChatHandler, TOptions, TRequest, TResponse>
     where TOptions : class, IChatOptions, new() {
-    private readonly IHttpClientProvider _httpClientProvider;
-
-    protected Chat(IHttpClientProvider httpClientProvider, TOptions? options) {
-        _httpClientProvider = httpClientProvider;
-        Options = options ?? Options;
-    }
 
     public string Id { get; } = Guid.NewGuid().ToString();
     public int TotalNumberOfTokens { get; set; }
 
-    IChatOptions IChat.Options => Options;
-    public TOptions Options { get; } = new();
+    public Message System { get; set; } = new("system", []);
     public List<Message> Messages { get; } = [];
+    protected TOptions Options { get; } = options;
 
     public virtual async Task<HttpResult> Submit(CancellationToken ct = default) {
         var request = CreateRequest();
         var content = JsonContent.Create(request, options: IChatOptions.SerializerOptions);
-        var httpClient = _httpClientProvider.GetHttpClient();
+        var httpClient = httpClientProvider.GetHttpClient();
         var httpResult = await httpClient.PostAsync(Options.ApiEndpoint, content, ct).ConfigureAwait(false);
         try {
             httpResult.EnsureSuccessStatusCode();

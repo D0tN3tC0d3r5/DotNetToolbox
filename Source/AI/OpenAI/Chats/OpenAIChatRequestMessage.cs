@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.OpenAI.Chats;
+﻿using System.Text;
+
+namespace DotNetToolbox.AI.OpenAI.Chats;
 
 public class OpenAIChatRequestMessage {
     public OpenAIChatRequestMessage(object content) {
@@ -6,6 +8,10 @@ public class OpenAIChatRequestMessage {
             case Message { Parts.Length: 1 } c:
                 Role = c.Role;
                 Content = (string)c.Parts[0].Value;
+                break;
+            case Message { Role: "system" } c:
+                Role = c.Role;
+                Content = c.Parts.Aggregate(new StringBuilder(), (s, p) => s.AppendLine((string)p.Value)).ToString();
                 break;
             case Message c:
                 Role = c.Role;
