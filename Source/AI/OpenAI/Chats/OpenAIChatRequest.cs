@@ -22,7 +22,7 @@ public class OpenAIChatRequest {
     [JsonPropertyName("stream")]
     public bool? UseStreaming { get; set; }
     [JsonPropertyName("tools")]
-    public OpenAIChatRequestToolCall[]? Tools { get; set; }
+    public OpenAIChatRequestTool[]? Tools { get; set; }
     [JsonPropertyName("tool_choice")]
     public OpenAIChatRequestForceToolCall? ForceToolCall { get; set; }
     [JsonPropertyName("response_format")]

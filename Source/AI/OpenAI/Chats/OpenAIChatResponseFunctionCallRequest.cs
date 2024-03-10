@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
-public class OpenAIChatResponseToolCallFunction(string name, string? arguments) {
+public class OpenAIChatResponseFunctionCallRequest(string name, string? arguments) {
     [JsonPropertyName("name")]
     public string Name { get; set; } = name;
 

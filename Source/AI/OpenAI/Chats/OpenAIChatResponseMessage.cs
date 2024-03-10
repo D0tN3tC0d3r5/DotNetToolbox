@@ -5,11 +5,11 @@ public class OpenAIChatResponseMessage {
     public required object Content { get; set; } = default!;
 
     [JsonPropertyName("tool_calls")]
-    public OpenAIChatResponseToolCall[]? ToolCalls { set => Content = (object?)value ?? Content; }
+    public OpenAIChatResponseToolRequest[]? ToolCalls { set => Content = (object?)value ?? Content; }
 
     public object ToContent()
         => Content switch {
-            OpenAIChatResponseToolCall[] => Content,
+            OpenAIChatResponseToolRequest[] => Content,
             string txt => new Message("assistant", [new("text", txt)]),
             _ => throw new NotSupportedException(),
         };

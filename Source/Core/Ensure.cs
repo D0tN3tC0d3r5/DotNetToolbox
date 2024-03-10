@@ -38,31 +38,62 @@ public static class Ensure {
             ? throw new ArgumentException(StringCannotBeNullOrWhiteSpace, paramName)
             : argument;
 
-    [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument IsValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatable
-        => IsValid(argument, arg => IsNotNull(arg).Validate(), paramName)!;
+        // null may be a valid value use IsNotNull to check nullability
+        => IsValid(argument, arg => arg?.Validate() ?? Result.Success(), paramName)!;
+
+    public static Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IValidatableAsync
+        // null may be a valid value use IsNotNull to check nullability
+        => IsValidAsync(argument, arg => arg?.Validate() ?? Result.SuccessTask(), paramName)!;
 
     [return: NotNullIfNotNull(nameof(validValue))]
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, TArgument? validValue)
-        where TArgument : IValidatable { // null maybe a valid value
+        where TArgument : IValidatable {
+        // null may be a valid value use IsNotNull to check nullability
         var result = argument?.Validate() ?? Result.Success();
-        return result.IsSuccess
-                   ? argument ?? validValue
+        return result.IsSuccess && argument is not null
+                   ? argument
+                   : validValue;
+    }
+
+    public static async Task<TArgument> IsValidOrDefaultAsync<TArgument>(TArgument? argument, TArgument validValue)
+        where TArgument : IValidatableAsync {
+        // null may be a valid value use IsNotNull to check nullability
+        var result = await (argument?.Validate() ?? Result.SuccessTask());
+        return result.IsSuccess && argument is not null
+                   ? argument
                    : validValue;
     }
 
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument, Result> validate, [CallerArgumentExpression(nameof(argument))]string? paramName = null) {
+        // null may be a valid value use IsNotNull to check nullability
         if (argument is null) return argument;
         var result = validate(argument);
         return result.IsSuccess ? argument : throw new ValidationException(ValueIsInvalid, paramName!);
     }
 
+    public static async Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, Func<TArgument, Task<Result>> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        // null may be a valid value use IsNotNull to check nullability
+        if (argument is null) return argument;
+        var result = await validate(argument);
+        return result.IsSuccess
+                   ? argument
+                   : throw new ValidationException(ValueIsInvalid, paramName!);
+    }
+
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? defaultValue)
-        => validate(argument).IsSuccess
-               ? argument ?? defaultValue
+        => validate(argument).IsSuccess && argument is not null
+               ? argument
+               : defaultValue;
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static async Task<TArgument?> IsValidOrDefaultAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<Result>> validate, TArgument? defaultValue)
+        => (await validate(argument)).IsSuccess && argument is not null
+               ? argument
                : defaultValue;
 
     [return: NotNullIfNotNull(nameof(argument))]
@@ -71,10 +102,21 @@ public static class Ensure {
                ? argument
                : throw new ValidationException(ValueIsInvalid, paramName!);
 
+
+    public static async Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => await isValid(argument)
+               ? argument
+               : throw new ValidationException(ValueIsInvalid, paramName!);
+
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? IsValidOrDefault<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue)
         => isValid(argument)
                ? argument ?? defaultValue
+               : defaultValue;
+
+    public static async Task<TArgument?> IsValidOrDefaultAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, TArgument? defaultValue)
+        => await isValid(argument) && argument is not null
+               ? argument
                : defaultValue;
 
     [return: NotNullIfNotNull(nameof(argument))]

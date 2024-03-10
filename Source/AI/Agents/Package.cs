@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Agent;
+﻿namespace DotNetToolbox.AI.Agents;
 
 public class Package(IAgent agent, IChat chat, CancellationToken token) {
     public string Id { get; } = Guid.NewGuid().ToString();

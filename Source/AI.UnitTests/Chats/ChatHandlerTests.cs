@@ -21,7 +21,11 @@ public class OpenAIChatHandlerFactoryTests {
                                          Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
         _logger = new TrackedNullLogger<OpenAIChatHandlerFactory>();
-        _chatHandlerFactory = new(httpClientProvider, _logger);
+        var environment = Substitute.For<IEnvironment>();
+        environment.DateTime.Returns(Substitute.For<IDateTimeProvider>());
+        environment.DateTime.Now.Returns(new DateTimeOffset(2001, 01, 01, 00, 00, 00, default));
+        var world = new World(environment);
+        _chatHandlerFactory = new(world, httpClientProvider, _logger);
     }
 
     [Fact]
@@ -34,7 +38,7 @@ public class OpenAIChatHandlerFactoryTests {
         // Assert
         options.FrequencyPenalty.Should().Be(DefaultFrequencyPenalty);
         options.PresencePenalty.Should().Be(DefaultPresencePenalty);
-        options.MaximumTokensPerMessage.Should().Be(DefaultMaximumTokensPerMessage);
+        options.MaximumOutputTokens.Should().Be(DefaultMaximumOutputTokens);
         options.NumberOfChoices.Should().Be(DefaultNumberOfChoices);
         options.Temperature.Should().Be(DefaultTemperature);
         options.MinimumTokenProbability.Should().Be(DefaultTopProbability);
@@ -52,7 +56,7 @@ public class OpenAIChatHandlerFactoryTests {
         var options = new OpenAIChatOptions {
             FrequencyPenalty = 1.5m,
             PresencePenalty = 1.1m,
-            MaximumTokensPerMessage = 100000,
+            MaximumOutputTokens = 100000,
             NumberOfChoices = 2,
             Temperature = 0.7m,
             MinimumTokenProbability = 0.5m,
@@ -70,7 +74,7 @@ public class OpenAIChatHandlerFactoryTests {
         chat.Id.Should().NotBeNullOrEmpty();
         options.FrequencyPenalty.Should().Be(1.5m);
         options.PresencePenalty.Should().Be(1.1m);
-        options.MaximumTokensPerMessage.Should().Be(100000);
+        options.MaximumOutputTokens.Should().Be(100000);
         options.NumberOfChoices.Should().Be(2);
         options.Temperature.Should().Be(0.7m);
         options.MinimumTokenProbability.Should().Be(0.5m);
@@ -87,7 +91,7 @@ public class OpenAIChatHandlerFactoryTests {
             FrequencyPenalty = 2.5m,
             PresencePenalty = 2.1m,
             NumberOfChoices = 10,
-            MaximumTokensPerMessage = 100,
+            MaximumOutputTokens = 100,
             Temperature = 2.7m,
             MinimumTokenProbability = 1.5m,
         };
@@ -122,7 +126,7 @@ public class OpenAIChatHandlerFactoryTests {
         var opt = new OpenAIChatOptions {
             FrequencyPenalty = 1.5m,
             PresencePenalty = 1.1m,
-            MaximumTokensPerMessage = 100000,
+            MaximumOutputTokens = 100000,
             NumberOfChoices = 2,
             Temperature = 0.7m,
             MinimumTokenProbability = 0.5m,
@@ -147,7 +151,7 @@ public class OpenAIChatHandlerFactoryTests {
         chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit();
+        await chat.Submit(TODO);
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
@@ -172,7 +176,7 @@ public class OpenAIChatHandlerFactoryTests {
         chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit();
+        await chat.Submit(TODO);
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
@@ -200,7 +204,7 @@ public class OpenAIChatHandlerFactoryTests {
         chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit();
+        await chat.Submit(TODO);
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
@@ -221,7 +225,7 @@ public class OpenAIChatHandlerFactoryTests {
         chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit();
+        await chat.Submit(TODO);
 
         // Assert
         opt.Model.Should().Be("some-model");
@@ -239,7 +243,7 @@ public class OpenAIChatHandlerFactoryTests {
         _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
-        var result = () => chat.Submit();
+        var result = () => chat.Submit(TODO);
 
         // Assert
         opt.Model.Should().Be("gpt-3.5-turbo-1106");

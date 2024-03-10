@@ -1,19 +1,21 @@
-﻿namespace DotNetToolbox.AI.Chats;
+﻿using DotNetToolbox.AI.Agents;
 
-public abstract class ChatHandler<TChatHandler, TOptions, TRequest, TResponse>(IHttpClientProvider httpClientProvider, TOptions options)
+namespace DotNetToolbox.AI.Chats;
+
+public abstract class ChatHandler<TChatHandler, TOptions, TRequest, TResponse>(
+    World world,
+    TOptions options,
+    IChat chat,
+    IHttpClientProvider httpClientProvider)
     : IChatHandler
     where TChatHandler : ChatHandler<TChatHandler, TOptions, TRequest, TResponse>
     where TOptions : class, IChatOptions, new() {
-
-    public string Id { get; } = Guid.NewGuid().ToString();
-    public int TotalNumberOfTokens { get; set; }
-
-    public Message System { get; set; } = new("system", []);
-    public List<Message> Messages { get; } = [];
+    protected World World { get; } = world;
     protected TOptions Options { get; } = options;
+    protected IChat Chat { get; } = chat;
 
-    public virtual async Task<HttpResult> Submit(CancellationToken ct = default) {
-        var request = CreateRequest();
+    public virtual async Task<HttpResult> Submit(IAgent agent, CancellationToken ct = default) {
+        var request = CreateRequest(agent);
         var content = JsonContent.Create(request, options: IChatOptions.SerializerOptions);
         var httpClient = httpClientProvider.GetHttpClient();
         var httpResult = await httpClient.PostAsync(Options.ApiEndpoint, content, ct).ConfigureAwait(false);
@@ -21,7 +23,7 @@ public abstract class ChatHandler<TChatHandler, TOptions, TRequest, TResponse>(I
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var response = JsonSerializer.Deserialize<TResponse>(json, IChatOptions.SerializerOptions)!;
-            Messages.Add(CreateMessage(response));
+            Chat.Messages.Add(CreateMessage(response));
             return HttpResult.Ok();
         }
         catch (Exception ex) {
@@ -44,6 +46,7 @@ public abstract class ChatHandler<TChatHandler, TOptions, TRequest, TResponse>(I
         }
     }
 
-    protected abstract TRequest CreateRequest();
+    protected abstract TRequest CreateRequest(IAgent agent);
+    protected abstract string CreateSystemMessage(World world, IAgent agent);
     protected abstract Message CreateMessage(TResponse response);
 }

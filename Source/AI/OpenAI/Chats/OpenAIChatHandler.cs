@@ -1,54 +1,64 @@
-﻿namespace DotNetToolbox.AI.OpenAI.Chats;
+﻿using DotNetToolbox.AI.Agents;
+
+namespace DotNetToolbox.AI.OpenAI.Chats;
 
 public class OpenAIChatHandler
     : ChatHandler<OpenAIChatHandler, OpenAIChatOptions, OpenAIChatRequest, OpenAIChatResponse> {
 
-    public OpenAIChatHandler(IHttpClientProvider httpClientProvider, OpenAIChatOptions options)
-        : base(httpClientProvider, options) {
-        System = new("system", [new("text", Options.SystemMessage)]);
+    public OpenAIChatHandler(World world, OpenAIChatOptions options, IChat chat, IHttpClientProvider httpClientProvider)
+        : base(world, options, chat, httpClientProvider) {
     }
 
-    protected override OpenAIChatRequest CreateRequest()
-        => new() {
+    protected override OpenAIChatRequest CreateRequest(IAgent agent) {
+        var system = new OpenAIChatRequestMessage(CreateSystemMessage(World, agent));
+        return new() {
             Model = Options.Model,
             Temperature = Options.Temperature,
-            MaximumTokensPerMessage = (int)Options.MaximumTokensPerMessage,
+            MaximumTokensPerMessage = (int)Options.MaximumOutputTokens,
             FrequencyPenalty = Options.FrequencyPenalty,
             PresencePenalty = Options.PresencePenalty,
             NumberOfChoices = Options.NumberOfChoices,
-            StopSequences = Options.StopSequences.Count == 0 ? null : [.. Options.StopSequences],
+            StopSequences = Options.StopSequences.Count == 0
+                                             ? null
+                                             : [.. Options.StopSequences],
             MinimumTokenProbability = Options.MinimumTokenProbability,
             UseStreaming = Options.UseStreaming,
-            Tools = Options.Tools.Count == 0 ? null : Options.Tools.ToArray(ToRequestToolCall),
-            Messages = [new(System), ..Messages.ToArray(o => new OpenAIChatRequestMessage(o) { Name = Options.AgentName })],
+            Tools = agent.Skills.Count == 0
+                                     ? null
+                                     : agent.Skills.ToArray(ToRequestToolCall),
+            Messages = [system, .. Chat.Messages.ToArray(o => new OpenAIChatRequestMessage(o))],
         };
+    }
+
+    protected override string CreateSystemMessage(World world, IAgent agent) => "You are a helpful agent.";
 
     protected override Message CreateMessage(OpenAIChatResponse response) {
-        TotalNumberOfTokens = response.Usage?.TotalTokens ?? TotalNumberOfTokens;
+        Chat.TotalNumberOfTokens = response.Usage?.TotalTokens ?? Chat.TotalNumberOfTokens;
         return response.Choices[0].Message.Content switch {
-            OpenAIChatResponseToolCall[] tcs => new("assistant", [new("tool_calls", tcs)]),
+            OpenAIChatResponseToolRequest[] tcs => new("assistant", [new("tool_calls", tcs)]),
             _ => new("assistant", [new("text", response.Choices[0].Message.Content.ToString()!)]),
         };
     }
 
-    private static OpenAIChatRequestToolCall ToRequestToolCall(OpenAIChatTool toolCall)
-        => new(toolCall.Id, new(toolCall.Name, CreateParameterList(toolCall), toolCall.Description));
-    private static OpenAIChatRequestToolCallFunctionParameters? CreateParameterList(OpenAIChatTool toolCall) {
-        var parameters = GetParameters(toolCall);
-        var required = GetRequiredParameters(toolCall);
+    private static OpenAIChatRequestTool ToRequestToolCall(Skill skill)
+        => new("function", new(skill.Name, CreateParameterList(skill), skill.Description));
+
+    private static OpenAIChatRequestToolFunctionCallParameters? CreateParameterList(Skill skill) {
+        var parameters = GetParameters(skill);
+        var required = GetRequiredParameters(skill);
         return parameters is null && required is null ? null : new(parameters, required);
     }
 
-    private static Dictionary<string, OpenAIChatRequestToolCallFunctionParameter>? GetParameters(OpenAIChatTool toolCall) {
-        var result = toolCall.Parameters.ToDictionary(k => k.Key, ToParameter);
+    private static Dictionary<string, OpenAIChatRequestToolFunctionCallParameter>? GetParameters(Skill skill) {
+        var result = skill.Arguments.ToDictionary(k => k.Name, ToParameter);
         return result.Count == 0 ? null : result;
     }
 
-    private static string[]? GetRequiredParameters(OpenAIChatTool toolCall) {
-        var result = toolCall.Parameters.Where(p => p.Value.IsRequired).ToArray(p => p.Key);
+    private static string[]? GetRequiredParameters(Skill skill) {
+        var result = skill.Arguments.Where(p => p.IsRequired).ToArray(p => p.Name);
         return result.Length == 0 ? null : result;
     }
 
-    private static OpenAIChatRequestToolCallFunctionParameter ToParameter(KeyValuePair<string, OpenAIChatToolParameter> parameter)
-        => new(parameter.Value.Type, parameter.Value.Options, parameter.Value.Description);
+    private static OpenAIChatRequestToolFunctionCallParameter ToParameter(Argument argument)
+        => new(argument.Type, argument.Options, argument.Description);
 }

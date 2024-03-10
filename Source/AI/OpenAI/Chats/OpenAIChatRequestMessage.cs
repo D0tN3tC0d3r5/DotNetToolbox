@@ -1,28 +1,24 @@
-﻿using System.Text;
-
-namespace DotNetToolbox.AI.OpenAI.Chats;
+﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
 public class OpenAIChatRequestMessage {
     public OpenAIChatRequestMessage(object content) {
         switch (content) {
-            case Message { Parts.Length: 1 } c:
-                Role = c.Role;
-                Content = (string)c.Parts[0].Value;
-                break;
-            case Message { Role: "system" } c:
-                Role = c.Role;
-                Content = c.Parts.Aggregate(new StringBuilder(), (s, p) => s.AppendLine((string)p.Value)).ToString();
+            case string c:
+                Role = "system";
+                Content = content;
                 break;
             case Message c:
                 Role = c.Role;
-                Content = c.Parts.ToArray(p => new OpenAIChatRequestMessageContent(p.Value));
+                Content = c.Parts.Length == 1
+                              ? (string)c.Parts[0].Value
+                              : c.Parts.ToArray(p => new OpenAIChatRequestMessageContent(p.Value));
                 break;
-            case OpenAIChatRequestMessageToolCallResult c:
+            case OpenAIChatFunctionCallResult c:
                 Role = "tool";
                 Content = c.Value;
                 ToolCallId = c.CallId;
                 break;
-            case OpenAIChatResponseToolCall[] c:
+            case OpenAIChatResponseToolRequest[] c:
                 Role = "assistant";
                 ToolCalls = c;
                 break;
@@ -37,7 +33,7 @@ public class OpenAIChatRequestMessage {
     [JsonPropertyName("name")]
     public string? Name { get; set; }
     [JsonPropertyName("tool_calls")]
-    public OpenAIChatResponseToolCall[]? ToolCalls { get; set; }
+    public OpenAIChatResponseToolRequest[]? ToolCalls { get; set; }
     [JsonPropertyName("tool_call_id")]
     public string? ToolCallId { get; set; }
 }

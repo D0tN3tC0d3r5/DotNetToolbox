@@ -4,15 +4,13 @@ public class OpenAIChatOptions
     : IChatOptions {
     public const string DefaultApiEndpoint = "v1/chat/completions";
     public const string DefaultChatModel = "gpt-3.5-turbo-0125";
-    public const string DefaultSystemMessage = "You are a helpful agent.";
     public const byte DefaultFrequencyPenalty = 0;
     public const sbyte MinimumFrequencyPenalty = -2;
     public const byte MaximumFrequencyPenalty = 2;
     public const byte DefaultPresencePenalty = 0;
     public const sbyte MinimumPresencePenalty = -2;
     public const byte MaximumPresencePenalty = 2;
-    public const uint DefaultMaximumTokensPerMessage = 4096;
-    public const uint MinimumTokensPerMessage = 1024;
+    public const uint DefaultMaximumOutputTokens = 4096;
     public const byte DefaultNumberOfChoices = 1;
     public const byte MinimumNumberOfChoices = 1;
     public const byte MaximumNumberOfChoices = 5;
@@ -26,8 +24,7 @@ public class OpenAIChatOptions
 
     public string ApiEndpoint { get; set; } = DefaultApiEndpoint;
     public string Model { get; set; } = DefaultChatModel;
-    public string SystemMessage { get; set; } = DefaultSystemMessage;
-    public uint MaximumTokensPerMessage { get; set; } = DefaultMaximumTokensPerMessage;
+    public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;
     public decimal? Temperature { get; set; }
     public decimal? MinimumTokenProbability { get; set; }
     public HashSet<string> StopSequences { get; set; } = [];
@@ -41,9 +38,6 @@ public class OpenAIChatOptions
 
     public Result Validate(IDictionary<string, object?>? context = null) {
         var result = Result.Success();
-        if (MaximumTokensPerMessage < MinimumTokensPerMessage)
-            result += new ValidationError($"Value must be greater than {MinimumTokensPerMessage}. Found: {MaximumTokensPerMessage}", nameof(MaximumTokensPerMessage));
-
         if (NumberOfChoices is < MinimumNumberOfChoices or > MaximumNumberOfChoices)
             result += new ValidationError($"Value must be between {MinimumNumberOfChoices} and {MaximumNumberOfChoices}. Found: {NumberOfChoices}", nameof(NumberOfChoices));
 

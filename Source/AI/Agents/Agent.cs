@@ -1,21 +1,14 @@
-﻿namespace DotNetToolbox.AI.Agent;
+﻿namespace DotNetToolbox.AI.Agents;
 
-public class Agent<TOptions>
+public class Agent<TOptions>(Profile profile, IChatHandlerFactory chatHandlerFactory, TOptions options)
     : IAgent
     where TOptions : class, IChatOptions, new() {
-
     private readonly Queue<Package> _receivedRequests = [];
     private readonly Queue<Package> _receivedResponses = [];
-    private readonly IChatHandlerFactory _chatHandlerFactory;
-    private readonly TOptions _options;
-
-    public Agent(IChatHandlerFactory chatHandlerFactory, Action<TOptions>? configure = null) {
-        _chatHandlerFactory = chatHandlerFactory;
-        _options = new();
-        configure?.Invoke(_options);
-    }
 
     public string Id { get; } = Guid.NewGuid().ToString();
+    public Profile Profile { get; } = profile;
+    public List<Skill> Skills { get; } = [];
 
     public async Task Start(CancellationToken ct) {
         while (!ct.IsCancellationRequested) {
@@ -43,8 +36,8 @@ public class Agent<TOptions>
     private async Task ProcessReceivedRequest(Package request, CancellationToken ct) {
         var ts = CancellationTokenSource.CreateLinkedTokenSource(request.Token, ct);
         if (ts.IsCancellationRequested) return;
-        var chat = _chatHandlerFactory.Create(_options);
-        var result = await chat.Submit(ts.Token);
+        var chat = chatHandlerFactory.Create(options, request.Chat);
+        var result = await chat.Submit(this, ts.Token);
         if (!result.IsOk) return;
         var isFinished = false;
         while (!isFinished)

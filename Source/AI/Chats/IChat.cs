@@ -2,6 +2,7 @@
 
 public interface IChat {
     string Id { get; }
-    Message System { get; }
+    Instructions Instructions { get; }
     List<Message> Messages { get; }
+    int TotalNumberOfTokens { get; set; }
 }

@@ -1,25 +1,35 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
-public abstract class ChatHandlerFactory<THandler, TChatHandler, TOptions, TRequest, TResponse>(IHttpClientProvider httpClientProvider, ILogger<THandler> logger)
+public abstract class ChatHandlerFactory<THandler, TChatHandler, TOptions, TRequest, TResponse>
     : IChatHandlerFactory
     where THandler : ChatHandlerFactory<THandler, TChatHandler, TOptions, TRequest, TResponse>
     where TChatHandler : class, IChatHandler
     where TOptions : class, IChatOptions, new()
     where TRequest : class
     where TResponse : class {
+    private readonly IHttpClientProvider _httpClientProvider;
+    private readonly ILogger<THandler> _logger;
 
-    IChatHandler IChatHandlerFactory.Create(IChatOptions options)
-        => Create((TOptions)options);
+    protected ChatHandlerFactory(World world, IHttpClientProvider httpClientProvider, ILogger<THandler> logger) {
+        World = world;
+        _httpClientProvider = httpClientProvider;
+        _logger = logger;
+    }
 
-    public TChatHandler Create(TOptions options) {
+    protected World World { get; }
+
+    IChatHandler IChatHandlerFactory.Create(IChatOptions options, IChat chat)
+        => Create((TOptions)options, chat);
+
+    public TChatHandler Create(TOptions options, IChat chat) {
         try {
-            logger.LogDebug("Creating new chat...");
-            var chat = CreateInstance.Of<TChatHandler>(httpClientProvider, options);
-            logger.LogDebug("Chat '{id}' started.", chat.Id);
-            return chat;
+            _logger.LogDebug("Creating new chat handler...");
+            var handler = CreateInstance.Of<TChatHandler>(World, _httpClientProvider, options, chat);
+            _logger.LogDebug("Chat handler for '{id}' started.", chat.Id);
+            return handler;
         }
         catch (Exception ex) {
-            logger.LogError(ex, "Failed to create a new chat.");
+            _logger.LogError(ex, "Failed to create a new chat.");
             throw;
         }
     }

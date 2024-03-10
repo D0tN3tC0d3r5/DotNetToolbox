@@ -7,7 +7,7 @@ public class AnthropicChatRequest {
     [JsonPropertyName("max_tokens")]
     public required int MaximumTokensPerMessage { get; init; }
     [JsonPropertyName("system")]
-    public string? System { get; set; }
+    public required string System { get; set; }
     [JsonPropertyName("metadata")]
     public AnthropicChatMetadata? Metadata { get; set; }
     [JsonPropertyName("stop_sequences")]

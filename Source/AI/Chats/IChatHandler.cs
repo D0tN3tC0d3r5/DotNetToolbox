@@ -1,6 +1,7 @@
-﻿namespace DotNetToolbox.AI.Chats;
+﻿using DotNetToolbox.AI.Agents;
 
-public interface IChatHandler : IChat {
-    public int TotalNumberOfTokens { get; set; }
-    Task<HttpResult> Submit(CancellationToken ct = default);
+namespace DotNetToolbox.AI.Chats;
+
+public interface IChatHandler {
+    Task<HttpResult> Submit(IAgent agent, CancellationToken ct = default);
 }
