@@ -3,16 +3,16 @@
 namespace DotNetToolbox.AI.Chats;
 
 public abstract class ChatHandler<TChatHandler, TOptions, TRequest, TResponse>(
-    World world,
-    TOptions options,
-    IChat chat,
-    IHttpClientProvider httpClientProvider)
+        World world,
+        TOptions options,
+        IChat chat,
+        IHttpClientProvider httpClientProvider)
     : IChatHandler
     where TChatHandler : ChatHandler<TChatHandler, TOptions, TRequest, TResponse>
     where TOptions : class, IChatOptions, new() {
     protected World World { get; } = world;
     protected TOptions Options { get; } = options;
-    protected IChat Chat { get; } = chat;
+    public IChat Chat { get; } = chat;
 
     public virtual async Task<HttpResult> Submit(IAgent agent, CancellationToken ct = default) {
         var request = CreateRequest(agent);

@@ -5,9 +5,7 @@ public sealed class AzureSecretReader
     private readonly SecretClient? _client;
 
     public AzureSecretReader(IConfiguration configuration) {
-        if (configuration.GetValue("UseLocalSecrets", false)) {
-            return;
-        }
+        if (configuration.GetValue("UseLocalSecrets", false)) return;
 
         var keyVaultUrl = IsNotNull(configuration["KeyVaultUrl"]);
         var credential = new DefaultAzureCredential();
@@ -17,9 +15,7 @@ public sealed class AzureSecretReader
 
     public TValue? GetSecretOrDefault<TValue>(string key, TValue? defaultValue = default) {
         IsNotNull(key);
-        if (_client is null) {
-            return defaultValue;
-        }
+        if (_client is null) return defaultValue;
 
         try {
             var secret = _client.GetSecret(key).Value;

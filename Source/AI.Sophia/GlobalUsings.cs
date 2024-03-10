@@ -10,7 +10,5 @@ global using DotNetToolbox.ConsoleApplication.Application;
 global using DotNetToolbox.ConsoleApplication.Questions;
 global using DotNetToolbox.Results;
 global using DotNetToolbox.Sophia;
-global using DotNetToolbox.Sophia.Agents;
-global using DotNetToolbox.Sophia.Skills;
 
 global using static DotNetToolbox.Sophia.StateMachine;

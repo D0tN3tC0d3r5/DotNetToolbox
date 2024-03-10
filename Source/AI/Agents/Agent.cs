@@ -1,14 +1,15 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public class Agent<TOptions>(Profile profile, IChatHandlerFactory chatHandlerFactory, TOptions options)
+public class Agent<TOptions>(string name, Profile profile, IChatHandlerFactory chatHandlerFactory, TOptions options)
     : IAgent
     where TOptions : class, IChatOptions, new() {
     private readonly Queue<Package> _receivedRequests = [];
     private readonly Queue<Package> _receivedResponses = [];
 
-    public string Id { get; } = Guid.NewGuid().ToString();
-    public Profile Profile { get; } = profile;
-    public List<Skill> Skills { get; } = [];
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Name { get; set; } = name;
+    public Profile Profile { get; set; } = profile;
+    public List<Skill> Skills { get; set; } = [];
 
     public async Task Start(CancellationToken ct) {
         while (!ct.IsCancellationRequested) {

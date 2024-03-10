@@ -12,9 +12,7 @@ public class AzureSecretReaderTests {
 
         var reader = new AzureSecretReader(configuration);
 
-        if (useLocalSecrets) {
-            return reader;
-        }
+        if (useLocalSecrets) return reader;
 
         _secretClient = Substitute.For<SecretClient>();
         var clientField = typeof(AzureSecretReader).GetField(

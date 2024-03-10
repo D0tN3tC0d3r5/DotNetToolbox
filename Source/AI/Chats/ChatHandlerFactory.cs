@@ -1,35 +1,29 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
-public abstract class ChatHandlerFactory<THandler, TChatHandler, TOptions, TRequest, TResponse>
+public abstract class ChatHandlerFactory<THandler, TChatHandler, TOptions, TRequest, TResponse>(
+        World world,
+        IHttpClientProvider httpClientProvider,
+        ILogger<THandler> logger)
     : IChatHandlerFactory
     where THandler : ChatHandlerFactory<THandler, TChatHandler, TOptions, TRequest, TResponse>
     where TChatHandler : class, IChatHandler
     where TOptions : class, IChatOptions, new()
     where TRequest : class
     where TResponse : class {
-    private readonly IHttpClientProvider _httpClientProvider;
-    private readonly ILogger<THandler> _logger;
+    protected World World { get; } = world;
 
-    protected ChatHandlerFactory(World world, IHttpClientProvider httpClientProvider, ILogger<THandler> logger) {
-        World = world;
-        _httpClientProvider = httpClientProvider;
-        _logger = logger;
-    }
+    IChatHandler IChatHandlerFactory.Create(IChatOptions options, IChat? previousContext)
+        => Create((TOptions)options, previousContext);
 
-    protected World World { get; }
-
-    IChatHandler IChatHandlerFactory.Create(IChatOptions options, IChat chat)
-        => Create((TOptions)options, chat);
-
-    public TChatHandler Create(TOptions options, IChat chat) {
+    public TChatHandler Create(TOptions options, IChat? previousContext = null) {
         try {
-            _logger.LogDebug("Creating new chat handler...");
-            var handler = CreateInstance.Of<TChatHandler>(World, _httpClientProvider, options, chat);
-            _logger.LogDebug("Chat handler for '{id}' started.", chat.Id);
+            logger.LogDebug("Creating new previousContext handler...");
+            var handler = CreateInstance.Of<TChatHandler>(World, httpClientProvider, options, previousContext);
+            logger.LogDebug("Chat handler for '{id}' started.", handler.Chat.Id);
             return handler;
         }
         catch (Exception ex) {
-            _logger.LogError(ex, "Failed to create a new chat.");
+            logger.LogError(ex, "Failed to create a new previousContext.");
             throw;
         }
     }

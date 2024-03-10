@@ -122,9 +122,7 @@ internal class OutputFormatter {
                 return;
             }
             builder.Append(' ', 30 - length).AppendLine(lines[0]);
-            foreach (var line in lines.Skip(1)) {
-                builder.Append(' ', 30).AppendLine(line);
-            }
+            foreach (var line in lines.Skip(1)) builder.Append(' ', 30).AppendLine(line);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Sophia;
+﻿using DotNetToolbox.AI.Agents;
+
+namespace DotNetToolbox.Sophia;
 
 public class StateMachine {
     private readonly IOutput _out;
@@ -36,7 +38,8 @@ public class StateMachine {
 
     public const uint Idle = 0;
 
-    public OpenAIChatHandler? Chat { get; set; }
+    public Agent<OpenAIChatOptions>? Agent { get; set; }
+    public OpenAIChatHandler? Handler { get; set; }
     public uint CurrentState { get; set; }
 
     internal Task Start(uint initialState, CancellationToken ct) {
@@ -64,15 +67,15 @@ public class StateMachine {
 
     private async Task Start(CancellationToken ct) {
         try {
-            var agent = await LoadAgentProfile("TimeKeeper");
-            Chat = _chatHandlerFactory.Create(new() {
+            Agent = await LoadAgentProfile("TimeKeeper");
+            Agent.Skills.AddRange(LoadSkills());
+            Handler = _chatHandlerFactory.Create(new() {
                 Model = "gpt-3.5-turbo-0125",
-                Tools = agent.Skills.ToHashSet(LoadSkill),
-                AgentName = agent.Name,
+                AgentName = Agent.Name,
             });
-            _io.CreateFolder($"{_chatsFolder}/{Chat.Id}");
-            await SaveAgentData(Chat.Id, ct);
-            _out.WriteLine($"Chat '{Chat.Id}' started.");
+            _io.CreateFolder($"{_chatsFolder}/{Handler.Chat.Id}");
+            await SaveAgentData(Handler.Chat.Id, ct);
+            _out.WriteLine($"Handler for chat  '{Handler.Chat.Id}' started.");
             CurrentState = Idle;
         }
         catch (Exception ex) {
@@ -95,7 +98,7 @@ public class StateMachine {
             return;
         }
 
-        Chat = await LoadAgentData(chatId, ct);
+        Handler = await LoadAgentData(chatId, ct);
         _out.WriteLine($"Resuming chat '{chatId}'.");
         CurrentState = Idle;
     }
@@ -130,16 +133,16 @@ public class StateMachine {
 
     private async Task SendMessage(string input, CancellationToken ct) {
         _out.Write("- ");
-        Chat!.Messages.Add(new("user", [new("text", input)]));
+        Handler!.Chat.Messages.Add(new("user", [new("text", input)]));
         if (!await Submit(ct)) _out.WriteLine("Error!");
-        else foreach (var part in Chat.Messages[^1].Parts) _out.WriteLine(part.Value);
+        else foreach (var part in Handler.Chat.Messages[^1].Parts) _out.WriteLine(part.Value);
         CurrentState = Idle;
     }
 
     private async Task<bool> Submit(CancellationToken ct) {
         var isFinished = false;
         while (!isFinished) {
-            var result = await Chat!.Submit(TODO, ct);
+            var result = await Handler!.Submit(Agent!, ct);
             if (!result.IsOk) return false;
             isFinished = await CheckIfIsFinished(ct);
         }
@@ -151,7 +154,7 @@ public class StateMachine {
 
     private async Task SaveAgentData(string chatId, CancellationToken ct) {
         await using var chatFile = _io.OpenOrCreateFile($"{_chatsFolder}/{chatId}/agent.json");
-        await JsonSerializer.SerializeAsync(chatFile, Chat, _fileSerializationOptions, ct);
+        await JsonSerializer.SerializeAsync(chatFile, Handler, _fileSerializationOptions, ct);
     }
 
     private async Task<OpenAIChatHandler?> LoadAgentData(string chatId, CancellationToken ct) {
@@ -159,13 +162,18 @@ public class StateMachine {
         return await JsonSerializer.DeserializeAsync<OpenAIChatHandler>(agentFile, _fileSerializationOptions, cancellationToken: ct);
     }
 
-    private OpenAIChatTool LoadSkill(string name) {
-        using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{name}.json");
-        return JsonSerializer.Deserialize<OpenAIChatTool>(skillFile, _fileSerializationOptions)!;
+    private IEnumerable<Skill> LoadSkills() {
+        var skills = _io.GetFiles(_skillsFolder);
+        foreach (var skill in skills) yield return LoadSkill(skill);
     }
 
-    private async Task<Agent> LoadAgentProfile(string profileName) {
+    private Skill LoadSkill(string name) {
+        using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{name}.json");
+        return JsonSerializer.Deserialize<Skill>(skillFile, _fileSerializationOptions)!;
+    }
+
+    private async Task<Agent<OpenAIChatOptions>> LoadAgentProfile(string profileName) {
         await using var agentFile = _io.OpenOrCreateFile($"{_agentsFolder}/{profileName}.json");
-        return JsonSerializer.Deserialize<Agent>(agentFile, _fileSerializationOptions)!;
+        return JsonSerializer.Deserialize<Agent<OpenAIChatOptions>>(agentFile, _fileSerializationOptions)!;
     }
 }

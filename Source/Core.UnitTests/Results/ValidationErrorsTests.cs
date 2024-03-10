@@ -555,9 +555,7 @@ public class ValidationErrorsTests {
         // Act
         var errorsList = new List<ValidationError>();
         // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (ValidationError error in errorsEnumerable) {
-            errorsList.Add(error);
-        }
+        foreach (ValidationError error in errorsEnumerable) errorsList.Add(error);
 
         // Assert
         errorsList.Should().BeEquivalentTo(expectedErrors);

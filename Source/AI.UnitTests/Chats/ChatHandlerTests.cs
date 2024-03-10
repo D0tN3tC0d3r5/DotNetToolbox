@@ -1,3 +1,4 @@
+using DotNetToolbox.AI.Agents;
 using DotNetToolbox.AI.OpenAI.Chats;
 
 using static DotNetToolbox.AI.OpenAI.Chats.OpenAIChatOptions;
@@ -45,10 +46,10 @@ public class OpenAIChatHandlerFactoryTests {
         options.UseStreaming.Should().BeTrue();
         options.StopSequences.Should().BeEmpty();
         options.Tools.Should().BeEmpty();
-        var chat = result.Should().BeOfType<OpenAIChatHandler>().Subject;
-        chat.Id.Should().NotBeNullOrEmpty();
-        _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
-        _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' started.");
+        var handler = result.Should().BeOfType<OpenAIChatHandler>().Subject;
+        handler.Chat.Id.Should().NotBeNullOrEmpty();
+        _logger.Should().Contain(LogLevel.Debug, "Creating new handler...");
+        _logger.Should().Contain(LogLevel.Debug, $"Handler for handler '{handler.Chat.Id}' started.");
     }
 
     [Fact]
@@ -63,15 +64,15 @@ public class OpenAIChatHandlerFactoryTests {
         };
         options.StopSequences.Add("Abort!");
         options.StopSequences.Add("Stop!");
-        options.Tools.Add(new("tool1", "MyFunction1", description: "This is my first custom function"));
-        options.Tools.Add(new("tool2", "MyFunction2", description: "This is my second custom function"));
+        options.Tools.Add(new("MyFunction1", description: "This is my first custom function"));
+        options.Tools.Add(new("MyFunction2", description: "This is my second custom function"));
 
         // Act
         var result = _chatHandlerFactory.Create(options);
 
         // Assert
-        var chat = result.Should().BeOfType<OpenAIChatHandler>().Subject;
-        chat.Id.Should().NotBeNullOrEmpty();
+        var handler = result.Should().BeOfType<OpenAIChatHandler>().Subject;
+        handler.Chat.Id.Should().NotBeNullOrEmpty();
         options.FrequencyPenalty.Should().Be(1.5m);
         options.PresencePenalty.Should().Be(1.1m);
         options.MaximumOutputTokens.Should().Be(100000);
@@ -81,8 +82,8 @@ public class OpenAIChatHandlerFactoryTests {
         options.UseStreaming.Should().BeTrue();
         options.StopSequences.Should().BeEquivalentTo("Abort!", "Stop!");
         options.Tools.Should().HaveCount(2);
-        _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
-        _logger.Should().Contain(LogLevel.Debug, $"Chat '{chat.Id}' started.");
+        _logger.Should().Contain(LogLevel.Debug, "Creating new handler...");
+        _logger.Should().Contain(LogLevel.Debug, $"Chat '{handler.Chat.Id}' started.");
     }
 
     [Fact]
@@ -106,8 +107,8 @@ public class OpenAIChatHandlerFactoryTests {
 
         // Assert
         result.Should().Throw<ValidationException>();
-        _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
-        _logger.Should().Contain(LogLevel.Error, "Failed to Create a new chat.");
+        _logger.Should().Contain(LogLevel.Debug, "Creating new handler...");
+        _logger.Should().Contain(LogLevel.Error, "Failed to Create a new handler.");
     }
 
     [Fact]
@@ -117,8 +118,8 @@ public class OpenAIChatHandlerFactoryTests {
 
         // Assert
         result.Should().Throw<InvalidOperationException>();
-        _logger.Should().Contain(LogLevel.Debug, "Creating new chat...");
-        _logger.Should().Contain(LogLevel.Error, "Failed to Create a new chat.");
+        _logger.Should().Contain(LogLevel.Debug, "Creating new handler...");
+        _logger.Should().Contain(LogLevel.Error, "Failed to Create a new handler.");
     }
 
     [Fact]
@@ -133,10 +134,11 @@ public class OpenAIChatHandlerFactoryTests {
         };
         opt.StopSequences.Add("Abort!");
         opt.StopSequences.Add("Stop!");
-        opt.Tools.Add(new("tool1", "MyFunction1", description: "This is my first custom function"));
-        opt.Tools.Add(new("tool2", "MyFunction2", description: "This is my second custom function"));
+        opt.Tools.Add(new("MyFunction1", description: "This is my first custom function"));
+        opt.Tools.Add(new("MyFunction2", description: "This is my second custom function"));
         // Arrange
-        var chat = _chatHandlerFactory.Create(opt);
+        var handler = _chatHandlerFactory.Create(opt);
+        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
         var message = new OpenAIChatResponseMessage {
             Content = "testReply",
         };
@@ -148,23 +150,24 @@ public class OpenAIChatHandlerFactoryTests {
             Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
-        chat.Messages.Add(new("user", [new("text", "testMessage")]));
+        handler.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit(TODO);
+        await handler.Submit(agent);
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
-        chat.Messages.Should().HaveCount(2);
-        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.Should().Contain(LogLevel.Debug, "Reply for chat 'testId' received.");
+        handler.Chat.Messages.Should().HaveCount(2);
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to handler 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Reply for handler 'testId' received.");
     }
 
     [Fact]
     public async Task SendMessage_ReturnsInvalidReply() {
         // Arrange
         var opt = new OpenAIChatOptions();
-        var chat = _chatHandlerFactory.Create(opt);
+        var handler = _chatHandlerFactory.Create(opt);
+        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
         var choice = new OpenAIChatResponseChoice {
             Message = null!,
         };
@@ -173,23 +176,24 @@ public class OpenAIChatHandlerFactoryTests {
             Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
-        chat.Messages.Add(new("user", [new("text", "testMessage")]));
+        handler.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit(TODO);
+        await handler.Submit(agent);
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
-        chat.Messages.Should().HaveCount(2);
-        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.Should().Contain(LogLevel.Debug, "Invalid reply received for chat 'testId'.");
+        handler.Chat.Messages.Should().HaveCount(2);
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to handler 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Invalid reply received for handler 'testId'.");
     }
 
     [Fact]
     public async Task SendMessage_ReturnsDelta() {
         // Arrange
         var opt = new OpenAIChatOptions();
-        var chat = _chatHandlerFactory.Create(opt);
+        var handler = _chatHandlerFactory.Create(opt);
+        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
         var message = new OpenAIChatResponseMessage {
             Content = "testReply",
         };
@@ -201,16 +205,16 @@ public class OpenAIChatHandlerFactoryTests {
             Choices = [choice],
         };
         _httpMessageHandler.SetOkResponse(response);
-        chat.Messages.Add(new("user", [new("text", "testMessage")]));
+        handler.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit(TODO);
+        await handler.Submit(agent);
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
-        chat.Messages.Should().HaveCount(2);
-        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.Should().Contain(LogLevel.Debug, "Reply for chat 'testId' received.");
+        handler.Chat.Messages.Should().HaveCount(2);
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to handler 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Reply for handler 'testId' received.");
     }
 
     [Fact]
@@ -218,37 +222,39 @@ public class OpenAIChatHandlerFactoryTests {
         // Arrange
         var opt = new OpenAIChatOptions();
         var chat = _chatHandlerFactory.Create(opt);
+        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
         var response = new OpenAIChatResponse {
             Id = "testId",
         };
         _httpMessageHandler.SetOkResponse(response);
-        chat.Messages.Add(new("user", [new("text", "testMessage")]));
+        chat.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit(TODO);
+        await chat.Submit(agent);
 
         // Assert
         opt.Model.Should().Be("some-model");
-        chat.Messages.Should().ContainSingle();
-        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
-        _logger.Should().Contain(LogLevel.Debug, "Invalid reply received for chat 'testId'.");
+        chat.Chat.Messages.Should().ContainSingle();
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to handler 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Invalid reply received for handler 'testId'.");
     }
 
     [Fact]
     public async Task SendMessage_WithFaultyConnection_Throws() {
         // Arrange
         var opt = new OpenAIChatOptions();
-        var chat = _chatHandlerFactory.Create(opt);
-        chat.Messages.Add(new("user", [new("text", "testMessage")]));
+        var handler = _chatHandlerFactory.Create(opt);
+        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
+        handler.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
         _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
-        var result = () => chat.Submit(TODO);
+        var result = () => handler.Submit(agent);
 
         // Assert
         opt.Model.Should().Be("gpt-3.5-turbo-1106");
         await result.Should().ThrowAsync<InvalidOperationException>();
-        _logger.Should().Contain(LogLevel.Debug, "Sending message to chat 'testId'...");
+        _logger.Should().Contain(LogLevel.Debug, "Sending message to handler 'testId'...");
         _logger.Should().Contain(LogLevel.Error, "Failed to send a message to 'testId'.");
     }
 }

@@ -11,7 +11,7 @@ public class Sophia : ShellApplication<Sophia> {
 
     protected override string GetPrePromptText() => $"[{TotalNumberOfTokens}] ";
 
-    private int TotalNumberOfTokens => _stateMachine.Chat?.TotalNumberOfTokens ?? 0;
+    private int TotalNumberOfTokens => _stateMachine.Handler?.Chat.TotalNumberOfTokens ?? 0;
 
     protected override async Task<Result> OnStart(CancellationToken ct) {
         await _stateMachine.Start(1, ct);
