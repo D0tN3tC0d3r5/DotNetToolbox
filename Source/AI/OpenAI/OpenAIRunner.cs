@@ -4,7 +4,7 @@ public class OpenAIRunner(IAgent agent,
                           World world,
                           IHttpClientProvider httpClientProvider,
                           ILogger<OpenAIRunner> logger)
-    : AgentRunner<OpenAIRunner, OpenAIAgentOptions, OpenAIChatRequest, OpenAIChatResponse>(agent, world, httpClientProvider, logger) {
+    : QueuedRunner<OpenAIRunner, OpenAIAgentOptions, OpenAIChatRequest, OpenAIChatResponse>(agent, world, httpClientProvider, logger) {
 
     public OpenAIRunner(World world,
                         IHttpClientProvider httpClientProvider,

@@ -2,7 +2,7 @@
 
 namespace DotNetToolbox.Sophia;
 
-public class StateMachine : IOriginator {
+public class StateMachine : IRequestSource {
     private const string _chatsFolder = "Chats";
     private const string _agentsFolder = "Agents";
     //private const string _skillsFolder = "Skills";
@@ -143,11 +143,11 @@ public class StateMachine : IOriginator {
         _out.Write("- ");
         _chat!.Messages.Add(new("user", [new("text", input)]));
         _waitingResponse = true;
-        _runner.PostRequest(this, _chat);
+        _runner.ReceiveRequest(this, _chat);
         while (_waitingResponse) Task.Delay(100);
     }
 
-    public void ReceiveResponse(ResponsePackage response) {
+    public void ProcessResponse(ResponsePackage response) {
         foreach (var part in response.Message.Parts) _out.WriteLine(part.Value);
         _waitingResponse = false;
     }

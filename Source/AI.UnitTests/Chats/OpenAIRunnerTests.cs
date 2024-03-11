@@ -53,9 +53,9 @@ public class OpenAIRunnerTests {
         _httpMessageHandler.SetOkResponse(response);
         var runner = new OpenAIRunner(agent, _environment, _httpClientProvider, _logger);
         var tokenSource = new CancellationTokenSource();
-        var source = Substitute.For<IOriginator>();
+        var source = Substitute.For<IRequestSource>();
         var responseReceived = false;
-        source.When(s => s.ReceiveResponse(Arg.Any<ResponsePackage>())).Do(_ => {
+        source.When(s => s.ProcessResponse(Arg.Any<ResponsePackage>())).Do(_ => {
             responseReceived = true;
             tokenSource.Cancel();
         });
@@ -63,7 +63,7 @@ public class OpenAIRunnerTests {
         var chat = new Chat("chatId");
 
         // Act
-        runner.PostRequest(source, chat);
+        runner.ReceiveRequest(source, chat);
         while (!tokenSource.IsCancellationRequested) await Task.Delay(100, default);
 
         // Assert

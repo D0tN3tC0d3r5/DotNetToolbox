@@ -1,17 +1,15 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class AgentRunner<TRunner, TOptions, TApiRequest, TApiResponse>(
+public abstract class BaseRunner<TRunner, TOptions, TApiRequest, TApiResponse>(
         IAgent agent,
         World world,
         IHttpClientProvider httpClientProvider,
         ILogger<TRunner> logger)
     : IAgentRunner
-    where TRunner : AgentRunner<TRunner, TOptions, TApiRequest, TApiResponse>
+    where TRunner : BaseRunner<TRunner, TOptions, TApiRequest, TApiResponse>
     where TOptions : class, IAgentOptions, new()
     where TApiRequest : class
     where TApiResponse : class {
-    private readonly Queue<RequestPackage> _receivedRequests = [];
-    private readonly Queue<ResponsePackage> _receivedResponses = [];
 
     public IAgent Agent { get; } = agent;
     protected World World { get; } = world;
@@ -22,10 +20,7 @@ public abstract class AgentRunner<TRunner, TOptions, TApiRequest, TApiResponse>(
         logger.LogInformation("Starting runner...");
         try {
             while (!ct.IsCancellationRequested) {
-                if (_receivedRequests.TryDequeue(out var request)) await ProcessRequest(request, ct);
-                if (ct.IsCancellationRequested) return;
-                if (_receivedResponses.TryDequeue(out var response)) ProcessResponse(response);
-                if (ct.IsCancellationRequested) return;
+                await Execute(ct);
                 await Task.Delay(100, ct);
             }
         }
@@ -39,30 +34,31 @@ public abstract class AgentRunner<TRunner, TOptions, TApiRequest, TApiResponse>(
         logger.LogInformation("Runner stopped.");
     }
 
-    protected abstract TApiRequest CreateRequest(RequestPackage package);
+    public abstract Task ReceiveRequest(IRequestSource source, IChat chat, CancellationToken token);
+    protected abstract Task ProcessRequest(IRequestSource source, IChat chat, CancellationToken token);
+    public abstract Task ReceiveResponse(string chatId, Message response, CancellationToken token);
+    protected abstract Task ProcessResponse(string chatId, Message response, CancellationToken token);
+
+    protected virtual Task Execute(CancellationToken token) => Task.CompletedTask;
     protected virtual string CreateSystemMessage() => "You are a helpful agent.";
+    protected abstract TApiRequest CreateRequest(IRequestSource source, IChat chat, CancellationToken token);
+    protected abstract Message CreateResponseMessage(IChat chat, TApiResponse response);
+    protected virtual Task<bool> IsRequestedCompleted(IRequestSource source, IChat chat, CancellationToken ct)
+        => Task.FromResult(true);
 
-    public CancellationTokenSource PostRequest(IOriginator from, IChat chat) {
-        var tokenSource = new CancellationTokenSource();
-        var request = new RequestPackage(from, chat, tokenSource.Token);
-        _receivedRequests.Enqueue(request);
-        return tokenSource;
+    protected async Task SubmitRequest(IRequestSource source, IChat chat, CancellationToken ct) {
+        if (ct.IsCancellationRequested) return;
+        var isCompleted = false;
+        while (!isCompleted) {
+            var result = await Submit(source, chat, ct);
+            if (!result.IsOk) return;
+            isCompleted = await IsRequestedCompleted(source, chat, ct);
+        }
+        await source.ReceiveResponse(chat.Id, chat.Messages[^1], ct);
     }
 
-    private async Task ProcessRequest(RequestPackage package, CancellationToken ct) {
-        var ts = CancellationTokenSource.CreateLinkedTokenSource(package.Token, ct);
-        if (ts.IsCancellationRequested) return;
-        var result = await Submit(package, ts.Token);
-        if (!result.IsOk) return;
-        var isFinished = false;
-        while (!isFinished)
-            isFinished = await ProcessSubmissionResult(package, ct);
-        var response = new ResponsePackage(package.Chat.Id, package.Chat.Messages[^1]);
-        package.Source.ReceiveResponse(response);
-    }
-
-    private async Task<HttpResult> Submit(RequestPackage package, CancellationToken ct = default) {
-        var request = CreateRequest(package);
+    private async Task<HttpResult> Submit(IRequestSource source, IChat chat, CancellationToken ct = default) {
+        var request = CreateRequest(source, chat, ct);
         var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions);
         var httpClient = httpClientProvider.GetHttpClient();
         var httpResult = await httpClient.PostAsync(Agent.Options.ApiEndpoint, content, ct).ConfigureAwait(false);
@@ -70,8 +66,8 @@ public abstract class AgentRunner<TRunner, TOptions, TApiRequest, TApiResponse>(
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var apiResponse = JsonSerializer.Deserialize<TApiResponse>(json, IAgentOptions.SerializerOptions)!;
-            var responseMessage = CreateResponseMessage(package.Chat, apiResponse);
-            package.Chat.Messages.Add(responseMessage);
+            var responseMessage = CreateResponseMessage(chat, apiResponse);
+            chat.Messages.Add(responseMessage);
             return HttpResult.Ok();
         }
         catch (Exception ex) {
@@ -93,12 +89,4 @@ public abstract class AgentRunner<TRunner, TOptions, TApiRequest, TApiResponse>(
             }
         }
     }
-
-    protected abstract Message CreateResponseMessage(IChat chat, TApiResponse response);
-    public void ReceiveResponse(ResponsePackage response) => _receivedResponses.Enqueue(response);
-    protected virtual void ProcessResponse(ResponsePackage response) { }
-
-    // Do something with the apiResponse from the processing agent.
-    protected virtual Task<bool> ProcessSubmissionResult(RequestPackage request, CancellationToken ct)
-        => Task.FromResult(true);
 }

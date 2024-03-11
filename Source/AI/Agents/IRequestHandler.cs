@@ -1,5 +1,5 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
 public interface IRequestHandler {
-    CancellationTokenSource PostRequest(IOriginator source, IChat chat);
+    Task ReceiveRequest(IRequestSource source, IChat chat, CancellationToken token);
 }

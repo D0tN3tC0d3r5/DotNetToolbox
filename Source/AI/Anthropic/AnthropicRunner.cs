@@ -4,7 +4,7 @@ public class AnthropicRunner(IAgent agent,
                              World world,
                              IHttpClientProvider httpClientProvider,
                              ILogger<AnthropicRunner> logger)
-    : AgentRunner<AnthropicRunner, AnthropicAgentOptions, AnthropicChatRequest, AnthropicChatResponse>(agent, world, httpClientProvider, logger) {
+    : QueuedRunner<AnthropicRunner, AnthropicAgentOptions, AnthropicChatRequest, AnthropicChatResponse>(agent, world, httpClientProvider, logger) {
 
     public AnthropicRunner(World world,
                            IHttpClientProvider httpClientProvider,

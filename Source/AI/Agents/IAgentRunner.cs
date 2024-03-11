@@ -1,6 +1,6 @@
 ﻿
 namespace DotNetToolbox.AI.Agents;
 
-public interface IAgentRunner : IOriginator, IRequestHandler {
+public interface IAgentRunner : IRequestSource, IRequestHandler {
     void Run(CancellationToken ct);
 }
