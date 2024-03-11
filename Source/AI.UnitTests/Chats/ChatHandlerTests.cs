@@ -1,7 +1,8 @@
 using DotNetToolbox.AI.Agents;
+using DotNetToolbox.AI.OpenAI;
 using DotNetToolbox.AI.OpenAI.Chats;
 
-using static DotNetToolbox.AI.OpenAI.Chats.OpenAIChatOptions;
+using static DotNetToolbox.AI.OpenAI.OpenAIAgentOptions;
 
 namespace DotNetToolbox.AI.Chats;
 
@@ -25,16 +26,16 @@ public class OpenAIChatHandlerFactoryTests {
         var environment = Substitute.For<IEnvironment>();
         environment.DateTime.Returns(Substitute.For<IDateTimeProvider>());
         environment.DateTime.Now.Returns(new DateTimeOffset(2001, 01, 01, 00, 00, 00, default));
-        var world = new World(environment);
-        _chatHandlerFactory = new(world, httpClientProvider, _logger);
+        _chatHandlerFactory = new(httpClientProvider, _logger);
     }
 
     [Fact]
     public void Start_ReturnsChatId() {
-        var options = new OpenAIChatOptions();
+        var options = new OpenAIAgentOptions("SomeModel");
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, options);
 
         // Act
-        var result = _chatHandlerFactory.Create(options);
+        var result = _chatHandlerFactory.Create(agent, options);
 
         // Assert
         options.FrequencyPenalty.Should().Be(DefaultFrequencyPenalty);
@@ -46,7 +47,7 @@ public class OpenAIChatHandlerFactoryTests {
         options.UseStreaming.Should().BeTrue();
         options.StopSequences.Should().BeEmpty();
         options.Tools.Should().BeEmpty();
-        var handler = result.Should().BeOfType<OpenAIChatHandler>().Subject;
+        var handler = result.Should().BeOfType<OpenAIRunner>().Subject;
         handler.Chat.Id.Should().NotBeNullOrEmpty();
         _logger.Should().Contain(LogLevel.Debug, "Creating new handler...");
         _logger.Should().Contain(LogLevel.Debug, $"Handler for handler '{handler.Chat.Id}' started.");
@@ -54,7 +55,7 @@ public class OpenAIChatHandlerFactoryTests {
 
     [Fact]
     public void Start_WithConfiguration_ReturnsChatId() {
-        var options = new OpenAIChatOptions {
+        var options = new OpenAIAgentOptions("SomeModel") {
             FrequencyPenalty = 1.5m,
             PresencePenalty = 1.1m,
             MaximumOutputTokens = 100000,
@@ -66,12 +67,13 @@ public class OpenAIChatHandlerFactoryTests {
         options.StopSequences.Add("Stop!");
         options.Tools.Add(new("MyFunction1", description: "This is my first custom function"));
         options.Tools.Add(new("MyFunction2", description: "This is my second custom function"));
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, options);
 
         // Act
-        var result = _chatHandlerFactory.Create(options);
+        var result = _chatHandlerFactory.Create(agent, options);
 
         // Assert
-        var handler = result.Should().BeOfType<OpenAIChatHandler>().Subject;
+        var handler = result.Should().BeOfType<OpenAIRunner>().Subject;
         handler.Chat.Id.Should().NotBeNullOrEmpty();
         options.FrequencyPenalty.Should().Be(1.5m);
         options.PresencePenalty.Should().Be(1.1m);
@@ -88,7 +90,7 @@ public class OpenAIChatHandlerFactoryTests {
 
     [Fact]
     public void Start_WithInvalidConfiguration_Throws() {
-        var options = new OpenAIChatOptions {
+        var options = new OpenAIAgentOptions("SomeModel") {
             FrequencyPenalty = 2.5m,
             PresencePenalty = 2.1m,
             NumberOfChoices = 10,
@@ -101,9 +103,10 @@ public class OpenAIChatHandlerFactoryTests {
         options.StopSequences.Add(null!);
         options.StopSequences.Add("  ");
         options.StopSequences.Add("Abort5!");
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, options);
 
         // Act
-        var result = () => _chatHandlerFactory.Create(options);
+        var result = () => _chatHandlerFactory.Create(agent, options);
 
         // Assert
         result.Should().Throw<ValidationException>();
@@ -113,8 +116,10 @@ public class OpenAIChatHandlerFactoryTests {
 
     [Fact]
     public void Start_WithFaultyRepository_Throws() {
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, new("SomeModel"));
+
         // Act
-        var result = () => _chatHandlerFactory.Create(new());
+        var result = () => _chatHandlerFactory.Create(agent, new("SomeModel"));
 
         // Assert
         result.Should().Throw<InvalidOperationException>();
@@ -124,7 +129,7 @@ public class OpenAIChatHandlerFactoryTests {
 
     [Fact]
     public async Task SendMessage_ReturnsReply() {
-        var opt = new OpenAIChatOptions {
+        var opt = new OpenAIAgentOptions("SomeModel") {
             FrequencyPenalty = 1.5m,
             PresencePenalty = 1.1m,
             MaximumOutputTokens = 100000,
@@ -137,8 +142,8 @@ public class OpenAIChatHandlerFactoryTests {
         opt.Tools.Add(new("MyFunction1", description: "This is my first custom function"));
         opt.Tools.Add(new("MyFunction2", description: "This is my second custom function"));
         // Arrange
-        var handler = _chatHandlerFactory.Create(opt);
-        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, opt);
+        var handler = _chatHandlerFactory.Create(agent, opt);
         var message = new OpenAIChatResponseMessage {
             Content = "testReply",
         };
@@ -153,7 +158,7 @@ public class OpenAIChatHandlerFactoryTests {
         handler.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await handler.Submit(agent);
+        await handler.Submit();
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
@@ -165,9 +170,9 @@ public class OpenAIChatHandlerFactoryTests {
     [Fact]
     public async Task SendMessage_ReturnsInvalidReply() {
         // Arrange
-        var opt = new OpenAIChatOptions();
-        var handler = _chatHandlerFactory.Create(opt);
-        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
+        var opt = new OpenAIAgentOptions("SomeModel");
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, opt);
+        var handler = _chatHandlerFactory.Create(agent, opt);
         var choice = new OpenAIChatResponseChoice {
             Message = null!,
         };
@@ -179,7 +184,7 @@ public class OpenAIChatHandlerFactoryTests {
         handler.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await handler.Submit(agent);
+        await handler.Submit();
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
@@ -191,9 +196,9 @@ public class OpenAIChatHandlerFactoryTests {
     [Fact]
     public async Task SendMessage_ReturnsDelta() {
         // Arrange
-        var opt = new OpenAIChatOptions();
-        var handler = _chatHandlerFactory.Create(opt);
-        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
+        var opt = new OpenAIAgentOptions("SomeModel");
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, opt);
+        var handler = _chatHandlerFactory.Create(agent, opt);
         var message = new OpenAIChatResponseMessage {
             Content = "testReply",
         };
@@ -208,7 +213,7 @@ public class OpenAIChatHandlerFactoryTests {
         handler.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await handler.Submit(agent);
+        await handler.Submit();
 
         // Assert
         opt.Model.Should().Be(DefaultChatModel);
@@ -220,9 +225,9 @@ public class OpenAIChatHandlerFactoryTests {
     [Fact]
     public async Task SendMessage_WithEmptyReply_ReturnsEmptyString() {
         // Arrange
-        var opt = new OpenAIChatOptions();
-        var chat = _chatHandlerFactory.Create(opt);
-        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
+        var opt = new OpenAIAgentOptions("SomeModel");
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, opt);
+        var chat = _chatHandlerFactory.Create(agent, opt);
         var response = new OpenAIChatResponse {
             Id = "testId",
         };
@@ -230,7 +235,7 @@ public class OpenAIChatHandlerFactoryTests {
         chat.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
 
         // Act
-        await chat.Submit(agent);
+        await chat.Submit();
 
         // Assert
         opt.Model.Should().Be("some-model");
@@ -242,14 +247,14 @@ public class OpenAIChatHandlerFactoryTests {
     [Fact]
     public async Task SendMessage_WithFaultyConnection_Throws() {
         // Arrange
-        var opt = new OpenAIChatOptions();
-        var handler = _chatHandlerFactory.Create(opt);
-        var agent = new Agent<OpenAIChatOptions>("Agent", new(), _chatHandlerFactory, opt);
+        var opt = new OpenAIAgentOptions("SomeModel");
+        var agent = new AgentRunner<,,>("Source", new(), _chatHandlerFactory, opt);
+        var handler = _chatHandlerFactory.Create(agent, opt);
         handler.Chat.Messages.Add(new("user", [new("text", "testMessage")]));
         _httpMessageHandler.ForceException(new InvalidOperationException("Break!"));
 
         // Act
-        var result = () => handler.Submit(agent);
+        var result = () => handler.Submit();
 
         // Assert
         opt.Model.Should().Be("gpt-3.5-turbo-1106");

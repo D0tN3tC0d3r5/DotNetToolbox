@@ -1,6 +1,6 @@
-﻿namespace DotNetToolbox.AI.Chats;
+﻿namespace DotNetToolbox.AI.Agents;
 
-public interface IChatOptions : IValidatable {
+public interface IAgentOptions : IValidatable {
     public static readonly JsonSerializerOptions SerializerOptions = new() {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -8,6 +8,6 @@ public interface IChatOptions : IValidatable {
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
     };
 
-    string ApiEndpoint { get; set; }
-    string Model { get; set; }
+    string ApiEndpoint { get; }
+    string Model { get; }
 }

@@ -1,13 +1,8 @@
-﻿
-namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Agents;
 
 public interface IAgent {
-    string Id { get; }
     string Name { get; }
-    Profile Profile { get; }
-    List<Skill> Skills { get; }
-
-    Task Start(CancellationToken ct);
-    CancellationTokenSource AddRequest(IAgent source, IChat chat);
-    void AddResponse(Package request);
+    IAgentOptions Options { get; }
+    Profile Profile { get; set; }
+    List<Skill> Skills { get; set; }
 }

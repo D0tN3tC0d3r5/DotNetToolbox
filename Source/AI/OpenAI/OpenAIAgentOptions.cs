@@ -1,7 +1,7 @@
-﻿namespace DotNetToolbox.AI.OpenAI.Chats;
+﻿namespace DotNetToolbox.AI.OpenAI;
 
-public class OpenAIChatOptions
-    : IChatOptions {
+public class OpenAIAgentOptions
+    : IAgentOptions {
     public const string DefaultApiEndpoint = "v1/chat/completions";
     public const string DefaultChatModel = "gpt-3.5-turbo-0125";
     public const byte DefaultFrequencyPenalty = 0;
@@ -22,15 +22,19 @@ public class OpenAIChatOptions
     public const byte MinimumTopProbability = 0;
     public const byte MaximumTopProbability = 1;
 
-    public string ApiEndpoint { get; set; } = DefaultApiEndpoint;
-    public string Model { get; set; } = DefaultChatModel;
+    public OpenAIAgentOptions(string model, string? apiEndpoint = null) {
+        Model = model;
+        ApiEndpoint = apiEndpoint ?? DefaultApiEndpoint;
+    }
+
+    public string ApiEndpoint { get; }
+    public string Model { get; }
     public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;
     public decimal? Temperature { get; set; }
     public decimal? MinimumTokenProbability { get; set; }
     public HashSet<string> StopSequences { get; set; } = [];
     public bool UseStreaming { get; set; }
 
-    public string? AgentName { get; set; }
     public byte? NumberOfChoices { get; set; }
     public decimal? FrequencyPenalty { get; set; }
     public decimal? PresencePenalty { get; set; }

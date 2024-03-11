@@ -1,7 +1,7 @@
-﻿namespace DotNetToolbox.AI.Anthropic.Chats;
+﻿namespace DotNetToolbox.AI.Anthropic;
 
-public class AnthropicChatOptions
-    : IChatOptions {
+public class AnthropicAgentOptions
+    : IAgentOptions {
     public const string DefaultApiEndpoint = "v1/messages";
     public const string DefaultChatModel = "claude-2.1";
     public const byte MinimumTemperature = 0;

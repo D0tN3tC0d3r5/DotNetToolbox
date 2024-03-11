@@ -9,6 +9,7 @@ global using System.Text;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 
+global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Anthropic;
 global using DotNetToolbox.AI.Anthropic.Chats;
 global using DotNetToolbox.AI.Chats;
