@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Sophia;
+﻿using Microsoft.Extensions.Logging;
+
+namespace DotNetToolbox.Sophia;
 
 public class Sophia : ShellApplication<Sophia> {
     private readonly StateMachine _stateMachine;
@@ -6,12 +8,12 @@ public class Sophia : ShellApplication<Sophia> {
     public Sophia(string[] args, IServiceProvider services)
         : base(args, services) {
         AllowMultiLine = true;
-        _stateMachine = new(this);
+        var httpClientProvider = services.GetRequiredService<IHttpClientProvider>();
+        var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+        _stateMachine = new(this, httpClientProvider, loggerFactory);
     }
 
-    protected override string GetPrePromptText() => $"[{TotalNumberOfTokens}] ";
-
-    private int TotalNumberOfTokens => _stateMachine._runner?.Chat.TotalNumberOfTokens ?? 0;
+    protected override string GetPrePromptText() => $"[{_stateMachine.TotalTokens}] ";
 
     protected override async Task<Result> OnStart(CancellationToken ct) {
         await _stateMachine.Start(1, ct);

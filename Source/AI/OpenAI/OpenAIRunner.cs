@@ -1,34 +1,48 @@
 ﻿namespace DotNetToolbox.AI.OpenAI;
 
-public class OpenAIRunner
-    : AgentRunner<OpenAIAgentOptions, OpenAIChatRequest, OpenAIChatResponse> {
+public class OpenAIRunner(IAgent agent,
+                          World world,
+                          IHttpClientProvider httpClientProvider,
+                          ILogger<OpenAIRunner> logger)
+    : AgentRunner<OpenAIRunner, OpenAIAgentOptions, OpenAIChatRequest, OpenAIChatResponse>(agent, world, httpClientProvider, logger) {
 
-    public OpenAIRunner(OpenAIAgent agent, World world, IHttpClientProvider httpClientProvider)
-        : base(agent, world, httpClientProvider) {
+    public OpenAIRunner(World world,
+                        IHttpClientProvider httpClientProvider,
+                        ILogger<OpenAIRunner> logger)
+        : this(new OpenAIAgent(), world, httpClientProvider, logger) {
+    }
+
+    public OpenAIRunner(IAgent agent,
+                        IEnvironment environment,
+                        IHttpClientProvider httpClientProvider,
+                        ILogger<OpenAIRunner> logger)
+        : this(agent, new World(environment), httpClientProvider, logger) {
+    }
+
+    public OpenAIRunner(IEnvironment environment,
+                        IHttpClientProvider httpClientProvider,
+                        ILogger<OpenAIRunner> logger)
+        : this(new World(environment), httpClientProvider, logger) {
     }
 
     protected override OpenAIChatRequest CreateRequest(RequestPackage package) {
         var system = new OpenAIChatRequestMessage(CreateSystemMessage());
+        var options = (OpenAIAgentOptions)Agent.Options;
         return new() {
-            Model = Agent.Options.Model,
-            Temperature = Agent.Options.Temperature,
-            MaximumOutputTokens = Agent.Options.MaximumOutputTokens,
-            FrequencyPenalty = Agent.Options.FrequencyPenalty,
-            PresencePenalty = Agent.Options.PresencePenalty,
-            NumberOfChoices = Agent.Options.NumberOfChoices,
-            StopSequences = Agent.Options.StopSequences.Count == 0
-                                ? null
-                                : [.. Agent.Options.StopSequences],
-            MinimumTokenProbability = Agent.Options.MinimumTokenProbability,
-            UseStreaming = Agent.Options.UseStreaming,
-            Tools = Agent.Skills.Count == 0
-                        ? null
-                        : Agent.Skills.ToArray(ToRequestToolCall),
-            Messages = [system, .. package.Chat.Messages.ToArray(o => new OpenAIChatRequestMessage(o))],
+            Model = options.Model,
+            Temperature = options.Temperature,
+            MaximumOutputTokens = options.MaximumOutputTokens,
+            StopSequences = (options.StopSequences?.Count ?? 0) == 0 ? null : [.. options.StopSequences!],
+            MinimumTokenProbability = options.TokenProbabilityCutOff,
+            UseStreaming = options.UseStreaming,
+            Messages = [system, .. package.Chat.Messages?.ToArray(o => new OpenAIChatRequestMessage(o)) ?? []],
+
+            NumberOfChoices = options.NumberOfChoices,
+            FrequencyPenalty = options.FrequencyPenalty,
+            PresencePenalty = options.PresencePenalty,
+            Tools = (Agent.Skills?.Count ?? 0) == 0 ? null : Agent.Skills!.ToArray(ToRequestToolCall),
         };
     }
-
-    private string CreateSystemMessage() => "You are a helpful agent.";
 
     protected override Message CreateResponseMessage(IChat chat, OpenAIChatResponse response) {
         chat.TotalTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.TotalTokens);

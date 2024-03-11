@@ -102,7 +102,6 @@ public static class Ensure {
                ? argument
                : throw new ValidationException(ValueIsInvalid, paramName!);
 
-
     public static async Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => await isValid(argument)
                ? argument

@@ -3,7 +3,7 @@
 public class OpenAIChatRequestMessage {
     public OpenAIChatRequestMessage(object content) {
         switch (content) {
-            case string c:
+            case string:
                 Role = "system";
                 Content = content;
                 break;

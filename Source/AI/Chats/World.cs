@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
-public class World(IEnvironment environment) {
-    public DateTimeOffset DateTime => environment.DateTime.Now;
+public class World(IEnvironment? environment = null) {
+    public DateTimeOffset DateTime => environment?.DateTime.Now ?? DateTimeOffset.Now;
     public string? Location { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
-    public List<Information> CustomValues { get; } = [];
+    public List<Information> CustomValues { get; set; } = [];
 
     public override string ToString() {
         var builder = new StringBuilder();

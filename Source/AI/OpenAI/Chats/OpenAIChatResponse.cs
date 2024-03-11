@@ -1,16 +1,16 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
-public class OpenAIChatResponse {
+public class OpenAIChatResponse(string id) {
     [JsonPropertyName("id")]
-    public required string Id { get; init; }
+    public string Id { get; set; } = id;
     [JsonPropertyName("model")]
-    public string? Model { get; init; }
+    public string Model { get; set; } = string.Empty;
     [JsonPropertyName("choices")]
-    public OpenAIChatResponseChoice[] Choices { get; init; } = [];
+    public OpenAIChatResponseChoice[] Choices { get; set; } = [];
     [JsonPropertyName("created")]
-    public int Created { get; init; }
+    public int Created { get; set; }
     [JsonPropertyName("system_fingerprint")]
-    public string? SystemFingerprint { get; init; }
+    public string SystemFingerprint { get; set; } = string.Empty;
     [JsonPropertyName("usage")]
-    public OpenAIChatResponseUsage? Usage { get; init; }
+    public OpenAIChatResponseUsage? Usage { get; set; }
 }

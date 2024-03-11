@@ -10,7 +10,8 @@ public class OpenAIChatResponseMessage {
     public object ToContent()
         => Content switch {
             OpenAIChatResponseToolRequest[] => Content,
-            string txt => new Message("assistant", [new("text", txt)]),
+            Message => Content,
+            string txt => new Message("assistant", [new MessagePart("text", txt)]),
             _ => throw new NotSupportedException(),
         };
 }

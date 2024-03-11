@@ -2,9 +2,9 @@
 
 public class OpenAIChatRequest {
     [JsonPropertyName("model")]
-    public required string Model { get; init; }
+    public required string Model { get; set; }
     [JsonPropertyName("messages")]
-    public OpenAIChatRequestMessage[] Messages { get; init; } = [];
+    public OpenAIChatRequestMessage[] Messages { get; set; } = [];
     [JsonPropertyName("frequency_penalty")]
     public decimal? FrequencyPenalty { get; set; }
     [JsonPropertyName("presence_penalty")]

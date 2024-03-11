@@ -1,5 +1,9 @@
 global using System.Net;
 
+global using DotNetToolbox.AI.Agents;
+global using DotNetToolbox.AI.OpenAI;
+global using DotNetToolbox.AI.OpenAI.Chats;
+global using DotNetToolbox.AI.OpenAI.Models;
 global using DotNetToolbox.AI.Utilities;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.Results;
@@ -15,3 +19,5 @@ global using NSubstitute;
 global using Xunit;
 
 global using static System.Text.Json.JsonSerializer;
+
+global using static DotNetToolbox.AI.OpenAI.OpenAIAgentOptions;

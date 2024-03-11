@@ -8,9 +8,9 @@ public class OpenAIChatRequestMessageContent {
     }
 
     [JsonPropertyName("type")]
-    public string Type { get; init; }
+    public string Type { get; set; }
     [JsonPropertyName("text")]
-    public string? Text { get; init; }
+    public string? Text { get; set; }
     [JsonPropertyName("image_url")]
-    public OpenAIChatRequestMessageContentImageData? Image { get; init; }
+    public OpenAIChatRequestMessageContentImageData? Image { get; set; }
 }

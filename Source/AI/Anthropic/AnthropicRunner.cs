@@ -1,24 +1,46 @@
 ﻿namespace DotNetToolbox.AI.Anthropic;
 
-public class AnthropicRunner
-    : AgentRunner<AnthropicAgentOptions, AnthropicChatRequest, AnthropicChatResponse> {
-    public AnthropicRunner(AnthropicAgent agent, World world, IHttpClientProvider httpClientProvider)
-        : base(agent, world, httpClientProvider) {
+public class AnthropicRunner(IAgent agent,
+                             World world,
+                             IHttpClientProvider httpClientProvider,
+                             ILogger<AnthropicRunner> logger)
+    : AgentRunner<AnthropicRunner, AnthropicAgentOptions, AnthropicChatRequest, AnthropicChatResponse>(agent, world, httpClientProvider, logger) {
+
+    public AnthropicRunner(World world,
+                           IHttpClientProvider httpClientProvider,
+                           ILogger<AnthropicRunner> logger)
+        : this(new AnthropicAgent(), world, httpClientProvider, logger) {
     }
 
-    protected override AnthropicChatRequest CreateRequest(RequestPackage package)
-        => new() {
-            Model = Agent.Options.Model,
-            Temperature = Agent.Options.Temperature,
-            MaximumOutputTokens = Agent.Options.MaximumOutputTokens,
-            StopSequences = Agent.Options.StopSequences.Count == 0 ? null : [.. Agent.Options.StopSequences],
-            MinimumTokenProbability = Agent.Options.MinimumTokenProbability,
-            UseStreaming = Agent.Options.UseStreaming,
-            System = CreateSystemMessage(),
-            Messages = package.Chat.Messages.ToArray(o => new AnthropicRequestMessage(o)),
-        };
+    public AnthropicRunner(IAgent agent,
+                           IEnvironment environment,
+                           IHttpClientProvider httpClientProvider,
+                           ILogger<AnthropicRunner> logger)
+        : this(agent, new World(environment), httpClientProvider, logger) {
+    }
 
-    private string CreateSystemMessage() => "You are a helpful agent.";
+    public AnthropicRunner(IEnvironment environment,
+                           IHttpClientProvider httpClientProvider,
+                           ILogger<AnthropicRunner> logger)
+        : this(new World(environment), httpClientProvider, logger) {
+    }
+
+    protected override AnthropicChatRequest CreateRequest(RequestPackage package) {
+        var options = (AnthropicAgentOptions)Agent.Options;
+        return new() {
+                         Model = options.Model,
+                         Temperature = options.Temperature,
+                         MaximumOutputTokens = options.MaximumOutputTokens,
+                         StopSequences = options.StopSequences.Count == 0
+                                             ? null
+                                             : [.. options.StopSequences],
+                         MinimumTokenProbability = options.TokenProbabilityCutOff,
+                         UseStreaming = options.UseStreaming,
+                         System = CreateSystemMessage(),
+                         Messages = package.Chat.Messages.ToArray(o => new AnthropicRequestMessage(o)),
+                         MaximumTokenSamples = options.MaximumTokensToSample,
+                     };
+    }
 
     protected override Message CreateResponseMessage(IChat chat, AnthropicChatResponse response) {
         chat.TotalTokens += (uint)(response.Usage.InputTokens + response.Usage.OutputTokens);

@@ -1,14 +1,13 @@
-﻿using DotNetToolbox.AI.Agents;
-using DotNetToolbox.AI.OpenAI;
-using DotNetToolbox.Http;
-using DotNetToolbox.Threading;
+﻿using Microsoft.Extensions.Logging;
 
 namespace DotNetToolbox.Sophia;
 
-public class StateMachine {
+public class StateMachine : IOriginator {
     private const string _chatsFolder = "Chats";
     private const string _agentsFolder = "Agents";
-    private const string _skillsFolder = "Skills";
+    //private const string _skillsFolder = "Skills";
+    public const uint Idle = 0;
+    private bool _waitingResponse;
 
     private static readonly JsonSerializerOptions _fileSerializationOptions = new() {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -19,21 +18,21 @@ public class StateMachine {
 
     private readonly IOutput _out;
     private readonly IFileSystem _io;
-    private readonly IGuidProvider _guid;
     private readonly IPromptFactory _promptFactory;
     private readonly IApplication _app;
     private readonly IHttpClientProvider _httpClientProvider;
     private readonly MultipleChoicePrompt _mainMenu;
     private readonly World _world;
+    private readonly ILogger<OpenAIRunner> _runnerLogger;
 
     private OpenAIAgent? _agent;
     private OpenAIRunner? _runner;
     private IChat? _chat;
 
-    public StateMachine(IApplication app, IHttpClientProvider httpClientProvider) {
+    public StateMachine(IApplication app, IHttpClientProvider httpClientProvider, ILoggerFactory loggerFactory) {
         _app = app;
         _httpClientProvider = httpClientProvider;
-        _guid = app.Environment.Guid;
+        _runnerLogger = loggerFactory.CreateLogger<OpenAIRunner>();
         _io = app.Environment.FileSystem;
         _out = app.Environment.Output;
         _promptFactory = app.PromptFactory;
@@ -47,8 +46,8 @@ public class StateMachine {
         });
     }
 
-    public const uint Idle = 0;
     public uint CurrentState { get; set; }
+    public uint TotalTokens => _chat?.TotalTokens ?? 0;
 
     internal Task Start(uint initialState, CancellationToken ct) {
         CurrentState = initialState;
@@ -62,7 +61,7 @@ public class StateMachine {
             case 3: return Resume(ct);
             case 4: Terminate(); break;
             case 5: _app.Exit(); break;
-            case 6: return SendMessage(input, ct);
+            case 6: SendMessage(input); break;
         }
 
         return Task.CompletedTask;
@@ -76,11 +75,11 @@ public class StateMachine {
     private async Task Start(CancellationToken ct) {
         try {
             _agent = await LoadAgentProfile("TimeKeeper");
-            _runner = new(_agent, _world, _httpClientProvider);
-            _runner.Start(ct).FireAndForget();
-            _chat = new Chat(_guid.New().ToString(), new());
+            _runner = new(_agent, _world, _httpClientProvider, _runnerLogger);
+            _runner.Run(ct);
+            _chat = new Chat(_app.Environment);
             await SaveChat(_chat, ct);
-            _out.WriteLine($"Runner started.");
+            _out.WriteLine("Runner started.");
             CurrentState = Idle;
         }
         catch (Exception ex) {
@@ -136,35 +135,22 @@ public class StateMachine {
         return chatId;
     }
 
-    private async Task SendMessage(string input, CancellationToken ct) {
+    private void SendMessage(string input) {
         if (_runner is null) {
             CurrentState = 1;
             return;
         }
-        _chat!.Messages.Add(new("user", [new("text", input)]));
-        _runner.HandleRequest(_runner, _chat);
         _out.Write("- ");
-        if (!await Submit(ct)) _out.WriteLine("Error!");
-        else foreach (var part in _chat.Messages[^1].Parts) _out.WriteLine(part.Value);
-        CurrentState = Idle;
+        _chat!.Messages.Add(new("user", [new("text", input)]));
+        _waitingResponse = true;
+        _runner.PostRequest(this, _chat);
+        while (_waitingResponse) Task.Delay(100);
     }
 
-    private async Task<bool> Submit(CancellationToken ct) {
-        var isFinished = false;
-        while (!isFinished) {
-            var result = await _runner!.Submit(ct);
-            if (!result.IsOk) return false;
-            isFinished = await CheckIfIsFinished(ct);
-        }
-        return true;
+    public void ReceiveResponse(ResponsePackage response) {
+        foreach (var part in response.Message.Parts) _out.WriteLine(part.Value);
+        _waitingResponse = false;
     }
-
-    private void ProcessResponse(string chatId, Message message) {
-        foreach (var part in message.Parts) _out.WriteLine(part.Value);
-    }
-
-    private Task<bool> CheckIfIsFinished(CancellationToken ct)
-        => Task.FromResult(ct.IsCancellationRequested);
 
     private async Task SaveChat(IChat chat, CancellationToken ct) {
         _io.CreateFolder($"{_chatsFolder}/{chat.Id}");
@@ -178,15 +164,15 @@ public class StateMachine {
         return chat!;
     }
 
-    private IEnumerable<Skill> LoadSkills() {
-        var skills = _io.GetFiles(_skillsFolder);
-        foreach (var skill in skills) yield return LoadSkill(skill);
-    }
+    //private IEnumerable<Skill> LoadSkills() {
+    //    var skills = _io.GetFiles(_skillsFolder);
+    //    foreach (var skill in skills) yield return LoadSkill(skill);
+    //}
 
-    private Skill LoadSkill(string name) {
-        using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{name}.json");
-        return JsonSerializer.Deserialize<Skill>(skillFile, _fileSerializationOptions)!;
-    }
+    //private Skill LoadSkill(string name) {
+    //    using var skillFile = _io.OpenOrCreateFile($"{_skillsFolder}/{name}.json");
+    //    return JsonSerializer.Deserialize<Skill>(skillFile, _fileSerializationOptions)!;
+    //}
 
     private async Task<OpenAIAgent> LoadAgentProfile(string profileName) {
         await using var agentFile = _io.OpenOrCreateFile($"{_agentsFolder}/{profileName}.json");

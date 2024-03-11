@@ -1,13 +1,10 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public class Agent<TOptions>(string name, TOptions options, Profile profile, List<Skill> skills)
+public class Agent<TOptions>(TOptions? options = null, Profile? profile = null, List<Skill>? skills = null)
     : IAgent
-    where TOptions : class, IAgentOptions {
-    public string Name { get; set; } = name;
-
+    where TOptions : class, IAgentOptions, new() {
     IAgentOptions IAgent.Options => Options;
-    public TOptions Options { get; set; } = options;
-
-    public Profile Profile { get; set; } = profile;
-    public List<Skill> Skills { get; set; } = skills;
+    public TOptions Options { get; set; } = IsValidOrDefault(options, new());
+    public Profile Profile { get; set; } = profile ?? new();
+    public List<Skill> Skills { get; set; } = skills ?? [];
 }

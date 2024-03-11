@@ -1,4 +1,4 @@
 ﻿namespace DotNetToolbox.AI.OpenAI;
 
-public class OpenAIAgent(string name, OpenAIAgentOptions options, Profile profile, List<Skill> skills)
-    : Agent<OpenAIAgentOptions>(name, options, profile, skills);
+public class OpenAIAgent(OpenAIAgentOptions? options = null, Profile? profile = null, List<Skill>? skills = null)
+    : Agent<OpenAIAgentOptions>(options ?? new(), profile ?? new(), skills ?? []);

@@ -1,9 +1,13 @@
 ﻿namespace DotNetToolbox.AI.OpenAI;
 
-public class OpenAIAgentOptions
+public class OpenAIAgentOptions(string apiEndpoint, string model, string? name)
     : IAgentOptions {
+
+    public OpenAIAgentOptions() : this(DefaultApiEndpoint, DefaultModel, null) {
+    }
+
     public const string DefaultApiEndpoint = "v1/chat/completions";
-    public const string DefaultChatModel = "gpt-3.5-turbo-0125";
+    public const string DefaultModel = "gpt-3.5-turbo-0125";
     public const byte DefaultFrequencyPenalty = 0;
     public const sbyte MinimumFrequencyPenalty = -2;
     public const byte MaximumFrequencyPenalty = 2;
@@ -18,20 +22,16 @@ public class OpenAIAgentOptions
     public const byte DefaultTemperature = 1;
     public const byte MinimumTemperature = 0;
     public const byte MaximumTemperature = 2;
-    public const byte DefaultTopProbability = 1;
-    public const byte MinimumTopProbability = 0;
-    public const byte MaximumTopProbability = 1;
+    public const byte DefaultTokenProbabilityCutOff = 1;
+    public const byte MinimumTokenProbabilityCutOff = 0;
+    public const byte MaximumTokenProbabilityCutOff = 1;
 
-    public OpenAIAgentOptions(string model, string? apiEndpoint = null) {
-        Model = model;
-        ApiEndpoint = apiEndpoint ?? DefaultApiEndpoint;
-    }
-
-    public string ApiEndpoint { get; }
-    public string Model { get; }
+    public string? Name { get; } = name;
+    public string ApiEndpoint { get; } = apiEndpoint ?? DefaultApiEndpoint;
+    public string Model { get; } = model ?? DefaultModel;
     public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;
     public decimal? Temperature { get; set; }
-    public decimal? MinimumTokenProbability { get; set; }
+    public decimal? TokenProbabilityCutOff { get; set; }
     public HashSet<string> StopSequences { get; set; } = [];
     public bool UseStreaming { get; set; }
 
@@ -60,8 +60,8 @@ public class OpenAIAgentOptions
         if (Temperature is < MinimumTemperature or > MaximumTemperature)
             result += new ValidationError($"Value must be between {MinimumTemperature} and {MinimumTemperature}. Found: {Temperature}", nameof(Temperature));
 
-        if (MinimumTokenProbability is < MinimumTopProbability or > MaximumTopProbability)
-            result += new ValidationError($"Value must be between {MinimumTopProbability} and {MaximumTopProbability}. Found: {MinimumTokenProbability}", nameof(MinimumTokenProbability));
+        if (TokenProbabilityCutOff is < MinimumTokenProbabilityCutOff or > MaximumTokenProbabilityCutOff)
+            result += new ValidationError($"Value must be between {MinimumTokenProbabilityCutOff} and {MaximumTokenProbabilityCutOff}. Found: {TokenProbabilityCutOff}", nameof(TokenProbabilityCutOff));
 
         return result;
     }
