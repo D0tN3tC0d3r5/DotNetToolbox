@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Personas;
 
 public class Profile {
     public string Description { get; init; } = "You are a helpful agent.";

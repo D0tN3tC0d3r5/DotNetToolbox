@@ -2,6 +2,5 @@
 
 public interface IAgent {
     IAgentOptions Options { get; }
-    Profile Profile { get; set; }
-    List<Skill> Skills { get; set; }
+    Task<HttpResult> HandleRequest(IConsumer source, IChat chat, CancellationToken token);
 }

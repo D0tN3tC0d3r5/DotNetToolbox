@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace DotNetToolbox.Sophia;
+﻿namespace DotNetToolbox.Sophia;
 
 public class Sophia : ShellApplication<Sophia> {
     private readonly StateMachine _stateMachine;

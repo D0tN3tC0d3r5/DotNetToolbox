@@ -1,13 +1,14 @@
-﻿namespace DotNetToolbox.AI.Actors;
+﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class BackgroundActor<TRunner, TOptions, TApiRequest, TApiResponse>(
-        IAgent agent,
+public abstract class BackgroundAgent<TRunner, TOptions, TApiRequest, TApiResponse>(
         World world,
+        TOptions options,
+        IPersona persona,
         IHttpClientProvider httpClientProvider,
         ILogger<TRunner> logger)
-    : Actor<TRunner, TOptions, TApiRequest, TApiResponse>(agent, world, httpClientProvider, logger),
-      IBackgroundRunner
-    where TRunner : BackgroundActor<TRunner, TOptions, TApiRequest, TApiResponse>
+    : Agent<TRunner, TOptions, TApiRequest, TApiResponse>(world, options, persona, httpClientProvider, logger),
+      IBackgroundAgent
+    where TRunner : BackgroundAgent<TRunner, TOptions, TApiRequest, TApiResponse>
     where TOptions : class, IAgentOptions, new()
     where TApiRequest : class
     where TApiResponse : class {
@@ -29,7 +30,7 @@ public abstract class BackgroundActor<TRunner, TOptions, TApiRequest, TApiRespon
             Logger.LogError(ex, "An error occurred while running the actor!");
             throw;
         }
-        Logger.LogInformation("Running  stopped.");
+        Logger.LogInformation("Running stopped.");
     }
 
     protected virtual Task Execute(CancellationToken token) => Task.CompletedTask;

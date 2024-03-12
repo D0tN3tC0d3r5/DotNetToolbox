@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Personas;
 
 public class Argument(string name, string type, string[]? options = null, bool isRequired = false, string? description = null) {
     public required string Name { get; set; } = name;

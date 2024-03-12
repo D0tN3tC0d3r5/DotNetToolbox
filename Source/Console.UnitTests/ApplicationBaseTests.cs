@@ -349,7 +349,7 @@ public class ApplicationBaseTests {
         app.AddOption<TestOption>();
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Option").Subject;
+        var child = app.Children.Should().ContainSingle(x => x.Name == "MultipleChoiceOption").Subject;
         var option = child.Should().BeOfType<TestOption>().Subject;
         option.Aliases.Should().BeEquivalentTo("o");
     }
@@ -365,7 +365,7 @@ public class ApplicationBaseTests {
         app.AddOption(node);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Option").Subject;
+        var child = app.Children.Should().ContainSingle(x => x.Name == "MultipleChoiceOption").Subject;
         child.Should().BeOfType<TestOption>();
     }
 
@@ -569,7 +569,7 @@ public class ApplicationBaseTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestOption(IHasChildren app) : Option<TestOption>(app, "Option", ["o"]);
+    private class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.

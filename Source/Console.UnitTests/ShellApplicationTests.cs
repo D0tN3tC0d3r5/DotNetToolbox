@@ -576,7 +576,7 @@ public class ShellApplicationTests {
     public async Task RunAsync_WithArguments_ExecutesApp() {
         var output = new TestOutput();
         var input = new TestInput(output, "exit");
-        var app = Shell.Create(["Option", "o", "20"], b => {
+        var app = Shell.Create(["MultipleChoiceOption", "o", "20"], b => {
             b.SetInputHandler(input);
             b.SetOutputHandler(output);
         });
@@ -592,7 +592,7 @@ public class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestOption(IHasChildren app) : Option<TestOption>(app, "Option", ["o"]);
+    private class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.

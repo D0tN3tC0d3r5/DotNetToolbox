@@ -166,7 +166,7 @@ public abstract class ApplicationBase : IApplication {
     public IOption AddOption(string name, string[] aliases)
         => NodeFactory.Create<Option>(this, name, aliases);
     public IOption AddOption<TOption>()
-        where TOption : Option<TOption>, IOption
+        where TOption : Nodes.Option<TOption>, IOption
         => NodeFactory.Create<TOption>(this);
     public void AddOption(IOption option) => Children.Add(option);
 

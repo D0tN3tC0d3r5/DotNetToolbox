@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Actors;
+﻿namespace DotNetToolbox.AI.Agents;
 
 public class ResponsePackage(string chatId, Message message) {
     public string ChatId { get; } = chatId;

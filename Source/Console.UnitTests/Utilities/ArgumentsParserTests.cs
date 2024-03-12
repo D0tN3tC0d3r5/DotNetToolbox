@@ -14,7 +14,7 @@ public class ArgumentsParserTests {
         _serviceProvider.GetService(typeof(ILoggerFactory)).Returns(_loggerFactory);
         _app.Services.Returns(_serviceProvider);
         _app.Context.Returns([]);
-        _option = new Option(_app, "Option", "o");
+        _option = new Option(_app, "MultipleChoiceOption", "o");
         _flag = new Flag(_app, "Flag", ["f"]);
         _requiredParameter = new Parameter(_app, "Name");
         _parameter = new Parameter(_app, "Age", "18");
@@ -126,7 +126,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
+        _app.Context["MultipleChoiceOption"].Should().BeOfType<string>().Subject.Should().Be("42");
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
+        _app.Context["MultipleChoiceOption"].Should().BeOfType<string>().Subject.Should().Be("42");
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().Be("John Doe");
+        _app.Context["MultipleChoiceOption"].Should().Be("John Doe");
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().BeNull();
+        _app.Context["MultipleChoiceOption"].Should().BeNull();
     }
 
     [Fact]
@@ -184,7 +184,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().BeNull();
+        _app.Context["MultipleChoiceOption"].Should().BeNull();
     }
 
     [Fact]
@@ -315,7 +315,7 @@ public class ArgumentsParserTests {
         // Assert
         result.IsSuccess.Should().BeTrue();
         _app.Context["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
-        _app.Context["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
+        _app.Context["MultipleChoiceOption"].Should().BeOfType<string>().Subject.Should().Be("42");
         _app.Context["Name"].Should().BeOfType<string>().Subject.Should().Be("John Doe");
         _app.Context["Age"].Should().BeOfType<string>().Subject.Should().Be("20");
     }

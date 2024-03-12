@@ -1,34 +1,32 @@
-﻿namespace DotNetToolbox.AI.Actors;
+﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class QueuedActor<TRunner, TOptions, TApiRequest, TApiResponse>(
-        IAgent agent,
+public abstract class QueuedAgent<TRunner, TOptions, TApiRequest, TApiResponse>(
         World world,
+        TOptions options,
+        IPersona persona,
         IHttpClientProvider httpClientProvider,
         ILogger<TRunner> logger)
-    : BackgroundActor<TRunner, TOptions, TApiRequest, TApiResponse>(agent, world, httpClientProvider, logger)
-    where TRunner : QueuedActor<TRunner, TOptions, TApiRequest, TApiResponse>
+    : BackgroundAgent<TRunner, TOptions, TApiRequest, TApiResponse>(world, options, persona, httpClientProvider, logger)
+    where TRunner : QueuedAgent<TRunner, TOptions, TApiRequest, TApiResponse>
     where TOptions : class, IAgentOptions, new()
     where TApiRequest : class
     where TApiResponse : class {
     private readonly Queue<RequestPackage> _receivedRequests = [];
 
-    protected override Task Execute(CancellationToken ct) {
-        if (ct.IsCancellationRequested) return Task.CompletedTask;
-        if (_receivedRequests.TryDequeue(out var request)) return ProcessRequest(request, ct);
-        return Task.CompletedTask;
-    }
+    protected override Task Execute(CancellationToken ct)
+        => _receivedRequests.TryDequeue(out var request)
+               ? ProcessRequest(request, ct)
+               : Task.CompletedTask;
 
-    public override Task RespondTo(IRequestSource source, IChat chat, CancellationToken ct) {
-        if (ct.IsCancellationRequested) return Task.CompletedTask;
+    public override Task<HttpResult> HandleRequest(IConsumer source, IChat chat, CancellationToken ct) {
         var package = new RequestPackage(source, chat);
         _receivedRequests.Enqueue(package);
-        return Task.CompletedTask;
+        return HttpResult.OkTask();
     }
 
-    private Task ProcessRequest(RequestPackage package, CancellationToken ct) {
-        if (ct.IsCancellationRequested) return Task.CompletedTask;
-        return base.RespondTo(package.Source, package.Chat, ct);
-    }
+    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "Irrelevant here.")]
+    private Task ProcessRequest(RequestPackage package, CancellationToken ct)
+        => base.HandleRequest(package.Source, package.Chat, ct);
 }
 
 //public abstract class QueuedRunner2<TRunner, TOptions, TApiRequest, TApiResponse>(
@@ -36,8 +34,8 @@ public abstract class QueuedActor<TRunner, TOptions, TApiRequest, TApiResponse>(
 //        World world,
 //        IHttpClientProvider httpClientProvider,
 //        ILogger<TRunner> logger)
-//    : BackgroundActor<TRunner, TOptions, TApiRequest, TApiResponse>(agent, world, httpClientProvider, logger),
-//      IBackgroundRunner
+//    : BackgroundAgent<TRunner, TOptions, TApiRequest, TApiResponse>(agent, world, httpClientProvider, logger),
+//      IBackgroundAgent
 //    where TRunner : QueuedRunner2<TRunner, TOptions, TApiRequest, TApiResponse>
 //    where TOptions : class, IAgentOptions, new()
 //    where TApiRequest : class
@@ -54,14 +52,14 @@ public abstract class QueuedActor<TRunner, TOptions, TApiRequest, TApiResponse>(
 //        if (_receivedResponses.TryDequeue(out var response)) await ProcessResponse(response, ct);
 //    }
 
-//    public virtual Task RespondTo(IRequestSource source, IChat chat, CancellationToken ct) {
+//    public virtual Task HandleRequest(IConsumer source, IChat chat, CancellationToken ct) {
 //        if (ct.IsCancellationRequested) return Task.CompletedTask;
 //        var package = new RequestPackage(source, chat);
 //        _receivedRequests.Enqueue(package);
 //        return Task.CompletedTask;
 //    }
 
-//    public virtual Task RespondWith(string chatId, Message response, CancellationToken ct) {
+//    public virtual Task ProcessResponse(string chatId, Message response, CancellationToken ct) {
 //        if (ct.IsCancellationRequested) return Task.CompletedTask;
 //        var package = new ResponsePackage(chatId, response);
 //        _receivedResponses.Enqueue(package);

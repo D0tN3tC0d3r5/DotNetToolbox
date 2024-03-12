@@ -1,14 +1,13 @@
 namespace DotNetToolbox.AI.Chats;
 
-public class OpenAIAgentTests {
+public class PersonaTests {
     [Fact]
     public void DefaultConstructor_CreatesAgent() {
 
         // Act
-        var agent = new OpenAIAgent();
+        var agent = new Persona();
 
         // Assert
-        agent.Options.Should().NotBeNull();
         agent.Profile.Should().NotBeNull();
         agent.Skills.Should().BeEmpty();
     }
@@ -16,15 +15,13 @@ public class OpenAIAgentTests {
     [Fact]
     public void ConstructorWithValues_CreatesAgent() {
         // arrange
-        var options = new OpenAIAgentOptions();
         var profile = new Profile();
         var skills = new List<Skill> { new("SomeSkill") };
 
         // Act
-        var agent = new OpenAIAgent(options, profile, skills);
+        var agent = new Persona(profile, skills);
 
         // Assert
-        agent.Options.Should().Be(options);
         agent.Profile.Should().Be(profile);
         agent.Skills.Should().BeEquivalentTo(skills);
     }

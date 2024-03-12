@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Personas;
 
 public class Skill(string name, string? description = null, List<Argument>? arguments = null) {
     public string Name { get; set; } = IsNotNull(name);
