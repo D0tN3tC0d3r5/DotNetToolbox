@@ -1,64 +1,50 @@
-﻿namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Actors;
 
-public abstract class BaseRunner<TRunner, TOptions, TApiRequest, TApiResponse>(
+public abstract class Actor<TApiClient, TOptions, TApiRequest, TApiResponse>(
         IAgent agent,
         World world,
         IHttpClientProvider httpClientProvider,
-        ILogger<TRunner> logger)
-    : IAgentRunner
-    where TRunner : BaseRunner<TRunner, TOptions, TApiRequest, TApiResponse>
+        ILogger<TApiClient> logger)
+    : IRequestHandler
+    where TApiClient : Actor<TApiClient, TOptions, TApiRequest, TApiResponse>
     where TOptions : class, IAgentOptions, new()
     where TApiRequest : class
     where TApiResponse : class {
 
     public IAgent Agent { get; } = agent;
     protected World World { get; } = world;
+    protected ILogger<TApiClient> Logger = logger;
 
-    // this should be a fire and forget method.
-    // Use the cancellation token to stop the agent.
-    public async void Run(CancellationToken ct) {
-        logger.LogInformation("Starting runner...");
-        try {
-            while (!ct.IsCancellationRequested) {
-                await Execute(ct);
-                await Task.Delay(100, ct);
-            }
-        }
-        catch (OperationCanceledException ex) {
-            logger.LogWarning(ex, "Runner cancellation requested!");
-        }
-        catch (Exception ex) {
-            logger.LogError(ex, "An error occurred while executing the runner!");
-            throw;
-        }
-        logger.LogInformation("Runner stopped.");
+    protected virtual string CreateSystemMessage(IChat chat) {
+        var builder = new StringBuilder();
+        builder.AppendLine(World.ToString());
+        builder.AppendLine(Agent.Profile.ToString());
+        builder.AppendLine(Agent.Skills.ToString());
+        builder.AppendLine(chat.Instructions.ToString());
+        return builder.ToString();
     }
 
-    public abstract Task ReceiveRequest(IRequestSource source, IChat chat, CancellationToken token);
-    protected abstract Task ProcessRequest(IRequestSource source, IChat chat, CancellationToken token);
-    public abstract Task ReceiveResponse(string chatId, Message response, CancellationToken token);
-    protected abstract Task ProcessResponse(string chatId, Message response, CancellationToken token);
-
-    protected virtual Task Execute(CancellationToken token) => Task.CompletedTask;
-    protected virtual string CreateSystemMessage() => "You are a helpful agent.";
-    protected abstract TApiRequest CreateRequest(IRequestSource source, IChat chat, CancellationToken token);
-    protected abstract Message CreateResponseMessage(IChat chat, TApiResponse response);
     protected virtual Task<bool> IsRequestedCompleted(IRequestSource source, IChat chat, CancellationToken ct)
         => Task.FromResult(true);
 
-    protected async Task SubmitRequest(IRequestSource source, IChat chat, CancellationToken ct) {
+    protected abstract TApiRequest CreateRequest(IRequestSource source, IChat chat);
+    protected abstract Message CreateResponse(IChat chat, TApiResponse response);
+    public virtual async Task RespondTo(IRequestSource source, IChat chat, CancellationToken ct) {
         if (ct.IsCancellationRequested) return;
         var isCompleted = false;
         while (!isCompleted) {
+            Logger.LogDebug("Sending request...");
             var result = await Submit(source, chat, ct);
             if (!result.IsOk) return;
+            Logger.LogDebug("Response received.");
             isCompleted = await IsRequestedCompleted(source, chat, ct);
         }
-        await source.ReceiveResponse(chat.Id, chat.Messages[^1], ct);
+        await source.RespondWith(chat.Id, chat.Messages[^1], ct);
+        Logger.LogDebug("Request completed.");
     }
 
     private async Task<HttpResult> Submit(IRequestSource source, IChat chat, CancellationToken ct = default) {
-        var request = CreateRequest(source, chat, ct);
+        var request = CreateRequest(source, chat);
         var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions);
         var httpClient = httpClientProvider.GetHttpClient();
         var httpResult = await httpClient.PostAsync(Agent.Options.ApiEndpoint, content, ct).ConfigureAwait(false);
@@ -66,11 +52,12 @@ public abstract class BaseRunner<TRunner, TOptions, TApiRequest, TApiResponse>(
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var apiResponse = JsonSerializer.Deserialize<TApiResponse>(json, IAgentOptions.SerializerOptions)!;
-            var responseMessage = CreateResponseMessage(chat, apiResponse);
+            var responseMessage = CreateResponse(chat, apiResponse);
             chat.Messages.Add(responseMessage);
             return HttpResult.Ok();
         }
         catch (Exception ex) {
+            Logger.LogWarning(ex, "Request failed!");
             switch (httpResult.StatusCode) {
                 case HttpStatusCode.BadRequest:
                     var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

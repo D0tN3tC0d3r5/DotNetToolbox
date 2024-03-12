@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DotNetToolbox.AI.Actors;
+
+using Microsoft.Extensions.Logging;
 
 namespace DotNetToolbox.Sophia;
 
@@ -23,16 +25,16 @@ public class StateMachine : IRequestSource {
     private readonly IHttpClientProvider _httpClientProvider;
     private readonly MultipleChoicePrompt _mainMenu;
     private readonly World _world;
-    private readonly ILogger<OpenAIRunner> _runnerLogger;
+    private readonly ILogger<OpenAIQueuedActor> _runnerLogger;
 
     private OpenAIAgent? _agent;
-    private OpenAIRunner? _runner;
+    private OpenAIQueuedActor? _actor;
     private IChat? _chat;
 
     public StateMachine(IApplication app, IHttpClientProvider httpClientProvider, ILoggerFactory loggerFactory) {
         _app = app;
         _httpClientProvider = httpClientProvider;
-        _runnerLogger = loggerFactory.CreateLogger<OpenAIRunner>();
+        _runnerLogger = loggerFactory.CreateLogger<OpenAIQueuedActor>();
         _io = app.Environment.FileSystem;
         _out = app.Environment.Output;
         _promptFactory = app.PromptFactory;
@@ -61,7 +63,7 @@ public class StateMachine : IRequestSource {
             case 3: return Resume(ct);
             case 4: Terminate(); break;
             case 5: _app.Exit(); break;
-            case 6: SendMessage(input); break;
+            case 6: return SendMessage(input, ct);
         }
 
         return Task.CompletedTask;
@@ -75,11 +77,11 @@ public class StateMachine : IRequestSource {
     private async Task Start(CancellationToken ct) {
         try {
             _agent = await LoadAgentProfile("TimeKeeper");
-            _runner = new(_agent, _world, _httpClientProvider, _runnerLogger);
-            _runner.Run(ct);
+            _actor = new(_agent, _world, _httpClientProvider, _runnerLogger);
+            _actor.Run(ct);
             _chat = new Chat(_app.Environment);
             await SaveChat(_chat, ct);
-            _out.WriteLine("Runner started.");
+            _out.WriteLine("BackgroundActor started.");
             CurrentState = Idle;
         }
         catch (Exception ex) {
@@ -135,21 +137,22 @@ public class StateMachine : IRequestSource {
         return chatId;
     }
 
-    private void SendMessage(string input) {
-        if (_runner is null) {
+    private async Task SendMessage(string input, CancellationToken ct) {
+        if (_actor is null) {
             CurrentState = 1;
             return;
         }
         _out.Write("- ");
-        _chat!.Messages.Add(new("user", [new("text", input)]));
+        _chat!.Messages.Add(new("user", input));
         _waitingResponse = true;
-        _runner.ReceiveRequest(this, _chat);
-        while (_waitingResponse) Task.Delay(100);
+        await _actor.RespondTo(this, _chat, ct);
+        while (_waitingResponse) await Task.Delay(100, ct);
     }
 
-    public void ProcessResponse(ResponsePackage response) {
-        foreach (var part in response.Message.Parts) _out.WriteLine(part.Value);
+    public Task RespondWith(string chatId, Message response, CancellationToken ct) {
+        foreach (var part in response.Parts) _out.WriteLine(part.Value);
         _waitingResponse = false;
+        return Task.CompletedTask;
     }
 
     private async Task SaveChat(IChat chat, CancellationToken ct) {

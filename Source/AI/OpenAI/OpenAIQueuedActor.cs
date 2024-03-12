@@ -1,54 +1,56 @@
-﻿namespace DotNetToolbox.AI.OpenAI;
+﻿using DotNetToolbox.AI.Actors;
 
-public class OpenAIRunner(IAgent agent,
+namespace DotNetToolbox.AI.OpenAI;
+
+public class OpenAIQueuedActor(IAgent agent,
                           World world,
                           IHttpClientProvider httpClientProvider,
-                          ILogger<OpenAIRunner> logger)
-    : QueuedRunner<OpenAIRunner, OpenAIAgentOptions, OpenAIChatRequest, OpenAIChatResponse>(agent, world, httpClientProvider, logger) {
+                          ILogger<OpenAIQueuedActor> logger)
+    : QueuedActor<OpenAIQueuedActor, OpenAIAgentOptions, OpenAIChatRequest, OpenAIChatResponse>(agent, world, httpClientProvider, logger) {
 
-    public OpenAIRunner(World world,
+    public OpenAIQueuedActor(World world,
                         IHttpClientProvider httpClientProvider,
-                        ILogger<OpenAIRunner> logger)
+                        ILogger<OpenAIQueuedActor> logger)
         : this(new OpenAIAgent(), world, httpClientProvider, logger) {
     }
 
-    public OpenAIRunner(IAgent agent,
+    public OpenAIQueuedActor(IAgent agent,
                         IEnvironment environment,
                         IHttpClientProvider httpClientProvider,
-                        ILogger<OpenAIRunner> logger)
+                        ILogger<OpenAIQueuedActor> logger)
         : this(agent, new World(environment), httpClientProvider, logger) {
     }
 
-    public OpenAIRunner(IEnvironment environment,
+    public OpenAIQueuedActor(IEnvironment environment,
                         IHttpClientProvider httpClientProvider,
-                        ILogger<OpenAIRunner> logger)
+                        ILogger<OpenAIQueuedActor> logger)
         : this(new World(environment), httpClientProvider, logger) {
     }
 
-    protected override OpenAIChatRequest CreateRequest(RequestPackage package) {
-        var system = new OpenAIChatRequestMessage(CreateSystemMessage());
+    protected override OpenAIChatRequest CreateRequest(IRequestSource source, IChat chat) {
+        var system = new OpenAIChatRequestMessage(CreateSystemMessage(chat));
         var options = (OpenAIAgentOptions)Agent.Options;
         return new() {
             Model = options.Model,
             Temperature = options.Temperature,
             MaximumOutputTokens = options.MaximumOutputTokens,
-            StopSequences = (options.StopSequences?.Count ?? 0) == 0 ? null : [.. options.StopSequences!],
+            StopSequences = options.StopSequences.Count == 0 ? null : [.. options.StopSequences],
             MinimumTokenProbability = options.TokenProbabilityCutOff,
             UseStreaming = options.UseStreaming,
-            Messages = [system, .. package.Chat.Messages?.ToArray(o => new OpenAIChatRequestMessage(o)) ?? []],
+            Messages = [system, .. chat.Messages.ToArray(o => new OpenAIChatRequestMessage(o))],
 
             NumberOfChoices = options.NumberOfChoices,
             FrequencyPenalty = options.FrequencyPenalty,
             PresencePenalty = options.PresencePenalty,
-            Tools = (Agent.Skills?.Count ?? 0) == 0 ? null : Agent.Skills!.ToArray(ToRequestToolCall),
+            Tools = Agent.Skills.Count == 0 ? null : Agent.Skills.ToArray(ToRequestToolCall),
         };
     }
 
-    protected override Message CreateResponseMessage(IChat chat, OpenAIChatResponse response) {
+    protected override Message CreateResponse(IChat chat, OpenAIChatResponse response) {
         chat.TotalTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.TotalTokens);
         return response.Choices[0].Message.Content switch {
-            OpenAIChatResponseToolRequest[] tcs => new("assistant", [new("tool_calls", tcs)]),
-            _ => new("assistant", [new("text", response.Choices[0].Message.Content.ToString()!)]),
+            OpenAIChatResponseToolRequest[] tcs => new("assistant", [new MessagePart("tool_calls", tcs)]),
+            _ => new("assistant", [new MessagePart("text", response.Choices[0].Message.Content.ToString()!)]),
         };
     }
 
