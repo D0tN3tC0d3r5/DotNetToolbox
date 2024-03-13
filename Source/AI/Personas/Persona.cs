@@ -1,8 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Personas;
 
 [method: JsonConstructor]
-public class Persona(Profile? profile = null, List<Skill>? skills = null)
-    : IPersona {
+public class Persona(Profile? profile = null, List<Skill>? skills = null) {
 
     public Persona(string name, string? description = null, Profile? profile = null, List<Skill>? skills = null)
         : this(profile, skills) {

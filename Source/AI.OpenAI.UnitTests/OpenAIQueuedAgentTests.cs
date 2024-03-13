@@ -4,7 +4,7 @@ namespace DotNetToolbox.AI.OpenAI;
 
 public class OpenAIQueuedAgentTests {
     private readonly FakeHttpMessageHandler _httpMessageHandler;
-    private readonly ILogger<OpenAIQueuedAgent> _logger;
+    private readonly ILogger<QueuedAgent> _logger;
     private readonly IEnvironment _environment;
     private readonly IHttpClientProvider _httpClientProvider;
 
@@ -19,7 +19,7 @@ public class OpenAIQueuedAgentTests {
         _httpClientProvider.GetHttpClient(Arg.Any<string?>(),
                                          Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
-        _logger = new TrackedNullLogger<OpenAIQueuedAgent>();
+        _logger = new TrackedNullLogger<QueuedAgent>();
         _environment = Substitute.For<IEnvironment>();
         _environment.DateTime.Returns(Substitute.For<IDateTimeProvider>());
         _environment.DateTime.Now.Returns(new DateTimeOffset(2001, 01, 01, 00, 00, 00, default));
@@ -27,9 +27,10 @@ public class OpenAIQueuedAgentTests {
 
     [Fact]
     public async Task Run_RunsUntilCancelled() {
-        var options = new OpenAIAgentOptions();
+        var mapper = new Mapper();
+        var options = new AgentOptions();
         var agent = new Persona();
-        var runner = new OpenAIQueuedAgent(_environment, options, agent, _httpClientProvider, _logger);
+        var runner = new QueuedAgent(_environment, options, agent, mapper, _httpClientProvider, _logger);
         var tokenSource = new CancellationTokenSource();
 
         // Act
@@ -45,16 +46,17 @@ public class OpenAIQueuedAgentTests {
 
     [Fact]
     public async Task RespondTo_ReturnsReply() {
-        var options = new OpenAIAgentOptions();
+        var mapper = new Mapper();
+        var options = new AgentOptions();
         var agent = new Persona();
-        var response = new OpenAIChatResponse("chatId") {
+        var response = new ChatResponse("chatId") {
             Choices = [new() {
                 Index = 0,
                 Message = new() { Content = new Message("assistant", "Some message.") },
             }],
         };
         _httpMessageHandler.SetOkResponse(response);
-        var runner = new OpenAIQueuedAgent(_environment, options, agent, _httpClientProvider, _logger);
+        var runner = new QueuedAgent(_environment, options, agent, mapper, _httpClientProvider, _logger);
         var tokenSource = new CancellationTokenSource();
         var source = Substitute.For<IConsumer>();
         var responseReceived = false;

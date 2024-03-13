@@ -1,9 +1,11 @@
-﻿namespace DotNetToolbox.AI.Anthropic;
+﻿using DotNetToolbox.AI.Anthropic.Http;
+
+namespace DotNetToolbox.AI.Anthropic;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddAnthropic(this IServiceCollection services, IConfiguration configuration) {
-        services.AddHttpClientProvider<IHttpClientProvider, AnthropicHttpClientProvider>(configuration);
-        services.TryAddSingleton<IAgentFactory, AnthropicAgentFactory>();
+        services.AddHttpClientProvider<IHttpClientProvider, AgentHttpClientProvider>(configuration);
+        services.TryAddSingleton<IAgentFactory, AgentFactory>();
         return services;
     }
 }

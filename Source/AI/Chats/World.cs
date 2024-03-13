@@ -5,6 +5,7 @@ public class World(IEnvironment? environment = null) {
     public string? Location { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
     public List<Information> CustomValues { get; set; } = [];
+    public List<Skill> Skills { get; set; } = [];
 
     public override string ToString() {
         var builder = new StringBuilder();

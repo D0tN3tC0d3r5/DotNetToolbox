@@ -5,7 +5,7 @@ public class OpenAIAgentOptionsTests {
     public void DefaultConstructor_CreatesOptions() {
 
         // Act
-        var options = new OpenAIAgentOptions();
+        var options = new AgentOptions();
 
         // Assert
         options.Model.Should().Be(DefaultModel);
@@ -26,7 +26,7 @@ public class OpenAIAgentOptionsTests {
     public void ConstructorWithValues_CreatesOptions() {
 
         // Act
-        var options = new OpenAIAgentOptions("SomeApiEndpoint", "SomeModel") {
+        var options = new AgentOptions("SomeApiEndpoint", "SomeModel") {
             FrequencyPenalty = 1.5m,
             PresencePenalty = 1.1m,
             MaximumOutputTokens = 100_000,

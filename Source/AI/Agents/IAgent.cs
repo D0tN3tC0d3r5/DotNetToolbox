@@ -3,7 +3,7 @@
 public interface IAgent {
     World World { get; }
     IAgentOptions Options { get; }
-    IPersona Persona { get; }
+    Persona Persona { get; }
     Task<HttpResult> HandleRequest(IConsumer source, IChat chat, CancellationToken ct);
 }
 

@@ -18,8 +18,8 @@ public class FileRepository(IFileSystem io) {
 
     public Persona LoadPersona(string name)
         => LoadFile<Persona>(_personasFolder, name);
-    public OpenAIAgentOptions LoadAgentOptions(string name)
-        => LoadFile<OpenAIAgentOptions>(_agentsFolder, name);
+    public AgentOptions LoadAgentOptions(string name)
+        => LoadFile<AgentOptions>(_agentsFolder, name);
     public Skill LoadSkill(string name)
         => LoadFile<Skill>(_skillsFolder, name);
 

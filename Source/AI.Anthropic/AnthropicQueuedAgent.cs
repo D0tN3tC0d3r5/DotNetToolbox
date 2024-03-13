@@ -1,33 +1,22 @@
 ﻿namespace DotNetToolbox.AI.Anthropic;
 
-public class AnthropicQueuedAgent
+public class AnthropicQueuedAgent(World world,
+                                  AgentOptions options,
+                                  Persona persona,
+                                  IMapper mapper,
+                                  IHttpClientProvider httpClientProvider,
+                                  ILogger<AnthropicQueuedAgent> logger)
     : QueuedAgent<
         AnthropicQueuedAgent,
-        AnthropicAgentOptions,
-        AnthropicChatRequest,
-        AnthropicChatResponse> {
-    private readonly AnthropicMapper<AnthropicQueuedAgent> _mapper;
-
-    public AnthropicQueuedAgent(World world,
-                                AnthropicAgentOptions options,
-                                IPersona persona,
-                                IHttpClientProvider httpClientProvider,
-                                ILogger<AnthropicQueuedAgent> logger)
-        : base(world, options, persona, httpClientProvider, logger) {
-        _mapper = new(this);
-    }
-
+        AgentOptions,
+        ChatRequest,
+        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger) {
     public AnthropicQueuedAgent(IEnvironment environment,
-                                AnthropicAgentOptions options,
-                                IPersona persona,
+                                AgentOptions options,
+                                Persona persona,
+                                IMapper mapper,
                                 IHttpClientProvider httpClientProvider,
                                 ILogger<AnthropicQueuedAgent> logger)
-        : this(new World(environment), options, persona, httpClientProvider, logger) {
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
     }
-
-    protected override AnthropicChatRequest CreateRequest(IConsumer source, IChat chat)
-        => _mapper.CreateRequest(chat);
-
-    protected override Message CreateResponseMessage(IChat chat, AnthropicChatResponse response)
-        => _mapper.CreateResponseMessage(chat, response);
 }

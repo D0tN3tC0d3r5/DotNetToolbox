@@ -1,8 +1,8 @@
 namespace DotNetToolbox.AI.OpenAI.Model;
 
 public class ModelsHandlerTests {
-    private readonly OpenAIModelsHandler _modelsHandler;
-    private readonly ILogger<OpenAIModelsHandler> _logger;
+    private readonly ModelsHandler _modelsHandler;
+    private readonly ILogger<ModelsHandler> _logger;
     private readonly FakeHttpMessageHandler _httpMessageHandler;
 
     public ModelsHandlerTests() {
@@ -16,14 +16,14 @@ public class ModelsHandlerTests {
         httpClientProvider.GetHttpClient(Arg.Any<string?>(),
                                          Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
-        _logger = new TrackedNullLogger<OpenAIModelsHandler>();
+        _logger = new TrackedNullLogger<ModelsHandler>();
         _modelsHandler = new(httpClientProvider, _logger);
     }
 
     [Fact]
     public async Task Get_ReturnsModels() {
         // Arrange
-        var response = new OpenAIModelsResponse {
+        var response = new ModelsResponse {
             Data = [
                 new() {
                     Id = "ft:model1",

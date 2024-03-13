@@ -1,8 +1,8 @@
-﻿namespace DotNetToolbox.AI.Personas;
+﻿//namespace DotNetToolbox.AI.Personas;
 
-public interface IPersona {
-    string Name { get; }
-    string? Description { get; }
-    Profile Profile { get; }
-    List<Skill> Skills { get; }
-}
+//public interface Persona {
+//    string Name { get; }
+//    string? Description { get; }
+//    Profile Profile { get; }
+//    List<Skill> Skills { get; }
+//}

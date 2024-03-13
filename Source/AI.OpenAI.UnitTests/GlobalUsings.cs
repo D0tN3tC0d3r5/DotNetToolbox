@@ -20,4 +20,4 @@ global using Xunit;
 
 global using static System.Text.Json.JsonSerializer;
 
-global using static DotNetToolbox.AI.OpenAI.OpenAIAgentOptions;
+global using static DotNetToolbox.AI.OpenAI.AgentOptions;

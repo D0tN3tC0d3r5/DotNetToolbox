@@ -10,7 +10,7 @@ public class StateMachine : IConsumer {
     private readonly IApplication _app;
     private readonly MultipleChoicePrompt<uint> _mainMenu;
 
-    private readonly OpenAIDefaultAgent? _agent;
+    private readonly StandardAgent? _agent;
     private Chat? _chat;
     private readonly FileRepository _repository;
 
@@ -30,8 +30,8 @@ public class StateMachine : IConsumer {
         var world = new World(app.Environment);
         var persona = _repository.LoadPersona("TimeKeeper");
         var options = _repository.LoadAgentOptions("Fast");
-        var logger = loggerFactory.CreateLogger<OpenAIDefaultAgent>();
-        _agent = new OpenAIDefaultAgent(world, options, persona, httpClientProvider, logger);
+        var factory = new AgentFactory(world, httpClientProvider, loggerFactory);
+        _agent = factory.Create<StandardAgent>(options, persona);
     }
 
     public uint CurrentState { get; set; }

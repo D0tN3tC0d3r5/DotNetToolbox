@@ -1,42 +1,31 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class Agent<TAgent, TOptions, TApiRequest, TApiResponse>(
+public abstract class Agent<TAgent, TOptions, TRequest, TResponse>(
         World world,
         TOptions options,
-        IPersona persona,
+        Persona persona,
+        IMapper mapper,
         IHttpClientProvider httpClientProvider,
         ILogger<TAgent> logger)
     : IAgent<TOptions>
-    where TAgent : Agent<TAgent, TOptions, TApiRequest, TApiResponse>
+    where TAgent : Agent<TAgent, TOptions, TRequest, TResponse>
     where TOptions : class, IAgentOptions, new()
-    where TApiRequest : class
-    where TApiResponse : class {
+    where TRequest : class, IChatRequest
+    where TResponse : class, IChatResponse {
+    protected ILogger<TAgent> Logger = logger;
 
     public World World { get; } = world;
     public TOptions Options { get; set; } = IsValidOrDefault(options, new());
-    public IPersona Persona { get; } = persona;
-
-    protected ILogger<TAgent> Logger = logger;
-
-    protected virtual string CreateSystemMessage(IChat chat) {
-        var builder = new StringBuilder();
-        builder.AppendLine(World.ToString());
-        builder.AppendLine(Persona.Profile.ToString());
-        builder.AppendLine(Persona.Skills.ToString());
-        builder.AppendLine(chat.Instructions.ToString());
-        return builder.ToString();
-    }
+    public Persona Persona { get; } = persona;
 
     protected virtual Task<bool> IsRequestedCompleted(IConsumer source, IChat chat, CancellationToken ct)
         => Task.FromResult(true);
 
-    protected abstract TApiRequest CreateRequest(IConsumer source, IChat chat);
-    protected abstract Message CreateResponseMessage(IChat chat, TApiResponse response);
     public virtual async Task<HttpResult> HandleRequest(IConsumer source, IChat chat, CancellationToken ct) {
         var isCompleted = false;
         while (!isCompleted) {
             Logger.LogDebug("Sending request...");
-            var result = await Submit(source, chat, ct);
+            var result = await Submit(chat, ct);
             if (!result.IsOk) return result;
             Logger.LogDebug("Response received.");
             isCompleted = await IsRequestedCompleted(source, chat, ct);
@@ -46,16 +35,16 @@ public abstract class Agent<TAgent, TOptions, TApiRequest, TApiResponse>(
         return HttpResult.Ok();
     }
 
-    private async Task<HttpResult> Submit(IConsumer source, IChat chat, CancellationToken ct = default) {
-        var request = CreateRequest(source, chat);
+    private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
+        var request = mapper.CreateRequest(this, chat);
         var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions);
         var httpClient = httpClientProvider.GetHttpClient();
         var httpResult = await httpClient.PostAsync(Options.ApiEndpoint, content, ct).ConfigureAwait(false);
         try {
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var apiResponse = JsonSerializer.Deserialize<TApiResponse>(json, IAgentOptions.SerializerOptions)!;
-            var responseMessage = CreateResponseMessage(chat, apiResponse);
+            var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentOptions.SerializerOptions)!;
+            var responseMessage = mapper.CreateResponseMessage(chat, apiResponse);
             chat.Messages.Add(responseMessage);
             return HttpResult.Ok();
         }
