@@ -18,7 +18,7 @@ PM> Install-Package DotNetToolbox.FluentAssertions
 ```
 
 ### Dependencies
-- DotNetToolbox.TestUtilities >= 8.0.4-rc1
+- DotNetToolbox.TestUtilities >= 8.0.4
 - FluentAssertions >= 6.12.0
 
 ### Features

@@ -61,8 +61,8 @@
     <PackageReference Include="DotNetToolbox.Core" Version="8.0.5-rc1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.58.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.59.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.4.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
