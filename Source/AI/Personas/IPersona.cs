@@ -1,6 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Personas;
 
 public interface IPersona {
-    Profile Profile { get; set; }
-    List<Skill> Skills { get; set; }
+    string Name { get; }
+    string? Description { get; }
+    Profile Profile { get; }
+    List<Skill> Skills { get; }
 }

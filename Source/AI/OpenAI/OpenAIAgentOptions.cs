@@ -1,9 +1,10 @@
 ﻿namespace DotNetToolbox.AI.OpenAI;
 
-public class OpenAIAgentOptions(string apiEndpoint, string model, string? name)
+public class OpenAIAgentOptions(string apiEndpoint, string model)
     : IAgentOptions {
 
-    public OpenAIAgentOptions() : this(DefaultApiEndpoint, DefaultModel, null) {
+    [JsonConstructor]
+    public OpenAIAgentOptions() : this(DefaultApiEndpoint, DefaultModel) {
     }
 
     public const string DefaultApiEndpoint = "v1/chat/completions";
@@ -26,9 +27,8 @@ public class OpenAIAgentOptions(string apiEndpoint, string model, string? name)
     public const byte MinimumTokenProbabilityCutOff = 0;
     public const byte MaximumTokenProbabilityCutOff = 1;
 
-    public string? Name { get; } = name;
-    public string ApiEndpoint { get; } = apiEndpoint ?? DefaultApiEndpoint;
-    public string Model { get; } = model ?? DefaultModel;
+    public string ApiEndpoint { get; set; } = apiEndpoint ?? DefaultApiEndpoint;
+    public string Model { get; set; } = model ?? DefaultModel;
     public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;
     public decimal? Temperature { get; set; }
     public decimal? TokenProbabilityCutOff { get; set; }

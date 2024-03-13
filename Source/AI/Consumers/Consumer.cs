@@ -1,8 +1,6 @@
 ﻿namespace DotNetToolbox.AI.Consumers;
 
-public abstract class Consumer<TConsumer>(
-        IChat chat,
-        ILogger<TConsumer> logger)
+public abstract class Consumer<TConsumer>(IChat chat, ILogger<TConsumer> logger)
     : IConsumer
     where TConsumer : Consumer<TConsumer> {
 

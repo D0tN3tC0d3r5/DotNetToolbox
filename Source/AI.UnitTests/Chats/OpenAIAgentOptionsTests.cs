@@ -8,7 +8,6 @@ public class OpenAIAgentOptionsTests {
         var options = new OpenAIAgentOptions();
 
         // Assert
-        options.Name.Should().BeNull();
         options.Model.Should().Be(DefaultModel);
         options.ApiEndpoint.Should().Be(DefaultApiEndpoint);
         options.FrequencyPenalty.Should().BeNull();
@@ -27,7 +26,7 @@ public class OpenAIAgentOptionsTests {
     public void ConstructorWithValues_CreatesOptions() {
 
         // Act
-        var options = new OpenAIAgentOptions("SomeApiEndpoint", "SomeModel", "SomeName") {
+        var options = new OpenAIAgentOptions("SomeApiEndpoint", "SomeModel") {
             FrequencyPenalty = 1.5m,
             PresencePenalty = 1.1m,
             MaximumOutputTokens = 100_000,
@@ -42,7 +41,6 @@ public class OpenAIAgentOptionsTests {
         options.Tools.Add(new("MyFunction2", description: "This is my second custom function"));
 
         // Assert
-        options.Name.Should().Be("SomeName");
         options.Model.Should().Be("SomeModel");
         options.ApiEndpoint.Should().Be("SomeApiEndpoint");
         options.FrequencyPenalty.Should().Be(1.5m);

@@ -17,10 +17,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Agents\Concierge.json">
+    <None Update="Agents\Fast.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Agents\TimeKeeper.json">
+    <None Update="Personas\Concierge.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Personas\TimeKeeper.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
