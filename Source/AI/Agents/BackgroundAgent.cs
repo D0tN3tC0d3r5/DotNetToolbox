@@ -1,17 +1,17 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class BackgroundAgent<TRunner, TOptions, TApiRequest, TApiResponse>(
+public abstract class BackgroundAgent<TRunner, TOptions, TChatRequest, TChatResponse>(
         World world,
         TOptions options,
         IPersona persona,
         IHttpClientProvider httpClientProvider,
         ILogger<TRunner> logger)
-    : Agent<TRunner, TOptions, TApiRequest, TApiResponse>(world, options, persona, httpClientProvider, logger),
+    : Agent<TRunner, TOptions, TChatRequest, TChatResponse>(world, options, persona, httpClientProvider, logger),
       IBackgroundAgent
-    where TRunner : BackgroundAgent<TRunner, TOptions, TApiRequest, TApiResponse>
+    where TRunner : BackgroundAgent<TRunner, TOptions, TChatRequest, TChatResponse>
     where TOptions : class, IAgentOptions, new()
-    where TApiRequest : class
-    where TApiResponse : class {
+    where TChatRequest : class
+    where TChatResponse : class {
 
     // this should be a fire and forget method.
     // Use the cancellation token to stop the agent.

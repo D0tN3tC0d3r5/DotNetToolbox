@@ -8,29 +8,30 @@ public class StateMachine : IConsumer {
     private readonly IOutput _out;
     private readonly IPromptFactory _promptFactory;
     private readonly IApplication _app;
-    private readonly IHttpClientProvider _httpClientProvider;
     private readonly MultipleChoicePrompt<uint> _mainMenu;
-    private readonly World _world;
-    private readonly ILogger<OpenAIQueuedAgent> _runnerLogger;
 
-    private OpenAIQueuedAgent? _agent;
+    private readonly OpenAIDefaultAgent? _agent;
     private Chat? _chat;
     private readonly FileRepository _repository;
 
     public StateMachine(IApplication app, IHttpClientProvider httpClientProvider, ILoggerFactory loggerFactory) {
         _app = app;
-        _httpClientProvider = httpClientProvider;
-        _runnerLogger = loggerFactory.CreateLogger<OpenAIQueuedAgent>();
         _out = app.Environment.Output;
         _promptFactory = app.PromptFactory;
-        _world = new(app.Environment);
         _mainMenu = _promptFactory.CreateMultipleChoiceQuestion("What do you want to do?", opt => {
             opt.AddOption(2, "Create a new chat", true);
             opt.AddOption(3, "Continue a existing chat", true);
             opt.AddOption(4, "Delete an existing chat", true);
             opt.AddOption(5, "Exit", true);
         });
+
         _repository = new(app.Environment.FileSystem);
+
+        var world = new World(app.Environment);
+        var persona = _repository.LoadPersona("TimeKeeper");
+        var options = _repository.LoadAgentOptions("Fast");
+        var logger = loggerFactory.CreateLogger<OpenAIDefaultAgent>();
+        _agent = new OpenAIDefaultAgent(world, options, persona, httpClientProvider, logger);
     }
 
     public uint CurrentState { get; set; }
@@ -57,16 +58,13 @@ public class StateMachine : IConsumer {
         return Process(string.Empty, ct);
     }
 
-    private async Task Start(CancellationToken ct) {
+    private Task Start(CancellationToken _) {
         try {
-            var persona = await _repository.LoadPersona("TimeKeeper", ct);
-            var options = await _repository.LoadAgentOptions("Fast", ct);
-            _agent = new(_world, options, persona, _httpClientProvider, _runnerLogger);
-            _agent.Run(ct);
             _chat = new(_app.Environment);
-            await _repository.SaveChat(_chat, ct);
-            _out.WriteLine("BackgroundAgent started.");
+            _repository.SaveChat(_chat);
+            _out.WriteLine("New chat started.");
             CurrentState = Idle;
+            return Task.CompletedTask;
         }
         catch (Exception ex) {
             Console.WriteLine(ex);
@@ -79,42 +77,44 @@ public class StateMachine : IConsumer {
         return Task.CompletedTask;
     }
 
-    private async Task Resume(CancellationToken ct) {
+    private Task Resume(CancellationToken _) {
         var chatIds = _repository.ListChats();
         if (chatIds.Length == 0) {
             _out.WriteLine("No chat found.");
             CurrentState = 1;
-            return;
+            return Task.CompletedTask;
         }
 
         var chatId = SelectChat("Select a chat to resume:", chatIds);
         if (chatId == string.Empty) {
             CurrentState = 1;
-            return;
+            return Task.CompletedTask;
         }
 
-        _chat = await _repository.LoadChat(chatId, ct);
+        _chat = _repository.LoadChat(chatId);
         _out.WriteLine($"Resuming chat '{chatId}'.");
         CurrentState = Idle;
+        return Task.CompletedTask;
     }
 
-    private async Task Finish(CancellationToken ct) {
+    private Task Finish(CancellationToken _) {
         var chatIds = _repository.ListChats();
         if (chatIds.Length == 0) {
             _out.WriteLine("No chat found.");
             CurrentState = 1;
-            return;
+            return Task.CompletedTask;
         }
 
         var chatId = SelectChat("Select a chat to delete permanently:", chatIds);
         if (chatId == string.Empty) {
             CurrentState = 1;
-            return;
+            return Task.CompletedTask;
         }
 
-        await _repository.DeleteChat(chatId, ct);
+        _repository.DeleteChat(chatId);
         _out.WriteLine($"chat '{chatId}' cancelled.");
         CurrentState = 1;
+        return Task.CompletedTask;
     }
 
     private string SelectChat(string question, IEnumerable<string> items) {
@@ -131,15 +131,17 @@ public class StateMachine : IConsumer {
         _out.Write("- ");
         _chat!.Messages.Add(new("user", input));
         _waitingResponse = true;
-        await _repository.SaveChat(_chat, ct);
+        _repository.SaveChat(_chat);
         await _agent.HandleRequest(this, _chat, ct);
         while (_waitingResponse) await Task.Delay(100, ct);
+        CurrentState = Idle;
     }
 
-    public async Task ProcessResponse(string chatId, Message response, CancellationToken ct) {
-        if (_chat is null || _chat.Id != chatId) return;
+    public Task ProcessResponse(string chatId, Message response, CancellationToken _) {
+        if (_chat is null || _chat.Id != chatId) return Task.CompletedTask;
         foreach (var part in response.Parts) _out.WriteLine(part.Value);
-        await _repository.SaveChat(_chat, ct);
+        _repository.SaveChat(_chat);
         _waitingResponse = false;
+        return Task.CompletedTask;
     }
 }

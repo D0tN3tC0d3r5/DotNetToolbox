@@ -29,17 +29,17 @@ public abstract class QueuedAgent<TRunner, TOptions, TApiRequest, TApiResponse>(
         => base.HandleRequest(package.Source, package.Chat, ct);
 }
 
-//public abstract class QueuedRunner2<TRunner, TOptions, TApiRequest, TApiResponse>(
+//public abstract class QueuedRunner2<TRunner, TOptions, TChatRequest, TChatResponse>(
 //        IAgent agent,
 //        World world,
 //        IHttpClientProvider httpClientProvider,
 //        ILogger<TRunner> logger)
-//    : BackgroundAgent<TRunner, TOptions, TApiRequest, TApiResponse>(agent, world, httpClientProvider, logger),
+//    : BackgroundAgent<TRunner, TOptions, TChatRequest, TChatResponse>(agent, world, httpClientProvider, logger),
 //      IBackgroundAgent
-//    where TRunner : QueuedRunner2<TRunner, TOptions, TApiRequest, TApiResponse>
+//    where TRunner : QueuedRunner2<TRunner, TOptions, TChatRequest, TChatResponse>
 //    where TOptions : class, IAgentOptions, new()
-//    where TApiRequest : class
-//    where TApiResponse : class {
+//    where TChatRequest : class
+//    where TChatResponse : class {
 //    private readonly Queue<RequestPackage> _receivedRequests = [];
 //    private readonly Queue<ResponsePackage> _receivedResponses = [];
 

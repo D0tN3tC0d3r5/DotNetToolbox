@@ -6,16 +6,16 @@ public abstract class Agent<TAgent, TOptions, TApiRequest, TApiResponse>(
         IPersona persona,
         IHttpClientProvider httpClientProvider,
         ILogger<TAgent> logger)
-    : IAgent
+    : IAgent<TOptions>
     where TAgent : Agent<TAgent, TOptions, TApiRequest, TApiResponse>
     where TOptions : class, IAgentOptions, new()
     where TApiRequest : class
     where TApiResponse : class {
 
-    public IPersona Persona { get; } = persona;
-    IAgentOptions IAgent.Options => Options;
+    public World World { get; } = world;
     public TOptions Options { get; set; } = IsValidOrDefault(options, new());
-    protected World World { get; } = world;
+    public IPersona Persona { get; } = persona;
+
     protected ILogger<TAgent> Logger = logger;
 
     protected virtual string CreateSystemMessage(IChat chat) {
@@ -31,7 +31,7 @@ public abstract class Agent<TAgent, TOptions, TApiRequest, TApiResponse>(
         => Task.FromResult(true);
 
     protected abstract TApiRequest CreateRequest(IConsumer source, IChat chat);
-    protected abstract Message CreateResponse(IChat chat, TApiResponse response);
+    protected abstract Message CreateResponseMessage(IChat chat, TApiResponse response);
     public virtual async Task<HttpResult> HandleRequest(IConsumer source, IChat chat, CancellationToken ct) {
         var isCompleted = false;
         while (!isCompleted) {
@@ -55,7 +55,7 @@ public abstract class Agent<TAgent, TOptions, TApiRequest, TApiResponse>(
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var apiResponse = JsonSerializer.Deserialize<TApiResponse>(json, IAgentOptions.SerializerOptions)!;
-            var responseMessage = CreateResponse(chat, apiResponse);
+            var responseMessage = CreateResponseMessage(chat, apiResponse);
             chat.Messages.Add(responseMessage);
             return HttpResult.Ok();
         }

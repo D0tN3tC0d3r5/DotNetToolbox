@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>3d759408-1744-4bfe-9c4d-a88419ec7339</UserSecretsId>
+    <RootNamespace>DotNetToolbox.Sophia</RootNamespace>
+    <AssemblyName>sophia</AssemblyName>
+    <ProductName>DotNetToolbox.Sophia</ProductName>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <Version>0.1.0</Version>
+    <VersionSufix>alpha</VersionSufix>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>sophia</ToolCommandName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="Agents\Fast.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Personas\Concierge.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Personas\TimeKeeper.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\CancelAlarm.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\GetDateTime.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\GetDateRangeDetails.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\SetAlarm.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(ProductName).UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AI.OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
+    <ProjectReference Include="..\Console\DotNetToolbox.Console.csproj" />
+  </ItemGroup>
+
+</Project>

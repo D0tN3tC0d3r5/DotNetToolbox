@@ -51,7 +51,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI", "AI\DotN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.UnitTests", "AI.UnitTests\DotNetToolbox.AI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Sophia", "AI.Sophia\DotNetToolbox.AI.Sophia.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Sophia", "AI.Sophia\DotNetToolbox.Sophia.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
 EndProject
@@ -82,6 +82,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities.UnitTests", "TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj", "{069556EA-B66F-4176-8F24-5092B1A1183A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions.UnitTests", "FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj", "{CCD73170-0753-468E-A633-5BA56D44C634}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Anthropic", "AI.Anthropic\DotNetToolbox.AI.Anthropic.csproj", "{D35099E2-30D7-454F-B947-7D0FC27EF782}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.OpenAI", "AI.OpenAI\DotNetToolbox.AI.OpenAI.csproj", "{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.AI.OpenAI.UnitTests", "AI.OpenAI.UnitTests\DotNetToolbox.AI.OpenAI.UnitTests.csproj", "{B55944F2-9B31-4C01-8CFC-0529DDE05814}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -170,6 +176,18 @@ Global
 		{CCD73170-0753-468E-A633-5BA56D44C634}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCD73170-0753-468E-A633-5BA56D44C634}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCD73170-0753-468E-A633-5BA56D44C634}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D35099E2-30D7-454F-B947-7D0FC27EF782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D35099E2-30D7-454F-B947-7D0FC27EF782}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D35099E2-30D7-454F-B947-7D0FC27EF782}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D35099E2-30D7-454F-B947-7D0FC27EF782}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -198,6 +216,9 @@ Global
 		{7B5CE993-A346-4550-B2CD-6C18889DB7B3} = {56746752-64B7-48C0-A8C2-3F3390F35E77}
 		{069556EA-B66F-4176-8F24-5092B1A1183A} = {56746752-64B7-48C0-A8C2-3F3390F35E77}
 		{CCD73170-0753-468E-A633-5BA56D44C634} = {56746752-64B7-48C0-A8C2-3F3390F35E77}
+		{D35099E2-30D7-454F-B947-7D0FC27EF782} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}

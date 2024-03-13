@@ -16,41 +16,39 @@ public class FileRepository(IFileSystem io) {
     public string[] ListChats()
         => GetFolders(_chatsFolder);
 
-    public ValueTask<Persona> LoadPersona(string name, CancellationToken ct)
-        => LoadFile<Persona>(_personasFolder, name, ct);
-    public ValueTask<OpenAIAgentOptions> LoadAgentOptions(string name, CancellationToken ct)
-        => LoadFile<OpenAIAgentOptions>(_agentsFolder, name, ct);
-    public ValueTask<Skill> LoadSkill(string name, CancellationToken ct)
-        => LoadFile<Skill>(_skillsFolder, name, ct);
+    public Persona LoadPersona(string name)
+        => LoadFile<Persona>(_personasFolder, name);
+    public OpenAIAgentOptions LoadAgentOptions(string name)
+        => LoadFile<OpenAIAgentOptions>(_agentsFolder, name);
+    public Skill LoadSkill(string name)
+        => LoadFile<Skill>(_skillsFolder, name);
 
-    public ValueTask<Chat> LoadChat(string id, CancellationToken ct)
-        => LoadFile<Chat>(io.CombinePath(_chatsFolder, id), "chat", ct);
-    public Task SaveChat(Chat chat, CancellationToken ct)
-        => SaveFile(chat, io.CombinePath(_chatsFolder, chat.Id), "chat", ct);
-    public Task DeleteChat(string id, CancellationToken ct)
-        => DeleteFolder(io.CombinePath(_chatsFolder, id), ct);
+    public Chat LoadChat(string id)
+        => LoadFile<Chat>(io.CombinePath(_chatsFolder, id), "chat");
+    public void SaveChat(Chat chat)
+        => SaveFile(chat, io.CombinePath(_chatsFolder, chat.Id), "chat");
+    public void DeleteChat(string id)
+        => DeleteFolder(io.CombinePath(_chatsFolder, id));
 
     private string[] GetFolders(string path)
         => io.GetFolders(path).ToArray();
 
-    private async Task SaveFile<TData>(TData data, string path, string name, CancellationToken ct)
+    private void SaveFile<TData>(TData data, string path, string name)
         where TData : class {
         io.CreateFolder(path);
-        await using var file = GetFile(path, name);
-        await JsonSerializer.SerializeAsync(file, data, _fileSerializationOptions, ct);
+        using var file = GetFile(path, name);
+        JsonSerializer.Serialize(file, data, _fileSerializationOptions);
     }
 
-    private async ValueTask<TData> LoadFile<TData>(string path, string name, CancellationToken ct)
+    private TData LoadFile<TData>(string path, string name)
         where TData : class {
-        await using var file = GetFile(path, name);
-        var content = await JsonSerializer.DeserializeAsync<TData>(file, _fileSerializationOptions, ct);
+        using var file = GetFile(path, name);
+        var content = JsonSerializer.Deserialize<TData>(file, _fileSerializationOptions);
         return content ?? throw new InvalidOperationException($"Failed to load {name} from {path}.");
     }
 
-    private Task DeleteFolder(string path, CancellationToken _) {
-        io.DeleteFolder(path, true);
-        return Task.CompletedTask;
-    }
+    private void DeleteFolder(string path)
+        => io.DeleteFolder(path, true);
 
     private Stream GetFile(string path, string name) {
         io.CreateFolder(path);
