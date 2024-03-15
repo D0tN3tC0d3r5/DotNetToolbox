@@ -9,12 +9,16 @@ public interface IApplication : IHasChildren {
     string AssemblyName { get; }
     string FullName { get; }
     IServiceProvider Services { get; }
+    IConfigurationRoot Configuration { get; }
 
     void Exit(int exitCode = DefaultExitCode);
 }
 
-public interface IApplication<out TApplication, out TBuilder>
-    : IApplication, IAsyncDisposable
+public interface IApplication<TApplication, out TBuilder>
+    : IApplication,
+      IBuilderCreator<TApplication, TBuilder>,
+      IApplicationCreator<TApplication, TBuilder>,
+      IAsyncDisposable
     where TApplication : class, IApplication<TApplication, TBuilder>
     where TBuilder : class, IApplicationBuilder<TApplication, TBuilder> {
 

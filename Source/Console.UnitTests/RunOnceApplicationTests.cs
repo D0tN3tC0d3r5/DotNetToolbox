@@ -62,32 +62,36 @@ public class RunOnceApplicationTests {
     [Fact]
     public void Create_WithConfig_CreatesRunOnceApplication() {
         // Arrange & Act
-        var wasCalled = false;
-        var app = RunOnceApplication.Create(_ => wasCalled = true);
+        var setConfigCalled = false;
+        var configBuilderCalled = false;
+        var app = RunOnceApplication.Create(_ => setConfigCalled = true, _ => configBuilderCalled = true);
 
         // Assert
         app.Should().BeOfType<RunOnceApplication>();
-        wasCalled.Should().BeTrue();
+        setConfigCalled.Should().BeTrue();
+        configBuilderCalled.Should().BeTrue();
     }
 
     [Fact]
     public void Create_WithArgsAndConfig_CreatesRunOnceApplication() {
         // Arrange
-        var wasCalled = false;
+        var setConfigCalled = false;
+        var configBuilderCalled = false;
         string[] args = ["arg1", "arg2"];
 
         // Act
-        var app = RunOnceApplication.Create(args, _ => wasCalled = true);
+        var app = RunOnceApplication.Create(args, _ => setConfigCalled = true, _ => configBuilderCalled = true);
 
         // Assert
         app.Should().BeOfType<RunOnceApplication>();
-        wasCalled.Should().BeTrue();
+        setConfigCalled.Should().BeTrue();
+        configBuilderCalled.Should().BeTrue();
     }
 
     [Fact]
     public void Create_SetEnvironment_CreatesRunOnceApplication() {
         // Arrange & Act
-        var app = RunOnceApplication.Create(b => b.SetEnvironment("Development"));
+        var app = RunOnceApplication.Create(["--environment", "Development"]);
 
         // Assert
         app.Should().BeOfType<RunOnceApplication>();
@@ -111,10 +115,7 @@ public class RunOnceApplicationTests {
         var fileProvider = new TestFileProvider();
 
         // Act
-        var app = RunOnceApplication.Create(b => {
-            b.SetEnvironment("Development");
-            b.AddAppSettings(fileProvider);
-        });
+        var app = RunOnceApplication.Create(["-env", "Development"], b => b.AddAppSettings(fileProvider));
 
         // Assert
         app.Should().BeOfType<RunOnceApplication>();

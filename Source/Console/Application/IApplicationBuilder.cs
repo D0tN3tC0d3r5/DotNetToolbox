@@ -1,17 +1,22 @@
-﻿namespace DotNetToolbox.ConsoleApplication.Application;
+﻿
+namespace DotNetToolbox.ConsoleApplication.Application;
+
+public interface IApplicationBuilder {
+    IServiceCollection Services { get; }
+    IConfigurationRoot Configuration { get; }
+
+    void SetDateTimeProvider(IDateTimeProvider dateTimeProvider);
+    void SetAssemblyInformation(IAssemblyDescriptor assemblyDescriptor);
+    void SetInputHandler(IInput input);
+    void SetOutputHandler(IOutput output);
+    void SetFileSystem(IFileSystem fileSystem);
+    void SetGuidProvider(IGuidProvider guidProvider);
+    void ConfigureLogging(Action<ILoggingBuilder> configure);
+}
 
 public interface IApplicationBuilder<out TApplication, out TBuilder>
+    : IApplicationBuilder
     where TApplication : class, IApplication<TApplication, TBuilder>
     where TBuilder : class, IApplicationBuilder<TApplication, TBuilder> {
-    TBuilder SetEnvironment(string environment);
-
-    //TBuilder SetConfigurationSectionName(string sectionName);
-
-    TBuilder AddEnvironmentVariables(string? prefix);
-    TBuilder AddAppSettings(IFileProvider? fileProvider = null);
-    TBuilder AddUserSecrets<TReference>() where TReference : class;
-
-    TBuilder ConfigureLogging(Action<ILoggingBuilder> configure);
-
     TApplication Build();
 }

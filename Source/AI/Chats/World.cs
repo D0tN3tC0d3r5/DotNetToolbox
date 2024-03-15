@@ -1,9 +1,10 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
-public class World(IEnvironment? environment = null) {
+public class World(IEnvironment? environment = null)
+    : IValidatable {
     public DateTimeOffset DateTime => environment?.DateTime.Now ?? DateTimeOffset.Now;
     public string? Location { get; set; } = string.Empty;
-    public string UserName { get; set; } = string.Empty;
+    public string? UserName { get; set; } = string.Empty;
     public List<Information> CustomValues { get; set; } = [];
     public List<Skill> Skills { get; set; } = [];
 
@@ -18,4 +19,7 @@ public class World(IEnvironment? environment = null) {
             builder.AppendLine(information.ToString());
         return builder.ToString();
     }
+
+    public Result Validate(IDictionary<string, object?>? context = null)
+        => Result.Success();
 }

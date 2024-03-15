@@ -1,0 +1,385 @@
+---------------------------------------------------------------------------------------- 
+AgentFactory.cs 
+﻿namespace DotNetToolbox.AI.Anthropic;
+
+public class AgentFactory(World world, IHttpClientProvider httpClientProvider, ILoggerFactory loggerFactory)
+    : IAgentFactory {
+    TAgent IAgentFactory.CreateAgent<TAgent>(IAgentOptions options, Persona persona)
+        => options is not AgentOptions ao
+               ? throw new ArgumentException("Invalid options type.", nameof(options))
+               : CreateAgent<TAgent>(ao, persona);
+
+    public TAgent CreateAgent<TAgent>(AgentOptions options, Persona persona)
+        => CreateInstance.Of<TAgent>(world, options, persona, httpClientProvider, loggerFactory.CreateLogger<TAgent>());
+}
+ 
+---------------------------------------------------------------------------------------- 
+AgentOptions.cs 
+﻿namespace DotNetToolbox.AI.Anthropic;
+
+public class AgentOptions(string apiEndpoint, string model, string? name)
+    : IAgentOptions {
+    public AgentOptions() : this(DefaultApiEndpoint, DefaultModel, null) {
+    }
+
+    public const string DefaultApiEndpoint = "v1/messages";
+    public const string DefaultModel = "claude-2.1";
+    public const byte MinimumTemperature = 0;
+    public const byte MaximumTemperature = 2;
+    public const byte MinimumTokenProbabilityCutOff = 0;
+    public const byte MaximumTokenProbabilityCutOff = 1;
+
+    public string? Name { get; set; } = name;
+    public string ApiEndpoint { get; set; } = apiEndpoint;
+    public string Model { get; set; } = model;
+    public uint MaximumOutputTokens { get; set; }
+    public decimal? Temperature { get; set; }
+    public decimal? TokenProbabilityCutOff { get; set; }
+    public HashSet<string> StopSequences { get; set; } = [];
+    public bool UseStreaming { get; set; }
+
+    public uint? MaximumTokensToSample { get; set; }
+
+    public Result Validate(IDictionary<string, object?>? context = null) {
+        var result = Result.Success();
+        if (StopSequences.Count > 0 && StopSequences.Any(string.IsNullOrWhiteSpace))
+            result += new ValidationError("Stop signals cannot be null, empty, or contain only whitespace.", nameof(StopSequences));
+
+        if (Temperature is < MinimumTemperature or > MaximumTemperature)
+            result += new ValidationError($"Value must be between {MinimumTemperature} and {MinimumTemperature}. Found: {Temperature}", nameof(Temperature));
+
+        if (TokenProbabilityCutOff is < MinimumTokenProbabilityCutOff or > MaximumTokenProbabilityCutOff)
+            result += new ValidationError($"Value must be between {MinimumTokenProbabilityCutOff} and {MaximumTokenProbabilityCutOff}. Found: {TokenProbabilityCutOff}", nameof(TokenProbabilityCutOff));
+
+        return result;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+AnthropicQueuedAgent.cs 
+﻿namespace DotNetToolbox.AI.Anthropic;
+
+public class AnthropicQueuedAgent(World world,
+                                  AgentOptions options,
+                                  Persona persona,
+                                  IMapper mapper,
+                                  IHttpClientProvider httpClientProvider,
+                                  ILogger<AnthropicQueuedAgent> logger)
+    : QueuedAgent<
+        AnthropicQueuedAgent,
+        AgentOptions,
+        ChatRequest,
+        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger) {
+    public AnthropicQueuedAgent(IEnvironment environment,
+                                AgentOptions options,
+                                Persona persona,
+                                IMapper mapper,
+                                IHttpClientProvider httpClientProvider,
+                                ILogger<AnthropicQueuedAgent> logger)
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+BackgroundAgent.cs 
+﻿namespace DotNetToolbox.AI.Anthropic;
+
+public class BackgroundAgent(World world,
+                                      AgentOptions options,
+                                      Persona persona,
+                                      IMapper mapper,
+                                      IHttpClientProvider httpClientProvider,
+                                      ILogger<BackgroundAgent> logger)
+    : BackgroundAgent<
+        BackgroundAgent,
+        AgentOptions,
+        ChatRequest,
+        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger) {
+    public BackgroundAgent(IEnvironment environment,
+                                    AgentOptions options,
+                                    Persona persona,
+                                    IMapper mapper,
+                                    IHttpClientProvider httpClientProvider,
+                                    ILogger<BackgroundAgent> logger)
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+GlobalUsings.cs 
+// Global using directives
+
+global using System.Text;
+global using System.Text.Json.Serialization;
+
+global using DotNetToolbox.AI.Agents;
+global using DotNetToolbox.AI.Anthropic;
+global using DotNetToolbox.AI.Anthropic.Chat;
+global using DotNetToolbox.AI.Chats;
+global using DotNetToolbox.AI.Consumers;
+global using DotNetToolbox.AI.Personas;
+global using DotNetToolbox.Collections.Generic;
+global using DotNetToolbox.Http;
+global using DotNetToolbox.Http.Extensions;
+global using DotNetToolbox.Http.Options;
+global using DotNetToolbox.Results;
+
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+
+global using static DotNetToolbox.Ensure;
+ 
+---------------------------------------------------------------------------------------- 
+Mapper.cs 
+﻿namespace DotNetToolbox.AI.Anthropic;
+
+internal class Mapper : IMapper {
+    IChatRequest IMapper.CreateRequest(IAgent agent, IChat chat) => CreateRequest((IAgent<AgentOptions>)agent, chat);
+    public static ChatRequest CreateRequest(IAgent<AgentOptions> agent, IChat chat)
+        => new() {
+                     Model = agent.Options.Model,
+                     Temperature = agent.Options.Temperature,
+                     MaximumOutputTokens = agent.Options.MaximumOutputTokens,
+                     StopSequences = agent.Options.StopSequences.Count == 0 ? null : [.. agent.Options.StopSequences],
+                     MinimumTokenProbability = agent.Options.TokenProbabilityCutOff,
+                     UseStreaming = agent.Options.UseStreaming,
+
+                     Messages = chat.Messages.ToArray(o => new RequestMessage(o)),
+
+                     MaximumTokenSamples = agent.Options.MaximumTokensToSample,
+                     System = CreateSystemMessage(agent, chat),
+                 };
+
+    private static string CreateSystemMessage(IAgent<AgentOptions> agent, IChat chat) {
+        var builder = new StringBuilder();
+        builder.AppendLine(agent.World.ToString());
+        builder.AppendLine(agent.Persona.Profile.ToString());
+        builder.AppendLine(agent.Persona.Skills.ToString());
+        builder.AppendLine(chat.Instructions.ToString());
+        return builder.ToString();
+    }
+
+    Message IMapper.CreateResponseMessage(IChat chat, IChatResponse response)
+        => CreateResponseMessage(chat, (ChatResponse)response);
+    public static Message CreateResponseMessage(IChat chat, ChatResponse response) {
+        chat.TotalTokens += (uint)(response.Usage.InputTokens + response.Usage.OutputTokens);
+        return new("assistant", response.Completion.ToArray(i => new MessagePart(i.Type, ((object?)i.Text ?? i.Image)!)));
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+ServiceCollectionExtensions.cs 
+﻿using DotNetToolbox.AI.Anthropic.Http;
+
+namespace DotNetToolbox.AI.Anthropic;
+
+public static class ServiceCollectionExtensions {
+    public static IServiceCollection AddAnthropic(this IServiceCollection services, IConfiguration configuration) {
+        services.AddAI<AgentHttpClientProvider, AgentFactory>(configuration);
+        return services;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+StandardAgent.cs 
+﻿namespace DotNetToolbox.AI.Anthropic;
+
+public class StandardAgent(World world,
+                            AgentOptions options,
+                            Persona persona,
+                            IMapper mapper,
+                            IHttpClientProvider httpClientProvider,
+                            ILogger<StandardAgent> logger)
+    : StandardAgent<StandardAgent>(world, options, persona, mapper, httpClientProvider, logger) {
+
+    public StandardAgent(IEnvironment environment,
+                                 AgentOptions options,
+                                 Persona persona,
+                                 IMapper mapper,
+                                 IHttpClientProvider httpClientProvider,
+                                 ILogger<StandardAgent> logger)
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+    }
+}
+
+public abstract class StandardAgent<TAgent>(World world,
+                                             AgentOptions options,
+                                             Persona persona,
+                                             IMapper mapper,
+                                             IHttpClientProvider httpClientProvider,
+                                             ILogger<TAgent> logger)
+    : Agent<TAgent,
+        AgentOptions,
+        ChatRequest,
+        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger)
+    where TAgent : StandardAgent<TAgent> {
+    protected StandardAgent(IEnvironment environment,
+                             AgentOptions options,
+                             Persona persona,
+                             IMapper mapper,
+                             IHttpClientProvider httpClientProvider,
+                             ILogger<TAgent> logger)
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatMetadata.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Chat;
+
+public class ChatMetadata {
+    [JsonPropertyName("user_id")]
+    public string? UserId { get; set; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatRequest.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Chat;
+public class ChatRequest : IChatRequest {
+    [JsonPropertyName("model")]
+    public required string Model { get; init; }
+    [JsonPropertyName("messages")]
+    public required RequestMessage[] Messages { get; init; }
+    [JsonPropertyName("max_tokens")]
+    public required uint MaximumOutputTokens { get; init; }
+    [JsonPropertyName("system")]
+    public required string System { get; set; }
+    [JsonPropertyName("metadata")]
+    public ChatMetadata? Metadata { get; set; }
+    [JsonPropertyName("stop_sequences")]
+    public string[]? StopSequences { get; set; }
+    [JsonPropertyName("stream")]
+    public bool? UseStreaming { get; set; }
+    [JsonPropertyName("temperature")]
+    public decimal? Temperature { get; set; }
+    [JsonPropertyName("top_p")]
+    public decimal? MinimumTokenProbability { get; set; }
+
+    [JsonPropertyName("top_k")]
+    public decimal? MaximumTokenSamples { get; set; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatResponse.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Chat;
+
+public class ChatResponse(string id) : IChatResponse {
+    [JsonPropertyName("id")]
+    public string Id { get; init; } = id;
+    [JsonPropertyName("model")]
+    public string? Model { get; init; }
+    [JsonPropertyName("completion")]
+    public required MessageContent[] Completion { get; set; }
+    [JsonPropertyName("stop_reason")]
+    public required string StopReason { get; init; }
+    [JsonPropertyName("stop_sequence")]
+    public required string StopSequence { get; init; }
+    [JsonPropertyName("usage")]
+    public required Usage Usage { get; init; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ImageData.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Chat;
+
+public class ImageData {
+    [JsonPropertyName("type")]
+    public required string Type { get; init; }
+
+    [JsonPropertyName("media_type")]
+    public required string MediaType { get; init; }
+
+    [JsonPropertyName("data")]
+    public required string Data { get; init; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\MessageContent.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Chat;
+
+public class MessageContent {
+    public MessageContent(object value) {
+        Text = value as string;
+        Image = value as ImageData;
+        Type = Text is null ? "image" : "text";
+    }
+
+    [JsonPropertyName("type")]
+    public string Type { get; init; }
+    [JsonPropertyName("text")]
+    public string? Text { get; init; }
+    [JsonPropertyName("image")]
+    public ImageData? Image { get; init; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\RequestMessage.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Chat;
+
+public class RequestMessage {
+    public RequestMessage(object content) {
+        switch (content) {
+            case Message c:
+                Role = c.Role;
+                Content = c.Parts.ToArray(p => new MessageContent(p));
+                break;
+            default:
+                throw new NotSupportedException();
+        }
+    }
+    [JsonPropertyName("role")]
+    public string Role { get; init; }
+    [JsonPropertyName("content")]
+    public object Content { get; init; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ResponseMessage.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Chat;
+
+public class ResponseMessage {
+    [JsonPropertyName("content")]
+    public required MessageContent[] Content { get; set; } = [];
+
+    [JsonPropertyName("finish_reason")]
+    public string StopReason { get; set; } = string.Empty;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\Usage.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Chat;
+
+public record Usage {
+    [JsonPropertyName("input_tokens")]
+    public int InputTokens { get; init; }
+    [JsonPropertyName("output_tokens")]
+    public int OutputTokens { get; init; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Http\AgentHttpClientOptions.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Http;
+
+public class AgentHttpClientOptions : HttpClientOptions {
+    public override Uri? BaseAddress { get; set; } = new("https://api.anthropic.com");
+}
+ 
+---------------------------------------------------------------------------------------- 
+Http\AgentHttpClientProvider.cs 
+﻿namespace DotNetToolbox.AI.Anthropic.Http;
+
+public class AgentHttpClientProvider(IHttpClientFactory clientFactory, IConfiguration configuration, IOptions<AgentHttpClientOptions> options)
+    : HttpClientProvider(clientFactory, options) {
+    protected override HttpClient CreateHttpClient() {
+        var builder = new HttpClientOptionsBuilder(Options);
+        var apiKey = IsNotNull(configuration["Anthropic:ApiKey"]);
+        builder.UseApiKeyAuthentication(apiKey);
+        builder.AddCustomHeader("MessageContent-Role", "application/json");
+        Options = builder.Build();
+        return base.CreateHttpClient();
+    }
+}
+ 

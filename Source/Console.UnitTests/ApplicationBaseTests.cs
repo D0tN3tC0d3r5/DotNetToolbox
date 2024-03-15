@@ -6,7 +6,6 @@ public class ApplicationBaseTests {
     [Fact]
     public void Create_WhenCreationFails_Throws() {
         // Arrange & Act
-        var serviceProvider = CreateFakeServiceProvider();
         var app = TestApplication.Create(b => b.ConfigureLogging(l => l.SetMinimumLevel(LogLevel.Information)));
 
         // Assert
@@ -80,18 +79,20 @@ public class ApplicationBaseTests {
     [Fact]
     public void Create_WithConfig_CreatesTestApplication() {
         // Arrange & Act
-        var wasCalled = false;
-        var app = TestApplication.Create(_ => wasCalled = true);
+        var setConfigCalled = false;
+        var configBuilderCalled = false;
+        var app = TestApplication.Create(_ => setConfigCalled = true, _ => configBuilderCalled = true);
 
         // Assert
         app.Should().BeOfType<TestApplication>();
-        wasCalled.Should().BeTrue();
+        setConfigCalled.Should().BeTrue();
+        configBuilderCalled.Should().BeTrue();
     }
 
     [Fact]
     public void Create_SetEnvironment_CreatesTestApplication() {
         // Arrange & Act
-        var app = TestApplication.Create(b => b.SetEnvironment("Development"));
+        var app = TestApplication.Create(["--environment", "Development"]);
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -115,10 +116,7 @@ public class ApplicationBaseTests {
         var fileProvider = new TestFileProvider();
 
         // Act
-        var app = TestApplication.Create(b => {
-            b.SetEnvironment("Development");
-            b.AddAppSettings(fileProvider);
-        });
+        var app = TestApplication.Create(["-env", "Development"], b => b.AddAppSettings(fileProvider));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -599,9 +597,7 @@ public class ApplicationBaseTests {
     private class TestApplication(string[] args, IServiceProvider serviceProvider)
         : ApplicationBase<TestApplication, TestApplicationBuilder>(args, serviceProvider) {
         internal override Task Run(CancellationToken ct = default)
-            => OnStart(ct);
-
-        protected virtual Task<Result> OnStart(CancellationToken ct = default) => Result.SuccessTask();
+            => Result.SuccessTask();
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.

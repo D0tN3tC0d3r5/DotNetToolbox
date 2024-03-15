@@ -1,14 +1,12 @@
-﻿namespace DotNetToolbox.ConsoleApplication;
+﻿using IConfigurationBuilder = DotNetToolbox.ConsoleApplication.Application.IConfigurationBuilder;
 
-public class RunOnceApplicationBuilder<TApplication>
-    : RunOnceApplicationBuilder<TApplication, RunOnceApplicationBuilder<TApplication>>
-    where TApplication : RunOnceApplication<TApplication> {
-    internal RunOnceApplicationBuilder(string[] args)
-        : base(args) {
-    }
-}
+namespace DotNetToolbox.ConsoleApplication;
 
-public abstract class RunOnceApplicationBuilder<TApplication, TBuilder>(string[] args)
-    : ApplicationBuilder<TApplication, TBuilder>(args)
+public class RunOnceApplicationBuilder<TApplication>(string[] args, Action<IConfigurationBuilder>? configure = null)
+    : RunOnceApplicationBuilder<TApplication, RunOnceApplicationBuilder<TApplication>>(args, configure)
+    where TApplication : RunOnceApplication<TApplication>;
+
+public abstract class RunOnceApplicationBuilder<TApplication, TBuilder>(string[] args, Action<IConfigurationBuilder>? configure = null)
+    : ApplicationBuilder<TApplication, TBuilder>(args, configure)
     where TApplication : RunOnceApplication<TApplication, TBuilder>
     where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder>;

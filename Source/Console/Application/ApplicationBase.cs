@@ -9,14 +9,37 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     protected virtual ValueTask Dispose()
         => ValueTask.CompletedTask;
 
-    public static TApplication Create(Action<TBuilder>? configureBuilder = null)
-        => Create([], configureBuilder);
+    public static TBuilder CreateBuilder(Action<IConfigurationBuilder>? setConfiguration = null)
+        => CreateBuilder([], setConfiguration);
+    public static TBuilder CreateBuilder(string[] args, Action<IConfigurationBuilder>? setConfiguration = null)
+        => CreateInstance.Of<TBuilder>(args, setConfiguration);
 
-    public static TApplication Create(string[] args, Action<TBuilder>? configure = null) {
-        var builder = CreateInstance.Of<TBuilder>((object)args);
-        configure?.Invoke(builder);
+    public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder) {
+        var builder = CreateBuilder(args, setConfiguration);
+        configureBuilder?.Invoke(builder);
         return builder.Build();
     }
+
+    public static TApplication Create(Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder)
+        => Create([], setConfiguration, null!);
+
+    public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration)
+        => Create(args, setConfiguration, null!);
+
+    public static TApplication Create(Action<IConfigurationBuilder> setConfiguration)
+        => Create([], setConfiguration, null!);
+
+    public static TApplication Create(string[] args, Action<TBuilder> configureBuilder)
+        => Create(args, null!, configureBuilder);
+
+    public static TApplication Create(Action<TBuilder> configureBuilder)
+        => Create([], null!, configureBuilder);
+
+    public static TApplication Create(string[] args)
+        => Create(args, null!, null!);
+
+    public static TApplication Create()
+        => Create([], null!, null!);
 
     public override string ToString()
         => $"{GetType().Name}: {Name} v{Version} => {Description}";
@@ -85,6 +108,7 @@ public abstract class ApplicationBase : IApplication {
         Arguments = args;
         Logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
         Environment = services.GetRequiredService<IEnvironment>();
+        Configuration = services.GetRequiredService<IConfigurationRoot>();
         PromptFactory = services.GetRequiredService<IPromptFactory>();
 
         AssemblyName = Environment.Assembly.Name;
@@ -108,6 +132,7 @@ public abstract class ApplicationBase : IApplication {
     public ILogger Logger { get; init; }
 
     public IServiceProvider Services { get; }
+    public IConfigurationRoot Configuration { get; }
     public IEnvironment Environment { get; }
     protected IOutput Output => Environment.Output;
     protected IInput Input => Environment.Input;
@@ -135,7 +160,7 @@ public abstract class ApplicationBase : IApplication {
     IApplication INode.Application => this;
     string[] INode.Aliases => [];
 
-    internal abstract Task Run(CancellationToken ct);
+    internal abstract Task Run(CancellationToken ct = default);
 
     public ICommand AddCommand(string name, Delegate action)
         => AddCommand(name, aliases: [], action);
@@ -166,7 +191,7 @@ public abstract class ApplicationBase : IApplication {
     public IOption AddOption(string name, string[] aliases)
         => NodeFactory.Create<Option>(this, name, aliases);
     public IOption AddOption<TOption>()
-        where TOption : Nodes.Option<TOption>, IOption
+        where TOption : Option<TOption>, IOption
         => NodeFactory.Create<TOption>(this);
     public void AddOption(IOption option) => Children.Add(option);
 

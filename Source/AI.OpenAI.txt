@@ -1,0 +1,677 @@
+---------------------------------------------------------------------------------------- 
+AgentFactory.cs 
+﻿namespace DotNetToolbox.AI.OpenAI;
+
+public class AgentFactory(World world, IHttpClientProvider httpClientProvider, ILoggerFactory loggerFactory)
+    : IAgentFactory {
+    TAgent IAgentFactory.CreateAgent<TAgent>(IAgentOptions options, Persona persona)
+        => Create<TAgent>((AgentOptions)options, persona);
+    public TAgent Create<TAgent>(AgentOptions options, Persona persona)
+        => CreateInstance.Of<TAgent>(world, options, persona, new Mapper(), httpClientProvider, loggerFactory.CreateLogger<TAgent>());
+}
+ 
+---------------------------------------------------------------------------------------- 
+AgentOptions.cs 
+﻿namespace DotNetToolbox.AI.OpenAI;
+
+public class AgentOptions(string apiEndpoint, string model)
+    : IAgentOptions {
+
+    [JsonConstructor]
+    public AgentOptions() : this(DefaultApiEndpoint, DefaultModel) {
+    }
+
+    public const string DefaultApiEndpoint = "v1/chat/completions";
+    public const string DefaultModel = "gpt-3.5-turbo-0125";
+    public const byte DefaultFrequencyPenalty = 0;
+    public const sbyte MinimumFrequencyPenalty = -2;
+    public const byte MaximumFrequencyPenalty = 2;
+    public const byte DefaultPresencePenalty = 0;
+    public const sbyte MinimumPresencePenalty = -2;
+    public const byte MaximumPresencePenalty = 2;
+    public const uint DefaultMaximumOutputTokens = 4096;
+    public const byte DefaultNumberOfChoices = 1;
+    public const byte MinimumNumberOfChoices = 1;
+    public const byte MaximumNumberOfChoices = 5;
+    public const byte MaximumNumberOfStopSignals = 4;
+    public const byte DefaultTemperature = 1;
+    public const byte MinimumTemperature = 0;
+    public const byte MaximumTemperature = 2;
+    public const byte DefaultTokenProbabilityCutOff = 1;
+    public const byte MinimumTokenProbabilityCutOff = 0;
+    public const byte MaximumTokenProbabilityCutOff = 1;
+
+    public string ApiEndpoint { get; set; } = apiEndpoint ?? DefaultApiEndpoint;
+    public string Model { get; set; } = model ?? DefaultModel;
+    public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;
+    public decimal? Temperature { get; set; }
+    public decimal? TokenProbabilityCutOff { get; set; }
+    public HashSet<string> StopSequences { get; set; } = [];
+    public bool UseStreaming { get; set; }
+
+    public byte? NumberOfChoices { get; set; }
+    public decimal? FrequencyPenalty { get; set; }
+    public decimal? PresencePenalty { get; set; }
+    public HashSet<ChatTool> Tools { get; set; } = [];
+
+    public Result Validate(IDictionary<string, object?>? context = null) {
+        var result = Result.Success();
+        if (NumberOfChoices is < MinimumNumberOfChoices or > MaximumNumberOfChoices)
+            result += new ValidationError($"Value must be between {MinimumNumberOfChoices} and {MaximumNumberOfChoices}. Found: {NumberOfChoices}", nameof(NumberOfChoices));
+
+        if (FrequencyPenalty is < MinimumFrequencyPenalty or > MaximumFrequencyPenalty)
+            result += new ValidationError($"Value must be between {MinimumFrequencyPenalty} and {MaximumFrequencyPenalty}. Found: {FrequencyPenalty}", nameof(FrequencyPenalty));
+
+        if (PresencePenalty is < MinimumPresencePenalty or > MaximumPresencePenalty)
+            result += new ValidationError($"Value must be between {MinimumPresencePenalty} and {MaximumPresencePenalty}. Found: {PresencePenalty}", nameof(PresencePenalty));
+
+        if (StopSequences.Count > MaximumNumberOfStopSignals)
+            result += new ValidationError($"The maximum number of stop signals is {MaximumNumberOfStopSignals}. Found: {StopSequences.Count}.", nameof(StopSequences));
+
+        if (StopSequences.Count > 0 && StopSequences.Any(string.IsNullOrWhiteSpace))
+            result += new ValidationError("Stop signals cannot be null, empty, or contain only whitespace.", nameof(StopSequences));
+
+        if (Temperature is < MinimumTemperature or > MaximumTemperature)
+            result += new ValidationError($"Value must be between {MinimumTemperature} and {MinimumTemperature}. Found: {Temperature}", nameof(Temperature));
+
+        if (TokenProbabilityCutOff is < MinimumTokenProbabilityCutOff or > MaximumTokenProbabilityCutOff)
+            result += new ValidationError($"Value must be between {MinimumTokenProbabilityCutOff} and {MaximumTokenProbabilityCutOff}. Found: {TokenProbabilityCutOff}", nameof(TokenProbabilityCutOff));
+
+        return result;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+BackgroundAgent.cs 
+﻿namespace DotNetToolbox.AI.OpenAI;
+
+public class BackgroundAgent(World world,
+                                   AgentOptions options,
+                                   Persona persona,
+                                   IMapper mapper,
+                                   IHttpClientProvider httpClientProvider,
+                                   ILogger<BackgroundAgent> logger)
+    : BackgroundAgent<BackgroundAgent,
+        AgentOptions,
+        ChatRequest,
+        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger) {
+    public BackgroundAgent(IEnvironment environment,
+                                 AgentOptions options,
+                                 Persona persona,
+                                 IMapper mapper,
+                                 IHttpClientProvider httpClientProvider,
+                                 ILogger<BackgroundAgent> logger)
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+GlobalUsings.cs 
+// Global using directives
+
+global using System.Net.Http.Json;
+global using System.Text;
+global using System.Text.Json.Serialization;
+
+global using DotNetToolbox.AI.Agents;
+global using DotNetToolbox.AI.Chats;
+global using DotNetToolbox.AI.Consumers;
+global using DotNetToolbox.AI.Models;
+global using DotNetToolbox.AI.OpenAI;
+global using DotNetToolbox.AI.OpenAI.Chat;
+global using DotNetToolbox.AI.Personas;
+global using DotNetToolbox.Collections.Generic;
+global using DotNetToolbox.Http;
+global using DotNetToolbox.Http.Extensions;
+global using DotNetToolbox.Http.Options;
+global using DotNetToolbox.Results;
+
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+
+global using static DotNetToolbox.Ensure;
+ 
+---------------------------------------------------------------------------------------- 
+Mapper.cs 
+﻿namespace DotNetToolbox.AI.OpenAI;
+
+internal class Mapper : IMapper {
+    IChatRequest IMapper.CreateRequest(IAgent agent, IChat chat) => CreateRequest((IAgent<AgentOptions>)agent, chat);
+    public static ChatRequest CreateRequest(IAgent<AgentOptions> agent, IChat chat) {
+        var system = new ChatRequestMessage(CreateSystemMessage(agent, chat));
+        return new() {
+            Model = agent.Options.Model,
+            Temperature = agent.Options.Temperature,
+            MaximumOutputTokens = agent.Options.MaximumOutputTokens,
+            StopSequences = agent.Options.StopSequences.Count == 0 ? null : [.. agent.Options.StopSequences],
+            MinimumTokenProbability = agent.Options.TokenProbabilityCutOff,
+            UseStreaming = agent.Options.UseStreaming,
+
+            Messages = [system, .. chat.Messages.ToArray(o => new ChatRequestMessage(o))],
+
+            NumberOfChoices = agent.Options.NumberOfChoices,
+            FrequencyPenalty = agent.Options.FrequencyPenalty,
+            PresencePenalty = agent.Options.PresencePenalty,
+            Tools = agent.Persona.Skills.Count == 0 ? null : agent.Persona.Skills.ToArray(ToRequestToolCall),
+        };
+    }
+
+    private static string CreateSystemMessage(IAgent agent, IChat chat) {
+        var builder = new StringBuilder();
+        builder.AppendLine(agent.World.ToString());
+        builder.AppendLine(agent.Persona.Profile.ToString());
+        builder.AppendLine(agent.Persona.Skills.ToString());
+        builder.AppendLine(chat.Instructions.ToString());
+        return builder.ToString();
+    }
+
+    Message IMapper.CreateResponseMessage(IChat chat, IChatResponse response)
+        => CreateResponseMessage(chat, (ChatResponse)response);
+    public static Message CreateResponseMessage(IChat chat, ChatResponse response) {
+        chat.TotalTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.TotalTokens);
+        return response.Choices[0].Message.Content switch {
+            ChatResponseToolRequest[] tcs => new("assistant", [new MessagePart("tool_calls", tcs)]),
+            _ => new("assistant", [new MessagePart("text", response.Choices[0].Message.Content.ToString()!)]),
+        };
+    }
+
+    private static ChatRequestTool ToRequestToolCall(Skill skill)
+        => new("function", new(skill.Name, CreateParameterList(skill), skill.Description));
+
+    private static ChatRequestToolFunctionCallParameters? CreateParameterList(Skill skill) {
+        var parameters = GetParameters(skill);
+        var required = GetRequiredParameters(skill);
+        return parameters is null && required is null ? null : new(parameters, required);
+    }
+
+    private static Dictionary<string, ChatRequestToolFunctionCallParameter>? GetParameters(Skill skill) {
+        var result = skill.Arguments.ToDictionary<Argument, string, ChatRequestToolFunctionCallParameter>(k => k.Name, ToParameter);
+        return result.Count == 0 ? null : result;
+    }
+
+    private static string[]? GetRequiredParameters(Skill skill) {
+        var result = skill.Arguments.Where(p => p.IsRequired).ToArray(p => p.Name);
+        return result.Length == 0 ? null : result;
+    }
+
+    private static ChatRequestToolFunctionCallParameter ToParameter(Argument argument)
+        => new(argument.Type, argument.Options, argument.Description);
+}
+ 
+---------------------------------------------------------------------------------------- 
+QueuedAgent.cs 
+﻿namespace DotNetToolbox.AI.OpenAI;
+
+public class QueuedAgent(World world,
+                               AgentOptions options,
+                               Persona persona,
+                               IMapper mapper,
+                               IHttpClientProvider httpClientProvider,
+                               ILogger<QueuedAgent> logger)
+    : QueuedAgent<QueuedAgent,
+        AgentOptions,
+        ChatRequest,
+        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger) {
+    public QueuedAgent(IEnvironment environment,
+                             AgentOptions options,
+                             Persona persona,
+                             IMapper mapper,
+                             IHttpClientProvider httpClientProvider,
+                             ILogger<QueuedAgent> logger)
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+ServiceCollectionExtensions.cs 
+﻿using DotNetToolbox.AI.OpenAI.Http;
+
+namespace DotNetToolbox.AI.OpenAI;
+
+public static class ServiceCollectionExtensions {
+    public static IServiceCollection AddOpenAI(this IServiceCollection services, IConfiguration configuration) {
+        services.AddHttpClientProvider<IHttpClientProvider, AgentHttpClientProvider>(configuration);
+        services.TryAddSingleton<World>();
+        services.TryAddSingleton<IAgentFactory, AgentFactory>();
+        return services;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+StandardAgent.cs 
+﻿namespace DotNetToolbox.AI.OpenAI;
+
+public class StandardAgent(World world,
+                                AgentOptions options,
+                                Persona persona,
+                                IMapper mapper,
+                                IHttpClientProvider httpClientProvider,
+                                ILogger<StandardAgent> logger)
+    : StandardAgent<StandardAgent>(world, options, persona, mapper, httpClientProvider, logger) {
+
+    public StandardAgent(IEnvironment environment,
+                       AgentOptions options,
+                       Persona persona,
+                       IMapper mapper,
+                       IHttpClientProvider httpClientProvider,
+                       ILogger<StandardAgent> logger)
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+    }
+}
+
+public abstract class StandardAgent<TAgent>(World world,
+                                          AgentOptions options,
+                                          Persona persona,
+                                          IMapper mapper,
+                                          IHttpClientProvider httpClientProvider,
+                                          ILogger<TAgent> logger)
+    : Agent<TAgent,
+        AgentOptions,
+        ChatRequest,
+        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger)
+    where TAgent : StandardAgent<TAgent> {
+    protected StandardAgent(IEnvironment environment,
+                          AgentOptions options,
+                          Persona persona,
+                          IMapper mapper,
+                          IHttpClientProvider httpClientProvider,
+                          ILogger<TAgent> logger)
+        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatFunctionCallResult.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatFunctionCallResult(string toolCallId, string value) {
+    public string CallId { get; set; } = toolCallId;
+    public string? Value { get; set; } = value;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatRequest.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatRequest : IChatRequest {
+    [JsonPropertyName("model")]
+    public required string Model { get; set; }
+    [JsonPropertyName("messages")]
+    public ChatRequestMessage[] Messages { get; set; } = [];
+    [JsonPropertyName("frequency_penalty")]
+    public decimal? FrequencyPenalty { get; set; }
+    [JsonPropertyName("presence_penalty")]
+    public decimal? PresencePenalty { get; set; }
+    [JsonPropertyName("temperature")]
+    public decimal? Temperature { get; set; }
+    [JsonPropertyName("max_tokens")]
+    public uint MaximumOutputTokens { get; set; }
+    [JsonPropertyName("n")]
+    public int? NumberOfChoices { get; set; }
+    [JsonPropertyName("stop")]
+    public string[]? StopSequences { get; set; }
+    [JsonPropertyName("top_p")]
+    public decimal? MinimumTokenProbability { get; set; }
+    [JsonPropertyName("stream")]
+    public bool? UseStreaming { get; set; }
+    [JsonPropertyName("tools")]
+    public ChatRequestTool[]? Tools { get; set; }
+    [JsonPropertyName("tool_choice")]
+    public ChatRequestForceToolCall? ForceToolCall { get; set; }
+    [JsonPropertyName("response_format")]
+    public ChatRequestResponseFormat? ResponseFormat { get; set; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatRequestForceToolCall.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatRequestForceToolCall(string name) {
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = "function";
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = name;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatRequestMessage.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatRequestMessage {
+    public ChatRequestMessage(object content) {
+        switch (content) {
+            case string:
+                Role = "system";
+                Content = content;
+                break;
+            case Message c:
+                Role = c.Role;
+                Content = c.Parts.Length == 1
+                              ? (string)c.Parts[0].Value
+                              : c.Parts.ToArray(p => new MessageContent(p.Value));
+                break;
+            case ChatFunctionCallResult c:
+                Role = "tool";
+                Content = c.Value;
+                ToolCallId = c.CallId;
+                break;
+            case ChatResponseToolRequest[] c:
+                Role = "assistant";
+                ToolCalls = c;
+                break;
+            default:
+                throw new NotSupportedException();
+        }
+    }
+    [JsonPropertyName("role")]
+    public string Role { get; init; }
+    [JsonPropertyName("content")]
+    public object? Content { get; init; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+    [JsonPropertyName("tool_calls")]
+    public ChatResponseToolRequest[]? ToolCalls { get; set; }
+    [JsonPropertyName("tool_call_id")]
+    public string? ToolCallId { get; set; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatRequestResponseFormat.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatRequestResponseFormat(string type) {
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = type;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatRequestTool.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatRequestTool(string type, RequestToolFunctionCall function) {
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = type;
+    [JsonPropertyName("function")]
+    public RequestToolFunctionCall Function { get; set; } = function;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatRequestToolFunctionCallParameter.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatRequestToolFunctionCallParameter(string type, string[]? options = null, string? description = null) {
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = type;
+    [JsonPropertyName("description")]
+    public string? Description { get; set; } = description;
+    [JsonPropertyName("enum")]
+    public string[]? Options { get; set; } = options;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatRequestToolFunctionCallParameters.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatRequestToolFunctionCallParameters(Dictionary<string, ChatRequestToolFunctionCallParameter>? properties, string[]? required) {
+    [JsonPropertyName("properties")]
+    public Dictionary<string, ChatRequestToolFunctionCallParameter>? Properties { get; set; } = properties;
+    [JsonPropertyName("required")]
+    public string[]? Required { get; set; } = required;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatResponse.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatResponse(string id) : IChatResponse {
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = id;
+    [JsonPropertyName("model")]
+    public string Model { get; set; } = string.Empty;
+    [JsonPropertyName("choices")]
+    public ChatResponseChoice[] Choices { get; set; } = [];
+    [JsonPropertyName("created")]
+    public int Created { get; set; }
+    [JsonPropertyName("system_fingerprint")]
+    public string SystemFingerprint { get; set; } = string.Empty;
+    [JsonPropertyName("usage")]
+    public Usage? Usage { get; set; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatResponseChoice.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatResponseChoice {
+    [JsonPropertyName("index")]
+    public int Index { get; set; }
+    [JsonPropertyName("finish_reason")]
+    public string? StopReason { get; set; }
+    [JsonPropertyName("message")]
+    public ChatResponseMessage Message { get; set; } = default!;
+    [JsonPropertyName("delta")]
+    public ChatResponseMessage? Delta { set => Message = value ?? Message; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatResponseFunctionCallRequest.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatResponseFunctionCallRequest(string name, string? arguments) {
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = name;
+
+    [JsonPropertyName("arguments")]
+    public string? Arguments { get; set; } = arguments;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatResponseMessage.cs 
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatResponseMessage {
+    private object? _content = default!;
+
+    [JsonPropertyName("content")]
+    public required object Content {
+        get => _content ?? ToolCalls ?? null!;
+        [MemberNotNull(nameof(_content))]
+        set => _content = value;
+    }
+
+    [JsonPropertyName("tool_calls")]
+    public ChatResponseToolRequest[]? ToolCalls { get; set; }
+
+    public object ToContent()
+        => Content switch {
+            ChatResponseToolRequest[] => Content,
+            Message => Content,
+            string txt => new Message("assistant", [new MessagePart("text", txt)]),
+            _ => throw new NotSupportedException(),
+        };
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatResponseToolRequest.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatResponseToolRequest(string id, string type, ChatResponseFunctionCallRequest function) {
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = id;
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = type;
+    [JsonPropertyName("function")]
+    public ChatResponseFunctionCallRequest Function { get; set; } = function;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatTool.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatTool(string name, Dictionary<string, ChatToolParameter>? parameters = null, string? description = null) {
+    public string Name { get; set; } = name;
+    public string? Description { get; set; } = description;
+    public Dictionary<string, ChatToolParameter> Parameters { get; set; } = parameters ?? [];
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ChatToolParameter.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ChatToolParameter(string type, string[]? options = null, bool isRequired = false, string? description = null) {
+    public required string Type { get; set; } = type;
+    public string? Description { get; set; } = description;
+    public string[]? Options { get; set; } = options;
+    public bool IsRequired { get; set; } = isRequired;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\ImageData.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class ImageData {
+    public required string Url { get; set; }
+    public string? Detail { get; set; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\MessageContent.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class MessageContent {
+    public MessageContent(object value) {
+        Text = value as string;
+        Image = value as ImageData;
+        Type = Text is null ? "image_url" : "text";
+    }
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; }
+    [JsonPropertyName("text")]
+    public string? Text { get; set; }
+    [JsonPropertyName("image_url")]
+    public ImageData? Image { get; set; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\RequestToolFunctionCall.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class RequestToolFunctionCall(string name, ChatRequestToolFunctionCallParameters? parameters = null, string? description = null) {
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = name;
+    [JsonPropertyName("parameters")]
+    public ChatRequestToolFunctionCallParameters? Parameters { get; set; } = parameters;
+    [JsonPropertyName("description")]
+    public string? Description { get; set; } = description;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Chat\Usage.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public record Usage {
+    [JsonPropertyName("prompt_tokens")]
+    public int PromptTokens { get; set; }
+    [JsonPropertyName("completion_tokens")]
+    public int CompletionTokens { get; set; }
+    [JsonPropertyName("total_tokens")]
+    public int TotalTokens { get; set; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Http\AgentHttpClientOptions.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Http;
+
+public class AgentHttpClientOptions : HttpClientOptions {
+    public override Uri? BaseAddress { get; set; } = new("https://api.openai.com");
+}
+ 
+---------------------------------------------------------------------------------------- 
+Http\AgentHttpClientProvider.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Http;
+
+public class AgentHttpClientProvider(IHttpClientFactory clientFactory, IConfiguration configuration, IOptions<AgentHttpClientOptions> options)
+    : HttpClientProvider(clientFactory, options) {
+    protected override System.Net.Http.HttpClient CreateHttpClient() {
+        var builder = new HttpClientOptionsBuilder(Options);
+        var key = IsNotNull(configuration["OpenAI:ApiKey"]);
+        var organization = IsNotNull(configuration["OpenAI:Organization"]);
+        builder.UseSimpleTokenAuthentication(opt => {
+            opt.Scheme = AuthenticationScheme.Bearer;
+            opt.Token = key;
+        });
+        builder.AddCustomHeader("OpenAI-Organization", organization);
+        Options = builder.Build();
+        return base.CreateHttpClient();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Model\Model.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Model;
+
+internal record Model {
+    public required string Id { get; init; }
+    public long Created { get; init; }
+    public string? OwnedBy { get; init; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Model\ModelsHandler.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Model;
+
+internal class ModelsHandler(IHttpClientProvider httpClientProvider, ILogger<ModelsHandler> logger)
+        : IModelsHandler {
+    private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
+
+    public async Task<string[]> GetIds(string? type = null) {
+        try {
+            logger.LogDebug("Getting list of models...");
+            var models = await GetModelsAsync().ConfigureAwait(false);
+            var result = models
+                        .Where(m => GetModelType(m.Id) == (type ?? "chat"))
+                        .Select(m => m.Id)
+                        .ToArray();
+            logger.LogDebug("A list of {numberOfModels} models was found.", result.Length);
+            return result;
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "Failed to get list of models.");
+            throw;
+        }
+    }
+
+    private async Task<Model[]> GetModelsAsync() {
+        var response = await _httpClient.GetAsync("models").ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<ModelsResponse>().ConfigureAwait(false);
+        return result!.Data;
+    }
+
+    public static string GetModelType(string id) {
+        var name = id.StartsWith("ft:") ? id[3..] : id;
+        return name switch {
+            _ when name.StartsWith("dall-e") => "image",
+            _ when name.StartsWith("whisper") => "stt",
+            _ when name.StartsWith("tts") => "tts",
+            _ when name.StartsWith("text-embedding") => "embedding",
+            _ when name.StartsWith("text-moderation") => "moderation",
+            _ => "chat",
+        };
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Model\ModelsResponse.cs 
+﻿namespace DotNetToolbox.AI.OpenAI.Model;
+
+internal record ModelsResponse {
+    public required Model[] Data { get; init; }
+}
+ 

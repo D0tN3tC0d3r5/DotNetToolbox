@@ -1,18 +1,18 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
 public class Information : IValidatableAsync {
-    public object? Value { get; set; }
+    public string? Value { get; set; }
 
     [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
-    public required string ValueTemplate { get; init; }
-    
-    public required string NullText { get; init; }
-    
+    public required string ValueTemplate { get; set; }
+
+    public required string DefaultText { get; set; }
+
     public Task<Result> Validate(IDictionary<string, object?>? context = null, CancellationToken token = default)
         => Result.SuccessTask();
 
     public override string ToString()
-        => Value is null || (Value is string s && string.IsNullOrWhiteSpace(s))
-               ? NullText
+        => string.IsNullOrWhiteSpace(Value)
+               ? DefaultText
                : string.Format(ValueTemplate, Value);
 }
