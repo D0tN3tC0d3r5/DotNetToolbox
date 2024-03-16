@@ -1,15 +1,9 @@
 global using System.Net;
 
-global using DotNetToolbox.AI.Consumers;
 global using DotNetToolbox.AI.Personas;
-global using DotNetToolbox.AI.Utilities;
-global using DotNetToolbox.Http;
-global using DotNetToolbox.TestUtilities.Logging;
+global using DotNetToolbox.AI.Shared;
 
 global using FluentAssertions;
-
-global using Microsoft.Extensions.Configuration;
-global using Microsoft.Extensions.Logging;
 
 global using NSubstitute;
 

@@ -10,12 +10,12 @@ public class QueuedAgent(World world,
         AgentOptions,
         ChatRequest,
         ChatResponse>(world, options, persona, mapper, httpClientProvider, logger) {
-    public QueuedAgent(IEnvironment environment,
-                             AgentOptions options,
+    public QueuedAgent(AgentOptions options,
                              Persona persona,
                              IMapper mapper,
+                             IDateTimeProvider dateTime,
                              IHttpClientProvider httpClientProvider,
                              ILogger<QueuedAgent> logger)
-        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+        : this(new World(dateTime), options, persona, mapper, httpClientProvider, logger) {
     }
 }

@@ -8,13 +8,13 @@ public class StandardAgent(World world,
                             ILogger<StandardAgent> logger)
     : StandardAgent<StandardAgent>(world, options, persona, mapper, httpClientProvider, logger) {
 
-    public StandardAgent(IEnvironment environment,
-                                 AgentOptions options,
+    public StandardAgent(AgentOptions options,
                                  Persona persona,
                                  IMapper mapper,
+                                 IDateTimeProvider dateTime,
                                  IHttpClientProvider httpClientProvider,
                                  ILogger<StandardAgent> logger)
-        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+        : this(new World(dateTime), options, persona, mapper, httpClientProvider, logger) {
     }
 }
 
@@ -29,12 +29,12 @@ public abstract class StandardAgent<TAgent>(World world,
         ChatRequest,
         ChatResponse>(world, options, persona, mapper, httpClientProvider, logger)
     where TAgent : StandardAgent<TAgent> {
-    protected StandardAgent(IEnvironment environment,
-                             AgentOptions options,
+    protected StandardAgent(AgentOptions options,
                              Persona persona,
                              IMapper mapper,
+                             IDateTimeProvider dateTime,
                              IHttpClientProvider httpClientProvider,
                              ILogger<TAgent> logger)
-        : this(new World(environment), options, persona, mapper, httpClientProvider, logger) {
+        : this(new World(dateTime), options, persona, mapper, httpClientProvider, logger) {
     }
 }

@@ -16,7 +16,7 @@ public class PersonaTests {
     public void ConstructorWithValues_CreatesAgent() {
         // arrange
         var profile = new Profile();
-        var skills = new List<Skill> { new("SomeSkill") };
+        var skills = new List<Skill> { new() { Id = 1, Name = "SomeSkill" } };
 
         // Act
         var agent = new Persona(profile, skills);

@@ -1,11 +1,9 @@
-using DotNetToolbox.AI.Chats;
-
 namespace DotNetToolbox.AI.OpenAI;
 
 public class OpenAIQueuedAgentTests {
     private readonly FakeHttpMessageHandler _httpMessageHandler;
     private readonly ILogger<QueuedAgent> _logger;
-    private readonly IEnvironment _environment;
+    private readonly IDateTimeProvider _dateTime;
     private readonly IHttpClientProvider _httpClientProvider;
 
     public OpenAIQueuedAgentTests() {
@@ -20,9 +18,8 @@ public class OpenAIQueuedAgentTests {
                                          Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
         _logger = new TrackedNullLogger<QueuedAgent>();
-        _environment = Substitute.For<IEnvironment>();
-        _environment.DateTime.Returns(Substitute.For<IDateTimeProvider>());
-        _environment.DateTime.Now.Returns(new DateTimeOffset(2001, 01, 01, 00, 00, 00, default));
+        _dateTime = Substitute.For<IDateTimeProvider>();
+        _dateTime.Now.Returns(new DateTimeOffset(2001, 01, 01, 00, 00, 00, default));
     }
 
     [Fact]
@@ -30,7 +27,7 @@ public class OpenAIQueuedAgentTests {
         var mapper = new Mapper();
         var options = new AgentOptions();
         var agent = new Persona();
-        var runner = new QueuedAgent(_environment, options, agent, mapper, _httpClientProvider, _logger);
+        var runner = new QueuedAgent(options, agent, mapper, _dateTime, _httpClientProvider, _logger);
         var tokenSource = new CancellationTokenSource();
 
         // Act
@@ -56,7 +53,7 @@ public class OpenAIQueuedAgentTests {
             }],
         };
         _httpMessageHandler.SetOkResponse(response);
-        var runner = new QueuedAgent(_environment, options, agent, mapper, _httpClientProvider, _logger);
+        var runner = new QueuedAgent(options, agent, mapper, _dateTime, _httpClientProvider, _logger);
         var tokenSource = new CancellationTokenSource();
         var source = Substitute.For<IConsumer>();
         var responseReceived = false;
