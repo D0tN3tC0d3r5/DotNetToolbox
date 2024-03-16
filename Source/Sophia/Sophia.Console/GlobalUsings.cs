@@ -17,4 +17,6 @@ global using DotNetToolbox.Results;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 
+global using Sophia.ChatConsole;
+
 global using static Sophia.ChatConsole.StateMachine;

@@ -1,6 +1,3 @@
-using Sophia.WebApp.Repositories;
-using Sophia.WebApp.Services;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -58,7 +55,7 @@ app.MapRazorComponents<App>()
    .AddInteractiveWebAssemblyRenderMode()
    .AddAdditionalAssemblies(typeof(Sophia.WebClient._Imports).Assembly); ;
 
-// Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+app.MapWorldEndpoints();
 
 app.Run();

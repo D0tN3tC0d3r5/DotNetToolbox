@@ -1,9 +1,9 @@
 ﻿namespace Sophia.ChatConsole;
 
-public class Sophia : ShellApplication<Sophia> {
+public class SophiaConsoleApp : ShellApplication<SophiaConsoleApp> {
     private readonly StateMachine _stateMachine;
 
-    public Sophia(string[] args, IServiceProvider services)
+    public SophiaConsoleApp(string[] args, IServiceProvider services)
         : base(args, services) {
         AllowMultiLine = true;
         var httpClientProvider = services.GetRequiredService<IHttpClientProvider>();

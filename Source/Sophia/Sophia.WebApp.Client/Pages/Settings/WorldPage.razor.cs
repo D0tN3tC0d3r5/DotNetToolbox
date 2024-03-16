@@ -3,10 +3,13 @@
 namespace Sophia.WebClient.Pages.Settings;
 
 public partial class WorldPage {
-    private WorldData _world = default!;
+    private WorldData _world = new();
     private bool _isReadOnly = true;
     private string _dateTime = string.Empty;
     private Timer? _timer;
+    private SkillData? _selectedSkill;
+    private bool _showSkillModal;
+    private bool _showDeleteConfirmation;
 
     [Inject]
     public required IWorldService WorldService { get; set; }
@@ -16,10 +19,8 @@ public partial class WorldPage {
 
     protected override async Task OnInitializedAsync() {
         await base.OnInitializedAsync();
-        _world = new WorldData();
-        _dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        var world = await WorldService.GetWorld();
-        _world = new WorldData();
+        _world = await WorldService.GetWorld();
+        _dateTime = _world.DateTime.ToString("yyyy-MM-dd HH:mm:ss");
         _timer = new(1000) { AutoReset = true, Enabled = true };
         _timer.Elapsed += (_, _) => UpdateDateTime();
         _timer.Start();
@@ -49,5 +50,44 @@ public partial class WorldPage {
     private async Task SaveWorld() {
         await WorldService.UpdateWorld(_world);
         _isReadOnly = true;
+    }
+
+    private void AddInfo()
+        => _world.AdditionalInformation.Add(new());
+
+    private void DeleteInfo(InformationData info)
+        => _world.AdditionalInformation.Remove(info);
+
+    private void OpenSkillModal(SkillData? skill) {
+        _selectedSkill = skill ?? new SkillData();
+        _showSkillModal = true;
+    }
+
+    private void CloseSkillModal() {
+        _selectedSkill = new();
+        _showSkillModal = false;
+    }
+
+    private void SaveSkill() {
+        var index = _world.Skills.FindIndex(s => s.Id == _selectedSkill!.Id);
+        if (index != -1) _world.Skills[index] = _selectedSkill!;
+        else _world.Skills.Add(_selectedSkill!);
+        CloseSkillModal();
+    }
+
+    private void DeleteSkill(SkillData skill) {
+        _selectedSkill = skill;
+        _showDeleteConfirmation = true;
+    }
+
+    private void CancelDelete() {
+        _selectedSkill = null;
+        _showDeleteConfirmation = false;
+    }
+
+    private void ConfirmDelete() {
+        _world.Skills.Remove(_selectedSkill!);
+        _selectedSkill = null;
+        _showDeleteConfirmation = false;
     }
 }

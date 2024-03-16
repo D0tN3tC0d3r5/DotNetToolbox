@@ -60,5 +60,5 @@ internal class Mapper : IMapper {
     }
 
     private static ChatRequestToolFunctionCallParameter ToParameter(Argument argument)
-        => new(argument.Type, argument.Options, argument.Description);
+        => new(argument.Type.ToString(), argument.Options, argument.Description);
 }

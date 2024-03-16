@@ -28,15 +28,19 @@
   },
   "Skills": [
     {
+      "Id":  1,
       "Name": "GetDateTime"
     },
     {
+      "Id": 2,
       "Name": "SetAlarm"
     },
     {
+      "Id": 3,
       "Name": "CancelAlarm"
     },
     {
+      "Id": 4,
       "Name": "GetDateRangeDetails"
     }
   ]

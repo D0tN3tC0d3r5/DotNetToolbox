@@ -31,6 +31,9 @@ global using Sophia.WebApp.Components;
 global using Sophia.WebApp.Components.Account;
 global using Sophia.WebApp.Components.Account.Pages;
 global using Sophia.WebApp.Components.Account.Pages.Manage;
+global using Sophia.WebApp.Components.World;
 global using Sophia.WebApp.Data;
 global using Sophia.WebApp.Data.Worlds;
+global using Sophia.WebApp.Repositories;
+global using Sophia.WebApp.Services;
 

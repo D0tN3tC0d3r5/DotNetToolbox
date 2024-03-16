@@ -54,11 +54,13 @@ public class ApplicationBuilder<TApplication, TBuilder>
                                 _fileSystem,
                                 _input,
                                 _output);
+        Services.TryAddSingleton(Configuration);
+        Services.TryAddSingleton<IConfiguration>(Configuration);
         Services.TryAddSingleton<IPromptFactory, PromptFactory>();
         AddLogging(Configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
-        return CreateInstance.Of<TApplication>(serviceProvider, (object)_args);
+        return CreateInstance.Of<TApplication>(_args, serviceProvider);
     }
 
     private void AddLogging(IConfiguration configuration)

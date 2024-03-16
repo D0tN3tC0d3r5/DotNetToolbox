@@ -1,4 +1,4 @@
-﻿var builder = Sophia.ChatConsole.Sophia.CreateBuilder(args, configuration => {
+﻿var builder = SophiaConsoleApp.CreateBuilder(args, configuration => {
     configuration.AddAppSettings();
     configuration.AddUserSecrets<Program>();
 });

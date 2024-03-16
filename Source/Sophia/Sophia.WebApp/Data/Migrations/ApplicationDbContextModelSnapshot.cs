@@ -270,7 +270,7 @@ namespace Sophia.WebApp.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<string>("User")
+                    b.Property<string>("UserProfile")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -374,10 +374,9 @@ namespace Sophia.WebApp.Migrations
                                 .HasMaxLength(1000)
                                 .HasColumnType("nvarchar(1000)");
 
-                            b1.Property<string>("Type")
-                                .IsRequired()
+                            b1.Property<int>("Type")
                                 .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)");
+                                .HasColumnType("int");
 
                             b1.HasKey("SkillEntityId", "Id");
 

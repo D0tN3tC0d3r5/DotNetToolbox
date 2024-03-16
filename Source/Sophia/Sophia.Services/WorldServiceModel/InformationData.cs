@@ -1,9 +1,9 @@
 ﻿namespace Sophia.Services.WorldServiceModel;
 
 public class InformationData {
-    public required string? Value { get; set; }
-    public required string ValueTemplate { get; set; }
-    public required string DefaultText { get; set; }
+    public string? Value { get; set; }
+    public string ValueTemplate { get; set; } = "{0}";
+    public string DefaultText { get; set; } = string.Empty;
 
     public Information ToModel()
         => new() {

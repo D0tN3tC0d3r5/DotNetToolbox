@@ -1,4 +1,6 @@
-﻿namespace Sophia.WebApp.Data.Worlds;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+namespace Sophia.WebApp.Data.Worlds;
 
 [Owned]
 [EntityTypeConfiguration(typeof(ArgumentEntity))]
@@ -7,7 +9,7 @@ public class ArgumentEntity
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
     [MaxLength(20)]
-    public string Type { get; set; } = string.Empty;
+    public ArgumentType Type { get; set; }
     [MaxLength(2000)]
     public string? Description { get; set; }
     [MaxLength(1000)]
@@ -16,7 +18,8 @@ public class ArgumentEntity
     public void Configure(EntityTypeBuilder<ArgumentEntity> builder)
         => builder.Property(p => p.Options)
                   .HasConversion(o => o == null ? null : string.Join('|', o),
-                                 s => s == null ? null : s.Split('|', StringSplitOptions.None));
+                                 s => s == null ? null : s.Split('|', StringSplitOptions.None),
+                                 new OptionsComparer());
 
     public ArgumentData ToDto()
         => new() {
@@ -26,4 +29,12 @@ public class ArgumentEntity
                      Options = Options,
                      IsRequired = IsRequired,
                  };
+
+    private class OptionComparer()
+        : ValueComparer<string>((a, b) => a != null && a.Equals(b, StringComparison.InvariantCultureIgnoreCase),
+                                s => s.GetHashCode());
+
+    private class OptionsComparer()
+        : ValueComparer<string[]>((a, b) => a != null && b != null && a.SequenceEqual(b, new OptionComparer()),
+                                  s => s.Aggregate(0, HashCode.Combine));
 }
