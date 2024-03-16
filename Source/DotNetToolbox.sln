@@ -21,59 +21,55 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 Solution Items", "0 Solut
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "Core\DotNetToolbox.Core.csproj", "{C0308621-0189-4E32-A6FB-B0198D0B7A38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "Core\Core\DotNetToolbox.Core.csproj", "{C0308621-0189-4E32-A6FB-B0198D0B7A38}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.UnitTests", "Core.UnitTests\DotNetToolbox.Core.UnitTests.csproj", "{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.UnitTests", "Core\Core.UnitTests\DotNetToolbox.Core.UnitTests.csproj", "{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure", "Azure\DotNetToolbox.Azure.csproj", "{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure", "Cloud\Azure\DotNetToolbox.Azure.csproj", "{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure.UnitTests", "Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj", "{310680D3-C24B-4F79-A18A-944F9B6AC096}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure.UnitTests", "Cloud\Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj", "{310680D3-C24B-4F79-A18A-944F9B6AC096}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http", "Http\DotNetToolbox.Http.csproj", "{474DF468-8CB0-4DB5-A31A-28609A61FEA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http", "Cloud\Http\DotNetToolbox.Http.csproj", "{474DF468-8CB0-4DB5-A31A-28609A61FEA7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http.UnitTests", "Http.UnitTests\DotNetToolbox.Http.UnitTests.csproj", "{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http.UnitTests", "Cloud\Http.UnitTests\DotNetToolbox.Http.UnitTests.csproj", "{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder", "ValidationBuilder\DotNetToolbox.ValidationBuilder.csproj", "{527E226A-DC59-406A-B525-387921A7EEB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder", "Utilities\ValidationBuilder\DotNetToolbox.ValidationBuilder.csproj", "{527E226A-DC59-406A-B525-387921A7EEB4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder.UnitTests", "ValidationBuilder.UnitTests\DotNetToolbox.ValidationBuilder.UnitTests.csproj", "{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder.UnitTests", "Utilities\ValidationBuilder.UnitTests\DotNetToolbox.ValidationBuilder.UnitTests.csproj", "{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security", "Security\DotNetToolbox.Security.csproj", "{1C6644F0-167D-4E79-AC42-DA5669FE110F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security", "Utilities\Security\DotNetToolbox.Security.csproj", "{1C6644F0-167D-4E79-AC42-DA5669FE110F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security.UnitTests", "Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj", "{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security.UnitTests", "Utilities\Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj", "{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities", "TestUtilities\DotNetToolbox.TestUtilities.csproj", "{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities", "Testing\TestUtilities\DotNetToolbox.TestUtilities.csproj", "{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper", "ObjectDumper\DotNetToolbox.ObjectDumper.csproj", "{7397C94F-80AD-44EC-8F9E-11C789DD5E9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper", "Utilities\ObjectDumper\DotNetToolbox.ObjectDumper.csproj", "{7397C94F-80AD-44EC-8F9E-11C789DD5E9C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper.UnitTests", "ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper.UnitTests", "Utilities\ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI", "AI\DotNetToolbox.AI.csproj", "{7F21AEAC-3285-474E-B19C-333856ACE888}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Core", "AI\Core\DotNetToolbox.AI.Core.csproj", "{7F21AEAC-3285-474E-B19C-333856ACE888}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.UnitTests", "AI.UnitTests\DotNetToolbox.AI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.UnitTests", "AI\Core.UnitTests\DotNetToolbox.AI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.ChatConsole", "Sophia\Sophia.Console\Sophia.ChatConsole.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.ConsoleClient", "Sophia\ConsoleClient\Sophia.ConsoleClient.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.WebApp", "Sophia\Sophia.WebApp\Sophia.WebApp.csproj", "{511BFDBA-80E0-4FE7-A120-B7FC58983177}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.WebApp", "Sophia\WebApp\Sophia.WebApp.csproj", "{511BFDBA-80E0-4FE7-A120-B7FC58983177}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.WebClient", "Sophia\Sophia.WebApp.Client\Sophia.WebClient.csproj", "{E87608E4-4084-437B-8865-70585079AB2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.WebClient", "Sophia\WebClient\Sophia.WebClient.csproj", "{E87608E4-4084-437B-8865-70585079AB2B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "ApplicationBuilders\Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.UnitTests", "Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.UnitTests", "ApplicationBuilders\Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleShell", "Console.SampleShell\DotNetToolbox.Console.SampleShell.csproj", "{574B6C14-9D19-4283-AEB9-13754EE6437C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleShell", "ApplicationBuilders\Samples\Shell\DotNetToolbox.Console.SampleShell.csproj", "{574B6C14-9D19-4283-AEB9-13754EE6437C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleCLI", "Console.SampleCLI\DotNetToolbox.Console.SampleCLI.csproj", "{88BA5A80-5353-4A03-BFF2-92F4A1951A70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleCLI", "ApplicationBuilders\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj", "{88BA5A80-5353-4A03-BFF2-92F4A1951A70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Core", "1 Core", "{26704704-EAF1-48B3-825A-7471AA3B59ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Cloud", "2 Cloud", "{98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Validation", "2 Validation", "{ED8CA294-A97C-4E70-A17C-06F4BB16F5C5}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Utilities", "1 Utilities", "{E24F02A0-1C68-44DC-8065-15889FC56490}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Security", "2 Security", "{8950DE62-2B82-4271-95DB-8141CD2A3181}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Console", "2 Console", "{A1EFA213-B4DB-4DFD-B829-188C511C63B1}"
 EndProject
@@ -81,19 +77,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 AI", "3 AI", "{B21A0D66-A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Testing", "1 Testing", "{56746752-64B7-48C0-A8C2-3F3390F35E77}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions", "FluentAssertions\DotNetToolbox.FluentAssertions.csproj", "{7B5CE993-A346-4550-B2CD-6C18889DB7B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions", "Testing\FluentAssertions\DotNetToolbox.FluentAssertions.csproj", "{7B5CE993-A346-4550-B2CD-6C18889DB7B3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities.UnitTests", "TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj", "{069556EA-B66F-4176-8F24-5092B1A1183A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities.UnitTests", "Testing\TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj", "{069556EA-B66F-4176-8F24-5092B1A1183A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions.UnitTests", "FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj", "{CCD73170-0753-468E-A633-5BA56D44C634}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions.UnitTests", "Testing\FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj", "{CCD73170-0753-468E-A633-5BA56D44C634}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Anthropic", "AI.Anthropic\DotNetToolbox.AI.Anthropic.csproj", "{D35099E2-30D7-454F-B947-7D0FC27EF782}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Anthropic", "AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj", "{D35099E2-30D7-454F-B947-7D0FC27EF782}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.OpenAI", "AI.OpenAI\DotNetToolbox.AI.OpenAI.csproj", "{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.OpenAI", "AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj", "{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.OpenAI.UnitTests", "AI.OpenAI.UnitTests\DotNetToolbox.AI.OpenAI.UnitTests.csproj", "{B55944F2-9B31-4C01-8CFC-0529DDE05814}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.OpenAI.UnitTests", "AI\OpenAI.UnitTests\DotNetToolbox.AI.OpenAI.UnitTests.csproj", "{B55944F2-9B31-4C01-8CFC-0529DDE05814}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Services", "Sophia\Sophia.Services\Sophia.Services.csproj", "{0E518EA8-CE79-4A32-A6F6-8C2A0C5CC40A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Domain", "Sophia\Domain\Sophia.Domain.csproj", "{0E518EA8-CE79-4A32-A6F6-8C2A0C5CC40A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Sophia", "4 Sophia", "{32ACC08D-5765-480E-A927-E5F67CEC449F}"
 EndProject
@@ -219,10 +215,10 @@ Global
 		{310680D3-C24B-4F79-A18A-944F9B6AC096} = {98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}
 		{474DF468-8CB0-4DB5-A31A-28609A61FEA7} = {98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}
 		{FD992DD6-1DBE-4948-AA13-2DDAA71A4130} = {98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}
-		{527E226A-DC59-406A-B525-387921A7EEB4} = {ED8CA294-A97C-4E70-A17C-06F4BB16F5C5}
-		{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9} = {ED8CA294-A97C-4E70-A17C-06F4BB16F5C5}
-		{1C6644F0-167D-4E79-AC42-DA5669FE110F} = {8950DE62-2B82-4271-95DB-8141CD2A3181}
-		{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE} = {8950DE62-2B82-4271-95DB-8141CD2A3181}
+		{527E226A-DC59-406A-B525-387921A7EEB4} = {E24F02A0-1C68-44DC-8065-15889FC56490}
+		{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9} = {E24F02A0-1C68-44DC-8065-15889FC56490}
+		{1C6644F0-167D-4E79-AC42-DA5669FE110F} = {E24F02A0-1C68-44DC-8065-15889FC56490}
+		{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE} = {E24F02A0-1C68-44DC-8065-15889FC56490}
 		{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B} = {56746752-64B7-48C0-A8C2-3F3390F35E77}
 		{7397C94F-80AD-44EC-8F9E-11C789DD5E9C} = {E24F02A0-1C68-44DC-8065-15889FC56490}
 		{836E8879-5054-41E7-86EC-7D8C10BD2A96} = {E24F02A0-1C68-44DC-8065-15889FC56490}

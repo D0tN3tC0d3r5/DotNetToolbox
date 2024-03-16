@@ -3,17 +3,19 @@
 if [%1]==[] goto USAGE
 if [%2]==[] goto USAGE
 if [%3]==[] goto USAGE
+if [%4]==[] goto USAGE
 set target=%1
-set project=%2
-set version=%3
-set packageName=%4
+set folder=%2
+set project=%3
+set version=%4
+set packageName=%5
 if [%packageName%]==[] set packageName=%project%
 
 setlocal EnableDelayedExpansion
 @echo [92m%project% v%version%[0m
 @echo Starting... @[96m%date% %time%[0m
 
-cd %project%
+cd %folder%
 
 if [!target!]==[local] (
 	set task=build
@@ -64,4 +66,3 @@ echo Publish ^<local^|remote^> ^<project^> ^<version^>
 echo;
 
 :END
-cd ..

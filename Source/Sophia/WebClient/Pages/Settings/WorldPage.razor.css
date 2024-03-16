@@ -1,0 +1,32 @@
+﻿.world-container {
+  max-width: 1024px;
+  margin-bottom: 2rem;
+}
+
+.world-form-container {
+  background-color: #f8f9fa;
+  max-width: 1024px;
+  border-radius: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .world-form-container {
+    margin: 0 auto;
+  }
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+.form-control {
+  background-color: #fff;
+}
+
+  .form-control:disabled {
+    background-color: #e9ecef;
+  }
+
+.btn-group > .btn {
+  flex: 1;
+}
