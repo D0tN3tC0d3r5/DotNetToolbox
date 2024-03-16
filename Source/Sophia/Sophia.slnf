@@ -3,8 +3,8 @@
     "path": "..\\DotNetToolbox.sln",
     "projects": [
       "AI\\Anthropic\\DotNetToolbox.AI.Anthropic.csproj",
-      "AI\\OpenAI\\DotNetToolbox.AI.OpenAI.csproj",
       "AI\\Core\\DotNetToolbox.AI.Core.csproj",
+      "AI\\OpenAI\\DotNetToolbox.AI.OpenAI.csproj",
       "Sophia\\ConsoleClient\\Sophia.ConsoleClient.csproj",
       "Sophia\\Domain\\Sophia.Domain.csproj",
       "Sophia\\WebApp\\Sophia.WebApp.csproj",

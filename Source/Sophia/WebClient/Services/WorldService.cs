@@ -1,7 +1,5 @@
 ﻿using System.Net.Http.Json;
 
-using Sophia.Models.Worlds;
-
 namespace Sophia.WebClient.Services;
 
 public class WorldService(HttpClient httpClient)

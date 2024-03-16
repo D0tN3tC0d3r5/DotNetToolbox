@@ -1,5 +1,3 @@
-using Sophia.Repositories;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -32,8 +30,8 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 builder.Services.AddAnthropic(builder.Configuration);
 
-builder.Services.AddScoped<IWorldRepository, WorldRepository>();
 builder.Services.AddScoped<IWorldService, WorldService>();
+builder.Services.AddScoped<ISkillsService, SkillsService>();
 
 var app = builder.Build();
 

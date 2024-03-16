@@ -25,7 +25,6 @@ global using Microsoft.Extensions.Options;
 global using Microsoft.Extensions.Primitives;
 
 global using Sophia.Services;
-global using Sophia.Repositories;
 global using Sophia.Models.Worlds;
 global using Sophia.Models.Skills;
 global using Sophia.WebApp.Components;
@@ -34,6 +33,6 @@ global using Sophia.WebApp.Components.Account.Pages;
 global using Sophia.WebApp.Components.Account.Pages.Manage;
 global using Sophia.WebApp.Components.World;
 global using Sophia.WebApp.Data;
-global using Sophia.WebApp.Repositories;
+global using Sophia.WebApp.Data.World;
 global using Sophia.WebApp.Services;
 

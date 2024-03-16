@@ -1,9 +1,6 @@
-﻿using Sophia.Models.Skills;
-using Sophia.Models.Worlds;
+﻿namespace Sophia.WebApp.Services;
 
-namespace Sophia.WebApp.Repositories;
-
-public static class WorldExtensions {
+public static class ModelMapper {
     public static WorldData ToDto(this World input)
         => new() {
             DateTime = input.DateTime,
@@ -35,6 +32,13 @@ public static class WorldExtensions {
             Description = input.Description,
             Arguments = input.Arguments.ToList(i => i.ToDto()),
         };
+
+    public static void ToModel(this Skill target, SkillData input) {
+        target.Id = input.Id;
+        target.Name = input.Name;
+        target.Description = input.Description;
+        target.Arguments = input.Arguments.ToList(i => i.ToModel());
+    }
 
     public static Skill ToModel(this SkillData input)
         => new() {

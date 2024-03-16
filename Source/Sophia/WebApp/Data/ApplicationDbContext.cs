@@ -1,5 +1,3 @@
-using Sophia.WebApp.Data.World;
-
 namespace Sophia.WebApp.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser>(options) {

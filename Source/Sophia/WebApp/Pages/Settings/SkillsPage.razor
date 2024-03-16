@@ -1,4 +1,5 @@
 ﻿@page "/Settings/Skills"
+@rendermode InteractiveWebAssembly
 
 <div class="skills-container">
   <div class="row mb-3">
@@ -6,7 +7,7 @@
       <h3>Skills Management</h3>
     </div>
     <div class="col-md-6 text-md-end">
-      <button type="button" class="btn btn-primary" @onclick="() => OpenSkillDialog()">
+      <button type="button" class="btn btn-primary" @onclick="OpenSkillModal">
         <i class="bi bi-plus-circle me-2"></i>Add Skill
       </button>
     </div>
@@ -31,7 +32,7 @@
               <td>@skill.Name</td>
               <td>@skill.Description</td>
               <td>
-                <button class="btn btn-primary btn-sm" @onclick="() => OpenSkillDialog(skill)">
+                <button class="btn btn-primary btn-sm" @onclick="() => OpenSkillModal(skill)">
                   <i class="bi bi-pencil"></i>
                 </button>
                 <button class="btn btn-danger btn-sm" @onclick="() => DeleteSkill(skill)">
@@ -46,7 +47,7 @@
   </div>
 </div>
 
-@if (_showSkillDialog) {
+@if (_showSkillModal) {
   <div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
     <div class="modal-dialog" role="document">
       <div class="modal-content">

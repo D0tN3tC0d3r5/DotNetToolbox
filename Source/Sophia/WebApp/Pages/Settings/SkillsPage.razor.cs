@@ -3,7 +3,7 @@
 public partial class SkillsPage {
     private IReadOnlyList<SkillData> _skills = [];
     private SkillData? _selectedSkill;
-    private bool _showSkillDialog;
+    private bool _showSkillModal;
     private bool _showDeleteConfirmation;
 
 
@@ -13,14 +13,14 @@ public partial class SkillsPage {
     protected override async Task OnInitializedAsync()
         => _skills = await SkillsService.GetList();
 
-    private void OpenSkillDialog(SkillData? skill = null) {
+    private void OpenSkillModal(SkillData? skill = null) {
         _selectedSkill = skill ?? new();
-        _showSkillDialog = true;
+        _showSkillModal = true;
     }
 
     private void CloseSkillDialog() {
         _selectedSkill = null;
-        _showSkillDialog = false;
+        _showSkillModal = false;
     }
 
     private async Task SaveSkill() {

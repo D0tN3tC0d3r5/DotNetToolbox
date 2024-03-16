@@ -1,7 +1,4 @@
-﻿using Sophia.Models.Skills;
-using Sophia.Models.Worlds;
-
-using Timer = System.Timers.Timer;
+﻿using Timer = System.Timers.Timer;
 
 namespace Sophia.WebClient.Pages.Settings;
 
