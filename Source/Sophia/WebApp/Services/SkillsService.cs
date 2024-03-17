@@ -8,9 +8,9 @@ public class SkillsService(ApplicationDbContext dbContext)
                           .AsNoTracking()
                           .Select(s => s.ToDto()).ToArrayAsync();
 
-    public async Task<SkillData?> GetById(int skillId) {
+    public async Task<SkillData?> GetById(int id) {
         var entity = await dbContext.Skills.AsNoTracking()
-                              .FirstOrDefaultAsync(s => s.Id == skillId);
+                              .FirstOrDefaultAsync(s => s.Id == id);
         return entity?.ToDto();
     }
 
@@ -21,16 +21,16 @@ public class SkillsService(ApplicationDbContext dbContext)
         selectedSkill.Id = entity.Id;
     }
 
-    public async Task Update(SkillData selectedSkill) {
+    public async Task Update(SkillData input) {
         var entity = await dbContext.Skills
-                                    .FirstOrDefaultAsync(s => s.Id == selectedSkill.Id);
-        entity?.UpdateFrom(selectedSkill);
+                                    .FirstOrDefaultAsync(s => s.Id == input.Id);
+        entity?.UpdateFrom(input);
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task Delete(int skillId) {
+    public async Task Delete(int id) {
         var entity = await dbContext.Skills
-                                    .FirstOrDefaultAsync(s => s.Id == skillId);
+                                    .FirstOrDefaultAsync(s => s.Id == id);
         if (entity is null) return;
         dbContext.Skills.Remove(entity);
         await dbContext.SaveChangesAsync();

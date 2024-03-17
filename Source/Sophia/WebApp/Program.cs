@@ -1,3 +1,5 @@
+using Sophia.WebApp.Endpoints;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -58,5 +60,6 @@ app.MapRazorComponents<App>()
 
 app.MapIdentityEndpoints();
 app.MapWorldEndpoints();
+app.MapSkillsEndpoints();
 
 app.Run();

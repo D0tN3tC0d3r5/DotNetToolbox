@@ -1,0 +1,38 @@
+﻿@page "/Settings/Skills/{SkillId:int}"
+@rendermode InteractiveWebAssembly
+
+<div class="skill-container">
+  <h3>@(IsReadOnly ? "View" : "Edit") Skill</h3>
+
+  <div class="mb-3">
+    <label for="skillName" class="form-label">Name</label>
+    <InputText id="skillName" class="form-control" @bind-Value="_skill.Name" disabled="@(IsReadOnly)" />
+  </div>
+  <div class="mb-3">
+    <label for="skillDescription" class="form-label">Description</label>
+    <InputTextArea id="skillDescription" class="form-control" @bind-Value="_skill.Description" disabled="@(IsReadOnly)" />
+  </div>
+
+  <h4>Required Arguments</h4>
+  <div class="argument-grid">
+    <!-- Grid for required arguments -->
+    <!-- Include buttons to move arguments up and down -->
+  </div>
+
+  <h4>Optional Arguments</h4>
+  <div class="argument-grid">
+    <!-- Grid for optional arguments -->
+    <!-- Include buttons to move arguments up and down -->
+  </div>
+
+  <div class="button-container">
+    @if (!IsReadOnly) {
+      <button class="btn btn-primary" @onclick="SaveSkill">Save</button>
+      <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+    }
+    else {
+      <button class="btn btn-primary" @onclick="EnableEdit">Edit</button>
+      <button class="btn btn-secondary" @onclick="GoBack">Back</button>
+    }
+  </div>
+</div>

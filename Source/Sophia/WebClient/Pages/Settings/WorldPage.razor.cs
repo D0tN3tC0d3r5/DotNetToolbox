@@ -8,12 +8,15 @@ public partial class WorldPage {
     private string _dateTime = string.Empty;
     private Timer? _timer;
 
-    private SkillData? _selectedSkill;
-    private bool _showSkillModal;
-    private bool _showDeleteConfirmation;
+    private IReadOnlyCollection<SkillData> _availableSkills = [];
+    private List<SkillData> _skillSelectionBuffer = [];
+    private bool _showSkillSelectionDialog;
 
     [Inject]
     public required IWorldService WorldService { get; set; }
+
+    [Inject]
+    public required ISkillsService SkillsService { get; set; }
 
     [Inject]
     public required ILogger<WorldPage> Logger { get; set; }
@@ -58,36 +61,22 @@ public partial class WorldPage {
     private void DeleteInfo(InformationData info)
         => _world.AdditionalInformation.Remove(info);
 
-    private void OpenSkillModal(SkillData? skill) {
-        _selectedSkill = skill ?? new SkillData();
-        _showSkillModal = true;
+    private async Task OpenSkillSelectionDialog() {
+        _availableSkills = await SkillsService.GetList();
+        _skillSelectionBuffer = [.. _world.Skills];
+        _showSkillSelectionDialog = true;
     }
 
-    private void CloseSkillModal() {
-        _selectedSkill = new();
-        _showSkillModal = false;
+    private void CloseSkillSelectionDialog() {
+        _skillSelectionBuffer = [];
+        _showSkillSelectionDialog = false;
     }
 
-    private void SaveSkill() {
-        var index = _world.Skills.FindIndex(s => s.Id == _selectedSkill!.Id);
-        if (index != -1) _world.Skills[index] = _selectedSkill!;
-        else _world.Skills.Add(_selectedSkill!);
-        CloseSkillModal();
+    private void FinishSkillSelection(List<SkillData> skills) {
+        _world.Skills = skills;
+        CloseSkillSelectionDialog();
     }
 
-    private void DeleteSkill(SkillData skill) {
-        _selectedSkill = skill;
-        _showDeleteConfirmation = true;
-    }
-
-    private void CancelDelete() {
-        _selectedSkill = null;
-        _showDeleteConfirmation = false;
-    }
-
-    private void ExecuteDelete() {
-        _world.Skills.Remove(_selectedSkill!);
-        _selectedSkill = null;
-        _showDeleteConfirmation = false;
-    }
+    private void RemoveSkill(SkillData skill)
+        => _world.Skills.Remove(skill);
 }

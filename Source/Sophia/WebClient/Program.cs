@@ -7,6 +7,7 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();
 builder.Services.AddScoped<IWorldService, WorldService>();
+builder.Services.AddScoped<ISkillsService, SkillsService>();
 
 builder.Services.AddScoped(sp => new HttpClient {
     BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),

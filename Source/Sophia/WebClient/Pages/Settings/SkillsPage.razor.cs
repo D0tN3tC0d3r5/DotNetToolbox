@@ -1,34 +1,28 @@
-﻿namespace Sophia.WebApp.Pages.Settings;
+﻿namespace Sophia.WebClient.Pages.Settings;
 
 public partial class SkillsPage {
     private IReadOnlyList<SkillData> _skills = [];
     private SkillData? _selectedSkill;
-    private bool _showSkillModal;
     private bool _showDeleteConfirmation;
 
 
     [Inject]
     public required ISkillsService SkillsService { get; set; }
 
+    [Inject]
+    public required NavigationManager NavigationManager { get; set; }
+
     protected override async Task OnInitializedAsync()
         => _skills = await SkillsService.GetList();
 
-    private void OpenSkillModal(SkillData? skill = null) {
-        _selectedSkill = skill ?? new();
-        _showSkillModal = true;
-    }
+    private void AddSkill()
+        => NavigationManager.NavigateTo($"/Settings/Skills/0?Action=add");
 
-    private void CloseSkillDialog() {
-        _selectedSkill = null;
-        _showSkillModal = false;
-    }
+    private void ViewSkill(SkillData skill)
+        => NavigationManager.NavigateTo($"/Settings/Skills/{skill.Id}?Action=view");
 
-    private async Task SaveSkill() {
-        if (_selectedSkill!.Id == 0) await SkillsService.Add(_selectedSkill);
-        else await SkillsService.Update(_selectedSkill);
-        _skills = await SkillsService.GetList();
-        CloseSkillDialog();
-    }
+    private void EditSkill(SkillData skill)
+        => NavigationManager.NavigateTo($"/Settings/Skills/{skill.Id}?Action=edit");
 
     private void DeleteSkill(SkillData skill) {
         _selectedSkill = skill;
