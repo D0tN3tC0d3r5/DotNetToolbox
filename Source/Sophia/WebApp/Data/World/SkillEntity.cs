@@ -12,9 +12,8 @@ public class SkillEntity
     [MaxLength(1000)]
     public string? Description { get; set; }
     public List<ArgumentEntity> Arguments { get; set; } = [];
-    public void Configure(EntityTypeBuilder<SkillEntity> builder) {
-        builder.OwnsMany(s => s.Arguments);
-    }
+    public void Configure(EntityTypeBuilder<SkillEntity> builder)
+        => builder.OwnsMany(s => s.Arguments);
 
     public SkillData ToDto()
         => new() {

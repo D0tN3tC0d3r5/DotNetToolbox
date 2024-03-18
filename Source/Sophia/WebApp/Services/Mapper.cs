@@ -1,6 +1,6 @@
 ﻿namespace Sophia.WebApp.Services;
 
-public static class ModelMapper {
+public static class Mapper {
     public static WorldData ToDto(this World input)
         => new() {
             DateTime = input.DateTime,
@@ -62,7 +62,7 @@ public static class ModelMapper {
             Name = input.Name,
             Description = input.Description,
             Type = input.Type,
-            Options = input.Type != ArgumentType.Enum ? null : input.Options.ToArray(),
+            Options = input.Type != ArgumentType.Enum ? null : [.. input.Options],
             IsRequired = input.IsRequired,
         };
 

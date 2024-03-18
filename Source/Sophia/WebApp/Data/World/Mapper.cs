@@ -1,6 +1,6 @@
 ﻿namespace Sophia.WebApp.Data.World;
 
-public static class WorldExtensions {
+public static class Mapper {
     public static WorldEntity ToEntity(this WorldData input)
         => new() {
             DateTime = input.DateTime,
@@ -19,7 +19,7 @@ public static class WorldExtensions {
             Name = input.Name,
             Description = input.Description,
             Type = input.Type,
-            Options = input.Type != ArgumentType.Enum ? null : input.Options.ToArray(),
+            Options = input.Type != ArgumentType.Enum ? null : [.. input.Options],
             IsRequired = input.IsRequired,
         };
 

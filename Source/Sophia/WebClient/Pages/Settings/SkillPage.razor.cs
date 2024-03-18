@@ -6,6 +6,7 @@ public partial class SkillPage {
 
     private PageAction _action;
     [Parameter]
+    [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
     public string Action {
         get => _action.ToString();
         set => _action = Enum.Parse<PageAction>(value); }

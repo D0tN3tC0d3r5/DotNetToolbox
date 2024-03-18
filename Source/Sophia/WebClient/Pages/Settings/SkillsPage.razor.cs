@@ -5,7 +5,6 @@ public partial class SkillsPage {
     private SkillData? _selectedSkill;
     private bool _showDeleteConfirmation;
 
-
     [Inject]
     public required ISkillsService SkillsService { get; set; }
 

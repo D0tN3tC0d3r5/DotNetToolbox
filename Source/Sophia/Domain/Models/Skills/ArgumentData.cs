@@ -13,7 +13,7 @@ public class ArgumentData {
             Name = Name,
             Type = Type,
             Description = Description,
-            Options = Options.ToArray(),
+            Options = [.. Options],
             IsRequired = IsRequired,
         };
 }
