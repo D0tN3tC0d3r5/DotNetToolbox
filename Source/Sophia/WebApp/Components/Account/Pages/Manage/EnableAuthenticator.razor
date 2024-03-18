@@ -6,8 +6,6 @@
 @inject Redirect Redirect
 @inject ILogger<EnableAuthenticator> Logger
 
-<PageTitle>Configure authenticator app</PageTitle>
-
 @if (_recoveryCodes is not null)
 {
     <ShowRecoveryCodes RecoveryCodes="_recoveryCodes.ToArray()" StatusMessage="@_message" />

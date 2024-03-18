@@ -1,13 +1,9 @@
 ---------------------------------------------------------------------------------------- 
-Domain\GlobalUsings.cs 
-global using DotNetToolbox.AI.Shared;
-global using DotNetToolbox.Collections.Generic;
- 
----------------------------------------------------------------------------------------- 
 Domain\Models\Skills\ArgumentData.cs 
 ﻿namespace Sophia.Models.Skills;
 
 public class ArgumentData {
+    public int Index { get; set; }
     public string Name { get; set; } = string.Empty;
     public ArgumentType Type { get; set; }
     public string? Description { get; set; }
@@ -133,6 +129,7 @@ global using DotNetToolbox.Collections.Generic;
 global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
+global using Microsoft.AspNetCore.Components.Routing;
 global using Microsoft.AspNetCore.Components.Server;
 global using Microsoft.AspNetCore.Http.Extensions;
 global using Microsoft.AspNetCore.Identity;
@@ -278,23 +275,22 @@ WebApp\Components\App.razor
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
-    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="lib/bootstrap-icons/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="lib/font-awesome/css/all.min.css" />
-    <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="Sophia.WebApp.styles.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <script src="lib/bootstrap/js/bootstrap.min.js" defer></script>
-    <script src="lib/font-awesome/js/all.min.js" defer></script>
-    <HeadOutlet />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="/" />
+  <link rel="stylesheet" href="lib/font-awesome/css/all.min.css" async />
+  <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css" async />
+  <link rel="stylesheet" href="lib/bootstrap-icons/font/bootstrap-icons.min.css" async /> 
+  <link rel="stylesheet" href="app.css" />
+  <link rel="stylesheet" href="Sophia.WebApp.styles.css" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <HeadOutlet />
 </head>
 
 <body>
-    <Routes />
-    <script src="_framework/blazor.web.js"></script>
+  <Routes />
+  <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+  <script src="_framework/blazor.web.js"></script>
 </body>
 
 </html>
@@ -358,7 +354,7 @@ internal static class EndpointRouteBuilderExtensions {
             [FromForm] string returnUrl) => {
                 IEnumerable<KeyValuePair<string, StringValues>> query = [
                     new("ReturnUrl", returnUrl),
-                new("Action", ExternalLogin._loginCallbackAction)];
+                new("PageAction", ExternalLogin._loginCallbackAction)];
 
                 var redirectUrl = UriHelper.BuildRelative(
                     context.Request.PathBase,
@@ -389,7 +385,7 @@ internal static class EndpointRouteBuilderExtensions {
                 var redirectUrl = UriHelper.BuildRelative(
                     context.Request.PathBase,
                     "/Account/Manage/ExternalLogins",
-                    QueryString.Create("Action", ExternalLogins._linkLoginCallbackAction));
+                    QueryString.Create("PageAction", ExternalLogins._linkLoginCallbackAction));
 
                 var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, signInManager.UserManager.GetUserId(context.User));
                 return TypedResults.Challenge(properties, [provider]);
@@ -558,8 +554,6 @@ internal sealed class UserAccessor(UserManager<ApplicationUser> userManager, Red
 WebApp\Components\Account\Pages\AccessDenied.razor 
 ﻿@page "/Account/AccessDenied"
 
-<PageTitle>Access denied</PageTitle>
-
 <header>
     <h1 class="text-danger">Access denied</h1>
     <p class="text-danger">You do not have access to this resource.</p>
@@ -571,8 +565,6 @@ WebApp\Components\Account\Pages\ConfirmEmail.razor
 
 @inject UserManager<ApplicationUser> UserManager
 @inject Redirect Redirect
-
-<PageTitle>Confirm email</PageTitle>
 
 <h1>Confirm email</h1>
 <StatusMessage Message="@_statusMessage" />
@@ -618,8 +610,6 @@ WebApp\Components\Account\Pages\ConfirmEmailChange.razor
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject Redirect Redirect
-
-<PageTitle>Confirm email change</PageTitle>
 
 <h1>Confirm email change</h1>
 
@@ -688,8 +678,6 @@ WebApp\Components\Account\Pages\ExternalLogin.razor
 @inject NavigationManager NavigationManager
 @inject Redirect Redirect
 @inject ILogger<ExternalLogin> Logger
-
-<PageTitle>Register</PageTitle>
 
 <StatusMessage Message="@_message" />
 <h1>Register</h1>
@@ -876,8 +864,6 @@ WebApp\Components\Account\Pages\ForgotPassword.razor
 @inject NavigationManager NavigationManager
 @inject Redirect Redirect
 
-<PageTitle>Forgot your password?</PageTitle>
-
 <h1>Forgot your password?</h1>
 <h2>Enter your email.</h2>
 <hr />
@@ -935,8 +921,6 @@ WebApp\Components\Account\Pages\ForgotPassword.razor
 WebApp\Components\Account\Pages\ForgotPasswordConfirmation.razor 
 ﻿@page "/Account/ForgotPasswordConfirmation"
 
-<PageTitle>Forgot password confirmation</PageTitle>
-
 <h1>Forgot password confirmation</h1>
 <p>
     Please check your email to reset your password.
@@ -945,8 +929,6 @@ WebApp\Components\Account\Pages\ForgotPasswordConfirmation.razor
 ---------------------------------------------------------------------------------------- 
 WebApp\Components\Account\Pages\InvalidPasswordReset.razor 
 ﻿@page "/Account/InvalidPasswordReset"
-
-<PageTitle>Invalid password reset</PageTitle>
 
 <h1>Invalid password reset</h1>
 <p>
@@ -957,8 +939,6 @@ WebApp\Components\Account\Pages\InvalidPasswordReset.razor
 WebApp\Components\Account\Pages\InvalidUser.razor 
 ﻿@page "/Account/InvalidUser"
 
-<PageTitle>Invalid user</PageTitle>
-
 <h3>Invalid user</h3>
 
 <StatusMessage />
@@ -966,8 +946,6 @@ WebApp\Components\Account\Pages\InvalidUser.razor
 ---------------------------------------------------------------------------------------- 
 WebApp\Components\Account\Pages\Lockout.razor 
 ﻿@page "/Account/Lockout"
-
-<PageTitle>Locked out</PageTitle>
 
 <header>
     <h1 class="text-danger">Locked out</h1>
@@ -982,8 +960,6 @@ WebApp\Components\Account\Pages\Login.razor
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject Redirect Redirect
-
-<PageTitle>Log in</PageTitle>
 
 <h1>Log in</h1>
 <div class="row">
@@ -1109,8 +1085,6 @@ WebApp\Components\Account\Pages\LoginWith2fa.razor
 @inject Redirect Redirect
 @inject ILogger<LoginWith2fa> Logger
 
-<PageTitle>Two-factor authentication</PageTitle>
-
 <h1>Two-factor authentication</h1>
 <hr />
 <StatusMessage Message="@_message" />
@@ -1209,8 +1183,6 @@ WebApp\Components\Account\Pages\LoginWithRecoveryCode.razor
 @inject Redirect Redirect
 @inject ILogger<LoginWithRecoveryCode> Logger
 
-<PageTitle>Recovery code verification</PageTitle>
-
 <h1>Recovery code verification</h1>
 <hr />
 <StatusMessage Message="@_message" />
@@ -1295,8 +1267,6 @@ WebApp\Components\Account\Pages\Register.razor
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject Redirect Redirect
-
-<PageTitle>Register</PageTitle>
 
 <h1>Register</h1>
 
@@ -1434,8 +1404,6 @@ WebApp\Components\Account\Pages\RegisterConfirmation.razor
 @inject NavigationManager NavigationManager
 @inject Redirect Redirect
 
-<PageTitle>Register confirmation</PageTitle>
-
 <h1>Register confirmation</h1>
 
 <StatusMessage Message="@_statusMessage" />
@@ -1500,8 +1468,6 @@ WebApp\Components\Account\Pages\ResendEmailConfirmation.razor
 @inject NavigationManager NavigationManager
 @inject Redirect Redirect
 
-<PageTitle>Resend email confirmation</PageTitle>
-
 <h1>Resend email confirmation</h1>
 <h2>Enter your email.</h2>
 <hr />
@@ -1561,8 +1527,6 @@ WebApp\Components\Account\Pages\ResetPassword.razor
 
 @inject Redirect Redirect
 @inject UserManager<ApplicationUser> UserManager
-
-<PageTitle>Reset password</PageTitle>
 
 <h1>Reset password</h1>
 <h2>Reset your password.</h2>
@@ -1658,7 +1622,6 @@ WebApp\Components\Account\Pages\ResetPassword.razor
 ---------------------------------------------------------------------------------------- 
 WebApp\Components\Account\Pages\ResetPasswordConfirmation.razor 
 ﻿@page "/Account/ResetPasswordConfirmation"
-<PageTitle>Reset password confirmation</PageTitle>
 
 <h1>Reset password confirmation</h1>
 <p>
@@ -1678,8 +1641,6 @@ WebApp\Components\Account\Pages\Manage\ChangePassword.razor
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
 @inject ILogger<ChangePassword> Logger
-
-<PageTitle>Change password</PageTitle>
 
 <h3>Change password</h3>
 <StatusMessage Message="@_message" />
@@ -1774,8 +1735,6 @@ WebApp\Components\Account\Pages\Manage\DeletePersonalData.razor
 @inject Redirect Redirect
 @inject ILogger<DeletePersonalData> Logger
 
-<PageTitle>Delete Personal Data</PageTitle>
-
 <StatusMessage Message="@_message" />
 
 <h3>Delete Personal Data</h3>
@@ -1858,8 +1817,6 @@ WebApp\Components\Account\Pages\Manage\Disable2fa.razor
 @inject Redirect Redirect
 @inject ILogger<Disable2fa> Logger
 
-<PageTitle>Disable two-factor authentication (2FA)</PageTitle>
-
 <StatusMessage />
 <h3>Disable two-factor authentication (2FA)</h3>
 
@@ -1921,8 +1878,6 @@ WebApp\Components\Account\Pages\Manage\Email.razor
 @inject IEmailSender<ApplicationUser> EmailSender
 @inject UserAccessor UserAccessor
 @inject NavigationManager NavigationManager
-
-<PageTitle>Manage email</PageTitle>
 
 <h3>Manage email</h3>
 
@@ -2041,8 +1996,6 @@ WebApp\Components\Account\Pages\Manage\EnableAuthenticator.razor
 @inject UrlEncoder UrlEncoder
 @inject Redirect Redirect
 @inject ILogger<EnableAuthenticator> Logger
-
-<PageTitle>Configure authenticator app</PageTitle>
 
 @if (_recoveryCodes is not null)
 {
@@ -2210,8 +2163,6 @@ WebApp\Components\Account\Pages\Manage\ExternalLogins.razor
 @inject IUserStore<ApplicationUser> UserStore
 @inject Redirect Redirect
 
-<PageTitle>Manage your external logins</PageTitle>
-
 <StatusMessage />
 @if (_currentLogins?.Count > 0)
 {
@@ -2348,8 +2299,6 @@ WebApp\Components\Account\Pages\Manage\GenerateRecoveryCodes.razor
 @inject Redirect Redirect
 @inject ILogger<GenerateRecoveryCodes> Logger
 
-<PageTitle>Generate two-factor authentication (2FA) recovery codes</PageTitle>
-
 @if (_recoveryCodes is not null)
 {
     <ShowRecoveryCodes RecoveryCodes="_recoveryCodes.ToArray()" StatusMessage="@_message" />
@@ -2415,8 +2364,6 @@ WebApp\Components\Account\Pages\Manage\Index.razor
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
-
-<PageTitle>Profile</PageTitle>
 
 <h3>Profile</h3>
 <StatusMessage />
@@ -2489,8 +2436,6 @@ WebApp\Components\Account\Pages\Manage\PersonalData.razor
 
 @inject UserAccessor UserAccessor
 
-<PageTitle>Personal Data</PageTitle>
-
 <StatusMessage />
 <h3>Personal Data</h3>
 
@@ -2529,8 +2474,6 @@ WebApp\Components\Account\Pages\Manage\ResetAuthenticator.razor
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
 @inject ILogger<ResetAuthenticator> Logger
-
-<PageTitle>Reset authenticator key</PageTitle>
 
 <StatusMessage />
 <h3>Reset authenticator key</h3>
@@ -2580,8 +2523,6 @@ WebApp\Components\Account\Pages\Manage\SetPassword.razor
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
-
-<PageTitle>Set password</PageTitle>
 
 <h3>Set your password</h3>
 <StatusMessage Message="@_message" />
@@ -2666,8 +2607,6 @@ WebApp\Components\Account\Pages\Manage\TwoFactorAuthentication.razor
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
-
-<PageTitle>Two-factor authentication (2FA)</PageTitle>
 
 <StatusMessage />
 <h3>Two-factor authentication (2FA)</h3>
@@ -2968,14 +2907,46 @@ WebApp\Components\Account\Shared\StatusMessage.razor
 }
  
 ---------------------------------------------------------------------------------------- 
+WebApp\Components\Layout\NavMenu.razor.cs 
+﻿namespace Sophia.WebApp.Components.Layout;
+
+public partial class NavMenu : IDisposable {
+    private string? _currentUrl;
+    private bool _collapseNavMenu = false;
+
+    private string? CollapseCssClass => _collapseNavMenu ? "collapsed" : null;
+    //private string? NavMenuHeaderCssClass => _collapseNavMenu ? "collapse-header" : "collapse-header show";
+    //private string? NavMenuItemsCssClass => _collapseNavMenu ? "collapse" : "collapse show";
+    //private string? NavMenuItemCssClass => _collapseNavMenu ? "collapse-item" : "collapse-item show";
+
+    [Inject]
+    public required NavigationManager NavigationManager { get; set; }
+
+    protected override void OnInitialized() {
+        _currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void ToggleNavMenu() => _collapseNavMenu = !_collapseNavMenu;
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) {
+        _currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+
+    public void Dispose()
+        => NavigationManager.LocationChanged -= OnLocationChanged;
+}
+ 
+---------------------------------------------------------------------------------------- 
 WebApp\Components\Layout\MainLayout.razor 
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<PageTitle>Sophia</PageTitle>
 
+<div class="page">
+    <NavMenu />
     <main>
         <article class="content px-4">
             @Body
@@ -2991,85 +2962,71 @@ WebApp\Components\Layout\MainLayout.razor
  
 ---------------------------------------------------------------------------------------- 
 WebApp\Components\Layout\NavMenu.razor 
-﻿@implements IDisposable
+﻿@rendermode InteractiveServer
 
-@inject NavigationManager NavigationManager
-
-<div class="top-row ps-3 navbar navbar-dark">
+<div class="sidebar @CollapseCssClass">
+  <div class="top-row navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Sophia</a>
+      <a class="navbar-brand" href="">
+        <i class="bi bi-app" aria-hidden="true"></i>
+        <span>Sophia</span>
+      </a>
+      <button class="navbar-toggler" @onclick="ToggleNavMenu" title="Navigation menu">
+        <i class="bi bi-list"></i>
+      </button>
     </div>
-</div>
+  </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+  <nav class="flex-column">
+    <div class="nav-item">
+      <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+        <i class="bi bi-house-door-fill" aria-hidden="true"></i>
+        <span>Home</span>
+      </NavLink>
+    </div>
+    <div class="nav-item">
+      <NavLink class="nav-link" href="Settings">
+        <i class="bi bi-gear-fill" aria-hidden="true"></i>
+        <span>Settings</span>
+      </NavLink>
+    </div>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+    <AuthorizeView>
+      <Authorized>
+        <div class="nav-item">
+          <NavLink class="nav-link" href="Account/Manage">
+            <i class="bi bi-person-fill" aria-hidden="true"></i>
+            <span>@context.User.Identity?.Name</span>
+          </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Settings">
-                <span class="bi bi-gear-fill-nav-menu" aria-hidden="true"></span> Settings
-            </NavLink>
+        <div class="nav-item">
+          <form action="Account/Logout" method="post">
+            <AntiforgeryToken />
+            <input type="hidden" name="ReturnUrl" value="@_currentUrl" />
+            <button type="submit" class="nav-link">
+              <i class="bi bi-arrow-bar-left" aria-hidden="true"></i>
+              <span>Logout</span>
+            </button>
+          </form>
         </div>
-
-        <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Manage">
-                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <form action="Account/Logout" method="post">
-                        <AntiforgeryToken />
-                        <input type="hidden" name="ReturnUrl" value="@_currentUrl" />
-                        <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                        </button>
-                    </form>
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Register">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Login">
-                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </nav>
+      </Authorized>
+      <NotAuthorized>
+        <div class="nav-item">
+          <NavLink class="nav-link" href="Account/Register">
+            <i class="bi bi-person" aria-hidden="true"></i>
+            <span>Register</span>
+          </NavLink>
+        </div>
+        <div class="nav-item">
+          <NavLink class="nav-link" href="Account/Login">
+            <i class="bi bi-person-badge" aria-hidden="true"></i>
+            <span>Login</span>
+          </NavLink>
+        </div>
+      </NotAuthorized>
+    </AuthorizeView>
+  </nav>
 </div>
-
-@code {
-    private string? _currentUrl;
-
-    protected override void OnInitialized()
-    {
-        _currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        _currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-        StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-    }
-}
-
  
 ---------------------------------------------------------------------------------------- 
 WebApp\Components\Layout\MainLayout.razor.css 
@@ -3081,10 +3038,6 @@ WebApp\Components\Layout\MainLayout.razor.css
 
 main {
     flex: 1;
-}
-
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
 }
 
 .top-row {
@@ -3126,13 +3079,6 @@ main {
         flex-direction: row;
     }
 
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
-
     .top-row {
         position: sticky;
         top: 0;
@@ -3172,80 +3118,42 @@ main {
  
 ---------------------------------------------------------------------------------------- 
 WebApp\Components\Layout\NavMenu.razor.css 
-.navbar-toggler {
-  appearance: none;
-  cursor: pointer;
-  width: 3.5rem;
-  height: 2.5rem;
-  color: white;
-  position: absolute;
-  top: 0.5rem;
-  right: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
+.sidebar {
+  background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
 }
 
-  .navbar-toggler:checked {
-    background-color: rgba(255, 255, 255, 0.5);
-  }
+.navbar-toggler {
+  width: 3.5rem;
+  padding: 4px;
+  border: none;
+}
 
 .top-row {
   height: 3.5rem;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .navbar-brand {
+  align-items: center;
   font-size: 1.1rem;
 }
 
 .bi {
-  display: inline-block;
-  position: relative;
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-right: 0.75rem;
-  top: -1px;
-  background-size: cover;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  font-size: 1.25rem;
+  color: white;
+  display: inline-flex;
 }
 
-.bi-house-door-fill-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-house-door-fill' viewBox='0 0 16 16'%3E%3Cpath d='M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5Z'/%3E%3C/svg%3E");
-}
-
-.bi-plus-square-fill-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-plus-square-fill' viewBox='0 0 16 16'%3E%3Cpath d='M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z'/%3E%3C/svg%3E");
-}
-
-.bi-list-nested-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-list-nested' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z'/%3E%3C/svg%3E");
-}
-
-.bi-lock-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-list-nested' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z'/%3E%3C/svg%3E");
-}
-
-.bi-person-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-person' viewBox='0 0 16 16'%3E%3Cpath d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z'/%3E%3C/svg%3E");
-}
-
-.bi-person-badge-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-person-badge' viewBox='0 0 16 16'%3E%3Cpath d='M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z'/%3E%3Cpath d='M4.5 0A2.5 2.5 0 0 0 2 2.5V14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2.5A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v10.795a4.2 4.2 0 0 0-.776-.492C11.392 12.387 10.063 12 8 12s-3.392.387-4.224.803a4.2 4.2 0 0 0-.776.492V2.5z'/%3E%3C/svg%3E");
-}
-
-.bi-person-fill-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-person-fill' viewBox='0 0 16 16'%3E%3Cpath d='M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'/%3E%3C/svg%3E");
-}
-
-.bi-arrow-bar-left-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-arrow-bar-left' viewBox='0 0 16 16'%3E%3Cpath d='M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5ZM10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5Z'/%3E%3C/svg%3E");
-}
-
-.bi-gear-fill-nav-menu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-gear-fill' viewBox='0 0 16 16'%3E%3Cpath d='M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z'/%3E%3C/svg%3E");
+.collapsed nav {
+  display: none;
 }
 
 .nav-item {
   font-size: 0.9rem;
+  padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
 
@@ -3260,8 +3168,8 @@ WebApp\Components\Layout\NavMenu.razor.css
   .nav-item ::deep .nav-link {
     color: #d7d7d7;
     background: none;
+    padding: 4px;
     border: none;
-    border-radius: 4px;
     height: 3rem;
     display: flex;
     align-items: center;
@@ -3269,36 +3177,64 @@ WebApp\Components\Layout\NavMenu.razor.css
     width: 100%;
   }
 
+  .nav-item ::deep span {
+    margin-left: 0.75rem;
+  }
+
   .nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
+    background-color: rgba(255, 255, 255, 0.37);
     color: white;
   }
 
   .nav-item ::deep .nav-link:hover {
-    background-color: rgba(255,255,255,0.1);
+    background-color: rgba(255, 255, 255, 0.1);
     color: white;
   }
 
-.nav-scrollable {
-  display: none;
-}
-
-.navbar-toggler:checked ~ .nav-scrollable {
-  display: block;
-}
-
 @media (min-width: 641px) {
-  .navbar-toggler {
-    display: none;
+  .sidebar {
+    width: 250px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
   }
 
-  .nav-scrollable {
-    /* Never collapse the sidebar for wide screens */
-    display: block;
-    /* Allow sidebar to scroll for tall menus */
-    height: calc(100vh - 3.5rem);
-    overflow-y: auto;
+  .collapsed {
+    width: 4rem;
   }
+
+    .collapsed .top-row {
+      justify-content: center;
+      padding: 0;
+    }
+
+    .collapsed .container-fluid {
+      padding: 0;
+    }
+
+    .collapsed .navbar-brand {
+      display: none;
+    }
+
+    .collapsed ::deep .bi {
+      margin: 0 auto;
+    }
+
+    .collapsed ::deep span {
+      display: none;
+    }
+
+    .collapsed nav {
+      display: block;
+      width: 4rem;
+      overflow-y: auto;
+      transition: width 0.3s ease-in-out;
+    }
+
+      .collapsed nav .nav-item ::deep .nav-link {
+        justify-content: center;
+        width: 3.5rem;
+      }
 }
  
 ---------------------------------------------------------------------------------------- 
@@ -5013,76 +4949,116 @@ internal static class SkillsEndpoints {
 }
  
 ---------------------------------------------------------------------------------------- 
-WebApp\Pages\ErrorPage.razor 
-﻿@page "/Error"
+WebApp\Pages\ErrorPage.razor.cs 
+﻿using System.Diagnostics;
 
-<PageTitle>Error</PageTitle>
+namespace Sophia.WebApp.Pages;
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+public partial class ErrorPage {
+    [Inject]
+    public required IWebHostEnvironment Environment { get; set; }
 
-@if (ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@RequestId</code>
-    </p>
-}
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
-
-@code{
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
 
     private string? RequestId { get; set; }
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    protected override void OnInitialized() =>
-        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+    protected override void OnInitialized() => RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
 }
+ 
+---------------------------------------------------------------------------------------- 
+WebApp\Pages\AuthPage.razor 
+﻿@page "/auth"
+@rendermode InteractiveWebAssembly
+
+@attribute [Authorize]
+
+<h1>You are authenticated</h1>
+
+<AuthorizeView>
+    Hello @context.User.Identity?.Name!
+</AuthorizeView>
+ 
+---------------------------------------------------------------------------------------- 
+WebApp\Pages\ErrorPage.razor 
+﻿@page "/Error"
+
+<div class="container">
+  <div class="container-header row mb-3">
+    <h3 class="text-danger">Error.</h3>
+  </div>
+  <div class="container-body">
+    <p class="text-danger">An error occurred while processing your request.</p>
+
+    @if (ShowRequestId) {
+      <p>
+        <strong>Request ID:</strong> <code>@RequestId</code>
+      </p>
+    }
+
+    @if (!Environment.IsDevelopment()) {
+      <div class="text-danger">
+        <h3>Debugging mode is not enabled.</h3>
+        <p>
+          Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
+        </p>
+        <p>
+          <strong>The debugging mode shouldn't be enabled for deployed applications.</strong>
+          It can result in displaying sensitive information from exceptions to end users.
+          For local debugging, enable the <strong>debugging mode</strong> by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
+          and restarting the app.
+        </p>
+      </div>
+    }
+  </div>
+</div>
  
 ---------------------------------------------------------------------------------------- 
 WebApp\Pages\HomePage.razor 
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<div class="container">
+  <div class="container-header row mb-3">
+    <h3>Hello, world!</h3>
+  </div>
+  <div class="container-body">
+    Welcome to your new app.
+  </div>
+</div>
  
 ---------------------------------------------------------------------------------------- 
 WebApp\Pages\SettingsPage.razor 
 ﻿@page "/Settings"
-
-<h3>Settings</h3>
+@rendermode InteractiveServer
 
 <div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-4 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <i class="fas fa-globe fa-3x mb-3"></i>
-          <h5 class="card-title">World Settings</h5>
-          <a href="/Settings/World" class="btn btn-primary">Go to World Settings</a>
+  <div class="container-header row mb-3">
+    <div class="col-md-6">
+      <h3>Settings</h3>
+    </div>
+  </div>
+
+  <div class="container-body">
+    <div class="row justify-content-center">
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <a href="/Settings/World" class="btn btn-outline-primary">
+              <i class="fas fa-globe fa-3x mb-3"></i>
+              <h5 class="card-title">World Settings</h5>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <i class="fas fa-cogs fa-3x mb-3"></i>
-          <h5 class="card-title">Skills Management</h5>
-          <a href="/Settings/Skills" class="btn btn-primary">Go to Skills Management</a>
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <a href="/Settings/Skills" class="btn btn-outline-primary">
+              <i class="fas fa-cogs fa-3x mb-3"></i>
+              <h5 class="card-title">Skills Management</h5>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -5338,55 +5314,92 @@ public class WorldService(ApplicationDbContext dbContext, World world)
 ---------------------------------------------------------------------------------------- 
 WebApp\wwwroot\app.css 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {
-    color: #006bb7;
+  color: #006bb7;
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+article {
+  max-width: 1024px;
+}
+
+@media (min-width: 641px) {
+  article {
+    margin: 0 auto;
+  }
+}
+
 .content {
-    padding-top: 1.1rem;
+  padding-top: 1.1rem;
 }
 
 h1:focus {
-    outline: none;
+  outline: none;
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+  outline: 1px solid #26b050;
 }
 
 .invalid {
-    outline: 1px solid #e50000;
+  outline: 1px solid #e50000;
 }
 
 .validation-message {
-    color: #e50000;
+  color: #e50000;
 }
 
 .blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
-    padding: 1rem 1rem 1rem 3.7rem;
-    color: white;
+  background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
+  padding: 1rem 1rem 1rem 3.7rem;
+  color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
+  .blazor-error-boundary::after {
+    content: "An error has occurred."
+  }
 
 .darker-border-checkbox.form-check-input {
-    border-color: #929292;
+  border-color: #929292;
+}
+
+.container-header {
+}
+
+
+.container-body {
+  margin-bottom: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 0.25rem;
+}
+
+
+.form-label {
+  font-weight: 500;
+}
+
+.form-control {
+  background-color: #fff;
+}
+
+  .form-control:disabled {
+    background-color: #e9ecef;
+  }
+
+.btn-group > .btn {
+  flex: 1;
 }
  
 ---------------------------------------------------------------------------------------- 
@@ -5398,10 +5411,11 @@ global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
 global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
+global using DotNetToolbox.AI.Shared;
+
 global using Sophia.Services;
 global using Sophia.Models.Worlds;
 global using Sophia.Models.Skills;
-global using Sophia.WebClient;
  
 ---------------------------------------------------------------------------------------- 
 WebClient\Program.cs 
@@ -5441,6 +5455,9 @@ WebClient\_Imports.razor
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.JSInterop
+
+@using Sophia.WebClient.Pages;
+@using Sophia.WebClient.Components.Dialogs;
  
 ---------------------------------------------------------------------------------------- 
 WebClient\Account\PersistentAuthenticationStateProvider.cs 
@@ -5493,23 +5510,58 @@ WebClient\Account\RedirectToLogin.razor
 }
  
 ---------------------------------------------------------------------------------------- 
-WebClient\Pages\AuthPage.razor 
-﻿@page "/auth"
+WebClient\Components\Dialogs\ArgumentDialog.razor.cs 
+﻿using Sophia.WebClient.Pages;
 
-@attribute [Authorize]
-@rendermode InteractiveWebAssembly
+namespace Sophia.WebClient.Components.Dialogs;
 
-<PageTitle>Auth</PageTitle>
+public partial class ArgumentDialog {
+    [Parameter]
+    public PageAction Action { get; set; }
 
-<h1>You are authenticated</h1>
+    [Parameter]
+    public ArgumentData Argument { get; set; } = new();
 
-<AuthorizeView>
-    Hello @context.User.Identity?.Name!
-</AuthorizeView>
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private ArgumentData _argument = new();
+
+    protected override void OnInitialized()
+        => _argument = Argument;
+
+    private void Save()
+        => OnSave.InvokeAsync();
+
+    private void Cancel()
+        => OnCancel.InvokeAsync();
+}
  
 ---------------------------------------------------------------------------------------- 
-WebClient\Pages\Settings\SkillSelectionDialog.razor.cs 
-﻿namespace Sophia.WebClient.Pages.Settings;
+WebClient\Components\Dialogs\ConfirmationDialog.razor.cs 
+﻿namespace Sophia.WebClient.Components.Dialogs;
+
+public partial class ConfirmationDialog {
+    [Parameter]
+    public string Message { get; set; } = "";
+
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private void Confirm() => OnConfirm.InvokeAsync();
+
+    private void Cancel() => OnCancel.InvokeAsync();
+}
+ 
+---------------------------------------------------------------------------------------- 
+WebClient\Components\Dialogs\SkillSelectionDialog.razor.cs 
+﻿namespace Sophia.WebClient.Components.Dialogs;
 
 public partial class SkillSelectionDialog {
     [Parameter]
@@ -5524,7 +5576,7 @@ public partial class SkillSelectionDialog {
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
-    public bool ShowDialog => AvailableSkills.Count != 0;
+    public bool HasSkills => AvailableSkills.Count != 0;
     private string _searchText = string.Empty;
 
     private List<SkillData> FilteredSkills
@@ -5533,25 +5585,255 @@ public partial class SkillSelectionDialog {
                    || (s.Description?.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ?? false))
           .ToList();
 
-    private bool IsSelected(SkillData skill) {
-        return SelectedSkills.Contains(skill);
-    }
+    private bool IsSelected(SkillData skill)
+        => SelectedSkills.Contains(skill);
 
     private void ToggleSelection(SkillData skill) {
-        if (IsSelected(skill)) {
-            SelectedSkills.Remove(skill);
-        }
-        else {
-            SelectedSkills.Add(skill);
-        }
+        if (IsSelected(skill)) SelectedSkills.Remove(skill);
+        else SelectedSkills.Add(skill);
     }
 
-    private void Confirm() {
-        OnSkillsSelected.InvokeAsync(SelectedSkills);
+    private void Confirm()
+        => OnSkillsSelected.InvokeAsync(SelectedSkills);
+
+    private void Cancel()
+        => OnCancel.InvokeAsync();
+}
+ 
+---------------------------------------------------------------------------------------- 
+WebClient\Components\Dialogs\ArgumentDialog.razor 
+﻿<div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Action Argument</h5>
+                <button type="button" class="btn-close" @onclick="Cancel"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="argumentName" class="form-label">Name</label>
+                    <InputText id="argumentName" class="form-control" @bind-Value="_argument.Name" />
+                </div>
+                <div class="mb-3">
+                    <label for="argumentType" class="form-label">Type</label>
+                    <InputSelect id="argumentType" class="form-control" @bind-Value="_argument.Type">
+                        @foreach (var type in Enum.GetValues<ArgumentType>())
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
+                    <label for="argumentDescription" class="form-label">Description</label>
+                    <InputTextArea id="argumentDescription" class="form-control" @bind-Value="_argument.Description" />
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <InputCheckbox id="argumentRequired" class="form-check-input" @bind-Value="_argument.IsRequired" />
+                        <label class="form-check-label" for="argumentRequired">Required</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+---------------------------------------------------------------------------------------- 
+WebClient\Components\Dialogs\ConfirmationDialog.razor 
+﻿<div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmation</h5>
+        <button type="button" class="btn-close" @onclick="Cancel"></button>
+      </div>
+      <div class="modal-body">
+        <p>@Message</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        <button type="button" class="btn btn-danger" @onclick="Confirm">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+---------------------------------------------------------------------------------------- 
+WebClient\Components\Dialogs\SkillSelectionDialog.razor 
+﻿<div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
+  <div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      @if (HasSkills) {
+        <div class="modal-header">
+          <h5 class="modal-title">Select Skills</h5>
+          <button type="button" class="btn-close" @onclick="Cancel"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Search skills..." @bind="_searchText" />
+          </div>
+          @if (FilteredSkills.Count != 0) {
+            <ul class="list-group">
+              @foreach (var skill in FilteredSkills) {
+                <li class="list-group-item">
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="skill-@skill.Id"
+                           checked="@IsSelected(skill)" @onchange="() => ToggleSelection(skill)" />
+                    <label class="form-check-label" for="skill-@skill.Id">@skill.Name</label>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+          else {
+            <h5>No skills found for the selected filter.</h5>
+          }
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+          <button type="button" class="btn btn-primary" @onclick="Confirm">Confirm</button>
+        </div>
+      }
+      <div class="modal-header">
+        <h5 class="modal-title">There are no skills available</h5>
+        <button type="button" class="btn-close" @onclick="Cancel"></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+---------------------------------------------------------------------------------------- 
+WebClient\Pages\PageAction.cs 
+﻿namespace Sophia.WebClient.Pages;
+
+public enum PageAction {
+    View,
+    Edit,
+    Add,
+}
+ 
+---------------------------------------------------------------------------------------- 
+WebClient\Pages\Settings\SkillPage.razor.cs 
+﻿namespace Sophia.WebClient.Pages.Settings;
+
+public partial class SkillPage {
+    [Parameter]
+    public int SkillId { get; set; }
+
+    private PageAction _action;
+    [Parameter]
+    public string Action {
+        get => _action.ToString();
+        set => _action = Enum.Parse<PageAction>(value); }
+
+    private PageAction _argumentAction = PageAction.View;
+
+    private bool IsReadOnly => _action == PageAction.View;
+
+    [Inject]
+    public required ISkillsService SkillsService { get; set; }
+
+    [Inject]
+    public required NavigationManager NavigationManager { get; set; }
+
+    private SkillData _skill = new();
+    private ArgumentData? _selectedArgument;
+    private bool _showArgumentModal;
+    private bool _showDeleteConfirmation;
+
+    protected override async Task OnInitializedAsync()
+        => _skill = await SkillsService.GetById(SkillId) ?? new SkillData();
+
+    private void EnableEdit() => _action = PageAction.Edit;
+
+    private async Task Save() {
+        if (_skill.Id == 0) await SkillsService.Add(_skill);
+        else await SkillsService.Update(_skill);
+        _action = PageAction.View;
     }
 
-    private void Cancel() {
-        OnCancel.InvokeAsync();
+    private Task Cancel() {
+        if (_action == PageAction.Edit) return CancelEdit();
+        GoBack();
+        return Task.CompletedTask;
+    }
+
+    private async Task CancelEdit() {
+        _action = PageAction.View;
+        _skill = await SkillsService.GetById(SkillId) ?? new SkillData();
+    }
+
+    private void GoBack() => NavigationManager.NavigateTo("/Settings/Skills");
+
+    private void Add() {
+        _selectedArgument = new();
+        _argumentAction = PageAction.Add;
+        _showArgumentModal = true;
+    }
+
+    private void View(ArgumentData argument) {
+        _selectedArgument = argument;
+        _argumentAction = PageAction.View;
+        _showArgumentModal = true;
+    }
+
+    private void Edit(ArgumentData argument) {
+        _selectedArgument = argument;
+        _argumentAction = PageAction.Edit;
+        _showArgumentModal = true;
+    }
+
+    private void CloseArgumentModal() {
+        _showArgumentModal = false;
+        _selectedArgument = null;
+    }
+
+    private void SaveArgument() {
+        _showArgumentModal = false;
+        if (_argumentAction == PageAction.Add)
+            _skill.Arguments.Add(_selectedArgument!);
+    }
+
+    private void Delete(ArgumentData argument) {
+        _selectedArgument = argument;
+        _showDeleteConfirmation = true;
+    }
+
+    private void CancelDelete() {
+        _showDeleteConfirmation = false;
+        _selectedArgument = null;
+    }
+
+    private void ExecuteDelete() {
+        _showDeleteConfirmation = false;
+        _skill.Arguments.Remove(_selectedArgument!);
+    }
+
+    private void MoveUp(ArgumentData argument) {
+        var minimum = argument.IsRequired
+                          ? 0
+                          : _skill.Arguments.Count(a => a.IsRequired);
+        var index = _skill.Arguments.IndexOf(argument);
+        if (index <= minimum) return;
+        _skill.Arguments.Remove(argument);
+        _skill.Arguments.Insert(index - 1, argument);
+    }
+
+    private void MoveDown(ArgumentData argument) {
+        var maximum = argument.IsRequired
+                          ? _skill.Arguments.Count(a => a.IsRequired)
+                          : _skill.Arguments.Count;
+        var index = _skill.Arguments.IndexOf(argument);
+        if (index >= maximum - 1) return;
+        _skill.Arguments.Remove(argument);
+        _skill.Arguments.Insert(index + 1, argument);
     }
 }
  
@@ -5562,39 +5844,28 @@ WebClient\Pages\Settings\SkillsPage.razor.cs
 public partial class SkillsPage {
     private IReadOnlyList<SkillData> _skills = [];
     private SkillData? _selectedSkill;
-    private bool _showSkillModal;
     private bool _showDeleteConfirmation;
 
 
     [Inject]
     public required ISkillsService SkillsService { get; set; }
 
+    [Inject]
+    public required NavigationManager NavigationManager { get; set; }
+
     protected override async Task OnInitializedAsync()
         => _skills = await SkillsService.GetList();
 
-    private void OpenSkillModal() {
-        _selectedSkill = new();
-        _showSkillModal = true;
-    }
+    private void View(SkillData skill)
+        => NavigationManager.NavigateTo($"/Settings/Skill/{PageAction.View}/{skill.Id}");
 
-    private void OpenSkillModal(SkillData skill) {
-        _selectedSkill = skill;
-        _showSkillModal = true;
-    }
+    private void Add()
+        => NavigationManager.NavigateTo($"/Settings/Skill/{PageAction.Add}/0");
 
-    private void CloseSkillDialog() {
-        _selectedSkill = null;
-        _showSkillModal = false;
-    }
+    private void Edit(SkillData skill)
+        => NavigationManager.NavigateTo($"/Settings/Skill/{PageAction.Edit}/{skill.Id}");
 
-    private async Task SaveSkill() {
-        if (_selectedSkill!.Id == 0) await SkillsService.Add(_selectedSkill);
-        else await SkillsService.Update(_selectedSkill);
-        _skills = await SkillsService.GetList();
-        CloseSkillDialog();
-    }
-
-    private void DeleteSkill(SkillData skill) {
+    private void Delete(SkillData skill) {
         _selectedSkill = skill;
         _showDeleteConfirmation = true;
     }
@@ -5661,12 +5932,12 @@ public partial class WorldPage {
     private void EnableEdit()
         => _isReadOnly = false;
 
-    private async Task CancelEdit() {
+    private async Task Cancel() {
         _world = await WorldService.GetWorld();
         _isReadOnly = true;
     }
 
-    private async Task SaveWorld() {
+    private async Task Save() {
         await WorldService.UpdateWorld(_world);
         _isReadOnly = true;
     }
@@ -5698,58 +5969,113 @@ public partial class WorldPage {
 }
  
 ---------------------------------------------------------------------------------------- 
-WebClient\Pages\Settings\SkillSelectionDialog.razor 
-﻿@if (ShowDialog) {
-  <div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
-    <div class="modal-dialog modal-dialog-scrollable" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Select Skills</h5>
-          <button type="button" class="btn-close" @onclick="Cancel"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <input type="text" class="form-control" placeholder="Search skills..." @bind="_searchText" />
-          </div>
-          <ul class="list-group">
-            @foreach (var skill in FilteredSkills) {
-              <li class="list-group-item">
-                <div class="form-check">
-                  <input type="checkbox" class="form-check-input" id="skill-@skill.Id"
-                         checked="@IsSelected(skill)" @onchange="() => ToggleSelection(skill)" />
-                  <label class="form-check-label" for="skill-@skill.Id">@skill.Name</label>
-                </div>
-              </li>
-            }
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-          <button type="button" class="btn btn-primary" @onclick="Confirm">Confirm</button>
-        </div>
-      </div>
+WebClient\Pages\Settings\SkillPage.razor 
+﻿@page "/Settings/Skill/{Action}/{SkillId:int}"
+@rendermode InteractiveServer
+
+<div class="container">
+  <div class="container-header row mb-3">
+    <div class="col-md-6">
+      <h3>@_action Skill</h3>
+    </div>
+    <div class="col-md-6 text-md-end">
+      @if (IsReadOnly) {
+        <button type="button" class="btn btn-primary" @onclick="EnableEdit">
+          <i class="bi bi-pencil-square me-2"></i>Edit
+        </button>
+      }
+      else {
+        <button type="submit" class="btn btn-success me-2" form="world-form">
+          <i class="bi bi-save me-2"></i>Save
+        </button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">
+          <i class="bi bi-x-circle me-2"></i>Cancel
+        </button>
+      }
     </div>
   </div>
+
+  <div class="container-body">
+    <EditForm Model="@_skill" OnValidSubmit="Save">
+      <DataAnnotationsValidator />
+      <ValidationSummary />
+
+      <div class="mb-3">
+        <label for="skillName" class="form-label">Name</label>
+        <InputText id="skillName" class="form-control" @bind-Value="_skill.Name" disabled="@(IsReadOnly)" />
+      </div>
+      <div class="mb-3">
+        <label for="skillDescription" class="form-label">Description</label>
+        <InputTextArea id="skillDescription" class="form-control" @bind-Value="_skill.Description" disabled="@(IsReadOnly)" />
+      </div>
+
+      <h4>Arguments</h4>
+      <div class="argument-grid">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>
+                <button class="btn btn-primary" @onclick="Add" @onclick:preventDefault>
+                  <i class="bi bi-plus-circle"></i>
+                </button>
+              </th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var argument in _skill.Arguments) {
+              <tr>
+                <td>
+                  <button class="btn btn-sm btn-primary" @onclick="() => Edit(argument)" @onclick:preventDefault>Edit</button>
+                  <button class="btn btn-sm btn-danger" @onclick="() => Delete(argument)" @onclick:preventDefault>Delete</button>
+                </td>
+                <td>
+                  <button class="btn btn-link" @onclick="() => View(argument)" @onclick:preventDefault>@argument.Name</button>
+                </td>
+                <td>@argument.Type</td>
+                <td>@argument.Description</td>
+                <td>
+                  <button class="btn btn-sm btn-secondary" @onclick="() => MoveUp(argument)" @onclick:preventDefault>Up</button>
+                  <button class="btn btn-sm btn-secondary" @onclick="() => MoveDown(argument)" @onclick:preventDefault>Down</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </EditForm>
+  </div>
+</div>
+
+@if (_showArgumentModal) {
+  <ArgumentDialog Argument="_selectedArgument"
+                  Action="_argumentAction"
+                  OnSave="SaveArgument"
+                  OnCancel="CloseArgumentModal" />
+}
+
+@if (_showDeleteConfirmation) {
+  <ConfirmationDialog Message="Are you sure you want to delete this argument?"
+                      OnConfirm="ExecuteDelete"
+                      OnCancel="CancelDelete" />
 }
  
 ---------------------------------------------------------------------------------------- 
 WebClient\Pages\Settings\SkillsPage.razor 
 ﻿@page "/Settings/Skills"
-@rendermode InteractiveWebAssembly
+@rendermode InteractiveServer
 
-<div class="skills-container">
-  <div class="row mb-3">
+<div class="container">
+  <div class="container-header row mb-3">
     <div class="col-md-6">
       <h3>Skills Management</h3>
     </div>
-    <div class="col-md-6 text-md-end">
-      <button type="button" class="btn btn-primary" @onclick="OpenSkillModal">
-        <i class="bi bi-plus-circle me-2"></i>Add Skill
-      </button>
-    </div>
   </div>
 
-  <div class="skills-list-container">
+  <div class="container-body">
     @if (_skills.Count == 0) {
       <p>No skills found.</p>
     }
@@ -5757,24 +6083,32 @@ WebClient\Pages\Settings\SkillsPage.razor
       <table class="table">
         <thead>
           <tr>
+            <th>
+              <button class="btn btn-primary btn-sm" @onclick="Add">
+                <i class="bi bi-plus-circle"></i>
+              </button>
+            </th>
             <th>Name</th>
             <th>Description</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @foreach (var skill in _skills) {
             <tr>
-              <td>@skill.Name</td>
-              <td>@skill.Description</td>
               <td>
-                <button class="btn btn-primary btn-sm" @onclick="() => OpenSkillModal(skill)">
+                <button class="btn btn-primary btn-sm" @onclick="() => Edit(skill)">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-danger btn-sm" @onclick="() => DeleteSkill(skill)">
+                <button class="btn btn-danger btn-sm" @onclick="() => Delete(skill)">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
+              <td>
+                <button class="btn btn-link" @onclick="() => View(skill)">
+                  @skill.Name
+                </button>
+              </td>
+              <td>@skill.Description</td>
             </tr>
           }
         </tbody>
@@ -5783,61 +6117,21 @@ WebClient\Pages\Settings\SkillsPage.razor
   </div>
 </div>
 
-@if (_showSkillModal) {
-  <div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">@(_selectedSkill == null ? "Add" : "Edit") Skill</h5>
-          <button type="button" class="btn-close" @onclick="CloseSkillDialog"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="skillName" class="form-label">Name</label>
-            <InputText id="skillName" class="form-control" @bind-Value="_selectedSkill!.Name" />
-          </div>
-          <div class="mb-3">
-            <label for="skillDescription" class="form-label">Description</label>
-            <InputTextArea id="skillDescription" class="form-control" @bind-Value="_selectedSkill.Description" />
-          </div>
-      </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @onclick="CloseSkillDialog">Cancel</button>
-          <button type="button" class="btn btn-primary" @onclick="SaveSkill">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
-
-@if (_showDeleteConfirmation) {
-  <div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirm Delete</h5>
-          <button type="button" class="btn-close" @onclick="CancelDelete" @onclick:preventDefault></button>
-        </div>
-        <div class="modal-body">
-          <p>Are you sure you want to delete this skill?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @onclick="CancelDelete" @onclick:preventDefault>Cancel</button>
-          <button type="button" class="btn btn-danger" @onclick="ExecuteDelete" @onclick:preventDefault>Delete</button>
-        </div>
-      </div>
-    </div>
-  </div>
+@if (_showDeleteConfirmation)
+{
+  <ConfirmationDialog Message="Are you sure you want to delete this skill?"
+                      OnConfirm="ExecuteDelete"
+                      OnCancel="CancelDelete" />
 }
  
 ---------------------------------------------------------------------------------------- 
 WebClient\Pages\Settings\WorldPage.razor 
 ﻿@page "/Settings/World"
 @implements IDisposable
-@rendermode InteractiveWebAssembly
+@rendermode InteractiveAuto
 
-<div class="world-container">
-  <div class="row mb-3">
+<div class="container">
+  <div class="container-header row mb-3">
     <div class="col-md-6">
       <h3>World Settings</h3>
     </div>
@@ -5851,15 +6145,15 @@ WebClient\Pages\Settings\WorldPage.razor
         <button type="submit" class="btn btn-success me-2" form="world-form">
           <i class="bi bi-save me-2"></i>Save
         </button>
-        <button type="button" class="btn btn-secondary" @onclick="CancelEdit">
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">
           <i class="bi bi-x-circle me-2"></i>Cancel
         </button>
       }
     </div>
   </div>
 
-  <div class="world-form-container">
-    <EditForm Model="@_world" OnValidSubmit="SaveWorld">
+  <div class="container-body">
+    <EditForm Model="@_world" OnValidSubmit="Save">
       <DataAnnotationsValidator />
       <ValidationSummary />
 
@@ -5988,111 +6282,17 @@ WebClient\Pages\Settings\WorldPage.razor
 }
  
 ---------------------------------------------------------------------------------------- 
+WebClient\Pages\Settings\SkillPage.razor.css 
+﻿ 
+---------------------------------------------------------------------------------------- 
 WebClient\Pages\Settings\SkillsPage.razor.css 
-﻿.skills-container {
-  max-width: 1024px;
-  margin-bottom: 2rem;
-}
-
-.skills-list-container {
-  background-color: #f8f9fa;
-  max-width: 1024px;
-  border-radius: 0.25rem;
-}
-
-.skills-form-container {
-  background-color: #f8f9fa;
-  max-width: 1024px;
-  border-radius: 0.25rem;
-}
-
-@media (min-width: 768px) {
-  .skills-form-container {
-    margin: 0 auto;
-  }
-}
-
-.form-label {
-  font-weight: 500;
-}
-
-.form-control {
-  background-color: #fff;
-}
-
-  .form-control:disabled {
-    background-color: #e9ecef;
-  }
-
-.btn-group > .btn {
-  flex: 1;
-}
- 
+﻿ 
 ---------------------------------------------------------------------------------------- 
 WebClient\Pages\Settings\WorldPage.razor.css 
-﻿.world-container {
-  max-width: 1024px;
-  margin-bottom: 2rem;
-}
-
-.world-form-container {
-  background-color: #f8f9fa;
-  max-width: 1024px;
-  border-radius: 0.25rem;
-}
-
-.skill-item {
-  display: flex;
-  align-items: center;
-  background-color: #f0f0f0;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.skill-item span {
-  margin-right: 0.5rem;
-}
-
-.skill-item button {
-  margin-left: auto;
-}
-
-@media (min-width: 768px) {
-  .world-form-container {
-    margin: 0 auto;
-  }
-}
-
-.form-label {
-  font-weight: 500;
-}
-
-.form-control {
-  background-color: #fff;
-}
-
-  .form-control:disabled {
-    background-color: #e9ecef;
-  }
-
-.btn-group > .btn {
-  flex: 1;
-}
- 
+﻿ 
 ---------------------------------------------------------------------------------------- 
-WebClient\Services\WorldService.cs 
+WebClient\Services\SkillsService.cs 
 ﻿namespace Sophia.WebClient.Services;
-
-public class WorldService(HttpClient httpClient)
-    : IWorldService {
-    public Task<WorldData> GetWorld()
-        => httpClient.GetFromJsonAsync<WorldData>("world")!;
-
-    public async Task UpdateWorld(WorldData input) {
-        var response = await httpClient.PutAsJsonAsync("world", input)!;
-        response.EnsureSuccessStatusCode();
-    }
-}
 
 public class SkillsService(HttpClient httpClient)
     : ISkillsService {
@@ -6118,6 +6318,21 @@ public class SkillsService(HttpClient httpClient)
 
     public async Task Delete(int id) {
         var response = await httpClient.DeleteAsync($"skills/{id}")!;
+        response.EnsureSuccessStatusCode();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+WebClient\Services\WorldService.cs 
+﻿namespace Sophia.WebClient.Services;
+
+public class WorldService(HttpClient httpClient)
+    : IWorldService {
+    public Task<WorldData> GetWorld()
+        => httpClient.GetFromJsonAsync<WorldData>("world")!;
+
+    public async Task UpdateWorld(WorldData input) {
+        var response = await httpClient.PutAsJsonAsync("world", input)!;
         response.EnsureSuccessStatusCode();
     }
 }

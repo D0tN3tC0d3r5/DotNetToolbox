@@ -15,16 +15,16 @@ public partial class SkillsPage {
     protected override async Task OnInitializedAsync()
         => _skills = await SkillsService.GetList();
 
-    private void AddSkill()
-        => NavigationManager.NavigateTo($"/Settings/Skills/0?Action=add");
+    private void View(SkillData skill)
+        => NavigationManager.NavigateTo($"/Settings/Skill/{PageAction.View}/{skill.Id}");
 
-    private void ViewSkill(SkillData skill)
-        => NavigationManager.NavigateTo($"/Settings/Skills/{skill.Id}?Action=view");
+    private void Add()
+        => NavigationManager.NavigateTo($"/Settings/Skill/{PageAction.Add}/0");
 
-    private void EditSkill(SkillData skill)
-        => NavigationManager.NavigateTo($"/Settings/Skills/{skill.Id}?Action=edit");
+    private void Edit(SkillData skill)
+        => NavigationManager.NavigateTo($"/Settings/Skill/{PageAction.Edit}/{skill.Id}");
 
-    private void DeleteSkill(SkillData skill) {
+    private void Delete(SkillData skill) {
         _selectedSkill = skill;
         _showDeleteConfirmation = true;
     }

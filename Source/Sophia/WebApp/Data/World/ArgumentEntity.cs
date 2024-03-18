@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-
-using Sophia.Models.Skills;
-
-namespace Sophia.WebApp.Data.World;
+﻿namespace Sophia.WebApp.Data.World;
 
 [Owned]
 [EntityTypeConfiguration(typeof(ArgumentEntity))]
@@ -28,7 +24,7 @@ public class ArgumentEntity
                      Name = Name,
                      Description = Description,
                      Type = Type,
-                     Options = Options,
+                     Options = Options?.ToList() ?? [],
                      IsRequired = IsRequired,
                  };
 

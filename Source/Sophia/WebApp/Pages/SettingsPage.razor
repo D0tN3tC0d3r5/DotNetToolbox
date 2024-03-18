@@ -1,24 +1,33 @@
 ﻿@page "/Settings"
-
-<h3>Settings</h3>
+@rendermode InteractiveServer
 
 <div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-4 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <i class="fas fa-globe fa-3x mb-3"></i>
-          <h5 class="card-title">World Settings</h5>
-          <a href="/Settings/World" class="btn btn-primary">Go to World Settings</a>
+  <div class="container-header row mb-3">
+    <div class="col-md-6">
+      <h3>Settings</h3>
+    </div>
+  </div>
+
+  <div class="container-body">
+    <div class="row justify-content-center">
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <a href="/Settings/World" class="btn btn-outline-primary">
+              <i class="fas fa-globe fa-3x mb-3"></i>
+              <h5 class="card-title">World Settings</h5>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <i class="fas fa-cogs fa-3x mb-3"></i>
-          <h5 class="card-title">Skills Management</h5>
-          <a href="/Settings/Skills" class="btn btn-primary">Go to Skills Management</a>
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <a href="/Settings/Skills" class="btn btn-outline-primary">
+              <i class="fas fa-cogs fa-3x mb-3"></i>
+              <h5 class="card-title">Skills Management</h5>
+            </a>
+          </div>
         </div>
       </div>
     </div>

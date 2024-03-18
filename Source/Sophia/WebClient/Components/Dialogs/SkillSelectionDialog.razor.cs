@@ -1,4 +1,4 @@
-﻿namespace Sophia.WebClient.Pages.Settings;
+﻿namespace Sophia.WebClient.Components.Dialogs;
 
 public partial class SkillSelectionDialog {
     [Parameter]
@@ -13,7 +13,7 @@ public partial class SkillSelectionDialog {
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
-    public bool ShowDialog => AvailableSkills.Count != 0;
+    public bool HasSkills => AvailableSkills.Count != 0;
     private string _searchText = string.Empty;
 
     private List<SkillData> FilteredSkills
@@ -22,24 +22,17 @@ public partial class SkillSelectionDialog {
                    || (s.Description?.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ?? false))
           .ToList();
 
-    private bool IsSelected(SkillData skill) {
-        return SelectedSkills.Contains(skill);
-    }
+    private bool IsSelected(SkillData skill)
+        => SelectedSkills.Contains(skill);
 
     private void ToggleSelection(SkillData skill) {
-        if (IsSelected(skill)) {
-            SelectedSkills.Remove(skill);
-        }
-        else {
-            SelectedSkills.Add(skill);
-        }
+        if (IsSelected(skill)) SelectedSkills.Remove(skill);
+        else SelectedSkills.Add(skill);
     }
 
-    private void Confirm() {
-        OnSkillsSelected.InvokeAsync(SelectedSkills);
-    }
+    private void Confirm()
+        => OnSkillsSelected.InvokeAsync(SelectedSkills);
 
-    private void Cancel() {
-        OnCancel.InvokeAsync();
-    }
+    private void Cancel()
+        => OnCancel.InvokeAsync();
 }

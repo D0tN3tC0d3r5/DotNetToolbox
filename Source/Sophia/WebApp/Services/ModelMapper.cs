@@ -53,7 +53,7 @@ public static class ModelMapper {
             Name = input.Name,
             Description = input.Description,
             Type = input.Type,
-            Options = input.Options,
+            Options = input.Options?.ToList() ?? [],
             IsRequired = input.IsRequired,
         };
 
@@ -62,7 +62,7 @@ public static class ModelMapper {
             Name = input.Name,
             Description = input.Description,
             Type = input.Type,
-            Options = input.Options,
+            Options = input.Type != ArgumentType.Enum ? null : input.Options.ToArray(),
             IsRequired = input.IsRequired,
         };
 

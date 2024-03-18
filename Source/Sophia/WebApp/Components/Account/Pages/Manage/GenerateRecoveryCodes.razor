@@ -5,8 +5,6 @@
 @inject Redirect Redirect
 @inject ILogger<GenerateRecoveryCodes> Logger
 
-<PageTitle>Generate two-factor authentication (2FA) recovery codes</PageTitle>
-
 @if (_recoveryCodes is not null)
 {
     <ShowRecoveryCodes RecoveryCodes="_recoveryCodes.ToArray()" StatusMessage="@_message" />

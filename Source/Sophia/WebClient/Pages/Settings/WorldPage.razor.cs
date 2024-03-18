@@ -45,12 +45,12 @@ public partial class WorldPage {
     private void EnableEdit()
         => _isReadOnly = false;
 
-    private async Task CancelEdit() {
+    private async Task Cancel() {
         _world = await WorldService.GetWorld();
         _isReadOnly = true;
     }
 
-    private async Task SaveWorld() {
+    private async Task Save() {
         await WorldService.UpdateWorld(_world);
         _isReadOnly = true;
     }
