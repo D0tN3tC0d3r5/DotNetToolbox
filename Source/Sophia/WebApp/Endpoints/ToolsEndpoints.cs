@@ -1,5 +1,3 @@
-using Sophia.Models.Tools;
-
 namespace Sophia.WebApp.Endpoints;
 
 internal static class ToolsEndpoints {

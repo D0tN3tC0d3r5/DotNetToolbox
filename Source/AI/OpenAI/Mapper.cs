@@ -19,7 +19,7 @@ internal class Mapper : IMapper {
             NumberOfChoices = agent.Options.NumberOfChoices,
             FrequencyPenalty = agent.Options.FrequencyPenalty,
             PresencePenalty = agent.Options.PresencePenalty,
-            Tools = agent.Persona.Profile.KnownTools.Count == 0 ? null : agent.Persona.Profile.KnownTools.ToArray(ToRequestToolCall),
+            Tools = agent.Persona.KnownTools.Count == 0 ? null : agent.Persona.KnownTools.ToArray(ToRequestToolCall),
         };
     }
 

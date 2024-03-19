@@ -1,6 +1,4 @@
-﻿using Sophia.WebApp.Data.Tools;
-
-namespace Sophia.WebApp.Data.World;
+﻿namespace Sophia.WebApp.Data.World;
 
 [EntityTypeConfiguration(typeof(WorldEntity))]
 public class WorldEntity
@@ -9,15 +7,16 @@ public class WorldEntity
     public DateTimeOffset DateTime { get; set; }
     [MaxLength(1000)]
     public string? Location { get; set; }
+
     [MaxLength(100)]
-    public string? UserProfile { get; set; }
-    public List<InformationEntity> CustomValues { get; set; } = [];
-    public List<ToolEntity> AvailableTools { get; set; } = [];
+    public UserProfileEntity UserProfile { get; set; } = new();
+    public List<FactEntity> Facts { get; set; } = [];
+    public List<ToolEntity> Tools { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<WorldEntity> builder) {
         builder.HasKey(w => w.Id);
-        builder.OwnsMany(w => w.CustomValues);
-        builder.HasMany(w => w.AvailableTools)
+        builder.OwnsMany(w => w.Facts);
+        builder.HasMany(w => w.Tools)
                .WithMany()
                .UsingEntity("AvailableTools",
                l => l.HasOne(typeof(ToolEntity)).WithMany().HasForeignKey("ToolId").HasPrincipalKey(nameof(ToolEntity.Id)),
@@ -29,8 +28,8 @@ public class WorldEntity
         => new() {
             DateTime = DateTime,
             Location = Location,
-            UserProfile = UserProfile,
-            AdditionalInformation = CustomValues.ToList(a => a.ToDto()),
-            AvailableTools = AvailableTools.ToList(s => s.ToDto()),
+            UserProfile = UserProfile.ToDto(),
+            Facts = Facts.ToList(a => a.ToDto()),
+            Tools = Tools.ToList(s => s.ToDto()),
         };
 }

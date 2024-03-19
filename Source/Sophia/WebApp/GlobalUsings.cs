@@ -3,7 +3,6 @@ global using System.Diagnostics.CodeAnalysis;
 global using System.Security.Claims;
 global using System.Text.Json;
 
-global using DotNetToolbox;
 global using DotNetToolbox.AI.Anthropic;
 global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.Collections.Generic;
@@ -26,6 +25,9 @@ global using Microsoft.EntityFrameworkCore.Migrations;
 global using Microsoft.Extensions.Options;
 global using Microsoft.Extensions.Primitives;
 
+global using Sophia.Models.Common;
+global using Sophia.Models.Personas;
+global using Sophia.Models.Tools;
 global using Sophia.Models.Worlds;
 global using Sophia.Services;
 global using Sophia.WebApp.Components;
@@ -33,6 +35,10 @@ global using Sophia.WebApp.Components.Account;
 global using Sophia.WebApp.Components.Account.Pages;
 global using Sophia.WebApp.Components.Account.Pages.Manage;
 global using Sophia.WebApp.Data;
+global using Sophia.WebApp.Data.Common;
+global using Sophia.WebApp.Data.Helpers;
+global using Sophia.WebApp.Data.Personas;
+global using Sophia.WebApp.Data.Tools;
 global using Sophia.WebApp.Data.World;
 global using Sophia.WebApp.Endpoints;
 global using Sophia.WebApp.Services;

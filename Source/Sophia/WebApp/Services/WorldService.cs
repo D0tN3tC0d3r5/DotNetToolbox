@@ -13,7 +13,7 @@ public class WorldService(ApplicationDbContext dbContext, World world)
     }
 
     public async Task UpdateWorld(WorldData input) {
-        var newWorld = input.ToModel(world.GetProvider());
+        var newWorld = input.ToModel(world.DateTimeProvider);
         var result = newWorld.Validate();
         if (!result.IsSuccess) return;
 

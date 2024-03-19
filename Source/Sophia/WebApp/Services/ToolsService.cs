@@ -1,6 +1,4 @@
 ﻿
-using Sophia.Models.Tools;
-
 namespace Sophia.WebApp.Services;
 
 public class ToolsService(ApplicationDbContext dbContext)

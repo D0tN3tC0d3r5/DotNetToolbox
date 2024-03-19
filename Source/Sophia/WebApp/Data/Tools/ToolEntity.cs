@@ -1,6 +1,4 @@
-﻿using Sophia.Models.Tools;
-
-namespace Sophia.WebApp.Data.Tools;
+﻿namespace Sophia.WebApp.Data.Tools;
 
 [EntityTypeConfiguration(typeof(ToolEntity))]
 public class ToolEntity
@@ -12,6 +10,7 @@ public class ToolEntity
     [MaxLength(1000)]
     public string? Description { get; set; }
     public List<ArgumentEntity> Arguments { get; set; } = [];
+
     public void Configure(EntityTypeBuilder<ToolEntity> builder)
         => builder.OwnsMany(s => s.Arguments);
 

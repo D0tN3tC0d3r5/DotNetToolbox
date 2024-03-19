@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.Common;
 
-public class Information : IValidatableAsync {
+public class Fact : IValidatableAsync {
     public string? Value { get; set; }
 
     [StringSyntax(StringSyntaxAttribute.CompositeFormat)]

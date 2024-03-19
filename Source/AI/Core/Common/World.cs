@@ -1,28 +1,33 @@
 ﻿namespace DotNetToolbox.AI.Common;
 
-public class World(IDateTimeProvider? dateTime = null)
+public class World(IDateTimeProvider? dateTimeProvider = null)
     : IValidatable {
-    public DateTimeOffset DateTime => dateTime?.Now ?? DateTimeOffset.Now;
+    public IDateTimeProvider DateTimeProvider { get; } = dateTimeProvider ?? new DateTimeProvider();
+    public DateTimeOffset DateTime => DateTimeProvider.Now;
     public int Id { get; set; }
     public string? Location { get; set; } = string.Empty;
-    public string? UserProfile { get; set; } = string.Empty;
-    public List<Information> AdditionalInformation { get; set; } = [];
+    public UserProfile UserProfile { get; set; } = new();
+    public List<Fact> Facts { get; set; } = [];
     public List<Tool> AvailableTools { get; set; } = [];
-
-    public IDateTimeProvider? GetProvider() => dateTime;
 
     public override string ToString() {
         var builder = new StringBuilder();
-        builder.AppendLine($"The current date time is {DateTime}.");
-        if (string.IsNullOrWhiteSpace(Location)) builder.AppendLine("You do not know your current location.");
-        else builder.AppendLine($"You are located at '{Location}'.");
-        if (string.IsNullOrWhiteSpace(UserProfile)) builder.AppendLine("You do not know the name of the user.");
-        else builder.AppendLine($"The name of the user is '{Location}'.");
-        if (AdditionalInformation.Count > 0) builder.AppendLine("Additional information;");
-        foreach (var information in AdditionalInformation)
-            builder.AppendLine(information.ToString());
+        builder.Append($"The current local date is {DateTime.Date:dddd}, {DateTime.Date} and the time is {DateTime.TimeOfDay:HH:mm:ss} ({DateTime:K}).");
+        builder.AppendIntoNewLine(GetAgentLocation(Location));
+        builder.AppendIntoNewLine(UserProfile.ToString());
+        builder.AppendSection(Facts);
         return builder.ToString();
     }
+
+    private string GetUserProfile(string? profile)
+        => string.IsNullOrWhiteSpace(profile)
+               ? "You have no information about the USER."
+               : profile;
+
+    private static string GetAgentLocation(string? location)
+        => string.IsNullOrWhiteSpace(location)
+               ? "You do not know your current location."
+               : $"You are located at {location}.";
 
     public Result Validate(IDictionary<string, object?>? context = null)
         => Result.Success();

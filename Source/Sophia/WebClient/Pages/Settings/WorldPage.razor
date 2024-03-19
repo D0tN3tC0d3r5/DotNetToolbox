@@ -26,20 +26,30 @@
       <ValidationSummary />
 
       <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col">
           <label for="dateTime" class="form-label">Current Date & Time</label>
           <InputText id="dateTime" class="form-control" @bind-Value="_dateTime" readonly />
         </div>
       </div>
 
       <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col">
           <label for="location" class="form-label">Location</label>
           <InputText id="location" class="form-control" @bind-Value="_world.Location" disabled="@_isReadOnly" />
         </div>
-        <div class="col-md-6">
-          <label for="userProfile" class="form-label">User</label>
-          <InputText id="userProfile" class="form-control" @bind-Value="_world.UserProfile" disabled="@_isReadOnly" />
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-12">
+          <label class="form-label">User</label>
+        </div>
+        <div class="col-md-8">
+          <label for="userName" class="form-label">Name</label>
+          <InputText id="userName" class="form-control" @bind-Value="_world.UserProfile.Name" disabled="@_isReadOnly" />
+        </div>
+        <div class="col-md-4">
+          <label for="userLanguage" class="form-label">Language</label>
+          <InputText id="userLanguage" class="form-control" @bind-Value="_world.UserProfile.Language" disabled="@_isReadOnly" />
         </div>
       </div>
 
@@ -51,7 +61,7 @@
           <div class="row">
             <div class="col-md-1">
               @if (!_isReadOnly) {
-                <button class="btn btn-sm btn-primary" @onclick="AddInfo" @onclick:preventDefault>
+                <button class="btn btn-sm btn-primary" @onclick="AddFact" @onclick:preventDefault>
                   <i class="bi bi-plus-circle"></i>
                 </button>
               }
@@ -71,7 +81,7 @@
               <label class="form-label">Value Template</label>
             </div>
           </div>
-          @foreach (var info in _world.AdditionalInformation) {
+          @foreach (var info in _world.Facts) {
             <div class="row mb-2">
               <div class="col-md-1">
                 @if (!_isReadOnly) {
@@ -119,7 +129,7 @@
               <label class="form-label">Description</label>
             </div>
           </div>
-          @foreach (var tool in _world.AvailableTools) {
+          @foreach (var tool in _world.Tools) {
             <div class="row mb-2">
               <div class="col-md-1">
                 @if (!_isReadOnly) {

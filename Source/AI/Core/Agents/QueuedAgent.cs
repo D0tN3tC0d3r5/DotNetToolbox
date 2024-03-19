@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.AI.Common;
-
-namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Agents;
 
 public abstract class QueuedAgent<TAgent, TOptions, TRequest, TResponse>(
         World world,

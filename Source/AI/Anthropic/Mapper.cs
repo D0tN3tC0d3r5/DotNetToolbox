@@ -20,7 +20,7 @@ internal class Mapper : IMapper {
     private static string CreateSystemMessage(IAgent<AgentOptions> agent, IChat chat) {
         var builder = new StringBuilder();
         builder.AppendLine(agent.World.ToString());
-        builder.AppendLine(agent.Persona.Profile.ToString());
+        builder.AppendLine(agent.Persona.ToString());
         builder.AppendLine(chat.Instructions.ToString());
         return builder.ToString();
     }

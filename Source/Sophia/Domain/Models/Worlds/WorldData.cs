@@ -2,16 +2,16 @@
 
 public class WorldData {
     public DateTimeOffset DateTime { get; set; }
+    [MaxLength(1000)]
     public string? Location { get; set; }
-    public string? UserProfile { get; set; }
-    public List<InformationData> AdditionalInformation { get; set; } = [];
-    public List<ToolData> AvailableTools { get; set; } = [];
+    public UserProfileData UserProfile { get; set; } = new();
+    public List<FactData> Facts { get; set; } = [];
+    public List<ToolData> Tools { get; set; } = [];
 
-    public World GetUpdateModel(World world) {
-        world.Location = Location;
-        world.UserProfile = UserProfile;
-        world.AdditionalInformation = AdditionalInformation.ToList(x => x.ToModel());
-        world.AvailableTools = AvailableTools.ToList(x => x.ToModel(world.AvailableTools));
-        return world;
-    }
+    public World ToModel(IDateTimeProvider? dateTime) => new(dateTime) {
+        Location = Location,
+        UserProfile = UserProfile.ToModel(),
+        Facts = Facts.ToList(x => x.ToModel()),
+        AvailableTools = Tools.ToList(x => x.ToModel()),
+    };
 }

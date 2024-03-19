@@ -55,15 +55,15 @@ public partial class WorldPage {
         _isReadOnly = true;
     }
 
-    private void AddInfo()
-        => _world.AdditionalInformation.Add(new());
+    private void AddFact()
+        => _world.Facts.Add(new());
 
-    private void DeleteInfo(InformationData info)
-        => _world.AdditionalInformation.Remove(info);
+    private void DeleteInfo(FactData info)
+        => _world.Facts.Remove(info);
 
     private async Task OpenToolSelectionDialog() {
         _availableTools = await ToolsService.GetList();
-        _toolSelectionBuffer = [.. _world.AvailableTools];
+        _toolSelectionBuffer = [.. _world.Tools];
         _showToolSelectionDialog = true;
     }
 
@@ -73,10 +73,10 @@ public partial class WorldPage {
     }
 
     private void FinishToolSelection(List<ToolData> tools) {
-        _world.AvailableTools = tools;
+        _world.Tools = tools;
         CloseToolSelectionDialog();
     }
 
     private void RemoveTool(ToolData tool)
-        => _world.AvailableTools.Remove(tool);
+        => _world.Tools.Remove(tool);
 }

@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.AI.Common;
-
-namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Agents;
 
 public interface IAgent {
     World World { get; }

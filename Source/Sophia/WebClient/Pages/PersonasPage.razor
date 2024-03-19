@@ -1,0 +1,45 @@
+﻿@page "/Personas"
+
+<div class="container">
+  <div class="container-header row mb-3">
+    <div class="col-md-6">
+      <h3>Personas</h3>
+    </div>
+    <div class="col-md-6 text-md-end">
+      <button class="btn btn-primary" @onclick="Add">
+        <i class="bi bi-plus-circle me-2"></i>Add Persona
+      </button>
+    </div>
+  </div>
+
+  <div class="container-body">
+    @if (_personas.Count == 0) {
+      <p>No personas found.</p>
+    }
+    else {
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var persona in _personas) {
+          <div class="col">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">@persona.Name</h5>
+                <p class="card-text">@persona.Description</p>
+                <div class="d-flex justify-content-end">
+                  <button class="btn btn-primary me-2" @onclick="() => View(persona)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button class="btn btn-secondary me-2" @onclick="() => Edit(persona)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-danger" @onclick="() => Delete(persona)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

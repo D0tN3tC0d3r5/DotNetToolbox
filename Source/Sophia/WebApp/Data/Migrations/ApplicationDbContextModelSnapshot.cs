@@ -395,7 +395,7 @@ namespace Sophia.WebApp.Migrations
 
             modelBuilder.Entity("Sophia.WebApp.Data.World.WorldEntity", b =>
                 {
-                    b.OwnsMany("Sophia.WebApp.Data.World.InformationEntity", "CustomValues", b1 =>
+                    b.OwnsMany("Sophia.WebApp.Data.World.FactEntity", "CustomValues", b1 =>
                         {
                             b1.Property<Guid>("WorldEntityId")
                                 .HasColumnType("uniqueidentifier");
@@ -422,7 +422,7 @@ namespace Sophia.WebApp.Migrations
 
                             b1.HasKey("WorldEntityId", "Id");
 
-                            b1.ToTable("InformationEntity");
+                            b1.ToTable("FactEntity");
 
                             b1.WithOwner()
                                 .HasForeignKey("WorldEntityId");
