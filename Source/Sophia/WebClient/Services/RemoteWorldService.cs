@@ -1,6 +1,6 @@
 ﻿namespace Sophia.WebClient.Services;
 
-public class WorldService(HttpClient httpClient)
+public class RemoteWorldService(HttpClient httpClient)
     : IWorldService {
     public Task<WorldData> GetWorld()
         => httpClient.GetFromJsonAsync<WorldData>("world")!;

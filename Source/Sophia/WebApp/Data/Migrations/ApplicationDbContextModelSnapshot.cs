@@ -22,19 +22,19 @@ namespace Sophia.WebApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AvailableSkills", b =>
+            modelBuilder.Entity("AvailableTools", b =>
                 {
-                    b.Property<int>("SkillId")
+                    b.Property<int>("ToolId")
                         .HasColumnType("int");
 
                     b.Property<Guid>("WorldId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("SkillId", "WorldId");
+                    b.HasKey("ToolId", "WorldId");
 
                     b.HasIndex("WorldId");
 
-                    b.ToTable("AvailableSkills");
+                    b.ToTable("AvailableTools");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -235,7 +235,7 @@ namespace Sophia.WebApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Worlds.SkillEntity", b =>
+            modelBuilder.Entity("Sophia.WebApp.Data.World.ToolEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -254,10 +254,10 @@ namespace Sophia.WebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Skills");
+                    b.ToTable("Tools");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Worlds.WorldEntity", b =>
+            modelBuilder.Entity("Sophia.WebApp.Data.World.WorldEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -279,15 +279,15 @@ namespace Sophia.WebApp.Migrations
                     b.ToTable("Worlds");
                 });
 
-            modelBuilder.Entity("AvailableSkills", b =>
+            modelBuilder.Entity("AvailableTools", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Data.Worlds.SkillEntity", null)
+                    b.HasOne("Sophia.WebApp.Data.World.ToolEntity", null)
                         .WithMany()
-                        .HasForeignKey("SkillId")
+                        .HasForeignKey("ToolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sophia.WebApp.Data.Worlds.WorldEntity", null)
+                    b.HasOne("Sophia.WebApp.Data.World.WorldEntity", null)
                         .WithMany()
                         .HasForeignKey("WorldId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -345,11 +345,11 @@ namespace Sophia.WebApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Worlds.SkillEntity", b =>
+            modelBuilder.Entity("Sophia.WebApp.Data.World.ToolEntity", b =>
                 {
-                    b.OwnsMany("Sophia.WebApp.Data.Worlds.ArgumentEntity", "Arguments", b1 =>
+                    b.OwnsMany("Sophia.WebApp.Data.World.ArgumentEntity", "Arguments", b1 =>
                         {
-                            b1.Property<int>("SkillEntityId")
+                            b1.Property<int>("ToolEntityId")
                                 .HasColumnType("int");
 
                             b1.Property<int>("Id")
@@ -358,9 +358,17 @@ namespace Sophia.WebApp.Migrations
 
                             SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
 
+                            b1.Property<string>("Choices")
+                                .IsRequired()
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
                             b1.Property<string>("Description")
                                 .HasMaxLength(2000)
                                 .HasColumnType("nvarchar(2000)");
+
+                            b1.Property<long>("Index")
+                                .HasColumnType("bigint");
 
                             b1.Property<bool>("IsRequired")
                                 .HasColumnType("bit");
@@ -370,28 +378,24 @@ namespace Sophia.WebApp.Migrations
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)");
 
-                            b1.Property<string>("Options")
-                                .HasMaxLength(1000)
-                                .HasColumnType("nvarchar(1000)");
-
                             b1.Property<int>("Type")
                                 .HasMaxLength(20)
                                 .HasColumnType("int");
 
-                            b1.HasKey("SkillEntityId", "Id");
+                            b1.HasKey("ToolEntityId", "Id");
 
                             b1.ToTable("ArgumentEntity");
 
                             b1.WithOwner()
-                                .HasForeignKey("SkillEntityId");
+                                .HasForeignKey("ToolEntityId");
                         });
 
                     b.Navigation("Arguments");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Worlds.WorldEntity", b =>
+            modelBuilder.Entity("Sophia.WebApp.Data.World.WorldEntity", b =>
                 {
-                    b.OwnsMany("Sophia.WebApp.Data.Worlds.InformationEntity", "CustomValues", b1 =>
+                    b.OwnsMany("Sophia.WebApp.Data.World.InformationEntity", "CustomValues", b1 =>
                         {
                             b1.Property<Guid>("WorldEntityId")
                                 .HasColumnType("uniqueidentifier");

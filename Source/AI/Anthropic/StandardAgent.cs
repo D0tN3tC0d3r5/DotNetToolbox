@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.Anthropic;
+﻿using DotNetToolbox.AI.Common;
+
+namespace DotNetToolbox.AI.Anthropic;
 
 public class StandardAgent(World world,
                             AgentOptions options,

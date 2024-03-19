@@ -25,23 +25,5 @@
         "Text": "- User request: 'Please set an alarm for next Tuesday at 3pm.'\n - Analysis of the request: \n - To set an alarm it is needed a date, a time, and a name.\n - To get a date I need to identify when is the next Tuesday.\n - To identify when is a next Tuesday I need to get extra information about dates.\n - To get the extra information about a date I need a date range.\n - The start of the date range has to be today since I am looking for the next occurence.\n - To get today's date I need to get the current date and time.\n - Execute GetCurrentDateTime function to obtain today's date.\n - To ensure the date range will contain a Tuesday the date range has to be more than 7 days long.\n - Add 8 days to the current date time to get end of the period.\n - Use GetDateRangeExtraInformation function with the start and end dates.\n - Analyze list of dates retrieved to identify the first date after today that is a Tuesday.\n - Now I have the date for the alarm.\n - The user already provided a time.\n - Now I have the time for the alarm.\n - To get a name I need to ask the user.\n - Ask the user for a name for the alarm.\n - The user responded 'Name it dentist.'.\n - Now I have the name for the alarm.\n - Now I have all the information to set the alarm.\n - Execute SetAlarm function to set the alarm.\n - Respond that the alarm was set."
       }
     ]
-  },
-  "Skills": [
-    {
-      "Id":  1,
-      "Name": "GetDateTime"
-    },
-    {
-      "Id": 2,
-      "Name": "SetAlarm"
-    },
-    {
-      "Id": 3,
-      "Name": "CancelAlarm"
-    },
-    {
-      "Id": 4,
-      "Name": "GetDateRangeDetails"
-    }
-  ]
+  }
 }

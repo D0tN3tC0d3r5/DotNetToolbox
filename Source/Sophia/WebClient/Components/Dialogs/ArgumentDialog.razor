@@ -1,4 +1,6 @@
-﻿<div class="modal modal-lg fade show" tabindex="-1" role="dialog" style="display: block;">
+﻿@using DotNetToolbox.AI.Common
+
+<div class="modal modal-lg fade show" tabindex="-1" role="dialog" style="display: block;">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -7,75 +9,81 @@
       </div>
 
       <div class="modal-body">
-        <div class="row mb-3">
-          <div class="col-8">
-            <label for="argumentName" class="form-label me-2">Name</label>
-          </div>
-          <div class="col-4">
-            <div class="form-check-reverse">
-              <label class="form-check-label" for="argumentRequired">Required</label>
-              <InputCheckbox id="argumentRequired" class="form-check-input" @bind-Value="_argument.IsRequired" />
+        <EditForm EditContext="_editContext" id="argument-form" OnValidSubmit="Save">
+          <DataAnnotationsValidator />
+          <div class="row mb-3">
+            <div class="col-8">
+              <label for="argumentName" class="form-label me-2">Name</label>
             </div>
+            <div class="col-4">
+              <div class="form-check-reverse">
+                <label class="form-check-label" for="argumentRequired">Required</label>
+                <InputCheckbox id="argumentRequired" class="form-check-input" @bind-Value="_argument.IsRequired" />
+              </div>
+            </div>
+            <InputText id="argumentName" class="form-control me-2" @bind-Value="_argument.Name" />
+            <ValidationMessage For="@(() => _argument.Name)" />
           </div>
-          <InputText id="argumentName" class="form-control me-2" @bind-Value="_argument.Name" />
-        </div>
-        <div class="row mb-3">
-          <div class="col-3">
-            <label for="argumentType" class="form-label me-2">Type</label>
-            <InputSelect id="argumentType" class="form-control me-2" @bind-Value="_argument.Type">
-              @foreach (var type in Enum.GetValues<ArgumentType>()) {
-                <option value="@type">@type</option>
-              }
-            </InputSelect>
-          </div>
-          <div class="col-9 options-grid">
-            @if (_argument.Type == ArgumentType.Enum) {
-              <table class="table w-100">
-                <thead>
-                  <tr>
-                    <th class="fit">
-                      <button class="btn btn-primary btn-sm" @onclick="() => InsertOption()" @onclick:preventDefault>
-                        <i class="bi bi-plus-circle"></i>
-                      </button>
-                    </th>
-                    <th>Choices</th>
-                    <th>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (int i = 0; i < _argument.Options.Count; i++) {
-                    int index = i;
+          <div class="row mb-3">
+            <div class="col-3">
+              <label for="argumentType" class="form-label me-2">Type</label>
+              <InputSelect id="argumentType" class="form-control me-2" @bind-Value="_argument.Type">
+                @foreach (var type in Enum.GetValues<ArgumentType>()) {
+                  <option value="@type">@type</option>
+                }
+              </InputSelect>
+            </div>
+            <div class="col-9 grid">
+              @if (_argument.Type == ArgumentType.Enum) {
+                <table class="table w-100">
+                  <thead>
                     <tr>
-                      <td>
-                        <button class="btn btn-primary btn-sm" @onclick="() => InsertOption(index)" @onclick:preventDefault>
+                      <th class="fit">
+                        <button class="btn btn-primary btn-sm" @onclick="() => InsertOption()" @onclick:preventDefault>
                           <i class="bi bi-plus-circle"></i>
                         </button>
-                      </td>
-                      <td>
-                        <InputText class="form-control" @bind-Value="_argument.Options[index]" />
-                      </td>
-                      <td>
-                        <button class="btn btn-danger btn-sm" @onclick="() => RemoveOption(index)" @onclick:preventDefault>
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </td>
+                      </th>
+                      <th>Choices</th>
+                      <th>
+                      </th>
                     </tr>
-                  }
-                </tbody>
-              </table>
-            }
+                  </thead>
+                  <tbody>
+                    @for (int i = 0; i < _argument.Choices.Count; i++) {
+                      int index = i;
+                      <tr>
+                        <td>
+                          <button class="btn btn-primary btn-sm" @onclick="() => InsertOption(index)" @onclick:preventDefault>
+                            <i class="bi bi-plus-circle"></i>
+                          </button>
+                        </td>
+                        <td>
+                          <InputText class="form-control" @bind-Value="_argument.Choices[index]" />
+                        </td>
+                        <td>
+                          <button class="btn btn-danger btn-sm" @onclick="() => RemoveOption(index)" @onclick:preventDefault>
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+                <ValidationMessage For="@(() => _argument.Choices)" />
+              }
+            </div>
           </div>
-        </div>
-        <div class="row mb-3">
-          <label for="argumentDescription" class="form-label">Description</label>
-          <InputTextArea id="argumentDescription" class="form-control" @bind-Value="_argument.Description" />
-        </div>
+          <div class="row mb-3">
+            <label for="argumentDescription" class="form-label">Description</label>
+            <InputTextArea id="argumentDescription" class="form-control" @bind-Value="_argument.Description" />
+            <ValidationMessage For="@(() => _argument.Description)" />
+          </div>
+        </EditForm>
       </div>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-        <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+        <button type="submit" class="btn btn-primary" form="argument-form">Save</button>
       </div>
     </div>
   </div>

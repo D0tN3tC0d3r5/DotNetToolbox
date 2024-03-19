@@ -60,19 +60,28 @@ h1:focus {
   border-color: #929292;
 }
 
-.container-body {
-  margin-bottom: 2rem;
-  background-color: #f8f9fa;
+.container {
   border-radius: 0.25rem;
 }
 
+.container-header {
+  margin-bottom: 2rem;
+}
+
+.container-body {
+  margin-bottom: 2rem;
+}
+
+.grid {
+  background-color: white;
+}
 
 .form-label {
   font-weight: 500;
 }
 
 .form-control {
-  background-color: #fff;
+  background-color: white;
 }
 
   .form-control:disabled {
@@ -83,7 +92,7 @@ h1:focus {
   flex: 1;
 }
 
-.table td.fit, 
+.table td.fit,
 .table th.fit {
   white-space: nowrap;
   width: 1%;

@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.Chats;
+﻿using DotNetToolbox.AI.Common;
+
+namespace DotNetToolbox.AI.Chats;
 
 public class Instructions {
     public string Goal { get; set; } = string.Empty;

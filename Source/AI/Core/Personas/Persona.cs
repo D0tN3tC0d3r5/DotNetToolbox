@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.AI.Personas;
 
 [method: JsonConstructor]
-public class Persona(Profile? profile = null, List<Skill>? skills = null) {
+public class Persona(Profile? profile = null) {
 
-    public Persona(string name, string? description = null, Profile? profile = null, List<Skill>? skills = null)
-        : this(profile, skills) {
+    public Persona(string name, string? description = null, Profile? profile = null)
+        : this(profile) {
         Name = IsNotNull(name);
         Description = description;
     }
@@ -12,5 +12,12 @@ public class Persona(Profile? profile = null, List<Skill>? skills = null) {
     public string Name { get; set; } = "Agent";
     public string? Description { get; set; }
     public Profile Profile { get; set; } = profile ?? new();
-    public List<Skill> Skills { get; set; } = skills ?? [];
+
+    public override string ToString() {
+        var builder = new StringBuilder();
+        builder.AppendLine($"You are a helpful {Name}.");
+        builder.AppendLine(Description);
+        builder.AppendLine(Profile.ToString());
+        return builder.ToString();
+    }
 }

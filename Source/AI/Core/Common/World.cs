@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Shared;
+﻿namespace DotNetToolbox.AI.Common;
 
 public class World(IDateTimeProvider? dateTime = null)
     : IValidatable {
@@ -7,7 +7,7 @@ public class World(IDateTimeProvider? dateTime = null)
     public string? Location { get; set; } = string.Empty;
     public string? UserProfile { get; set; } = string.Empty;
     public List<Information> AdditionalInformation { get; set; } = [];
-    public List<Skill> Skills { get; set; } = [];
+    public List<Tool> AvailableTools { get; set; } = [];
 
     public IDateTimeProvider? GetProvider() => dateTime;
 

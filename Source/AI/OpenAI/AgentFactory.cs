@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.OpenAI;
+﻿using DotNetToolbox.AI.Common;
+
+namespace DotNetToolbox.AI.OpenAI;
 
 public class AgentFactory(World world, IHttpClientProvider httpClientProvider, ILoggerFactory loggerFactory)
     : IAgentFactory {

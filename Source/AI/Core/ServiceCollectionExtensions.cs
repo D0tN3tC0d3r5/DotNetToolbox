@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI;
+﻿using DotNetToolbox.AI.Common;
+
+namespace DotNetToolbox.AI;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddAI<THttpProvider, TAgentFactory>(this IServiceCollection services, IConfiguration configuration)

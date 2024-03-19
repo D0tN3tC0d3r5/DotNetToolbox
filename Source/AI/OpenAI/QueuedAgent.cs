@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.OpenAI;
+﻿using DotNetToolbox.AI.Common;
+
+namespace DotNetToolbox.AI.OpenAI;
 
 public class QueuedAgent(World world,
                                AgentOptions options,

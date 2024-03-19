@@ -5,7 +5,7 @@ global using System.Text.Json;
 
 global using DotNetToolbox;
 global using DotNetToolbox.AI.Anthropic;
-global using DotNetToolbox.AI.Shared;
+global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.Collections.Generic;
 
 global using Microsoft.AspNetCore.Authentication;
@@ -26,14 +26,15 @@ global using Microsoft.EntityFrameworkCore.Migrations;
 global using Microsoft.Extensions.Options;
 global using Microsoft.Extensions.Primitives;
 
-global using Sophia.Services;
 global using Sophia.Models.Worlds;
-global using Sophia.Models.Skills;
+global using Sophia.Services;
 global using Sophia.WebApp.Components;
 global using Sophia.WebApp.Components.Account;
 global using Sophia.WebApp.Components.Account.Pages;
 global using Sophia.WebApp.Components.Account.Pages.Manage;
 global using Sophia.WebApp.Data;
 global using Sophia.WebApp.Data.World;
+global using Sophia.WebApp.Endpoints;
 global using Sophia.WebApp.Services;
+global using Sophia.WebClient.Services;
 

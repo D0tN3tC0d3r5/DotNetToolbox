@@ -9,7 +9,6 @@ global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Models;
 global using DotNetToolbox.AI.OpenAI.Chat;
 global using DotNetToolbox.AI.Personas;
-global using DotNetToolbox.AI.Shared;
 global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.Http.Options;

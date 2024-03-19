@@ -17,28 +17,31 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Agents\Fast.json">
+    <None Update="Data\Agents\Fast.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Personas\Concierge.json">
+    <None Update="Data\World.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Personas\TimeKeeper.json">
+    <None Update="Data\Personas\Concierge.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Personas\TimeKeeper.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\CancelAlarm.json">
+    <None Update="Data\Tools\CancelAlarm.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\GetDateTime.json">
+    <None Update="Data\Tools\GetDateTime.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\GetDateRangeDetails.json">
+    <None Update="Data\Tools\GetDateRangeDetails.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\SetAlarm.json">
+    <None Update="Data\Tools\SetAlarm.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

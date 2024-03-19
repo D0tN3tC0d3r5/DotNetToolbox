@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.Agents;
+﻿using DotNetToolbox.AI.Common;
+
+namespace DotNetToolbox.AI.Agents;
 
 public abstract class BackgroundAgent<TAgent, TOptions, TRequest, TResponse>(
         World world,

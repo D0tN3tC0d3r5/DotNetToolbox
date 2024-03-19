@@ -1,5 +1,3 @@
-using Sophia.WebApp.Endpoints;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -32,8 +30,13 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 builder.Services.AddAnthropic(builder.Configuration);
 
-builder.Services.AddScoped<IWorldService, WorldService>();
-builder.Services.AddScoped<ISkillsService, SkillsService>();
+builder.Services.AddScoped<WorldService>();
+builder.Services.AddScoped<ToolsService>();
+builder.Services.AddScoped<IWorldService, RemoteWorldService>();
+builder.Services.AddScoped<IToolsService, RemoteToolsService>();
+builder.Services.AddScoped(sp => new HttpClient {
+    BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
+});
 
 var app = builder.Build();
 
@@ -60,6 +63,6 @@ app.MapRazorComponents<App>()
 
 app.MapIdentityEndpoints();
 app.MapWorldEndpoints();
-app.MapSkillsEndpoints();
+app.MapToolsEndpoints();
 
 app.Run();

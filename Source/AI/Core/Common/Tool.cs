@@ -1,6 +1,6 @@
-﻿namespace DotNetToolbox.AI.Shared;
+﻿namespace DotNetToolbox.AI.Common;
 
-public class Skill
+public class Tool
     : IValidatable {
     public required int Id { get; set; }
     public required string Name { get; set; }
@@ -32,5 +32,4 @@ public class Skill
 
     public Result Validate(IDictionary<string, object?>? context = null)
         => Result.Success();
-
 }

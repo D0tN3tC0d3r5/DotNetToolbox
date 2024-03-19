@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.OpenAI;
+﻿using DotNetToolbox.AI.Common;
+
+namespace DotNetToolbox.AI.OpenAI;
 
 internal class Mapper : IMapper {
     IChatRequest IMapper.CreateRequest(IAgent agent, IChat chat) => CreateRequest((IAgent<AgentOptions>)agent, chat);
@@ -17,15 +19,14 @@ internal class Mapper : IMapper {
             NumberOfChoices = agent.Options.NumberOfChoices,
             FrequencyPenalty = agent.Options.FrequencyPenalty,
             PresencePenalty = agent.Options.PresencePenalty,
-            Tools = agent.Persona.Skills.Count == 0 ? null : agent.Persona.Skills.ToArray(ToRequestToolCall),
+            Tools = agent.Persona.Profile.KnownTools.Count == 0 ? null : agent.Persona.Profile.KnownTools.ToArray(ToRequestToolCall),
         };
     }
 
     private static string CreateSystemMessage(IAgent agent, IChat chat) {
         var builder = new StringBuilder();
         builder.AppendLine(agent.World.ToString());
-        builder.AppendLine(agent.Persona.Profile.ToString());
-        builder.AppendLine(agent.Persona.Skills.ToString());
+        builder.AppendLine(agent.Persona.ToString());
         builder.AppendLine(chat.Instructions.ToString());
         return builder.ToString();
     }
@@ -40,22 +41,22 @@ internal class Mapper : IMapper {
         };
     }
 
-    private static ChatRequestTool ToRequestToolCall(Skill skill)
-        => new("function", new(skill.Name, CreateParameterList(skill), skill.Description));
+    private static ChatRequestTool ToRequestToolCall(Tool tool)
+        => new("function", new(tool.Name, CreateParameterList(tool), tool.Description));
 
-    private static ChatRequestToolFunctionCallParameters? CreateParameterList(Skill skill) {
-        var parameters = GetParameters(skill);
-        var required = GetRequiredParameters(skill);
+    private static ChatRequestToolFunctionCallParameters? CreateParameterList(Tool tool) {
+        var parameters = GetParameters(tool);
+        var required = GetRequiredParameters(tool);
         return parameters is null && required is null ? null : new(parameters, required);
     }
 
-    private static Dictionary<string, ChatRequestToolFunctionCallParameter>? GetParameters(Skill skill) {
-        var result = skill.Arguments.ToDictionary<Argument, string, ChatRequestToolFunctionCallParameter>(k => k.Name, ToParameter);
+    private static Dictionary<string, ChatRequestToolFunctionCallParameter>? GetParameters(Tool tool) {
+        var result = tool.Arguments.ToDictionary<Argument, string, ChatRequestToolFunctionCallParameter>(k => k.Name, ToParameter);
         return result.Count == 0 ? null : result;
     }
 
-    private static string[]? GetRequiredParameters(Skill skill) {
-        var result = skill.Arguments.Where(p => p.IsRequired).ToArray(p => p.Name);
+    private static string[]? GetRequiredParameters(Tool tool) {
+        var result = tool.Arguments.Where(p => p.IsRequired).ToArray(p => p.Name);
         return result.Length == 0 ? null : result;
     }
 

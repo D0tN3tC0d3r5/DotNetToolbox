@@ -1,6 +1,4 @@
-﻿using Sophia.ConsoleClient;
-
-var builder = SophiaShellApplication.CreateBuilder(args, configuration => {
+﻿var builder = SophiaShellApplication.CreateBuilder(args, configuration => {
                                                              configuration.AddAppSettings();
                                                              configuration.AddUserSecrets<Program>();
                                                          });

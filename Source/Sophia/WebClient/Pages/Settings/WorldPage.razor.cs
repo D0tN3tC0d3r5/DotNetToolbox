@@ -8,15 +8,15 @@ public partial class WorldPage {
     private string _dateTime = string.Empty;
     private Timer? _timer;
 
-    private IReadOnlyCollection<SkillData> _availableSkills = [];
-    private List<SkillData> _skillSelectionBuffer = [];
-    private bool _showSkillSelectionDialog;
+    private IReadOnlyCollection<ToolData> _availableTools = [];
+    private List<ToolData> _toolSelectionBuffer = [];
+    private bool _showToolSelectionDialog;
 
     [Inject]
     public required IWorldService WorldService { get; set; }
 
     [Inject]
-    public required ISkillsService SkillsService { get; set; }
+    public required IToolsService ToolsService { get; set; }
 
     [Inject]
     public required ILogger<WorldPage> Logger { get; set; }
@@ -61,22 +61,22 @@ public partial class WorldPage {
     private void DeleteInfo(InformationData info)
         => _world.AdditionalInformation.Remove(info);
 
-    private async Task OpenSkillSelectionDialog() {
-        _availableSkills = await SkillsService.GetList();
-        _skillSelectionBuffer = [.. _world.Skills];
-        _showSkillSelectionDialog = true;
+    private async Task OpenToolSelectionDialog() {
+        _availableTools = await ToolsService.GetList();
+        _toolSelectionBuffer = [.. _world.AvailableTools];
+        _showToolSelectionDialog = true;
     }
 
-    private void CloseSkillSelectionDialog() {
-        _skillSelectionBuffer = [];
-        _showSkillSelectionDialog = false;
+    private void CloseToolSelectionDialog() {
+        _toolSelectionBuffer = [];
+        _showToolSelectionDialog = false;
     }
 
-    private void FinishSkillSelection(List<SkillData> skills) {
-        _world.Skills = skills;
-        CloseSkillSelectionDialog();
+    private void FinishToolSelection(List<ToolData> tools) {
+        _world.AvailableTools = tools;
+        CloseToolSelectionDialog();
     }
 
-    private void RemoveSkill(SkillData skill)
-        => _world.Skills.Remove(skill);
+    private void RemoveTool(ToolData tool)
+        => _world.AvailableTools.Remove(tool);
 }

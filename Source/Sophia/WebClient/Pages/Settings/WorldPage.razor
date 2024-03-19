@@ -1,27 +1,23 @@
 ﻿@page "/Settings/World"
 @implements IDisposable
-@rendermode InteractiveAuto
+@rendermode InteractiveWebAssembly
 
 <div class="container">
-  <div class="container-header row mb-3">
-    <div class="col-md-6">
-      <h3>World Settings</h3>
-    </div>
-    <div class="col-md-6 text-md-end">
-      @if (_isReadOnly) {
-        <button type="button" class="btn btn-primary" @onclick="EnableEdit">
-          <i class="bi bi-pencil-square me-2"></i>Edit
-        </button>
-      }
-      else {
-        <button type="submit" class="btn btn-success me-2" form="world-form">
-          <i class="bi bi-save me-2"></i>Save
-        </button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">
-          <i class="bi bi-x-circle me-2"></i>Cancel
-        </button>
-      }
-    </div>
+  <div class="container-header d-flex flex-row justify-content-start align-content-center mb-3">
+    <h3 class="mb-1 mt-1 me-4">World Settings</h3>
+    @if (_isReadOnly) {
+      <button type="button" class="btn btn-primary" @onclick="EnableEdit">
+        <i class="bi bi-pencil-square me-2"></i>Edit
+      </button>
+    }
+    else {
+      <button type="submit" class="btn btn-success me-4" form="world-form">
+        <i class="bi bi-save me-2"></i>Save
+      </button>
+      <button type="button" class="btn btn-secondary" @onclick="Cancel">
+        <i class="bi bi-x-circle me-2"></i>Cancel
+      </button>
+    }
   </div>
 
   <div class="container-body">
@@ -100,13 +96,13 @@
 
       <div class="row mb-3">
         <div class="col-12">
-          <label class="form-label">Skills</label>
+          <label class="form-label">Tools</label>
         </div>
         <div class="col-12">
           <div class="row">
             <div class="col-md-1">
               @if (!_isReadOnly) {
-                <button class="btn btn-sm btn-primary" @onclick="OpenSkillSelectionDialog">
+                <button class="btn btn-sm btn-primary" @onclick="OpenToolSelectionDialog">
                   <i class="bi bi-plus-circle"></i>
                 </button>
               }
@@ -123,20 +119,20 @@
               <label class="form-label">Description</label>
             </div>
           </div>
-          @foreach (var skill in _world.Skills) {
+          @foreach (var tool in _world.AvailableTools) {
             <div class="row mb-2">
               <div class="col-md-1">
                 @if (!_isReadOnly) {
-                  <button class="btn btn-sm btn-danger" @onclick="() => RemoveSkill(skill)" @onclick:preventDefault>
+                  <button class="btn btn-sm btn-danger" @onclick="() => RemoveTool(tool)" @onclick:preventDefault>
                     <i class="bi bi-trash"></i>
                   </button>
                 }
               </div>
               <div class="col-md-4">
-                <InputText class="form-control" @bind-Value="skill.Name" disabled="@_isReadOnly" />
+                <InputText class="form-control" @bind-Value="tool.Name" disabled="@_isReadOnly" />
               </div>
               <div class="col-md-7">
-                <InputText class="form-control" @bind-Value="skill.Description" disabled="@_isReadOnly" />
+                <InputText class="form-control" @bind-Value="tool.Description" disabled="@_isReadOnly" />
               </div>
             </div>
           }
@@ -146,9 +142,9 @@
   </div>
 </div>
 
-@if (_showSkillSelectionDialog) {
-  <SkillSelectionDialog AvailableSkills="_availableSkills"
-                        SelectedSkills="_skillSelectionBuffer"
-                        OnSkillsSelected="FinishSkillSelection"
-                        OnCancel="CloseSkillSelectionDialog" />
+@if (_showToolSelectionDialog) {
+  <ToolSelectionDialog AvailableTools="_availableTools"
+                       SelectedTools="_toolSelectionBuffer"
+                       OnToolsSelected="FinishToolSelection"
+                       OnCancel="CloseToolSelectionDialog" />
 }

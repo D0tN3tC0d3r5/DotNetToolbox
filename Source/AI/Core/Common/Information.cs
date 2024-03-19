@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Shared;
+﻿namespace DotNetToolbox.AI.Common;
 
 public class Information : IValidatableAsync {
     public string? Value { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Shared;
+﻿namespace DotNetToolbox.AI.Common;
 
 public enum ArgumentType {
     Text = 0,

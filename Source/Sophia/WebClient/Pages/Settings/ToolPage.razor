@@ -1,47 +1,46 @@
-﻿@page "/Settings/Skill/{Action}/{SkillId:int}"
-@rendermode InteractiveServer
+﻿@page "/Settings/Tool/{Action}/{ToolId:int}"
+@rendermode InteractiveWebAssembly
 
 <div class="container">
-  <div class="row mb-3">
-    <div class="col-md-6">
-      <h3>@_action Skill</h3>
-    </div>
-    <div class="col-md-6 text-md-end">
-      @if (IsReadOnly) {
-        <button type="button" class="btn btn-primary" @onclick="EnableEdit">
-          <i class="bi bi-pencil-square me-2"></i>Edit
-        </button>
-        <button type="button" class="btn btn-secondary" @onclick="GoBack">
-          <i class="bi bi-back me-2"></i>Back
-        </button>
-      }
-      else {
-        <button type="submit" class="btn btn-success me-2" form="world-form">
-          <i class="bi bi-save me-2"></i>Save
-        </button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">
-          <i class="bi bi-x-circle me-2"></i>Cancel
-        </button>
-      }
-    </div>
+  <div class="container-header d-flex flex-row justify-content-start align-content-center mb-3">
+    <h3 class="mb-1 mt-1 me-4">@_action Tool</h3>
+    @if (IsReadOnly) {
+      <button type="button" class="btn btn-primary me-4" @onclick="EnableEdit">
+        <i class="bi bi-pencil-square me-2"></i>Edit
+      </button>
+      <button type="button" class="btn btn-secondary" @onclick="GoBack" @onclick:preventDefault>
+        <i class="bi bi-back me-2"></i>Back
+      </button>
+    }
+    else {
+      <button type="submit" class="btn btn-success me-4" form="tool-form">
+        <i class="bi bi-save me-2"></i>Save
+      </button>
+      <button type="button" class="btn btn-secondary" @onclick="Cancel" @onclick:preventDefault>
+        <i class="bi bi-x-circle me-2"></i>Cancel
+      </button>
+    }
   </div>
 
   <div class="container-body">
-    <EditForm Model="@_skill" OnValidSubmit="Save">
+    <EditForm EditContext="_editContext" id="tool-form" OnValidSubmit="Save">
       <DataAnnotationsValidator />
-      <ValidationSummary />
+      <ValidationMessage For="@(() => _tool)" />
 
       <div class="mb-3">
-        <label for="skillName" class="form-label">Name</label>
-        <InputText id="skillName" class="form-control" @bind-Value="_skill.Name" disabled="@(IsReadOnly)" />
+        <label for="toolName" class="form-label">Name</label>
+        <InputText id="toolName" class="form-control" @bind-Value="_tool.Name" disabled="@(IsReadOnly)" />
+        <ValidationMessage For="@(() => _tool.Name)" />
       </div>
       <div class="mb-3">
-        <label for="skillDescription" class="form-label">Description</label>
-        <InputTextArea id="skillDescription" class="form-control" @bind-Value="_skill.Description" disabled="@(IsReadOnly)" />
+        <label for="toolDescription" class="form-label">Description</label>
+        <InputTextArea id="toolDescription" class="form-control" @bind-Value="_tool.Description" disabled="@(IsReadOnly)" />
+        <ValidationMessage For="@(() => _tool.Description)" />
       </div>
 
       <h4>Arguments</h4>
-      <div class="argument-grid">
+      <ValidationMessage For="@(() => _tool.Arguments)" />
+      <div class="grid">
         <table class="table">
           <thead>
             <tr>
@@ -57,7 +56,7 @@
             </tr>
           </thead>
           <tbody>
-            @foreach (var argument in _skill.Arguments) {
+            @foreach (var argument in _tool.Arguments) {
               <tr>
                 <td>
                   <button class="btn btn-sm btn-primary" @onclick="() => Edit(argument)" @onclick:preventDefault>Edit</button>
@@ -81,14 +80,14 @@
   </div>
 </div>
 
-@if (_showArgumentModal) {
+@if (_showArgumentDialog) {
   <ArgumentDialog Argument="_selectedArgument"
                   Action="_argumentAction"
                   OnSave="SaveArgument"
                   OnCancel="CloseArgumentModal" />
 }
 
-@if (_showDeleteConfirmation) {
+@if (_showDeleteConfirmationDialog) {
   <ConfirmationDialog Message="Are you sure you want to delete this argument?"
                       OnConfirm="ExecuteDelete"
                       OnCancel="CancelDelete" />

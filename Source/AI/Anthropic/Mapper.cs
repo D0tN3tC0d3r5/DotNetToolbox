@@ -21,7 +21,6 @@ internal class Mapper : IMapper {
         var builder = new StringBuilder();
         builder.AppendLine(agent.World.ToString());
         builder.AppendLine(agent.Persona.Profile.ToString());
-        builder.AppendLine(agent.Persona.Skills.ToString());
         builder.AppendLine(chat.Instructions.ToString());
         return builder.ToString();
     }

@@ -1,10 +1,11 @@
 ﻿namespace Sophia.ConsoleClient;
 
 public class FileRepository(IFileSystem io) {
-    private const string _chatsFolder = "Chats";
-    private const string _agentsFolder = "Agents";
-    private const string _personasFolder = "Personas";
-    private const string _skillsFolder = "Skills";
+    private const string _worldFolder = "Data";
+    private const string _chatsFolder = "Data\\Chats";
+    private const string _agentsFolder = "Data\\Agents";
+    private const string _personasFolder = "Data\\Personas";
+    private const string _toolsFolder = "Data\\Tools";
 
     private static readonly JsonSerializerOptions _fileSerializationOptions = new() {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -16,12 +17,17 @@ public class FileRepository(IFileSystem io) {
     public string[] ListChats()
         => GetFolders(_chatsFolder);
 
+    public World LoadWorld()
+        => LoadFile<World>(_worldFolder, "world");
+    public void SaveWorld(World world)
+        => SaveFile(world, io.CombinePath(_worldFolder), "world");
+
     public Persona LoadPersona(string name)
         => LoadFile<Persona>(_personasFolder, name);
     public AgentOptions LoadAgentOptions(string name)
         => LoadFile<AgentOptions>(_agentsFolder, name);
-    public Skill LoadSkill(string name)
-        => LoadFile<Skill>(_skillsFolder, name);
+    public Tool LoadTool(string name)
+        => LoadFile<Tool>(_toolsFolder, name);
 
     public Chat LoadChat(string id)
         => LoadFile<Chat>(io.CombinePath(_chatsFolder, id), "chat");
