@@ -1,9 +1,9 @@
 ﻿namespace Sophia.WebClient.Services;
 
-public class PersonasService : IPersonasService {
+public class RemotePersonasService : IPersonasService {
     private readonly HttpClient _httpClient;
 
-    public PersonasService(HttpClient httpClient) {
+    public RemotePersonasService(HttpClient httpClient) {
         _httpClient = httpClient;
     }
 

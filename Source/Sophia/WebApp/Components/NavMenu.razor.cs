@@ -1,4 +1,4 @@
-﻿namespace Sophia.WebApp.Components.Layout;
+﻿namespace Sophia.WebApp.Components;
 
 public partial class NavMenu : IDisposable {
     private string? _currentUrl;
