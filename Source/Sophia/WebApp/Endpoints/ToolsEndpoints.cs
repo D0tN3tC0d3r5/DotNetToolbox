@@ -4,7 +4,7 @@ internal static class ToolsEndpoints {
     public static IEndpointConventionBuilder MapToolsEndpoints(this IEndpointRouteBuilder endpoints) {
         ArgumentNullException.ThrowIfNull(endpoints);
 
-        var group = endpoints.MapGroup("/Tools");
+        var group = endpoints.MapGroup("api/tools");
         group.MapGet("/", (ToolsService service) => service.GetList());
         group.MapGet("/{id}", (ToolsService service, [FromRoute]int id) => service.GetById(id));
         group.MapPost("/", (ToolsService service, [FromBody] ToolData newValue) => service.Add(newValue));

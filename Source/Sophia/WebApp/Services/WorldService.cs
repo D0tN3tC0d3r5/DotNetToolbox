@@ -1,27 +1,22 @@
 ﻿namespace Sophia.WebApp.Services;
 
-public class WorldService(ApplicationDbContext dbContext, World world)
+public class WorldService(ApplicationDbContext dbContext)
     : IWorldService {
     public async Task<WorldData> GetWorld() {
-        if (await dbContext.Worlds.AnyAsync())
-            return world.ToDto();
-
-        var result = world.ToDto();
-        dbContext.Worlds.Add(result.ToEntity());
-        await dbContext.SaveChangesAsync();
-        return result;
+        var world = await dbContext.Worlds
+                                   .Include(w => w.Facts)
+                                   .Include(w => w.UserProfile)
+                                   .AsNoTracking()
+                                   .FirstAsync();
+        return world.ToDto();
     }
 
     public async Task UpdateWorld(WorldData input) {
-        var newWorld = input.ToModel(world.DateTimeProvider);
-        var result = newWorld.Validate();
-        if (!result.IsSuccess) return;
-
+        var world = await dbContext.Worlds
+                             .Include(w => w.Facts)
+                             .Include(w => w.UserProfile)
+                             .FirstAsync();
         world.UpdateFrom(input);
-
-        var entity = input.ToEntity();
-        if (!await dbContext.Worlds.AnyAsync()) dbContext.Worlds.Add(entity);
-        else dbContext.Worlds.Update(entity);
         await dbContext.SaveChangesAsync();
     }
 }

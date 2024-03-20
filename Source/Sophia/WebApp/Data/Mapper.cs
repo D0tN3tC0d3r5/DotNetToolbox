@@ -3,7 +3,6 @@
 public static class Mapper {
     public static WorldEntity ToEntity(this WorldData input)
         => new() {
-            DateTime = input.DateTime,
             Location = input.Location,
             UserProfile = input.UserProfile.ToEntity(),
             Facts = input.Facts.ToList(i => i.ToEntity()),

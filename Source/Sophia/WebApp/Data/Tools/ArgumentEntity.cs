@@ -1,6 +1,7 @@
 ﻿namespace Sophia.WebApp.Data.Tools;
 
 [Owned]
+[Table("Arguments")]
 [EntityTypeConfiguration(typeof(ArgumentEntity))]
 public class ArgumentEntity
     : IEntityTypeConfiguration<ArgumentEntity> {
@@ -21,10 +22,7 @@ public class ArgumentEntity
     public string? Description { get; set; }
 
     public void Configure(EntityTypeBuilder<ArgumentEntity> builder)
-        => builder.Property(p => p.Choices)
-                  .HasConversion(o => StringArrayConversion.ConvertToString(o),
-                                 s => StringArrayConversion.ConvertToArray(s),
-                                 new StringArrayComparer());
+        => builder.PrimitiveCollection(p => p.Choices);
 
     public ArgumentData ToDto()
         => new() {

@@ -37,8 +37,8 @@ builder.Services.AddScoped<IWorldService, RemoteWorldService>();
 builder.Services.AddScoped<IToolsService, RemoteToolsService>();
 builder.Services.AddScoped<IPersonasService, RemotePersonasService>();
 builder.Services.AddScoped(sp => new HttpClient {
-                                                    BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
-                                                });
+    BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
+});
 
 var app = builder.Build();
 
@@ -66,5 +66,6 @@ app.MapRazorComponents<App>()
 app.MapIdentityEndpoints();
 app.MapWorldEndpoints();
 app.MapToolsEndpoints();
+app.MapPersonasEndpoints();
 
-app.Run();
+await app.RunAsync();

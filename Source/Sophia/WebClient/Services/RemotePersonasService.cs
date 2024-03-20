@@ -8,7 +8,7 @@ public class RemotePersonasService : IPersonasService {
     }
 
     public async Task<IReadOnlyList<PersonaData>> GetList(string? filter = null) {
-        var list = await _httpClient.GetFromJsonAsync<List<PersonaData>>("api/personas");
+        var list = await _httpClient.GetFromJsonAsync<PersonaData[]>("api/personas");
         return list!;
     }
 
@@ -23,7 +23,7 @@ public class RemotePersonasService : IPersonasService {
     }
 
     public async Task Update(PersonaData persona) {
-        var response = await _httpClient.PutAsJsonAsync($"api/personas", persona);
+        var response = await _httpClient.PutAsJsonAsync("api/personas", persona);
         response.EnsureSuccessStatusCode();
     }
 

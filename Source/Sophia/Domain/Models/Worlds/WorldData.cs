@@ -1,7 +1,14 @@
 ﻿namespace Sophia.Models.Worlds;
 
-public class WorldData {
-    public DateTimeOffset DateTime { get; set; }
+public class WorldData() {
+    private readonly IDateTimeProvider _dateTime = DateTimeProvider.Default;
+
+    public WorldData(IDateTimeProvider dateTime)
+        : this() {
+        _dateTime = dateTime;
+    }
+
+    public DateTimeOffset DateTime => _dateTime.Now;
     [MaxLength(1000)]
     public string? Location { get; set; }
     public UserProfileData UserProfile { get; set; } = new();

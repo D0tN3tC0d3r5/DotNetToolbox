@@ -1,6 +1,7 @@
 ﻿namespace Sophia.WebApp.Data.World;
 
 [Owned]
+[Table("UserProfile")]
 public class UserProfileEntity {
     [MaxLength(250)]
     public string? Name { get; set; }

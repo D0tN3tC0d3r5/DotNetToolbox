@@ -10,7 +10,6 @@ public static class Mapper {
 
     public static WorldData ToDto(this World input)
         => new() {
-            DateTime = input.DateTime,
             Location = input.Location,
             UserProfile = input.UserProfile.ToDto(),
             Facts = input.Facts.ToList(i => i.ToDto()),

@@ -1,5 +1,6 @@
 ﻿namespace Sophia.WebApp.Data.Tools;
 
+[Table("Tools")]
 [EntityTypeConfiguration(typeof(ToolEntity))]
 public class ToolEntity
     : IEntityTypeConfiguration<ToolEntity> {
@@ -12,7 +13,8 @@ public class ToolEntity
     public List<ArgumentEntity> Arguments { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<ToolEntity> builder)
-        => builder.OwnsMany(s => s.Arguments);
+        => builder.OwnsMany(s => s.Arguments)
+                  .ToTable("Tool_Arguments");
 
     public ToolData ToDto()
         => new() {
