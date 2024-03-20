@@ -3,12 +3,17 @@
 public class WorldService(ApplicationDbContext dbContext)
     : IWorldService {
     public async Task<WorldData> GetWorld() {
-        var world = await dbContext.Worlds
-                                   .Include(w => w.Facts)
-                                   .Include(w => w.UserProfile)
-                                   .AsNoTracking()
-                                   .FirstAsync();
-        return world.ToDto();
+        try {
+            var world = await dbContext.Worlds
+                                       .Include(w => w.Facts)
+                                       .Include(w => w.Tools)
+                                       .AsNoTracking()
+                                       .FirstAsync();
+            return world.ToDto();
+        } catch (Exception ex) {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 
     public async Task UpdateWorld(WorldData input) {

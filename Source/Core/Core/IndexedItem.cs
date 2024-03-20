@@ -1,7 +1,32 @@
 ﻿namespace DotNetToolbox;
 
-public record Indexed<TValue>(uint Index, TValue Value);
+public record Indexed<TValue> {
+    public Indexed(int index, TValue value) {
+        Index = index < 0 ? 0 : index;
+        Value = value;
+    }
 
-public record IndexedItem<TValue>(uint Index, TValue Value, bool IsLast) : Indexed<TValue>(Index, Value) {
+    public int Index { get; init; }
+    public TValue Value { get; init; }
+
+    public void Deconstruct(out int index, out TValue value) {
+        index = Index;
+        value = Value;
+    }
+}
+
+public record IndexedItem<TValue> : Indexed<TValue> {
+    public IndexedItem(int index, TValue value, bool isLast)
+        : base(index, value) {
+        IsLast = isLast;
+    }
+
     public bool IsFirst => Index == 0;
+    public bool IsLast { get; init; }
+
+    public void Deconstruct(out int index, out TValue value, out bool isLast) {
+        index = Index;
+        value = Value;
+        isLast = IsLast;
+    }
 }

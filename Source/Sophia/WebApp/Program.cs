@@ -18,7 +18,12 @@ builder.Services.AddAuthentication(options => {
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>(options => {
+    options.UseSqlServer(connectionString);
+    options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
+    options.EnableDetailedErrors(builder.Environment.IsDevelopment());
+    options.LogTo(Console.WriteLine, LogLevel.Information);
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -30,12 +35,12 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 builder.Services.AddAnthropic(builder.Configuration);
 
-builder.Services.AddScoped<WorldService>();
-builder.Services.AddScoped<ToolsService>();
-builder.Services.AddScoped<PersonasService>();
-builder.Services.AddScoped<IWorldService, RemoteWorldService>();
-builder.Services.AddScoped<IToolsService, RemoteToolsService>();
-builder.Services.AddScoped<IPersonasService, RemotePersonasService>();
+builder.Services.AddScoped<IWorldService, WorldService>();
+builder.Services.AddScoped<IToolsService, ToolsService>();
+builder.Services.AddScoped<IPersonasService, PersonasService>();
+builder.Services.AddScoped<IWorldRemoteService, WorldRemoteService>();
+builder.Services.AddScoped<IToolsRemoteService, ToolsRemoteService>();
+builder.Services.AddScoped<IPersonasRemoteService, PersonasRemoteService>();
 builder.Services.AddScoped(sp => new HttpClient {
     BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
 });
@@ -54,6 +59,8 @@ else {
 }
 
 app.UseHttpsRedirection();
+
+await ApplicationDbContext.Seed(app.Services);
 
 app.UseStaticFiles();
 app.UseAntiforgery();

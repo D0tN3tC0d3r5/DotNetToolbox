@@ -119,7 +119,7 @@ public class StateMachine : IConsumer {
 
     private string SelectChat(string question, IEnumerable<string> items) {
         var options = items.AsIndexed().ToList(i => new MultipleChoiceOption(i.Index, i.Value));
-        options.Add(new((uint)options.Count, string.Empty, "Back to the main menu."));
+        options.Add(new(options.Count, string.Empty, "Back to the main menu."));
         return _promptFactory.CreateMultipleChoiceQuestion<string>(question, options).Ask();
     }
 

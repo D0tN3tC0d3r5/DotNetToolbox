@@ -5,6 +5,7 @@
 public class ToolEntity
     : IEntityTypeConfiguration<ToolEntity> {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
@@ -13,8 +14,9 @@ public class ToolEntity
     public List<ArgumentEntity> Arguments { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<ToolEntity> builder)
-        => builder.OwnsMany(s => s.Arguments)
-                  .ToTable("Tool_Arguments");
+        => builder.HasMany(s => s.Arguments)
+                  .WithOne()
+                  .HasForeignKey(a => a.ToolId);
 
     public ToolData ToDto()
         => new() {

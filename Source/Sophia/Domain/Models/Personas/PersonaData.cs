@@ -1,7 +1,6 @@
 ﻿namespace Sophia.Models.Personas;
 
 public class PersonaData {
-
     public int Id { get; set; }
     [Required(ErrorMessage = "Name is required.")]
     [MinLength(3, ErrorMessage = "Name must be at least 3 characters long.")]
@@ -9,7 +8,7 @@ public class PersonaData {
     public string Name { get; set; } = "Agent";
     [MaxLength(1000, ErrorMessage = "Description cannot exceed 1000 characters.")]
     public string Description { get; set; } = "You are a helpful agent.";
-    [MaxLength(1000, ErrorMessage = "Description cannot exceed 1000 characters.")]
+    [MaxLength(1000, ErrorMessage = "Personality cannot exceed 1000 characters.")]
     public string? Personality { get; set; }
     public List<string> Instructions { get; set; } = [];
     public List<FactData> Facts { get; set; } = [];

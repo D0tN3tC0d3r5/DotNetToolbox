@@ -1,7 +1,7 @@
 ﻿namespace Sophia.WebClient.Services;
 
-public class RemoteToolsService(HttpClient httpClient)
-    : IToolsService {
+public class ToolsRemoteService(HttpClient httpClient)
+    : IToolsRemoteService {
     public async Task<IReadOnlyList<ToolData>> GetList(string? filter = null) {
         var list = await httpClient.GetFromJsonAsync<ToolData[]>("api/tools");
         return list!;

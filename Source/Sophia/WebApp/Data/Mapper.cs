@@ -48,7 +48,7 @@ public static class Mapper {
         return originalItem;
     }
 
-    public static ArgumentEntity ToEntity(this ArgumentData input, uint index)
+    public static ArgumentEntity ToEntity(this ArgumentData input, int index)
         => new() {
             Index = index,
             Name = input.Name,

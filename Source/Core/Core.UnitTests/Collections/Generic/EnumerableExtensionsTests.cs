@@ -118,8 +118,8 @@ public class EnumerableExtensionsTests {
         // Assert
         result.Should().BeOfType<ReadOnlyCollection<IndexedItem<int>>>();
         result.Should().HaveCount(100);
-        result[0].Should().Be(new IndexedItem<int>(0u, 0, false));
-        result[99].Should().Be(new IndexedItem<int>(99u, 99, true));
+        result[0].Should().Be(new IndexedItem<int>(0, 0, false));
+        result[99].Should().Be(new IndexedItem<int>(99, 99, true));
     }
 
     [Fact]
@@ -142,11 +142,11 @@ public class EnumerableExtensionsTests {
         // Assert
         result.Should().BeOfType<ReadOnlyCollection<IndexedItem<string>>>();
         result.Should().HaveCount(100);
-        result[0].Index.Should().Be(0u);
+        result[0].Index.Should().Be(0);
         result[0].Value.Should().Be("2");
         result[0].IsFirst.Should().BeTrue();
         result[0].IsLast.Should().BeFalse();
-        result[99].Index.Should().Be(99u);
+        result[99].Index.Should().Be(99);
         result[99].Value.Should().Be("101");
         result[99].IsFirst.Should().BeFalse();
         result[99].IsLast.Should().BeTrue();

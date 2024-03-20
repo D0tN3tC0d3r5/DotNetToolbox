@@ -1,13 +1,26 @@
 ﻿namespace Sophia.WebApp.Data.Common;
 
-[Owned]
-public class FactEntity {
+[Table("Facts")]
+[EntityTypeConfiguration(typeof(FactEntity))]
+public class FactEntity
+    : IEntityTypeConfiguration<FactEntity> {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    [MaxLength(1000)]
+    public string? DefaultText { get; set; }
+
     [MaxLength(100)]
     public string? Value { get; set; }
+
     [MaxLength(1000)]
-    public string ValueTemplate { get; set; } = string.Empty;
-    [MaxLength(1000)]
-    public string DefaultText { get; set; } = string.Empty;
+    [Required(AllowEmptyStrings = false)]
+    public string ValueTemplate { get; set; } = "{0}";
+
+    public void Configure(EntityTypeBuilder<FactEntity> builder)
+        => builder.Property(f => f.ValueTemplate)
+                  .HasDefaultValue("{0}");
 
     public FactData ToDto()
         => new() {

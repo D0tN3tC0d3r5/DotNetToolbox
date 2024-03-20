@@ -5,8 +5,8 @@ internal static class WorldEndpoints {
         ArgumentNullException.ThrowIfNull(endpoints);
 
         var group = endpoints.MapGroup("api/world");
-        group.MapGet("/", (WorldService service) => service.GetWorld());
-        group.MapPut("/", (WorldService service, [FromBody] WorldData updatedValue) => service.UpdateWorld(updatedValue));
+        group.MapGet("/", (IWorldService service) => service.GetWorld());
+        group.MapPut("/", (IWorldService service, [FromBody] WorldData updatedValue) => service.UpdateWorld(updatedValue));
         return group;
     }
 }

@@ -13,10 +13,10 @@ public partial class WorldPage {
     private bool _showToolSelectionDialog;
 
     [Inject]
-    public required IWorldService WorldService { get; set; }
+    public required IWorldRemoteService WorldService { get; set; }
 
     [Inject]
-    public required IToolsService ToolsService { get; set; }
+    public required IToolsRemoteService ToolsService { get; set; }
 
     [Inject]
     public required ILogger<WorldPage> Logger { get; set; }

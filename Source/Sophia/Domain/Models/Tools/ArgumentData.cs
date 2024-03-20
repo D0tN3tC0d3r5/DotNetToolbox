@@ -12,7 +12,7 @@ public class ArgumentData {
     public List<string> Choices { get; set; } = [];
     public bool IsRequired { get; set; }
 
-    public Argument ToModel(uint index)
+    public Argument ToModel(int index)
         => new() {
             Index = index,
             Name = Name,

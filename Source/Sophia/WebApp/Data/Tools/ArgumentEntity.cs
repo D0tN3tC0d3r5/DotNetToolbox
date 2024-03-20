@@ -6,7 +6,10 @@
 public class ArgumentEntity
     : IEntityTypeConfiguration<ArgumentEntity> {
     [Required]
-    public uint Index { get; set; }
+    public int ToolId { get; set; }
+    [Required]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public int Index { get; set; }
     [Required]
     public bool IsRequired { get; set; }
     [Required]
@@ -21,8 +24,10 @@ public class ArgumentEntity
     [MaxLength(2000)]
     public string? Description { get; set; }
 
-    public void Configure(EntityTypeBuilder<ArgumentEntity> builder)
-        => builder.PrimitiveCollection(p => p.Choices);
+    public void Configure(EntityTypeBuilder<ArgumentEntity> builder) {
+        builder.HasKey(a => new { a.ToolId, a.Index });
+        builder.PrimitiveCollection(p => p.Choices);
+    }
 
     public ArgumentData ToDto()
         => new() {

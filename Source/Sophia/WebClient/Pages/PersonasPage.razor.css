@@ -1,2 +1,26 @@
-﻿body {
+﻿.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.clickable:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.persona-card {
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  border: 2px solid #dee2e6;
+}
+
+.persona-card:hover {
+  background-color: #e9ecef;
+  border-color: #c1c9d0;
+}
+
+.persona-card .card-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #212529;
 }

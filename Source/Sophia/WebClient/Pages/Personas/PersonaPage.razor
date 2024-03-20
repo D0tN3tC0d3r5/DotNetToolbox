@@ -1,0 +1,138 @@
+﻿@page "/Personas/{Action}/{PersonaId:int?}"
+@rendermode InteractiveWebAssembly
+
+<div class="container">
+  <div class="container-header row mb-3">
+    <div class="col-md-6">
+      <h3>@_action Persona</h3>
+    </div>
+    <div class="col-md-6 text-md-end">
+      @if (IsReadOnly) {
+        <button type="button" class="btn btn-primary" @onclick="EnableEdit">
+          <i class="bi bi-pencil-square me-2"></i>Edit
+        </button>
+      }
+      else {
+        <button type="submit" class="btn btn-success me-2" form="persona-form">
+          <i class="bi bi-save me-2"></i>Save
+        </button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">
+          <i class="bi bi-x-circle me-2"></i>Cancel
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="container-body">
+    <EditForm Model="@_persona" OnValidSubmit="Save" id="persona-form">
+      <DataAnnotationsValidator />
+      <ValidationSummary />
+
+      <div class="mb-3">
+        <label for="personaName" class="form-label">Name</label>
+        <InputText id="personaName" class="form-control" @bind-Value="_persona.Name" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _persona.Name)" />
+      </div>
+      <div class="mb-3">
+        <label for="personaDescription" class="form-label">Description</label>
+        <InputTextArea id="personaDescription" class="form-control" @bind-Value="_persona.Description" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _persona.Description)" />
+      </div>
+      <div class="mb-3">
+        <label for="personaPersonality" class="form-label">Personality</label>
+        <InputTextArea id="personaPersonality" class="form-control" @bind-Value="_persona.Personality" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _persona.Personality)" />
+      </div>
+
+      <!-- Instructions -->
+      <div class="mb-3">
+        <div class="row mb-2">
+          <div class="col">
+            @if (!IsReadOnly) {
+              <button class="btn btn-sm btn-primary me-2" @onclick="AddInstruction" @onclick:preventDefault>
+                <i class="bi bi-plus-circle"></i>
+              </button>
+            }
+            <label class="form-label">Instructions</label>
+          </div>
+        </div>
+        <ValidationMessage For="@(() => _persona.Instructions)" />
+        @foreach (var instruction in _persona.Instructions) {
+          <div class="row mb-2">
+            <div class="col-md-1">
+              @if (!IsReadOnly) {
+                <button class="btn btn-sm btn-danger" @onclick="() => RemoveInstruction(instruction)" @onclick:preventDefault>
+                  <i class="bi bi-trash"></i>
+                </button>
+              }
+            </div>
+            <div class="col-md-11">
+              <InputText class="form-control" value="@instruction" disabled="@IsReadOnly" />
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Facts -->
+      <div class="mb-3">
+        <div class="row mb-2">
+          <div class="col">
+            @if (!IsReadOnly) {
+              <button class="btn btn-sm btn-primary me-2" @onclick="AddFact" @onclick:preventDefault>
+                <i class="bi bi-plus-circle"></i>
+              </button>
+            }
+            <label class="form-label">Facts</label>
+          </div>
+        </div>
+        <ValidationMessage For="@(() => _persona.Instructions)" />
+        @foreach (var fact in _persona.Facts) {
+          <div class="row mb-2">
+            <div class="col-md-1">
+              @if (!IsReadOnly) {
+                <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(fact)" @onclick:preventDefault>
+                  <i class="bi bi-trash"></i>
+                </button>
+              }
+            </div>
+            <div class="col">
+              <InputText class="form-control" value="@fact" readonly />
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Known Tools -->
+      <div class="mb-3">
+        <div class="row mb-2">
+          <div class="col">
+            @if (!IsReadOnly) {
+              <button class="btn btn-sm btn-primary me-2" @onclick="OpenToolSelectionDialog">
+                <i class="bi bi-plus-circle"></i>
+              </button>
+            }
+            <label class="form-label">Known Tools</label>
+          </div>
+        </div>
+        <ValidationMessage For="@(() => _persona.Instructions)" />
+        <ul class="list-group">
+          @foreach (var tool in _persona.KnownTools) {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              @tool.Name
+              @if (!IsReadOnly) {
+                <button class="btn btn-sm btn-danger" @onclick="() => RemoveTool(tool)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+
+    </EditForm>
+  </div>
+</div>
+
+@if (_showToolSelectionDialog) {
+  <!-- Tool Selection Dialog Component -->
+}

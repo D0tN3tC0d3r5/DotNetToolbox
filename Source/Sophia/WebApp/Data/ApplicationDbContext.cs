@@ -12,4 +12,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<ToolEntity>();
         builder.Entity<PersonaEntity>();
     }
+
+    public static async Task Seed(IServiceProvider services) {
+        await using var scope = services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.Database.MigrateAsync();
+        await WorldEntity.Seed(dbContext);
+        await dbContext.SaveChangesAsync();
+    }
 }

@@ -1,23 +1,23 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public class MultipleChoiceOption(uint index, string value, string text, string? alias = null)
+public class MultipleChoiceOption(int index, string value, string text, string? alias = null)
     : MultipleChoiceOption<string>(index, value, text, alias) {
 
-    public MultipleChoiceOption(uint index, string value, string text, bool displayOrder)
+    public MultipleChoiceOption(int index, string value, string text, bool displayOrder)
         : this(index, value, text, displayOrder ? index.ToString() : null!) {
     }
 
-    public MultipleChoiceOption(uint index, string value, string? alias = null)
+    public MultipleChoiceOption(int index, string value, string? alias = null)
         : this(index, value, value, alias) {
     }
 
-    public MultipleChoiceOption(uint index, string value, bool displayOrder)
+    public MultipleChoiceOption(int index, string value, bool displayOrder)
         : this(index, value, value, displayOrder ? index.ToString() : null!) {
     }
 }
 
-public class MultipleChoiceOption<TValue>(uint index, TValue value, string text, string? alias = null) {
-    public MultipleChoiceOption(uint index, TValue value, string text, bool displayOrder)
+public class MultipleChoiceOption<TValue>(int index, TValue value, string text, string? alias = null) {
+    public MultipleChoiceOption(int index, TValue value, string text, bool displayOrder)
         : this(index, value, text, displayOrder ? index.ToString() : null) {
     }
 
@@ -30,7 +30,7 @@ public class MultipleChoiceOption<TValue>(uint index, TValue value, string text,
         return sb.ToString();
     }
 
-    public uint Index { get; } = index;
+    public int Index { get; } = index;
     public TValue Value { get; } = value;
     public string Display { get; } = FormatDefaultDisplay(text, alias);
 

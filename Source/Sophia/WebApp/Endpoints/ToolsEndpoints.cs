@@ -5,11 +5,11 @@ internal static class ToolsEndpoints {
         ArgumentNullException.ThrowIfNull(endpoints);
 
         var group = endpoints.MapGroup("api/tools");
-        group.MapGet("/", (ToolsService service) => service.GetList());
-        group.MapGet("/{id}", (ToolsService service, [FromRoute]int id) => service.GetById(id));
-        group.MapPost("/", (ToolsService service, [FromBody] ToolData newValue) => service.Add(newValue));
-        group.MapPut("/", (ToolsService service, [FromBody] ToolData updatedValue) => service.Update(updatedValue));
-        group.MapDelete("/{id}", (ToolsService service, [FromRoute] int id) => service.Delete(id));
+        group.MapGet("/", (IToolsService service) => service.GetList());
+        group.MapGet("/{id}", (IToolsService service, [FromRoute]int id) => service.GetById(id));
+        group.MapPost("/", (IToolsService service, [FromBody] ToolData newValue) => service.Add(newValue));
+        group.MapPut("/", (IToolsService service, [FromBody] ToolData updatedValue) => service.Update(updatedValue));
+        group.MapDelete("/{id}", (IToolsService service, [FromRoute] int id) => service.Delete(id));
         return group;
     }
 }

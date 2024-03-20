@@ -1,25 +1,8 @@
 ﻿namespace Sophia.WebClient.Pages.Settings;
 
 public partial class ToolPage {
-    [Parameter]
-    public int ToolId { get; set; }
 
-    private PageAction _action;
-    [Parameter]
-    [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
-    public string Action {
-        get => _action.ToString();
-        set => _action = Enum.Parse<PageAction>(value); }
     private PageAction _argumentAction = PageAction.View;
-
-    private bool IsReadOnly => _action == PageAction.View;
-
-    [Inject]
-    public required IToolsService ToolsService { get; set; }
-
-    [Inject]
-    public required NavigationManager NavigationManager { get; set; }
-
     private IReadOnlyList<ToolData> _existingTools = [];
     private ToolData _tool = new();
     private EditContext _editContext;
@@ -28,6 +11,23 @@ public partial class ToolPage {
     private bool _showArgumentDialog;
     private bool _showDeleteConfirmationDialog;
 
+    [Inject]
+    public required IToolsRemoteService ToolsService { get; set; }
+
+    [Inject]
+    public required NavigationManager NavigationManager { get; set; }
+
+    private PageAction _action;
+    [Parameter]
+    [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
+    public string Action {
+        get => _action.ToString();
+        set => _action = Enum.Parse<PageAction>(value); }
+    public bool IsReadOnly => _action == PageAction.View;
+
+    [Parameter]
+    public int? ToolId { get; set; }
+
     public ToolPage() {
         _editContext = new(_tool);
         _validationMessageStore = new(_editContext);
@@ -35,8 +35,14 @@ public partial class ToolPage {
 
     protected override async Task OnInitializedAsync() {
         _existingTools = await ToolsService.GetList();
-        _tool = await ToolsService.GetById(ToolId) ?? new ToolData();
+        _tool = await GetToolById(ToolId);
     }
+
+    private async Task<ToolData> GetToolById(int? toolId)
+        => toolId is null
+               ? new()
+               : await ToolsService.GetById(toolId.Value)
+              ?? throw new InvalidOperationException();
 
     protected override void OnParametersSet() {
         _editContext = new(_tool);
@@ -48,7 +54,7 @@ public partial class ToolPage {
     private void OnValidationRequested(object? sender, ValidationRequestedEventArgs e) {
         _validationMessageStore.Clear(() => _tool);
         var result = _tool.ValidateSignature(_existingTools);
-        if (result != null) _validationMessageStore!.Add(() => _tool, result);
+        if (result != null) _validationMessageStore.Add(() => _tool, result);
     }
 
     private void EnableEdit() => _action = PageAction.Edit;
@@ -67,7 +73,7 @@ public partial class ToolPage {
 
     private async Task CancelEdit() {
         _action = PageAction.View;
-        _tool = await ToolsService.GetById(ToolId) ?? new ToolData();
+        _tool = await GetToolById(ToolId);
     }
 
     private void GoBack() => NavigationManager.NavigateTo("/Settings/Tools");

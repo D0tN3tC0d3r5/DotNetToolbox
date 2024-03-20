@@ -1,37 +1,61 @@
 ﻿namespace Sophia.WebApp.Data.World;
 
+[Table("WorldFacts")]
+public class WorldFactsEntity {
+    public Guid WorldId { get; set; }
+    public int FactId { get; set; }
+}
+
+[Table("WorldTools")]
+public class WorldToolsEntity {
+    public Guid WorldId { get; set; }
+    public int ToolId { get; set; }
+}
+
 [Table("Worlds")]
 [EntityTypeConfiguration(typeof(WorldEntity))]
 public class WorldEntity
     : IEntityTypeConfiguration<WorldEntity> {
-    public Guid Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; set; } = Guid.Empty;
     [MaxLength(1000)]
     public string? Location { get; set; }
-    public UserProfileEntity? UserProfile { get; set; }
+    [Required]
+    public UserProfileEntity UserProfile { get; set; } = new();
     public List<FactEntity> Facts { get; set; } = [];
     public List<ToolEntity> Tools { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<WorldEntity> builder) {
-        builder.HasKey(w => w.Id);
-        builder.OwnsMany(w => w.Facts)
-               .ToTable("World_Facts");
-        builder.OwnsOne(w => w.UserProfile)
-               .ToTable("World_User");
-        builder.HasMany(w => w.Tools)
+        builder.HasMany(w => w.Facts)
                .WithMany()
-               .UsingEntity("World_Tools",
-               l => l.HasOne(typeof(ToolEntity)).WithMany().HasForeignKey("ToolId").HasPrincipalKey(nameof(ToolEntity.Id)),
-               r => r.HasOne(typeof(WorldEntity)).WithMany().HasForeignKey("WorldId").HasPrincipalKey(nameof(Id)),
-               j => j.HasKey("ToolId", "WorldId"));
-        builder.HasData(new WorldEntity {
-            Id = Guid.Parse("49381b5a-a76b-486f-ac5c-b2807cff9675"),
-        });
+               .UsingEntity<WorldFactsEntity>(l => l.HasOne<FactEntity>()
+                                                    .WithMany()
+                                                    .HasForeignKey(e => e.FactId),
+                                              r => r.HasOne<WorldEntity>()
+                                                    .WithMany()
+                                                    .HasForeignKey(e => e.WorldId));
+        builder.ComplexProperty(w => w.UserProfile);
+        builder.HasMany(p => p.Tools)
+               .WithMany()
+               .UsingEntity<WorldToolsEntity>(l => l.HasOne<ToolEntity>()
+                                                    .WithMany()
+                                                    .HasForeignKey(e => e.ToolId),
+                                              r => r.HasOne<WorldEntity>()
+                                                    .WithMany()
+                                                    .HasForeignKey(e => e.WorldId));
+    }
+
+    public static async Task Seed(ApplicationDbContext dbContext) {
+        if (await dbContext.Worlds.AnyAsync()) return;
+        var world = new WorldEntity();
+        dbContext.Worlds.Add(world);
     }
 
     public WorldData ToDto()
         => new() {
             Location = Location,
-            UserProfile = (UserProfile ?? new()).ToDto(),
+            UserProfile = UserProfile.ToDto(),
             Facts = Facts.ToList(a => a.ToDto()),
             Tools = Tools.ToList(s => s.ToDto()),
         };

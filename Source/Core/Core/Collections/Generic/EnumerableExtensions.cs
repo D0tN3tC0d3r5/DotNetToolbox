@@ -34,7 +34,7 @@ public static class EnumerableExtensions {
 
     public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable<TItem> source) => source.AsIndexed(i => i);
 
-    public static IEnumerable<Indexed<TOutput>> AsIndexed<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform) => source.Select((v, i) => new Indexed<TOutput>((uint)i, transform(v)));
+    public static IEnumerable<Indexed<TOutput>> AsIndexed<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform) => source.Select((v, i) => new Indexed<TOutput>(i, transform(v)));
 
     public static IReadOnlyList<IndexedItem<TItem>> ToIndexedItems<TItem>(this IEnumerable<TItem> source)
         => source.ToIndexedItems(i => i);
@@ -42,7 +42,7 @@ public static class EnumerableExtensions {
     public static IReadOnlyList<IndexedItem<TOutput>> ToIndexedItems<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform) {
         using var enumerator = source.GetEnumerator();
         var list = new List<IndexedItem<TOutput>>();
-        var index = 0u;
+        var index = 0;
         var hasNext = enumerator.MoveNext();
         while (hasNext) {
             var value = transform(enumerator.Current);
