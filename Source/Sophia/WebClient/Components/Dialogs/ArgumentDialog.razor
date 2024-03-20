@@ -1,13 +1,10 @@
-﻿@using DotNetToolbox.AI.Common
-
-<div class="modal modal-lg fade show" tabindex="-1" role="dialog" style="display: block;">
+﻿<div class="modal modal-lg fade show" tabindex="-1" role="dialog" style="display: block;">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">@Action Argument</h5>
         <button type="button" class="btn-close" @onclick="Cancel"></button>
       </div>
-
       <div class="modal-body">
         <EditForm EditContext="_editContext" id="argument-form" OnValidSubmit="Save">
           <DataAnnotationsValidator />
@@ -44,26 +41,23 @@
                         </button>
                       </th>
                       <th>Choices</th>
-                      <th>
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    @for (int i = 0; i < _argument.Choices.Count; i++) {
-                      int index = i;
+                    @for (var i = 0; i < _argument.Choices.Count; i++)
+                    {
+                      var index = i;
                       <tr>
                         <td>
                           <button class="btn btn-primary btn-sm" @onclick="() => InsertOption(index)" @onclick:preventDefault>
                             <i class="bi bi-plus-circle"></i>
                           </button>
-                        </td>
-                        <td>
-                          <InputText class="form-control" @bind-Value="_argument.Choices[index]" />
-                        </td>
-                        <td>
                           <button class="btn btn-danger btn-sm" @onclick="() => RemoveOption(index)" @onclick:preventDefault>
                             <i class="bi bi-trash"></i>
                           </button>
+                        </td>
+                        <td>
+                          <InputText class="form-control" @bind-Value="_argument.Choices[index]" />
                         </td>
                       </tr>
                     }

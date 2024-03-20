@@ -11,6 +11,9 @@
         <button type="button" class="btn btn-primary" @onclick="EnableEdit">
           <i class="bi bi-pencil-square me-2"></i>Edit
         </button>
+        <button type="button" class="btn btn-secondary" @onclick="GoBack" @onclick:preventDefault>
+          <i class="bi bi-back me-2"></i>Back
+        </button>
       }
       else {
         <button type="submit" class="btn btn-success me-2" form="persona-form">
@@ -57,17 +60,18 @@
           </div>
         </div>
         <ValidationMessage For="@(() => _persona.Instructions)" />
-        @foreach (var instruction in _persona.Instructions) {
+        @for (var i = 0; i < _persona.Instructions.Count; i++) {
+          var index = i;
           <div class="row mb-2">
             <div class="col-md-1">
               @if (!IsReadOnly) {
-                <button class="btn btn-sm btn-danger" @onclick="() => RemoveInstruction(instruction)" @onclick:preventDefault>
+                <button class="btn btn-sm btn-danger" @onclick="() => RemoveInstruction(index)" @onclick:preventDefault>
                   <i class="bi bi-trash"></i>
                 </button>
               }
             </div>
             <div class="col-md-11">
-              <InputText class="form-control" value="@instruction" disabled="@IsReadOnly" />
+              <InputText class="form-control" @bind-Value="_persona.Instructions[index]" disabled="@IsReadOnly" />
             </div>
           </div>
         }
@@ -85,7 +89,7 @@
             <label class="form-label">Facts</label>
           </div>
         </div>
-        <ValidationMessage For="@(() => _persona.Instructions)" />
+        <ValidationMessage For="@(() => _persona.Facts)" />
         @foreach (var fact in _persona.Facts) {
           <div class="row mb-2">
             <div class="col-md-1">
@@ -93,10 +97,13 @@
                 <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(fact)" @onclick:preventDefault>
                   <i class="bi bi-trash"></i>
                 </button>
+                <button class="btn btn-sm btn-primary" @onclick="() => EditFact(fact)" @onclick:preventDefault>
+                  <i class="bi bi-pencil"></i>
+                </button>
               }
             </div>
             <div class="col">
-              <InputText class="form-control" value="@fact" readonly />
+              <InputText class="form-control" @bind-Value="fact.Value" readonly />
             </div>
           </div>
         }
@@ -107,7 +114,7 @@
         <div class="row mb-2">
           <div class="col">
             @if (!IsReadOnly) {
-              <button class="btn btn-sm btn-primary me-2" @onclick="OpenToolSelectionDialog">
+              <button class="btn btn-sm btn-primary me-2" @onclick="OpenToolSelectionDialog" @onclick:preventDefault>
                 <i class="bi bi-plus-circle"></i>
               </button>
             }
@@ -133,6 +140,14 @@
   </div>
 </div>
 
+@if (_showFactDialog) {
+  <FactDialog Fact="_selectedFact" Action="@(_selectedFact!.Id == 0 ? "Add" : "Edit")"
+              OnSave="SaveFact" OnCancel="CloseFactDialog" />
+}
+
 @if (_showToolSelectionDialog) {
-  <!-- Tool Selection Dialog Component -->
+  <ToolSelectionDialog AvailableTools="_availableTools"
+                       SelectedTools="_toolSelectionBuffer"
+                       OnToolsSelected="FinishToolSelection"
+                       OnCancel="CloseToolSelectionDialog" />
 }

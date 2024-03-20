@@ -39,6 +39,7 @@
         </div>
       </div>
 
+      <!-- User Profile -->
       <div class="row mb-3">
         <div class="col-12">
           <label class="form-label">User</label>
@@ -53,57 +54,39 @@
         </div>
       </div>
 
-      <div class="row mb-3">
-        <div class="col-12">
-          <label class="form-label">Additional Information</label>
+      <!-- Facts -->
+      <div class="mb-3">
+        <div class="row mb-2">
+          <div class="col">
+            @if (!_isReadOnly) {
+              <button class="btn btn-sm btn-primary me-2" @onclick="AddFact" @onclick:preventDefault>
+                <i class="bi bi-plus-circle"></i>
+              </button>
+            }
+            <label class="form-label">Facts</label>
+          </div>
         </div>
-        <div class="col-12">
-          <div class="row">
+        <ValidationMessage For="@(() => _world.Facts)" />
+        @foreach (var fact in _world.Facts) {
+          <div class="row mb-2">
             <div class="col-md-1">
               @if (!_isReadOnly) {
-                <button class="btn btn-sm btn-primary" @onclick="AddFact" @onclick:preventDefault>
-                  <i class="bi bi-plus-circle"></i>
+                <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(fact)" @onclick:preventDefault>
+                  <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn btn-sm btn-primary" @onclick="() => EditFact(fact)" @onclick:preventDefault>
+                  <i class="bi bi-pencil"></i>
                 </button>
               }
-              else {
-                <button class="btn btn-sm btn-secondary" @onclick:preventDefault disabled>
-                  <i class="bi bi-plus-circle"></i>
-                </button>
-              }
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Default Text</label>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Value</label>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Value Template</label>
+            <div class="col">
+              <InputText class="form-control" @bind-Value="fact.Value" readonly />
             </div>
           </div>
-          @foreach (var info in _world.Facts) {
-            <div class="row mb-2">
-              <div class="col-md-1">
-                @if (!_isReadOnly) {
-                  <button class="btn btn-sm btn-danger" @onclick="() => DeleteInfo(info)" @onclick:preventDefault>
-                    <i class="bi bi-trash"></i>
-                  </button>
-                }
-              </div>
-              <div class="col-md-4">
-                <InputText class="form-control" @bind-Value="info.DefaultText" disabled="@_isReadOnly" />
-              </div>
-              <div class="col-md-3">
-                <InputText class="form-control" @bind-Value="info.Value" disabled="@_isReadOnly" />
-              </div>
-              <div class="col-md-4">
-                <InputText class="form-control" @bind-Value="info.ValueTemplate" disabled="@_isReadOnly" />
-              </div>
-            </div>
-          }
-        </div>
+        }
       </div>
 
+      <!-- Available Tools -->
       <div class="row mb-3">
         <div class="col-12">
           <label class="form-label">Tools</label>
@@ -112,7 +95,7 @@
           <div class="row">
             <div class="col-md-1">
               @if (!_isReadOnly) {
-                <button class="btn btn-sm btn-primary" @onclick="OpenToolSelectionDialog">
+                <button class="btn btn-sm btn-primary" @onclick="OpenToolSelectionDialog" @onclick:preventDefault>
                   <i class="bi bi-plus-circle"></i>
                 </button>
               }
@@ -151,6 +134,11 @@
     </EditForm>
   </div>
 </div>
+
+@if (_showFactDialog) {
+  <FactDialog Fact="_selectedFact" Action="@(_selectedFact!.Id == 0 ? "Add" : "Edit")"
+              OnSave="SaveFact" OnCancel="CloseFactDialog" />
+}
 
 @if (_showToolSelectionDialog) {
   <ToolSelectionDialog AvailableTools="_availableTools"

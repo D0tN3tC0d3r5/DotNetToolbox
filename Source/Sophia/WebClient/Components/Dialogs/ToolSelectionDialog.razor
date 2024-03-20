@@ -1,4 +1,4 @@
-﻿<div class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
+﻿<div class="modal modal-lg fade show" tabindex="-1" role="dialog" style="display: block;">
   <div class="modal-dialog modal-dialog-scrollable" role="document">
     <div class="modal-content">
       @if (HasTools) {
@@ -24,7 +24,7 @@
             </ul>
           }
           else {
-            <h5>No Tools found for the selected filter.</h5>
+            <h5>No tools were found for the selected filter.</h5>
           }
         </div>
         <div class="modal-footer">
@@ -32,13 +32,16 @@
           <button type="button" class="btn btn-primary" @onclick="Confirm">Confirm</button>
         </div>
       }
-      <div class="modal-header">
-        <h5 class="modal-title">There are no Tools available</h5>
-        <button type="button" class="btn-close" @onclick="Cancel"></button>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">OK</button>
-      </div>
+      else
+      {
+        <div class="modal-header">
+          <h5 class="modal-title">There are no Tools available</h5>
+          <button type="button" class="btn-close" @onclick="Cancel"></button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @onclick="Cancel">OK</button>
+        </div>
+      }
     </div>
   </div>
 </div>

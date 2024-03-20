@@ -12,6 +12,9 @@ public partial class WorldPage {
     private List<ToolData> _toolSelectionBuffer = [];
     private bool _showToolSelectionDialog;
 
+    private FactData? _selectedFact;
+    private bool _showFactDialog;
+
     [Inject]
     public required IWorldRemoteService WorldService { get; set; }
 
@@ -55,11 +58,31 @@ public partial class WorldPage {
         _isReadOnly = true;
     }
 
-    private void AddFact()
-        => _world.Facts.Add(new());
+    private void AddFact() {
+        _selectedFact = new();
+        _showFactDialog = true;
+    }
 
-    private void DeleteInfo(FactData info)
-        => _world.Facts.Remove(info);
+    private void EditFact(FactData fact) {
+        _selectedFact = fact;
+        _showFactDialog = true;
+    }
+
+    private void SaveFact() {
+        if (_selectedFact!.Id == 0) {
+            _world.Facts.Add(_selectedFact);
+        }
+        CloseFactDialog();
+    }
+    private void CloseFactDialog() {
+        _showFactDialog = false;
+        _selectedFact = null;
+    }
+
+    private void RemoveFact(FactData fact) {
+        _world.Facts.Remove(fact);
+        _selectedFact = null;
+    }
 
     private async Task OpenToolSelectionDialog() {
         _availableTools = await ToolsService.GetList();
