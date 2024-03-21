@@ -11,11 +11,8 @@ public partial class ToolPage {
     private bool _showArgumentDialog;
     private bool _showDeleteConfirmationDialog;
 
-    [Inject]
-    public required IToolsRemoteService ToolsService { get; set; }
-
-    [Inject]
-    public required NavigationManager NavigationManager { get; set; }
+    [Inject] public required IToolsRemoteService ToolsService { get; set; }
+    [Inject] public required NavigationManager NavigationManager { get; set; }
 
     private PageAction _action;
     [Parameter]
@@ -26,7 +23,7 @@ public partial class ToolPage {
     public bool IsReadOnly => _action == PageAction.View;
 
     [Parameter]
-    public int? ToolId { get; set; }
+    public int? Id { get; set; }
 
     public ToolPage() {
         _editContext = new(_tool);
@@ -35,7 +32,7 @@ public partial class ToolPage {
 
     protected override async Task OnInitializedAsync() {
         _existingTools = await ToolsService.GetList();
-        _tool = await GetToolById(ToolId);
+        _tool = await GetToolById(Id);
     }
 
     private async Task<ToolData> GetToolById(int? toolId)
@@ -65,15 +62,15 @@ public partial class ToolPage {
         _action = PageAction.View;
     }
 
-    private Task Cancel() {
-        if (_action == PageAction.Edit) return CancelEdit();
-        GoBack();
-        return Task.CompletedTask;
+    private async Task Cancel() {
+        if (_action == PageAction.Edit) await CancelEdit();
+        else GoBack();
+        _action = PageAction.View;
     }
 
     private async Task CancelEdit() {
         _action = PageAction.View;
-        _tool = await GetToolById(ToolId);
+        _tool = await GetToolById(Id);
     }
 
     private void GoBack() => NavigationManager.NavigateTo("/Settings/Tools");

@@ -1,11 +1,8 @@
 ﻿namespace Sophia.WebClient.Pages;
 
 public partial class PersonasPage {
-    [Inject]
-    public required IPersonasService PersonasService { get; set; }
-
-    [Inject]
-    public required NavigationManager NavigationManager { get; set; }
+    [Inject] public required IPersonasService PersonasService { get; set; }
+    [Inject] public required NavigationManager NavigationManager { get; set; }
 
     private IReadOnlyList<PersonaData> _personas = [];
 

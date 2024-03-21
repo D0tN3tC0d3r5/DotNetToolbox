@@ -16,14 +16,9 @@ public partial class WorldPage
     private FactData? _selectedFact;
     private bool _showFactDialog;
 
-    [Inject]
-    public required IWorldRemoteService WorldService { get; set; }
-
-    [Inject]
-    public required IToolsRemoteService ToolsService { get; set; }
-
-    [Inject]
-    public required ILogger<WorldPage> Logger { get; set; }
+    [Inject] public required IWorldRemoteService WorldService { get; set; }
+    [Inject] public required IToolsRemoteService ToolsService { get; set; }
+    [Inject] public required NavigationManager NavigationManager { get; set; }
 
     protected override async Task OnInitializedAsync() {
         await base.OnInitializedAsync();
@@ -43,9 +38,10 @@ public partial class WorldPage
 
     private void UpdateDateTime() {
         _dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        Logger.LogInformation("{DateTime}", _dateTime);
         InvokeAsync(StateHasChanged);
     }
+
+    private void GoBack() => NavigationManager.NavigateTo("/Settings");
 
     private void EnableEdit()
         => _isReadOnly = false;

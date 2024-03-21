@@ -5,8 +5,11 @@
   <div class="container-header d-flex flex-row justify-content-start align-content-center mb-3">
     <h3 class="mb-1 mt-1 me-4">World Settings</h3>
     @if (_isReadOnly) {
-      <button type="button" class="btn btn-primary" @onclick="EnableEdit">
+      <button type="button" class="btn btn-primary me-4" @onclick="EnableEdit">
         <i class="bi bi-pencil-square me-2"></i>Edit
+      </button>
+      <button type="button" class="btn btn-secondary" @onclick="GoBack">
+        <i class="bi bi-arrow-return-left me-2"></i>Back
       </button>
     }
     else {

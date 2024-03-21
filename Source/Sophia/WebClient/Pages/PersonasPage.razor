@@ -11,7 +11,7 @@
   <div class="container-body">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       <div class="col">
-        <div class="card clickable" @onclick="Add">
+        <div class="card persona-card clickable" @onclick="Add">
           <div class="card-body  d-flex flex-column justify-content-center align-items-center">
             <i class="bi bi-plus-circle" style="font-size: 3rem;"></i>
             <h5 class="card-title mt-2">Add Persona</h5>
@@ -20,7 +20,7 @@
       </div>
       @foreach (var persona in _personas) {
         <div class="col">
-          <div class="card clickable" @onclick="() => View(persona)">
+          <div class="card persona-card clickable" @onclick="() => View(persona)">
             <div class="card-body  d-flex flex-column justify-content-center align-items-center">
               <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
               <h5 class="card-title mt-2">@persona.Name</h5>

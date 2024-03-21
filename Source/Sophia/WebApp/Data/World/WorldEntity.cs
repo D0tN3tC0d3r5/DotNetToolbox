@@ -9,8 +9,10 @@ public class WorldEntity
     public Guid Id { get; set; } = Guid.Empty;
     [MaxLength(1000)]
     public string? Location { get; set; }
-    [Required]
-    public UserProfileEntity UserProfile { get; set; } = new();
+    [MaxLength(450)]
+    public string? UserId { get; set; }
+    public ApplicationUserProfile? UserProfile { get; set; }
+
     public List<FactEntity> Facts { get; set; } = [];
     public List<ToolEntity> Tools { get; set; } = [];
 
@@ -23,7 +25,6 @@ public class WorldEntity
                                               r => r.HasOne<WorldEntity>()
                                                     .WithMany()
                                                     .HasForeignKey(e => e.WorldId));
-        builder.ComplexProperty(w => w.UserProfile);
         builder.HasMany(p => p.Tools)
                .WithMany()
                .UsingEntity<WorldToolsEntity>(l => l.HasOne<ToolEntity>()
@@ -32,6 +33,11 @@ public class WorldEntity
                                               r => r.HasOne<WorldEntity>()
                                                     .WithMany()
                                                     .HasForeignKey(e => e.WorldId));
+        builder.HasOne(w => w.UserProfile)
+               .WithOne()
+               .HasForeignKey<WorldEntity>(w => w.UserId)
+               .HasPrincipalKey<ApplicationUserProfile>(p => p.Id)
+               .IsRequired(false);
     }
 
     public static async Task Seed(ApplicationDbContext dbContext) {
@@ -43,7 +49,7 @@ public class WorldEntity
     public WorldData ToDto()
         => new() {
             Location = Location,
-            UserProfile = UserProfile.ToDto(),
+            UserProfile = UserProfile?.ToDto() ?? new(),
             Facts = Facts.ToList(a => a.ToDto()),
             Tools = Tools.ToList(s => s.ToDto()),
         };

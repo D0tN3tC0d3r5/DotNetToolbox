@@ -41,10 +41,12 @@ if (builder.Environment.IsDevelopment()) {
 }
 
 builder.Services.AddScoped<IWorldService, WorldService>();
+builder.Services.AddScoped<IProvidersService, ProvidersService>();
 builder.Services.AddScoped<IToolsService, ToolsService>();
 builder.Services.AddScoped<IPersonasService, PersonasService>();
 builder.Services.AddScoped<IChatsService, ChatsService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
+builder.Services.AddScoped<IProvidersRemoteService, ProvidersRemoteService>();
 builder.Services.AddScoped<IWorldRemoteService, WorldRemoteService>();
 builder.Services.AddScoped<IPersonasRemoteService, PersonasRemoteService>();
 builder.Services.AddScoped<IToolsRemoteService, ToolsRemoteService>();
@@ -80,6 +82,7 @@ app.MapRazorComponents<App>()
    .AddAdditionalAssemblies(typeof(Sophia.WebClient._Imports).Assembly);
 
 app.MapIdentityEndpoints();
+app.MapProvidersEndpoints();
 app.MapWorldEndpoints();
 app.MapToolsEndpoints();
 app.MapPersonasEndpoints();

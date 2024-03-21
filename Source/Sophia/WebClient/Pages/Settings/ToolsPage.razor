@@ -1,11 +1,14 @@
 ﻿@page "/Settings/Tools"
-@rendermode InteractiveWebAssembly
+@rendermode InteractiveServer
 
 <div class="container">
   <div class="container-header d-flex flex-row justify-content-start align-content-center mb-3">
     <h3 class="mb-1 mt-1 me-4">Tools Management</h3>
-    <button class="btn btn-primary" @onclick="Add">
-      <i class="bi bi-plus-lg me-2"></i>Add Tool
+    <button type="button" class="btn btn-primary me-4" @onclick="Add">
+      <i class="bi bi-plus-lg me-2"></i>Add a new tool
+    </button>
+    <button type="button" class="btn btn-secondary" @onclick="GoBack">
+      <i class="bi bi-arrow-return-left me-2"></i>Back
     </button>
   </div>
 

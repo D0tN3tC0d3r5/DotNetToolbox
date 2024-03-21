@@ -14,6 +14,8 @@ public partial class ToolsPage {
     protected override async Task OnInitializedAsync()
         => _tools = await ToolsService.GetList();
 
+    private void GoBack() => NavigationManager.NavigateTo("/Settings");
+
     private void View(ToolData tool)
         => NavigationManager.NavigateTo($"/Settings/Tool/{PageAction.View}/{tool.Id}");
 

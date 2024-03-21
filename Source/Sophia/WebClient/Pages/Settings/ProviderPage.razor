@@ -1,0 +1,85 @@
+﻿@page "/settings/provider/{Action}/{Id:int?}"
+@rendermode InteractiveServer
+
+<div class="container">
+  <div class="container-header d-flex flex-row justify-content-start align-content-center mb-3">
+    <h3 class="mb-1 mt-1 me-4">@_action Provider</h3>
+    @if (IsReadOnly) {
+      <button type="button" class="btn btn-primary me-4" @onclick="EnableEdit">
+        <i class="bi bi-pencil-square me-2"></i>Edit
+      </button>
+      <button type="button" class="btn btn-secondary" @onclick="GoBack" @onclick:preventDefault>
+        <i class="bi bi-back me-2"></i>Back
+      </button>
+    }
+    else {
+      <button type="submit" class="btn btn-success me-4" form="provider-form">
+        <i class="bi bi-save me-2"></i>Save
+      </button>
+      <button type="button" class="btn btn-secondary" @onclick="Cancel" @onclick:preventDefault>
+        <i class="bi bi-x-circle me-2"></i>Cancel
+      </button>
+    }
+  </div>
+
+  <div class="container-body">
+    <EditForm EditContext="_editContext" id="provider-form" OnValidSubmit="Save">
+      <DataAnnotationsValidator />
+      <ValidationSummary />
+
+      <div class="mb-3">
+        <label for="providerName" class="form-label">Name</label>
+        <InputText id="providerName" class="form-control" @bind-Value="_provider.Name" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _provider.Name)" />
+      </div>
+      <div class="mb-3">
+        <label for="apiKey" class="form-label">Authentication</label>
+        <InputText id="apiKey" class="form-control" @bind-Value="_provider.Authentication" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _provider.Authentication)" />
+      </div>
+
+      <h4>Models</h4>
+      <div class="mb-3">
+        <table class="table w-100">
+          <thead>
+            <tr>
+              <th class="fit">
+                @if (IsReadOnly) {
+                  <button class="btn btn-primary btn-sm" @onclick="() => InsertOption()" @onclick:preventDefault disabled="@IsReadOnly">
+                    <i class="bi bi-plus-circle"></i>
+                  </button>
+                }
+              </th>
+              <th>Name</th>
+              <th>Key</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (var i = 0; i < _provider.Models.Count; i++) {
+              var index = i;
+              <tr>
+                <td class="fit">
+                  @if (IsReadOnly) {
+                    <button class="btn btn-primary btn-sm" @onclick="() => InsertOption(index)" @onclick:preventDefault>
+                      <i class="bi bi-plus-circle"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => RemoveOption(index)" @onclick:preventDefault>
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  }
+                </td>
+                <td>
+                  <InputText class="form-control" @bind-Value="_provider.Models[index].Name" disabled="@IsReadOnly" />
+                </td>
+                <td>
+                  <InputText class="form-control" @bind-Value="_provider.Models[index].Key" disabled="@IsReadOnly" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <ValidationMessage For="@(() => _provider.Models)" />
+      </div>
+    </EditForm>
+  </div>
+</div>

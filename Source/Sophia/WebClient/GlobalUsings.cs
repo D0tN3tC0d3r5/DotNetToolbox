@@ -11,6 +11,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Sophia.Models.Chats;
 global using Sophia.Models.Common;
 global using Sophia.Models.Personas;
+global using Sophia.Models.Providers;
 global using Sophia.Models.Tools;
 global using Sophia.Models.Worlds;
 global using Sophia.Services;
