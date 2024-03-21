@@ -26,6 +26,7 @@ global using Microsoft.EntityFrameworkCore.Migrations;
 global using Microsoft.Extensions.Options;
 global using Microsoft.Extensions.Primitives;
 
+global using Sophia.Models.Chats;
 global using Sophia.Models.Common;
 global using Sophia.Models.Personas;
 global using Sophia.Models.Tools;

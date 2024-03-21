@@ -81,6 +81,7 @@ public partial class PersonaPage {
             _persona.Facts.Add(_selectedFact);
         CloseFactDialog();
     }
+
     private void CloseFactDialog() {
         _showFactDialog = false;
         _selectedFact = null;

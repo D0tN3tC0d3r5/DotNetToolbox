@@ -38,6 +38,7 @@ public partial class WorldPage
         _timer?.Stop();
         _timer?.Dispose();
         _timer = null;
+        GC.SuppressFinalize(this);
     }
 
     private void UpdateDateTime() {

@@ -24,6 +24,8 @@ public partial class NavMenu : IDisposable {
         StateHasChanged();
     }
 
-    public void Dispose()
-        => NavigationManager.LocationChanged -= OnLocationChanged;
+    public void Dispose() {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+        GC.SuppressFinalize(this);
+    }
 }

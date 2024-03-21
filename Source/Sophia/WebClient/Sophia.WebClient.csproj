@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pages\Chats\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

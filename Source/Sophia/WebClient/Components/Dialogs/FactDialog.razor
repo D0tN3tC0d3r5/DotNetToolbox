@@ -6,7 +6,7 @@
         <button type="button" class="btn-close" @onclick="Cancel"></button>
       </div>
       <div class="modal-body">
-        <EditForm Model="@Fact" OnValidSubmit="Save">
+        <EditForm Model="@Fact" id="fact-form" OnValidSubmit="Save">
           <DataAnnotationsValidator />
           <div class="row mb-3">
             <div class="col-8">
@@ -32,7 +32,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-        <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+        <button type="submit" class="btn btn-primary" form="fact-form">Save</button>
       </div>
     </div>
   </div>

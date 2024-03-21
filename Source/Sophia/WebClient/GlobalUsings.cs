@@ -8,6 +8,7 @@ global using Microsoft.AspNetCore.Components.Forms;
 global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 global using Microsoft.Extensions.DependencyInjection;
 
+global using Sophia.Models.Chats;
 global using Sophia.Models.Common;
 global using Sophia.Models.Personas;
 global using Sophia.Models.Tools;

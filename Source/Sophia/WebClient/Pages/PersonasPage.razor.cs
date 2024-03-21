@@ -17,13 +17,4 @@ public partial class PersonasPage {
 
     private void View(PersonaData persona)
         => NavigationManager.NavigateTo($"/Personas/View/{persona.Id}");
-
-    private void Edit(PersonaData persona)
-        => NavigationManager.NavigateTo($"/Personas/Edit/{persona.Id}");
-
-    private async Task Delete(PersonaData persona) {
-        // TODO: Implement delete confirmation dialog
-        await PersonasService.Delete(persona.Id);
-        _personas = await PersonasService.GetList();
-    }
 }

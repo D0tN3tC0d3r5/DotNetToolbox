@@ -38,9 +38,11 @@ builder.Services.AddAnthropic(builder.Configuration);
 builder.Services.AddScoped<IWorldService, WorldService>();
 builder.Services.AddScoped<IToolsService, ToolsService>();
 builder.Services.AddScoped<IPersonasService, PersonasService>();
+builder.Services.AddScoped<IChatsService, ChatsService>();
 builder.Services.AddScoped<IWorldRemoteService, WorldRemoteService>();
-builder.Services.AddScoped<IToolsRemoteService, ToolsRemoteService>();
 builder.Services.AddScoped<IPersonasRemoteService, PersonasRemoteService>();
+builder.Services.AddScoped<IToolsRemoteService, ToolsRemoteService>();
+builder.Services.AddScoped<IChatsRemoteService, ChatsRemoteService>();
 builder.Services.AddScoped(sp => new HttpClient {
     BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
 });
@@ -74,5 +76,6 @@ app.MapIdentityEndpoints();
 app.MapWorldEndpoints();
 app.MapToolsEndpoints();
 app.MapPersonasEndpoints();
+app.MapChatsEndpoints();
 
 await app.RunAsync();
