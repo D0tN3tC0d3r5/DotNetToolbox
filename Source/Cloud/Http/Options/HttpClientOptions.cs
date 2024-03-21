@@ -4,8 +4,6 @@ public class HttpClientOptions
     : NamedOptions<HttpClientOptions>, IValidatable {
     public const string DefaultResponseFormat = "application/json";
 
-    public Dictionary<string, HttpClientOptions> NamedClients { get; set; } = [];
-
     public virtual Uri? BaseAddress { get; set; }
 
     public virtual string ResponseFormat { get; set; } = DefaultResponseFormat;
@@ -21,12 +19,6 @@ public class HttpClientOptions
             result += new ValidationError(StringCannotBeNullOrWhiteSpace, GetSourcePath(nameof(BaseAddress)));
 
         result += Authentication?.Validate(context) ?? Success();
-
-        foreach (var client in NamedClients) {
-            var clientContext = new Dictionary<string, object?> { ["ClientName"] = GetSourcePath(client.Key) };
-            result += client.Value.Validate(clientContext);
-        }
-
         return result;
 
         string GetSourcePath(string source)

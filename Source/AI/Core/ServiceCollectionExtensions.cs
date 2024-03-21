@@ -1,12 +1,11 @@
 ﻿namespace DotNetToolbox.AI;
 
 public static class ServiceCollectionExtensions {
-    public static IServiceCollection AddAI<THttpProvider, TAgentFactory>(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAIProvider<THttpProvider, TAgentFactory>(this IServiceCollection services, string key, IConfiguration configuration)
         where THttpProvider : class, IHttpClientProvider
         where TAgentFactory : class, IAgentFactory {
-        services.TryAddSingleton<World>();
-        services.AddHttpClientProvider<IHttpClientProvider, THttpProvider>(configuration);
-        services.TryAddSingleton<IAgentFactory, TAgentFactory>();
+        services.AddKeyedHttpClientProvider<IHttpClientProvider, THttpProvider>(key, configuration);
+        services.TryAddKeyedSingleton<IAgentFactory, TAgentFactory>(key);
         return services;
     }
 }

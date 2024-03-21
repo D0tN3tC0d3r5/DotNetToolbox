@@ -11,12 +11,15 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Sophia.Domain.csproj" />
+    <ProjectReference Include="..\..\AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
+    <ProjectReference Include="..\..\AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
     <ProjectReference Include="..\WebClient\Sophia.WebClient.csproj" />
   </ItemGroup>
 

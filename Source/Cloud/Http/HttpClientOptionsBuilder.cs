@@ -38,14 +38,7 @@ public class HttpClientOptionsBuilder(HttpClientOptions? options = null) {
     public HttpClientOptionsBuilder UseOAuth2TokenAuthentication(Action<OAuth2TokenAuthenticationOptions> options, IMsalHttpClientFactory identityClientFactory)
         => SetAuthentication(options, IsNotNull(identityClientFactory));
 
-    public HttpClientOptions Build(string? name = null) {
-        if (name is null) return IsValid(Options);
-        if (!Options.NamedClients.TryGetValue(name, out var clientOptions))
-            throw new ArgumentException("Client '{name}' not found.", nameof(name));
-        clientOptions.BaseAddress ??= Options.BaseAddress;
-        clientOptions.Authentication ??= Options.Authentication;
-        return IsValid(clientOptions);
-    }
+    public HttpClientOptions Build() => IsValid(Options);
 
     private HttpClientOptionsBuilder SetAuthentication<T>(Action<T> configAuthentication, IMsalHttpClientFactory? identityClientFactory = null)
         where T : AuthenticationOptions, new() {

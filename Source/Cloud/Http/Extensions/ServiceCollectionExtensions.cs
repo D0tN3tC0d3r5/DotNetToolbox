@@ -13,4 +13,17 @@ public static class ServiceCollectionExtensions {
         services.TryAddSingleton<TProviderInterface, TProvider>();
         return services;
     }
+
+    public static IServiceCollection AddKeyedHttpClientProvider(this IServiceCollection services, string key, IConfiguration configuration)
+        => services.AddKeyedHttpClientProvider<IHttpClientProvider, HttpClientProvider>(key, configuration);
+
+    public static IServiceCollection AddKeyedHttpClientProvider<TProviderInterface, TProvider>(this IServiceCollection services, string key, IConfiguration configuration)
+        where TProviderInterface : class, IHttpClientProvider
+        where TProvider : class, TProviderInterface {
+        services.AddHttpClient(key);
+        services.AddOptions();
+        services.Configure<HttpClientOptions>(configuration.GetSection($"{HttpClientOptions.SectionName}::{key}"));
+        services.TryAddKeyedSingleton<TProviderInterface, TProvider>(key);
+        return services;
+    }
 }

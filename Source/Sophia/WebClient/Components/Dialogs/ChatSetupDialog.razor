@@ -7,12 +7,12 @@
       </div>
       <div class="modal-body">
 
-        <EditForm Model="@Chat" id="chat-form" OnValidSubmit="Save">
+        <EditForm EditContext="_editContext" id="chat-form" OnValidSubmit="Save">
           <DataAnnotationsValidator />
           <div class="row mb-3">
             <div class="col-8">
               <label for="model" class="form-label me-2">AI Model</label>
-              <InputSelect id="model" class="form-control me-2" @bind-Value="Chat.Model">
+              <InputSelect id="model" class="form-control me-2" @bind-Value="_chat.Agent.Model">
                 @foreach (var model in _models) {
                   <option value="@model">@model</option>
                 }
@@ -22,9 +22,9 @@
           <div class="row mb-3">
             <div class="col-8">
               <label for="persona" class="form-label me-2">Agent Persona</label>
-              <InputSelect id="persona" class="form-control me-2" @bind-Value="Chat.Persona">
+              <InputSelect id="persona" class="form-control me-2" @bind-Value="_chat.Agent.Persona">
                 @foreach (var persona in _personas) {
-                  <option value="@persona">@persona</option>
+                  <option value="@persona">@persona.Name</option>
                 }
               </InputSelect>
             </div>
@@ -32,7 +32,7 @@
           <div class="row mb-3">
             <div class="col-8">
               <label>Temperature:</label>
-              <input type="number" class="form-control" @bind="Chat.Temperature" min="0" max="1" step="0.05" />
+              <input type="number" class="form-control" @bind="_chat.Agent.Temperature" min="0" max="1" step="0.05" />
             </div>
           </div>
         </EditForm>

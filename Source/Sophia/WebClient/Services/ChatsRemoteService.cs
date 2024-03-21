@@ -7,18 +7,23 @@ public class ChatsRemoteService(HttpClient httpClient)
         return list!;
     }
 
-    public async Task<ChatData?> Resume(int id) {
+    public async Task<ChatData?> GetById(int id) {
         var chat = await httpClient.GetFromJsonAsync<ChatData>($"api/chats/{id}");
         return chat;
     }
 
-    public async Task Start(ChatData chat) {
+    public async Task Create(ChatData chat) {
         var response = await httpClient.PostAsJsonAsync("api/chats", chat);
         response.EnsureSuccessStatusCode();
     }
 
     public async Task Archive(int id) {
-        var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}", "archive");
+        var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}", string.Empty);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task AddMessage(int id, MessageData message) {
+        var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}", message);
         response.EnsureSuccessStatusCode();
     }
 

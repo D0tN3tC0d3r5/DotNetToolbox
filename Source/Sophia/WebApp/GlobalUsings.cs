@@ -6,6 +6,7 @@ global using System.Text.Json;
 
 global using DotNetToolbox.AI.Anthropic;
 global using DotNetToolbox.AI.Common;
+global using DotNetToolbox.AI.OpenAI;
 global using DotNetToolbox.Collections.Generic;
 
 global using Microsoft.AspNetCore.Authentication;
@@ -38,7 +39,6 @@ global using Sophia.WebApp.Components.Account.Pages;
 global using Sophia.WebApp.Components.Account.Pages.Manage;
 global using Sophia.WebApp.Data;
 global using Sophia.WebApp.Data.Common;
-global using Sophia.WebApp.Data.Helpers;
 global using Sophia.WebApp.Data.Personas;
 global using Sophia.WebApp.Data.Tools;
 global using Sophia.WebApp.Data.World;

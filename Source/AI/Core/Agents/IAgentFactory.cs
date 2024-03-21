@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
 public interface IAgentFactory {
-    TAgent CreateAgent<TAgent>(IAgentOptions options, Persona persona)
+    TAgent CreateAgent<TAgent>(World world, IAgentOptions options, Persona persona)
         where TAgent : class, IAgent;
 }

@@ -10,12 +10,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
+    <ProjectReference Include="..\..\AI\Core\DotNetToolbox.AI.Core.csproj" />
   </ItemGroup>
 
 </Project>

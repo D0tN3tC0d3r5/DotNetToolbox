@@ -1,15 +1,13 @@
 ﻿namespace Sophia.WebClient.Pages;
 
-public partial class Chats {
+public partial class ChatsPage {
     private IReadOnlyList<ChatData> _chats = [];
     private bool _showChatSetupDialog;
     private ChatData? _selectedChat;
 
-    [Inject]
-    public required IChatsRemoteService ChatsService { get; set; }
+    [Inject] public required IChatsRemoteService ChatsService { get; set; }
 
-    [Inject]
-    public required NavigationManager NavigationManager { get; set; }
+    [Inject] public required NavigationManager NavigationManager { get; set; }
 
     protected override async Task OnInitializedAsync()
         => _chats = await ChatsService.GetList();
@@ -21,7 +19,8 @@ public partial class Chats {
 
     private async Task StartChat() {
         if (_selectedChat!.Id == 0)
-            await ChatsService.Start(_selectedChat);
+            await ChatsService.Create(_selectedChat);
+        NavigationManager.NavigateTo($"/chat/{_selectedChat.Id}");
         CloseChatDialog();
     }
 
@@ -30,10 +29,8 @@ public partial class Chats {
         _selectedChat = null;
     }
 
-    private async Task Resume(int chatId) {
-        await ChatsService.Archive(chatId);
-        NavigationManager.NavigateTo($"/chat/{chatId}");
-    }
+    private void Resume(int chatId)
+        => NavigationManager.NavigateTo($"/chat/{chatId}");
 
     private async Task Archive(int chatId) {
         await ChatsService.Archive(chatId);

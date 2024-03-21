@@ -1,17 +1,5 @@
 ﻿namespace Sophia.WebApp.Data.World;
 
-[Table("WorldFacts")]
-public class WorldFactsEntity {
-    public Guid WorldId { get; set; }
-    public int FactId { get; set; }
-}
-
-[Table("WorldTools")]
-public class WorldToolsEntity {
-    public Guid WorldId { get; set; }
-    public int ToolId { get; set; }
-}
-
 [Table("Worlds")]
 [EntityTypeConfiguration(typeof(WorldEntity))]
 public class WorldEntity

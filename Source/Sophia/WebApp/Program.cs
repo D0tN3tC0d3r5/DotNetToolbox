@@ -34,16 +34,23 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 builder.Services.AddAnthropic(builder.Configuration);
+builder.Services.AddOpenAI(builder.Configuration);
+
+if (builder.Environment.IsDevelopment()) {
+    builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
+}
 
 builder.Services.AddScoped<IWorldService, WorldService>();
 builder.Services.AddScoped<IToolsService, ToolsService>();
 builder.Services.AddScoped<IPersonasService, PersonasService>();
 builder.Services.AddScoped<IChatsService, ChatsService>();
+builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddScoped<IWorldRemoteService, WorldRemoteService>();
 builder.Services.AddScoped<IPersonasRemoteService, PersonasRemoteService>();
 builder.Services.AddScoped<IToolsRemoteService, ToolsRemoteService>();
 builder.Services.AddScoped<IChatsRemoteService, ChatsRemoteService>();
-builder.Services.AddScoped(sp => new HttpClient {
+builder.Services.AddScoped<IAgentRemoteService, AgentRemoteService>();
+builder.Services.AddScoped(_ => new HttpClient {
     BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
 });
 
@@ -70,7 +77,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode()
    .AddInteractiveWebAssemblyRenderMode()
-   .AddAdditionalAssemblies(typeof(Sophia.WebClient._Imports).Assembly); ;
+   .AddAdditionalAssemblies(typeof(Sophia.WebClient._Imports).Assembly);
 
 app.MapIdentityEndpoints();
 app.MapWorldEndpoints();

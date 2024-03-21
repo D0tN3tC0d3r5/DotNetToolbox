@@ -1,17 +1,5 @@
 ﻿namespace Sophia.WebApp.Data.Personas;
 
-[Table("PersonaFacts")]
-public class PersonaFactsEntity {
-    public int PersonaId { get; set; }
-    public int FactId { get; set; }
-}
-
-[Table("PersonaTools")]
-public class PersonaToolsEntity {
-    public int PersonaId { get; set; }
-    public int ToolId { get; set; }
-}
-
 [Table("Personas")]
 [EntityTypeConfiguration(typeof(PersonaEntity))]
 public class PersonaEntity
@@ -48,6 +36,12 @@ public class PersonaEntity
                                                 r => r.HasOne<PersonaEntity>()
                                                       .WithMany()
                                                       .HasForeignKey(e => e.PersonaId));
+    }
+
+    public static async Task Seed(ApplicationDbContext dbContext) {
+        if (await dbContext.Personas.AnyAsync()) return;
+        var persona = new PersonaEntity();
+        dbContext.Personas.Add(persona);
     }
 
     public PersonaData ToDto()

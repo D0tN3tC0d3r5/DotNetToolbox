@@ -1,0 +1,15 @@
+﻿@page "/chat/{Id:int}"
+
+<div class="chat-container">
+  <div class="chat-history">
+    @foreach (var message in _chat.Messages) {
+      <div class="@(message.IsUserMessage ? "user-message" : "agent-message")">
+        <p>@message.Content</p>
+      </div>
+    }
+  </div>
+  <div class="chat-input">
+    <input type="text" @bind="_newMessage" placeholder="Type your message..." />
+    <button @onclick="Send">Send</button>
+  </div>
+</div>

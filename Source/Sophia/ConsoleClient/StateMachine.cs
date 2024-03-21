@@ -30,8 +30,8 @@ public class StateMachine : IConsumer {
         var world = new World(app.Environment.DateTime);
         var persona = _repository.LoadPersona("TimeKeeper");
         var options = _repository.LoadAgentOptions("Fast");
-        var factory = new AgentFactory(world, httpClientProvider, loggerFactory);
-        _agent = factory.Create<StandardAgent>(options, persona);
+        var factory = new AgentFactory(httpClientProvider, loggerFactory);
+        _agent = factory.Create<StandardAgent>(world, options, persona);
     }
 
     public uint CurrentState { get; set; }

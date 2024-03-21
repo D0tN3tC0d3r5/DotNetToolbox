@@ -22,6 +22,13 @@ public sealed class HttpClientProviderTests : IDisposable {
         return new(_clientFactory, options);
     }
 
+    private HttpClientProvider CreateKeyedHttpClientBuilder(string key, HttpClientOptions? clientOptions = null) {
+        clientOptions ??= _defaultOptions;
+        var options = Substitute.For<IOptions<HttpClientOptions>>();
+        options.Value.Returns(clientOptions);
+        return new(key, _clientFactory, options);
+    }
+
     private bool _isDisposed;
     public void Dispose() {
         if (_isDisposed) return;
@@ -128,9 +135,10 @@ public sealed class HttpClientProviderTests : IDisposable {
     public void GetHttpClient_WithInvalidName_Throws() {
         // Arrange
         _defaultOptions.BaseAddress = null;
+        var provider = CreateKeyedHttpClientBuilder(null!);
 
         // Act
-        var result = () => _provider.GetHttpClient("Invalid");
+        var result = () => provider.GetHttpClient();
 
         // Assert
         result.Should().Throw<ArgumentException>();
@@ -139,19 +147,10 @@ public sealed class HttpClientProviderTests : IDisposable {
     [Fact]
     public void GetHttpClient_WithNamedClient_ReturnsHttpClient() {
         // Arrange
-        _defaultOptions.NamedClients = new() {
-            ["NamedClient1"] = new() {
-                BaseAddress = _defaultOptions.BaseAddress,
-                ResponseFormat = "text/xml",
-                CustomHeaders = new() {
-                    ["x-custom-string"] = ["SomeValue"],
-                    ["x-custom-int"] = ["42"],
-                },
-            },
-        };
+        var provider = CreateKeyedHttpClientBuilder("NamedClient1");
 
         // Act
-        var result = _provider.GetHttpClient("NamedClient1");
+        var result = provider.GetHttpClient();
 
         // Assert
         result.BaseAddress.Should().Be("http://example.com/api/");
@@ -164,31 +163,6 @@ public sealed class HttpClientProviderTests : IDisposable {
         result.DefaultRequestHeaders.TryGetValue("x-invalid", out _).Should().BeFalse();
         result.DefaultRequestHeaders.TryGetValue<int>("x-invalid", out _).Should().BeFalse();
         result.DefaultRequestHeaders.TryGetValue<int>("x-custom-string", out _).Should().BeFalse();
-    }
-
-    [Fact]
-    public void GetHttpClient_WithInvalidNamedClient_ReturnsHttpClient() {
-        // Arrange
-        _defaultOptions.BaseAddress = null;
-        _defaultOptions.NamedClients = new() {
-            ["NamedClient1"] = new() {
-                BaseAddress = _defaultOptions.BaseAddress,
-                ResponseFormat = "text/xml",
-                CustomHeaders = new() {
-                    ["x-custom-string"] = ["SomeValue"],
-                    ["x-custom-int"] = ["42"],
-                },
-            },
-            ["NamedClient2"] = new(),
-        };
-
-        // Act
-        var result = () => _provider.GetHttpClient("NamedClient2");
-
-        // Assert
-        var exception = result.Should().Throw<ValidationException>().Subject.First();
-        exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("The value is invalid.");
     }
 
     [Fact]
