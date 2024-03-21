@@ -2,7 +2,8 @@
 
 namespace Sophia.WebClient.Pages.Settings;
 
-public partial class WorldPage {
+public partial class WorldPage
+    : IDisposable {
     private WorldData _world = new();
     private bool _isReadOnly = true;
     private string _dateTime = string.Empty;

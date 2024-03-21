@@ -18,6 +18,8 @@ public partial class PersonaPage {
     private FactData? _selectedFact;
     private bool _showFactDialog;
 
+    private bool _showDeleteConfirmationDialog;
+
     [Parameter]
     [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
     public string Action {
@@ -75,9 +77,8 @@ public partial class PersonaPage {
     }
 
     private void SaveFact() {
-        if (_selectedFact!.Id == 0) {
+        if (_selectedFact!.Id == 0)
             _persona.Facts.Add(_selectedFact);
-        }
         CloseFactDialog();
     }
     private void CloseFactDialog() {
@@ -108,4 +109,16 @@ public partial class PersonaPage {
 
     private void RemoveTool(ToolData tool)
         => _persona.KnownTools.Remove(tool);
+
+    private void Delete()
+        => _showDeleteConfirmationDialog = true;
+
+    private void CancelDelete()
+        => _showDeleteConfirmationDialog = false;
+
+    private async Task ExecuteDelete() {
+        _showDeleteConfirmationDialog = false;
+        await PersonasService.Delete(_persona.Id);
+        NavigationManager.NavigateTo("/Personas");
+    }
 }

@@ -3,7 +3,7 @@
 public partial class ToolsPage {
     private IReadOnlyList<ToolData> _tools = [];
     private ToolData? _selectedTool;
-    private bool _showDeleteConfirmation;
+    private bool _showDeleteConfirmationDialog;
 
     [Inject]
     public required IToolsService ToolsService { get; set; }
@@ -25,18 +25,18 @@ public partial class ToolsPage {
 
     private void Delete(ToolData tool) {
         _selectedTool = tool;
-        _showDeleteConfirmation = true;
+        _showDeleteConfirmationDialog = true;
     }
 
     private void CancelDelete() {
         _selectedTool = null;
-        _showDeleteConfirmation = false;
+        _showDeleteConfirmationDialog = false;
     }
 
     private async Task ExecuteDelete() {
         await ToolsService.Delete(_selectedTool!.Id);
         _tools = await ToolsService.GetList();
         _selectedTool = null;
-        _showDeleteConfirmation = false;
+        _showDeleteConfirmationDialog = false;
     }
 }

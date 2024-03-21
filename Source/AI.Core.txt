@@ -6,16 +6,19 @@ global using System.Diagnostics.CodeAnalysis;
 global using System.Linq;
 global using System.Net;
 global using System.Net.Http.Json;
+global using System.Runtime.CompilerServices;
 global using System.Text;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 
 global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Chats;
+global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.AI.Consumers;
+global using DotNetToolbox.AI.Extensions;
 global using DotNetToolbox.AI.Personas;
-global using DotNetToolbox.AI.Shared;
 global using DotNetToolbox.Collections.Generic;
+global using DotNetToolbox.Extensions;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.Http.Extensions;
 global using DotNetToolbox.Results;
@@ -334,19 +337,23 @@ Chats\Instructions.cs
 ﻿namespace DotNetToolbox.AI.Chats;
 
 public class Instructions {
-    public string Goal { get; set; } = string.Empty;
-    public IList<Information> AdditionalInformation { get; } = [];
+    public string[] Goals { get; set; } = [];
+    public string[] AcceptanceCriteria { get; set; } = [];
+    public string[] Requirements { get; set; } = [];
+    public string[] Assumptions { get; set; } = [];
+    public string[] Constraints { get; set; } = [];
     public List<Example> Examples { get; set; } = [];
+    public List<Fact> Facts { get; set; } = [];
 
     public override string ToString() {
         var builder = new StringBuilder();
-        builder.AppendLine(Goal);
-        if (Examples.Count > 0) builder.AppendLine("Examples:");
-        foreach (var example in Examples)
-            builder.AppendLine(example.ToString());
-        if (AdditionalInformation.Count > 0) builder.AppendLine("Additional information:");
-        foreach (var value in AdditionalInformation)
-            builder.AppendLine(value.ToString());
+        builder.AppendSection(Goals);
+        builder.AppendSection(AcceptanceCriteria, "Acceptance Criteria");
+        builder.AppendSection(Assumptions);
+        builder.AppendSection(Requirements);
+        builder.AppendSection(Constraints);
+        builder.AppendSection(Examples);
+        builder.AppendSection(Facts);
         return builder.ToString();
     }
 }
@@ -375,19 +382,32 @@ public class MessagePart(string type, object value) {
  
 ---------------------------------------------------------------------------------------- 
 Common\Argument.cs 
-﻿namespace DotNetToolbox.AI.Shared;
+﻿namespace DotNetToolbox.AI.Common;
 
 public class Argument {
+    public required int Index { get; set; }
     public required string Name { get; set; }
     public required ArgumentType Type { get; set; }
     public string? Description { get; set; }
     public string[]? Options { get; set; } = [];
     public bool IsRequired { get; set; }
+
+    public override string ToString() {
+        var builder = new StringBuilder();
+        builder.Append($"{Index}: ");
+        if (!IsRequired) builder.Append('[');
+        builder.Append($"{Name}: <{Type}>");
+        if (Options?.Length > 0)
+            builder.Append($" in {{{string.Join('|', Options)}}}");
+        if (!IsRequired) builder.Append(']');
+        if (Description is not null) builder.Append($" '{Description}'");
+        return builder.ToString();
+    }
 }
  
 ---------------------------------------------------------------------------------------- 
 Common\ArgumentType.cs 
-﻿namespace DotNetToolbox.AI.Shared;
+﻿namespace DotNetToolbox.AI.Common;
 
 public enum ArgumentType {
     Text = 0,
@@ -398,10 +418,10 @@ public enum ArgumentType {
 }
  
 ---------------------------------------------------------------------------------------- 
-Common\Information.cs 
-﻿namespace DotNetToolbox.AI.Shared;
+Common\Fact.cs 
+﻿namespace DotNetToolbox.AI.Common;
 
-public class Information : IValidatableAsync {
+public class Fact : IValidatableAsync {
     public string? Value { get; set; }
 
     [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
@@ -419,10 +439,10 @@ public class Information : IValidatableAsync {
 }
  
 ---------------------------------------------------------------------------------------- 
-Common\Skill.cs 
-﻿namespace DotNetToolbox.AI.Shared;
+Common\Tool.cs 
+﻿namespace DotNetToolbox.AI.Common;
 
-public class Skill
+public class Tool
     : IValidatable {
     public required int Id { get; set; }
     public required string Name { get; set; }
@@ -432,58 +452,62 @@ public class Skill
     public override string ToString() {
         var builder = new StringBuilder();
         builder.Append($"{Id}. {Name}: '{Description}'");
-        if (Arguments.Count > 0) {
-            builder.AppendLine();
-            builder.Append("Arguments:");
-            for (var index = 0; index < Arguments.Count; index++) {
-                builder.AppendLine();
-                var argument = Arguments[index];
-                builder.Append("   ");
-                if (!argument.IsRequired) builder.Append('[');
-                if (index > 0) builder.Append(", ");
-                builder.Append($"{index}. {argument.Type} {argument.Name}");
-                if (argument.Options?.Length > 0)
-                    builder.Append($" in {{{string.Join('|', argument.Options)}}}");
-                if (Description is not null) builder.Append(" '{argument.Description}'");
-                if (!argument.IsRequired) builder.Append(']');
-            }
-        }
-        builder.AppendLine(";");
+        builder.AppendSection("    ", Arguments);
         return builder.ToString();
     }
 
     public Result Validate(IDictionary<string, object?>? context = null)
         => Result.Success();
+}
+ 
+---------------------------------------------------------------------------------------- 
+Common\UserProfile.cs 
+﻿namespace DotNetToolbox.AI.Common;
 
+public class UserProfile {
+    public string? Name { get; set; }
+    public string? Language { get; set; }
+
+    public override string ToString() {
+        var builder = new StringBuilder();
+        if (!string.IsNullOrWhiteSpace(Name)) builder.Append($"The USER name is {Name}.");
+        if (!string.IsNullOrWhiteSpace(Language)) builder.AppendIntoNewLine($"The USER preferred language is {Language}.");
+        return builder.ToString();
+    }
 }
  
 ---------------------------------------------------------------------------------------- 
 Common\World.cs 
-﻿namespace DotNetToolbox.AI.Shared;
+﻿namespace DotNetToolbox.AI.Common;
 
-public class World(IDateTimeProvider? dateTime = null)
+public class World(IDateTimeProvider? dateTimeProvider = null)
     : IValidatable {
-    public DateTimeOffset DateTime => dateTime?.Now ?? DateTimeOffset.Now;
+    public IDateTimeProvider DateTimeProvider { get; } = dateTimeProvider ?? new DateTimeProvider();
+    public DateTimeOffset DateTime => DateTimeProvider.Now;
     public int Id { get; set; }
     public string? Location { get; set; } = string.Empty;
-    public string? UserProfile { get; set; } = string.Empty;
-    public List<Information> AdditionalInformation { get; set; } = [];
-    public List<Skill> Skills { get; set; } = [];
-
-    public IDateTimeProvider? GetProvider() => dateTime;
+    public UserProfile UserProfile { get; set; } = new();
+    public List<Fact> Facts { get; set; } = [];
+    public List<Tool> AvailableTools { get; set; } = [];
 
     public override string ToString() {
         var builder = new StringBuilder();
-        builder.AppendLine($"The current date time is {DateTime}.");
-        if (string.IsNullOrWhiteSpace(Location)) builder.AppendLine("You do not know your current location.");
-        else builder.AppendLine($"You are located at '{Location}'.");
-        if (string.IsNullOrWhiteSpace(UserProfile)) builder.AppendLine("You do not know the name of the user.");
-        else builder.AppendLine($"The name of the user is '{Location}'.");
-        if (AdditionalInformation.Count > 0) builder.AppendLine("Additional information;");
-        foreach (var information in AdditionalInformation)
-            builder.AppendLine(information.ToString());
+        builder.Append($"The current local date is {DateTime.Date:dddd}, {DateTime.Date} and the time is {DateTime.TimeOfDay:HH:mm:ss} ({DateTime:K}).");
+        builder.AppendIntoNewLine(GetAgentLocation(Location));
+        builder.AppendIntoNewLine(UserProfile.ToString());
+        builder.AppendSection(Facts);
         return builder.ToString();
     }
+
+    private string GetUserProfile(string? profile)
+        => string.IsNullOrWhiteSpace(profile)
+               ? "You have no information about the USER."
+               : profile;
+
+    private static string GetAgentLocation(string? location)
+        => string.IsNullOrWhiteSpace(location)
+               ? "You do not know your current location."
+               : $"You are located at {location}.";
 
     public Result Validate(IDictionary<string, object?>? context = null)
         => Result.Success();
@@ -520,6 +544,21 @@ public interface IConsumer {
 }
  
 ---------------------------------------------------------------------------------------- 
+Extensions\StringBuilderExtensions.cs 
+﻿namespace DotNetToolbox.AI.Extensions;
+internal static class StringBuilderExtensions {
+    public static void AppendSection<TItem>(this StringBuilder builder, ICollection<TItem> items, [CallerArgumentExpression(nameof(items))]string? paramName = null)
+        => builder.AppendSection(string.Empty, items, paramName);
+
+    public static void AppendSection<TItem>(this StringBuilder builder, string ident, ICollection<TItem> items, [CallerArgumentExpression(nameof(items))] string? paramName = null) {
+        if (items.Count == 0) return;
+        builder.AppendIntoNewLine($"{ident}{paramName}");
+        foreach (var item in items)
+            builder.AppendIntoNewLine($"{ident}{item}");
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
 Models\IModelsHandler.cs 
 ﻿namespace DotNetToolbox.AI.Models;
 
@@ -545,59 +584,32 @@ public interface IModelsHandler<TModel> {
 }
  
 ---------------------------------------------------------------------------------------- 
-Personas\IPersona.cs 
-﻿//namespace DotNetToolbox.AI.Personas;
-
-//public interface Persona {
-//    string Name { get; }
-//    string? Description { get; }
-//    Profile Profile { get; }
-//    List<Skill> Skills { get; }
-//}
- 
----------------------------------------------------------------------------------------- 
 Personas\Persona.cs 
 ﻿namespace DotNetToolbox.AI.Personas;
 
 [method: JsonConstructor]
-public class Persona(Profile? profile = null, List<Skill>? skills = null) {
+public class Persona() {
 
-    public Persona(string name, string? description = null, Profile? profile = null, List<Skill>? skills = null)
-        : this(profile, skills) {
+    public Persona(string name)
+        : this() {
         Name = IsNotNull(name);
-        Description = description;
     }
 
     public string Name { get; set; } = "Agent";
-    public string? Description { get; set; }
-    public Profile Profile { get; set; } = profile ?? new();
-    public List<Skill> Skills { get; set; } = skills ?? [];
-}
- 
----------------------------------------------------------------------------------------- 
-Personas\Profile.cs 
-﻿namespace DotNetToolbox.AI.Personas;
-
-public class Profile {
-    public string Description { get; init; } = "You are a helpful agent.";
-    public string Personality { get; init; } = string.Empty;
+    public string Description { get; set; } = "You are a helpful agent.";
+    public string? Personality { get; set; }
     public List<string> Instructions { get; set; } = [];
-    public List<Information> AdditionalInformation { get; } = [];
-    public List<Skill> Skills { get; set; } = [];
+    public List<Fact> Facts { get; set; } = [];
+    public List<Tool> KnownTools { get; set; } = [];
 
     public override string ToString() {
         var builder = new StringBuilder();
+        builder.AppendLine($"You name is {Name}.");
         builder.AppendLine(Description);
         if (!string.IsNullOrWhiteSpace(Personality)) builder.AppendLine(Personality);
-        if (Instructions.Count > 0) builder.AppendLine("Instructions:");
-        foreach (var instruction in Instructions)
-            builder.AppendLine(instruction);
-        if (Skills.Count > 0) builder.AppendLine("Your skills are:");
-        foreach (var skill in Skills)
-            builder.AppendLine(skill.ToString());
-        if (AdditionalInformation.Count > 0) builder.AppendLine("Additional information;");
-        foreach (var information in AdditionalInformation)
-            builder.AppendLine(information.ToString());
+        builder.AppendSection(KnownTools, "Known Tools");
+        builder.AppendSection(Facts);
+        builder.AppendSection(Instructions);
         return builder.ToString();
     }
 }
