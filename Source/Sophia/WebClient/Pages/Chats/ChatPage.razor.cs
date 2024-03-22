@@ -3,43 +3,86 @@
 public partial class ChatPage {
     [Parameter] public int Id { get; set; }
 
-    [Inject] public IChatsService ChatsService { get; set; } = default!;
-    [Inject] public IAgentService AgentService { get; set; } = default!;
+    [Inject] public IChatsRemoteService ChatsService { get; set; } = default!;
+    [Inject] public IAgentRemoteService AgentService { get; set; } = default!;
     [Inject] public required NavigationManager NavigationManager { get; set; }
+    [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
 
-    private ChatData _chat = default!;
+    private ChatData? _chat;
     private string _newMessage = string.Empty;
+    private bool _isTyping;
+    private string _errorMessage = string.Empty;
+    private ElementReference _chatHistoryRef;
 
     protected override async Task OnInitializedAsync() {
         var chat = await ChatsService.GetById(Id);
-        if (chat is null) NavigationManager.NavigateTo("/chats");
-        _chat = chat!;
+        if (chat is null) {
+            NavigationManager.NavigateTo("/chats");
+            return;
+        }
+        _chat = chat;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (!firstRender) return;
+        await ScrollToBottom();
     }
 
     private async Task Send() {
         try {
             if (string.IsNullOrWhiteSpace(_newMessage)) return;
+
             await SaveUserMessage(_newMessage);
-            var agentResponse = await AgentService.GetResponse(_newMessage);
+            _newMessage = string.Empty;
+
+            _isTyping = true;
+            StateHasChanged();
+
+            var request = new GetResponseRequest {
+                ChatId = _chat!.Id,
+                Message = _chat.Messages.Last().Content,
+            };
+            var agentResponse = await AgentService.GetResponse(request);
             await SaveAgentResponse(agentResponse);
         }
-        finally {
-            _newMessage = string.Empty;
+        catch (Exception ex) {
+            _errorMessage = "An error occurred while sending the message.";
+            Console.WriteLine($"Error: {ex.Message}");
         }
+        finally {
+            _isTyping = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e) {
+        if (e.Key != "Enter") return;
+        await Send();
     }
 
     private Task SaveUserMessage(string userMessage)
-        => SaveMessage(userMessage, false);
+        => SaveMessage(userMessage, "user");
 
     private Task SaveAgentResponse(string agentResponse)
-        => SaveMessage(agentResponse, false);
+        => SaveMessage(agentResponse, "assistant");
 
-    private Task SaveMessage(string agentResponse, bool isUserMessage) {
+    private async Task SaveMessage(string messageContent, string type) {
         var message = new MessageData {
-            Content = agentResponse,
-            IsUserMessage = isUserMessage,
+            Content = messageContent,
+            Type = type,
+            Timestamp = DateTime.UtcNow,
         };
         _chat!.Messages.Add(message);
-        return ChatsService.AddMessage(_chat.Id, message);
+        await ChatsService.AddMessage(_chat.Id, message);
+        await ScrollToBottom();
     }
+
+    private void GoBack()
+        => NavigationManager.NavigateTo("/chats");
+
+    private async Task ScrollToBottom()
+        => await JsRuntime.InvokeVoidAsync("scrollToBottom", _chatHistoryRef);
+
+    private async Task ScrollToTop()
+        => await JsRuntime.InvokeVoidAsync("scrollToTop", _chatHistoryRef);
 }

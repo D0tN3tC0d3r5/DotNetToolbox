@@ -3,5 +3,5 @@
 public interface IAgentRemoteService : IAgentService;
 
 public interface IAgentService {
-    Task<string> GetResponse(string userMessage);
+    Task<string> GetResponse(GetResponseRequest request);
 }

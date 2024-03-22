@@ -2,10 +2,10 @@
 
 public class AgentRemoteService(HttpClient httpClient)
     : IAgentRemoteService {
-    public async Task<string> GetResponse(string userMessage) {
-        var response = await httpClient.PostAsJsonAsync("api/agent", userMessage);
+    public async Task<string> GetResponse(GetResponseRequest request) {
+        var response = await httpClient.PostAsJsonAsync("api/agent", request);
         response.EnsureSuccessStatusCode();
-        var agentResponse = await response.Content.ReadFromJsonAsync<string>();
+        var agentResponse = await response.Content.ReadAsStringAsync();
         return agentResponse!;
     }
 }

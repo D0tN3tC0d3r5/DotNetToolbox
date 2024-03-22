@@ -2,8 +2,12 @@
 
 public class ProvidersRemoteService(HttpClient httpClient)
     : IProvidersRemoteService {
+
+    private static readonly UrlEncoder _encoder = UrlEncoder.Create();
+
     public async Task<IReadOnlyList<ProviderData>> GetList(string? filter = null) {
-        var list = await httpClient.GetFromJsonAsync<ProviderData[]>("api/providers");
+        var query = filter is null ? string.Empty : $"?filter={_encoder.Encode(filter)}";
+        var list = await httpClient.GetFromJsonAsync<ProviderData[]>($"api/providers{query}");
         return list!;
     }
 
@@ -12,13 +16,15 @@ public class ProvidersRemoteService(HttpClient httpClient)
         return provider;
     }
 
-    public async Task Add(ProviderData input) {
-        var response = await httpClient.PostAsJsonAsync("api/providers", input)!;
+    public async Task Add(ProviderData provider) {
+        var response = await httpClient.PostAsJsonAsync("api/providers", provider)!;
         response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<ProviderData>();
+        provider.Id = result!.Id;
     }
 
-    public async Task Update(ProviderData input) {
-        var response = await httpClient.PutAsJsonAsync("api/providers", input)!;
+    public async Task Update(ProviderData provider) {
+        var response = await httpClient.PutAsJsonAsync("api/providers", provider)!;
         response.EnsureSuccessStatusCode();
     }
 

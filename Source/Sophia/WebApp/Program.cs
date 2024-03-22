@@ -87,5 +87,6 @@ app.MapWorldEndpoints();
 app.MapToolsEndpoints();
 app.MapPersonasEndpoints();
 app.MapChatsEndpoints();
+app.MapAgentEndpoints();
 
 await app.RunAsync();

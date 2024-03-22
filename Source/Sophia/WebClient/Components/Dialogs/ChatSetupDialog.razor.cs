@@ -6,37 +6,25 @@ public partial class ChatSetupDialog {
 
     [Parameter] public EventCallback OnStart { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public ChatData Chat { get; set; } = new();
 
-    private readonly ChatData _chat = new();
     private IReadOnlyList<PersonaData> _personas = [];
     private IDictionary<string, string> _models = new Dictionary<string, string>();
-    private EditContext _editContext;
-    private ValidationMessageStore _validationMessageStore;
-
-    public ChatSetupDialog() {
-        _editContext = new(_chat);
-        _validationMessageStore = new(_editContext);
-    }
 
     protected override async Task OnInitializedAsync() {
         _personas = await PersonasService.GetList();
+        Chat.Agent.Persona = _personas.FirstOrDefault() ?? new();
+
         var providers = await ProvidersService.GetList();
         _models = providers.SelectMany(p => p.Models.Select(m => new {
             m.Key,
             Value = $"{m.Name} ({p.Name})",
         })).ToDictionary(k => k.Key, v => v.Value);
-        _chat.Agent.Model = _models.Keys.FirstOrDefault() ?? string.Empty;
+        Chat.Agent.Model = _models.Keys.FirstOrDefault() ?? string.Empty;
     }
 
-    protected override void OnParametersSet() {
-        _editContext = new(_chat);
-        _validationMessageStore = new(_editContext);
-        _editContext.OnValidationRequested += OnValidationRequested;
-        base.OnParametersSet();
-    }
-
-    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs e) {
-    }
+    private void UpdateTemperature(ChangeEventArgs e)
+        => Chat.Agent.Temperature = Convert.ToDouble(e.Value);
 
     private void Save() => OnStart.InvokeAsync();
     private void Cancel() => OnCancel.InvokeAsync();

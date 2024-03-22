@@ -7,8 +7,10 @@ builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticat
 builder.Services.AddScoped<IWorldRemoteService, WorldRemoteService>();
 builder.Services.AddScoped<IToolsRemoteService, ToolsRemoteService>();
 builder.Services.AddScoped<IPersonasRemoteService, PersonasRemoteService>();
+builder.Services.AddScoped<IChatsRemoteService, ChatsRemoteService>();
+builder.Services.AddScoped<IAgentRemoteService, AgentRemoteService>();
 builder.Services.AddScoped(sp => new HttpClient {
-    BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
-});
+                                                    BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
+                                                });
 
 await builder.Build().RunAsync();

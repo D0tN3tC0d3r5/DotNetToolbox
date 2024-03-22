@@ -2,8 +2,12 @@
 
 public class PersonasRemoteService(HttpClient httpClient)
     : IPersonasRemoteService {
+
+    private static readonly UrlEncoder _encoder = UrlEncoder.Create();
+
     public async Task<IReadOnlyList<PersonaData>> GetList(string? filter = null) {
-        var list = await httpClient.GetFromJsonAsync<PersonaData[]>("api/personas");
+        var query = filter is null ? string.Empty : $"?filter={_encoder.Encode(filter)}";
+        var list = await httpClient.GetFromJsonAsync<PersonaData[]>($"api/personas{query}");
         return list!;
     }
 
@@ -15,6 +19,8 @@ public class PersonasRemoteService(HttpClient httpClient)
     public async Task Add(PersonaData persona) {
         var response = await httpClient.PostAsJsonAsync("api/personas", persona);
         response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<PersonaData>();
+        persona.Id = result!.Id;
     }
 
     public async Task Update(PersonaData persona) {

@@ -247,9 +247,8 @@ namespace Sophia.WebApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Messages")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Model")
                         .IsRequired()
@@ -262,11 +261,42 @@ namespace Sophia.WebApp.Migrations
                     b.Property<double>("Temperature")
                         .HasColumnType("float");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PersonaId");
 
                     b.ToTable("Chats");
+                });
+
+            modelBuilder.Entity("Sophia.WebApp.Data.Chats.MessageEntity", b =>
+                {
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(20000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("ChatId", "Index");
+
+                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("Sophia.WebApp.Data.Common.FactEntity", b =>
@@ -579,6 +609,15 @@ namespace Sophia.WebApp.Migrations
                     b.Navigation("Persona");
                 });
 
+            modelBuilder.Entity("Sophia.WebApp.Data.Chats.MessageEntity", b =>
+                {
+                    b.HasOne("Sophia.WebApp.Data.Chats.ChatEntity", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaFactsEntity", b =>
                 {
                     b.HasOne("Sophia.WebApp.Data.Common.FactEntity", null)
@@ -672,6 +711,11 @@ namespace Sophia.WebApp.Migrations
                 {
                     b.Navigation("Profile")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatEntity", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("Sophia.WebApp.Data.Providers.ProviderEntity", b =>

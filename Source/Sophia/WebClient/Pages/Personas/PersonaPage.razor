@@ -40,17 +40,22 @@
         <ValidationMessage For="@(() => _persona.Name)" />
       </div>
       <div class="mb-3">
-        <label for="personaDescription" class="form-label">Description</label>
-        <InputTextArea id="personaDescription" class="form-control" @bind-Value="_persona.Description" disabled="@IsReadOnly" />
+        <label for="description" class="form-label">Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="_persona.Description" disabled="@IsReadOnly" />
         <ValidationMessage For="@(() => _persona.Description)" />
       </div>
+
+      <!-- Personality -->
+      @if (!string.IsNullOrWhiteSpace(_persona.Personality) || !IsReadOnly) {
       <div class="mb-3">
-        <label for="personaPersonality" class="form-label">Personality</label>
-        <InputTextArea id="personaPersonality" class="form-control" @bind-Value="_persona.Personality" disabled="@IsReadOnly" />
+        <label for="personality" class="form-label">Personality</label>
+        <InputTextArea id="personality" class="form-control" @bind-Value="_persona.Personality" disabled="@IsReadOnly" />
         <ValidationMessage For="@(() => _persona.Personality)" />
       </div>
+      }
 
       <!-- Instructions -->
+      @if (_persona.Instructions.Count > 0 || !IsReadOnly) {
       <div class="mb-3">
         <div class="row mb-2">
           <div class="col">
@@ -79,8 +84,10 @@
           </div>
         }
       </div>
+      }
 
       <!-- Facts -->
+      @if (_persona.Facts.Count > 0 || !IsReadOnly) {
       <div class="mb-3">
         <div class="row mb-2">
           <div class="col">
@@ -111,8 +118,10 @@
           </div>
         }
       </div>
+      }
 
       <!-- Known Tools -->
+      @if (_persona.KnownTools.Count > 0 || !IsReadOnly) {
       <div class="mb-3">
         <div class="row mb-2">
           <div class="col">
@@ -138,25 +147,26 @@
           }
         </ul>
       </div>
+      }
 
     </EditForm>
   </div>
 </div>
 
 @if (_showFactDialog) {
-  <FactDialog Fact="_selectedFact" Action="@(_selectedFact!.Id == 0 ? "Add" : "Edit")"
-              OnSave="SaveFact" OnCancel="CloseFactDialog" />
+<FactDialog Fact="_selectedFact" Action="@(_selectedFact!.Id == 0 ? "Add" : "Edit")"
+            OnSave="SaveFact" OnCancel="CloseFactDialog" />
 }
 
 @if (_showToolSelectionDialog) {
-  <ToolSelectionDialog AvailableTools="_availableTools"
-                       SelectedTools="_toolSelectionBuffer"
-                       OnToolsSelected="FinishToolSelection"
-                       OnCancel="CloseToolSelectionDialog" />
-}
+<ToolSelectionDialog AvailableTools="_availableTools"
+                     SelectedTools="_toolSelectionBuffer"
+                     OnToolsSelected="FinishToolSelection"
+                     OnCancel="CloseToolSelectionDialog" />
+  }
 
 @if (_showDeleteConfirmationDialog) {
-  <ConfirmationDialog Message="Are you sure you want to delete this tool?"
-                      OnConfirm="ExecuteDelete"
-                      OnCancel="CancelDelete" />
-}
+<ConfirmationDialog Message="Are you sure you want to delete this tool?"
+                    OnConfirm="ExecuteDelete"
+                    OnCancel="CancelDelete" />
+  }

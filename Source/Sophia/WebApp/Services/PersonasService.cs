@@ -5,7 +5,7 @@ public class PersonasService(ApplicationDbContext dbContext)
     public async Task<IReadOnlyList<PersonaData>> GetList(string? filter = null)
         => await dbContext.Personas
                           .Include(p => p.Facts)
-                          .Include(p => p.KnownTools)
+                          .Include(p => p.Tools)
                           .AsNoTracking()
                           .Select(s => s.ToDto())
                           .ToArrayAsync();
@@ -16,17 +16,17 @@ public class PersonasService(ApplicationDbContext dbContext)
         return entity?.ToDto();
     }
 
-    public async Task Add(PersonaData selectedPersona) {
-        var entity = selectedPersona.ToEntity();
+    public async Task Add(PersonaData persona) {
+        var entity = persona.ToEntity();
         dbContext.Personas.Add(entity);
         await dbContext.SaveChangesAsync();
-        selectedPersona.Id = entity.Id;
+        persona.Id = entity.Id;
     }
 
-    public async Task Update(PersonaData input) {
+    public async Task Update(PersonaData persona) {
         var entity = await dbContext.Personas
-                                    .FirstOrDefaultAsync(s => s.Id == input.Id);
-        entity?.UpdateFrom(input);
+                                    .FirstOrDefaultAsync(s => s.Id == persona.Id);
+        entity?.UpdateFrom(persona);
         await dbContext.SaveChangesAsync();
     }
 

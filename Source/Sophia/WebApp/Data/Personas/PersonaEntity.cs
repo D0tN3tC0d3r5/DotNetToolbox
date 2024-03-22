@@ -3,7 +3,9 @@
 [Table("Personas")]
 [EntityTypeConfiguration(typeof(PersonaEntity))]
 public class PersonaEntity
-    : IEntityTypeConfiguration<PersonaEntity> {
+    : IEntityTypeConfiguration<PersonaEntity>
+    , IHasTools<int>
+    , IHasFacts<int> {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
@@ -15,7 +17,7 @@ public class PersonaEntity
     public string? Personality { get; set; }
     public string[] Instructions { get; set; } = [];
     public List<FactEntity> Facts { get; set; } = [];
-    public List<ToolEntity> KnownTools { get; set; } = [];
+    public List<ToolEntity> Tools { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<PersonaEntity> builder) {
         builder.HasKey(p => p.Id);
@@ -28,7 +30,7 @@ public class PersonaEntity
                                                 r => r.HasOne<PersonaEntity>()
                                                       .WithMany()
                                                       .HasForeignKey(e => e.PersonaId));
-        builder.HasMany(p => p.KnownTools)
+        builder.HasMany(p => p.Tools)
                .WithMany()
                .UsingEntity<PersonaToolsEntity>(l => l.HasOne<ToolEntity>()
                                                       .WithMany()
@@ -52,6 +54,6 @@ public class PersonaEntity
             Personality = Personality,
             Instructions = [.. Instructions],
             Facts = Facts.ToList(f => f.ToDto()),
-            KnownTools = KnownTools.ToList(f => f.ToDto()),
+            KnownTools = Tools.ToList(f => f.ToDto()),
         };
 }

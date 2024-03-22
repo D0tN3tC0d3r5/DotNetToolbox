@@ -3,7 +3,9 @@
 [Table("Worlds")]
 [EntityTypeConfiguration(typeof(WorldEntity))]
 public class WorldEntity
-    : IEntityTypeConfiguration<WorldEntity> {
+    : IEntityTypeConfiguration<WorldEntity>
+    , IHasTools<Guid>
+    , IHasFacts<Guid> {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; } = Guid.Empty;

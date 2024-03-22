@@ -1,15 +1,53 @@
 ﻿@page "/chat/{Id:int}"
+@rendermode InteractiveWebAssembly
+
 
 <div class="chat-container">
-  <div class="chat-history">
-    @foreach (var message in _chat.Messages) {
-      <div class="@(message.IsUserMessage ? "user-message" : "agent-message")">
-        <p>@message.Content</p>
+  <div class="chat-header d-flex">
+    <h3 class="flex-fill">@_chat?.Title</h3>
+    <button class="btn btn-secondary me-4" @onclick="GoBack" @onclick:preventDefault>
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button class="btn btn-secondary" @onclick="ScrollToBottom" @onclick:preventDefault>
+      <i class="bi bi-arrow-down"></i> Bottom
+    </button>
+  </div>
+  <div class="chat-history" @ref="_chatHistoryRef">
+    @{
+      var messages = _chat?.Messages ?? Enumerable.Empty<MessageData>();
+      var previousDate = DateTime.MinValue.Date;
+    }
+    @foreach (var message in messages) {
+      var dateTimeFormat = previousDate != message.Timestamp.Date ? "dddd, dd/MMMM/yyyy HH:mm" : "HH:mm";
+      previousDate = message.Timestamp.Date;
+      <div class="@(message.Type)-message">
+        <div class="message-timestamp">
+          <span>@message.Timestamp.ToString(dateTimeFormat)</span>
+        </div>
+        <div class="message-content">
+          <p>@message.Content</p>
+        </div>
       </div>
     }
-  </div>
-  <div class="chat-input">
-    <input type="text" @bind="_newMessage" placeholder="Type your message..." />
-    <button @onclick="Send">Send</button>
-  </div>
-</div>
+    @if (_isTyping)
+    {
+      <div class="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    }
+    </div>
+      <div class="chat-input d-flex flex-wrap justify-content-end">
+      <textarea class="form-control flex-grow-1 mb-3" rows="3" @bind="_newMessage" placeholder="Type your message..." @onkeydown="HandleKeyDown" @onclick:preventDefault></textarea>
+      <button class="btn btn-primary me-4" @onclick="Send" @onclick:preventDefault>
+      <i class="bi bi-send"></i>Send
+      </button>
+      <button class="btn btn-secondary" @onclick="ScrollToTop" @onclick:preventDefault>
+      <i class="bi bi-arrow-up"></i> Top
+      </button>
+      </div>
+      @if (!string.IsNullOrEmpty(_errorMessage)) {
+      <div class="alert alert-danger">@_errorMessage</div>
+    }
+    </div>

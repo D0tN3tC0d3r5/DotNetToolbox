@@ -2,11 +2,15 @@
 @rendermode InteractiveServer
 
 <div class="container">
-  <div class="container-header d-flex flex-row justify-content-start align-content-center mb-3">
+  <div class="container-header d-flex flex-row justify-content-start align-items-center mb-3">
     <h3 class="mb-1 mt-1 me-4">Chats</h3>
     <button class="btn btn-primary" @onclick="Start">
       <i class="bi bi-plus-lg me-2"></i>Start a New Chat
     </button>
+    <div class="form-check form-switch ms-4">
+      <input class="form-check-input" type="checkbox" id="showArchived" @bind-value="_showArchived" @bind-value:after="Load" />
+      <label class="form-check-label" for="showArchived">Show Archived</label>
+    </div>
   </div>
 
   <div class="container-body">
@@ -18,18 +22,44 @@
         <tbody>
           @foreach (var chat in _chats) {
             <tr class="row">
-              <td class="col-2">
-                <button class="btn btn-primary btn-sm" @onclick="() => Archive(chat.Id)">
-                  <i class="bi bi-box-arrow-in-down"></i>
-                </button>
-                <button class="btn btn-danger btn-sm" @onclick="() => Delete(chat.Id)">
+              <td class="col-1" style="min-width: 80px; max-height: 80px">
+                @if ( chat.IsActive) {
+                  <button class="btn btn-primary btn-sm" @onclick="() => Archive(chat.Id)">
+                    <i class="bi bi-box-arrow-in-down"></i>
+                  </button>
+                } else {
+                  <button class="btn btn-secondary btn-sm" @onclick="() => Unarchive(chat.Id)">
+                    <i class="bi bi-box-arrow-in-up"></i>
+                  </button>
+                }
+                <button class="btn btn-danger btn-sm" @onclick="() => Delete(chat)">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
-              <td class="col-3">
-                <a class="btn btn-link px-0" @onclick="() => Resume(chat.Id)">
-                  @chat.Title
-                </a>
+              <td class="col-11">
+                @if (_renamingChatId == chat.Id)
+                {
+                  <div class="input-group w-100  d-flex align-items-start">
+                    <input type="text" class="form-control flex-fill" @bind="_newChatName" />
+                    <button class="btn btn-success" @onclick="() => ConfirmRename(chat.Id)">
+                      <i class="bi bi-check"></i>
+                    </button>
+                    <button class="btn btn-danger" @onclick="CancelRename">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+                }
+                else
+                {
+                  <div class="d-flex align-items-start">
+                    <a class="btn btn-link flex-fill text-start" @onclick="() => Resume(chat.Id)">
+                      @chat.Title
+                    </a>
+                    <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="() => StartRename(chat.Id, chat.Title)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                  </div>
+                }
               </td>
             </tr>
           }
@@ -40,6 +70,11 @@
 </div>
 
 @if (_showChatSetupDialog) {
-  <ChatSetupDialog OnStart="StartChat" OnCancel="CloseChatDialog" />
+  <ChatSetupDialog Chat="_selectedChat" OnStart="StartChat" OnCancel="CloseChatDialog" />
 }
 
+@if (_showDeleteConfirmationDialog) {
+  <ConfirmationDialog Message="Are you sure you want to permanently delete this conversation?"
+                      OnConfirm="ExecuteDelete"
+                      OnCancel="CancelDelete" />
+}

@@ -1,19 +1,11 @@
 ﻿namespace Sophia.WebApp.Data;
 
 public static class Mapper {
-    public static WorldEntity ToEntity(this WorldData input)
-        => new() {
-            Location = input.Location,
-            UserProfile = input.UserProfile?.ToEntity(),
-            Facts = input.Facts.ToList(i => i.ToEntity()),
-            Tools = input.Tools.ToList(i => i.ToEntity()),
-        };
-
     public static void UpdateFrom(this WorldEntity target, WorldData input) {
         target.Location = input.Location;
-        target.UserProfile = input.UserProfile?.ToEntity();
+        target.UserProfile = input.UserProfile.ToEntity();
         target.Facts = input.Facts.ToList(i => i.ToEntity());
-        target.Tools = input.Tools.ToList(i => i.AddOrUpdate(target.Tools));
+        target.Tools = input.Tools.ToList(i => i.AddOrUpdate(target));
     }
 
     public static ProviderEntity ToEntity(this ProviderData input)
@@ -28,7 +20,7 @@ public static class Mapper {
         target.Id = input.Id;
         target.Name = input.Name;
         target.Authentication = input.Authentication;
-        target.Models = input.Models.ToList(i => i.AddOrUpdate(target.Models));
+        target.Models = input.Models.ToList(i => i.AddOrUpdate(target));
     }
 
     public static ModelEntity ToEntity(this ModelData input)
@@ -42,8 +34,8 @@ public static class Mapper {
         target.Name = input.Name;
     }
 
-    public static ModelEntity AddOrUpdate(this ModelData input, IReadOnlyList<ModelEntity> originalItems) {
-        var originalItem = originalItems.FirstOrDefault(i => i.Key == input.Key);
+    public static ModelEntity AddOrUpdate(this ModelData input, IHasModels parent) {
+        var originalItem = parent.Models.FirstOrDefault(i => i.Key == input.Key);
         if (originalItem is null) return input.ToEntity();
         originalItem.UpdateFrom(input);
         return originalItem;
@@ -75,11 +67,11 @@ public static class Mapper {
         target.Arguments = input.Arguments.AsIndexed().ToList(i => i.Value.ToEntity(i.Index));
     }
 
-    public static ToolEntity AddOrUpdate(this ToolData input, IReadOnlyList<ToolEntity> originalItems) {
-        var originalItem = originalItems.FirstOrDefault(i => i.Id == input.Id);
-        if (originalItem is null) return input.ToEntity();
-        originalItem.UpdateFrom(input);
-        return originalItem;
+    public static ToolEntity AddOrUpdate<TKey>(this ToolData input, IHasTools<TKey> parent) {
+        var originalTool = parent.Tools.FirstOrDefault(i => i.Id == input.Id);
+        if (originalTool is null) return input.ToEntity();
+        originalTool.UpdateFrom(input);
+        return originalTool;
     }
 
     public static ArgumentEntity ToEntity(this ArgumentData input, int index)
@@ -92,6 +84,38 @@ public static class Mapper {
             IsRequired = input.IsRequired,
         };
 
+    public static ChatEntity ToEntity(this ChatData input)
+        => new() {
+            IsActive = input.IsActive,
+            Title = input.Title,
+            Model = input.Agent.Model,
+            PersonaId = input.Agent.Persona.Id,
+            Temperature = input.Agent.Temperature,
+            Messages = input.Messages.ToList(i => i.ToEntity()),
+        };
+
+    public static MessageEntity ToEntity(this MessageData input, IHasMessages? parent = null)
+        => new() {
+            ChatId = parent?.Id ?? 0,
+            Index = parent?.Messages.Count ?? 0,
+            Content = input.Content,
+            Type = input.Type,
+            Timestamp = input.Timestamp,
+        };
+
+    public static void UpdateFrom(this MessageEntity target, MessageData input) {
+        target.Content = input.Content;
+        target.Type = input.Type;
+        target.Timestamp = input.Timestamp;
+    }
+
+    public static MessageEntity AddOrUpdate(this MessageData input, IHasMessages parent) {
+        var originalItem = parent.Messages.FirstOrDefault(i => i.Index == input.Index);
+        if (originalItem is null) return input.ToEntity(parent);
+        originalItem.UpdateFrom(input);
+        return originalItem;
+    }
+
     public static PersonaEntity ToEntity(this PersonaData input)
         => new() {
             Name = input.Name,
@@ -99,7 +123,7 @@ public static class Mapper {
             Personality = input.Personality,
             Instructions = [.. input.Instructions],
             Facts = input.Facts.ToList(i => i.ToEntity()),
-            KnownTools = input.KnownTools.ToList(i => i.ToEntity()),
+            Tools = input.KnownTools.ToList(i => i.ToEntity()),
 
         };
 
@@ -109,6 +133,6 @@ public static class Mapper {
         target.Personality = input.Personality;
         target.Instructions = [.. input.Instructions];
         target.Facts = input.Facts.ToList(i => i.ToEntity());
-        target.KnownTools = input.KnownTools.ToList(i => i.ToEntity());
+        target.Tools = input.KnownTools.ToList(i => i.ToEntity());
     }
 }

@@ -115,10 +115,11 @@ namespace Sophia.WebApp.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PersonaId = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Model = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Temperature = table.Column<double>(type: "float", nullable: false),
-                    Messages = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Temperature = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -347,6 +348,27 @@ namespace Sophia.WebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChatMessages",
+                columns: table => new
+                {
+                    ChatId = table.Column<int>(type: "int", nullable: false),
+                    Index = table.Column<int>(type: "int", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", maxLength: 20000, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatMessages", x => new { x.ChatId, x.Index });
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_Chats_ChatId",
+                        column: x => x.ChatId,
+                        principalTable: "Chats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Worlds",
                 columns: table => new
                 {
@@ -491,7 +513,7 @@ namespace Sophia.WebApp.Migrations
                 name: "Arguments");
 
             migrationBuilder.DropTable(
-                name: "Chats");
+                name: "ChatMessages");
 
             migrationBuilder.DropTable(
                 name: "Models");
@@ -524,10 +546,10 @@ namespace Sophia.WebApp.Migrations
                 name: "WorldTools");
 
             migrationBuilder.DropTable(
-                name: "Providers");
+                name: "Chats");
 
             migrationBuilder.DropTable(
-                name: "Personas");
+                name: "Providers");
 
             migrationBuilder.DropTable(
                 name: "Roles");
@@ -540,6 +562,9 @@ namespace Sophia.WebApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "Worlds");
+
+            migrationBuilder.DropTable(
+                name: "Personas");
 
             migrationBuilder.DropTable(
                 name: "UserProfiles");

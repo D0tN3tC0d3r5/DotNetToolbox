@@ -2,6 +2,7 @@
 
 public class WorldRemoteService(HttpClient httpClient)
     : IWorldRemoteService {
+
     public Task<WorldData> GetWorld()
         => httpClient.GetFromJsonAsync<WorldData>("api/world")!;
 

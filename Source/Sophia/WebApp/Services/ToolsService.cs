@@ -14,17 +14,17 @@ public class ToolsService(ApplicationDbContext dbContext)
         return entity?.ToDto();
     }
 
-    public async Task Add(ToolData selectedTool) {
-        var entity = selectedTool.ToEntity();
+    public async Task Add(ToolData tool) {
+        var entity = tool.ToEntity();
         dbContext.Tools.Add(entity);
         await dbContext.SaveChangesAsync();
-        selectedTool.Id = entity.Id;
+        tool.Id = entity.Id;
     }
 
-    public async Task Update(ToolData input) {
+    public async Task Update(ToolData tool) {
         var entity = await dbContext.Tools
-                                    .FirstOrDefaultAsync(s => s.Id == input.Id);
-        entity?.UpdateFrom(input);
+                                    .FirstOrDefaultAsync(s => s.Id == tool.Id);
+        entity?.UpdateFrom(tool);
         await dbContext.SaveChangesAsync();
     }
 

@@ -16,12 +16,12 @@ public class WorldService(ApplicationDbContext dbContext)
         }
     }
 
-    public async Task UpdateWorld(WorldData input) {
-        var world = await dbContext.Worlds
+    public async Task UpdateWorld(WorldData world) {
+        var entity = await dbContext.Worlds
                              .Include(w => w.Facts)
                              .Include(w => w.UserProfile)
                              .FirstAsync();
-        world.UpdateFrom(input);
+        entity.UpdateFrom(world);
         await dbContext.SaveChangesAsync();
     }
 }

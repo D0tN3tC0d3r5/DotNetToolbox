@@ -14,11 +14,18 @@ public partial class PersonaPage {
     private IReadOnlyCollection<ToolData> _availableTools = [];
     private List<ToolData> _toolSelectionBuffer = [];
     private bool _showToolSelectionDialog;
+    private EditContext _editContext;
+    private ValidationMessageStore _validationMessageStore;
 
     private FactData? _selectedFact;
     private bool _showFactDialog;
 
     private bool _showDeleteConfirmationDialog;
+
+    public PersonaPage() {
+        _editContext = new(_persona);
+        _validationMessageStore = new(_editContext);
+    }
 
     [Parameter]
     [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
@@ -33,6 +40,19 @@ public partial class PersonaPage {
 
     protected override async Task OnInitializedAsync()
         => _persona = await GetPersonaById(PersonaId);
+
+    protected override void OnParametersSet() {
+        _editContext = new(_persona);
+        _validationMessageStore = new(_editContext);
+        _editContext.OnValidationRequested += OnValidationRequested;
+        base.OnParametersSet();
+    }
+
+    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs e) {
+        _validationMessageStore.Clear(() => _persona.Instructions);
+        var result = _persona.ValidateInstructions();
+        if (result != null) _validationMessageStore.Add(() => _persona.Instructions, result);
+    }
 
     private async Task<PersonaData> GetPersonaById(int? personaId)
         => personaId is null

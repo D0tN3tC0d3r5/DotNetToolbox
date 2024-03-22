@@ -5,9 +5,12 @@ internal static class ProvidersEndpoints {
         ArgumentNullException.ThrowIfNull(endpoints);
 
         var group = endpoints.MapGroup("api/providers");
-        group.MapGet("/", (IProvidersService service) => service.GetList());
+        group.MapGet("/", (IProvidersService service, [FromQuery] string? filter = null) => service.GetList(filter));
         group.MapGet("/{id}", (IProvidersService service, [FromRoute] int id) => service.GetById(id));
-        group.MapPost("/", (IProvidersService service, [FromBody] ProviderData newValue) => service.Add(newValue));
+        group.MapPost("/", async (IProvidersService service, [FromBody] ProviderData newValue) => {
+            await service.Add(newValue);
+            return newValue;
+        });
         group.MapPut("/", (IProvidersService service, [FromBody] ProviderData updatedValue) => service.Update(updatedValue));
         group.MapDelete("/{id}", (IProvidersService service, [FromRoute] int id) => service.Delete(id));
         return group;

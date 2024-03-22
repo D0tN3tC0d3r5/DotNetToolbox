@@ -5,9 +5,12 @@ internal static class PersonasEndpoints {
         ArgumentNullException.ThrowIfNull(endpoints);
 
         var group = endpoints.MapGroup("api/personas");
-        group.MapGet("/", (IPersonasService service) => service.GetList());
+        group.MapGet("/", (IPersonasService service, [FromQuery] string? filter = null) => service.GetList(filter));
         group.MapGet("/{id}", (IPersonasService service, [FromRoute] int id) => service.GetById(id));
-        group.MapPost("/", (IPersonasService service, [FromBody] PersonaData newValue) => service.Add(newValue));
+        group.MapPost("/", async (IPersonasService service, [FromBody] PersonaData newValue) => {
+            await service.Add(newValue);
+            return newValue;
+        });
         group.MapPut("/", (IPersonasService service, [FromBody] PersonaData updatedValue) => service.Update(updatedValue));
         group.MapDelete("/{id}", (IPersonasService service, [FromRoute] int id) => service.Delete(id));
         return group;

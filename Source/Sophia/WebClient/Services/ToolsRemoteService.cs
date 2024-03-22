@@ -2,8 +2,12 @@
 
 public class ToolsRemoteService(HttpClient httpClient)
     : IToolsRemoteService {
+
+    private static readonly UrlEncoder _encoder = UrlEncoder.Create();
+
     public async Task<IReadOnlyList<ToolData>> GetList(string? filter = null) {
-        var list = await httpClient.GetFromJsonAsync<ToolData[]>("api/tools");
+        var query = filter is null ? string.Empty : $"?filter={_encoder.Encode(filter)}";
+        var list = await httpClient.GetFromJsonAsync<ToolData[]>($"api/tools{query}");
         return list!;
     }
 
@@ -12,9 +16,11 @@ public class ToolsRemoteService(HttpClient httpClient)
         return tool;
     }
 
-    public async Task Add(ToolData input) {
-        var response = await httpClient.PostAsJsonAsync("api/tools", input)!;
+    public async Task Add(ToolData tool) {
+        var response = await httpClient.PostAsJsonAsync("api/tools", tool)!;
         response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<ToolData>();
+        tool.Id = result!.Id;
     }
 
     public async Task Update(ToolData input) {

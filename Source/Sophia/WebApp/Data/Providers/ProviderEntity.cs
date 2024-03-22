@@ -3,7 +3,8 @@
 [Table("Providers")]
 [EntityTypeConfiguration(typeof(ProviderEntity))]
 public class ProviderEntity
-    : IEntityTypeConfiguration<ProviderEntity> {
+    : IEntityTypeConfiguration<ProviderEntity>,
+      IHasModels {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }

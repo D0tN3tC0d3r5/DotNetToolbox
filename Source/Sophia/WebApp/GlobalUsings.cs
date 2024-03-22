@@ -39,6 +39,7 @@ global using Sophia.WebApp.Components.Account;
 global using Sophia.WebApp.Components.Account.Pages;
 global using Sophia.WebApp.Components.Account.Pages.Manage;
 global using Sophia.WebApp.Data;
+global using Sophia.WebApp.Data.Chats;
 global using Sophia.WebApp.Data.Common;
 global using Sophia.WebApp.Data.Personas;
 global using Sophia.WebApp.Data.Providers;

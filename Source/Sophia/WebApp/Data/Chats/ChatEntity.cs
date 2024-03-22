@@ -3,14 +3,21 @@
 [Table("Chats")]
 [EntityTypeConfiguration(typeof(ChatEntity))]
 public class ChatEntity
-    : IEntityTypeConfiguration<ChatEntity> {
+    : IEntityTypeConfiguration<ChatEntity>
+    , IHasMessages {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
+    [MaxLength(100)]
+    [Required(AllowEmptyStrings = false)]
+    public string Title { get; set; } = string.Empty;
+
     [Required]
     public int PersonaId { get; set; }
     public PersonaEntity Persona { get; set; } = default!;
+
+    public bool IsActive { get; set; }
 
     [Required]
     [MaxLength(100)]
@@ -19,26 +26,27 @@ public class ChatEntity
     [Required]
     public double Temperature { get; set; }
 
-    public List<string> Messages { get; set; } = [];
+    public List<MessageEntity> Messages { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<ChatEntity> builder) {
-        builder.PrimitiveCollection(c => c.Messages);
         builder.HasOne(c => c.Persona)
                .WithMany()
                .HasForeignKey(c => c.PersonaId);
+        builder.HasMany(c => c.Messages)
+               .WithOne()
+               .HasForeignKey(c => c.ChatId);
     }
 
     public ChatData ToDto()
         => new() {
             Id = Id,
+            Title = Title,
+            IsActive = IsActive,
             Agent = new() {
                 Persona = Persona.ToDto(),
                 Model = Model,
                 Temperature = Temperature,
             },
-            Messages = Messages.Select(m => new MessageData() {
-                IsUserMessage = m.StartsWith("u:"),
-                Content = m[2..],
-            }).ToList(),
+            Messages = Messages.ToList(m => m.ToDto()),
         };
 }
