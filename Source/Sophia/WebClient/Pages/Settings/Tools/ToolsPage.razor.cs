@@ -1,4 +1,4 @@
-﻿namespace Sophia.WebClient.Pages.Settings;
+﻿namespace Sophia.WebClient.Pages.Settings.Tools;
 
 public partial class ToolsPage {
     private IReadOnlyList<ToolData> _tools = [];

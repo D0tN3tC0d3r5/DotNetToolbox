@@ -7,7 +7,6 @@ public class ChatData {
     public AgentData Agent { get; set; } = new();
     public List<MessageData> Messages { get; set; } = [];
 
-    public string? Validate() {
-        return string.IsNullOrWhiteSpace(Title) ? "Title is required" : null;
-    }
+    public string? Validate()
+        => string.IsNullOrWhiteSpace(Title) ? "Title is required" : null;
 }

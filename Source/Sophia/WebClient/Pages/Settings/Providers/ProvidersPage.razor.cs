@@ -1,4 +1,4 @@
-﻿namespace Sophia.WebClient.Pages.Settings;
+﻿namespace Sophia.WebClient.Pages.Settings.Providers;
 public partial class ProvidersPage {
     [Inject] public IProvidersService ProvidersService { get; set; } = default!;
     [Inject] public required NavigationManager NavigationManager { get; set; }

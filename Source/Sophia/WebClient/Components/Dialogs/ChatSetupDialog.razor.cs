@@ -2,16 +2,14 @@
 
 public partial class ChatSetupDialog {
     [Inject] public required IPersonasRemoteService PersonasService { get; set; }
+    [Inject] public required IProvidersRemoteService ProvidersService { get; set; }
 
-    [Parameter]
-    public EventCallback OnStart { get; set; }
-
-    [Parameter]
-    public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnStart { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
 
     private readonly ChatData _chat = new();
     private IReadOnlyList<PersonaData> _personas = [];
-    private IReadOnlyList<string> _models = [];
+    private IDictionary<string, string> _models = new Dictionary<string, string>();
     private EditContext _editContext;
     private ValidationMessageStore _validationMessageStore;
 
@@ -22,8 +20,12 @@ public partial class ChatSetupDialog {
 
     protected override async Task OnInitializedAsync() {
         _personas = await PersonasService.GetList();
-        _models = ["GPT 4 Turbo", "Claude 3 Opus"];
-        _chat.Agent.Model = _models[0];
+        var providers = await ProvidersService.GetList();
+        _models = providers.SelectMany(p => p.Models.Select(m => new {
+            m.Key,
+            Value = $"{m.Name} ({p.Name})",
+        })).ToDictionary(k => k.Key, v => v.Value);
+        _chat.Agent.Model = _models.Keys.FirstOrDefault() ?? string.Empty;
     }
 
     protected override void OnParametersSet() {

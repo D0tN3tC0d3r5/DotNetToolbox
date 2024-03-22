@@ -1,4 +1,4 @@
-﻿namespace Sophia.WebClient.Pages;
+﻿namespace Sophia.WebClient.Pages.Chats;
 
 public partial class ChatsPage {
     private IReadOnlyList<ChatData> _chats = [];

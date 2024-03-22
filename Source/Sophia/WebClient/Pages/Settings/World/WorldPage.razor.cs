@@ -1,6 +1,6 @@
 ﻿using Timer = System.Timers.Timer;
 
-namespace Sophia.WebClient.Pages.Settings;
+namespace Sophia.WebClient.Pages.Settings.World;
 
 public partial class WorldPage
     : IDisposable {
@@ -67,9 +67,7 @@ public partial class WorldPage
     }
 
     private void SaveFact() {
-        if (_selectedFact!.Id == 0) {
-            _world.Facts.Add(_selectedFact);
-        }
+        if (_selectedFact!.Id == 0)             _world.Facts.Add(_selectedFact);
         CloseFactDialog();
     }
     private void CloseFactDialog() {

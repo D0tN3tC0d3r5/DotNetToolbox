@@ -1,4 +1,4 @@
-﻿namespace Sophia.WebClient.Pages.Settings;
+﻿namespace Sophia.WebClient.Pages.Settings.Providers;
 
 public partial class ProviderPage {
     [Parameter] public int? Id { get; set; }
@@ -45,7 +45,7 @@ public partial class ProviderPage {
     public async Task<ProviderData> GetProviderById(int? providerId)
         => providerId is null
                ? new()
-               : await ProvidersService.GetById(providerId.Value);
+               : (await ProvidersService.GetById(providerId.Value))!;
 
     public void EnableEdit() => _action = PageAction.Edit;
 

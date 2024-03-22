@@ -16,7 +16,6 @@ public partial class ChatPage {
         _chat = chat!;
     }
 
-    // Rest of the code remains the same
     private async Task Send() {
         try {
             if (string.IsNullOrWhiteSpace(_newMessage)) return;

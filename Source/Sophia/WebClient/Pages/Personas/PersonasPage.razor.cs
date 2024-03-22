@@ -1,4 +1,4 @@
-﻿namespace Sophia.WebClient.Pages;
+﻿namespace Sophia.WebClient.Pages.Personas;
 
 public partial class PersonasPage {
     [Inject] public required IPersonasService PersonasService { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace Sophia.WebClient.Pages.Settings;
+﻿namespace Sophia.WebClient.Pages.Settings.Tools;
 
 public partial class ToolPage {
 
@@ -19,7 +19,8 @@ public partial class ToolPage {
     [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
     public string Action {
         get => _action.ToString();
-        set => _action = Enum.Parse<PageAction>(value); }
+        set => _action = Enum.Parse<PageAction>(value);
+    }
     public bool IsReadOnly => _action == PageAction.View;
 
     [Parameter]
