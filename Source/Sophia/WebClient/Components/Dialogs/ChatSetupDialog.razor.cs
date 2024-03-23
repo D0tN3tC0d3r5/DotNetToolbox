@@ -13,11 +13,11 @@ public partial class ChatSetupDialog {
 
     protected override async Task OnInitializedAsync() {
         _personas = await PersonasService.GetList();
-        Chat.Agent.Persona = _personas.FirstOrDefault() ?? new();
+        Chat.Agent.Persona = _personas.Count == 0 ? new() : _personas[0];
 
         var providers = await ProvidersService.GetList();
         _models = providers.SelectMany(p => p.Models.Select(m => new {
-            m.Key,
+            Key = $"{p.Name}:{m.Name}",
             Value = $"{m.Name} ({p.Name})",
         })).ToDictionary(k => k.Key, v => v.Value);
         Chat.Agent.Model = _models.Keys.FirstOrDefault() ?? string.Empty;

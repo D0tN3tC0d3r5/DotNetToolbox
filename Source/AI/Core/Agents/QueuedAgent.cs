@@ -1,15 +1,16 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class QueuedAgent<TAgent, TOptions, TRequest, TResponse>(
+public abstract class QueuedAgent<TAgent, TOptions, TMapper, TRequest, TResponse>(
         World world,
         TOptions options,
         Persona persona,
-        IMapper mapper,
         IHttpClientProvider httpClientProvider,
         ILogger<TAgent> logger)
-    : BackgroundAgent<TAgent, TOptions, TRequest, TResponse>(world, options, persona, mapper, httpClientProvider, logger)
-    where TAgent : QueuedAgent<TAgent, TOptions, TRequest, TResponse>
+    : BackgroundAgent<TAgent, TOptions, TMapper, TRequest, TResponse>(world, options, persona, httpClientProvider, logger),
+      IQueuedAgent
+    where TAgent : QueuedAgent<TAgent, TOptions, TMapper, TRequest, TResponse>
     where TOptions : class, IAgentOptions, new()
+    where TMapper : class, IMapper, new()
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
     private readonly Queue<RequestPackage> _receivedRequests = [];

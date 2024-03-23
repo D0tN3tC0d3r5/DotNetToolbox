@@ -16,7 +16,7 @@ public class WorldData() {
     public List<FactData> Facts { get; set; } = [];
     public List<ToolData> Tools { get; set; } = [];
 
-    public World ToModel(IDateTimeProvider? dateTime) => new(dateTime) {
+    public World ToModel(IDateTimeProvider? dateTime = null) => new(dateTime) {
         Location = Location,
         UserProfile = UserProfile?.ToModel() ?? new(),
         Facts = Facts.ToList(x => x.ToModel()),

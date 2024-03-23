@@ -1,5 +1,5 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public interface IBackgroundAgent : IAgent {
+public interface IBackgroundAgent : IStandardAgent {
     void Run(CancellationToken ct);
 }

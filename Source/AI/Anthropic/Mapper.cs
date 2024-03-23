@@ -1,8 +1,9 @@
 ﻿namespace DotNetToolbox.AI.Anthropic;
 
-internal class Mapper : IMapper {
-    IChatRequest IMapper.CreateRequest(IAgent agent, IChat chat) => CreateRequest((IAgent<AgentOptions>)agent, chat);
-    public static ChatRequest CreateRequest(IAgent<AgentOptions> agent, IChat chat)
+public class Mapper()
+    : IMapper {
+    IChatRequest IMapper.CreateRequest(IStandardAgent agent, IChat chat) => CreateRequest((IStandardAgent<AgentOptions>)agent, chat);
+    public static ChatRequest CreateRequest(IStandardAgent<AgentOptions> agent, IChat chat)
         => new() {
                      Model = agent.Options.Model,
                      Temperature = agent.Options.Temperature,
@@ -17,7 +18,7 @@ internal class Mapper : IMapper {
                      System = CreateSystemMessage(agent, chat),
                  };
 
-    private static string CreateSystemMessage(IAgent<AgentOptions> agent, IChat chat) {
+    private static string CreateSystemMessage(IStandardAgent<AgentOptions> agent, IChat chat) {
         var builder = new StringBuilder();
         builder.AppendLine(agent.World.ToString());
         builder.AppendLine(agent.Persona.ToString());

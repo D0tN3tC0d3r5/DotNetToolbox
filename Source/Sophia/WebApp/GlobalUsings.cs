@@ -4,10 +4,13 @@ global using System.Diagnostics.CodeAnalysis;
 global using System.Security.Claims;
 global using System.Text.Json;
 
+global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Anthropic;
 global using DotNetToolbox.AI.Common;
+global using DotNetToolbox.AI.Consumers;
 global using DotNetToolbox.AI.OpenAI;
 global using DotNetToolbox.Collections.Generic;
+global using DotNetToolbox.Http;
 
 global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Components;

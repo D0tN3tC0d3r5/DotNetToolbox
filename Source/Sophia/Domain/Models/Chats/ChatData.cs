@@ -8,4 +8,9 @@ public class ChatData {
     public bool IsActive { get; set; } = true;
     public AgentData Agent { get; set; } = new();
     public List<MessageData> Messages { get; set; } = [];
+
+    public Chat ToModel() {
+        var messages = Messages.ToList(i => i.ToModel());
+        return new($"{Id}", new(), messages, 0);
+    }
 }

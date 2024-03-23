@@ -1,18 +1,19 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class Agent<TAgent, TOptions, TRequest, TResponse>(
+public abstract class StandardAgent<TAgent, TOptions, TMapper, TRequest, TResponse>(
         World world,
         TOptions options,
         Persona persona,
-        IMapper mapper,
         IHttpClientProvider httpClientProvider,
         ILogger<TAgent> logger)
-    : IAgent<TOptions>
-    where TAgent : Agent<TAgent, TOptions, TRequest, TResponse>
+    : IStandardAgent<TOptions>
+    where TAgent : StandardAgent<TAgent, TOptions, TMapper, TRequest, TResponse>
     where TOptions : class, IAgentOptions, new()
+    where TMapper : class, IMapper, new()
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
-    protected ILogger<TAgent> Logger = logger;
+    protected ILogger<TAgent> Logger { get; } = logger;
+    protected TMapper Mapper { get; } = new();
 
     public World World { get; } = world;
     public TOptions Options { get; set; } = IsValidOrDefault(options, new());
@@ -36,7 +37,7 @@ public abstract class Agent<TAgent, TOptions, TRequest, TResponse>(
     }
 
     private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
-        var request = mapper.CreateRequest(this, chat);
+        var request = Mapper.CreateRequest(this, chat);
         var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions);
         var httpClient = httpClientProvider.GetHttpClient();
         var httpResult = await httpClient.PostAsync(Options.ApiEndpoint, content, ct).ConfigureAwait(false);
@@ -44,7 +45,7 @@ public abstract class Agent<TAgent, TOptions, TRequest, TResponse>(
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentOptions.SerializerOptions)!;
-            var responseMessage = mapper.CreateResponseMessage(chat, apiResponse);
+            var responseMessage = Mapper.CreateResponseMessage(chat, apiResponse);
             chat.Messages.Add(responseMessage);
             return HttpResult.Ok();
         }

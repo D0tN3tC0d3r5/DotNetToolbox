@@ -15,7 +15,7 @@ public class ChatsService(ApplicationDbContext dbContext)
                               .ToArrayAsync();
     }
 
-    private Expression<Func<ChatEntity, bool>> BuildFilter(string? filter)
+    private static Expression<Func<ChatEntity, bool>> BuildFilter(string? filter)
         => filter switch {
             "ShowArchived" => (_) => true,
             _ => c => c.IsActive == true,

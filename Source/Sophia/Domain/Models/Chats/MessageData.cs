@@ -7,4 +7,7 @@ public class MessageData {
     [MaxLength(20_000)]
     [Required(AllowEmptyStrings = true)]
     public string Content { get; set; } = string.Empty;
+
+    public Message ToModel()
+        => new(Type, [new MessagePart("text", Content)]);
 }

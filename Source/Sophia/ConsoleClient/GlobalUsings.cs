@@ -2,6 +2,7 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 
 global using DotNetToolbox;
+global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.AI.Consumers;

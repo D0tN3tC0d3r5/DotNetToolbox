@@ -19,11 +19,6 @@ public class World(IDateTimeProvider? dateTimeProvider = null)
         return builder.ToString();
     }
 
-    private string GetUserProfile(string? profile)
-        => string.IsNullOrWhiteSpace(profile)
-               ? "You have no information about the USER."
-               : profile;
-
     private static string GetAgentLocation(string? location)
         => string.IsNullOrWhiteSpace(location)
                ? "You do not know your current location."

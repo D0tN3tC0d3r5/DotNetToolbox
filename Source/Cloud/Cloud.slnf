@@ -2,35 +2,10 @@
   "solution": {
     "path": "..\\DotNetToolbox.sln",
     "projects": [
-      "AI\\Anthropic\\DotNetToolbox.AI.Anthropic.csproj",
-      "AI\\Core.UnitTests\\DotNetToolbox.AI.UnitTests.csproj",
-      "AI\\Core\\DotNetToolbox.AI.Core.csproj",
-      "AI\\OpenAI.UnitTests\\DotNetToolbox.AI.OpenAI.UnitTests.csproj",
-      "AI\\OpenAI\\DotNetToolbox.AI.OpenAI.csproj",
-      "ApplicationBuilders\\Console.UnitTests\\DotNetToolbox.Console.UnitTests.csproj",
-      "ApplicationBuilders\\Console\\DotNetToolbox.Console.csproj",
-      "ApplicationBuilders\\Samples\\CLI\\DotNetToolbox.Console.SampleCLI.csproj",
-      "ApplicationBuilders\\Samples\\Shell\\DotNetToolbox.Console.SampleShell.csproj",
       "Cloud\\Azure.UnitTests\\DotNetToolbox.Azure.UnitTests.csproj",
       "Cloud\\Azure\\DotNetToolbox.Azure.csproj",
       "Cloud\\Http.UnitTests\\DotNetToolbox.Http.UnitTests.csproj",
       "Cloud\\Http\\DotNetToolbox.Http.csproj",
-      "Core\\Core.UnitTests\\DotNetToolbox.Core.UnitTests.csproj",
-      "Core\\Core\\DotNetToolbox.Core.csproj",
-      "Sophia\\ConsoleClient\\Sophia.ConsoleClient.csproj",
-      "Sophia\\Domain\\Sophia.Domain.csproj",
-      "Sophia\\WebApp\\Sophia.WebApp.csproj",
-      "Sophia\\WebClient\\Sophia.WebClient.csproj",
-      "Testing\\FluentAssertions.UnitTests\\DotNetToolbox.FluentAssertions.UnitTests.csproj",
-      "Testing\\FluentAssertions\\DotNetToolbox.FluentAssertions.csproj",
-      "Testing\\TestUtilities.UnitTests\\DotNetToolbox.TestUtilities.UnitTests.csproj",
-      "Testing\\TestUtilities\\DotNetToolbox.TestUtilities.csproj",
-      "Utilities\\ObjectDumper.UnitTests\\DotNetToolbox.ObjectDumper.UnitTests.csproj",
-      "Utilities\\ObjectDumper\\DotNetToolbox.ObjectDumper.csproj",
-      "Utilities\\Security.UnitTests\\DotNetToolbox.Security.UnitTests.csproj",
-      "Utilities\\Security\\DotNetToolbox.Security.csproj",
-      "Utilities\\ValidationBuilder.UnitTests\\DotNetToolbox.ValidationBuilder.UnitTests.csproj",
-      "Utilities\\ValidationBuilder\\DotNetToolbox.ValidationBuilder.csproj"
     ]
   }
 }

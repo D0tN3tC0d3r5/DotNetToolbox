@@ -1,42 +1,37 @@
-﻿using DotNetToolbox.AI.Common;
-
-namespace DotNetToolbox.AI.OpenAI;
+﻿namespace DotNetToolbox.AI.OpenAI;
 
 public class StandardAgent(World world,
                                 AgentOptions options,
                                 Persona persona,
-                                IMapper mapper,
                                 IHttpClientProvider httpClientProvider,
                                 ILogger<StandardAgent> logger)
-    : StandardAgent<StandardAgent>(world, options, persona, mapper, httpClientProvider, logger) {
+    : StandardAgent<StandardAgent>(world, options, persona, httpClientProvider, logger) {
 
     public StandardAgent(AgentOptions options,
                        Persona persona,
-                       IMapper mapper,
                        IDateTimeProvider dateTime,
                        IHttpClientProvider httpClientProvider,
                        ILogger<StandardAgent> logger)
-        : this(new World(dateTime), options, persona, mapper, httpClientProvider, logger) {
+        : this(new(dateTime), options, persona, httpClientProvider, logger) {
     }
 }
 
 public abstract class StandardAgent<TAgent>(World world,
                                           AgentOptions options,
                                           Persona persona,
-                                          IMapper mapper,
                                           IHttpClientProvider httpClientProvider,
                                           ILogger<TAgent> logger)
-    : Agent<TAgent,
+    : StandardAgent<TAgent,
         AgentOptions,
+        Mapper,
         ChatRequest,
-        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger)
+        ChatResponse>(world, options, persona, httpClientProvider, logger)
     where TAgent : StandardAgent<TAgent> {
     protected StandardAgent(AgentOptions options,
                           Persona persona,
-                          IMapper mapper,
                           IDateTimeProvider dateTime,
                           IHttpClientProvider httpClientProvider,
                           ILogger<TAgent> logger)
-        : this(new World(dateTime), options, persona, mapper, httpClientProvider, logger) {
+        : this(new(dateTime), options, persona, httpClientProvider, logger) {
     }
 }

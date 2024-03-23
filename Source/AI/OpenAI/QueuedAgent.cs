@@ -1,23 +1,20 @@
-﻿using DotNetToolbox.AI.Common;
-
-namespace DotNetToolbox.AI.OpenAI;
+﻿namespace DotNetToolbox.AI.OpenAI;
 
 public class QueuedAgent(World world,
                                AgentOptions options,
                                Persona persona,
-                               IMapper mapper,
                                IHttpClientProvider httpClientProvider,
                                ILogger<QueuedAgent> logger)
     : QueuedAgent<QueuedAgent,
         AgentOptions,
+        Mapper,
         ChatRequest,
-        ChatResponse>(world, options, persona, mapper, httpClientProvider, logger) {
+        ChatResponse>(world, options, persona, httpClientProvider, logger) {
     public QueuedAgent(AgentOptions options,
                              Persona persona,
-                             IMapper mapper,
                              IDateTimeProvider dateTime,
                              IHttpClientProvider httpClientProvider,
                              ILogger<QueuedAgent> logger)
-        : this(new World(dateTime), options, persona, mapper, httpClientProvider, logger) {
+        : this(new(dateTime), options, persona, httpClientProvider, logger) {
     }
 }

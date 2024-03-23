@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-Sophia.WebApp-549445d7-00f7-497f-ba23-21e8129c29db</UserSecretsId>
+    <UserSecretsId>Sophia.WebApp-549445d7-00f7-497f-ba23-21e8129c29db</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup>

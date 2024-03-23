@@ -14,7 +14,7 @@ public class StateMachine : IConsumer {
     private Chat? _chat;
     private readonly FileRepository _repository;
 
-    public StateMachine(IApplication app, IHttpClientProvider httpClientProvider, ILoggerFactory loggerFactory) {
+    public StateMachine(IApplication app, IHttpClientProviderFactory httpClientProviderFactory, ILoggerFactory loggerFactory) {
         _app = app;
         _out = app.Environment.Output;
         _promptFactory = app.PromptFactory;
@@ -30,8 +30,8 @@ public class StateMachine : IConsumer {
         var world = new World(app.Environment.DateTime);
         var persona = _repository.LoadPersona("TimeKeeper");
         var options = _repository.LoadAgentOptions("Fast");
-        var factory = new AgentFactory(httpClientProvider, loggerFactory);
-        _agent = factory.Create<StandardAgent>(world, options, persona);
+        var factory = new StandardAgentFactory<StandardAgent>(httpClientProviderFactory, loggerFactory);
+        _agent = (StandardAgent)factory.Create("OpenAI", world, options, persona);
     }
 
     public uint CurrentState { get; set; }
