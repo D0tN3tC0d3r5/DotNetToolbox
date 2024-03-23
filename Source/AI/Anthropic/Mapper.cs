@@ -2,8 +2,8 @@
 
 public class Mapper()
     : IMapper {
-    IChatRequest IMapper.CreateRequest(IStandardAgent agent, IChat chat) => CreateRequest((IStandardAgent<AgentOptions>)agent, chat);
-    public static ChatRequest CreateRequest(IStandardAgent<AgentOptions> agent, IChat chat)
+    IChatRequest IMapper.CreateRequest(IStandardAgent agent, IChat chat) => CreateRequest(agent, chat);
+    public static ChatRequest CreateRequest(IStandardAgent agent, IChat chat)
         => new() {
                      Model = agent.Options.Model,
                      Temperature = agent.Options.Temperature,
@@ -11,14 +11,11 @@ public class Mapper()
                      StopSequences = agent.Options.StopSequences.Count == 0 ? null : [.. agent.Options.StopSequences],
                      MinimumTokenProbability = agent.Options.TokenProbabilityCutOff,
                      UseStreaming = agent.Options.UseStreaming,
-
                      Messages = chat.Messages.ToArray(o => new RequestMessage(o)),
-
-                     MaximumTokenSamples = agent.Options.MaximumTokensToSample,
                      System = CreateSystemMessage(agent, chat),
                  };
 
-    private static string CreateSystemMessage(IStandardAgent<AgentOptions> agent, IChat chat) {
+    private static string CreateSystemMessage(IStandardAgent agent, IChat chat) {
         var builder = new StringBuilder();
         builder.AppendLine(agent.World.ToString());
         builder.AppendLine(agent.Persona.ToString());

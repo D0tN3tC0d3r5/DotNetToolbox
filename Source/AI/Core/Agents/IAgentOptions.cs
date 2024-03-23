@@ -10,4 +10,10 @@ public interface IAgentOptions : IValidatable {
 
     string ApiEndpoint { get; }
     string Model { get; }
+    byte NumberOfRetries { get; }
+    uint MaximumOutputTokens { get; set; }
+    decimal? Temperature { get; set; }
+    decimal? TokenProbabilityCutOff { get; set; }
+    HashSet<string> StopSequences { get; set; }
+    bool UseStreaming { get; set; }
 }

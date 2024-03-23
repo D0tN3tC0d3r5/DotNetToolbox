@@ -11,7 +11,7 @@ public class ChatsRemoteService(HttpClient httpClient)
         return list!;
     }
 
-    public async Task<ChatData?> GetById(int id) {
+    public async Task<ChatData?> GetById(string id) {
         var chat = await httpClient.GetFromJsonAsync<ChatData>($"api/chats/{id}");
         return chat;
     }
@@ -23,27 +23,27 @@ public class ChatsRemoteService(HttpClient httpClient)
         chat.Id = result!.Id;
     }
 
-    public async Task Archive(int id) {
+    public async Task Archive(string id) {
         var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}/archive", string.Empty);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task Unarchive(int id) {
+    public async Task Unarchive(string id) {
         var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}/unarchive", string.Empty);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task Rename(int id, string newName) {
+    public async Task Rename(string id, string newName) {
         var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}/rename", newName);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task AddMessage(int id, MessageData message) {
+    public async Task AddMessage(string id, MessageData message) {
         var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}/add-message", message);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task Delete(int id) {
+    public async Task Delete(string id) {
         var response = await httpClient.DeleteAsync($"api/chats/{id}");
         response.EnsureSuccessStatusCode();
     }

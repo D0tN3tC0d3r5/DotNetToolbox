@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Sophia.WebApp.Pages;
+﻿namespace Sophia.WebApp.Pages;
 
 public partial class ErrorPage {
     [Inject]

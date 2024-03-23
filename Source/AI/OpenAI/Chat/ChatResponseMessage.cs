@@ -19,7 +19,7 @@ public class ChatResponseMessage {
         => Content switch {
             ChatResponseToolRequest[] => Content,
             Message => Content,
-            string txt => new Message("assistant", [new("text", txt)]),
+            string txt => new Message("assistant", txt),
             _ => throw new NotSupportedException(),
         };
 }

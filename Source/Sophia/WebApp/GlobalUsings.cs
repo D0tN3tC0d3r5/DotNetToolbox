@@ -1,11 +1,14 @@
 global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel.DataAnnotations.Schema;
+global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Security.Claims;
+global using System.Text;
 global using System.Text.Json;
 
 global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Anthropic;
+global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.AI.Consumers;
 global using DotNetToolbox.AI.OpenAI;

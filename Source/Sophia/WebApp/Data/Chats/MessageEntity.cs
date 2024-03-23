@@ -4,7 +4,9 @@
 [EntityTypeConfiguration(typeof(MessageEntity))]
 public class MessageEntity
     : IEntityTypeConfiguration<MessageEntity> {
-    public int ChatId { get; set; }
+    [Required]
+    [MaxLength(36)]
+    public string ChatId { get; set; } = default!;
     public int Index { get; set; }
     public DateTimeOffset Timestamp { get; set; }
     [MaxLength(20)]

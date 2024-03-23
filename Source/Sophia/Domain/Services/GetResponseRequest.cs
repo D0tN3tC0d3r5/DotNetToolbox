@@ -1,6 +1,6 @@
 ﻿namespace Sophia.Services;
 
 public class GetResponseRequest {
-    public int ChatId { get; set; }
+    public string ChatId { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
 }

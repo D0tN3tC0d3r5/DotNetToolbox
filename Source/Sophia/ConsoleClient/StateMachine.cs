@@ -1,9 +1,8 @@
 ﻿namespace Sophia.ConsoleClient;
 
-public class StateMachine : IConsumer {
+public class StateMachine
+    : ResponseConsumer<StateMachine> {
     public const uint Idle = 0;
-
-    private bool _waitingResponse;
 
     private readonly IOutput _out;
     private readonly IPromptFactory _promptFactory;
@@ -31,7 +30,7 @@ public class StateMachine : IConsumer {
         var persona = _repository.LoadPersona("TimeKeeper");
         var options = _repository.LoadAgentOptions("Fast");
         var factory = new StandardAgentFactory<StandardAgent>(httpClientProviderFactory, loggerFactory);
-        _agent = (StandardAgent)factory.Create("OpenAI", world, options, persona);
+        _agent = (StandardAgent)factory.Create("OpenAI", world, persona, options);
     }
 
     public uint CurrentState { get; set; }
@@ -130,18 +129,21 @@ public class StateMachine : IConsumer {
         }
         _out.Write("- ");
         _chat!.Messages.Add(new("user", input));
-        _waitingResponse = true;
         _repository.SaveChat(_chat);
-        await _agent.HandleRequest(this, _chat, ct);
-        while (_waitingResponse) await Task.Delay(100, ct);
+        var result = await _agent.SendRequest(this, _chat, ct);
+        if (!result.IsSuccess) {
+            _out.WriteLine("An error occurred while sending the request.");
+            if (result.HasException) _out.WriteLine(result.Exception.Message);
+            if (result.HasErrors) foreach (var error in result.Errors) _out.WriteLine(error.ToString());
+            CurrentState = 1;
+            return;
+        }
         CurrentState = Idle;
     }
 
-    public Task ProcessResponse(string chatId, Message response, CancellationToken _) {
-        if (_chat is null || _chat.Id != chatId) return Task.CompletedTask;
-        foreach (var part in response.Parts) _out.WriteLine(part.Value);
+    protected override void OnResponseReceived(string chatId, Message message) {
+        if (_chat is null || _chat.Id != chatId) return;
+        foreach (var part in message.Parts) _out.WriteLine(part.Value);
         _repository.SaveChat(_chat);
-        _waitingResponse = false;
-        return Task.CompletedTask;
     }
 }

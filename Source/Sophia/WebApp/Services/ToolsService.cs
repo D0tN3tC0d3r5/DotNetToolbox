@@ -1,5 +1,4 @@
-﻿
-namespace Sophia.WebApp.Services;
+﻿namespace Sophia.WebApp.Services;
 
 public class ToolsService(ApplicationDbContext dbContext)
     : IToolsService {

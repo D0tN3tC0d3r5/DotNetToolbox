@@ -6,16 +6,16 @@ internal static class ChatsEndpoints {
 
         var group = endpoints.MapGroup("api/chats");
         group.MapGet("/", (IChatsService service, [FromQuery] string? filter = null) => service.GetList(filter));
-        group.MapGet("/{id}", (IChatsService service, [FromRoute] int id) => service.GetById(id));
+        group.MapGet("/{id}", (IChatsService service, [FromRoute] string id) => service.GetById(id));
         group.MapPost("/", async (IChatsService service, [FromBody] ChatData newValue) => {
             await service.Create(newValue);
             return newValue;
         });
-        group.MapPatch("/{id}/archive", (IChatsService service, [FromRoute] int id) => service.Archive(id));
-        group.MapPatch("/{id}/unarchive", (IChatsService service, [FromRoute] int id) => service.Unarchive(id));
-        group.MapPatch("/{id}/rename", (IChatsService service, [FromRoute] int id, [FromBody] string newName) => service.Rename(id, newName));
-        group.MapPatch("/{id}/add-message", (IChatsService service, [FromRoute] int id, [FromBody] MessageData newValue) => service.AddMessage(id, newValue));
-        group.MapDelete("/{id}", (IChatsService service, [FromRoute] int id) => service.Delete(id));
+        group.MapPatch("/{id}/archive", (IChatsService service, [FromRoute] string id) => service.Archive(id));
+        group.MapPatch("/{id}/unarchive", (IChatsService service, [FromRoute] string id) => service.Unarchive(id));
+        group.MapPatch("/{id}/rename", (IChatsService service, [FromRoute] string id, [FromBody] string newName) => service.Rename(id, newName));
+        group.MapPatch("/{id}/add-message", (IChatsService service, [FromRoute] string id, [FromBody] MessageData newValue) => service.AddMessage(id, newValue));
+        group.MapDelete("/{id}", (IChatsService service, [FromRoute] string id) => service.Delete(id));
         return group;
     }
 }

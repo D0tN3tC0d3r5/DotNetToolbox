@@ -1,9 +1,9 @@
 ﻿namespace DotNetToolbox.AI.OpenAI;
 
-public class Mapper()
+public class Mapper
     : IMapper {
-    IChatRequest IMapper.CreateRequest(IStandardAgent agent, IChat chat) => CreateRequest((IStandardAgent<AgentOptions>)agent, chat);
-    public static ChatRequest CreateRequest(IStandardAgent<AgentOptions> agent, IChat chat) {
+    IChatRequest IMapper.CreateRequest(IStandardAgent agent, IChat chat) => CreateRequest(agent, chat);
+    public static ChatRequest CreateRequest(IStandardAgent agent, IChat chat) {
         var system = new ChatRequestMessage(CreateSystemMessage(agent, chat));
         return new() {
             Model = agent.Options.Model,
@@ -15,9 +15,9 @@ public class Mapper()
 
             Messages = [system, .. chat.Messages.ToArray(o => new ChatRequestMessage(o))],
 
-            NumberOfChoices = agent.Options.NumberOfChoices,
-            FrequencyPenalty = agent.Options.FrequencyPenalty,
-            PresencePenalty = agent.Options.PresencePenalty,
+            NumberOfChoices = 1,
+            FrequencyPenalty = 0,
+            PresencePenalty = 0,
             Tools = agent.Persona.KnownTools.Count == 0 ? null : agent.Persona.KnownTools.ToArray(ToRequestToolCall),
         };
     }
@@ -35,8 +35,8 @@ public class Mapper()
     public static Message CreateResponseMessage(IChat chat, ChatResponse response) {
         chat.TotalTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.TotalTokens);
         return response.Choices[0].Message.Content switch {
-            ChatResponseToolRequest[] tcs => new("assistant", [new("tool_calls", tcs)]),
-            _ => new("assistant", [new("text", response.Choices[0].Message.Content.ToString()!)]),
+            ChatResponseToolRequest[] tcs => new("assistant", new MessagePart("tool_calls", tcs)),
+            _ => new("assistant", (string)response.Choices[0].Message.Content),
         };
     }
 

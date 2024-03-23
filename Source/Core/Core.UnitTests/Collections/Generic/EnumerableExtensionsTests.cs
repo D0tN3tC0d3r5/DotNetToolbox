@@ -104,7 +104,7 @@ public class EnumerableExtensionsTests {
         IEnumerable<int>? subject = default;
 
         // Act
-        var result = () => subject!.ToIndexedItems();
+        var result = () => subject!.ToIndexedList();
 
         // Assert
         result.Should().Throw<NullReferenceException>();
@@ -113,7 +113,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToIndexedItems_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToIndexedItems();
+        var result = Enumerable.Range(0, 100).ToIndexedList();
 
         // Assert
         result.Should().BeOfType<ReadOnlyCollection<IndexedItem<int>>>();
@@ -128,7 +128,7 @@ public class EnumerableExtensionsTests {
         IEnumerable<int>? subject = default;
 
         // Act
-        var result = () => subject!.ToIndexedItems(i => $"{i + 2}");
+        var result = () => subject!.ToIndexedList(i => $"{i + 2}");
 
         // Assert
         result.Should().Throw<NullReferenceException>();
@@ -137,7 +137,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToIndexedItems_WithOutput_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToIndexedItems(i => $"{i + 2}");
+        var result = Enumerable.Range(0, 100).ToIndexedList(i => $"{i + 2}");
 
         // Assert
         result.Should().BeOfType<ReadOnlyCollection<IndexedItem<string>>>();

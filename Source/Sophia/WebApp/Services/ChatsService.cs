@@ -21,7 +21,7 @@ public class ChatsService(ApplicationDbContext dbContext)
             _ => c => c.IsActive == true,
         };
 
-    public async Task<ChatData?> GetById(int id) {
+    public async Task<ChatData?> GetById(string id) {
         var entity = await dbContext.Chats
                                     .Include(c => c.Persona)
                                     .Include(c => c.Messages)
@@ -37,7 +37,7 @@ public class ChatsService(ApplicationDbContext dbContext)
         chat.Id = entity.Id;
     }
 
-    public async Task Archive(int id) {
+    public async Task Archive(string id) {
         var entity = await dbContext.Chats
                                     .FirstOrDefaultAsync(s => s.Id == id);
         if (entity == null) return;
@@ -45,7 +45,7 @@ public class ChatsService(ApplicationDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task Unarchive(int id) {
+    public async Task Unarchive(string id) {
         var entity = await dbContext.Chats
                                     .FirstOrDefaultAsync(s => s.Id == id);
         if (entity == null) return;
@@ -53,7 +53,7 @@ public class ChatsService(ApplicationDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task Rename(int id, string newName) {
+    public async Task Rename(string id, string newName) {
         var entity = await dbContext.Chats
                                     .FirstOrDefaultAsync(s => s.Id == id);
         if (entity == null) return;
@@ -61,7 +61,7 @@ public class ChatsService(ApplicationDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task AddMessage(int id, MessageData message) {
+    public async Task AddMessage(string id, MessageData message) {
         var entity = await dbContext.Chats
                                     .Include(c => c.Messages)
                                     .FirstOrDefaultAsync(s => s.Id == id);
@@ -70,7 +70,7 @@ public class ChatsService(ApplicationDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task Delete(int id) {
+    public async Task Delete(string id) {
         var entity = await dbContext.Chats
                                     .FirstOrDefaultAsync(s => s.Id == id);
         if (entity is null) return;

@@ -4,11 +4,11 @@ public interface IChatsRemoteService : IChatsService;
 
 public interface IChatsService {
     Task<IReadOnlyList<ChatData>> GetList(string? filter = null);
-    Task<ChatData?> GetById(int id);
+    Task<ChatData?> GetById(string id);
     Task Create(ChatData chat);
-    Task Archive(int id);
-    Task Unarchive(int id);
-    Task Rename(int id, string newName);
-    Task AddMessage(int id, MessageData message);
-    Task Delete(int id);
+    Task Archive(string id);
+    Task Unarchive(string id);
+    Task Rename(string id, string newName);
+    Task AddMessage(string id, MessageData message);
+    Task Delete(string id);
 }

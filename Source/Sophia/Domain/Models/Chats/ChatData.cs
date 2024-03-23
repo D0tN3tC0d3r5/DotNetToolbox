@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Models.Chats;
 
 public class ChatData {
-    public int Id { get; set; }
+    public string Id { get; set; } = default!;
     [MaxLength(100)]
     [Required(AllowEmptyStrings = false)]
     public string Title { get; set; } = "New Chat";
@@ -11,6 +11,6 @@ public class ChatData {
 
     public Chat ToModel() {
         var messages = Messages.ToList(i => i.ToModel());
-        return new($"{Id}", new(), messages, 0);
+        return new($"{Id}", new(), messages);
     }
 }

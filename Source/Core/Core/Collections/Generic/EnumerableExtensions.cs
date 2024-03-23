@@ -36,10 +36,10 @@ public static class EnumerableExtensions {
 
     public static IEnumerable<Indexed<TOutput>> AsIndexed<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform) => source.Select((v, i) => new Indexed<TOutput>(i, transform(v)));
 
-    public static IReadOnlyList<IndexedItem<TItem>> ToIndexedItems<TItem>(this IEnumerable<TItem> source)
-        => source.ToIndexedItems(i => i);
+    public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IEnumerable<TItem> source)
+        => source.ToIndexedList(i => i);
 
-    public static IReadOnlyList<IndexedItem<TOutput>> ToIndexedItems<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform) {
+    public static List<IndexedItem<TOutput>> ToIndexedList<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform) {
         using var enumerator = source.GetEnumerator();
         var list = new List<IndexedItem<TOutput>>();
         var index = 0;
@@ -49,8 +49,13 @@ public static class EnumerableExtensions {
             hasNext = enumerator.MoveNext();
             list.Add(new(index++, value, !hasNext));
         }
-        return list.AsReadOnly();
+        return list;
     }
 
+    #endregion
+
+    #region ForEach
+    public static void ForEach<TItem>(this IEnumerable source, Action<TItem> action) => source.Cast<TItem>().ToList().ForEach(action);
+    public static void ForEach<TItem>(this IEnumerable source, Action<IndexedItem<TItem>> action) => source.Cast<TItem>().ToIndexedList().ForEach(action);
     #endregion
 }

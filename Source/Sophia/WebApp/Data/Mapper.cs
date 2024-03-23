@@ -86,6 +86,7 @@ public static class Mapper {
 
     public static ChatEntity ToEntity(this ChatData input)
         => new() {
+            Id = Guid.NewGuid().ToString(),
             IsActive = input.IsActive,
             Title = input.Title,
             Model = input.Agent.Model,
@@ -96,7 +97,7 @@ public static class Mapper {
 
     public static MessageEntity ToEntity(this MessageData input, IHasMessages? parent = null)
         => new() {
-            ChatId = parent?.Id ?? 0,
+            ChatId = parent?.Id ?? default!,
             Index = parent?.Messages.Count ?? 0,
             Content = input.Content,
             Type = input.Type,

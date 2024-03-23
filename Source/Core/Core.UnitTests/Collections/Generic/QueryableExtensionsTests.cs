@@ -15,6 +15,19 @@ public class QueryableExtensionsTests {
     }
 
     [Fact]
+    public void ToList_WithProject_ReturnsProjectedArray() {
+        // Arrange
+        var source = new List<int> { 1, 2, 3 }.AsQueryable();
+        Expression<Func<int, int>> project = x => x * 2;
+
+        // Act
+        var result = source.ToList(project);
+
+        // Assert
+        result.Should().Equal([2, 4, 6]);
+    }
+
+    [Fact]
     public void ToDictionary_WithProjectAndSelectors_ReturnsProjectedDictionary() {
         // Arrange
         var source = new List<string> { "one", "two", "three" }.AsQueryable();

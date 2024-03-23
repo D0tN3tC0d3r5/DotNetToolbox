@@ -1,14 +1,13 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class StandardAgent<TAgent, TOptions, TMapper, TRequest, TResponse>(
+public abstract class StandardAgent<TAgent, TMapper, TRequest, TResponse>(
         World world,
-        TOptions options,
         Persona persona,
+        IAgentOptions options,
         IHttpClientProvider httpClientProvider,
         ILogger<TAgent> logger)
-    : IStandardAgent<TOptions>
-    where TAgent : StandardAgent<TAgent, TOptions, TMapper, TRequest, TResponse>
-    where TOptions : class, IAgentOptions, new()
+    : IStandardAgent
+    where TAgent : StandardAgent<TAgent, TMapper, TRequest, TResponse>
     where TMapper : class, IMapper, new()
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
@@ -16,24 +15,36 @@ public abstract class StandardAgent<TAgent, TOptions, TMapper, TRequest, TRespon
     protected TMapper Mapper { get; } = new();
 
     public World World { get; } = world;
-    public TOptions Options { get; set; } = IsValidOrDefault(options, new());
+    public IAgentOptions Options { get; set; } = IsValidOrDefault(options, new AgentOptions());
     public Persona Persona { get; } = persona;
 
-    protected virtual Task<bool> IsRequestedCompleted(IConsumer source, IChat chat, CancellationToken ct)
-        => Task.FromResult(true);
+    public virtual async Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, CancellationToken ct) {
+        try {
+            var isCompleted = false;
+            var count = 1;
+            while (!isCompleted) {
+                Logger.LogDebug("Sending request {count}...", count++);
+                var result = await Submit(chat, ct);
+                if (!result.IsOk) return result;
+                await source.StartWait(ct);
+                isCompleted = source switch {
+                    IResponseConsumer ac => ac.VerifyResponse(chat.Id, chat.Messages[^1]),
+                    IAsyncResponseConsumer ac => await ac.VerifyResponse(chat.Id, chat.Messages[^1], ct),
+                    _ => throw new NotSupportedException(nameof(source)),
+                };
+            }
 
-    public virtual async Task<HttpResult> HandleRequest(IConsumer source, IChat chat, CancellationToken ct) {
-        var isCompleted = false;
-        while (!isCompleted) {
-            Logger.LogDebug("Sending request...");
-            var result = await Submit(chat, ct);
-            if (!result.IsOk) return result;
-            Logger.LogDebug("Response received.");
-            isCompleted = await IsRequestedCompleted(source, chat, ct);
+            switch (source) {
+                case IResponseConsumer ac: ac.ResponseApproved(chat.Id, chat.Messages[^1]); break;
+                case IAsyncResponseConsumer ac: await ac.ResponseApproved(chat.Id, chat.Messages[^1], ct); break;
+            }
+            Logger.LogDebug("Request completed.");
+            return HttpResult.Ok();
         }
-        await source.ProcessResponse(chat.Id, chat.Messages[^1], ct);
-        Logger.LogDebug("Request completed.");
-        return HttpResult.Ok();
+        catch (Exception ex) {
+            Logger.LogError(ex, "An error occurred while sending the request!");
+            return HttpResult.InternalError(ex);
+        }
     }
 
     private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {

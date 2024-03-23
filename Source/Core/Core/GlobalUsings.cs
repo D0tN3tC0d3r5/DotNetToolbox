@@ -16,6 +16,8 @@ global using DotNetToolbox.Singleton;
 
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Logging.Abstractions;
 
 global using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
 global using static DotNetToolbox.Constants.Messages;

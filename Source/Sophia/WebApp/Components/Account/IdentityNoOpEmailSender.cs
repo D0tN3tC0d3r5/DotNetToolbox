@@ -1,5 +1,4 @@
 namespace Sophia.WebApp.Components.Account;
-// Remove the "else if (EmailSender is IdentityNoOpEmailSender)" block from RegisterConfirmation.razor after updating with a real implementation.
 internal sealed class IdentityNoOpEmailSender : IEmailSender<ApplicationUser> {
     [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "<Pending>")]
     private readonly IEmailSender _emailSender = new NoOpEmailSender();

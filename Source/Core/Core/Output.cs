@@ -139,7 +139,7 @@ public class Output : HasDefault<Output>, IOutput {
         => WithColor(() => Console.Write(Prompt), foreground, background);
     public virtual string NewLine => System.Environment.NewLine;
     public virtual void WriteLine(ConsoleColor foreground = default, ConsoleColor background = default)
-        => WithColor(() => Console.WriteLine(), foreground, background);
+        => WithColor(Console.WriteLine, foreground, background);
 
     public virtual void WriteLine(bool value, ConsoleColor foreground = default, ConsoleColor background = default)
         => WithColor(() => Console.WriteLine(value), foreground, background);

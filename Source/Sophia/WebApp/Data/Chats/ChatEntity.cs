@@ -6,8 +6,10 @@ public class ChatEntity
     : IEntityTypeConfiguration<ChatEntity>
     , IHasMessages {
     [Key]
+    [MaxLength(36)]
+    [Required(AllowEmptyStrings = false)]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public string Id { get; set; } = default!;
 
     [MaxLength(100)]
     [Required(AllowEmptyStrings = false)]

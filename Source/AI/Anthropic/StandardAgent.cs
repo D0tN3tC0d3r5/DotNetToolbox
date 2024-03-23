@@ -1,37 +1,37 @@
 ﻿namespace DotNetToolbox.AI.Anthropic;
 
 public class StandardAgent(World world,
-                            AgentOptions options,
                             Persona persona,
+                            IAgentOptions options,
                             IHttpClientProvider httpClientProvider,
                             ILogger<StandardAgent> logger)
-    : StandardAgent<StandardAgent>(world, options, persona, httpClientProvider, logger) {
+    : StandardAgent<StandardAgent>(world, persona, options, httpClientProvider, logger) {
 
-    public StandardAgent(AgentOptions options,
-                                 Persona persona,
-                                 IDateTimeProvider dateTime,
-                                 IHttpClientProvider httpClientProvider,
-                                 ILogger<StandardAgent> logger)
-        : this(new World(dateTime), options, persona, httpClientProvider, logger) {
+    public StandardAgent(Persona persona,
+                         IAgentOptions options,
+                         IDateTimeProvider dateTime,
+                         IHttpClientProvider httpClientProvider,
+                         ILogger<StandardAgent> logger)
+        : this(new World(dateTime), persona, options, httpClientProvider, logger) {
     }
 }
 
 public abstract class StandardAgent<TAgent>(World world,
-                                             AgentOptions options,
                                              Persona persona,
+                                             IAgentOptions options,
                                              IHttpClientProvider httpClientProvider,
                                              ILogger<TAgent> logger)
-    : StandardAgent<TAgent,
-        AgentOptions,
-        Mapper,
-        ChatRequest,
-        ChatResponse>(world, options, persona, httpClientProvider, logger)
+    : StandardAgent<TAgent, Mapper, ChatRequest, ChatResponse>(world,
+                                                               persona,
+                                                               options,
+                                                               httpClientProvider,
+                                                               logger)
     where TAgent : StandardAgent<TAgent> {
-    protected StandardAgent(AgentOptions options,
-                             Persona persona,
-                             IDateTimeProvider dateTime,
-                             IHttpClientProvider httpClientProvider,
-                             ILogger<TAgent> logger)
-        : this(new World(dateTime), options, persona, httpClientProvider, logger) {
+    protected StandardAgent(Persona persona,
+                            IAgentOptions options,
+                            IDateTimeProvider dateTime,
+                            IHttpClientProvider httpClientProvider,
+                            ILogger<TAgent> logger)
+        : this(new World(dateTime), persona, options, httpClientProvider, logger) {
     }
 }

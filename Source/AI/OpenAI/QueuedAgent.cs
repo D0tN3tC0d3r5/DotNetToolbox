@@ -1,20 +1,19 @@
 ﻿namespace DotNetToolbox.AI.OpenAI;
 
 public class QueuedAgent(World world,
-                               AgentOptions options,
-                               Persona persona,
-                               IHttpClientProvider httpClientProvider,
-                               ILogger<QueuedAgent> logger)
+                         Persona persona,
+                         IAgentOptions options,
+                         IHttpClientProvider httpClientProvider,
+                         ILogger<QueuedAgent> logger)
     : QueuedAgent<QueuedAgent,
-        AgentOptions,
         Mapper,
         ChatRequest,
-        ChatResponse>(world, options, persona, httpClientProvider, logger) {
-    public QueuedAgent(AgentOptions options,
-                             Persona persona,
-                             IDateTimeProvider dateTime,
-                             IHttpClientProvider httpClientProvider,
-                             ILogger<QueuedAgent> logger)
-        : this(new(dateTime), options, persona, httpClientProvider, logger) {
+        ChatResponse>(world, persona, options, httpClientProvider, logger) {
+    public QueuedAgent(Persona persona,
+                       IAgentOptions options,
+                       IDateTimeProvider dateTime,
+                       IHttpClientProvider httpClientProvider,
+                       ILogger<QueuedAgent> logger)
+        : this(new(dateTime), persona, options, httpClientProvider, logger) {
     }
 }

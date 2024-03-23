@@ -22,15 +22,12 @@ public class PersonaData {
                    ? "Instructions cannot contain duplicated values."
                    : null;
 
-
-    public Persona ToModel() {
-        return new() {
-            Name = Name,
-            Description = Description,
-            Personality = Personality,
-            Instructions = Instructions,
-            Facts = Facts.ToList(f => f.ToModel()),
-            KnownTools = KnownTools.ToList(f => f.ToModel()),
-        };
-    }
+    public Persona ToModel() => new() {
+        Name = Name,
+        Description = Description,
+        Personality = Personality,
+        Instructions = Instructions,
+        Facts = Facts.ToList(f => f.ToModel()),
+        KnownTools = KnownTools.ToList(f => f.ToModel()),
+    };
 }

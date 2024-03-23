@@ -48,6 +48,10 @@ public class ProviderEntity
                     Key = "claude-3-haiku-20240307",
                     Name = "Claude 3 Haiku",
                 },
+                new() {
+                    Key = "claude-2.1",
+                    Name = "Claude 2.1",
+                },
             ],
         };
         dbContext.Providers.AddRange(openAi, anthropic);
