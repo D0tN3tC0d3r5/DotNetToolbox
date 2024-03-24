@@ -8,21 +8,25 @@ public class PersonaTests {
         var agent = new Persona();
 
         // Assert
-        agent.Profile.Should().NotBeNull();
-        agent.Skills.Should().BeEmpty();
+        agent.Name.Should().NotBeNull();
+        agent.Description.Should().NotBeNull();
+        agent.Personality.Should().BeNull();
+        agent.Facts.Should().BeEmpty();
+        agent.Instructions.Should().BeEmpty();
+        agent.KnownTools.Should().BeEmpty();
     }
 
     [Fact]
     public void ConstructorWithValues_CreatesAgent() {
-        // arrange
-        var profile = new Profile();
-        var skills = new List<Skill> { new() { Id = 1, Name = "SomeSkill" } };
-
         // Act
-        var agent = new Persona(profile, skills);
+        var agent = new Persona("SomeName");
 
         // Assert
-        agent.Profile.Should().Be(profile);
-        agent.Skills.Should().BeEquivalentTo(skills);
+        agent.Name.Should().Be("SomeName");
+        agent.Description.Should().NotBeNull();
+        agent.Personality.Should().BeNull();
+        agent.Facts.Should().BeEmpty();
+        agent.Instructions.Should().BeEmpty();
+        agent.KnownTools.Should().BeEmpty();
     }
 }

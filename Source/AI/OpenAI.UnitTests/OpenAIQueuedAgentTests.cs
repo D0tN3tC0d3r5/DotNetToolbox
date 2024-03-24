@@ -14,8 +14,7 @@ public class OpenAIQueuedAgentTests {
         var httpClient = new HttpClient(_httpMessageHandler, true) {
             BaseAddress = new("https://somehost.com/"),
         };
-        _httpClientProvider.GetHttpClient(Arg.Any<string?>(),
-                                         Arg.Any<Action<HttpClientOptionsBuilder>?>())
+        _httpClientProvider.GetHttpClient(Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
         _logger = new TrackedNullLogger<QueuedAgent>();
         _dateTime = Substitute.For<IDateTimeProvider>();
@@ -24,10 +23,9 @@ public class OpenAIQueuedAgentTests {
 
     [Fact]
     public async Task Run_RunsUntilCancelled() {
-        var mapper = new Mapper();
         var options = new AgentOptions();
         var agent = new Persona();
-        var runner = new QueuedAgent(options, agent, mapper, _dateTime, _httpClientProvider, _logger);
+        var runner = new QueuedAgent(agent, options, _dateTime, _httpClientProvider, _logger);
         var tokenSource = new CancellationTokenSource();
 
         // Act
@@ -43,7 +41,6 @@ public class OpenAIQueuedAgentTests {
 
     [Fact]
     public async Task RespondTo_ReturnsReply() {
-        var mapper = new Mapper();
         var options = new AgentOptions();
         var agent = new Persona();
         var response = new ChatResponse("chatId") {
@@ -53,11 +50,11 @@ public class OpenAIQueuedAgentTests {
             }],
         };
         _httpMessageHandler.SetOkResponse(response);
-        var runner = new QueuedAgent(options, agent, mapper, _dateTime, _httpClientProvider, _logger);
+        var runner = new QueuedAgent(agent, options, _dateTime, _httpClientProvider, _logger);
         var tokenSource = new CancellationTokenSource();
-        var source = Substitute.For<IConsumer>();
+        var source = Substitute.For<IAsyncResponseConsumer>();
         var responseReceived = false;
-        source.ProcessResponse(Arg.Any<string>(), Arg.Any<Message>(), Arg.Any<CancellationToken>())
+        source.ResponseApproved(Arg.Any<string>(), Arg.Any<Message>(), Arg.Any<CancellationToken>())
               .Returns(_ => {
                   responseReceived = true;
                   tokenSource.Cancel();
@@ -67,7 +64,7 @@ public class OpenAIQueuedAgentTests {
 
         // Act
         runner.Run(tokenSource.Token);
-        await runner.HandleRequest(source, chat, default);
+        await runner.SendRequest(source, chat, default);
         while (!tokenSource.IsCancellationRequested) await Task.Delay(100, default);
 
         // Assert

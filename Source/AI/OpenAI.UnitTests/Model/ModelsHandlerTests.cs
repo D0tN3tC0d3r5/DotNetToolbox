@@ -13,8 +13,7 @@ public class ModelsHandlerTests {
         var httpClient = new HttpClient(_httpMessageHandler, true) {
             BaseAddress = new("https://somehost.com/"),
         };
-        httpClientProvider.GetHttpClient(Arg.Any<string?>(),
-                                         Arg.Any<Action<HttpClientOptionsBuilder>?>())
+        httpClientProvider.GetHttpClient(Arg.Any<Action<HttpClientOptionsBuilder>?>())
                           .Returns(httpClient);
         _logger = new TrackedNullLogger<ModelsHandler>();
         _modelsHandler = new(httpClientProvider, _logger);
