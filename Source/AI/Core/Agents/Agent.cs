@@ -1,28 +1,21 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class Agent<TAgent, TMapper, TRequest, TResponse>
+public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provider,
+                                                                  IHttpClientProviderFactory httpClientProviderFactory,
+                                                                  ILogger<TAgent> logger)
     : IAgent
     where TAgent : Agent<TAgent, TMapper, TRequest, TResponse>
     where TMapper : class, IMapper, new()
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
-    private readonly IHttpClientProviderFactory _httpClientProviderFactory;
-    private readonly IHttpClientProvider _httpClientProvider;
+    private readonly IHttpClientProvider _httpClientProvider = httpClientProviderFactory.Create(provider);
 
-    protected Agent(string provider,
-                    IHttpClientProviderFactory httpClientProviderFactory,
-                    ILogger<TAgent> logger) {
-        _httpClientProviderFactory = httpClientProviderFactory;
-        _httpClientProvider = _httpClientProviderFactory.Create(provider);
-        Logger = logger;
-    }
-
-    protected ILogger<TAgent> Logger { get; }
+    protected ILogger<TAgent> Logger { get; } = logger;
     protected TMapper Mapper { get; } = new();
 
     public World World { get; set; } = default!;
     public Persona Persona { get; set; } = default!;
-    public IAgentOptions Options { get; set; } = default!;
+    public AgentOptions Options { get; set; } = default!;
 
     public virtual async Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, CancellationToken ct) {
         try {

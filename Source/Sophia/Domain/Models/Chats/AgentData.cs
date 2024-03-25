@@ -6,7 +6,7 @@ public class AgentData {
     [Required]
     public string Model { get; set; } = string.Empty;
     [Required]
-    public IAgentOptions Options { get; set; } = default!;
+    public AgentOptions Options { get; set; } = new();
     [Range(0, 2)]
     public double Temperature { get; set; } = 1;
 }
