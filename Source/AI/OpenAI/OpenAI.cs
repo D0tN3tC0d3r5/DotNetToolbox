@@ -4,13 +4,9 @@ public class OpenAI(IHttpClientFactory clientFactory, IConfiguration configurati
     : HttpClientProvider("OpenAI", clientFactory, configuration) {
     private readonly IConfiguration _configuration = configuration;
 
-    protected override void Configure(HttpClientOptionsBuilder builder) {
-        var key = IsNotNull(_configuration["HttpClient:OpenAI:ApiKey"]);
+    protected override void SetDefaultConfiguration(HttpClientOptions options) {
+        options.CustomHeaders ??= new();
         var organization = IsNotNull(_configuration["HttpClient:OpenAI:Organization"]);
-        builder.UseTokenAuthentication(opt => {
-            opt.Scheme = AuthenticationScheme.Bearer;
-            opt.Token = key;
-        });
-        builder.AddCustomHeader("OpenAI-Organization", organization);
+        options.CustomHeaders.Add("OpenAI-Organization", [organization]);
     }
 }

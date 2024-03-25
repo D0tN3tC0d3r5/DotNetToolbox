@@ -63,7 +63,7 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
         }
         catch (Exception ex) {
             Logger.LogWarning(ex, "Request failed!");
-            switch (httpResult?.StatusCode) {
+            switch (httpResult.StatusCode) {
                 case HttpStatusCode.BadRequest:
                     var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                     var errorMessage = $"""

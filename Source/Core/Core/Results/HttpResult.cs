@@ -3,6 +3,9 @@
 public record HttpResult : ResultBase<HttpResultType> {
     private readonly HttpResultType _type = HttpResultType.Ok;
 
+    public HttpResult() {
+    }
+
     protected HttpResult(Exception exception)
         : base(exception) {
     }

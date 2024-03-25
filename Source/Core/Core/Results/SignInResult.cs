@@ -1,8 +1,10 @@
 ﻿namespace DotNetToolbox.Results;
 
 public record SignInResult : ResultBase<SignInResultType> {
-    private readonly SignInResultType _type = SignInResultType.Success;
+    private readonly SignInResultType _type = SignInResultType.Pending;
     private readonly string? _token;
+    public SignInResult() {
+    }
 
     private SignInResult(Exception exception)
         : base(exception) {
@@ -29,12 +31,14 @@ public record SignInResult : ResultBase<SignInResultType> {
     [MemberNotNullWhen(true, nameof(Token))]
     public bool RequiresTwoFactor => Type is SignInResultType.TwoFactorRequired;
     [MemberNotNullWhen(true, nameof(Token))]
+    public bool IsPending => Type is SignInResultType.Pending;
     public bool IsSuccess => Type is SignInResultType.Success;
     public bool IsInvalid => Type is SignInResultType.Invalid;
     public bool IsLocked => Type is SignInResultType.Locked;
     public bool IsBlocked => Type is SignInResultType.Blocked;
     public bool IsFailure => Type is SignInResultType.Failed;
 
+    public static SignInResult Pending() => new();
     [MemberNotNull(nameof(Token))]
     public static SignInResult Success(string token) => new(SignInResultType.Success, IsNotNull(token));
     [MemberNotNull(nameof(Token))]
@@ -48,6 +52,7 @@ public record SignInResult : ResultBase<SignInResultType> {
     public static SignInResult Error(string error) => Error(new Exception(error));
     public static SignInResult Error(Exception exception) => new(exception);
 
+    public static Task<SignInResult> PendingTask() => Task.FromResult(Pending());
     [MemberNotNull(nameof(Token))]
     public static Task<SignInResult> SuccessTask(string token) => Task.FromResult(Success(token));
     [MemberNotNull(nameof(Token))]

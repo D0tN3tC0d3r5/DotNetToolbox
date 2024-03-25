@@ -58,14 +58,8 @@
     </None>
   </ItemGroup>
 
-  <!--
   <ItemGroup>
     <PackageReference Include="DotNetToolbox.Http" Version="8.1.0-rc1" />
-  </ItemGroup>
-  -->
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Cloud\Http\DotNetToolbox.Http.csproj" />
   </ItemGroup>
 
   <ItemGroup>

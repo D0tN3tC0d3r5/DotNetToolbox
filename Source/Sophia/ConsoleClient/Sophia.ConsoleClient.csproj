@@ -43,16 +43,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="$(ProductName).UnitTests" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="DotNetToolbox.Console" Version="8.1.0-rc1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(ProductName).UnitTests" />
   </ItemGroup>
 
 </Project>

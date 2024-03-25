@@ -2,6 +2,7 @@
   "solution": {
     "path": "..\\DotNetToolbox.sln",
     "projects": [
+      "Cloud\\Http\\DotNetToolbox.Http.csproj",
       "AI\\Anthropic\\DotNetToolbox.AI.Anthropic.csproj",
       "AI\\Core\\DotNetToolbox.AI.Core.csproj",
       "AI\\OpenAI\\DotNetToolbox.AI.OpenAI.csproj",

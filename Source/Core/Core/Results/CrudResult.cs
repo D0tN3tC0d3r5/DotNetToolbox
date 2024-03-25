@@ -3,6 +3,9 @@
 public record CrudResult : ResultBase<CrudResultType> {
     private readonly CrudResultType _type = CrudResultType.Success;
 
+    public CrudResult() {
+    }
+
     protected CrudResult(Exception exception)
         : base(exception) {
     }

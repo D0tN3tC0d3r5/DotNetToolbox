@@ -1,6 +1,9 @@
 ﻿namespace DotNetToolbox.Results;
 
 public record Result : ResultBase<ResultType> {
+    public Result() {
+    }
+
     protected Result(Exception exception)
         : base(exception) {
     }

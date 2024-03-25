@@ -8,7 +8,7 @@ public static class Ensure {
         => argument ?? throw new ArgumentNullException(paramName, ValueCannotBeNull);
 
     [return: NotNull]
-    public static TArgument NotNullDefaultIfNull<TArgument>(TArgument? argument, TArgument defaultValue)
+    public static TArgument GetDefaultIfNull<TArgument>(TArgument? argument, TArgument defaultValue)
         => argument ?? IsNotNull(defaultValue);
 
     #endregion
@@ -35,7 +35,7 @@ public static class Ensure {
         };
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? IsNotEmptyIfNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument? IsNotEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
             ICollection { Count: 0 } => throw new ArgumentException(CollectionCannotBeEmpty, paramName),
@@ -58,13 +58,13 @@ public static class Ensure {
                : argument;
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static string? DefaultIfNotNullOrEmpty(string? argument, string? defaultValue)
+    public static string? GetDefaultIfNullOrEmpty(string? argument, string? defaultValue)
         => string.IsNullOrEmpty(argument)
                ? defaultValue
                : argument;
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static string? DefaultIfNotNullOrWhiteSpace(string? argument, string? defaultValue)
+    public static string? GetDefaultIfNullOrWhiteSpace(string? argument, string? defaultValue)
         => string.IsNullOrWhiteSpace(argument)
                ? defaultValue
                : argument;
@@ -74,14 +74,14 @@ public static class Ensure {
     #region IsValid
 
     [return: NotNull]
-    public static TArgument IsValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument IsValid<TArgument>(TArgument? argument, IDictionary<string, object?>? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatable
-        => IsValid(IsNotNull(argument, paramName), arg => arg?.Validate() ?? Result.Success(), paramName)!;
+        => IsValid(IsNotNull(argument, paramName), arg => arg?.Validate(context) ?? Result.Success(), paramName)!;
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, TArgument? defaultValue = default)
+    public static TArgument? GetDefaultIfInvalid<TArgument>(TArgument? argument, IDictionary<string, object?>? context = null, TArgument? defaultValue = default)
         where TArgument : IValidatable {
-        var result = argument?.Validate() ?? Result.Success();
+        var result = argument?.Validate(context) ?? Result.Success();
         return result.IsSuccess && argument is not null
                    ? argument
                    : defaultValue;
@@ -94,7 +94,7 @@ public static class Ensure {
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? defaultValue = default)
+    public static TArgument? GetDefaultIfInvalid<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? defaultValue = default)
         => validate(argument).IsSuccess && argument is not null
                ? argument
                : defaultValue;
@@ -106,7 +106,7 @@ public static class Ensure {
                : throw new ValidationException(ValueIsInvalid, paramName!);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue = default)
+    public static TArgument? GetDefaultIfInvalid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue = default)
         => isValid(argument)
                ? argument ?? defaultValue
                : defaultValue;
@@ -147,13 +147,13 @@ public static class Ensure {
 
     #region Async
 
-    public static Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, IDictionary<string, object?>? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatableAsync
-        => IsValidAsync(IsNotNull(argument, paramName), arg => arg?.Validate() ?? Result.SuccessTask(), paramName)!;
+        => IsValidAsync(IsNotNull(argument, paramName), arg => arg?.Validate(context) ?? Result.SuccessTask(), paramName)!;
 
-    public static async Task<TArgument?> DefaultIfIsNotValidAsync<TArgument>(TArgument? argument, TArgument? defaultValue = default)
+    public static async Task<TArgument?> GetDefaultIfIsNotValidAsync<TArgument>(TArgument? argument, IDictionary<string, object?>? context = null, TArgument? defaultValue = default)
         where TArgument : IValidatableAsync {
-        var result = await (argument?.Validate() ?? Result.SuccessTask());
+        var result = await (argument?.Validate(context) ?? Result.SuccessTask());
         return result.IsSuccess && argument is not null
                    ? argument
                    : defaultValue;
@@ -166,7 +166,7 @@ public static class Ensure {
                    : throw new ValidationException(ValueIsInvalid, paramName!);
     }
 
-    public static async Task<TArgument?> DefaultIfIsNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<Result>> validate, TArgument? defaultValue = default)
+    public static async Task<TArgument?> GetDefaultIfIsNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<Result>> validate, TArgument? defaultValue = default)
         => (await validate(argument)).IsSuccess && argument is not null
                ? argument
                : defaultValue;
@@ -176,7 +176,7 @@ public static class Ensure {
                ? argument
                : throw new ValidationException(ValueIsInvalid, paramName!);
 
-    public static async Task<TArgument?> DefaultIfIsNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, TArgument? defaultValue = default)
+    public static async Task<TArgument?> GetDefaultIfIsNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, TArgument? defaultValue = default)
         => await isValid(argument) && argument is not null
                ? argument
                : defaultValue;

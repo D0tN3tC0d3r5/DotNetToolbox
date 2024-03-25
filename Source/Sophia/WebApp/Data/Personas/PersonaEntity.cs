@@ -12,7 +12,7 @@ public class PersonaEntity
     [MaxLength(100)]
     public string Name { get; set; } = "Agent";
     [MaxLength(1000)]
-    public string Description { get; set; } = "You are a helpful agent.";
+    public string Description { get; set; } = "You are a helpful ASSISTANT.";
     [MaxLength(1000)]
     public string? Personality { get; set; }
     public string[] Instructions { get; set; } = [];

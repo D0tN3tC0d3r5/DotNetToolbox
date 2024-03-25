@@ -1,45 +1,61 @@
 ﻿namespace DotNetToolbox.Http;
 
-public class HttpClientProvider
-    : IHttpClientProvider {
-    private HttpAuthentication _authentication = new();
-    private readonly string _name;
-    private readonly IHttpClientFactory _clientFactory;
-    private readonly HttpClientOptionsBuilder _builder;
-
+public class HttpClientProvider(string provider, IHttpClientFactory clientFactory, IConfiguration configuration)
+    : HttpClientProvider<HttpClientOptions>(provider, clientFactory, configuration) {
     public HttpClientProvider(IHttpClientFactory clientFactory, IConfiguration configuration)
+        : this(string.Empty, clientFactory, configuration)
+    {
+    }
+
+    protected override void SetDefaultConfiguration(HttpClientOptions options) { }
+}
+
+public abstract class HttpClientProvider<TOptions>
+    : IHttpClientProvider
+    where TOptions : HttpClientOptions, new() {
+    private readonly string _provider;
+    private readonly IHttpClientFactory _clientFactory;
+    private readonly TOptions _options;
+
+    protected HttpClientProvider(IHttpClientFactory clientFactory, IConfiguration configuration)
         : this(string.Empty, clientFactory, configuration) {
     }
 
-    public HttpClientProvider(string name, IHttpClientFactory clientFactory, IConfiguration configuration) {
-        _name = name;
+    protected HttpClientProvider(string provider, IHttpClientFactory clientFactory, IConfiguration configuration) {
+        _provider = provider;
         _clientFactory = clientFactory;
-        var sectionPath = HttpClientOptions.SectionName + (string.IsNullOrWhiteSpace(_name) ? string.Empty : $":{_name}");
-        var options = new HttpClientOptions();
-        configuration.GetSection(sectionPath).Bind(options);
-        _builder = new(IsValid(options));
-        Configure(_builder);
+        var providePath = string.IsNullOrWhiteSpace(_provider) ? string.Empty : $":{_provider}";
+        ConfigurationPath = $"{HttpClientOptions.SectionName}{providePath}";
+        _options = new();
+        configuration.GetSection(ConfigurationPath).Bind(_options);
+        var optionsValidationContext = new Dictionary<string, object?> { ["Provider"] = _provider };
+        _options = IsValid(_options, optionsValidationContext);
+        // ReSharper disable once VirtualMemberCallInConstructor - This is intentional.
+        SetDefaultConfiguration(_options);
     }
 
-    public void RevokeAuthentication() => _authentication = new();
+    protected abstract void SetDefaultConfiguration(TOptions options);
 
-    public HttpClient GetHttpClient(Action<HttpClientOptionsBuilder>? configureBuilder = null) {
-        configureBuilder?.Invoke(_builder);
-        var options = _builder.Build();
-        return CreateHttpClient(options);
+    public string ConfigurationPath { get; }
+
+    public void Authorize(string value, DateTimeOffset? expiresOn = null) {
+        if (_options.Authentication is null) return;
+        _options.Authentication.Authorize(value, expiresOn);
     }
 
-    protected virtual void Configure(HttpClientOptionsBuilder builder) {
+    public void ExtendAuthorizationUntil(DateTimeOffset expiresOn) {
+        if (_options.Authentication is null) return;
+        _options.Authentication.ExtendUntil(expiresOn);
     }
 
-    private HttpClient CreateHttpClient(HttpClientOptions options) {
-        var client = _clientFactory.CreateClient(_name);
-        client.BaseAddress = options.BaseAddress;
-        client.DefaultRequestHeaders.Accept.Clear();
-        client.DefaultRequestHeaders.Accept.Add(new(options.ResponseFormat));
-        foreach ((var key, var value) in options.CustomHeaders)
-            client.DefaultRequestHeaders.Add(key, value);
-        _authentication = options.Authentication?.Configure(client, _authentication)!;
+    public void RevokeAuthorization() {
+        if (_options.Authentication is null) return;
+        _options.Authentication.Revoke();
+    }
+
+    public HttpClient GetHttpClient() {
+        var client = _clientFactory.CreateClient(_provider);
+        _options.Configure(client);
         return client;
     }
 }

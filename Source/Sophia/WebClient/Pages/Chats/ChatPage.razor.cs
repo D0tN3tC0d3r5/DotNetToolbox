@@ -23,14 +23,14 @@ public partial class ChatPage {
         _chat = chat;
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender) {
-        if (!firstRender) return Task.CompletedTask;
-        return ScrollToBottom();
-    }
+    protected override Task OnAfterRenderAsync(bool firstRender) 
+        => !firstRender
+               ? Task.CompletedTask
+               : ScrollToBottom();
 
     private async Task Send() {
         try {
-            if (_chat.Messages[^1].Type != "user" && string.IsNullOrWhiteSpace(_newMessage)) return;
+            if (_chat.Messages.Count > 0 && _chat.Messages[^1].Type != "user" && string.IsNullOrWhiteSpace(_newMessage)) return;
             if (!string.IsNullOrWhiteSpace(_newMessage)) await SaveUserMessage(_newMessage);
             _newMessage = string.Empty;
 
@@ -45,7 +45,7 @@ public partial class ChatPage {
             await SaveAgentResponse(agentResponse);
         }
         catch (Exception ex) {
-            _errorMessage = "An error occurred while sending the message.";
+            _errorMessage = $"An error occurred while sending the message. {ex}";
             Console.WriteLine($"Error: {ex.Message}");
         }
         finally {
@@ -54,10 +54,10 @@ public partial class ChatPage {
         }
     }
 
-    private Task HandleKeyDown(KeyboardEventArgs e) {
-        if (e.Key != "Enter") return Task.CompletedTask;
-        return Send();
-    }
+    private Task HandleKeyDown(KeyboardEventArgs e)
+        => e.Key != "Enter"
+               ? Task.CompletedTask
+               : Send();
 
     private Task SaveUserMessage(string userMessage)
         => SaveMessage(userMessage, "user");
