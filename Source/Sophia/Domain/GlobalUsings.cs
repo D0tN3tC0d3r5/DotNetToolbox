@@ -6,9 +6,8 @@ global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.AI.Personas;
 global using DotNetToolbox.Collections.Generic;
-global using DotNetToolbox.Constants;
+global using DotNetToolbox.Http;
 
-global using Sophia.Models.Chats;
 global using Sophia.Models.Common;
 global using Sophia.Models.Personas;
 global using Sophia.Models.Providers;

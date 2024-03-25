@@ -8,7 +8,6 @@ public interface IAgentOptions : IValidatable {
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
     };
 
-    string ApiEndpoint { get; }
     string Model { get; }
     byte NumberOfRetries { get; }
     uint MaximumOutputTokens { get; }

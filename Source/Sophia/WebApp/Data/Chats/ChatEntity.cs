@@ -16,6 +16,10 @@ public class ChatEntity
     public string Title { get; set; } = string.Empty;
 
     [Required]
+    public int ProviderId { get; set; }
+    public ProviderEntity Provider { get; set; } = default!;
+
+    [Required]
     public int PersonaId { get; set; }
     public PersonaEntity Persona { get; set; } = default!;
 
@@ -31,6 +35,9 @@ public class ChatEntity
     public List<MessageEntity> Messages { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<ChatEntity> builder) {
+        builder.HasOne(c => c.Provider)
+               .WithMany()
+               .HasForeignKey(c => c.ProviderId);
         builder.HasOne(c => c.Persona)
                .WithMany()
                .HasForeignKey(c => c.PersonaId);
@@ -44,10 +51,13 @@ public class ChatEntity
             Id = Id,
             Title = Title,
             IsActive = IsActive,
+            Provider = Provider.ToDto(),
             Agent = new() {
                 Persona = Persona.ToDto(),
-                Model = Model,
-                Temperature = Temperature,
+                Options = new() {
+                    Model = Model,
+                    Temperature = (decimal)Temperature,
+                },
             },
             Messages = Messages.ToList(m => m.ToDto()),
         };

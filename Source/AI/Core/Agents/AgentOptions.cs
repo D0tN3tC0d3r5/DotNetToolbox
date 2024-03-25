@@ -1,13 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public class AgentOptions(string apiEndpoint, string model)
+public class AgentOptions
     : IAgentOptions {
-    public AgentOptions()
-        : this(DefaultApiEndpoint, DefaultModel) {
-    }
 
-    public const string DefaultApiEndpoint = "v1/messages";
-    public const string DefaultModel = "claude-2.1";
     public const uint DefaultMaximumOutputTokens = 1024;
     public const byte DefaultNumberOfRetries = 0;
     public const byte DefaultTemperature = 1;
@@ -20,8 +15,8 @@ public class AgentOptions(string apiEndpoint, string model)
     public const byte MinimumTokenProbabilityCutOff = 0;
     public const byte MaximumTokenProbabilityCutOff = 1;
 
-    public string ApiEndpoint { get; set; } = apiEndpoint;
-    public string Model { get; set; } = model;
+    public string ChatEndpoint { get; set; } = string.Empty;
+    public string Model { get; set; } = string.Empty;
     public byte NumberOfRetries { get; set; } = DefaultNumberOfRetries;
     public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;
     public decimal Temperature { get; set; } = DefaultTemperature;

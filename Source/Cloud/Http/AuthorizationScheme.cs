@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Http;
 
-public enum AuthenticationScheme {
+public enum AuthorizationScheme {
     Basic,
     Bearer,
 }

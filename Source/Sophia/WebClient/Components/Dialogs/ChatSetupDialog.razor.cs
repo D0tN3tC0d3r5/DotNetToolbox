@@ -10,6 +10,7 @@ public partial class ChatSetupDialog {
 
     private IReadOnlyList<PersonaData> _personas = [];
     private IDictionary<string, string> _models = new Dictionary<string, string>();
+    private string _selectedModel = string.Empty;
 
     protected override async Task OnInitializedAsync() {
         _personas = await PersonasService.GetList();
@@ -17,14 +18,15 @@ public partial class ChatSetupDialog {
 
         var providers = await ProvidersService.GetList();
         _models = providers.SelectMany(p => p.Models.Select(m => new {
-            Key = $"{p.Name}:{m.Name}",
+            Key = m.Name,
             Value = $"{m.Name} ({p.Name})",
         })).ToDictionary(k => k.Key, v => v.Value);
-        Chat.Agent.Model = _models.Keys.FirstOrDefault() ?? string.Empty;
+        Chat.Agent.Options.Model = _models.Keys.First();
+        Chat.Agent.Provider = providers.First(p => p.Models.Any(m => m.Name == Chat.Agent.Options.Model));
     }
 
     private void UpdateTemperature(ChangeEventArgs e)
-        => Chat.Agent.Temperature = Convert.ToDouble(e.Value);
+        => Chat.Agent.Options.Temperature = Convert.ToDecimal(e.Value);
 
     private void Save() => OnStart.InvokeAsync();
     private void Cancel() => OnCancel.InvokeAsync();

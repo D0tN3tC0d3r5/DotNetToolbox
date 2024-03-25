@@ -5,7 +5,8 @@ public class ProviderData {
     [Required]
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
-    public string? Authentication { get; set; }
+    [Required]
+    public ApiData Api { get; init; } = new();
     public List<ModelData> Models { get; set; } = [];
 
     // ReSharper disable ConvertIfStatementToSwitchStatement

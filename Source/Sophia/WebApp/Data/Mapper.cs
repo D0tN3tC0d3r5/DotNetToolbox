@@ -12,16 +12,26 @@ public static class Mapper {
         => new() {
             Id = input.Id,
             Name = input.Name,
-            Authentication = input.Authentication,
+            Api = input.Api.ToEntity(),
             Models = input.Models.ToList(i => i.ToEntity()),
         };
 
     public static void UpdateFrom(this ProviderEntity target, ProviderData input) {
         target.Id = input.Id;
         target.Name = input.Name;
-        target.Authentication = input.Authentication;
+        target.Api = input.Api.ToEntity();
         target.Models = input.Models.ToList(i => i.AddOrUpdate(target));
     }
+
+    public static ApiEntity ToEntity(this ApiData input)
+        => new() {
+            ChatEndpoint = input.ChatEndpoint,
+            AuthorizationType = input.Authorization.Type,
+            AuthorizationScheme = input.Authorization.Scheme,
+            AuthorizationValue = input.Authorization.Value,
+            AuthorizationExpiresOn = input.Authorization.ExpiresOn,
+            CustomRequestHeaders = input.CustomRequestHeaders?.ToList(i => string.Join('|', i.Key, i.Value)) ?? [],
+        };
 
     public static ModelEntity ToEntity(this ModelData input)
         => new() {
@@ -89,9 +99,9 @@ public static class Mapper {
             Id = Guid.NewGuid().ToString(),
             IsActive = input.IsActive,
             Title = input.Title,
-            Model = input.Agent.Model,
+            Model = input.Agent.Options.Model,
             PersonaId = input.Agent.Persona.Id,
-            Temperature = input.Agent.Temperature,
+            Temperature = (double)input.Agent.Options.Temperature,
             Messages = input.Messages.ToList(i => i.ToEntity()),
         };
 

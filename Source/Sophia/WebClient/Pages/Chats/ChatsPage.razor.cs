@@ -29,7 +29,7 @@ public partial class ChatsPage {
 
     private async Task StartChat() {
         if (_selectedChat is not null) {
-            if (_selectedChat.Id is null) await ChatsService.Create(_selectedChat);
+            if (_selectedChat.Id == default!) await ChatsService.Create(_selectedChat);
             NavigationManager.NavigateTo($"/chat/{_selectedChat.Id}");
         }
         CloseChatDialog();
@@ -65,7 +65,7 @@ public partial class ChatsPage {
 
     private async Task ExecuteDelete() {
         if (_selectedChat is not null) {
-            await ChatsService.Delete(_selectedChat.Id!);
+            await ChatsService.Delete(_selectedChat.Id);
             _chats = await ChatsService.GetList(_showArchived ? "ShowArchived" : null);
             _selectedChat = null;
         }
