@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public interface IStandardAgent {
+public interface IAgent {
     World World { get; }
     IAgentOptions Options { get; }
     Persona Persona { get; }

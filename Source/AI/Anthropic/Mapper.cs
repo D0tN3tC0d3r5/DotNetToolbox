@@ -2,8 +2,8 @@
 
 public class Mapper()
     : IMapper {
-    IChatRequest IMapper.CreateRequest(IStandardAgent agent, IChat chat) => CreateRequest(agent, chat);
-    public static ChatRequest CreateRequest(IStandardAgent agent, IChat chat)
+    IChatRequest IMapper.CreateRequest(IAgent agent, IChat chat) => CreateRequest(agent, chat);
+    public static ChatRequest CreateRequest(IAgent agent, IChat chat)
         => new() {
                      Model = agent.Options.Model,
                      Temperature = agent.Options.Temperature,
@@ -15,7 +15,7 @@ public class Mapper()
                      System = CreateSystemMessage(agent, chat),
                  };
 
-    private static string CreateSystemMessage(IStandardAgent agent, IChat chat) {
+    private static string CreateSystemMessage(IAgent agent, IChat chat) {
         var builder = new StringBuilder();
         builder.AppendLine(agent.World.ToString());
         builder.AppendLine(agent.Persona.ToString());

@@ -1,22 +1,28 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class StandardAgent<TAgent, TMapper, TRequest, TResponse>(
-        World world,
-        Persona persona,
-        IAgentOptions options,
-        IHttpClientProvider httpClientProvider,
-        ILogger<TAgent> logger)
-    : IStandardAgent
-    where TAgent : StandardAgent<TAgent, TMapper, TRequest, TResponse>
+public abstract class Agent<TAgent, TMapper, TRequest, TResponse>
+    : IAgent
+    where TAgent : Agent<TAgent, TMapper, TRequest, TResponse>
     where TMapper : class, IMapper, new()
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
-    protected ILogger<TAgent> Logger { get; } = logger;
+    private readonly IHttpClientProviderFactory _httpClientProviderFactory;
+    private readonly IHttpClientProvider _httpClientProvider;
+
+    protected Agent(string provider,
+                    IHttpClientProviderFactory httpClientProviderFactory,
+                    ILogger<TAgent> logger) {
+        _httpClientProviderFactory = httpClientProviderFactory;
+        _httpClientProvider = _httpClientProviderFactory.Create(provider);
+        Logger = logger;
+    }
+
+    protected ILogger<TAgent> Logger { get; }
     protected TMapper Mapper { get; } = new();
 
-    public World World { get; } = world;
-    public IAgentOptions Options { get; set; } = IsValidOrDefault(options, new AgentOptions());
-    public Persona Persona { get; } = persona;
+    public World World { get; set; } = default!;
+    public Persona Persona { get; set; } = default!;
+    public IAgentOptions Options { get; set; } = default!;
 
     public virtual async Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, CancellationToken ct) {
         try {
@@ -48,11 +54,13 @@ public abstract class StandardAgent<TAgent, TMapper, TRequest, TResponse>(
     }
 
     private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
-        var request = Mapper.CreateRequest(this, chat);
-        var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions);
-        var httpClient = httpClientProvider.GetHttpClient();
-        var httpResult = await httpClient.PostAsync(Options.ApiEndpoint, content, ct).ConfigureAwait(false);
+        IChatRequest request = default!;
+        HttpResponseMessage httpResult = default!;
         try {
+            request = Mapper.CreateRequest(this, chat);
+            var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions);
+            var httpClient = _httpClientProvider.GetHttpClient();
+            httpResult = await httpClient.PostAsync(Options.ApiEndpoint, content, ct).ConfigureAwait(false);
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentOptions.SerializerOptions)!;
@@ -62,7 +70,7 @@ public abstract class StandardAgent<TAgent, TMapper, TRequest, TResponse>(
         }
         catch (Exception ex) {
             Logger.LogWarning(ex, "Request failed!");
-            switch (httpResult.StatusCode) {
+            switch (httpResult?.StatusCode) {
                 case HttpStatusCode.BadRequest:
                     var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                     var errorMessage = $"""

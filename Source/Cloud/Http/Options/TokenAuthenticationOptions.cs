@@ -1,6 +1,7 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public class StaticTokenAuthenticationOptions : AuthenticationOptions {
+public class TokenAuthenticationOptions
+    : AuthenticationOptions {
     public AuthenticationScheme Scheme { get; set; } = Basic;
     public string Token { get; set; } = string.Empty;
 

@@ -6,9 +6,7 @@ public class SophiaShellApplication : ShellApplication<SophiaShellApplication> {
     public SophiaShellApplication(string[] args, IServiceProvider services)
         : base(args, services) {
         AllowMultiLine = true;
-        var httpClientProviderFactory = services.GetRequiredService<IHttpClientProviderFactory>();
-        var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-        _stateMachine = new(this, httpClientProviderFactory, loggerFactory);
+        _stateMachine = new(this, services);
     }
 
     protected override string GetPrePromptText() => $"[{_stateMachine.TotalTokens}] ";

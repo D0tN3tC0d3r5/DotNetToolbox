@@ -1,11 +1,13 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public interface IStandardAgentFactory {
-    IStandardAgent Create(string provider, World world, Persona persona, IAgentOptions options);
+public interface IAgentFactory {
+    TAgent Create<TAgent>(string provider)
+        where TAgent : class, IAgent;
+    //TAgent Create<TAgent>(string provider, World world, Persona persona, IAgentOptions options)
+    //    where TAgent : class, IAgent;
 }
-public interface IBackgroundAgentFactory {
-    IBackgroundAgent Create(string provider, World world, Persona persona, IAgentOptions options);
-}
-public interface IQueuedAgentFactory {
-    IQueuedAgent Create(string provider, World world, Persona persona, IAgentOptions options);
-}
+
+//public interface IProviderAgentFactory {
+//    TAgent Create<TAgent>(World world, Persona persona, IAgentOptions options)
+//        where TAgent : class, IAgent;
+//}

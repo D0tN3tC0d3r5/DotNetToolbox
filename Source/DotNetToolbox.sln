@@ -57,13 +57,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.WebApp", "Sophia\Web
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.WebClient", "Sophia\WebClient\Sophia.WebClient.csproj", "{E87608E4-4084-437B-8865-70585079AB2B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "ApplicationBuilders\Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "Applications\Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.UnitTests", "ApplicationBuilders\Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.UnitTests", "Applications\Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleShell", "ApplicationBuilders\Samples\Shell\DotNetToolbox.Console.SampleShell.csproj", "{574B6C14-9D19-4283-AEB9-13754EE6437C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleShell", "Applications\Samples\Shell\DotNetToolbox.Console.SampleShell.csproj", "{574B6C14-9D19-4283-AEB9-13754EE6437C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleCLI", "ApplicationBuilders\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj", "{88BA5A80-5353-4A03-BFF2-92F4A1951A70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleCLI", "Applications\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj", "{88BA5A80-5353-4A03-BFF2-92F4A1951A70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Core", "1 Core", "{26704704-EAF1-48B3-825A-7471AA3B59ED}"
 EndProject

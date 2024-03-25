@@ -12,7 +12,7 @@ public class World(IDateTimeProvider? dateTimeProvider = null)
 
     public override string ToString() {
         var builder = new StringBuilder();
-        builder.Append($"The current local date is {DateTime.Date:dddd}, {DateTime.Date} and the time is {DateTime.TimeOfDay:HH:mm:ss} ({DateTime:K}).");
+        builder.Append($"The current local date and time is {DateTime:f} ({DateTime.Offset.Hours:00}:{DateTime.Offset.Minutes:00}).");
         builder.AppendIntoNewLine(GetAgentLocation(Location));
         builder.AppendIntoNewLine(UserProfile.ToString());
         builder.AppendSection(Facts);

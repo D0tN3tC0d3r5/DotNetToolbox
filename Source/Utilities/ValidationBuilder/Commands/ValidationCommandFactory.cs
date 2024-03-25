@@ -135,7 +135,7 @@ public sealed class ValidationCommandFactory {
             };
 
     private static TArgument?[] GetArgumentValues<TArgument>(string methodName, IReadOnlyList<object?> arguments, [CallerArgumentExpression(nameof(arguments))] string? paramName = null) {
-        var list = IsNotEmpty(IsNotNull(arguments, paramName), paramName);
+        var list = IsNotNullOrEmpty(arguments, paramName);
         for (var index = 0; index < list.Count; index++) GetArgumentValueOrDefault<TArgument>(methodName, arguments, (uint)index, paramName);
 
         return list.Select(i => i is null ? default : (TArgument)i).ToArray();

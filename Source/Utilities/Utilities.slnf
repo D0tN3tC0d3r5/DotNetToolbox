@@ -1,0 +1,13 @@
+{
+  "solution": {
+    "path": "..\\DotNetToolbox.sln",
+    "projects": [
+      "Utilities\\ObjectDumper.UnitTests\\DotNetToolbox.ObjectDumper.UnitTests.csproj",
+      "Utilities\\ObjectDumper\\DotNetToolbox.ObjectDumper.csproj",
+      "Utilities\\Security.UnitTests\\DotNetToolbox.Security.UnitTests.csproj",
+      "Utilities\\Security\\DotNetToolbox.Security.csproj",
+      "Utilities\\ValidationBuilder.UnitTests\\DotNetToolbox.ValidationBuilder.UnitTests.csproj",
+      "Utilities\\ValidationBuilder\\DotNetToolbox.ValidationBuilder.csproj"
+    ]
+  }
+}

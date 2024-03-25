@@ -13,7 +13,7 @@ public sealed record ValidationError {
 
     public ValidationError(string message, string? source = null) {
         Message = IsNotNullOrWhiteSpace(message).Trim();
-        Source = IsNotNullOrDefault(source, string.Empty).Trim();
+        Source = NotNullDefaultIfNull(source, string.Empty).Trim();
         _formattedMessage = (string.IsNullOrEmpty(Source) ? string.Empty : $"{Source}: ")
                           + Message;
     }

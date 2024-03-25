@@ -9,11 +9,11 @@ public class StateMachine
     private readonly IApplication _app;
     private readonly MultipleChoicePrompt<uint> _mainMenu;
 
-    private readonly StandardAgent? _agent;
+    private readonly OpenAIAgent? _agent;
     private Chat? _chat;
     private readonly FileRepository _repository;
 
-    public StateMachine(IApplication app, IHttpClientProviderFactory httpClientProviderFactory, ILoggerFactory loggerFactory) {
+    public StateMachine(IApplication app, IServiceProvider services) {
         _app = app;
         _out = app.Environment.Output;
         _promptFactory = app.PromptFactory;
@@ -26,11 +26,11 @@ public class StateMachine
 
         _repository = new(app.Environment.FileSystem);
 
-        var world = new World(app.Environment.DateTime);
-        var persona = _repository.LoadPersona("TimeKeeper");
-        var options = _repository.LoadAgentOptions("Fast");
-        var factory = new StandardAgentFactory<StandardAgent>(httpClientProviderFactory, loggerFactory);
-        _agent = (StandardAgent)factory.Create("OpenAI", world, persona, options);
+        var factory = new AgentFactory(services);
+        _agent = factory.Create<OpenAIAgent>("OpenAI");
+        _agent.World = new(app.Environment.DateTime); ;
+        _agent.Persona = _repository.LoadPersona("TimeKeeper");
+        _agent.Options = _repository.LoadAgentOptions("Fast");
     }
 
     public uint CurrentState { get; set; }

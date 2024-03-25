@@ -1,12 +1,9 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class BackgroundAgent<TAgent, TMapper, TRequest, TResponse>(
-        World world,
-        Persona persona,
-        IAgentOptions options,
-        IHttpClientProvider httpClientProvider,
-        ILogger<TAgent> logger)
-    : StandardAgent<TAgent, TMapper, TRequest, TResponse>(world, persona, options, httpClientProvider, logger),
+public abstract class BackgroundAgent<TAgent, TMapper, TRequest, TResponse>(string provider,
+                                                                            IHttpClientProviderFactory httpClientProviderFactory,
+                                                                            ILogger<TAgent> logger)
+    : Agent<TAgent, TMapper, TRequest, TResponse>(provider, httpClientProviderFactory, logger),
       IBackgroundAgent
     where TAgent : BackgroundAgent<TAgent, TMapper, TRequest, TResponse>
     where TMapper : class, IMapper, new()

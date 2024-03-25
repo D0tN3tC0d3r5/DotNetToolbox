@@ -1,10 +1,10 @@
-﻿using DotNetToolbox.AI.OpenAI.Http;
-
-namespace DotNetToolbox.AI.OpenAI;
+﻿namespace DotNetToolbox.AI.OpenAI;
 
 public static class ServiceCollectionExtensions {
-    public static IServiceCollection AddOpenAI(this IServiceCollection services, IConfiguration configuration) {
-        services.AddAIProvider<AgentHttpClientProvider, StandardAgent, BackgroundAgent, QueuedAgent, Mapper>("OpenAI", configuration);
+    public static IServiceCollection AddOpenAI(this IServiceCollection services) {
+        services.AddAIProvider();
+        services.AddHttpClientProvider<OpenAI>("OpenAI");
+        services.AddAIAgent<OpenAIAgent>("OpenAI");
         return services;
     }
 }

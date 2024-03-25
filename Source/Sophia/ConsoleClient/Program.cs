@@ -3,7 +3,7 @@
                                                              configuration.AddUserSecrets<Program>();
                                                          });
 
-builder.Services.AddOpenAI(builder.Configuration);
+builder.Services.AddOpenAI();
 
 var app = builder.Build();
 

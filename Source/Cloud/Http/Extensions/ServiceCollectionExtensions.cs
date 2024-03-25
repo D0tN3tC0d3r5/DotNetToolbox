@@ -1,55 +1,20 @@
 ﻿namespace DotNetToolbox.Http.Extensions;
 
 public static class ServiceCollectionExtensions {
-    public static IServiceCollection AddHttpClientProvider(this IServiceCollection services, IConfiguration configuration)
-        => services.AddHttpClientProvider<IHttpClientProvider, HttpClientProvider>(configuration);
+    public static IServiceCollection AddHttpClientProvider(this IServiceCollection services, string? provider = null)
+        => services.AddHttpClientProvider<HttpClientProvider>(provider);
 
-    public static IServiceCollection AddHttpClientProvider<TProviderInterface, TProvider>(this IServiceCollection services, IConfiguration configuration)
-        where TProviderInterface : class, IHttpClientProvider
-        where TProvider : class, TProviderInterface {
+    public static IServiceCollection AddHttpClientProvider<TProvider>(this IServiceCollection services, string? provider = null)
+        where TProvider : class, IHttpClientProvider {
         services.AddHttpClient();
-        services.AddOptions();
-        services.Configure<HttpClientOptions>(configuration.GetSection(HttpClientOptions.SectionName));
-        services.TryAddSingleton<TProviderInterface, TProvider>();
+        if (string.IsNullOrWhiteSpace(provider)) services.TryAddSingleton<IHttpClientProvider, TProvider>();
+        else services.AddKeyedSingleton<IHttpClientProvider, TProvider>(provider);
         return services;
     }
 
-    public static IServiceCollection AddHttpClientProviderFactory(this IServiceCollection services, IConfiguration configuration)
-        => services.AddHttpClientProviderFactory<IHttpClientProviderFactory, HttpClientProviderFactory>(configuration);
-
-    public static IServiceCollection AddHttpClientProviderFactory<TFactoryInterface, TFactory>(this IServiceCollection services, IConfiguration configuration)
-        where TFactoryInterface : class, IHttpClientProviderFactory
-        where TFactory : class, TFactoryInterface {
+    public static IServiceCollection AddHttpClientProviderFactory(this IServiceCollection services) {
         services.AddHttpClient();
-        services.AddOptions();
-        services.Configure<HttpClientOptions>(configuration.GetSection(HttpClientOptions.SectionName));
-        services.TryAddSingleton<TFactoryInterface, TFactory>();
-        return services;
-    }
-
-    public static IServiceCollection AddKeyedHttpClientProvider(this IServiceCollection services, string key, IConfiguration configuration)
-        => services.AddKeyedHttpClientProvider<IHttpClientProvider, HttpClientProvider>(key, configuration);
-
-    public static IServiceCollection AddKeyedHttpClientProvider<TProviderInterface, TProvider>(this IServiceCollection services, string key, IConfiguration configuration)
-        where TProviderInterface : class, IHttpClientProvider
-        where TProvider : class, TProviderInterface {
-        services.AddHttpClient(key);
-        services.AddOptions();
-        services.Configure<HttpClientOptions>(configuration.GetSection($"{HttpClientOptions.SectionName}::{key}"));
-        services.TryAddKeyedSingleton<TProviderInterface, TProvider>(key);
-        return services;
-    }
-
-    public static IServiceCollection AddKeyedHttpClientProviderFactory(this IServiceCollection services, string key, IConfiguration configuration)
-        => services.AddKeyedHttpClientProviderFactory<IHttpClientProviderFactory, HttpClientProviderFactory>(key, configuration);
-
-    public static IServiceCollection AddKeyedHttpClientProviderFactory<TFactoryInterface, TFactory>(this IServiceCollection services, string key, IConfiguration configuration)
-        where TFactoryInterface : class, IHttpClientProviderFactory
-        where TFactory : class, TFactoryInterface {
-        services.AddHttpClient(key);
-        services.AddOptions();
-        services.Configure<HttpClientOptions>(configuration.GetSection($"{HttpClientOptions.SectionName}::{key}"));
-        services.TryAddKeyedSingleton<TFactoryInterface, TFactory>(key);
+        services.TryAddSingleton<IHttpClientProviderFactory, HttpClientProviderFactory>();
         return services;
     }
 }

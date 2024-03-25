@@ -1,0 +1,11 @@
+{
+  "solution": {
+    "path": "..\\DotNetToolbox.sln",
+    "projects": [
+      "Testing\\FluentAssertions.UnitTests\\DotNetToolbox.FluentAssertions.UnitTests.csproj",
+      "Testing\\FluentAssertions\\DotNetToolbox.FluentAssertions.csproj",
+      "Testing\\TestUtilities.UnitTests\\DotNetToolbox.TestUtilities.UnitTests.csproj",
+      "Testing\\TestUtilities\\DotNetToolbox.TestUtilities.csproj",
+    ]
+  }
+}

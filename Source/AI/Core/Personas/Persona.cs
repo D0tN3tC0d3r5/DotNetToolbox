@@ -9,7 +9,7 @@ public class Persona() {
     }
 
     public string Name { get; set; } = "Agent";
-    public string Description { get; set; } = "You are a helpful agent.";
+    public string Description { get; set; } = "You are a helpful ASSISTANT.";
     public string? Personality { get; set; }
     public List<string> Instructions { get; set; } = [];
     public List<Fact> Facts { get; set; } = [];
@@ -17,7 +17,7 @@ public class Persona() {
 
     public override string ToString() {
         var builder = new StringBuilder();
-        builder.AppendLine($"You name is {Name}.");
+        builder.AppendLine($"Your name is {Name}.");
         builder.AppendLine(Description);
         if (!string.IsNullOrWhiteSpace(Personality)) builder.AppendLine(Personality);
         builder.AppendSection(KnownTools, "Known Tools");

@@ -2,8 +2,8 @@
 
 public class Mapper
     : IMapper {
-    IChatRequest IMapper.CreateRequest(IStandardAgent agent, IChat chat) => CreateRequest(agent, chat);
-    public static ChatRequest CreateRequest(IStandardAgent agent, IChat chat) {
+    IChatRequest IMapper.CreateRequest(IAgent agent, IChat chat) => CreateRequest(agent, chat);
+    public static ChatRequest CreateRequest(IAgent agent, IChat chat) {
         var system = new ChatRequestMessage(CreateSystemMessage(agent, chat));
         return new() {
             Model = agent.Options.Model,
@@ -22,10 +22,10 @@ public class Mapper
         };
     }
 
-    private static string CreateSystemMessage(IStandardAgent agent, IChat chat) {
+    private static string CreateSystemMessage(IAgent agent, IChat chat) {
         var builder = new StringBuilder();
-        builder.AppendLine(agent.World.ToString());
         builder.AppendLine(agent.Persona.ToString());
+        builder.AppendLine(agent.World.ToString());
         builder.AppendLine(chat.Instructions.ToString());
         return builder.ToString();
     }

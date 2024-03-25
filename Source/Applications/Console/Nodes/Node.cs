@@ -12,7 +12,7 @@ public abstract class Node<TNode>
         var factory = Application.Services.GetRequiredService<ILoggerFactory>();
         Logger = factory.CreateLogger<TNode>();
         Name = IsValid(name, IsValidName);
-        Aliases = DoesNotContainInvalidItems<string[], string>(aliases, IsValidAlias);
+        Aliases = ItemsAreValid(aliases, _isValidAlias);
     }
 
     public IApplication Application { get; }
@@ -39,6 +39,7 @@ public abstract class Node<TNode>
         && char.IsLetter(name[0])
         && name[1..].All(c => char.IsLetterOrDigit(c) || "-_".Contains(c));
 
+    private readonly Func<string?, bool> _isValidAlias = IsValidAlias;
     private static bool IsValidAlias(string? alias)
         => !string.IsNullOrEmpty(alias)
         && alias.All(c => char.IsLetterOrDigit(c) || "!?@#$%&".Contains(c));

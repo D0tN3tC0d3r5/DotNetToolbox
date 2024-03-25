@@ -8,7 +8,7 @@ public partial class ChatPage {
     [Inject] public required NavigationManager NavigationManager { get; set; }
     [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
 
-    private ChatData? _chat;
+    private ChatData _chat = default!;
     private string _newMessage = string.Empty;
     private bool _isTyping;
     private string _errorMessage = string.Empty;
@@ -23,23 +23,22 @@ public partial class ChatPage {
         _chat = chat;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        if (!firstRender) return;
-        await ScrollToBottom();
+    protected override Task OnAfterRenderAsync(bool firstRender) {
+        if (!firstRender) return Task.CompletedTask;
+        return ScrollToBottom();
     }
 
     private async Task Send() {
         try {
-            if (string.IsNullOrWhiteSpace(_newMessage)) return;
-
-            await SaveUserMessage(_newMessage);
+            if (_chat.Messages[^1].Type != "user" && string.IsNullOrWhiteSpace(_newMessage)) return;
+            if (!string.IsNullOrWhiteSpace(_newMessage)) await SaveUserMessage(_newMessage);
             _newMessage = string.Empty;
 
             _isTyping = true;
             StateHasChanged();
 
             var request = new GetResponseRequest {
-                ChatId = _chat!.Id,
+                ChatId = _chat.Id,
                 Message = _chat.Messages.Last().Content,
             };
             var agentResponse = await AgentService.GetResponse(request);
@@ -55,9 +54,9 @@ public partial class ChatPage {
         }
     }
 
-    private async Task HandleKeyDown(KeyboardEventArgs e) {
-        if (e.Key != "Enter") return;
-        await Send();
+    private Task HandleKeyDown(KeyboardEventArgs e) {
+        if (e.Key != "Enter") return Task.CompletedTask;
+        return Send();
     }
 
     private Task SaveUserMessage(string userMessage)
@@ -72,7 +71,7 @@ public partial class ChatPage {
             Type = type,
             Timestamp = DateTime.UtcNow,
         };
-        _chat!.Messages.Add(message);
+        _chat.Messages.Add(message);
         await ChatsService.AddMessage(_chat.Id, message);
         await ScrollToBottom();
     }

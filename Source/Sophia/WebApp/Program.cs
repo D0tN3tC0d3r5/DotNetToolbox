@@ -31,14 +31,12 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
-builder.Services.AddAnthropic(builder.Configuration);
-builder.Services.AddOpenAI(builder.Configuration);
-
 if (builder.Environment.IsDevelopment()) {
     builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
 }
 
+builder.Services.AddAnthropic();
+builder.Services.AddOpenAI();
 builder.Services.AddScoped<IWorldService, WorldService>();
 builder.Services.AddScoped<IProvidersService, ProvidersService>();
 builder.Services.AddScoped<IToolsService, ToolsService>();

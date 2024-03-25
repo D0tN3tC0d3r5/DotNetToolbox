@@ -241,11 +241,10 @@ namespace Sophia.WebApp.Migrations
 
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatEntity", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -275,8 +274,9 @@ namespace Sophia.WebApp.Migrations
 
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.MessageEntity", b =>
                 {
-                    b.Property<int>("ChatId")
-                        .HasColumnType("int");
+                    b.Property<string>("ChatId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<int>("Index")
                         .HasColumnType("int");

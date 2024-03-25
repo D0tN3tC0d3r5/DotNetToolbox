@@ -7,7 +7,7 @@ call Publish %target% Core\Core Core 8.1.0-rc1
 call Publish %target% Utilities\ObjectDumper ObjectDumper 8.1.0-rc1
 call Publish %target% Testing\TestUtilities TestUtilities 8.1.0-rc1
 call Publish %target% Testing\FluentAssertions FluentAssertions 8.1.0-rc1
-call Publish %target% ApplicationBuilders\Console Console 8.1.0-rc1
+call Publish %target% Applications\Console Console 8.1.0-rc1
 call Publish %target% Utilities\ValidationBuilder ValidationBuilder 8.1.0-rc1
 call Publish %target% Cloud\Azure Azure 8.1.0-rc1
 call Publish %target% Cloud\Http Http 8.1.0-rc1

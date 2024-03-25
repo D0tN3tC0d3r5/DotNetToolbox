@@ -1,16 +1,19 @@
 ﻿namespace DotNetToolbox.Http.Options;
 
-public class HttpClientOptions
-    : NamedOptions<HttpClientOptions>, IValidatable {
+public record HttpClientOptions
+    : INamedOptions<HttpClientOptions>, IValidatable {
     public const string DefaultResponseFormat = "application/json";
 
-    public virtual Uri? BaseAddress { get; set; }
+    public static string SectionName => "HttpClient";
+    public static HttpClientOptions Default => new();
 
-    public virtual string ResponseFormat { get; set; } = DefaultResponseFormat;
+    public virtual Uri? BaseAddress { get; init; }
 
-    public virtual Dictionary<string, string[]> CustomHeaders { get; set; } = [];
+    public virtual string ResponseFormat { get; init; } = DefaultResponseFormat;
 
-    public virtual AuthenticationOptions? Authentication { get; set; }
+    public virtual Dictionary<string, string[]> CustomHeaders { get; init; } = [];
+
+    public virtual AuthenticationOptions? Authentication { get; init; }
 
     public virtual Result Validate(IDictionary<string, object?>? context = null) {
         var result = Success();
