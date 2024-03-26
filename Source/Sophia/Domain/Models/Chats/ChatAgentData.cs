@@ -1,9 +1,10 @@
 ﻿namespace Sophia.Models.Chats;
 
-public class ChatAgentData {
+public class ChatAgentData :
+    IHasMessages {
     [Required]
     public ChatData Chat { get; set; } = new();
-    public int Index { get; set; }
+    public int Number { get; set; }
     [Required]
     public ProviderData Provider { get; set; } = new();
     [Required]

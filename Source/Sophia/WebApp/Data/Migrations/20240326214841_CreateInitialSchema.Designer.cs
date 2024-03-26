@@ -13,7 +13,7 @@ using Sophia.WebApp.Data;
 namespace Sophia.WebApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240326035429_CreateInitialSchema")]
+    [Migration("20240326214841_CreateInitialSchema")]
     partial class CreateInitialSchema
     {
         /// <inheritdoc />
@@ -243,6 +243,65 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("UserProfiles");
                 });
 
+            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatAgentEntity", b =>
+                {
+                    b.Property<string>("ChatId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PersonaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("int");
+
+                    b.ComplexProperty<Dictionary<string, object>>("Options", "Sophia.WebApp.Data.Chats.ChatAgentEntity.Options#AgentOptions", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("ChatEndpoint")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool>("JsonMode")
+                                .HasColumnType("bit");
+
+                            b1.Property<long>("MaximumOutputTokens")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("Model")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<byte>("NumberOfRetries")
+                                .HasColumnType("tinyint");
+
+                            b1.Property<string>("StopSequences")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<decimal>("Temperature")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<decimal>("TokenProbabilityCutOff")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<bool>("UseStreaming")
+                                .HasColumnType("bit");
+                        });
+
+                    b.HasKey("ChatId", "Number");
+
+                    b.HasIndex("PersonaId");
+
+                    b.HasIndex("ProviderId");
+
+                    b.ToTable("ChatAgent");
+                });
+
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -253,20 +312,6 @@ namespace Sophia.WebApp.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("PersonaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProviderId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Temperature")
-                        .HasColumnType("float");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -274,26 +319,32 @@ namespace Sophia.WebApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PersonaId");
-
-                    b.HasIndex("ProviderId");
-
                     b.ToTable("Chats");
                 });
 
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.MessageEntity", b =>
                 {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("AgentNumber")
+                        .HasColumnType("int");
+
                     b.Property<string>("ChatId")
+                        .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
-
-                    b.Property<int>("Index")
-                        .HasColumnType("int");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(20000)
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("Timestamp")
                         .HasColumnType("datetimeoffset");
@@ -303,9 +354,11 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("ChatId", "Index");
+                    b.HasKey("Id");
 
-                    b.ToTable("ChatMessages");
+                    b.HasIndex("ChatId", "AgentNumber");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Sophia.WebApp.Data.Common.FactEntity", b =>
@@ -634,8 +687,14 @@ namespace Sophia.WebApp.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatEntity", b =>
+            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatAgentEntity", b =>
                 {
+                    b.HasOne("Sophia.WebApp.Data.Chats.ChatEntity", "Chat")
+                        .WithMany("Agents")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Sophia.WebApp.Data.Personas.PersonaEntity", "Persona")
                         .WithMany()
                         .HasForeignKey("PersonaId")
@@ -648,6 +707,8 @@ namespace Sophia.WebApp.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Chat");
+
                     b.Navigation("Persona");
 
                     b.Navigation("Provider");
@@ -655,11 +716,20 @@ namespace Sophia.WebApp.Data.Migrations
 
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.MessageEntity", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Data.Chats.ChatEntity", null)
+                    b.HasOne("Sophia.WebApp.Data.Chats.ChatEntity", "Chat")
                         .WithMany("Messages")
                         .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Sophia.WebApp.Data.Chats.ChatAgentEntity", "Agent")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId", "AgentNumber")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("Chat");
                 });
 
             modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaFactsEntity", b =>
@@ -757,8 +827,15 @@ namespace Sophia.WebApp.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatAgentEntity", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatEntity", b =>
                 {
+                    b.Navigation("Agents");
+
                     b.Navigation("Messages");
                 });
 

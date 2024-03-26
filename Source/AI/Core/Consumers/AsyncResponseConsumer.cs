@@ -5,16 +5,16 @@ public abstract class AsyncResponseConsumer<TConsumer>(int timeoutInMilliseconds
       IAsyncResponseConsumer
     where TConsumer : AsyncResponseConsumer<TConsumer> {
 
-    public Task ResponseApproved(string chatId, Message message, CancellationToken ct) {
+    public Task ResponseApproved(Guid chat, int? agent, Message message, CancellationToken ct) {
         if (ct.IsCancellationRequested) return Task.CompletedTask;
         Logger.LogDebug("Approved response received...");
-        return OnResponseReceived(chatId, message, ct);
+        return OnResponseReceived(chat, agent, message, ct);
     }
 
-    public virtual Task<bool> VerifyResponse(string chatId, Message message, CancellationToken ct) {
+    public virtual Task<bool> VerifyResponse(Guid chat, int? agent, Message message, CancellationToken ct) {
         Logger.LogDebug("Verifying received response...");
         return Task.FromResult(true);
     }
 
-    protected abstract Task OnResponseReceived(string chatId, Message message, CancellationToken ct);
+    protected abstract Task OnResponseReceived(Guid chat, int? agentNumber, Message message, CancellationToken ct);
 }

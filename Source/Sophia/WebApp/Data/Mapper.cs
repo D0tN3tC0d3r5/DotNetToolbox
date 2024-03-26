@@ -1,4 +1,6 @@
-﻿namespace Sophia.WebApp.Data;
+﻿using IHasMessages = Sophia.WebApp.Data.Chats.IHasMessages;
+
+namespace Sophia.WebApp.Data;
 
 public static class Mapper {
     public static void UpdateFrom(this WorldEntity target, WorldData input) {
@@ -100,7 +102,6 @@ public static class Mapper {
 
     public static ChatEntity ToEntity(this ChatData input)
         => new() {
-            Id = Guid.NewGuid().ToString(),
             IsActive = input.IsActive,
             Title = input.Title,
             Agents = input.Agents.ToList(i => i.ToEntity()),
@@ -110,7 +111,7 @@ public static class Mapper {
     public static ChatAgentEntity ToEntity(this ChatAgentData input)
         => new() {
             ChatId = input.Chat.Id,
-            Index = input.Index,
+            Number = input.Number,
             ProviderId = input.Provider.Id,
             PersonaId = input.Persona.Id,
             Options = input.Options,
@@ -124,8 +125,8 @@ public static class Mapper {
                 IHasAgentMessages ham => ham.ChatId,
                 _ => default!,
             },
-            AgentIndex = parent switch {
-                IHasAgentMessages ham => ham.Index,
+            AgentNumber = parent switch {
+                IHasAgentMessages ham => ham.Number,
                 _ => null
             },
             Index = parent?.Messages.Count ?? 0,

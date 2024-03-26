@@ -2,6 +2,6 @@
 
 public interface IAsyncResponseConsumer
     : IResponseAwaiter {
-    Task ResponseApproved(string chatId, Message response, CancellationToken ct);
-    Task<bool> VerifyResponse(string chatId, Message response, CancellationToken ct);
+    Task ResponseApproved(Guid chat, int? agent, Message response, CancellationToken ct);
+    Task<bool> VerifyResponse(Guid chat, int? agent, Message response, CancellationToken ct);
 }

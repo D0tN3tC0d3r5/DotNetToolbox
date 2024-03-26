@@ -7,9 +7,9 @@ public class ChatAgentEntity
       IHasAgentMessages {
     [MaxLength(36)]
     [Required(AllowEmptyStrings = false)]
-    public string ChatId { get; set; } = default!;
-    public int Index { get; set; }
+    public Guid ChatId { get; set; } = default!;
     public ChatEntity Chat { get; set; } = default!;
+    public int Number { get; set; }
     [Required]
     public int ProviderId { get; set; }
     public ProviderEntity Provider { get; set; } = default!;
@@ -21,7 +21,7 @@ public class ChatAgentEntity
     public List<MessageEntity> Messages { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<ChatAgentEntity> builder) {
-        builder.HasKey(c => new { c.Chat, c.Index });
+        builder.HasKey(c => new { c.ChatId, c.Number });
         builder.HasOne(c => c.Chat)
                .WithMany(c => c.Agents)
                .HasForeignKey(c => c.ChatId);
@@ -33,8 +33,10 @@ public class ChatAgentEntity
                .HasForeignKey(c => c.PersonaId);
         builder.ComplexProperty(c => c.Options);
         builder.HasMany(c => c.Messages)
-               .WithOne()
-               .HasForeignKey(c => c.ChatId);
+               .WithOne(c => c.Agent)
+               .HasForeignKey(c => new { c.ChatId, c.Index })
+               .IsRequired(false)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 
     public ChatAgentData ToDto()

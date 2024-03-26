@@ -6,10 +6,10 @@ public interface IHasMessages {
 }
 
 public interface IHasChatMessages : IHasMessages {
-    string Id { get; set; }
+    Guid Id { get; set; }
 }
 
 public interface IHasAgentMessages : IHasMessages {
-    string ChatId { get; set; }
-    int Index { get; set; }
+    Guid ChatId { get; set; }
+    int Number { get; set; }
 }

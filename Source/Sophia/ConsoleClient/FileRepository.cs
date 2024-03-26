@@ -32,7 +32,7 @@ public class FileRepository(IFileSystemAccessor io) {
     public Chat LoadChat(string id)
         => LoadFile<Chat>(io.CombinePath(_chatsFolder, id), "chat");
     public void SaveChat(Chat chat)
-        => SaveFile(chat, io.CombinePath(_chatsFolder, chat.Id), "chat");
+        => SaveFile(chat, io.CombinePath(_chatsFolder, chat.Id.ToString()), "chat");
     public void DeleteChat(string id)
         => DeleteFolder(io.CombinePath(_chatsFolder, id));
 

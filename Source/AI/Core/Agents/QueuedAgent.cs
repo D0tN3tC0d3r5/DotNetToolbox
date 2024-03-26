@@ -16,12 +16,12 @@ public abstract class QueuedAgent<TAgent, TMapper, TRequest,  TResponse>(string 
                ? ProcessRequest(request, ct)
                : Task.CompletedTask;
 
-    public override Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, CancellationToken ct) {
-        var package = new RequestPackage(source, chat);
+    public override Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, int? number, CancellationToken ct) {
+        var package = new RequestPackage(source, chat, number);
         _receivedRequests.Enqueue(package);
         return HttpResult.OkTask();
     }
 
     private Task<HttpResult> ProcessRequest(RequestPackage package, CancellationToken ct)
-        => base.SendRequest(package.Source, package.Chat, ct);
+        => base.SendRequest(package.Source, package.Chat, package.AgentNumber, ct);
 }

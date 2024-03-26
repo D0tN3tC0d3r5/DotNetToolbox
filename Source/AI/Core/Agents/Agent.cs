@@ -17,7 +17,7 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
     public Persona Persona { get; set; } = default!;
     public AgentOptions Options { get; set; } = default!;
 
-    public virtual async Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, CancellationToken ct) {
+    public virtual async Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, int? number, CancellationToken ct) {
         try {
             var isCompleted = false;
             var count = 1;
@@ -27,15 +27,15 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
                 if (!result.IsOk) return result;
                 await source.StartWait(ct);
                 isCompleted = source switch {
-                    IResponseConsumer ac => ac.VerifyResponse(chat.Id, chat.Messages[^1]),
-                    IAsyncResponseConsumer ac => await ac.VerifyResponse(chat.Id, chat.Messages[^1], ct),
+                    IResponseConsumer ac => ac.VerifyResponse(chat.Id, number, chat.Messages[^1]),
+                    IAsyncResponseConsumer ac => await ac.VerifyResponse(chat.Id, number, chat.Messages[^1], ct),
                     _ => throw new NotSupportedException(nameof(source)),
                 };
             }
 
             switch (source) {
-                case IResponseConsumer ac: ac.ResponseApproved(chat.Id, chat.Messages[^1]); break;
-                case IAsyncResponseConsumer ac: await ac.ResponseApproved(chat.Id, chat.Messages[^1], ct); break;
+                case IResponseConsumer ac: ac.ResponseApproved(chat.Id, number, chat.Messages[^1]); break;
+                case IAsyncResponseConsumer ac: await ac.ResponseApproved(chat.Id, number, chat.Messages[^1], ct); break;
             }
             Logger.LogDebug("Request completed.");
             return HttpResult.Ok();

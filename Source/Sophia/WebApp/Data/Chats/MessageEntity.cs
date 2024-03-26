@@ -1,13 +1,16 @@
 ﻿namespace Sophia.WebApp.Data.Chats;
 
-[Table("ChatMessages")]
+[Table("Messages")]
 [EntityTypeConfiguration(typeof(MessageEntity))]
 public class MessageEntity
     : IEntityTypeConfiguration<MessageEntity> {
-    [Required]
-    [MaxLength(36)]
-    public string ChatId { get; set; } = default!;
-    public int? AgentIndex { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long Id { get; set; }
+    public Guid ChatId { get; set; } = default!;
+    public ChatEntity Chat { get; set; } = default!;
+    public int? AgentNumber { get; set; }
+    public ChatAgentEntity? Agent { get; set; }
     public int Index { get; set; }
     public DateTimeOffset Timestamp { get; set; }
     [MaxLength(20)]
@@ -16,11 +19,21 @@ public class MessageEntity
     [Required(AllowEmptyStrings = true)]
     public string Content { get; set; } = string.Empty;
 
-    public void Configure(EntityTypeBuilder<MessageEntity> builder)
-        => builder.HasKey(c => new { c.ChatId, c.AgentIndex, c.Index });
+    public void Configure(EntityTypeBuilder<MessageEntity> builder) {
+        builder.Property(c => c.AgentNumber).IsRequired(false);
+        builder.HasOne(c => c.Chat)
+               .WithMany(c => c.Messages)
+               .HasForeignKey(c => c.ChatId)
+               .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(c => c.Agent)
+               .WithMany(c => c.Messages)
+               .HasForeignKey(c => new { c.ChatId, c.AgentNumber })
+               .IsRequired(false)
+               .OnDelete(DeleteBehavior.Restrict);
+    }
 
     public MessageData ToDto()
-        => new() { 
+        => new() {
             Timestamp = Timestamp,
             Type = Type,
             Content = Content,

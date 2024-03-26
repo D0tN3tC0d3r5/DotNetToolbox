@@ -7,7 +7,7 @@ public partial class ChatsPage {
     private bool _showDeleteConfirmationDialog;
 
     private bool _showArchived;
-    private string? _renamingChatId;
+    private Guid? _renamingChatId;
     private string _newChatName = string.Empty;
 
     [Inject] public required IChatsRemoteService ChatsService { get; set; }
@@ -40,15 +40,15 @@ public partial class ChatsPage {
         _selectedChat = new();
     }
 
-    private void Resume(string chatId)
+    private void Resume(Guid chatId)
         => NavigationManager.NavigateTo($"/chat/{chatId}");
 
-    private async Task Archive(string chatId) {
+    private async Task Archive(Guid chatId) {
         await ChatsService.Archive(chatId);
         _chats = await ChatsService.GetList(_showArchived ? "ShowArchived" : null);
     }
 
-    private async Task Unarchive(string chatId) {
+    private async Task Unarchive(Guid chatId) {
         await ChatsService.Unarchive(chatId);
         _chats = await ChatsService.GetList(_showArchived ? "ShowArchived" : null);
     }
@@ -73,12 +73,12 @@ public partial class ChatsPage {
         _showDeleteConfirmationDialog = false;
     }
 
-    private void StartRename(string chatId, string currentName) {
+    private void StartRename(Guid chatId, string currentName) {
         _renamingChatId = chatId;
         _newChatName = currentName;
     }
 
-    private async Task ConfirmRename(string chatId) {
+    private async Task ConfirmRename(Guid chatId) {
         await ChatsService.Rename(chatId, _newChatName);
         _chats = await ChatsService.GetList(_showArchived ? "ShowArchived" : null);
         CancelRename();

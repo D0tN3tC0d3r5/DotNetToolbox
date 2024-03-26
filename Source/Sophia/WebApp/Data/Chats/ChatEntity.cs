@@ -6,10 +6,8 @@ public class ChatEntity
     : IEntityTypeConfiguration<ChatEntity>
     , IHasChatMessages {
     [Key]
-    [MaxLength(36)]
-    [Required(AllowEmptyStrings = false)]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public string Id { get; set; } = default!;
+    public Guid Id { get; set; }
     [MaxLength(100)]
     [Required(AllowEmptyStrings = false)]
     public string Title { get; set; } = string.Empty;
@@ -19,10 +17,14 @@ public class ChatEntity
     public List<MessageEntity> Messages { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<ChatEntity> builder) {
-        builder.OwnsMany(c => c.Agents);
+        builder.HasMany(c => c.Agents)
+               .WithOne(a => a.Chat)
+               .HasForeignKey(c => c.ChatId)
+               .OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(c => c.Messages)
-               .WithOne()
-               .HasForeignKey(c => c.ChatId);
+               .WithOne(m => m.Chat)
+               .HasForeignKey(c => c.ChatId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 
     public ChatData ToDto()

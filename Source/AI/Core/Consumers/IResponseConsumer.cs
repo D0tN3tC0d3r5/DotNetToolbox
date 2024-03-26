@@ -2,6 +2,6 @@
 
 public interface IResponseConsumer
     : IResponseAwaiter {
-    void ResponseApproved(string chatId, Message response);
-    bool VerifyResponse(string chatId, Message response);
+    void ResponseApproved(Guid chat, int? agent, Message response);
+    bool VerifyResponse(Guid chat, int? agent, Message response);
 }
