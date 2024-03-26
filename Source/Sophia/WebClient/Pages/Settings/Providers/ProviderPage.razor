@@ -1,4 +1,6 @@
 ﻿@page "/settings/provider/{Action}/{Id:int?}"
+@using System.Net
+@using DotNetToolbox.Http
 @rendermode InteractiveServer
 
 <div class="container">
@@ -33,11 +35,29 @@
         <ValidationMessage For="@(() => _provider.Name)" />
       </div>
       <div class="mb-3">
-        <label for="apiKey" class="form-label">Authentication</label>
-        <InputText id="apiKey" class="form-control" @bind-Value="_provider.Authentication" disabled="@IsReadOnly" />
-        <ValidationMessage For="@(() => _provider.Authentication)" />
+        <label for="baseAddress" class="form-label">API Base Address</label>
+        <InputText id="baseAddress" class="form-control" @bind-Value="_provider.Api.BaseAddress" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _provider.Api.BaseAddress)" />
       </div>
-
+      <div class="mb-3">
+        <label for="chatEndpoint" class="form-label">API Chat Endpoint</label>
+        <InputText id="chatEndpoint" class="form-control" @bind-Value="_provider.Api.ChatEndpoint" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _provider.Name)" />
+      </div>
+      <div class="mb-3">
+        <label for="authorizationType" class="form-label">Authentication Type</label>
+        <select id="authorizationType" class="form-control" @bind="_provider.Api.Authorization.Type" disabled="@IsReadOnly">
+          @foreach (var value in Enum.GetValues(typeof(AuthorizationType))) {
+            <option value="@value">@value</option>
+          }
+        </select>
+        <ValidationMessage For="@(() => _provider.Api.Authorization.Type)" />
+      </div>
+      <div class="mb-3">
+        <label for="authorizationValue" class="form-label">Authorization Value</label>
+        <InputTextArea id="authorizationValue" rows="5" class="form-control" @bind-Value="_provider.Api.Authorization.Value" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _provider.Api.Authorization.Value)" />
+      </div>
       <h4>Models</h4>
       <div class="mb-3">
         <table class="table w-100">

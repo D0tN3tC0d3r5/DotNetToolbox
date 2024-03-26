@@ -10,7 +10,6 @@ public partial class ChatSetupDialog {
 
     private IReadOnlyList<PersonaData> _personas = [];
     private IDictionary<string, string> _models = new Dictionary<string, string>();
-    private string _selectedModel = string.Empty;
 
     protected override async Task OnInitializedAsync() {
         _personas = await PersonasService.GetList();

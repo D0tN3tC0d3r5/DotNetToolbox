@@ -12,7 +12,7 @@
           <div class="row mb-3">
             <div class="col-8">
               <label for="model" class="form-label me-2">AI Model</label>
-              <InputSelect id="model" class="form-control me-2" @bind-Value="_selectedModel">
+              <InputSelect id="model" class="form-control me-2" @bind-Value="Chat.Agent.Options.Model">
                 @foreach (var model in _models) {
                   <option value="@model.Key">@model.Value</option>
                 }
@@ -31,8 +31,8 @@
           </div>
           <div class="row mb-3">
             <div class="col-8">
-              <label for="temperature" class="form-label">Temperature: @Chat.Agent.Temperature</label>
-              <input id="temperature" type="range" class="form-control" @bind="Chat.Agent.Temperature" min="0" max="2" step="0.05" @oninput="UpdateTemperature" />
+              <label for="temperature" class="form-label">Temperature: @Chat.Agent.Options.Temperature</label>
+              <input id="temperature" type="range" class="form-control" @bind="Chat.Agent.Options.Temperature" min="0" max="2" step="0.05" @oninput="UpdateTemperature" />
             </div>
           </div>
         </EditForm>
