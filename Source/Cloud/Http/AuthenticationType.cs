@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Http;
 
-public enum AuthorizationType {
+public enum AuthenticationType {
     None,
     ApiKey,
     StaticToken,

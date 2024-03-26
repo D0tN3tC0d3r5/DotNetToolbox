@@ -3,16 +3,16 @@
 public class ProvidersService(ApplicationDbContext dbContext) : IProvidersService {
     public async Task<IReadOnlyList<ProviderData>> GetList(string? filter = null)
         => await dbContext.Providers
-                           .AsNoTracking()
-                           .Include(p => p.Models)
-                           .Select(p => p.ToDto())
-                           .ToListAsync();
+                          .AsNoTracking()
+                          .Include(p => p.Models)
+                          .Select(p => p.ToDto())
+                          .ToListAsync();
 
     public async Task<ProviderData?> GetById(int id) {
         var provider = await dbContext.Providers
-                                       .AsNoTracking()
-                                       .Include(p => p.Models)
-                                       .FirstOrDefaultAsync(p => p.Id == id);
+                                      .AsNoTracking()
+                                      .Include(p => p.Models)
+                                      .FirstOrDefaultAsync(p => p.Id == id);
         return provider?.ToDto();
     }
 

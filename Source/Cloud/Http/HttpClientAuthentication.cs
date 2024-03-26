@@ -8,7 +8,7 @@ public class HttpClientAuthentication() {
         _dateTime = IsNotNull(dateTime);
     }
 
-    public AuthorizationType Type { get; init; }
+    public AuthenticationType Type { get; init; }
     public AuthorizationScheme Scheme { get; init; }
     public string? Value { get; set; }
     public DateTimeOffset? ExpiresOn { get; set; }

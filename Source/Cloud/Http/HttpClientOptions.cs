@@ -49,7 +49,7 @@ public record HttpClientOptions
                     result += new ValidationError("The http client authentication value is missing.", GetConfigurationPath(providerPath, $"{nameof(Authentication)}:{nameof(HttpClientAuthentication.Value)}")); ;
                 break;
             default:
-                result += new ValidationError("The http client authentication type is invalid.", GetConfigurationPath(providerPath, nameof(AuthorizationType)));
+                result += new ValidationError("The http client authentication type is invalid.", GetConfigurationPath(providerPath, nameof(AuthenticationType)));
                 break;
         }
         return result;

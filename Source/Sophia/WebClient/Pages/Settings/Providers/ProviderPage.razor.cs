@@ -6,6 +6,7 @@ public partial class ProviderPage {
     private ProviderData _provider = new();
     private EditContext _editContext;
     private ValidationMessageStore _validationMessageStore;
+    private List<CustomRequestHeaderView> _headers = [];
 
     private PageAction _action;
     [Parameter]
@@ -26,6 +27,11 @@ public partial class ProviderPage {
 
     protected override async Task OnInitializedAsync() {
         _provider = await GetProviderById(Id);
+        _headers = _provider.Api.CustomRequestHeaders
+                            .Select(i => new CustomRequestHeaderView {
+            Name = i.Key,
+            Value = i.Value,
+        }).ToList();
         _action = Enum.Parse<PageAction>(Action);
     }
 
@@ -50,6 +56,7 @@ public partial class ProviderPage {
     public void EnableEdit() => _action = PageAction.Edit;
 
     public async Task Save() {
+        _provider.Api.CustomRequestHeaders = _headers.ToDictionary(k => k.Name, v => v.Value);
         if (_provider.Id == 0) await ProvidersService.Add(_provider);
         else await ProvidersService.Update(_provider);
         _action = PageAction.View;
@@ -76,4 +83,15 @@ public partial class ProviderPage {
 
     private void RemoveOption(int index)
         => _provider.Models.RemoveAt(index);
+
+    private void InsertCustomRequestHeader()
+        => _headers.Add(new());
+
+    private void RemoveCustomRequestHeader(int index)
+        => _headers.RemoveAt(index);
+
+    private class CustomRequestHeaderView {
+        public string Name { get; set; } = "new-header";
+        public string Value { get; set; } = string.Empty;
+    }
 }

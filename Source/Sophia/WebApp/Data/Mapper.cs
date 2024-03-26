@@ -20,17 +20,21 @@ public static class Mapper {
         target.Id = input.Id;
         target.Name = input.Name;
         target.Api = input.Api.ToEntity();
+        target.Authentication = input.Authentication.ToEntity();
         target.Models = input.Models.ToList(i => i.AddOrUpdate(target));
     }
 
     public static ApiEntity ToEntity(this ApiData input)
         => new() {
+            BaseAddress = input.BaseAddress,
             ChatEndpoint = input.ChatEndpoint,
-            AuthorizationType = input.Authorization.Type,
-            AuthorizationScheme = input.Authorization.Scheme,
-            AuthorizationValue = input.Authorization.Value,
-            AuthorizationExpiresOn = input.Authorization.ExpiresOn,
-            CustomRequestHeaders = input.CustomRequestHeaders?.ToList(i => string.Join('|', i.Key, i.Value)) ?? [],
+            CustomRequestHeaders = input.CustomRequestHeaders.ToList(i => string.Join('|', i.Key, i.Value)),
+        };
+
+    public static AuthenticationEntity ToEntity(this AuthenticationData input)
+        => new() {
+            Type = input.Type,
+            Value = input.Value,
         };
 
     public static ModelEntity ToEntity(this ModelData input)

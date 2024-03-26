@@ -10,6 +10,6 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 
 global using static DotNetToolbox.Ensure;
-global using static DotNetToolbox.Http.AuthorizationType;
+global using static DotNetToolbox.Http.AuthenticationType;
 
 global using Result = DotNetToolbox.Results.Result;

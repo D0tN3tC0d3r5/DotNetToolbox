@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Sophia.WebApp.Migrations
+namespace Sophia.WebApp.Data.Migrations
 {
     /// <inheritdoc />
     public partial class CreateInitialSchema : Migration
@@ -49,7 +49,11 @@ namespace Sophia.WebApp.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Authentication = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true)
+                    Api_BaseAddress = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Api_ChatEndpoint = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Api_CustomRequestHeaders = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Authentication_Type = table.Column<int>(type: "int", nullable: false),
+                    Authentication_Value = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -110,28 +114,6 @@ namespace Sophia.WebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Chats",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PersonaId = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    Model = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Temperature = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Chats", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Chats_Personas_PersonaId",
-                        column: x => x.PersonaId,
-                        principalTable: "Personas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PersonaFacts",
                 columns: table => new
                 {
@@ -151,6 +133,35 @@ namespace Sophia.WebApp.Migrations
                         name: "FK_PersonaFacts_Personas_PersonaId",
                         column: x => x.PersonaId,
                         principalTable: "Personas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Chats",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ProviderId = table.Column<int>(type: "int", nullable: false),
+                    PersonaId = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Model = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Temperature = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Chats", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Chats_Personas_PersonaId",
+                        column: x => x.PersonaId,
+                        principalTable: "Personas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Chats_Providers_ProviderId",
+                        column: x => x.ProviderId,
+                        principalTable: "Providers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -439,6 +450,11 @@ namespace Sophia.WebApp.Migrations
                 column: "PersonaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Chats_ProviderId",
+                table: "Chats",
+                column: "ProviderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PersonaFacts_PersonaId",
                 table: "PersonaFacts",
                 column: "PersonaId");
@@ -548,9 +564,6 @@ namespace Sophia.WebApp.Migrations
                 name: "Chats");
 
             migrationBuilder.DropTable(
-                name: "Providers");
-
-            migrationBuilder.DropTable(
                 name: "Roles");
 
             migrationBuilder.DropTable(
@@ -564,6 +577,9 @@ namespace Sophia.WebApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "Personas");
+
+            migrationBuilder.DropTable(
+                name: "Providers");
 
             migrationBuilder.DropTable(
                 name: "UserProfiles");

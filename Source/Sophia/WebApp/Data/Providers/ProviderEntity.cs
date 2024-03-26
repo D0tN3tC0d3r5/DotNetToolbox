@@ -13,6 +13,7 @@ public class ProviderEntity
     public string Name { get; set; } = string.Empty;
     [Required]
     public ApiEntity Api { get; set; } = new();
+    public AuthenticationEntity Authentication { get; set; } = new();
     public List<ModelEntity> Models { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<ProviderEntity> builder) {
@@ -20,8 +21,8 @@ public class ProviderEntity
         builder.HasMany(p => p.Models)
                .WithOne(m => m.Provider)
                .HasForeignKey(m => m.ProviderId);
-        builder.OwnsOne(p => p.Api)
-               .WithOwner();
+        builder.ComplexProperty(p => p.Api);
+        builder.ComplexProperty(p => p.Authentication);
     }
 
     public static async Task Seed(ApplicationDbContext dbContext) {
@@ -31,8 +32,9 @@ public class ProviderEntity
             Api = new() {
                 BaseAddress = "https://api.openai.com",
                 ChatEndpoint = "v1/completions",
-                AuthorizationType = AuthorizationType.StaticToken,
-                AuthorizationScheme = AuthorizationScheme.Bearer,
+            },
+            Authentication = new() {
+                Type = AuthenticationType.StaticToken,
             },
             Models = [
                 new() {
@@ -50,22 +52,24 @@ public class ProviderEntity
             Api = new() {
                 BaseAddress = "https://api.anthropic.com",
                 ChatEndpoint = "v1/messages",
-                AuthorizationType = AuthorizationType.ApiKey,
+            },
+            Authentication = new() {
+                Type = AuthenticationType.ApiKey,
             },
             Models = [
-                         new() {
-                                   Key = "claude-3-opus-20240229",
-                                   Name = "Claude 3 Opus",
-                               },
-                         new() {
-                                   Key = "claude-3-haiku-20240307",
-                                   Name = "Claude 3 Haiku",
-                               },
-                         new() {
-                                   Key = "claude-2.1",
-                                   Name = "Claude 2.1",
-                               },
-                     ],
+                new() {
+                    Key = "claude-3-opus-20240229",
+                    Name = "Claude 3 Opus",
+                },
+                new() {
+                    Key = "claude-3-haiku-20240307",
+                    Name = "Claude 3 Haiku",
+                },
+                new() {
+                    Key = "claude-2.1",
+                    Name = "Claude 2.1",
+                },
+            ],
         };
         dbContext.Providers.AddRange(openAi, anthropic);
     }
@@ -75,6 +79,7 @@ public class ProviderEntity
             Id = Id,
             Name = Name,
             Api = Api.ToDto(),
+            Authentication = Authentication.ToDto(),
             Models = Models.ToList(f => f.ToDto()),
         };
 }

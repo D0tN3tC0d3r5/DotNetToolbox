@@ -34,29 +34,70 @@
         <InputText id="providerName" class="form-control" @bind-Value="_provider.Name" disabled="@IsReadOnly" />
         <ValidationMessage For="@(() => _provider.Name)" />
       </div>
+      <h4>API</h4>
       <div class="mb-3">
-        <label for="baseAddress" class="form-label">API Base Address</label>
+        <label for="baseAddress" class="form-label">Base Address</label>
         <InputText id="baseAddress" class="form-control" @bind-Value="_provider.Api.BaseAddress" disabled="@IsReadOnly" />
         <ValidationMessage For="@(() => _provider.Api.BaseAddress)" />
       </div>
       <div class="mb-3">
-        <label for="chatEndpoint" class="form-label">API Chat Endpoint</label>
+        <label for="chatEndpoint" class="form-label">Chat Endpoint</label>
         <InputText id="chatEndpoint" class="form-control" @bind-Value="_provider.Api.ChatEndpoint" disabled="@IsReadOnly" />
         <ValidationMessage For="@(() => _provider.Name)" />
       </div>
+      <h4>Authentication</h4>
       <div class="mb-3">
-        <label for="authorizationType" class="form-label">Authentication Type</label>
-        <select id="authorizationType" class="form-control" @bind="_provider.Api.Authorization.Type" disabled="@IsReadOnly">
-          @foreach (var value in Enum.GetValues(typeof(AuthorizationType))) {
+        <label for="authenticationType" class="form-label">Type</label>
+        <select id="authenticationType" class="form-control" @bind="_provider.Authentication.Type" disabled="@IsReadOnly">
+          @foreach (var value in Enum.GetValues(typeof(AuthenticationType))) {
             <option value="@value">@value</option>
           }
         </select>
-        <ValidationMessage For="@(() => _provider.Api.Authorization.Type)" />
+        <ValidationMessage For="@(() => _provider.Authentication.Type)" />
       </div>
       <div class="mb-3">
-        <label for="authorizationValue" class="form-label">Authorization Value</label>
-        <InputTextArea id="authorizationValue" rows="5" class="form-control" @bind-Value="_provider.Api.Authorization.Value" disabled="@IsReadOnly" />
-        <ValidationMessage For="@(() => _provider.Api.Authorization.Value)" />
+        <label for="authenticationValue" class="form-label">Value</label>
+        <InputTextArea id="authenticationValue" rows="5" class="form-control" @bind-Value="_provider.Authentication.Value" disabled="@IsReadOnly" />
+        <ValidationMessage For="@(() => _provider.Authentication.Value)" />
+      </div>
+      <h4>Custom Request Headers</h4>
+      <div class="mb-3">
+        <table class="table w-100">
+          <thead>
+            <tr>
+              <th class="fit">
+                @if (!IsReadOnly) {
+                  <button class="btn btn-primary btn-sm" @onclick="InsertCustomRequestHeader" @onclick:preventDefault disabled="@IsReadOnly">
+                    <i class="bi bi-plus-circle"></i>
+                  </button>
+                }
+              </th>
+              <th>Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (var i = 0; i < _headers.Count; i++) {
+              var index = i;
+              <tr>
+                <td class="fit">
+                  @if (!IsReadOnly) {
+                    <button class="btn btn-danger btn-sm" @onclick="() => RemoveCustomRequestHeader(index)" @onclick:preventDefault>
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  }
+                </td>
+                <td>
+                  <InputText class="form-control" @bind-Value="_headers[index].Name" disabled="@IsReadOnly" />
+                </td>
+                <td>
+                  <InputText class="form-control" @bind-Value="_headers[index].Value" disabled="@IsReadOnly" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <ValidationMessage For="@(() => _provider.Api.CustomRequestHeaders)" />
       </div>
       <h4>Models</h4>
       <div class="mb-3">
@@ -64,7 +105,7 @@
           <thead>
             <tr>
               <th class="fit">
-                @if (IsReadOnly) {
+                @if (!IsReadOnly) {
                   <button class="btn btn-primary btn-sm" @onclick="() => InsertOption()" @onclick:preventDefault disabled="@IsReadOnly">
                     <i class="bi bi-plus-circle"></i>
                   </button>
@@ -79,7 +120,7 @@
               var index = i;
               <tr>
                 <td class="fit">
-                  @if (IsReadOnly) {
+                  @if (!IsReadOnly) {
                     <button class="btn btn-primary btn-sm" @onclick="() => InsertOption(index)" @onclick:preventDefault>
                       <i class="bi bi-plus-circle"></i>
                     </button>
