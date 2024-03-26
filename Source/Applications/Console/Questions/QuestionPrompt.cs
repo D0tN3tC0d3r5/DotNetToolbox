@@ -1,12 +1,12 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public abstract class Prompt(IEnvironment environment) {
-    protected IOutput Output { get; } = environment.Output;
-    protected IInput Input { get; } = environment.Input;
+public abstract class Prompt(ISystemEnvironment environment) {
+    protected IOutput Output { get; } = environment.ConsoleOutput;
+    protected IInput Input { get; } = environment.ConsoleInput;
     protected virtual void ShowPrompt() => Output.WritePrompt();
 }
 
-public abstract class QuestionPrompt<TResult>(string question, IEnvironment environment) 
+public abstract class QuestionPrompt<TResult>(string question, ISystemEnvironment environment)
     : Prompt(environment) {
     protected string Question { get; set; } = IsNotNullOrWhiteSpace(question);
     public abstract bool Validate(string input, out TResult result);

@@ -1,6 +1,8 @@
 ﻿namespace DotNetToolbox.Collections.Generic;
 
 public static class QueryableExtensions {
+    #region Projections
+
     public static TOutput[] ToArray<TItem, TOutput>(this IQueryable<TItem> source, Expression<Func<TItem, TOutput>> project)
         => [.. IsNotNull(source).Select(project)];
     public static List<TOutput> ToList<TItem, TOutput>(this IQueryable<TItem> source, Expression<Func<TItem, TOutput>> project)
@@ -17,6 +19,8 @@ public static class QueryableExtensions {
 
     public static HashSet<TOutput> ToHashSet<TItem, TOutput>(this IQueryable<TItem> source, Expression<Func<TItem, TOutput>> project)
         => [.. IsNotNull(source).Select(project)];
+
+    #endregion
 
     #region With Index
 
@@ -47,8 +51,9 @@ public static class QueryableExtensions {
     #endregion
 
     #region ForEach
+
     public static void ForEach<TItem>(this IQueryable source, Action<TItem> action) => source.Cast<TItem>().ToList().ForEach(action);
-    public static void ForEach<TItem>(this IQueryable source, Action<IndexedItem<TItem>> action) => source.Cast<TItem>().ToIndexedList().ForEach(action);
+
     #endregion
 }
 

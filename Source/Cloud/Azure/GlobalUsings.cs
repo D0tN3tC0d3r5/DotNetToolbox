@@ -7,4 +7,4 @@ global using DotNetToolbox.Azure;
 
 global using Microsoft.Extensions.Configuration;
 
-global using static DotNetToolbox.Ensure;
+global using static DotNetToolbox.Diagnostics.Ensure;

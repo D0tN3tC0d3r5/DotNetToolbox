@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public class FreeTextPrompt(string question, IEnvironment environment, FreeTextOptions options)
+public class FreeTextPrompt(string question, ISystemEnvironment environment, FreeTextOptions options)
     : QuestionPrompt<string>(question, environment) {
 
     public override bool Validate(string input, out string result) {

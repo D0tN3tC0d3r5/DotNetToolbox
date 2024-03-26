@@ -1,6 +1,5 @@
 // Global using directives
 
-global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Linq;
 global using System.Net;
@@ -17,14 +16,15 @@ global using DotNetToolbox.AI.Consumers;
 global using DotNetToolbox.AI.Extensions;
 global using DotNetToolbox.AI.Personas;
 global using DotNetToolbox.Collections.Generic;
+global using DotNetToolbox.Environment;
 global using DotNetToolbox.Extensions;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.Http.Extensions;
 global using DotNetToolbox.Results;
+global using DotNetToolbox.Threading;
 
-global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
 
-global using static DotNetToolbox.Ensure;
+global using static DotNetToolbox.Diagnostics.Ensure;

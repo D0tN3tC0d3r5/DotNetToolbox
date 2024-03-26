@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Http;
+﻿using DotNetToolbox.Collections.Generic;
+
+namespace DotNetToolbox.Http;
 
 public record HttpClientOptions
     : INamedOptions<HttpClientOptions>, IValidatable {
@@ -41,17 +43,9 @@ public record HttpClientOptions
 
     private Result ValidateAuthentication(string providerPath) {
         var result = new Result();
-        if (Authentication is null) return result;
-        switch (Authentication.Type) {
-            case ApiKey:
-            case StaticToken:
-                if (string.IsNullOrWhiteSpace(Authentication.Value))
-                    result += new ValidationError("The http client authentication value is missing.", GetConfigurationPath(providerPath, $"{nameof(Authentication)}:{nameof(HttpClientAuthentication.Value)}")); ;
-                break;
-            default:
-                result += new ValidationError("The http client authentication type is invalid.", GetConfigurationPath(providerPath, nameof(AuthenticationType)));
-                break;
-        }
+        if (Authentication is null || Authentication.Type is None) return result;
+        if (string.IsNullOrWhiteSpace(Authentication.Value))
+            result += new ValidationError("The http client authentication value is missing.", GetConfigurationPath(providerPath, $"{nameof(Authentication)}:{nameof(HttpClientAuthentication.Value)}")); ;
         return result;
     }
 
@@ -62,9 +56,7 @@ public record HttpClientOptions
         client.BaseAddress = new(BaseAddress);
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new(GetDefaultIfNullOrWhiteSpace(ResponseFormat, DefaultResponseFormat)));
-        foreach (var customHeader in CustomHeaders ?? [])
-            client.DefaultRequestHeaders.Add(customHeader.Key, customHeader.Value);
-        if (Authentication is null) return;
-        client.DefaultRequestHeaders.Authorization = Authentication;
+        Authentication?.SetHttpClientAuthentication(client);
+        CustomHeaders?.ForEach(client.DefaultRequestHeaders.Add);
     }
 }

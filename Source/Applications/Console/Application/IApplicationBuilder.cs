@@ -9,7 +9,7 @@ public interface IApplicationBuilder {
     void SetAssemblyInformation(IAssemblyDescriptor assemblyDescriptor);
     void SetInputHandler(IInput input);
     void SetOutputHandler(IOutput output);
-    void SetFileSystem(IFileSystem fileSystem);
+    void SetFileSystem(IFileSystemAccessor fileSystem);
     void SetGuidProvider(IGuidProvider guidProvider);
     void ConfigureLogging(Action<ILoggingBuilder> configure);
 }

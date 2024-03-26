@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox;
+﻿namespace DotNetToolbox.Threading;
 
 public class Awaiter(int timeoutInMilliseconds = 5000, int delayInMilliseconds = 100, ILogger<Awaiter>? logger = null)
     : Awaiter<Awaiter>(timeoutInMilliseconds, delayInMilliseconds, logger);

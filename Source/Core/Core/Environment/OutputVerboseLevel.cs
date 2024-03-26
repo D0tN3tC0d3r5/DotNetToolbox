@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox;
+﻿namespace DotNetToolbox.Environment;
 
 public enum OutputVerboseLevel {
     Trace = -2,

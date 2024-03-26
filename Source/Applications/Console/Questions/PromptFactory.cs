@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public class PromptFactory(IEnvironment environment)
+public class PromptFactory(ISystemEnvironment environment)
     : IPromptFactory {
     public FreeTextPrompt CreateFreeTextQuestion(string question, Action<FreeTextOptions>? configure = null) {
         var options = new FreeTextOptions();
@@ -16,7 +16,7 @@ public class PromptFactory(IEnvironment environment)
 
     public MultipleChoicePrompt<TResult> CreateMultipleChoiceQuestion<TResult>(string question, Action<MultipleChoiceOptionsBuilder<TResult>> configure) {
         var options = new MultipleChoiceOptionsBuilder<TResult>();
-        configure?.Invoke(options);
+        IsNotNull(configure)(options);
         return new(question, environment, options.Build());
     }
 

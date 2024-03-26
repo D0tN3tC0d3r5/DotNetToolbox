@@ -496,7 +496,7 @@ public class NodeTests {
         serviceProvider.GetService(typeof(IAssemblyAccessor)).Returns(_assemblyAccessor);
         serviceProvider.GetService(typeof(IDateTimeProvider)).Returns(Substitute.For<IDateTimeProvider>());
         serviceProvider.GetService(typeof(IGuidProvider)).Returns(Substitute.For<IGuidProvider>());
-        serviceProvider.GetService(typeof(IFileSystem)).Returns(Substitute.For<IFileSystem>());
+        serviceProvider.GetService(typeof(IFileSystemAccessor)).Returns(Substitute.For<IFileSystemAccessor>());
         serviceProvider.GetService(typeof(ILoggerFactory)).Returns(Substitute.For<ILoggerFactory>());
         return serviceProvider;
     }

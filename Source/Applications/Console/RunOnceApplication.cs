@@ -15,7 +15,7 @@ public abstract class RunOnceApplication<TApplication, TBuilder>(string[] args, 
     : ApplicationBase<TApplication, TBuilder>(args, services), IRunOnce
     where TApplication : RunOnceApplication<TApplication, TBuilder>
     where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder> {
-    internal sealed override async Task Run(CancellationToken ct) {
+    internal sealed override async Task Run(CancellationToken ct = default) {
         if (Arguments.Length == 0) {
             await ShowHelp(ct).ConfigureAwait(false);
             return;
@@ -25,7 +25,7 @@ public abstract class RunOnceApplication<TApplication, TBuilder>(string[] args, 
         ProcessResult(result);
     }
 
-    protected virtual Task<Result> ExecuteDefault(CancellationToken ct) => SuccessTask();
+    protected virtual Task<Result> ExecuteDefault(CancellationToken ct = default) => SuccessTask();
 
     private Task<Result> ShowHelp(CancellationToken ct) {
         var help = new HelpCommand(this);

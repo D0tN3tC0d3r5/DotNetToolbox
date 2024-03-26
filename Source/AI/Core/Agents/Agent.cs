@@ -1,14 +1,14 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
 public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provider,
-                                                                  IHttpClientProviderFactory httpClientProviderFactory,
+                                                                  IHttpClientProviderFactory factory,
                                                                   ILogger<TAgent> logger)
     : IAgent
     where TAgent : Agent<TAgent, TMapper, TRequest, TResponse>
     where TMapper : class, IMapper, new()
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
-    private readonly IHttpClientProvider _httpClientProvider = httpClientProviderFactory.Create(provider);
+    private readonly IHttpClientProvider _httpClientProvider = factory.Create(provider);
 
     protected ILogger<TAgent> Logger { get; } = logger;
     protected TMapper Mapper { get; } = new();

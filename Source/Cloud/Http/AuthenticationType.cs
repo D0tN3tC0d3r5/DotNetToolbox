@@ -3,7 +3,9 @@
 public enum AuthenticationType {
     None,
     ApiKey,
-    StaticToken,
+    BasicToken,
+    BearerToken,
+    Password,
     Jwt,
     OAuth2,
     //Client,

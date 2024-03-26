@@ -55,7 +55,8 @@ public static class EnumerableExtensions {
     #endregion
 
     #region ForEach
+
     public static void ForEach<TItem>(this IEnumerable source, Action<TItem> action) => source.Cast<TItem>().ToList().ForEach(action);
-    public static void ForEach<TItem>(this IEnumerable source, Action<IndexedItem<TItem>> action) => source.Cast<TItem>().ToIndexedList().ForEach(action);
+
     #endregion
 }

@@ -1,6 +1,6 @@
 ﻿namespace Sophia.ConsoleClient;
 
-public class FileRepository(IFileSystem io) {
+public class FileRepository(IFileSystemAccessor io) {
     private const string _worldFolder = "Data";
     private const string _chatsFolder = "Data\\Chats";
     private const string _agentsFolder = "Data\\Agents";

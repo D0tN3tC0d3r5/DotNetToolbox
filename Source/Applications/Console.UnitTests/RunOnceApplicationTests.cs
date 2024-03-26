@@ -185,8 +185,8 @@ public class RunOnceApplicationTests {
 
             """;
         var app = RunOnceApplication.Create(b => b.SetOutputHandler(output));
-        app.AddCommand("say-it", (Command c) => c.Environment.Output.WriteLine("Hello world!"));
-        app.AddCommand("magic", (Command c) => c.Environment.Output.WriteLine("Please..."));
+        app.AddCommand("say-it", (Command c) => c.Environment.ConsoleOutput.WriteLine("Hello world!"));
+        app.AddCommand("magic", (Command c) => c.Environment.ConsoleOutput.WriteLine("Please..."));
 
         // Act
         app.Run();
@@ -238,7 +238,7 @@ public class RunOnceApplicationTests {
 
             """;
         var app = RunOnceApplication.Create([ "say-it" ], b => b.SetOutputHandler(output));
-        app.AddCommand("say-it", (Command c) => c.Environment.Output.WriteLine("Hello world!"));
+        app.AddCommand("say-it", (Command c) => c.Environment.ConsoleOutput.WriteLine("Hello world!"));
 
         // Act
         app.Run();
@@ -253,7 +253,7 @@ public class RunOnceApplicationTests {
         // Arrange
         var output = new TestOutput();
         var input = new TestInput(output);
-        var fileSystem = new TestFileSystem();
+        var fileSystem = new TestFileSystemAccessor();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         const string expectedOutput =

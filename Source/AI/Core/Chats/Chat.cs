@@ -11,12 +11,12 @@ public class Chat(
         : this(id, new(), []) {
     }
 
-    public Chat(IEnvironment environment)
+    public Chat(ISystemEnvironment environment)
         : this(environment.Guid.New().ToString(), new(), []) {
     }
 
     public string Id { get; set; } = id;
-    public Instructions Instructions { get; set; } = instructions ?? new();
+    public Instructions Instructions { get; set; } = instructions;
     public List<Message> Messages { get; set; } = messages?.ToList() ?? [];
     public uint TotalTokens { get; set; } = totalTokens;
 }

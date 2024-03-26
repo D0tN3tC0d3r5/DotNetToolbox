@@ -13,7 +13,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
     private IAssemblyDescriptor? _assemblyDescriptor;
     private IDateTimeProvider? _dateTimeProvider;
     private IGuidProvider? _guidProvider;
-    private IFileSystem? _fileSystem;
+    private IFileSystemAccessor? _fileSystem;
     private IOutput? _output;
     private IInput? _input;
 
@@ -37,7 +37,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
         => _input = IsNotNull(input);
     public void SetOutputHandler(IOutput output)
         => _output = IsNotNull(output);
-    public void SetFileSystem(IFileSystem fileSystem)
+    public void SetFileSystem(IFileSystemAccessor fileSystem)
         => _fileSystem = IsNotNull(fileSystem);
     public void SetGuidProvider(IGuidProvider guidProvider)
         => _guidProvider = IsNotNull(guidProvider);
@@ -47,7 +47,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
         => _setLogging = IsNotNull(configure);
 
     public TApplication Build() {
-        Services.AddEnvironment(_environment,
+        Services.SetEnvironment(_environment,
                                 _assemblyDescriptor,
                                 _dateTimeProvider,
                                 _guidProvider,
@@ -60,7 +60,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
         AddLogging(Configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
-        return CreateInstance.Of<TApplication>(_args, serviceProvider);
+        return InstanceFactory.Create<TApplication>(_args, serviceProvider);
     }
 
     private void AddLogging(IConfiguration configuration)

@@ -1,13 +1,13 @@
-namespace DotNetToolbox;
+namespace DotNetToolbox.Utilities;
 
-public class CreateInstanceTests {
+public class InstanceFactoryTests {
     // ReSharper disable once ClassNeverInstantiated.Local
     private class TestClass;
 
     [Fact]
     public void Create_NoArgs_CreatesObjectOfTypeT() {
         // Arrange & Act
-        var instance = CreateInstance.Of<TestClass>();
+        var instance = InstanceFactory.Create<TestClass>();
 
         // Assert
         instance.Should().NotBeNull();
@@ -25,7 +25,7 @@ public class CreateInstanceTests {
         const string expectedValue = "Test";
 
         // Act
-        var instance = CreateInstance.Of<TestClassWithArgs>(expectedValue);
+        var instance = InstanceFactory.Create<TestClassWithArgs>(expectedValue);
 
         // Assert
         instance.Should().NotBeNull();
@@ -36,7 +36,7 @@ public class CreateInstanceTests {
     [Fact]
     public void Create_WithWrongArgs_Throws() {
         // Act
-        var action = () => CreateInstance.Of<TestClassWithArgs>();
+        var action = () => InstanceFactory.Create<TestClassWithArgs>();
 
         // Assert
         action.Should().Throw<InvalidOperationException>();
@@ -48,7 +48,7 @@ public class CreateInstanceTests {
         var provider = For<IServiceProvider>();
 
         // Act
-        var instance = CreateInstance.Of<TestClass>(provider);
+        var instance = InstanceFactory.Create<TestClass>(provider);
 
         // Assert
         instance.Should().NotBeNull();
@@ -61,7 +61,7 @@ public class CreateInstanceTests {
         var provider = For<IServiceProvider>();
 
         // Act
-        var action = () => CreateInstance.Of<TestClassWithArgs>(provider);
+        var action = () => InstanceFactory.Create<TestClassWithArgs>(provider);
 
         // Assert
         action.Should().Throw<InvalidOperationException>();

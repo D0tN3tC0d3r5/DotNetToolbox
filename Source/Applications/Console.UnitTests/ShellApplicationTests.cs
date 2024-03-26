@@ -46,7 +46,7 @@ public class ShellApplicationTests {
             > exit
 
             """;
-        var fileSystem = new TestFileSystem();
+        var fileSystem = new TestFileSystemAccessor();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         var app = Shell.Create(b => {
@@ -76,7 +76,7 @@ public class ShellApplicationTests {
             > exit
 
             """;
-        var fileSystem = new TestFileSystem();
+        var fileSystem = new TestFileSystemAccessor();
         var guidProvider = new TestGuidProvider();
         var dateTimeProvider = new TestDateTimeProvider();
         await using var app = Shell.Create(b => {

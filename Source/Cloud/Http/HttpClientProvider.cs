@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Http;
 
-public class HttpClientProvider(string provider, IHttpClientFactory clientFactory, IConfiguration configuration)
-    : HttpClientProvider<HttpClientOptions>(provider, clientFactory, configuration) {
+public class HttpClientProvider(string name, IHttpClientFactory clientFactory, IConfiguration configuration)
+    : HttpClientProvider<HttpClientOptions>(name, clientFactory, configuration) {
     public HttpClientProvider(IHttpClientFactory clientFactory, IConfiguration configuration)
         : this(string.Empty, clientFactory, configuration)
     {
@@ -13,48 +13,35 @@ public class HttpClientProvider(string provider, IHttpClientFactory clientFactor
 public abstract class HttpClientProvider<TOptions>
     : IHttpClientProvider
     where TOptions : HttpClientOptions, new() {
-    private readonly string _provider;
     private readonly IHttpClientFactory _clientFactory;
     private readonly TOptions _options;
 
-    protected HttpClientProvider(IHttpClientFactory clientFactory, IConfiguration configuration)
-        : this(string.Empty, clientFactory, configuration) {
-    }
-
-    protected HttpClientProvider(string provider, IHttpClientFactory clientFactory, IConfiguration configuration) {
-        _provider = provider;
+    protected HttpClientProvider(string name, IHttpClientFactory clientFactory, IConfiguration configuration) {
+        Name = IsNotNullOrWhiteSpace(name);
         _clientFactory = clientFactory;
-        var providePath = string.IsNullOrWhiteSpace(_provider) ? string.Empty : $":{_provider}";
-        ConfigurationPath = $"{HttpClientOptions.SectionName}{providePath}";
+        ConfigurationPath = $"{HttpClientOptions.SectionName}:{Name}";
         _options = new();
-        configuration.GetSection(ConfigurationPath).Bind(_options);
-        var optionsValidationContext = new Dictionary<string, object?> { ["Provider"] = _provider };
-        _options = IsValid(_options, optionsValidationContext);
-        // ReSharper disable once VirtualMemberCallInConstructor - This is intentional.
+        configuration.GetSection(ConfigurationPath)?.Bind(_options);
+        // ReSharper disable once VirtualMemberCallInConstructor - As intended.
         SetDefaultConfiguration(_options);
     }
 
+    public string Name { get; }
     protected abstract void SetDefaultConfiguration(TOptions options);
 
     public string ConfigurationPath { get; }
 
-    public void Authorize(string value, DateTimeOffset? expiresOn = null) {
-        if (_options.Authentication is null) return;
-        _options.Authentication.Authorize(value, expiresOn);
-    }
+    public void Authorize(string value, DateTimeOffset? expiresOn = null)
+        => _options.Authentication?.Authorize(value, expiresOn);
 
-    public void ExtendAuthorizationUntil(DateTimeOffset expiresOn) {
-        if (_options.Authentication is null) return;
-        _options.Authentication.ExtendUntil(expiresOn);
-    }
+    public void ExtendAuthorizationUntil(DateTimeOffset expiresOn)
+        => _options.Authentication?.ExtendUntil(expiresOn);
 
-    public void RevokeAuthorization() {
-        if (_options.Authentication is null) return;
-        _options.Authentication.Revoke();
-    }
+    public void RevokeAuthorization()
+        => _options.Authentication?.Revoke();
 
     public HttpClient GetHttpClient() {
-        var client = _clientFactory.CreateClient(_provider);
+        var client = _clientFactory.CreateClient(Name);
         _options.Configure(client);
         return client;
     }

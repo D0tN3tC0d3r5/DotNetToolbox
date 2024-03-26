@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public class MultipleChoicePrompt<TResult>(string question, IEnvironment environment, IEnumerable<MultipleChoiceOption<TResult>> options)
+public class MultipleChoicePrompt<TResult>(string question, ISystemEnvironment environment, IEnumerable<MultipleChoiceOption<TResult>> options)
     : QuestionPrompt<TResult>(question, environment) {
     protected override void ShowPrompt() {
         IsNotNullOrEmpty(options);

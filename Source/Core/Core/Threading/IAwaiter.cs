@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox;
+﻿namespace DotNetToolbox.Threading;
 
 public interface IAwaiter {
     bool IsWaiting { get; }

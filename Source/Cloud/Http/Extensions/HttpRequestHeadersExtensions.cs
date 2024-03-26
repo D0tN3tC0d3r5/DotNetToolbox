@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Http.Extensions;
+﻿using Convert = System.Convert;
+
+namespace DotNetToolbox.Http.Extensions;
 
 public static class HttpRequestHeadersExtensions {
     public static bool TryGetValue<T>(this HttpRequestHeaders headers, string key, out T value) {

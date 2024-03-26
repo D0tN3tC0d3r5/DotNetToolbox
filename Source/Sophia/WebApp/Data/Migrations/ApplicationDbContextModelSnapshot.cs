@@ -247,7 +247,7 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsExpired")
                         .HasColumnType("bit");
 
                     b.Property<string>("Model")

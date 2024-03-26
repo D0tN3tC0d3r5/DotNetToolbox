@@ -6,9 +6,9 @@ internal class SayCommand : Command<SayCommand> {
         AddParameter("Text");
     }
 
-    public override Task<Result> Execute(CancellationToken ct) {
+    public override Task<Result> Execute(CancellationToken ct = default) {
         var text = Application.Context["Text"];
-        Environment.Output.WriteLine(text);
+        Environment.ConsoleOutput.WriteLine(text);
         return SuccessTask();
     }
 }

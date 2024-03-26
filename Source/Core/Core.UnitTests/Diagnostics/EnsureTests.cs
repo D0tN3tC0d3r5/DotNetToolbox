@@ -1,4 +1,4 @@
-namespace DotNetToolbox;
+namespace DotNetToolbox.Diagnostics;
 
 public class EnsureTests {
     [Fact]

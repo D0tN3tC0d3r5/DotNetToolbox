@@ -1,22 +1,11 @@
-﻿namespace DotNetToolbox;
-
-public interface IInput {
-    Encoding Encoding { get; set; }
-    TextReader Reader { get; }
-
-    bool KeyAvailable();
-    int Read();
-    ConsoleKeyInfo ReadKey(bool intercept = false);
-    string? ReadLine();
-    string ReadMultiLine(ConsoleKey submitKey = ConsoleKey.Enter, ConsoleModifiers submitKeyModifiers = ConsoleModifiers.None);
-}
+﻿namespace DotNetToolbox.Environment;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
-public class Input() : HasDefault<Input>, IInput {
-    private readonly IOutput _output = new Output();
+public class ConsoleInput() : HasDefault<ConsoleInput>, IInput {
+    private readonly IOutput _output = new ConsoleOutput();
 
-    public Input(IOutput output) : this() {
+    public ConsoleInput(IOutput output) : this() {
         _output = output;
     }
 
@@ -51,8 +40,7 @@ public class Input() : HasDefault<Input>, IInput {
     private static bool TryProcessSpecialKeys(ConsoleKeyInfo keyInfo)
         => keyInfo.Key is ConsoleKey.LeftArrow or ConsoleKey.RightArrow or ConsoleKey.Home or ConsoleKey.End or ConsoleKey.PageUp or ConsoleKey.PageDown;
 
-    private bool TryProcessBackspace(ConsoleKeyInfo keyInfo, StringBuilder currentLine, List<string> lines, int promptLength)
-    {
+    private bool TryProcessBackspace(ConsoleKeyInfo keyInfo, StringBuilder currentLine, List<string> lines, int promptLength) {
         if (keyInfo.Key != ConsoleKey.Backspace) return false;
         if (currentLine.Length > 0) {
             currentLine.Remove(currentLine.Length - 1, 1);
@@ -65,13 +53,12 @@ public class Input() : HasDefault<Input>, IInput {
         currentLine.Append(lines[^1][..^_output.NewLine.Length]);
         lines.RemoveAt(lines.Count - 1);
         Console.CursorTop--;
-        Console.CursorLeft = currentLine.Length + (lines.Count == 0 ?  promptLength : 0);
+        Console.CursorLeft = currentLine.Length + (lines.Count == 0 ? promptLength : 0);
         return true;
 
     }
 
-    private bool TryProcessLineBreak(ConsoleKeyInfo keyInfo, StringBuilder currentLine, List<string> lines)
-    {
+    private bool TryProcessLineBreak(ConsoleKeyInfo keyInfo, StringBuilder currentLine, List<string> lines) {
         if (!IsLineBreakKey(keyInfo)) return false;
         AddLineBreak(currentLine);
         lines.Add(currentLine.ToString());

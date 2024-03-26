@@ -7,8 +7,7 @@ public class ChatsService(ApplicationDbContext dbContext)
     public async Task<IReadOnlyList<ChatData>> GetList(string? filter = null) {
         var filterClause = BuildFilter(filter);
         return await dbContext.Chats
-                              .Include(c => c.Persona)
-                              .Include(c => c.Messages)
+                              .Include(c => c.Agents)
                               .AsNoTracking()
                               .Where(filterClause)
                               .Select(s => s.ToDto())
@@ -23,7 +22,7 @@ public class ChatsService(ApplicationDbContext dbContext)
 
     public async Task<ChatData?> GetById(string id) {
         var entity = await dbContext.Chats
-                                    .Include(c => c.Persona)
+                                    .Include(c => c.Agents)
                                     .Include(c => c.Messages)
                                     .AsNoTracking()
                                     .FirstOrDefaultAsync(s => s.Id == id);

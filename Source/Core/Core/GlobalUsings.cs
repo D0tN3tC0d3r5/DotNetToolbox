@@ -21,6 +21,6 @@ global using Microsoft.Extensions.Logging.Abstractions;
 
 global using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
 global using static DotNetToolbox.Constants.Messages;
-global using static DotNetToolbox.Ensure;
+global using static DotNetToolbox.Diagnostics.Ensure;
 
 global using Syntax = System.Diagnostics.CodeAnalysis.StringSyntaxAttribute;

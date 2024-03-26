@@ -15,7 +15,7 @@ public class StateMachine
 
     public StateMachine(IApplication app, IServiceProvider services) {
         _app = app;
-        _out = app.Environment.Output;
+        _out = app.Environment.ConsoleOutput;
         _promptFactory = app.PromptFactory;
         _mainMenu = _promptFactory.CreateMultipleChoiceQuestion("What do you want to do?", opt => {
             opt.AddOption(2, "Create a new chat", true);
@@ -24,7 +24,7 @@ public class StateMachine
             opt.AddOption(5, "Exit", true);
         });
 
-        _repository = new(app.Environment.FileSystem);
+        _repository = new(app.Environment.FileSystemAccessor);
 
         var factory = new AgentFactory(services);
         _agent = factory.Create<OpenAIAgent>("OpenAI");

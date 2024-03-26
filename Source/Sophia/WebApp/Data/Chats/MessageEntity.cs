@@ -7,6 +7,7 @@ public class MessageEntity
     [Required]
     [MaxLength(36)]
     public string ChatId { get; set; } = default!;
+    public int? AgentIndex { get; set; }
     public int Index { get; set; }
     public DateTimeOffset Timestamp { get; set; }
     [MaxLength(20)]
@@ -16,11 +17,10 @@ public class MessageEntity
     public string Content { get; set; } = string.Empty;
 
     public void Configure(EntityTypeBuilder<MessageEntity> builder)
-        => builder.HasKey(c => new { c.ChatId, c.Index });
+        => builder.HasKey(c => new { c.ChatId, c.AgentIndex, c.Index });
 
     public MessageData ToDto()
-        => new() {
-            Index = Index,
+        => new() { 
             Timestamp = Timestamp,
             Type = Type,
             Content = Content,

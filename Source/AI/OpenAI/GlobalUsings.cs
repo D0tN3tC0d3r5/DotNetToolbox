@@ -9,7 +9,6 @@ global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.AI.Models;
 global using DotNetToolbox.AI.OpenAI.Chat;
-global using DotNetToolbox.AI.Personas;
 global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.Http.Extensions;
@@ -18,4 +17,4 @@ global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 
-global using static DotNetToolbox.Ensure;
+global using static DotNetToolbox.Diagnostics.Ensure;

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox;
+﻿namespace DotNetToolbox.Text;
 
 public class UrlSafeBase64StringTests {
     private static readonly Guid _guidValue = new("34333231-3635-3837-3930-313233343536");

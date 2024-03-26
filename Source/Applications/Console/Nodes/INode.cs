@@ -5,7 +5,7 @@ public interface INode {
     string[] Aliases { get; }
     string Description { get; }
     IApplication Application { get; }
-    IEnvironment Environment { get; }
+    ISystemEnvironment Environment { get; }
     IPromptFactory PromptFactory { get; }
 
     public string Path => this switch {

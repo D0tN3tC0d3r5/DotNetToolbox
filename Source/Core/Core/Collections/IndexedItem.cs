@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox;
+﻿namespace DotNetToolbox.Collections;
 
 public record Indexed<TValue> {
     public Indexed(int index, TValue value) {

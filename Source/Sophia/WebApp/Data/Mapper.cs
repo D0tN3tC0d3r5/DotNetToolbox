@@ -103,15 +103,31 @@ public static class Mapper {
             Id = Guid.NewGuid().ToString(),
             IsActive = input.IsActive,
             Title = input.Title,
-            Model = input.Agent.Options.Model,
-            PersonaId = input.Agent.Persona.Id,
-            Temperature = (double)input.Agent.Options.Temperature,
+            Agents = input.Agents.ToList(i => i.ToEntity()),
+            Messages = input.Messages.ToList(i => i.ToEntity()),
+        };
+
+    public static ChatAgentEntity ToEntity(this ChatAgentData input)
+        => new() {
+            ChatId = input.Chat.Id,
+            Index = input.Index,
+            ProviderId = input.Provider.Id,
+            PersonaId = input.Persona.Id,
+            Options = input.Options,
             Messages = input.Messages.ToList(i => i.ToEntity()),
         };
 
     public static MessageEntity ToEntity(this MessageData input, IHasMessages? parent = null)
         => new() {
-            ChatId = parent?.Id ?? default!,
+            ChatId = parent switch {
+                IHasChatMessages hcm => hcm.Id,
+                IHasAgentMessages ham => ham.ChatId,
+                _ => default!,
+            },
+            AgentIndex = parent switch {
+                IHasAgentMessages ham => ham.Index,
+                _ => null
+            },
             Index = parent?.Messages.Count ?? 0,
             Content = input.Content,
             Type = input.Type,

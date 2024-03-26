@@ -5,28 +5,28 @@ public static class NodeFactory
     internal static TChild Create<TChild>(IHasChildren parent, string name, string[] aliases, Delegate? action)
         where TChild : class, IHasParent {
         var actionWrapper = ConvertToActionWrapper<TChild>(action);
-        var child = CreateInstance.Of<TChild>(parent, name, aliases, actionWrapper);
+        var child = InstanceFactory.Create<TChild>(parent, name, aliases, actionWrapper);
         parent.Children.Add(child);
         return child;
     }
 
     internal static TChild Create<TChild>(IHasChildren parent, string name, string? defaultValue)
         where TChild : class, IHasParent {
-        var child = CreateInstance.Of<TChild>(parent, name, defaultValue);
+        var child = InstanceFactory.Create<TChild>(parent, name, defaultValue);
         parent.Children.Add(child);
         return child;
     }
 
     internal static TChild Create<TChild>(IHasChildren parent, string name, string[] aliases)
         where TChild : class, IHasParent {
-        var child = CreateInstance.Of<TChild>(parent, name, aliases);
+        var child = InstanceFactory.Create<TChild>(parent, name, aliases);
         parent.Children.Add(child);
         return child;
     }
 
     internal static TChild Create<TChild>(IHasChildren parent)
         where TChild : class, IHasParent {
-        var child = CreateInstance.Of<TChild>(parent.Application.Services, parent);
+        var child = InstanceFactory.Create<TChild>(parent.Application.Services, parent);
         parent.Children.Add(child);
         return child;
     }

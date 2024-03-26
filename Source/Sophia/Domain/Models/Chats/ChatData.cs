@@ -6,8 +6,7 @@ public class ChatData {
     [Required(AllowEmptyStrings = false)]
     public string Title { get; set; } = "New Chat";
     public bool IsActive { get; set; } = true;
-    public ProviderData Provider { get; set; } = new();
-    public AgentData Agent { get; set; } = new();
+    public List<ChatAgentData> Agents { get; set; } = [];
     public List<MessageData> Messages { get; set; } = [];
 
     public Chat ToModel() {

@@ -57,7 +57,7 @@
       </div>
       <div class="mb-3">
         <label for="authenticationValue" class="form-label">Value</label>
-        <InputTextArea id="authenticationValue" rows="5" class="form-control" @bind-Value="_provider.Authentication.Value" disabled="@IsReadOnly" />
+        <InputTextArea id="authenticationValue" rows="3" class="form-control" @bind-Value="_provider.Authentication.Value" disabled="@IsReadOnly" />
         <ValidationMessage For="@(() => _provider.Authentication.Value)" />
       </div>
       <h4>Custom Request Headers</h4>

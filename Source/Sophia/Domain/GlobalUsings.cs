@@ -1,11 +1,11 @@
 global using System.ComponentModel.DataAnnotations;
 
-global using DotNetToolbox;
 global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.AI.Personas;
 global using DotNetToolbox.Collections.Generic;
+global using DotNetToolbox.Environment;
 global using DotNetToolbox.Http;
 
 global using Sophia.Models.Chats;

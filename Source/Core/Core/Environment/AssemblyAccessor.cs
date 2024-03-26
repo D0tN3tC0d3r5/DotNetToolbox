@@ -1,12 +1,4 @@
-﻿namespace DotNetToolbox;
-
-public interface IAssemblyAccessor {
-    IAssemblyDescriptor GetExecutingAssembly();
-    IAssemblyDescriptor? GetEntryAssembly();
-    IAssemblyDescriptor? GetDeclaringAssembly(Type type);
-    IAssemblyDescriptor? GetDeclaringAssembly<TType>();
-    IAssemblyDescriptor GetCallingAssembly();
-}
+﻿namespace DotNetToolbox.Environment;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Assembly functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.

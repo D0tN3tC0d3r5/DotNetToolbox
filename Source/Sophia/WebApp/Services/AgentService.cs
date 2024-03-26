@@ -19,11 +19,10 @@ public class AgentService(IAgentFactory factory, IWorldService worlds, IChatsSer
 
     private async Task<IAgent> CreateAgent(ChatData chat) {
         var world = await worlds.GetWorld();
-        var modelParts = chat.Agent.Options.Model.Split(':');
-        var agent = factory.Create<OpenAIAgent>(modelParts[0]);
+        var agent = factory.Create<OpenAIAgent>(chat.Agents[0].Provider.Name);
         agent.World = world.ToModel();
-        agent.Persona = chat.Agent.Persona.ToModel();
-        agent.Options = chat.Agent.Options;
+        agent.Persona = chat.Agents[0].Persona.ToModel();
+        agent.Options = chat.Agents[0].Options;
         return agent;
     }
 

@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal class TestFileSystem() : IFileSystem {
+internal class TestFileSystemAccessor() : IFileSystemAccessor {
     public string CombinePath(params string[] paths) => throw new NotImplementedException();
 
     public void CopyFile(string sourcePath, string targetPath, bool overwrite = false) => throw new NotImplementedException();

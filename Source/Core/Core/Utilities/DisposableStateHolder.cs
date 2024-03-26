@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox;
+﻿namespace DotNetToolbox.Utilities;
 
 public class DisposableStateHolder(object? state)
     : DisposableStateHolder<object?>(state);

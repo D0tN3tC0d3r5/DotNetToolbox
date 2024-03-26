@@ -577,16 +577,16 @@ public class ApplicationBaseTests {
     private IServiceProvider CreateFakeServiceProvider() {
         var output = new TestOutput();
         var input = new TestInput(output);
-        var environment = Substitute.For<IEnvironment>();
+        var environment = Substitute.For<ISystemEnvironment>();
         var serviceProvider = Substitute.For<IKeyedServiceProvider>();
         serviceProvider.GetService(typeof(IConfiguration)).Returns(Substitute.For<IConfiguration>());
         serviceProvider.GetRequiredKeyedService(typeof(IAssemblyDescriptor), Arg.Any<string>()).Returns(_assemblyDescriptor);
         serviceProvider.GetRequiredKeyedService(typeof(IDateTimeProvider), Arg.Any<string>()).Returns(Substitute.For<IDateTimeProvider>());
         serviceProvider.GetRequiredKeyedService(typeof(IGuidProvider), Arg.Any<string>()).Returns(Substitute.For<IGuidProvider>());
-        serviceProvider.GetRequiredKeyedService(typeof(IFileSystem), Arg.Any<string>()).Returns(Substitute.For<IFileSystem>());
+        serviceProvider.GetRequiredKeyedService(typeof(IFileSystemAccessor), Arg.Any<string>()).Returns(Substitute.For<IFileSystemAccessor>());
         serviceProvider.GetRequiredKeyedService(typeof(IOutput), Arg.Any<string>()).Returns(output);
         serviceProvider.GetRequiredKeyedService(typeof(IInput), Arg.Any<string>()).Returns(input);
-        serviceProvider.GetService(typeof(IEnvironment)).Returns(environment);
+        serviceProvider.GetService(typeof(ISystemEnvironment)).Returns(environment);
         _assemblyDescriptor.Name.Returns("TestApp");
         _assemblyDescriptor.Version.Returns(new Version(1, 0));
         serviceProvider.GetService(typeof(ILoggerFactory)).Returns(Substitute.For<ILoggerFactory>());

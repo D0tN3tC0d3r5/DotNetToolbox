@@ -34,7 +34,7 @@ public class ProviderEntity
                 ChatEndpoint = "v1/completions",
             },
             Authentication = new() {
-                Type = AuthenticationType.StaticToken,
+                Type = AuthenticationType.BearerToken,
             },
             Models = [
                 new() {

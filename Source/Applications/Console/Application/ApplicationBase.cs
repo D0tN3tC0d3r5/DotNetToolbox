@@ -12,7 +12,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     public static TBuilder CreateBuilder(Action<IConfigurationBuilder>? setConfiguration = null)
         => CreateBuilder([], setConfiguration);
     public static TBuilder CreateBuilder(string[] args, Action<IConfigurationBuilder>? setConfiguration = null)
-        => CreateInstance.Of<TBuilder>(args, setConfiguration);
+        => InstanceFactory.Create<TBuilder>(args, setConfiguration);
 
     public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder) {
         var builder = CreateBuilder(args, setConfiguration);
@@ -51,7 +51,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             IsRunning = true;
             var taskRun = new CancellationTokenSource();
             if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen is true)
-                Output.ClearScreen();
+                ConsoleOutput.ClearScreen();
             if (await TryParseArguments(taskRun.Token).ConfigureAwait(false))
                 return IApplication.DefaultErrorCode;
             if (!IsRunning) return ExitCode;
@@ -59,11 +59,11 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             return ExitCode;
         }
         catch (ConsoleException ex) {
-            Output.WriteLine(FormatException(ex));
+            ConsoleOutput.WriteLine(FormatException(ex));
             return ex.ExitCode;
         }
         catch (Exception ex) {
-            Output.WriteLine(FormatException(ex));
+            ConsoleOutput.WriteLine(FormatException(ex));
             return IApplication.DefaultErrorCode;
         }
     }
@@ -71,7 +71,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     protected void ProcessResult(Result result) {
         if (result.HasException) throw result.Exception!;
         if (!result.HasErrors) return;
-        Output.WriteLine(FormatValidationErrors(result.Errors));
+        ConsoleOutput.WriteLine(FormatValidationErrors(result.Errors));
     }
 
     protected async Task<bool> TryParseArguments(CancellationToken ct) {
@@ -107,7 +107,7 @@ public abstract class ApplicationBase : IApplication {
         Services = services;
         Arguments = args;
         Logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
-        Environment = services.GetRequiredService<IEnvironment>();
+        Environment = services.GetRequiredService<ISystemEnvironment>();
         Configuration = services.GetRequiredService<IConfigurationRoot>();
         PromptFactory = services.GetRequiredService<IPromptFactory>();
 
@@ -133,10 +133,10 @@ public abstract class ApplicationBase : IApplication {
 
     public IServiceProvider Services { get; }
     public IConfigurationRoot Configuration { get; }
-    public IEnvironment Environment { get; }
-    protected IOutput Output => Environment.Output;
-    protected IInput Input => Environment.Input;
-    protected IFileSystem FileSystem => Environment.FileSystem;
+    public ISystemEnvironment Environment { get; }
+    protected IOutput ConsoleOutput => Environment.ConsoleOutput;
+    protected IInput ConsoleInput => Environment.ConsoleInput;
+    protected IFileSystemAccessor FileSystem => Environment.FileSystemAccessor;
     protected IAssemblyDescriptor Assembly => Environment.Assembly;
     protected IDateTimeProvider DateTime => Environment.DateTime;
     protected IGuidProvider Guid => Environment.Guid;
