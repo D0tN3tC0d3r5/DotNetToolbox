@@ -13,15 +13,21 @@ public partial class ChatSetupDialog {
 
     protected override async Task OnInitializedAsync() {
         _personas = await PersonasService.GetList();
-        Chat.Agents[0].Persona = _personas[0];
-
         var providers = await ProvidersService.GetList();
         _models = providers.SelectMany(p => p.Models.Select(m => new {
-            Key = m.Name,
+            m.Key,
             Value = $"{m.Name} ({p.Name})",
         })).ToDictionary(k => k.Key, v => v.Value);
-        Chat.Agents[0].Options.Model = _models.Keys.First();
-        Chat.Agents[0].Provider = providers.First(p => p.Models.Any(m => m.Name == Chat.Agents[0].Options.Model));
+        var agent = new ChatAgentData {
+            Number = Chat.Agents.Count,
+            Persona = _personas[0],
+            Provider = providers[0],
+            Options = new() {
+                Model = providers[0].Models[0].Key,
+                ChatEndpoint = providers[0].Api.ChatEndpoint,
+            },
+        };
+        Chat.Agents.Add(agent);
     }
 
     private void UpdateTemperature(ChangeEventArgs e)

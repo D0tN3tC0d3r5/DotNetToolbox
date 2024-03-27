@@ -242,9 +242,9 @@ namespace Sophia.WebApp.Data.Migrations
 
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatAgentEntity", b =>
                 {
-                    b.Property<string>("ChatId")
+                    b.Property<Guid>("ChatId")
                         .HasMaxLength(36)
-                        .HasColumnType("nvarchar(36)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
@@ -301,10 +301,9 @@ namespace Sophia.WebApp.Data.Migrations
 
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatEntity", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(36)
-                        .HasColumnType("nvarchar(36)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -330,10 +329,8 @@ namespace Sophia.WebApp.Data.Migrations
                     b.Property<int?>("AgentNumber")
                         .HasColumnType("int");
 
-                    b.Property<string>("ChatId")
-                        .IsRequired()
-                        .HasMaxLength(36)
-                        .HasColumnType("nvarchar(36)");
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
                         .IsRequired()

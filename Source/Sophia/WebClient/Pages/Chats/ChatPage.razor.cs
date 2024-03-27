@@ -1,7 +1,7 @@
 ﻿namespace Sophia.WebClient.Pages.Chats;
 
 public partial class ChatPage {
-    [Parameter] public Guid Id { get; set; }
+    [Parameter] public string Id { get; set; }
 
     [Inject] public IChatsRemoteService ChatsService { get; set; } = default!;
     [Inject] public IAgentRemoteService AgentService { get; set; } = default!;
@@ -15,7 +15,7 @@ public partial class ChatPage {
     private ElementReference _chatHistoryRef;
 
     protected override async Task OnInitializedAsync() {
-        var chat = await ChatsService.GetById(Id);
+        var chat = await ChatsService.GetById(Guid.Parse(Id));
         if (chat is null) {
             NavigationManager.NavigateTo("/chats");
             return;

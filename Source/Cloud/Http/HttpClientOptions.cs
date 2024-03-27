@@ -5,11 +5,13 @@ namespace DotNetToolbox.Http;
 public record HttpClientOptions
     : INamedOptions<HttpClientOptions>, IValidatable {
     public const string DefaultResponseFormat = "application/json";
+    public const string DefaultContentType = "application/json";
 
     public static string SectionName => "HttpClient";
     public static HttpClientOptions Default => new();
 
     public string BaseAddress { get; init; } = string.Empty;
+    public string ContentType { get; init; } = DefaultContentType;
     public string ResponseFormat { get; init; } = DefaultResponseFormat;
     public HttpClientAuthentication? Authentication { get; set; }
     public Dictionary<string, string[]>? CustomHeaders { get; set; }

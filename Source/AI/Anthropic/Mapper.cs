@@ -5,15 +5,15 @@ public class Mapper()
     IChatRequest IMapper.CreateRequest(IAgent agent, IChat chat) => CreateRequest(agent, chat);
     public static ChatRequest CreateRequest(IAgent agent, IChat chat)
         => new() {
-                     Model = agent.Options.Model,
-                     Temperature = agent.Options.Temperature,
-                     MaximumOutputTokens = agent.Options.MaximumOutputTokens,
-                     StopSequences = agent.Options.StopSequences.Count == 0 ? null : [.. agent.Options.StopSequences],
-                     MinimumTokenProbability = agent.Options.TokenProbabilityCutOff,
-                     UseStreaming = agent.Options.UseStreaming,
-                     Messages = chat.Messages.ToArray(o => new RequestMessage(o)),
-                     System = CreateSystemMessage(agent, chat),
-                 };
+            Model = agent.Options.Model,
+            Temperature = agent.Options.Temperature,
+            MaximumOutputTokens = agent.Options.MaximumOutputTokens,
+            StopSequences = agent.Options.StopSequences.Count == 0 ? null : [.. agent.Options.StopSequences],
+            MinimumTokenProbability = agent.Options.TokenProbabilityCutOff,
+            UseStreaming = agent.Options.UseStreaming,
+            Messages = chat.Messages.ToArray(o => new RequestMessage(o)),
+            System = CreateSystemMessage(agent, chat),
+        };
 
     private static string CreateSystemMessage(IAgent agent, IChat chat) {
         var builder = new StringBuilder();

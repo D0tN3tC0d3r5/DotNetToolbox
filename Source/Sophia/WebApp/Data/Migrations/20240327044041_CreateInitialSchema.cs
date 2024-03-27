@@ -15,7 +15,7 @@ namespace Sophia.WebApp.Data.Migrations
                 name: "Chats",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -154,7 +154,7 @@ namespace Sophia.WebApp.Data.Migrations
                 name: "ChatAgent",
                 columns: table => new
                 {
-                    ChatId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    ChatId = table.Column<Guid>(type: "uniqueidentifier", maxLength: 36, nullable: false),
                     Number = table.Column<int>(type: "int", nullable: false),
                     ProviderId = table.Column<int>(type: "int", nullable: false),
                     PersonaId = table.Column<int>(type: "int", nullable: false),
@@ -388,7 +388,7 @@ namespace Sophia.WebApp.Data.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ChatId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AgentNumber = table.Column<int>(type: "int", nullable: true),
                     Index = table.Column<int>(type: "int", nullable: false),
                     Timestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),

@@ -7,7 +7,7 @@ public class ChatAgentEntity
       IHasAgentMessages {
     [MaxLength(36)]
     [Required(AllowEmptyStrings = false)]
-    public Guid ChatId { get; set; } = default!;
+    public Guid ChatId { get; set; }
     public ChatEntity Chat { get; set; } = default!;
     public int Number { get; set; }
     [Required]
@@ -41,10 +41,9 @@ public class ChatAgentEntity
 
     public ChatAgentData ToDto()
         => new() {
-                     Chat = Chat.ToDto(),
-                     Persona = Persona.ToDto(),
-                     Provider = Provider.ToDto(),
-                     Options = Options,
-                     Messages = Messages.ToList(m => m.ToDto()),
-                 };
+            Persona = Persona.ToDto(),
+            Provider = Provider.ToDto(),
+            Options = Options,
+            Messages = Messages.ToList(m => m.ToDto()),
+        };
 }

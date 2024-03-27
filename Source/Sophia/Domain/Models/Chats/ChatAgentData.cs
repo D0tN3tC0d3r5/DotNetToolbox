@@ -2,14 +2,12 @@
 
 public class ChatAgentData :
     IHasMessages {
-    [Required]
-    public ChatData Chat { get; set; } = new();
     public int Number { get; set; }
     [Required]
-    public ProviderData Provider { get; set; } = new();
+    public ProviderData Provider { get; set; } = default!;
     [Required]
-    public PersonaData Persona { get; set; } = new();
+    public PersonaData Persona { get; set; } = default!;
     [Required]
-    public AgentOptions Options { get; set; } = new();
+    public AgentOptions Options { get; set; } = default!;
     public List<MessageData> Messages { get; set; } = [];
 }

@@ -42,17 +42,17 @@ public class HttpClientAuthentication() {
 
     public void SetHttpClientAuthentication(HttpClient client) {
         switch (Type) {
-            case None: break;
             case ApiKey:
-                client.DefaultRequestHeaders.Add("X-Api-Key", Value);
+                client.DefaultRequestHeaders.Add("x-api-key", Value);
                 break;
             case BasicToken:
             case BearerToken:
+            case Password:
+            case OAuth2:
             case Jwt:
                 client.DefaultRequestHeaders.Authorization = this;
                 break;
-            case Password: break;
-            case OAuth2: break;
+            case None:
             default: break;
         };
     }

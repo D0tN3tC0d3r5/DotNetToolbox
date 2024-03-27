@@ -5,13 +5,21 @@ namespace Sophia.WebApp.Services;
 public class ChatsService(ApplicationDbContext dbContext)
     : IChatsService {
     public async Task<IReadOnlyList<ChatData>> GetList(string? filter = null) {
-        var filterClause = BuildFilter(filter);
-        return await dbContext.Chats
-                              .Include(c => c.Agents)
-                              .AsNoTracking()
-                              .Where(filterClause)
-                              .Select(s => s.ToDto())
-                              .ToArrayAsync();
+        try {
+            var filterClause = BuildFilter(filter);
+            return await dbContext.Chats
+                                  .Include(c => c.Agents).ThenInclude(i => i.Persona)
+                                  .Include(c => c.Agents).ThenInclude(i => i.Provider).ThenInclude(i => i.Models)
+                                  .AsNoTracking()
+                                  .AsSplitQuery()
+                                  .Where(filterClause)
+                                  .Select(s => s.ToDto())
+                                  .ToArrayAsync();
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 
     private static Expression<Func<ChatEntity, bool>> BuildFilter(string? filter)
@@ -21,19 +29,34 @@ public class ChatsService(ApplicationDbContext dbContext)
         };
 
     public async Task<ChatData?> GetById(Guid id) {
-        var entity = await dbContext.Chats
-                                    .Include(c => c.Agents)
-                                    .Include(c => c.Messages)
-                                    .AsNoTracking()
-                                    .FirstOrDefaultAsync(s => s.Id == id);
-        return entity?.ToDto();
+        try {
+            var entity = await dbContext.Chats
+                                            .Include(c => c.Agents).ThenInclude(i => i.Persona).ThenInclude(i => i.Facts)
+                                            .Include(c => c.Agents).ThenInclude(i => i.Persona).ThenInclude(i => i.Tools)
+                                            .Include(c => c.Agents).ThenInclude(i => i.Provider).ThenInclude(i => i.Models)
+                                            .Include(c => c.Messages)
+                                            .AsNoTracking()
+                                            .AsSplitQuery()
+                                            .FirstOrDefaultAsync(s => s.Id == id);
+            return entity?.ToDto();
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 
     public async Task Create(ChatData chat) {
-        var entity = chat.ToEntity();
-        dbContext.Chats.Add(entity);
-        await dbContext.SaveChangesAsync();
-        chat.Id = entity.Id;
+        try {
+            var entity = chat.ToEntity();
+            dbContext.Chats.Add(entity);
+            await dbContext.SaveChangesAsync();
+            chat.Id = entity.Id;
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 
     public async Task Archive(Guid id) {

@@ -36,7 +36,7 @@ public class Mapper
         chat.TotalTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.TotalTokens);
         return response.Choices[0].Message.Content switch {
             ChatResponseToolRequest[] tcs => new("assistant", new MessagePart("tool_calls", tcs)),
-            _ => new("assistant", (string)response.Choices[0].Message.Content),
+            _ => new("assistant", $"{response.Choices[0].Message.Content}"),
         };
     }
 

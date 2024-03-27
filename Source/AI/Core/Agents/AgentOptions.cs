@@ -21,7 +21,7 @@ public class AgentOptions
     public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;
     public decimal Temperature { get; set; } = DefaultTemperature;
     public decimal TokenProbabilityCutOff { get; set; } = DefaultProbabilityCutOff;
-    public HashSet<string> StopSequences { get; set; } = [];
+    public List<string> StopSequences { get; set; } = [];
     public bool UseStreaming { get; set; } = false;
     public bool JsonMode { get; set; } = false;
 

@@ -25,7 +25,6 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
                 Logger.LogDebug("Sending request {count}...", count++);
                 var result = await Submit(chat, ct);
                 if (!result.IsOk) return result;
-                await source.StartWait(ct);
                 isCompleted = source switch {
                     IResponseConsumer ac => ac.VerifyResponse(chat.Id, number, chat.Messages[^1]),
                     IAsyncResponseConsumer ac => await ac.VerifyResponse(chat.Id, number, chat.Messages[^1], ct),
@@ -47,11 +46,10 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
     }
 
     private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
-        IChatRequest request = default!;
+        var request = (TRequest)Mapper.CreateRequest(this, chat);
         HttpResponseMessage httpResult = default!;
         try {
-            request = Mapper.CreateRequest(this, chat);
-            var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions);
+            var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions, mediaType: MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType));
             var httpClient = _httpClientProvider.GetHttpClient();
             httpResult = await httpClient.PostAsync(Options.ChatEndpoint, content, ct).ConfigureAwait(false);
             httpResult.EnsureSuccessStatusCode();
@@ -65,9 +63,10 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
             Logger.LogWarning(ex, "Request failed!");
             switch (httpResult.StatusCode) {
                 case HttpStatusCode.BadRequest:
+                    var input = JsonSerializer.Serialize(request, IAgentOptions.SerializerOptions);
                     var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                     var errorMessage = $"""
-                                        RequestPackage: {JsonSerializer.Serialize(request, IAgentOptions.SerializerOptions)}
+                                        RequestPackage: {input}
                                         ResponseContent: {response};
                                         """;
                     return HttpResult.BadRequest(errorMessage);

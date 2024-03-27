@@ -11,8 +11,10 @@ public class AgentService(IAgentFactory factory, IWorldService worlds, IChatsSer
             var chat = await chats.GetById(request.ChatId);
             if (chat is null) return "Error!";
             var agent = await CreateAgent(chat);
-            await agent.SendRequest(this, chat.ToModel(), request.AgentNumber);
-            return chat.Messages[^1].Content;
+            var chatModel = chat.ToModel();
+            var result = await agent.SendRequest(this, chatModel, request.AgentNumber);
+            if (result.IsOk) return chatModel.Messages[^1].AsText();
+            return result.ToString();
         }
         catch (Exception ex) {
             throw new ArgumentException("Error creating agent.", ex);
@@ -44,8 +46,6 @@ public class AgentService(IAgentFactory factory, IWorldService worlds, IChatsSer
 
     private static MessageData CreateMessage(IHasMessages parent, Guid chatId, int? agentNumber, Message message)
         => new() {
-            ChatId = chatId,
-            AgentNumber = agentNumber,
             Type = "assistant",
             Index = parent.Messages.Count,
             Timestamp = DateTime.UtcNow,

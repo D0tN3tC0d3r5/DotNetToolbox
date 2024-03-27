@@ -13,7 +13,7 @@ public interface IAgentOptions : IValidatable {
     uint MaximumOutputTokens { get; }
     decimal Temperature { get; }
     decimal TokenProbabilityCutOff { get; }
-    HashSet<string> StopSequences { get; }
+    List<string> StopSequences { get; }
     bool UseStreaming { get; }
     bool JsonMode { get; }
 }

@@ -17,10 +17,16 @@ public class ChatsRemoteService(HttpClient httpClient)
     }
 
     public async Task Create(ChatData chat) {
-        var response = await httpClient.PostAsJsonAsync("api/chats", chat);
-        response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<ChatData>();
-        chat.Id = result!.Id;
+        try {
+            var response = await httpClient.PostAsJsonAsync("api/chats", chat);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<ChatData>();
+            chat.Id = result!.Id;
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 
     public async Task Archive(Guid id) {

@@ -110,7 +110,6 @@ public static class Mapper {
 
     public static ChatAgentEntity ToEntity(this ChatAgentData input)
         => new() {
-            ChatId = input.Chat.Id,
             Number = input.Number,
             ProviderId = input.Provider.Id,
             PersonaId = input.Persona.Id,
