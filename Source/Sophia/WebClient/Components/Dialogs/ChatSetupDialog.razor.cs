@@ -1,7 +1,7 @@
 ﻿namespace Sophia.WebClient.Components.Dialogs;
 
 public partial class ChatSetupDialog {
-    [Inject] public required HttpClientProviders Providers { get; set; }
+    [Inject] public required IProvidersRemoteService ProvidersService { get; set; }
     [Inject] public required IPersonasRemoteService PersonasService { get; set; }
 
     [Parameter] public EventCallback OnStart { get; set; }
@@ -13,17 +13,17 @@ public partial class ChatSetupDialog {
 
     protected override async Task OnInitializedAsync() {
         _personas = await PersonasService.GetList();
-        var providers = Providers.GetProviderList();
+        var providers = await ProvidersService.GetList();
         _models = providers.SelectMany(p => p.Models.Select(m => new {
-            m.Key,
+            m.Id,
             Value = $"{m.Name} ({p.Name})",
-        })).ToDictionary(k => k.Key, v => v.Value);
+        })).ToDictionary(k => k.Id, v => v.Value);
         var agent = new ChatAgentData {
-            Number = Chat.Agents.Count,
+            AgentNumber = Chat.Agents.Count,
             Persona = _personas[0],
-            Provider = providers[0],
             Options = new() {
-                Model = providers[0].Models[0].Key,
+                Provider = providers[0],
+                Model = providers[0].Models[0],
             },
         };
         Chat.Agents.Add(agent);

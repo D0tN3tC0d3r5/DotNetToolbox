@@ -24,8 +24,8 @@ public class FileRepository(IFileSystemAccessor io) {
 
     public Persona LoadPersona(string name)
         => LoadFile<Persona>(_personasFolder, name);
-    public AgentOptions LoadAgentOptions(string name)
-        => LoadFile<AgentOptions>(_agentsFolder, name);
+    public AgentModel LoadAgentOptions(string name)
+        => LoadFile<AgentModel>(_agentsFolder, name);
     public Tool LoadTool(string name)
         => LoadFile<Tool>(_toolsFolder, name);
 

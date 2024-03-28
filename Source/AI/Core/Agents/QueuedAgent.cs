@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class QueuedAgent<TAgent, TMapper, TRequest,  TResponse>(string provider,
+public abstract class QueuedAgent<TAgent, TMapper, TRequest, TResponse>(string provider,
                                                                         IHttpClientProviderFactory factory,
                                                                         ILogger<TAgent> logger)
     : BackgroundAgent<TAgent, TMapper, TRequest, TResponse>(provider, factory, logger),

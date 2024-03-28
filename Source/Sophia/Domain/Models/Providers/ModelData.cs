@@ -1,10 +1,9 @@
-﻿//namespace Sophia.Models.Providers;
+﻿namespace Sophia.Models.Providers;
 
-//public class ModelData {
-//    [Required]
-//    [MaxLength(50)]
-//    public string Key { get; set; } = string.Empty;
-//    [Required]
-//    [MaxLength(50)]
-//    public string Name { get; set; } = string.Empty;
-//}
+public class ModelData {
+    [Required]
+    [MaxLength(50)]
+    public string Id { get; set; } = string.Empty;
+    [MaxLength(50)]
+    public string? Name { get; set; }
+}

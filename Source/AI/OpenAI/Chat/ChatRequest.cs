@@ -20,7 +20,7 @@ public class ChatRequest : IChatRequest {
     [JsonPropertyName("top_p")]
     public decimal? MinimumTokenProbability { get; set; }
     [JsonPropertyName("stream")]
-    public bool? UseStreaming { get; set; }
+    public bool? ResponseIsStream { get; set; }
     [JsonPropertyName("tools")]
     public ChatRequestTool[]? Tools { get; set; }
     [JsonPropertyName("tool_choice")]

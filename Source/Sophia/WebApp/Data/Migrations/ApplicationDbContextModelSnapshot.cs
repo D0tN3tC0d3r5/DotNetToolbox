@@ -243,38 +243,37 @@ namespace Sophia.WebApp.Data.Migrations
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatAgentEntity", b =>
                 {
                     b.Property<Guid>("ChatId")
-                        .HasMaxLength(36)
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
+                    b.Property<int>("ModelId")
+                        .HasColumnType("int");
+
                     b.Property<int>("PersonaId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProviderId")
-                        .HasColumnType("int");
-
-                    b.ComplexProperty<Dictionary<string, object>>("Options", "Sophia.WebApp.Data.Chats.ChatAgentEntity.Options#AgentOptions", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Options", "Sophia.WebApp.Data.Chats.ChatAgentEntity.Options#ChatAgentOptionsEntity", b1 =>
                         {
                             b1.IsRequired();
 
-                            b1.Property<string>("ChatEndpoint")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<bool>("JsonMode")
+                            b1.Property<bool>("IsStreaming")
                                 .HasColumnType("bit");
 
                             b1.Property<long>("MaximumOutputTokens")
                                 .HasColumnType("bigint");
 
-                            b1.Property<string>("Model")
+                            b1.Property<string>("ModelId")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)");
 
                             b1.Property<byte>("NumberOfRetries")
                                 .HasColumnType("tinyint");
+
+                            b1.Property<bool>("RespondsAsJson")
+                                .HasColumnType("bit");
 
                             b1.Property<string>("StopSequences")
                                 .IsRequired()
@@ -285,16 +284,11 @@ namespace Sophia.WebApp.Data.Migrations
 
                             b1.Property<decimal>("TokenProbabilityCutOff")
                                 .HasColumnType("decimal(18,2)");
-
-                            b1.Property<bool>("UseStreaming")
-                                .HasColumnType("bit");
                         });
 
                     b.HasKey("ChatId", "Number");
 
                     b.HasIndex("PersonaId");
-
-                    b.HasIndex("ProviderId");
 
                     b.ToTable("ChatAgent");
                 });
@@ -449,16 +443,15 @@ namespace Sophia.WebApp.Data.Migrations
                     b.Property<int>("ProviderId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Key")
+                    b.Property<string>("ModelId")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("ProviderId", "Key");
+                    b.HasKey("ProviderId", "ModelId");
 
                     b.ToTable("Models");
                 });
@@ -475,37 +468,6 @@ namespace Sophia.WebApp.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.ComplexProperty<Dictionary<string, object>>("Api", "Sophia.WebApp.Data.Providers.ProviderEntity.Api#ApiEntity", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<string>("BaseAddress")
-                                .IsRequired()
-                                .HasMaxLength(1000)
-                                .HasColumnType("nvarchar(1000)");
-
-                            b1.Property<string>("ChatEndpoint")
-                                .IsRequired()
-                                .HasMaxLength(1000)
-                                .HasColumnType("nvarchar(1000)");
-
-                            b1.Property<string>("CustomRequestHeaders")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-                        });
-
-                    b.ComplexProperty<Dictionary<string, object>>("Authentication", "Sophia.WebApp.Data.Providers.ProviderEntity.Authentication#AuthenticationEntity", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<int>("Type")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Value")
-                                .HasMaxLength(2147483647)
-                                .HasColumnType("nvarchar(max)");
-                        });
 
                     b.HasKey("Id");
 
@@ -574,19 +536,7 @@ namespace Sophia.WebApp.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Location")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("UserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Worlds");
                 });
@@ -695,17 +645,9 @@ namespace Sophia.WebApp.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sophia.WebApp.Data.Providers.ProviderEntity", "Provider")
-                        .WithMany()
-                        .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Chat");
 
                     b.Navigation("Persona");
-
-                    b.Navigation("Provider");
                 });
 
             modelBuilder.Entity("Sophia.WebApp.Data.Chats.MessageEntity", b =>
@@ -774,15 +716,6 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasForeignKey("ToolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.World.WorldEntity", b =>
-                {
-                    b.HasOne("Sophia.WebApp.Components.Account.ApplicationUserProfile", "UserProfile")
-                        .WithOne()
-                        .HasForeignKey("Sophia.WebApp.Data.World.WorldEntity", "UserId");
-
-                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Sophia.WebApp.Data.World.WorldFactsEntity", b =>

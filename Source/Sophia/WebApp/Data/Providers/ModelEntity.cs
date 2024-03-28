@@ -1,26 +1,25 @@
-﻿//namespace Sophia.WebApp.Data.Providers;
+﻿namespace Sophia.WebApp.Data.Providers;
 
-//[Table("Models")]
-//[EntityTypeConfiguration(typeof(ModelEntity))]
-//public class ModelEntity
-//    : IEntityTypeConfiguration<ModelEntity> {
-//    public int ProviderId { get; set; }
-//    public ProviderEntity Provider { get; set; } = default!;
+[Table("Models")]
+[EntityTypeConfiguration(typeof(ModelEntity))]
+public class ModelEntity
+    : IEntityTypeConfiguration<ModelEntity> {
+    public int ProviderId { get; set; }
+    public ProviderEntity Provider { get; set; } = default!;
 
-//    [Required]
-//    [MaxLength(50)]
-//    public string Key { get; set; } = default!;
+    [Required]
+    [MaxLength(50)]
+    public string ModelId { get; set; } = default!;
 
-//    [Required]
-//    [MaxLength(50)]
-//    public string Name { get; set; } = default!;
+    [MaxLength(50)]
+    public string? Name { get; set; }
 
-//    public void Configure(EntityTypeBuilder<ModelEntity> builder)
-//        => builder.HasKey(m => new { m.ProviderId, m.Key });
+    public void Configure(EntityTypeBuilder<ModelEntity> builder)
+        => builder.HasKey(m => new { m.ProviderId, m.ModelId });
 
-//    public ModelData ToDto()
-//        => new() {
-//            Key = Key,
-//            Name = Name,
-//        };
-//}
+    public ModelData ToDto()
+        => new() {
+            Id = ModelId,
+            Name = Name,
+        };
+}

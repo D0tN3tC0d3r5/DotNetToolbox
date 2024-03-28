@@ -61,12 +61,7 @@ namespace Sophia.WebApp.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Api_BaseAddress = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Api_ChatEndpoint = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Api_CustomRequestHeaders = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Authentication_Type = table.Column<int>(type: "int", nullable: false),
-                    Authentication_Value = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,6 +122,51 @@ namespace Sophia.WebApp.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Worlds",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Worlds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChatAgent",
+                columns: table => new
+                {
+                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Number = table.Column<int>(type: "int", nullable: false),
+                    PersonaId = table.Column<int>(type: "int", nullable: false),
+                    ModelId = table.Column<int>(type: "int", nullable: false),
+                    Options_IsStreaming = table.Column<bool>(type: "bit", nullable: false),
+                    Options_MaximumOutputTokens = table.Column<long>(type: "bigint", nullable: false),
+                    Options_ModelId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Options_NumberOfRetries = table.Column<byte>(type: "tinyint", nullable: false),
+                    Options_RespondsAsJson = table.Column<bool>(type: "bit", nullable: false),
+                    Options_StopSequences = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Options_Temperature = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Options_TokenProbabilityCutOff = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatAgent", x => new { x.ChatId, x.Number });
+                    table.ForeignKey(
+                        name: "FK_ChatAgent_Chats_ChatId",
+                        column: x => x.ChatId,
+                        principalTable: "Chats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ChatAgent_Personas_PersonaId",
+                        column: x => x.PersonaId,
+                        principalTable: "Personas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PersonaFacts",
                 columns: table => new
                 {
@@ -151,57 +191,16 @@ namespace Sophia.WebApp.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatAgent",
-                columns: table => new
-                {
-                    ChatId = table.Column<Guid>(type: "uniqueidentifier", maxLength: 36, nullable: false),
-                    Number = table.Column<int>(type: "int", nullable: false),
-                    ProviderId = table.Column<int>(type: "int", nullable: false),
-                    PersonaId = table.Column<int>(type: "int", nullable: false),
-                    Options_ChatEndpoint = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Options_JsonMode = table.Column<bool>(type: "bit", nullable: false),
-                    Options_MaximumOutputTokens = table.Column<long>(type: "bigint", nullable: false),
-                    Options_Model = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Options_NumberOfRetries = table.Column<byte>(type: "tinyint", nullable: false),
-                    Options_StopSequences = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Options_Temperature = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Options_TokenProbabilityCutOff = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Options_UseStreaming = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChatAgent", x => new { x.ChatId, x.Number });
-                    table.ForeignKey(
-                        name: "FK_ChatAgent_Chats_ChatId",
-                        column: x => x.ChatId,
-                        principalTable: "Chats",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ChatAgent_Personas_PersonaId",
-                        column: x => x.PersonaId,
-                        principalTable: "Personas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ChatAgent_Providers_ProviderId",
-                        column: x => x.ProviderId,
-                        principalTable: "Providers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Models",
                 columns: table => new
                 {
                     ProviderId = table.Column<int>(type: "int", nullable: false),
-                    Key = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    ModelId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Models", x => new { x.ProviderId, x.Key });
+                    table.PrimaryKey("PK_Models", x => new { x.ProviderId, x.ModelId });
                     table.ForeignKey(
                         name: "FK_Models_Providers_ProviderId",
                         column: x => x.ProviderId,
@@ -383,54 +382,6 @@ namespace Sophia.WebApp.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Messages",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AgentNumber = table.Column<int>(type: "int", nullable: true),
-                    Index = table.Column<int>(type: "int", nullable: false),
-                    Timestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", maxLength: 20000, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Messages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Messages_ChatAgent_ChatId_AgentNumber",
-                        columns: x => new { x.ChatId, x.AgentNumber },
-                        principalTable: "ChatAgent",
-                        principalColumns: new[] { "ChatId", "Number" },
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Messages_Chats_ChatId",
-                        column: x => x.ChatId,
-                        principalTable: "Chats",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Worlds",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Worlds", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Worlds_UserProfiles_UserId",
-                        column: x => x.UserId,
-                        principalTable: "UserProfiles",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "WorldFacts",
                 columns: table => new
                 {
@@ -478,15 +429,40 @@ namespace Sophia.WebApp.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AgentNumber = table.Column<int>(type: "int", nullable: true),
+                    Index = table.Column<int>(type: "int", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", maxLength: 20000, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_ChatAgent_ChatId_AgentNumber",
+                        columns: x => new { x.ChatId, x.AgentNumber },
+                        principalTable: "ChatAgent",
+                        principalColumns: new[] { "ChatId", "Number" },
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Messages_Chats_ChatId",
+                        column: x => x.ChatId,
+                        principalTable: "Chats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_ChatAgent_PersonaId",
                 table: "ChatAgent",
                 column: "PersonaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ChatAgent_ProviderId",
-                table: "ChatAgent",
-                column: "ProviderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_ChatId_AgentNumber",
@@ -548,13 +524,6 @@ namespace Sophia.WebApp.Data.Migrations
                 column: "WorldId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Worlds_UserId",
-                table: "Worlds",
-                column: "UserId",
-                unique: true,
-                filter: "[UserId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_WorldTools_WorldId",
                 table: "WorldTools",
                 column: "WorldId");
@@ -588,6 +557,9 @@ namespace Sophia.WebApp.Data.Migrations
                 name: "UserLogins");
 
             migrationBuilder.DropTable(
+                name: "UserProfiles");
+
+            migrationBuilder.DropTable(
                 name: "UserRoles");
 
             migrationBuilder.DropTable(
@@ -603,7 +575,13 @@ namespace Sophia.WebApp.Data.Migrations
                 name: "ChatAgent");
 
             migrationBuilder.DropTable(
+                name: "Providers");
+
+            migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Facts");
@@ -619,15 +597,6 @@ namespace Sophia.WebApp.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Personas");
-
-            migrationBuilder.DropTable(
-                name: "Providers");
-
-            migrationBuilder.DropTable(
-                name: "UserProfiles");
-
-            migrationBuilder.DropTable(
-                name: "Users");
         }
     }
 }

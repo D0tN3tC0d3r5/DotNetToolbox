@@ -1,7 +1,7 @@
 ﻿namespace Sophia.WebClient.Pages.Chats;
 
 public partial class ChatPage {
-    [Parameter] public string Id { get; set; }
+    [Parameter] public string Id { get; set; } = default!;
 
     [Inject] public IChatsRemoteService ChatsService { get; set; } = default!;
     [Inject] public IAgentRemoteService AgentService { get; set; } = default!;

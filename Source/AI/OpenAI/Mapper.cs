@@ -2,16 +2,17 @@
 
 public class Mapper
     : IMapper {
-    IChatRequest IMapper.CreateRequest(IAgent agent, IChat chat) => CreateRequest(agent, chat);
-    public static ChatRequest CreateRequest(IAgent agent, IChat chat) {
-        var system = new ChatRequestMessage(CreateSystemMessage(agent, chat));
+    IChatRequest IMapper.CreateRequest(IChat chat, World world, UserProfile user, IAgent agent)
+        => CreateRequest(chat, world, user, agent);
+    public static ChatRequest CreateRequest(IChat chat, World world, UserProfile user, IAgent agent) {
+        var system = new ChatRequestMessage(CreateSystemMessage(chat, world, user, agent));
         return new() {
-            Model = agent.Options.Model,
-            Temperature = agent.Options.Temperature,
-            MaximumOutputTokens = agent.Options.MaximumOutputTokens,
-            StopSequences = agent.Options.StopSequences.Count == 0 ? null : [.. agent.Options.StopSequences],
-            MinimumTokenProbability = agent.Options.TokenProbabilityCutOff,
-            UseStreaming = agent.Options.UseStreaming,
+            Model = agent.Model.Id,
+            Temperature = agent.Model.Temperature,
+            MaximumOutputTokens = agent.Model.MaximumOutputTokens,
+            StopSequences = agent.Model.StopSequences.Count == 0 ? null : [.. agent.Model.StopSequences],
+            MinimumTokenProbability = agent.Model.TokenProbabilityCutOff,
+            ResponseIsStream = agent.Model.ResponseIsStream,
 
             Messages = [system, .. chat.Messages.ToArray(o => new ChatRequestMessage(o))],
 
@@ -22,10 +23,11 @@ public class Mapper
         };
     }
 
-    private static string CreateSystemMessage(IAgent agent, IChat chat) {
+    private static string CreateSystemMessage(IChat chat, World world, UserProfile user, IAgent agent) {
         var builder = new StringBuilder();
+        builder.AppendLine(world.ToString());
+        builder.AppendLine(user.ToString());
         builder.AppendLine(agent.Persona.ToString());
-        builder.AppendLine(agent.World.ToString());
         builder.AppendLine(chat.Instructions.ToString());
         return builder.ToString();
     }

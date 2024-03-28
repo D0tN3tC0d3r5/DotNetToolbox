@@ -14,8 +14,10 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
     protected TMapper Mapper { get; } = new();
 
     public World World { get; set; } = default!;
+    public UserProfile User { get; set; } = default!;
     public Persona Persona { get; set; } = default!;
-    public AgentOptions Options { get; set; } = default!;
+    public string Provider { get; } = provider;
+    public AgentModel Model { get; set; } = default!;
 
     public virtual async Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, int? number, CancellationToken ct) {
         try {
@@ -46,16 +48,16 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
     }
 
     private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
-        var request = (TRequest)Mapper.CreateRequest(this, chat);
+        var request = (TRequest)Mapper.CreateRequest(chat, World, User, this);
         HttpResponseMessage httpResult = default!;
         try {
-            var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions, mediaType: MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType));
+            var content = JsonContent.Create(request, options: IAgentModel.SerializerOptions, mediaType: MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType));
             var httpClient = _httpClientProvider.GetHttpClient();
             var chatEndpoint = _httpClientProvider.Options.Endpoints["Chat"];
             httpResult = await httpClient.PostAsync(chatEndpoint, content, ct).ConfigureAwait(false);
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentOptions.SerializerOptions)!;
+            var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentModel.SerializerOptions)!;
             var responseMessage = Mapper.CreateResponseMessage(chat, apiResponse);
             chat.Messages.Add(responseMessage);
             return HttpResult.Ok();
@@ -64,7 +66,7 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
             Logger.LogWarning(ex, "Request failed!");
             switch (httpResult.StatusCode) {
                 case HttpStatusCode.BadRequest:
-                    var input = JsonSerializer.Serialize(request, IAgentOptions.SerializerOptions);
+                    var input = JsonSerializer.Serialize(request, IAgentModel.SerializerOptions);
                     var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                     var errorMessage = $"""
                                         RequestPackage: {input}

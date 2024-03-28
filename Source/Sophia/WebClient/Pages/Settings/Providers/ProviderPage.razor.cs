@@ -69,13 +69,13 @@ public partial class ProviderPage {
 
     public void GoBack() => NavigationManager.NavigateTo("/settings/providers");
 
-    private void InsertOption(int index = -1) {
+    private void AddModel(int index = -1) {
         var model = new ModelData();
         if (index == _provider.Models.Count - 1) _provider.Models.Add(model);
         else _provider.Models.Insert(index + 1, model);
     }
 
-    private void RemoveOption(int index)
+    private void DeleteModel(int index)
         => _provider.Models.RemoveAt(index);
 
     private void AddApiEndpoint()

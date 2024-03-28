@@ -13,7 +13,7 @@ public class ChatRequest : IChatRequest {
     [JsonPropertyName("stop_sequences")]
     public string[]? StopSequences { get; set; }
     [JsonPropertyName("stream")]
-    public bool? UseStreaming { get; set; }
+    public bool? ResponseIsStream { get; set; }
     [JsonPropertyName("temperature")]
     public decimal? Temperature { get; set; }
     [JsonPropertyName("top_p")]

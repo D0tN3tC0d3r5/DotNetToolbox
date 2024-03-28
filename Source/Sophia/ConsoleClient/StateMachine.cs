@@ -30,7 +30,7 @@ public class StateMachine
         _agent = (OpenAIAgent)factory.Create("OpenAI");
         _agent.World = new(app.Environment.DateTime); ;
         _agent.Persona = _repository.LoadPersona("TimeKeeper");
-        _agent.Options = _repository.LoadAgentOptions("Fast");
+        _agent.Model = _repository.LoadAgentOptions("Fast");
     }
 
     public uint CurrentState { get; set; }

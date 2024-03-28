@@ -3,8 +3,6 @@ global using System.Net.Http.Json;
 global using System.Security.Claims;
 global using System.Text.Encodings.Web;
 
-global using DotNetToolbox.Http.Extensions;
-
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
 global using Microsoft.AspNetCore.Components.Forms;
@@ -15,6 +13,7 @@ global using Microsoft.JSInterop;
 global using Sophia.Models.Chats;
 global using Sophia.Models.Common;
 global using Sophia.Models.Personas;
+global using Sophia.Models.Providers;
 global using Sophia.Models.Tools;
 global using Sophia.Models.Worlds;
 global using Sophia.Services;

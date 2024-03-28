@@ -4,50 +4,40 @@ namespace Sophia.WebApp.Data;
 
 public static class Mapper {
     public static void UpdateFrom(this WorldEntity target, WorldData input) {
-        target.Location = input.Location;
-        target.UserProfile = input.UserProfile.ToEntity();
         target.Facts = input.Facts.ToList(i => i.ToEntity());
         target.Tools = input.Tools.ToList(i => i.AddOrUpdate(target));
     }
 
-    //public static ProviderEntity ToEntity(this ProviderData input)
-    //    => new() {
-    //        Id = input.Id,
-    //        Name = input.Name,
-    //        Api = input.Api.ToEntity(),
-    //        Models = input.Models.ToList(i => i.ToEntity()),
-    //    };
+    public static ProviderEntity ToEntity(this ProviderData input)
+        => new() {
+            Id = input.Id,
+            Name = input.Name,
+            Models = input.Models.ToList(i => i.ToEntity()),
+        };
 
-    //public static void UpdateFrom(this ProviderEntity target, ProviderData input) {
-    //    target.Id = input.Id;
-    //    target.Name = input.Name;
-    //    target.Api = input.Api.ToEntity();
-    //    target.Models = input.Models.ToList(i => i.AddOrUpdate(target));
-    //}
+    public static void UpdateFrom(this ProviderEntity target, ProviderData input) {
+        target.Id = input.Id;
+        target.Name = input.Name;
+        target.Models = input.Models.ToList(i => i.AddOrUpdate(target));
+    }
 
-    //public static ApiEntity ToEntity(this ApiData input)
-    //    => new() {
-    //        BaseAddress = input.BaseAddress,
-    //        Endpoints = input.Endpoints,
-    //    };
+    public static ModelEntity ToEntity(this ModelData input)
+        => new() {
+            ModelId = input.Id,
+            Name = input.Name,
+        };
 
-    //public static ModelEntity ToEntity(this ModelData input)
-    //    => new() {
-    //        Key = input.Key,
-    //        Name = input.Name,
-    //    };
+    public static void UpdateFrom(this ModelEntity target, ModelData input) {
+        target.ModelId = input.Id;
+        target.Name = input.Name;
+    }
 
-    //public static void UpdateFrom(this ModelEntity target, ModelData input) {
-    //    target.Key = input.Key;
-    //    target.Name = input.Name;
-    //}
-
-    //public static ModelEntity AddOrUpdate(this ModelData input, IHasModels parent) {
-    //    var originalItem = parent.Models.FirstOrDefault(i => i.Key == input.Key);
-    //    if (originalItem is null) return input.ToEntity();
-    //    originalItem.UpdateFrom(input);
-    //    return originalItem;
-    //}
+    public static ModelEntity AddOrUpdate(this ModelData input, IHasModels parent) {
+        var originalItem = parent.Models.FirstOrDefault(i => i.ModelId == input.Id);
+        if (originalItem is null) return input.ToEntity();
+        originalItem.UpdateFrom(input);
+        return originalItem;
+    }
 
     public static FactEntity ToEntity(this FactData input)
         => new() {
@@ -102,12 +92,26 @@ public static class Mapper {
 
     public static ChatAgentEntity ToEntity(this ChatAgentData input)
         => new() {
-            Number = input.Number,
-            Provider = input.Provider,
+            ChatId = input.ChatId,
+            Number = input.AgentNumber,
             PersonaId = input.Persona.Id,
-            Options = input.Options,
+            Persona = input.Persona.ToEntity(),
+            ModelId = input.Options.Id,
+            Options = input.Options.ToEntity(),
             Messages = input.Messages.ToList(i => i.ToEntity()),
         };
+
+    public static ChatAgentOptionsEntity ToEntity(this ChatAgentOptionsData input)
+        => new() {
+                     ModelId = input.Model.Id,
+                     NumberOfRetries = input.NumberOfRetries,
+                     MaximumOutputTokens = input.MaximumOutputTokens,
+                     Temperature = input.Temperature,
+                     TokenProbabilityCutOff = input.TokenProbabilityCutOff,
+                     StopSequences = [.. input.StopSequences],
+                     IsStreaming = input.IsStreaming,
+                     RespondsAsJson = input.RespondsAsJson,
+                 };
 
     public static MessageEntity ToEntity(this MessageData input, IHasMessages? parent = null)
         => new() {

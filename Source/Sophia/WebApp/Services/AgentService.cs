@@ -2,19 +2,18 @@
 
 namespace Sophia.WebApp.Services;
 
-public class AgentService(IAgentFactory factory, IWorldService worlds, IChatsService chats)
+public class AgentService(IAgentFactory factory, IWorldService worldService, IUserService userService, IChatsService chatService)
     : AsyncResponseConsumer<AgentService>,
       IAgentService {
 
     public async Task<string> GetResponse(GetResponseRequest request) {
         try {
-            var chat = await chats.GetById(request.ChatId);
+            var chat = await chatService.GetById(request.ChatId);
             if (chat is null) return "Error!";
             var agent = await CreateAgent(chat);
             var chatModel = chat.ToModel();
             var result = await agent.SendRequest(this, chatModel, request.AgentNumber);
-            if (result.IsOk) return chatModel.Messages[^1].AsText();
-            return result.ToString();
+            return result.IsOk ? chatModel.Messages[^1].AsText() : result.ToString();
         }
         catch (Exception ex) {
             throw new ArgumentException("Error creating agent.", ex);
@@ -22,20 +21,23 @@ public class AgentService(IAgentFactory factory, IWorldService worlds, IChatsSer
     }
 
     private async Task<IAgent> CreateAgent(ChatData chat) {
-        var world = await worlds.GetWorld();
-        var agent = factory.Create(chat.Agents[0].Provider);
+        var world = await worldService.GetWorld();
+        var user = await userService.GetCurrentUserProfile();
+        var selectedAgent = chat.Agents[0];
+        var agent = factory.Create(selectedAgent.Options.Provider.Name);
         agent.World = world.ToModel();
-        agent.Persona = chat.Agents[0].Persona.ToModel();
-        agent.Options = chat.Agents[0].Options;
+        agent.User = user.ToModel();
+        agent.Persona = selectedAgent.Persona.ToModel();
+        agent.Model = selectedAgent.Options.ToModel();
         return agent;
     }
 
     protected override async Task OnResponseReceived(Guid chatId, int? agentNumber, Message message, CancellationToken ct) {
         try {
-            var chat = await chats.GetById(chatId)
+            var chat = await chatService.GetById(chatId)
                         ?? throw new ArgumentException("Chat not found.", nameof(chatId));
             var responseMessage = CreateMessage(chat, message);
-            var agent = chat.Agents.FirstOrDefault(i => i.Number == agentNumber);
+            var agent = chat.Agents.FirstOrDefault(i => i.AgentNumber == agentNumber);
             agent?.Messages.Add(responseMessage);
             chat.Messages.Add(responseMessage);
         }

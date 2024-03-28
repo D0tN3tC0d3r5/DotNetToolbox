@@ -34,45 +34,6 @@
         <InputText id="providerName" class="form-control" @bind-Value="_provider.Name" disabled="@IsReadOnly" />
         <ValidationMessage For="@(() => _provider.Name)" />
       </div>
-      <h4>Api Endpoints</h4>
-      <div class="mb-3">
-        <table class="table w-100">
-          <thead>
-            <tr>
-              <th class="fit">
-                @if (!IsReadOnly) {
-                  <button class="btn btn-primary btn-sm" @onclick="AddApiEndpoint" @onclick:preventDefault disabled="@IsReadOnly">
-                    <i class="bi bi-plus-circle"></i>
-                  </button>
-                }
-              </th>
-              <th>Name</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (var i = 0; i < _endpoints.Count; i++) {
-              var index = i;
-              <tr>
-                <td class="fit">
-                  @if (!IsReadOnly) {
-                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteApiEndpoint(index)" @onclick:preventDefault>
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  }
-                </td>
-                <td>
-                  <InputText class="form-control" @bind-Value="_endpoints[index].Type" disabled="@IsReadOnly" />
-                </td>
-                <td>
-                  <InputText class="form-control" @bind-Value="_endpoints[index].Path" disabled="@IsReadOnly" />
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-        <ValidationMessage For="@(() => _provider.Api.Endpoints)" />
-      </div>
       <h4>Models</h4>
       <div class="mb-3">
         <table class="table w-100">
@@ -80,13 +41,13 @@
             <tr>
               <th class="fit">
                 @if (!IsReadOnly) {
-                  <button class="btn btn-primary btn-sm" @onclick="() => InsertOption()" @onclick:preventDefault disabled="@IsReadOnly">
+                  <button class="btn btn-primary btn-sm" @onclick="() => AddModel()" @onclick:preventDefault disabled="@IsReadOnly">
                     <i class="bi bi-plus-circle"></i>
                   </button>
                 }
               </th>
               <th>Name</th>
-              <th>Key</th>
+              <th>Id</th>
             </tr>
           </thead>
           <tbody>
@@ -95,10 +56,10 @@
               <tr>
                 <td class="fit">
                   @if (!IsReadOnly) {
-                    <button class="btn btn-primary btn-sm" @onclick="() => InsertOption(index)" @onclick:preventDefault>
+                    <button class="btn btn-primary btn-sm" @onclick="() => AddModel(index)" @onclick:preventDefault>
                       <i class="bi bi-plus-circle"></i>
                     </button>
-                    <button class="btn btn-danger btn-sm" @onclick="() => RemoveOption(index)" @onclick:preventDefault>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteModel(index)" @onclick:preventDefault>
                       <i class="bi bi-trash"></i>
                     </button>
                   }
@@ -107,7 +68,7 @@
                   <InputText class="form-control" @bind-Value="_provider.Models[index].Name" disabled="@IsReadOnly" />
                 </td>
                 <td>
-                  <InputText class="form-control" @bind-Value="_provider.Models[index].Key" disabled="@IsReadOnly" />
+                  <InputText class="form-control" @bind-Value="_provider.Models[index].Id" disabled="@IsReadOnly" />
                 </td>
               </tr>
             }
