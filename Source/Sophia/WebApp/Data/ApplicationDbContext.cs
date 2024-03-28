@@ -3,7 +3,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     : IdentityDbContext<ApplicationUser>(options) {
 
     public required DbSet<WorldEntity> Worlds { get; set; }
-    public required DbSet<ProviderEntity> Providers { get; set; }
+    //public required DbSet<ProviderEntity> Providers { get; set; }
     public required DbSet<ToolEntity> Tools { get; set; }
     public required DbSet<PersonaEntity> Personas { get; set; }
     public required DbSet<ChatEntity> Chats { get; set; }
@@ -19,7 +19,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
 
         builder.Entity<WorldEntity>();
-        builder.Entity<ProviderEntity>();
+        //builder.Entity<ProviderEntity>();
         builder.Entity<ToolEntity>();
         builder.Entity<PersonaEntity>();
         builder.Entity<ChatEntity>();
@@ -31,7 +31,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         await dbContext.Database.EnsureCreatedAsync();
         await dbContext.Database.MigrateAsync();
         await WorldEntity.Seed(dbContext);
-        await ProviderEntity.Seed(dbContext);
+        //await ProviderEntity.Seed(dbContext);
         await PersonaEntity.Seed(dbContext);
         await dbContext.SaveChangesAsync();
     }

@@ -11,8 +11,8 @@ public class ChatAgentEntity
     public ChatEntity Chat { get; set; } = default!;
     public int Number { get; set; }
     [Required]
-    public int ProviderId { get; set; }
-    public ProviderEntity Provider { get; set; } = default!;
+    [MaxLength(50)]
+    public string Provider { get; set; } = default!;
     [Required]
     public int PersonaId { get; set; }
     public PersonaEntity Persona { get; set; } = default!;
@@ -25,9 +25,6 @@ public class ChatAgentEntity
         builder.HasOne(c => c.Chat)
                .WithMany(c => c.Agents)
                .HasForeignKey(c => c.ChatId);
-        builder.HasOne(c => c.Provider)
-               .WithMany()
-               .HasForeignKey(c => c.ProviderId);
         builder.HasOne(c => c.Persona)
                .WithMany()
                .HasForeignKey(c => c.PersonaId);
@@ -42,7 +39,7 @@ public class ChatAgentEntity
     public ChatAgentData ToDto()
         => new() {
             Persona = Persona.ToDto(),
-            Provider = Provider.ToDto(),
+            Provider = Provider,
             Options = Options,
             Messages = Messages.ToList(m => m.ToDto()),
         };

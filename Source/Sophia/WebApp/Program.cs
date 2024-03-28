@@ -15,8 +15,8 @@ builder.Services.AddAuthentication(options => {
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 }).AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("Sophia.WebApp")
+                    ?? throw new InvalidOperationException("Connection string 'Sophia.WebApp' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
     options.UseSqlServer(connectionString);
     options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
@@ -31,19 +31,16 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-if (builder.Environment.IsDevelopment()) {
+if (builder.Environment.IsDevelopment())
     builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
-}
 
 builder.Services.AddAnthropic();
 builder.Services.AddOpenAI();
 builder.Services.AddScoped<IWorldService, WorldService>();
-builder.Services.AddScoped<IProvidersService, ProvidersService>();
 builder.Services.AddScoped<IToolsService, ToolsService>();
 builder.Services.AddScoped<IPersonasService, PersonasService>();
 builder.Services.AddScoped<IChatsService, ChatsService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
-builder.Services.AddScoped<IProvidersRemoteService, ProvidersRemoteService>();
 builder.Services.AddScoped<IWorldRemoteService, WorldRemoteService>();
 builder.Services.AddScoped<IPersonasRemoteService, PersonasRemoteService>();
 builder.Services.AddScoped<IToolsRemoteService, ToolsRemoteService>();
@@ -79,7 +76,6 @@ app.MapRazorComponents<App>()
    .AddAdditionalAssemblies(typeof(Sophia.WebClient._Imports).Assembly);
 
 app.MapIdentityEndpoints();
-app.MapProvidersEndpoints();
 app.MapWorldEndpoints();
 app.MapToolsEndpoints();
 app.MapPersonasEndpoints();

@@ -23,7 +23,7 @@ public class AgentService(IAgentFactory factory, IWorldService worlds, IChatsSer
 
     private async Task<IAgent> CreateAgent(ChatData chat) {
         var world = await worlds.GetWorld();
-        var agent = factory.Create(chat.Agents[0].Provider.Name);
+        var agent = factory.Create(chat.Agents[0].Provider);
         agent.World = world.ToModel();
         agent.Persona = chat.Agents[0].Persona.ToModel();
         agent.Options = chat.Agents[0].Options;
@@ -34,7 +34,7 @@ public class AgentService(IAgentFactory factory, IWorldService worlds, IChatsSer
         try {
             var chat = await chats.GetById(chatId)
                         ?? throw new ArgumentException("Chat not found.", nameof(chatId));
-            var responseMessage = CreateMessage(chat, chatId, agentNumber, message);
+            var responseMessage = CreateMessage(chat, message);
             var agent = chat.Agents.FirstOrDefault(i => i.Number == agentNumber);
             agent?.Messages.Add(responseMessage);
             chat.Messages.Add(responseMessage);
@@ -44,7 +44,7 @@ public class AgentService(IAgentFactory factory, IWorldService worlds, IChatsSer
         }
     }
 
-    private static MessageData CreateMessage(IHasMessages parent, Guid chatId, int? agentNumber, Message message)
+    private static MessageData CreateMessage(IHasMessages parent, Message message)
         => new() {
             Type = "assistant",
             Index = parent.Messages.Count,

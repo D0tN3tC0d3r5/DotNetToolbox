@@ -1,7 +1,6 @@
-﻿
-namespace Sophia.WebApp.Data.Providers;
+﻿//namespace Sophia.WebApp.Data.Providers;
 
-public interface IHasModels {
-    int Id { get; set; }
-    List<ModelEntity> Models { get; set; }
-}
+//public interface IHasModels {
+//    int Id { get; set; }
+//    List<ModelEntity> Models { get; set; }
+//}

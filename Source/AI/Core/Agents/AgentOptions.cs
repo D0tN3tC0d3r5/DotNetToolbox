@@ -15,7 +15,7 @@ public class AgentOptions
     public const byte MinimumTokenProbabilityCutOff = 0;
     public const byte MaximumTokenProbabilityCutOff = 1;
 
-    public string ChatEndpoint { get; set; } = string.Empty;
+    //public string ChatEndpoint { get; set; } = string.Empty;
     public string Model { get; set; } = string.Empty;
     public byte NumberOfRetries { get; set; } = DefaultNumberOfRetries;
     public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;

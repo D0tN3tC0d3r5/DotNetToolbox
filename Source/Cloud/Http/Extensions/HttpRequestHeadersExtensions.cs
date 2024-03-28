@@ -26,7 +26,7 @@ public static class HttpRequestHeadersExtensions {
     }
 
     public static T GetValue<T>(this HttpRequestHeaders headers, string key)
-        => (T)Convert.ChangeType(headers.GetValue(key), typeof(T));
+        => (T)ChangeType(headers.GetValue(key), typeof(T));
 
     public static string GetValue(this HttpRequestHeaders headers, string key)
         => IsNotNull(headers).TryGetValues(IsNotNullOrWhiteSpace(key), out var values)

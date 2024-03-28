@@ -1,48 +1,37 @@
 ﻿namespace DotNetToolbox.Http;
 
-public class HttpClientProvider(string name, IHttpClientFactory clientFactory, IConfiguration configuration)
-    : HttpClientProvider<HttpClientOptions>(name, clientFactory, configuration) {
-    public HttpClientProvider(IHttpClientFactory clientFactory, IConfiguration configuration)
-        : this(string.Empty, clientFactory, configuration)
-    {
-    }
-
-    protected override void SetDefaultConfiguration(HttpClientOptions options) { }
-}
-
-public abstract class HttpClientProvider<TOptions>
-    : IHttpClientProvider
-    where TOptions : HttpClientOptions, new() {
+public abstract class HttpClientProvider
+    : IHttpClientProvider {
     private readonly IHttpClientFactory _clientFactory;
-    private readonly TOptions _options;
 
     protected HttpClientProvider(string name, IHttpClientFactory clientFactory, IConfiguration configuration) {
         Name = IsNotNullOrWhiteSpace(name);
         _clientFactory = clientFactory;
         ConfigurationPath = $"{HttpClientOptions.SectionName}:{Name}";
-        _options = new();
-        configuration.GetSection(ConfigurationPath)?.Bind(_options);
+        Options = new();
+        configuration.GetSection(ConfigurationPath)?.Bind(Options);
         // ReSharper disable once VirtualMemberCallInConstructor - As intended.
-        SetDefaultConfiguration(_options);
+        SetDefaultConfiguration(Options);
     }
 
     public string Name { get; }
-    protected abstract void SetDefaultConfiguration(TOptions options);
+    public HttpClientOptions Options { get; }
+    protected virtual void SetDefaultConfiguration(HttpClientOptions options) { }
 
     public string ConfigurationPath { get; }
 
     public void Authorize(string value, DateTimeOffset? expiresOn = null)
-        => _options.Authentication?.Authorize(value, expiresOn);
+        => Options.Authentication?.Authorize(value, expiresOn);
 
     public void ExtendAuthorizationUntil(DateTimeOffset expiresOn)
-        => _options.Authentication?.ExtendUntil(expiresOn);
+        => Options.Authentication?.ExtendUntil(expiresOn);
 
     public void RevokeAuthorization()
-        => _options.Authentication?.Revoke();
+        => Options.Authentication?.Revoke();
 
     public HttpClient GetHttpClient() {
         var client = _clientFactory.CreateClient(Name);
-        _options.Configure(client);
+        Options.Configure(client);
         return client;
     }
 }

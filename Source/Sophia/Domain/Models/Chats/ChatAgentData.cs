@@ -4,7 +4,7 @@ public class ChatAgentData :
     IHasMessages {
     public int Number { get; set; }
     [Required]
-    public ProviderData Provider { get; set; } = default!;
+    public string Provider { get; set; } = default!;
     [Required]
     public PersonaData Persona { get; set; } = default!;
     [Required]

@@ -34,40 +34,14 @@
         <InputText id="providerName" class="form-control" @bind-Value="_provider.Name" disabled="@IsReadOnly" />
         <ValidationMessage For="@(() => _provider.Name)" />
       </div>
-      <h4>API</h4>
-      <div class="mb-3">
-        <label for="baseAddress" class="form-label">Base Address</label>
-        <InputText id="baseAddress" class="form-control" @bind-Value="_provider.Api.BaseAddress" disabled="@IsReadOnly" />
-        <ValidationMessage For="@(() => _provider.Api.BaseAddress)" />
-      </div>
-      <div class="mb-3">
-        <label for="chatEndpoint" class="form-label">Chat Endpoint</label>
-        <InputText id="chatEndpoint" class="form-control" @bind-Value="_provider.Api.ChatEndpoint" disabled="@IsReadOnly" />
-        <ValidationMessage For="@(() => _provider.Name)" />
-      </div>
-      <h4>Authentication</h4>
-      <div class="mb-3">
-        <label for="authenticationType" class="form-label">Type</label>
-        <select id="authenticationType" class="form-control" @bind="_provider.Authentication.Type" disabled="@IsReadOnly">
-          @foreach (var value in Enum.GetValues(typeof(AuthenticationType))) {
-            <option value="@value">@value</option>
-          }
-        </select>
-        <ValidationMessage For="@(() => _provider.Authentication.Type)" />
-      </div>
-      <div class="mb-3">
-        <label for="authenticationValue" class="form-label">Value</label>
-        <InputTextArea id="authenticationValue" rows="3" class="form-control" @bind-Value="_provider.Authentication.Value" disabled="@IsReadOnly" />
-        <ValidationMessage For="@(() => _provider.Authentication.Value)" />
-      </div>
-      <h4>Custom Request Headers</h4>
+      <h4>Api Endpoints</h4>
       <div class="mb-3">
         <table class="table w-100">
           <thead>
             <tr>
               <th class="fit">
                 @if (!IsReadOnly) {
-                  <button class="btn btn-primary btn-sm" @onclick="InsertCustomRequestHeader" @onclick:preventDefault disabled="@IsReadOnly">
+                  <button class="btn btn-primary btn-sm" @onclick="AddApiEndpoint" @onclick:preventDefault disabled="@IsReadOnly">
                     <i class="bi bi-plus-circle"></i>
                   </button>
                 }
@@ -77,27 +51,27 @@
             </tr>
           </thead>
           <tbody>
-            @for (var i = 0; i < _headers.Count; i++) {
+            @for (var i = 0; i < _endpoints.Count; i++) {
               var index = i;
               <tr>
                 <td class="fit">
                   @if (!IsReadOnly) {
-                    <button class="btn btn-danger btn-sm" @onclick="() => RemoveCustomRequestHeader(index)" @onclick:preventDefault>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteApiEndpoint(index)" @onclick:preventDefault>
                       <i class="bi bi-trash"></i>
                     </button>
                   }
                 </td>
                 <td>
-                  <InputText class="form-control" @bind-Value="_headers[index].Name" disabled="@IsReadOnly" />
+                  <InputText class="form-control" @bind-Value="_endpoints[index].Type" disabled="@IsReadOnly" />
                 </td>
                 <td>
-                  <InputText class="form-control" @bind-Value="_headers[index].Value" disabled="@IsReadOnly" />
+                  <InputText class="form-control" @bind-Value="_endpoints[index].Path" disabled="@IsReadOnly" />
                 </td>
               </tr>
             }
           </tbody>
         </table>
-        <ValidationMessage For="@(() => _provider.Api.CustomRequestHeaders)" />
+        <ValidationMessage For="@(() => _provider.Api.Endpoints)" />
       </div>
       <h4>Models</h4>
       <div class="mb-3">

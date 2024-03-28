@@ -9,7 +9,6 @@ public class ChatsService(ApplicationDbContext dbContext)
             var filterClause = BuildFilter(filter);
             return await dbContext.Chats
                                   .Include(c => c.Agents).ThenInclude(i => i.Persona)
-                                  .Include(c => c.Agents).ThenInclude(i => i.Provider).ThenInclude(i => i.Models)
                                   .AsNoTracking()
                                   .AsSplitQuery()
                                   .Where(filterClause)
@@ -33,7 +32,6 @@ public class ChatsService(ApplicationDbContext dbContext)
             var entity = await dbContext.Chats
                                             .Include(c => c.Agents).ThenInclude(i => i.Persona).ThenInclude(i => i.Facts)
                                             .Include(c => c.Agents).ThenInclude(i => i.Persona).ThenInclude(i => i.Tools)
-                                            .Include(c => c.Agents).ThenInclude(i => i.Provider).ThenInclude(i => i.Models)
                                             .Include(c => c.Messages)
                                             .AsNoTracking()
                                             .AsSplitQuery()

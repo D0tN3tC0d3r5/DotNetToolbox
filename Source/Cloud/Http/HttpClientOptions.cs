@@ -11,6 +11,7 @@ public record HttpClientOptions
     public static HttpClientOptions Default => new();
 
     public string BaseAddress { get; init; } = string.Empty;
+    public Dictionary<string, string> Endpoints { get; init; } = [];
     public string ContentType { get; init; } = DefaultContentType;
     public string ResponseFormat { get; init; } = DefaultResponseFormat;
     public HttpClientAuthentication? Authentication { get; set; }

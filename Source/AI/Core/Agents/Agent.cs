@@ -51,7 +51,8 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
         try {
             var content = JsonContent.Create(request, options: IAgentOptions.SerializerOptions, mediaType: MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType));
             var httpClient = _httpClientProvider.GetHttpClient();
-            httpResult = await httpClient.PostAsync(Options.ChatEndpoint, content, ct).ConfigureAwait(false);
+            var chatEndpoint = _httpClientProvider.Options.Endpoints["Chat"];
+            httpResult = await httpClient.PostAsync(chatEndpoint, content, ct).ConfigureAwait(false);
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentOptions.SerializerOptions)!;
