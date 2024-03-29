@@ -10,24 +10,17 @@ public class PersonaData {
     [MaxLength(1000, ErrorMessage = "Description cannot exceed 1000 characters.")]
     public string Description { get; set; } = "You are a helpful agent.";
     [MaxLength(1000, ErrorMessage = "Personality cannot exceed 1000 characters.")]
-    public string? Personality { get; set; }
-    public List<string> Instructions { get; set; } = [];
-    public List<FactData> Facts { get; set; } = [];
+    public HashSet<string> Personality { get; set; } = [];
+    public HashSet<string> Conduct { get; set; } = [];
+    public HashSet<string> Facts { get; set; } = [];
     public List<ToolData> KnownTools { get; set; } = [];
-
-    public string? ValidateInstructions()
-        => Instructions.Any(string.IsNullOrWhiteSpace)
-               ? "Instructions cannot contain empty or whitespace strings."
-               : Instructions.Count != Instructions.Distinct().Count()
-                   ? "Instructions cannot contain duplicated values."
-                   : null;
 
     public Persona ToModel() => new() {
         Name = Name,
         Description = Description,
         Personality = Personality,
-        Instructions = Instructions,
-        Facts = Facts.ToList(f => f.ToModel()),
+        Conduct = Conduct,
+        Facts = Facts,
         KnownTools = KnownTools.ToList(f => f.ToModel()),
     };
 }

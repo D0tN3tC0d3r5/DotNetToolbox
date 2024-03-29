@@ -1,22 +1,14 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
-public class Chat(
-        Guid id,
-        Instructions instructions,
-        IEnumerable<Message> messages,
-        uint totalTokens = default)
+public class Chat(IGuidProvider guid)
     : IChat {
 
-    public Chat(Guid id)
-        : this(id, new(), []) {
+    public Chat()
+        : this(new GuidProvider()) {
     }
 
-    public Chat(ISystemEnvironment environment)
-        : this(environment.Guid.New(), new(), []) {
-    }
-
-    public Guid Id { get; set; } = id;
-    public Instructions Instructions { get; set; } = instructions;
-    public List<Message> Messages { get; set; } = messages?.ToList() ?? [];
-    public uint TotalTokens { get; set; } = totalTokens;
+    public Guid Id { get; set; } = guid.New();
+    public Instructions Instructions { get; set; } = new();
+    public List<Message> Messages { get; set; } = [];
+    public uint TotalTokens { get; set; } = 0;
 }

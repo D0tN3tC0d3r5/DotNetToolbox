@@ -59,7 +59,7 @@ public class StateMachine
 
     private Task Start(CancellationToken _) {
         try {
-            _chat = new(_app.Environment);
+            _chat = new(_app.Environment.Guid);
             _repository.SaveChat(_chat);
             _out.WriteLine("New chat started.");
             CurrentState = Idle;

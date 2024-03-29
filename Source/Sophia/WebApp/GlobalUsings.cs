@@ -32,7 +32,6 @@ global using Microsoft.Extensions.Options;
 global using Microsoft.Extensions.Primitives;
 
 global using Sophia.Models.Chats;
-global using Sophia.Models.Common;
 global using Sophia.Models.Personas;
 global using Sophia.Models.Providers;
 global using Sophia.Models.Tools;
@@ -44,7 +43,6 @@ global using Sophia.WebApp.Components.Account.Pages;
 global using Sophia.WebApp.Components.Account.Pages.Manage;
 global using Sophia.WebApp.Data;
 global using Sophia.WebApp.Data.Chats;
-global using Sophia.WebApp.Data.Common;
 global using Sophia.WebApp.Data.Personas;
 global using Sophia.WebApp.Data.Providers;
 global using Sophia.WebApp.Data.Tools;

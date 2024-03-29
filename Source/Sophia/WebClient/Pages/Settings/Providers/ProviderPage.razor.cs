@@ -6,16 +6,9 @@ public partial class ProviderPage {
     private ProviderData _provider = new();
     private EditContext _editContext;
     private ValidationMessageStore _validationMessageStore;
-    private readonly List<EndpointView> _endpoints = [];
 
-    private PageAction _action;
-    [Parameter]
-    [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
-    public string Action {
-        get => _action.ToString();
-        set => _action = Enum.Parse<PageAction>(value);
-    }
-    public bool IsReadOnly => _action == PageAction.View;
+    [Parameter] public string Action { get; set; } = PageAction.View;
+    public bool IsReadOnly => Action == PageAction.View;
 
     [Inject] public IProvidersService ProvidersService { get; set; } = default!;
     [Inject] public NavigationManager NavigationManager { get; set; } = default!;
@@ -25,10 +18,8 @@ public partial class ProviderPage {
         _validationMessageStore = new(_editContext);
     }
 
-    protected override async Task OnInitializedAsync() {
-        _provider = await GetProviderById(Id);
-        _action = Enum.Parse<PageAction>(Action);
-    }
+    protected override async Task OnInitializedAsync()
+        => _provider = await GetProviderById(Id);
 
     protected override void OnParametersSet() {
         _editContext = new(_provider);
@@ -48,22 +39,22 @@ public partial class ProviderPage {
                ? new()
                : (await ProvidersService.GetById(providerId.Value))!;
 
-    public void EnableEdit() => _action = PageAction.Edit;
+    public void EnableEdit() => Action = PageAction.Edit;
 
     public async Task Save() {
         if (_provider.Id == 0) await ProvidersService.Add(_provider);
         else await ProvidersService.Update(_provider);
-        _action = PageAction.View;
+        Action = PageAction.View;
     }
 
     public async Task Cancel() {
-        if (_action == PageAction.Edit) await CancelEdit();
+        if (Action == PageAction.Edit) await CancelEdit();
         else GoBack();
-        _action = PageAction.View;
+        Action = PageAction.View;
     }
 
     public async Task CancelEdit() {
-        _action = PageAction.View;
+        Action = PageAction.View;
         _provider = await GetProviderById(Id);
     }
 
@@ -77,15 +68,4 @@ public partial class ProviderPage {
 
     private void DeleteModel(int index)
         => _provider.Models.RemoveAt(index);
-
-    private void AddApiEndpoint()
-        => _endpoints.Add(new());
-
-    private void DeleteApiEndpoint(int index)
-        => _endpoints.RemoveAt(index);
-
-    private class EndpointView {
-        public string Type { get; set; } = string.Empty;
-        public string Path { get; set; } = string.Empty;
-    }
 }

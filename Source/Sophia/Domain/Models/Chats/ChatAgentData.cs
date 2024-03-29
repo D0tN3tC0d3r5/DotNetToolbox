@@ -9,4 +9,11 @@ public class ChatAgentData :
     [Required]
     public ChatAgentOptionsData Options { get; set; } = default!;
     public List<MessageData> Messages { get; set; } = [];
+    public List<string> Instructions { get; set; } = [];
+    public string? ValidateInstructions()
+        => Instructions.Any(string.IsNullOrWhiteSpace)
+               ? "Instructions cannot contain empty or whitespace strings."
+               : Instructions.Count != Instructions.Distinct().Count()
+                   ? "Instructions cannot contain duplicated values."
+                   : null;
 }

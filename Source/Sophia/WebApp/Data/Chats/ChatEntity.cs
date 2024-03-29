@@ -14,6 +14,7 @@ public class ChatEntity
     public bool IsActive { get; set; }
 
     public List<ChatAgentEntity> Agents { get; set; } = [];
+    public InstructionsEntity Instructions { get; set; } = new();
     public List<MessageEntity> Messages { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<ChatEntity> builder) {
@@ -21,6 +22,7 @@ public class ChatEntity
                .WithOne(a => a.Chat)
                .HasForeignKey(c => c.ChatId)
                .OnDelete(DeleteBehavior.Restrict);
+        builder.ComplexProperty(c => c.Instructions);
         builder.HasMany(c => c.Messages)
                .WithOne(m => m.Chat)
                .HasForeignKey(c => c.ChatId)
@@ -33,6 +35,7 @@ public class ChatEntity
             Title = Title,
             IsActive = IsActive,
             Agents = Agents.ToList(a => a.ToDto()),
+            Instructions = Instructions.ToDto(),
             Messages = Messages.ToList(m => m.ToDto()),
         };
 }

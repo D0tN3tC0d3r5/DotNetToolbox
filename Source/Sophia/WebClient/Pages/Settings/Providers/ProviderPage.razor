@@ -1,11 +1,9 @@
 ﻿@page "/settings/provider/{Action}/{Id:int?}"
-@using System.Net
-@using DotNetToolbox.Http
 @rendermode InteractiveServer
 
 <div class="container">
   <div class="container-header d-flex flex-row justify-content-start align-content-center mb-3">
-    <h3 class="mb-1 mt-1 me-4">@_action Provider</h3>
+    <h3 class="mb-1 mt-1 me-4">@Action Provider</h3>
     @if (IsReadOnly) {
       <button type="button" class="btn btn-primary me-4" @onclick="EnableEdit">
         <i class="bi bi-pencil-square me-2"></i>Edit

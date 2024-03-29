@@ -9,11 +9,9 @@ public class WorldData() {
     }
 
     public DateTimeOffset DateTime => _dateTime.Now;
-    public List<FactData> Facts { get; set; } = [];
-    public List<ToolData> Tools { get; set; } = [];
+    public HashSet<string> Facts { get; set; } = [];
 
     public World ToModel(IDateTimeProvider? dateTime = null) => new(dateTime) {
-        Facts = Facts.ToList(x => x.ToModel()),
-        AvailableTools = Tools.ToList(x => x.ToModel()),
+        Facts = Facts,
     };
 }

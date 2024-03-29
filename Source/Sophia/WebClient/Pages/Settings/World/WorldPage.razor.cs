@@ -9,15 +9,7 @@ public partial class WorldPage
     private string _dateTime = string.Empty;
     private Timer? _timer;
 
-    private IReadOnlyCollection<ToolData> _availableTools = [];
-    private List<ToolData> _toolSelectionBuffer = [];
-    private bool _showToolSelectionDialog;
-
-    private FactData? _selectedFact;
-    private bool _showFactDialog;
-
     [Inject] public required IWorldRemoteService WorldService { get; set; }
-    [Inject] public required IToolsRemoteService ToolsService { get; set; }
     [Inject] public required NavigationManager NavigationManager { get; set; }
 
     protected override async Task OnInitializedAsync() {
@@ -56,46 +48,15 @@ public partial class WorldPage
         _isReadOnly = true;
     }
 
-    private void AddFact() {
-        _selectedFact = new();
-        _showFactDialog = true;
+    private void AddFact()
+        => _world.Facts.Add(string.Empty);
+    private void UpdateFact(string oldValue, object? newValue) {
+        if (newValue is not string newText) return;
+        if (string.IsNullOrWhiteSpace(newText)) return;
+        if (newText == oldValue) return;
+        _world.Facts.Remove(oldValue);
+        _world.Facts.Add(newText);
     }
-
-    private void EditFact(FactData fact) {
-        _selectedFact = fact;
-        _showFactDialog = true;
-    }
-
-    private void SaveFact() {
-        if (_selectedFact!.Id == 0)             _world.Facts.Add(_selectedFact);
-        CloseFactDialog();
-    }
-    private void CloseFactDialog() {
-        _showFactDialog = false;
-        _selectedFact = null;
-    }
-
-    private void RemoveFact(FactData fact) {
-        _world.Facts.Remove(fact);
-        _selectedFact = null;
-    }
-
-    private async Task OpenToolSelectionDialog() {
-        _availableTools = await ToolsService.GetList();
-        _toolSelectionBuffer = [.. _world.Tools];
-        _showToolSelectionDialog = true;
-    }
-
-    private void CloseToolSelectionDialog() {
-        _toolSelectionBuffer = [];
-        _showToolSelectionDialog = false;
-    }
-
-    private void FinishToolSelection(List<ToolData> tools) {
-        _world.Tools = tools;
-        CloseToolSelectionDialog();
-    }
-
-    private void RemoveTool(ToolData tool)
-        => _world.Tools.Remove(tool);
+    private void RemoveFact(string fact)
+        => _world.Facts.Remove(fact);
 }

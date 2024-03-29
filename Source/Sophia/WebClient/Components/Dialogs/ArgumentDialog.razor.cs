@@ -1,17 +1,10 @@
 ﻿namespace Sophia.WebClient.Components.Dialogs;
 
 public partial class ArgumentDialog {
-    [Parameter]
-    public PageAction Action { get; set; }
-
-    [Parameter]
-    public ArgumentData Argument { get; set; } = new();
-
-    [Parameter]
-    public EventCallback OnSave { get; set; }
-
-    [Parameter]
-    public EventCallback OnCancel { get; set; }
+    [Parameter] public string Action { get; set; } = PageAction.View;
+    [Parameter] public ArgumentData Argument { get; set; } = new();
+    [Parameter] public EventCallback OnSave { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
 
     private ArgumentData _argument = new();
     private EditContext _editContext;

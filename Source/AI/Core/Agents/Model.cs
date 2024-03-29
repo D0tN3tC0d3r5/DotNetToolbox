@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public class AgentModel
+public class Model
     : IAgentModel {
     public const byte MaximumRetries = 10;
     public const byte MaximumTemperature = 2;
@@ -11,6 +11,7 @@ public class AgentModel
     public const byte DefaultTemperature = 1;
     public const decimal DefaultProbabilityCutOff = 0;
 
+    public string Provider { get; set; } = default!;
     public string Id { get; set; } = default!;
     public byte NumberOfRetries { get; set; } = DefaultNumberOfRetries;
     public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;

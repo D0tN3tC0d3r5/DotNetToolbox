@@ -1,4 +1,3 @@
-global using System.Diagnostics.CodeAnalysis;
 global using System.Net.Http.Json;
 global using System.Security.Claims;
 global using System.Text.Encodings.Web;
@@ -11,7 +10,6 @@ global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 global using Microsoft.JSInterop;
 
 global using Sophia.Models.Chats;
-global using Sophia.Models.Common;
 global using Sophia.Models.Personas;
 global using Sophia.Models.Providers;
 global using Sophia.Models.Tools;

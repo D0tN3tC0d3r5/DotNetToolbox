@@ -2,7 +2,7 @@
 
 public partial class ToolPage {
 
-    private PageAction _argumentAction = PageAction.View;
+    private string _argumentAction = PageAction.View;
     private IReadOnlyList<ToolData> _existingTools = [];
     private ToolData _tool = new();
     private EditContext _editContext;
@@ -14,17 +14,9 @@ public partial class ToolPage {
     [Inject] public required IToolsRemoteService ToolsService { get; set; }
     [Inject] public required NavigationManager NavigationManager { get; set; }
 
-    private PageAction _action;
-    [Parameter]
-    [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
-    public string Action {
-        get => _action.ToString();
-        set => _action = Enum.Parse<PageAction>(value);
-    }
-    public bool IsReadOnly => _action == PageAction.View;
-
-    [Parameter]
-    public int? Id { get; set; }
+    [Parameter] public string Action { get; set; } = PageAction.View;
+    public bool IsReadOnly => Action == PageAction.View;
+    [Parameter] public int? Id { get; set; }
 
     public ToolPage() {
         _editContext = new(_tool);
@@ -55,22 +47,22 @@ public partial class ToolPage {
         if (result != null) _validationMessageStore.Add(() => _tool, result);
     }
 
-    private void EnableEdit() => _action = PageAction.Edit;
+    private void EnableEdit() => Action = PageAction.Edit;
 
     private async Task Save(EditContext editContext) {
         if (_tool.Id == 0) await ToolsService.Add(_tool);
         else await ToolsService.Update(_tool);
-        _action = PageAction.View;
+        Action = PageAction.View;
     }
 
     private async Task Cancel() {
-        if (_action == PageAction.Edit) await CancelEdit();
+        if (Action == PageAction.Edit) await CancelEdit();
         else GoBack();
-        _action = PageAction.View;
+        Action = PageAction.View;
     }
 
     private async Task CancelEdit() {
-        _action = PageAction.View;
+        Action = PageAction.View;
         _tool = await GetToolById(Id);
     }
 

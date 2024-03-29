@@ -14,22 +14,16 @@ public class PersonaEntity
     [MaxLength(1000)]
     public string Description { get; set; } = "You are a helpful ASSISTANT.";
     [MaxLength(1000)]
-    public string? Personality { get; set; }
-    public string[] Instructions { get; set; } = [];
-    public List<FactEntity> Facts { get; set; } = [];
+    public HashSet<string> Personality { get; set; } = [];
+    public HashSet<string> Conduct { get; set; } = [];
+    public HashSet<string> Facts { get; set; } = [];
     public List<ToolEntity> Tools { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<PersonaEntity> builder) {
         builder.HasKey(p => p.Id);
-        builder.PrimitiveCollection(p => p.Instructions);
-        builder.HasMany(w => w.Facts)
-               .WithMany()
-               .UsingEntity<PersonaFactsEntity>(l => l.HasOne<FactEntity>()
-                                                      .WithMany()
-                                                      .HasForeignKey(e => e.FactId),
-                                                r => r.HasOne<PersonaEntity>()
-                                                      .WithMany()
-                                                      .HasForeignKey(e => e.PersonaId));
+        builder.PrimitiveCollection(p => p.Personality);
+        builder.PrimitiveCollection(p => p.Conduct);
+        builder.PrimitiveCollection(p => p.Facts);
         builder.HasMany(p => p.Tools)
                .WithMany()
                .UsingEntity<PersonaToolsEntity>(l => l.HasOne<ToolEntity>()
@@ -52,8 +46,8 @@ public class PersonaEntity
             Name = Name,
             Description = Description,
             Personality = Personality,
-            Instructions = [.. Instructions],
-            Facts = Facts.ToList(f => f.ToDto()),
+            Conduct = Conduct,
+            Facts = Facts,
             KnownTools = Tools.ToList(f => f.ToDto()),
         };
 }

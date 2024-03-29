@@ -35,7 +35,7 @@
       </div>
 
       <!-- Facts -->
-      @if (_world.Facts.Any() || !_isReadOnly) {
+      @if (_world.Facts.Count > 0 || !_isReadOnly) {
         <div class="mb-3">
           <div class="row mb-2">
             <div class="col">
@@ -48,84 +48,22 @@
             </div>
           </div>
           <ValidationMessage For="@(() => _world.Facts)" />
-          @foreach (var fact in _world.Facts) {
+          @foreach (var item in _world.Facts) {
             <div class="row mb-2">
               <div class="col-md-1">
                 @if (!_isReadOnly) {
-                  <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(fact)" @onclick:preventDefault>
+                  <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(item)" @onclick:preventDefault>
                     <i class="bi bi-trash"></i>
-                  </button>
-                  <button class="btn btn-sm btn-primary" @onclick="() => EditFact(fact)" @onclick:preventDefault>
-                    <i class="bi bi-pencil"></i>
                   </button>
                 }
               </div>
-              <div class="col">
-                <InputText class="form-control" @bind-Value="fact.Value" readonly />
+              <div class="col-md-11">
+                <InputText class="form-control" value="@item" @onchange="ev => UpdateFact(item, ev.Value)" disabled="@_isReadOnly" />
               </div>
             </div>
           }
         </div>
       }
-      <!-- Available Tools -->
-      @if (_world.Tools.Any() || !_isReadOnly) {
-        <div class="row mb-3">
-          <div class="col-12">
-            <label class="form-label">Tools</label>
-          </div>
-          <div class="col-12">
-            <div class="row">
-              <div class="col-md-1">
-                @if (!_isReadOnly) {
-                  <button class="btn btn-sm btn-primary" @onclick="OpenToolSelectionDialog" @onclick:preventDefault>
-                    <i class="bi bi-plus-circle"></i>
-                  </button>
-                }
-                else {
-                  <button class="btn btn-sm btn-secondary" @onclick:preventDefault disabled>
-                    <i class="bi bi-plus-circle"></i>
-                  </button>
-                }
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Name</label>
-              </div>
-              <div class="col-md-7">
-                <label class="form-label">Description</label>
-              </div>
-            </div>
-            @foreach (var tool in _world.Tools) {
-              <div class="row mb-2">
-                <div class="col-md-1">
-                  @if (!_isReadOnly) {
-                    <button class="btn btn-sm btn-danger" @onclick="() => RemoveTool(tool)" @onclick:preventDefault>
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  }
-                </div>
-                <div class="col-md-4">
-                  <InputText class="form-control" @bind-Value="tool.Name" disabled="@_isReadOnly" />
-                </div>
-                <div class="col-md-7">
-                  <InputText class="form-control" @bind-Value="tool.Description" disabled="@_isReadOnly" />
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      }
     </EditForm>
   </div>
 </div>
-
-@if (_showFactDialog) {
-  <FactDialog Fact="_selectedFact" Action="@(_selectedFact!.Id == 0 ? "Add" : "Edit")"
-              OnSave="SaveFact" OnCancel="CloseFactDialog" />
-}
-
-@if (_showToolSelectionDialog) {
-  <ToolSelectionDialog AvailableTools="_availableTools"
-                       SelectedTools="_toolSelectionBuffer"
-                       OnToolsSelected="FinishToolSelection"
-                       OnCancel="CloseToolSelectionDialog" />
-}

@@ -1,58 +1,23 @@
 ﻿namespace Sophia.WebClient.Pages.Personas;
 
 public partial class PersonaPage {
-    [Inject]
-    public required IPersonasRemoteService PersonasService { get; set; }
-    [Inject]
-    public required IToolsRemoteService ToolsService { get; set; }
-
-    [Inject]
-    public required NavigationManager NavigationManager { get; set; }
+    [Inject] public required IPersonasRemoteService PersonasService { get; set; }
+    [Inject] public required IToolsRemoteService ToolsService { get; set; }
+    [Inject] public required NavigationManager NavigationManager { get; set; }
 
     private PersonaData _persona = new();
-    private PageAction _action;
     private IReadOnlyCollection<ToolData> _availableTools = [];
     private List<ToolData> _toolSelectionBuffer = [];
+
     private bool _showToolSelectionDialog;
-    private EditContext _editContext;
-    private ValidationMessageStore _validationMessageStore;
-
-    private FactData? _selectedFact;
-    private bool _showFactDialog;
-
     private bool _showDeleteConfirmationDialog;
 
-    public PersonaPage() {
-        _editContext = new(_persona);
-        _validationMessageStore = new(_editContext);
-    }
-
-    [Parameter]
-    [SuppressMessage("Usage", "BL0007:Component parameters should be auto properties", Justification = "<Pending>")]
-    public string Action {
-        get => _action.ToString();
-        set => _action = Enum.Parse<PageAction>(value);
-    }
-    public bool IsReadOnly => _action == PageAction.View;
-
-    [Parameter]
-    public int? PersonaId { get; set; }
+    [Parameter] public string Action { get; set; } = PageAction.View;
+    [Parameter] public int? PersonaId { get; set; }
+    private bool IsReadOnly => Action == PageAction.View;
 
     protected override async Task OnInitializedAsync()
         => _persona = await GetPersonaById(PersonaId);
-
-    protected override void OnParametersSet() {
-        _editContext = new(_persona);
-        _validationMessageStore = new(_editContext);
-        _editContext.OnValidationRequested += OnValidationRequested;
-        base.OnParametersSet();
-    }
-
-    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs e) {
-        _validationMessageStore.Clear(() => _persona.Instructions);
-        var result = _persona.ValidateInstructions();
-        if (result != null) _validationMessageStore.Add(() => _persona.Instructions, result);
-    }
 
     private async Task<PersonaData> GetPersonaById(int? personaId)
         => personaId is null
@@ -60,57 +25,62 @@ public partial class PersonaPage {
                : await PersonasService.GetById(personaId.Value)
               ?? throw new InvalidOperationException();
 
-    private void EnableEdit() => _action = PageAction.Edit;
+    private void EnableEdit() => Action = PageAction.Edit;
 
     private void GoBack() => NavigationManager.NavigateTo("/Personas");
 
     private async Task Save() {
         if (_persona.Id == 0) await PersonasService.Add(_persona);
         else await PersonasService.Update(_persona);
-        _action = PageAction.View;
+        Action = PageAction.View;
     }
 
     private Task Cancel() {
-        if (_action == PageAction.Edit) return CancelEdit();
+        if (Action == PageAction.Edit) return CancelEdit();
         GoBack();
         return Task.CompletedTask;
     }
 
     private async Task CancelEdit() {
-        _action = PageAction.View;
+        Action = PageAction.View;
         _persona = await GetPersonaById(PersonaId);
     }
 
-    private void AddInstruction()
-        => _persona.Instructions.Add(string.Empty);
-    private void RemoveInstruction(int index)
-        => _persona.Instructions.RemoveAt(index);
-
-    private void AddFact() {
-        _selectedFact = new();
-        _showFactDialog = true;
+    private void AddPersonality()
+        => _persona.Personality.Add(string.Empty);
+    private void UpdatePersonality(string oldValue, object? newValue) {
+        if (newValue is not string newText) return;
+        if (string.IsNullOrWhiteSpace(newText)) return;
+        if (newText == oldValue) return;
+        _persona.Personality.Remove(oldValue);
+        _persona.Personality.Add(newText);
     }
+    private void RemovePersonality(string personality)
+        => _persona.Personality.Remove(personality);
 
-    private void EditFact(FactData fact) {
-        _selectedFact = fact;
-        _showFactDialog = true;
+    private void AddConduct()
+        => _persona.Conduct.Add(string.Empty);
+    private void UpdateConduct(string oldValue, object? newValue) {
+        if (newValue is not string newText) return;
+        if (string.IsNullOrWhiteSpace(newText)) return;
+        if (newText == oldValue) return;
+        _persona.Conduct.Remove(oldValue);
+        _persona.Conduct.Add(newText);
     }
+    private void RemoveConduct(string conduct)
+        => _persona.Conduct.Remove(conduct);
 
-    private void SaveFact() {
-        if (_selectedFact!.Id == 0)
-            _persona.Facts.Add(_selectedFact);
-        CloseFactDialog();
+    private void AddFact()
+        => _persona.Facts.Add(string.Empty);
+    private void UpdateFact(string oldValue, object? newValue) {
+        if (newValue is not string newText) return;
+        if (string.IsNullOrWhiteSpace(newText)) return;
+        if (newText == oldValue) return;
+        _persona.Facts.Remove(oldValue);
+        _persona.Facts.Add(newText);
     }
-
-    private void CloseFactDialog() {
-        _showFactDialog = false;
-        _selectedFact = null;
-    }
-
-    private void RemoveFact(FactData fact) {
-        _persona.Facts.Remove(fact);
-        _selectedFact = null;
-    }
+    private void RemoveFact(string fact)
+        => _persona.Facts.Remove(fact);
 
     private async Task OpenToolSelectionDialog() {
         _availableTools = await ToolsService.GetList();

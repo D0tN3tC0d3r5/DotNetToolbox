@@ -6,7 +6,6 @@ public class WorldService(ApplicationDbContext dbContext)
         try {
             var world = await dbContext.Worlds
                                        .Include(w => w.Facts)
-                                       .Include(w => w.Tools)
                                        .AsNoTracking()
                                        .FirstAsync();
             return world.ToDto();
@@ -19,7 +18,6 @@ public class WorldService(ApplicationDbContext dbContext)
     public async Task UpdateWorld(WorldData world) {
         var entity = await dbContext.Worlds
                                     .Include(w => w.Facts)
-                                    .Include(w => w.Tools)
                                     .FirstAsync();
         entity.UpdateFrom(world);
         await dbContext.SaveChangesAsync();

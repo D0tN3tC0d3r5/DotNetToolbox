@@ -3,10 +3,8 @@
 namespace Sophia.WebApp.Data;
 
 public static class Mapper {
-    public static void UpdateFrom(this WorldEntity target, WorldData input) {
-        target.Facts = input.Facts.ToList(i => i.ToEntity());
-        target.Tools = input.Tools.ToList(i => i.AddOrUpdate(target));
-    }
+    public static void UpdateFrom(this WorldEntity target, WorldData input)
+        => target.Facts = input.Facts;
 
     public static ProviderEntity ToEntity(this ProviderData input)
         => new() {
@@ -39,19 +37,6 @@ public static class Mapper {
         return originalItem;
     }
 
-    public static FactEntity ToEntity(this FactData input)
-        => new() {
-            DefaultText = input.DefaultText,
-            Value = input.Value,
-            ValueTemplate = input.ValueTemplate,
-        };
-
-    public static ApplicationUserProfile ToEntity(this UserProfileData input)
-        => new() {
-            Name = input.Name,
-            Language = input.Language,
-        };
-
     public static ToolEntity ToEntity(this ToolData input)
         => new() {
             Name = input.Name,
@@ -63,13 +48,6 @@ public static class Mapper {
         target.Name = input.Name;
         target.Description = input.Description;
         target.Arguments = input.Arguments.AsIndexed().ToList(i => i.Value.ToEntity(i.Index));
-    }
-
-    public static ToolEntity AddOrUpdate<TKey>(this ToolData input, IHasTools<TKey> parent) {
-        var originalTool = parent.Tools.FirstOrDefault(i => i.Id == input.Id);
-        if (originalTool is null) return input.ToEntity();
-        originalTool.UpdateFrom(input);
-        return originalTool;
     }
 
     public static ArgumentEntity ToEntity(this ArgumentData input, int index)
@@ -87,8 +65,20 @@ public static class Mapper {
             IsActive = input.IsActive,
             Title = input.Title,
             Agents = input.Agents.ToList(i => i.ToEntity()),
+            Instructions = input.Instructions.ToEntity(),
             Messages = input.Messages.ToList(i => i.ToEntity()),
         };
+
+    public static InstructionsEntity ToEntity(this InstructionsData input)
+        => new() {
+                     Goals = input.Goals,
+                     Requirements = input.Requirements,
+                     Assumptions = input.Assumptions,
+                     Constraints = input.Constraints,
+                     Examples = input.Examples,
+                     Validation = input.Validation,
+                 };
+
 
     public static ChatAgentEntity ToEntity(this ChatAgentData input)
         => new() {
@@ -148,8 +138,8 @@ public static class Mapper {
             Name = input.Name,
             Description = input.Description,
             Personality = input.Personality,
-            Instructions = [.. input.Instructions],
-            Facts = input.Facts.ToList(i => i.ToEntity()),
+            Conduct = input.Conduct,
+            Facts = input.Facts,
             Tools = input.KnownTools.ToList(i => i.ToEntity()),
 
         };
@@ -158,8 +148,8 @@ public static class Mapper {
         target.Name = input.Name;
         target.Description = input.Description;
         target.Personality = input.Personality;
-        target.Instructions = [.. input.Instructions];
-        target.Facts = input.Facts.ToList(i => i.ToEntity());
+        target.Conduct = input.Conduct;
+        target.Facts = input.Facts;
         target.Tools = input.KnownTools.ToList(i => i.ToEntity());
     }
 }

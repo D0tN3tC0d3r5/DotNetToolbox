@@ -3,13 +3,13 @@
 [Table("UserProfiles")]
 [EntityTypeConfiguration(typeof(ApplicationUserProfile))]
 public class ApplicationUserProfile
-    : UserProfile,
+    : User,
       IEntityTypeConfiguration<ApplicationUserProfile> {
     [Key]
     [MaxLength(450)]
     public string Id { get; set; } = default!;
 
-    public UserProfileData ToDto() => new() {
+    public UserData ToDto() => new() {
         Name = Name,
         Language = Language,
     };

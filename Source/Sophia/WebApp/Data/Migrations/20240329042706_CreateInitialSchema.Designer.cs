@@ -13,7 +13,7 @@ using Sophia.WebApp.Data;
 namespace Sophia.WebApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240328171231_CreateInitialSchema")]
+    [Migration("20240329042706_CreateInitialSchema")]
     partial class CreateInitialSchema
     {
         /// <inheritdoc />
@@ -230,6 +230,10 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Facts")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Language")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -310,6 +314,35 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.ComplexProperty<Dictionary<string, object>>("Instructions", "Sophia.WebApp.Data.Chats.ChatEntity.Instructions#InstructionsEntity", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Assumptions")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Constraints")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Examples")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Goals")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Requirements")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Validation")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+                        });
+
                     b.HasKey("Id");
 
                     b.ToTable("Chats");
@@ -352,34 +385,6 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Common.FactEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DefaultText")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Value")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ValueTemplate")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)")
-                        .HasDefaultValue("{0}");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Facts");
-                });
-
             modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -388,12 +393,16 @@ namespace Sophia.WebApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Conduct")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<string>("Instructions")
+                    b.Property<string>("Facts")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -403,27 +412,13 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Personality")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Personas");
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaFactsEntity", b =>
-                {
-                    b.Property<int>("FactId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PersonaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("FactId", "PersonaId");
-
-                    b.HasIndex("PersonaId");
-
-                    b.ToTable("PersonaFacts");
                 });
 
             modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaToolsEntity", b =>
@@ -539,39 +534,13 @@ namespace Sophia.WebApp.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Facts")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Worlds");
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.World.WorldFactsEntity", b =>
-                {
-                    b.Property<int>("FactId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("WorldId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("FactId", "WorldId");
-
-                    b.HasIndex("WorldId");
-
-                    b.ToTable("WorldFacts");
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.World.WorldToolsEntity", b =>
-                {
-                    b.Property<int>("ToolId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("WorldId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ToolId", "WorldId");
-
-                    b.HasIndex("WorldId");
-
-                    b.ToTable("WorldTools");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -671,21 +640,6 @@ namespace Sophia.WebApp.Data.Migrations
                     b.Navigation("Chat");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaFactsEntity", b =>
-                {
-                    b.HasOne("Sophia.WebApp.Data.Common.FactEntity", null)
-                        .WithMany()
-                        .HasForeignKey("FactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sophia.WebApp.Data.Personas.PersonaEntity", null)
-                        .WithMany()
-                        .HasForeignKey("PersonaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaToolsEntity", b =>
                 {
                     b.HasOne("Sophia.WebApp.Data.Personas.PersonaEntity", null)
@@ -717,36 +671,6 @@ namespace Sophia.WebApp.Data.Migrations
                     b.HasOne("Sophia.WebApp.Data.Tools.ToolEntity", null)
                         .WithMany("Arguments")
                         .HasForeignKey("ToolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.World.WorldFactsEntity", b =>
-                {
-                    b.HasOne("Sophia.WebApp.Data.Common.FactEntity", null)
-                        .WithMany()
-                        .HasForeignKey("FactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sophia.WebApp.Data.World.WorldEntity", null)
-                        .WithMany()
-                        .HasForeignKey("WorldId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.World.WorldToolsEntity", b =>
-                {
-                    b.HasOne("Sophia.WebApp.Data.Tools.ToolEntity", null)
-                        .WithMany()
-                        .HasForeignKey("ToolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sophia.WebApp.Data.World.WorldEntity", null)
-                        .WithMany()
-                        .HasForeignKey("WorldId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
