@@ -9,7 +9,7 @@ public class WorldData() {
     }
 
     public DateTimeOffset DateTime => _dateTime.Now;
-    public HashSet<string> Facts { get; set; } = [];
+    public List<string> Facts { get; set; } = [];
 
     public World ToModel(IDateTimeProvider? dateTime = null) => new(dateTime) {
         Facts = Facts,

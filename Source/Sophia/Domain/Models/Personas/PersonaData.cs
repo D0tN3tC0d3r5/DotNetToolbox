@@ -10,16 +10,14 @@ public class PersonaData {
     [MaxLength(1000, ErrorMessage = "Description cannot exceed 1000 characters.")]
     public string Description { get; set; } = "You are a helpful agent.";
     [MaxLength(1000, ErrorMessage = "Personality cannot exceed 1000 characters.")]
-    public HashSet<string> Personality { get; set; } = [];
-    public HashSet<string> Conduct { get; set; } = [];
-    public HashSet<string> Facts { get; set; } = [];
+    public CharacteristicsData Characteristics { get; set; } = new();
+    public List<string> Facts { get; set; } = [];
     public List<ToolData> KnownTools { get; set; } = [];
 
     public Persona ToModel() => new() {
         Name = Name,
         Description = Description,
-        Personality = Personality,
-        Conduct = Conduct,
+        Characteristics = Characteristics.ToModel(),
         Facts = Facts,
         KnownTools = KnownTools.ToList(f => f.ToModel()),
     };

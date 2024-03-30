@@ -5,7 +5,7 @@ public class World(IDateTimeProvider? dateTimeProvider = null)
     public IDateTimeProvider DateTimeProvider { get; } = dateTimeProvider ?? new DateTimeProvider();
     public DateTimeOffset DateTime => DateTimeProvider.Now;
     public int Id { get; set; }
-    public HashSet<string> Facts { get; set; } = [];
+    public List<string> Facts { get; set; } = [];
 
     public override string ToString() {
         var builder = new StringBuilder();

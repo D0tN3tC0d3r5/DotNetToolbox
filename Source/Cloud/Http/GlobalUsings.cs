@@ -2,9 +2,11 @@
 
 global using System.Net.Http.Headers;
 
+global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Results;
 global using DotNetToolbox.Singleton;
+global using DotNetToolbox.Utilities;
 
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;

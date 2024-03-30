@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chat;
 
-public class RequestToolFunctionCall(string name, ChatRequestToolFunctionCallParameters? parameters = null, string? description = null) {
+public class ChatRequestToolFunctionCall(string name, ChatRequestToolFunctionCallParameters? parameters = null, string? description = null) {
     [JsonPropertyName("name")]
     public string Name { get; set; } = name;
     [JsonPropertyName("parameters")]

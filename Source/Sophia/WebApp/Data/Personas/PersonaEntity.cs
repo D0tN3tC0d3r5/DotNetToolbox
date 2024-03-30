@@ -13,17 +13,13 @@ public class PersonaEntity
     public string Name { get; set; } = "Agent";
     [MaxLength(1000)]
     public string Description { get; set; } = "You are a helpful ASSISTANT.";
-    [MaxLength(1000)]
-    public HashSet<string> Personality { get; set; } = [];
-    public HashSet<string> Conduct { get; set; } = [];
-    public HashSet<string> Facts { get; set; } = [];
+    public CharacteristicsEntity Characteristics { get; set; } = new();
+    public List<string> Facts { get; set; } = [];
     public List<ToolEntity> Tools { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<PersonaEntity> builder) {
         builder.HasKey(p => p.Id);
-        builder.PrimitiveCollection(p => p.Personality);
-        builder.PrimitiveCollection(p => p.Conduct);
-        builder.PrimitiveCollection(p => p.Facts);
+        builder.ComplexProperty(p => p.Characteristics);
         builder.HasMany(p => p.Tools)
                .WithMany()
                .UsingEntity<PersonaToolsEntity>(l => l.HasOne<ToolEntity>()
@@ -45,8 +41,7 @@ public class PersonaEntity
             Id = Id,
             Name = Name,
             Description = Description,
-            Personality = Personality,
-            Conduct = Conduct,
+            Characteristics = Characteristics.ToDto(),
             Facts = Facts,
             KnownTools = Tools.ToList(f => f.ToDto()),
         };

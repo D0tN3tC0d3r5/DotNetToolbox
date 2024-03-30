@@ -15,12 +15,9 @@ public partial class ChatPage {
     private ElementReference _chatHistoryRef;
 
     protected override async Task OnInitializedAsync() {
-        var chat = await ChatsService.GetById(Guid.Parse(Id));
-        if (chat is null) {
+        _chat = (await ChatsService.GetById(Guid.Parse(Id)))!;
+        if (_chat == null!)
             NavigationManager.NavigateTo("/chats");
-            return;
-        }
-        _chat = chat;
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender) 

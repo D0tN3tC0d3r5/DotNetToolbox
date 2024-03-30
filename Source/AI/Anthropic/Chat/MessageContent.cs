@@ -1,14 +1,16 @@
 ﻿namespace DotNetToolbox.AI.Anthropic.Chat;
 
-public class MessageContent {
-    public MessageContent(object value) {
+public class MessageContent() {
+    [SetsRequiredMembers]
+    public MessageContent(object value)
+        : this() {
         Text = value as string;
         Image = value as ImageData;
         Type = Text is null ? "image" : "text";
     }
 
     [JsonPropertyName("type")]
-    public string Type { get; init; }
+    public required string Type { get; init; }
     [JsonPropertyName("text")]
     public string? Text { get; init; }
     [JsonPropertyName("image")]

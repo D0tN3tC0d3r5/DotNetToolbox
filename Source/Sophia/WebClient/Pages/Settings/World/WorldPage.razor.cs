@@ -50,13 +50,6 @@ public partial class WorldPage
 
     private void AddFact()
         => _world.Facts.Add(string.Empty);
-    private void UpdateFact(string oldValue, object? newValue) {
-        if (newValue is not string newText) return;
-        if (string.IsNullOrWhiteSpace(newText)) return;
-        if (newText == oldValue) return;
-        _world.Facts.Remove(oldValue);
-        _world.Facts.Add(newText);
-    }
-    private void RemoveFact(string fact)
-        => _world.Facts.Remove(fact);
+    private void RemoveFact(int index)
+        => _world.Facts.RemoveAt(index);
 }

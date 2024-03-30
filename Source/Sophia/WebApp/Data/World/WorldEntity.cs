@@ -8,7 +8,7 @@ public class WorldEntity
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; } = Guid.Empty;
-    public HashSet<string> Facts { get; set; } = [];
+    public List<string> Facts { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<WorldEntity> builder)
         => builder.PrimitiveCollection(w => w.Facts);

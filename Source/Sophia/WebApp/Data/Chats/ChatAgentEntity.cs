@@ -12,7 +12,6 @@ public class ChatAgentEntity
     public int PersonaId { get; set; }
     public PersonaEntity Persona { get; set; } = default!;
     public List<MessageEntity> Messages { get; set; } = [];
-    public int ModelId { get; set; }
     [Required]
     public ChatAgentOptionsEntity Options { get; set; } = default!;
 
@@ -32,10 +31,10 @@ public class ChatAgentEntity
         builder.ComplexProperty(c => c.Options);
     }
 
-    public ChatAgentData ToDto()
+    public ChatAgentData ToDto(ModelData[] models)
         => new() {
             Persona = Persona.ToDto(),
-            Options = Options.ToDto(),
+            Options = Options.ToDto(models),
             Messages = Messages.ToList(m => m.ToDto()),
         };
 }

@@ -45,68 +45,6 @@
         <ValidationMessage For="@(() => _persona.Description)" />
       </div>
 
-      <!-- Personality -->
-      @if (_persona.Personality.Count > 0 || !IsReadOnly) {
-      <div class="mb-3">
-        <div class="row mb-2">
-          <div class="col">
-            @if (!IsReadOnly) {
-              <button class="btn btn-sm btn-primary me-2" @onclick="AddPersonality" @onclick:preventDefault>
-                <i class="bi bi-plus-circle"></i>
-              </button>
-            }
-            <label class="form-label">Personality</label>
-          </div>
-        </div>
-        <ValidationMessage For="@(() => _persona.Personality)" />
-        @foreach (var item in _persona.Personality) {
-          <div class="row mb-2">
-            <div class="col-md-1">
-              @if (!IsReadOnly) {
-                  <button class="btn btn-sm btn-danger" @onclick="() => RemovePersonality(item)" @onclick:preventDefault>
-                  <i class="bi bi-trash"></i>
-                </button>
-              }
-            </div>
-            <div class="col-md-11">
-                <InputText class="form-control" value="@item" @onchange="ev => UpdatePersonality(item, ev.Value)" disabled="@IsReadOnly" />
-            </div>
-          </div>
-        }
-      </div>
-      }
-
-      <!-- Conduct -->
-      @if (_persona.Conduct.Count > 0 || !IsReadOnly) {
-        <div class="mb-3">
-          <div class="row mb-2">
-            <div class="col">
-              @if (!IsReadOnly) {
-                <button class="btn btn-sm btn-primary me-2" @onclick="AddConduct" @onclick:preventDefault>
-                  <i class="bi bi-plus-circle"></i>
-                </button>
-              }
-              <label class="form-label">Conduct</label>
-            </div>
-          </div>
-          <ValidationMessage For="@(() => _persona.Conduct)" />
-          @foreach (var item in _persona.Conduct) {
-            <div class="row mb-2">
-              <div class="col-md-1">
-                @if (!IsReadOnly) {
-                  <button class="btn btn-sm btn-danger" @onclick="() => RemoveConduct(item)" @onclick:preventDefault>
-                    <i class="bi bi-trash"></i>
-                  </button>
-                }
-              </div>
-              <div class="col-md-11">
-                <InputText class="form-control" value="@item" @onchange="ev => UpdateConduct(item, ev.Value)" disabled="@IsReadOnly" />
-              </div>
-            </div>
-          }
-        </div>
-      }
-
       <!-- Facts -->
       @if (_persona.Facts.Count > 0 || !IsReadOnly) {
       <div class="mb-3">
@@ -121,17 +59,17 @@
           </div>
         </div>
         <ValidationMessage For="@(() => _persona.Facts)" />
-        @foreach (var item in _persona.Facts) {
+          @foreach (var item in _persona.Facts.AsIndexed()) {
           <div class="row mb-2">
             <div class="col-md-1">
               @if (!IsReadOnly) {
-                <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(item)" @onclick:preventDefault>
+                <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(item.Index)" @onclick:preventDefault>
                   <i class="bi bi-trash"></i>
                 </button>
               }
             </div>
             <div class="col-md-11">
-              <InputText class="form-control" value="@item" @onchange="ev => UpdateFact(item, ev.Value)" disabled="@IsReadOnly" />
+              <InputText class="form-control" value="@item.Value" @onchange="ev => UpdateFact(item.Index, ev.Value)" disabled="@IsReadOnly" />
             </div>
           </div>
         }
@@ -151,7 +89,7 @@
             <label class="form-label">Known Tools</label>
           </div>
         </div>
-        <ValidationMessage For="@(() => _persona.Personality)" />
+        <ValidationMessage For="@(() => _persona.KnownTools)" />
         <ul class="list-group">
           @foreach (var tool in _persona.KnownTools) {
             <li class="list-group-item d-flex justify-content-between align-items-center">

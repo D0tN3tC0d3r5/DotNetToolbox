@@ -10,17 +10,15 @@ public class Persona() {
 
     public string Name { get; set; } = "Agent";
     public string Description { get; set; } = "You are a helpful ASSISTANT.";
-    public HashSet<string> Personality { get; set; } = [];
-    public HashSet<string> Conduct { get; set; } = [];
-    public HashSet<string> Facts { get; set; } = [];
+    public Characteristics Characteristics { get; set; } = new();
+    public List<string> Facts { get; set; } = [];
     public List<Tool> KnownTools { get; set; } = [];
 
     public override string ToString() {
         var builder = new StringBuilder();
         builder.AppendLine($"Your name is {Name}.");
         builder.AppendLine(Description);
-        builder.AppendSection(Personality);
-        builder.AppendSection(Conduct);
+        builder.AppendLine(Characteristics.ToString());
         builder.AppendSection(KnownTools, "Known Tools");
         builder.AppendSection(Facts);
         return builder.ToString();

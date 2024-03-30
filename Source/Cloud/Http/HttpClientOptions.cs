@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Collections.Generic;
-
-namespace DotNetToolbox.Http;
+﻿namespace DotNetToolbox.Http;
 
 public record HttpClientOptions
     : INamedOptions<HttpClientOptions>, IValidatable {

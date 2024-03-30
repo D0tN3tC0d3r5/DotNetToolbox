@@ -23,6 +23,8 @@ namespace Sophia.WebApp.Data.Migrations
                     Instructions_Examples = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Instructions_Goals = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Instructions_Requirements = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Instructions_Scope = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Instructions_Strategy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Instructions_Validation = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -38,9 +40,11 @@ namespace Sophia.WebApp.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Personality = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Conduct = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Facts = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Facts = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Characteristics_Attitude = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Characteristics_Cognition = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Characteristics_Disposition = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Characteristics_Interaction = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -132,7 +136,6 @@ namespace Sophia.WebApp.Data.Migrations
                     ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Number = table.Column<int>(type: "int", nullable: false),
                     PersonaId = table.Column<int>(type: "int", nullable: false),
-                    ModelId = table.Column<int>(type: "int", nullable: false),
                     Options_IsStreaming = table.Column<bool>(type: "bit", nullable: false),
                     Options_MaximumOutputTokens = table.Column<long>(type: "bigint", nullable: false),
                     Options_ModelId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -150,7 +153,7 @@ namespace Sophia.WebApp.Data.Migrations
                         column: x => x.ChatId,
                         principalTable: "Chats",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ChatAgent_Personas_PersonaId",
                         column: x => x.PersonaId,
@@ -165,7 +168,7 @@ namespace Sophia.WebApp.Data.Migrations
                 {
                     ProviderId = table.Column<int>(type: "int", nullable: false),
                     ModelId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {

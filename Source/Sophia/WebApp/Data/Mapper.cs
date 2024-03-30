@@ -4,7 +4,10 @@ namespace Sophia.WebApp.Data;
 
 public static class Mapper {
     public static void UpdateFrom(this WorldEntity target, WorldData input)
-        => target.Facts = input.Facts;
+        => target.Facts = input.Facts
+                               .Where(p => !string.IsNullOrWhiteSpace(p))
+                               .Distinct()
+                               .ToList();
 
     public static ProviderEntity ToEntity(this ProviderData input)
         => new() {
@@ -71,37 +74,80 @@ public static class Mapper {
 
     public static InstructionsEntity ToEntity(this InstructionsData input)
         => new() {
-                     Goals = input.Goals,
-                     Requirements = input.Requirements,
-                     Assumptions = input.Assumptions,
-                     Constraints = input.Constraints,
-                     Examples = input.Examples,
-                     Validation = input.Validation,
-                 };
+            Goals = input.Goals
+                         .Where(p => !string.IsNullOrWhiteSpace(p))
+                         .Distinct()
+                         .ToList(),
+            Scope = input.Scope
+                         .Where(p => !string.IsNullOrWhiteSpace(p))
+                         .Distinct()
+                         .ToList(),
+            Requirements = input.Requirements
+                                .Where(p => !string.IsNullOrWhiteSpace(p))
+                                .Distinct()
+                                .ToList(),
+            Assumptions = input.Assumptions
+                               .Where(p => !string.IsNullOrWhiteSpace(p))
+                               .Distinct()
+                               .ToList(),
+            Constraints = input.Constraints
+                               .Where(p => !string.IsNullOrWhiteSpace(p))
+                               .Distinct()
+                               .ToList(),
+            Examples = input.Examples
+                            .Where(p => !string.IsNullOrWhiteSpace(p))
+                            .Distinct()
+                            .ToList(),
+            Strategy = input.Strategy
+                            .Where(p => !string.IsNullOrWhiteSpace(p))
+                            .Distinct()
+                            .ToList(),
+            Validation = input.Evaluation
+                              .Where(p => !string.IsNullOrWhiteSpace(p))
+                              .Distinct()
+                              .ToList(),
+        };
 
+    public static CharacteristicsEntity ToEntity(this CharacteristicsData input)
+        => new() {
+                     Cognition = input.Cognition
+                                      .Where(p => !string.IsNullOrWhiteSpace(p))
+                                      .Distinct()
+                                      .ToList(),
+            Disposition = input.Disposition
+                               .Where(p => !string.IsNullOrWhiteSpace(p))
+                               .Distinct()
+                               .ToList(),
+            Interaction = input.Interaction
+                               .Where(p => !string.IsNullOrWhiteSpace(p))
+                               .Distinct()
+                               .ToList(),
+            Attitude = input.Attitude
+                            .Where(p => !string.IsNullOrWhiteSpace(p))
+                            .Distinct()
+                            .ToList(),
+        };
 
     public static ChatAgentEntity ToEntity(this ChatAgentData input)
         => new() {
             ChatId = input.ChatId,
             Number = input.AgentNumber,
             PersonaId = input.Persona.Id,
-            Persona = input.Persona.ToEntity(),
-            ModelId = input.Options.Id,
             Options = input.Options.ToEntity(),
             Messages = input.Messages.ToList(i => i.ToEntity()),
         };
 
     public static ChatAgentOptionsEntity ToEntity(this ChatAgentOptionsData input)
         => new() {
-                     ModelId = input.Model.Id,
-                     NumberOfRetries = input.NumberOfRetries,
-                     MaximumOutputTokens = input.MaximumOutputTokens,
-                     Temperature = input.Temperature,
-                     TokenProbabilityCutOff = input.TokenProbabilityCutOff,
-                     StopSequences = [.. input.StopSequences],
-                     IsStreaming = input.IsStreaming,
-                     RespondsAsJson = input.RespondsAsJson,
-                 };
+            ModelId = input.Model.Id,
+            NumberOfRetries = input.NumberOfRetries,
+            MaximumOutputTokens = input.MaximumOutputTokens,
+            Temperature = input.Temperature,
+            TokenProbabilityCutOff = input.TokenProbabilityCutOff,
+            StopSequences = [.. input.StopSequences],
+            IsStreaming = input.IsStreaming,
+            RespondsAsJson = input.RespondsAsJson,
+        };
 
     public static MessageEntity ToEntity(this MessageData input, IHasMessages? parent = null)
         => new() {
@@ -137,9 +183,11 @@ public static class Mapper {
         => new() {
             Name = input.Name,
             Description = input.Description,
-            Personality = input.Personality,
-            Conduct = input.Conduct,
-            Facts = input.Facts,
+            Characteristics = input.Characteristics.ToEntity(),
+            Facts = input.Facts
+                         .Where(p => !string.IsNullOrWhiteSpace(p))
+                         .Distinct().
+                          ToList(),
             Tools = input.KnownTools.ToList(i => i.ToEntity()),
 
         };
@@ -147,9 +195,11 @@ public static class Mapper {
     public static void UpdateFrom(this PersonaEntity target, PersonaData input) {
         target.Name = input.Name;
         target.Description = input.Description;
-        target.Personality = input.Personality;
-        target.Conduct = input.Conduct;
-        target.Facts = input.Facts;
+        target.Characteristics = input.Characteristics.ToEntity();
+        target.Facts = input.Facts
+                            .Where(p => !string.IsNullOrWhiteSpace(p))
+                            .Distinct()
+                            .ToList();
         target.Tools = input.KnownTools.ToList(i => i.ToEntity());
     }
 }

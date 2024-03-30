@@ -4,6 +4,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public required DbSet<WorldEntity> Worlds { get; set; }
     public required DbSet<ProviderEntity> Providers { get; set; }
+    public required DbSet<ModelEntity> Models { get; set; }
     public required DbSet<ToolEntity> Tools { get; set; }
     public required DbSet<PersonaEntity> Personas { get; set; }
     public required DbSet<ChatEntity> Chats { get; set; }

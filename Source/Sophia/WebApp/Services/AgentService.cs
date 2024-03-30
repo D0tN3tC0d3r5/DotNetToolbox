@@ -24,11 +24,12 @@ public class AgentService(IAgentFactory factory, IWorldService worldService, IUs
         var world = await worldService.GetWorld();
         var user = await userService.GetCurrentUserProfile();
         var selectedAgent = chat.Agents[0];
-        var agent = factory.Create(selectedAgent.Options.Provider.Name);
+        var provider = selectedAgent.Options.Model.Provider;
+        var agent = factory.Create(provider.Name);
         agent.World = world.ToModel();
         agent.User = user.ToModel();
         agent.Persona = selectedAgent.Persona.ToModel();
-        agent.Model = selectedAgent.Options.ToModel();
+        agent.AgentModel = selectedAgent.Options.ToModel();
         return agent;
     }
 

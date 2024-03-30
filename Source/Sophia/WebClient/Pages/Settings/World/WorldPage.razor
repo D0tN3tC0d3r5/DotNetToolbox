@@ -23,7 +23,7 @@
   </div>
 
   <div class="container-body">
-    <EditForm Model="@_world" OnValidSubmit="Save">
+    <EditForm Model="@_world" id="world-form" OnValidSubmit="Save">
       <DataAnnotationsValidator />
       <ValidationSummary />
 
@@ -48,17 +48,18 @@
             </div>
           </div>
           <ValidationMessage For="@(() => _world.Facts)" />
-          @foreach (var item in _world.Facts) {
+          @for (var i = 0; i < _world.Facts.Count; i++) {
+            var index = i;
             <div class="row mb-2">
               <div class="col-md-1">
                 @if (!_isReadOnly) {
-                  <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(item)" @onclick:preventDefault>
+                  <button class="btn btn-sm btn-danger" @onclick="() => RemoveFact(index)" @onclick:preventDefault>
                     <i class="bi bi-trash"></i>
                   </button>
                 }
               </div>
               <div class="col-md-11">
-                <InputText class="form-control" value="@item" @onchange="ev => UpdateFact(item, ev.Value)" disabled="@_isReadOnly" />
+                <InputText class="form-control" @bind-Value="_world.Facts[index]" disabled="@_isReadOnly" />
               </div>
             </div>
           }

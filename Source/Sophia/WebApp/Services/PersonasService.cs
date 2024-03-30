@@ -6,7 +6,6 @@ public class PersonasService(ApplicationDbContext dbContext)
         try {
             return await dbContext.Personas
                                   .AsNoTracking()
-                                  .Include(p => p.Facts)
                                   .Include(p => p.Tools)
                                   .Select(p => p.ToDto())
                                   .ToArrayAsync();
@@ -18,7 +17,9 @@ public class PersonasService(ApplicationDbContext dbContext)
     }
 
     public async Task<PersonaData?> GetById(int id) {
-        var entity = await dbContext.Personas.AsNoTracking()
+        var entity = await dbContext.Personas
+                                    .Include(p => p.Tools)
+                                    .AsNoTracking()
                                     .FirstOrDefaultAsync(s => s.Id == id);
         return entity?.ToDto();
     }

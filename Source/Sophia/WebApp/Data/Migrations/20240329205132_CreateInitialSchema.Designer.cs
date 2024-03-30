@@ -13,7 +13,7 @@ using Sophia.WebApp.Data;
 namespace Sophia.WebApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240329042706_CreateInitialSchema")]
+    [Migration("20240329205132_CreateInitialSchema")]
     partial class CreateInitialSchema
     {
         /// <inheritdoc />
@@ -255,9 +255,6 @@ namespace Sophia.WebApp.Data.Migrations
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
-                    b.Property<int>("ModelId")
-                        .HasColumnType("int");
-
                     b.Property<int>("PersonaId")
                         .HasColumnType("int");
 
@@ -338,6 +335,14 @@ namespace Sophia.WebApp.Data.Migrations
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
+                            b1.Property<string>("Scope")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Strategy")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
                             b1.Property<string>("Validation")
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
@@ -393,10 +398,6 @@ namespace Sophia.WebApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Conduct")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -411,10 +412,26 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Personality")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                    b.ComplexProperty<Dictionary<string, object>>("Characteristics", "Sophia.WebApp.Data.Personas.PersonaEntity.Characteristics#CharacteristicsEntity", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Attitude")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Cognition")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Disposition")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Interaction")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+                        });
 
                     b.HasKey("Id");
 
@@ -446,6 +463,7 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -608,7 +626,7 @@ namespace Sophia.WebApp.Data.Migrations
                     b.HasOne("Sophia.WebApp.Data.Chats.ChatEntity", "Chat")
                         .WithMany("Agents")
                         .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Sophia.WebApp.Data.Personas.PersonaEntity", "Persona")

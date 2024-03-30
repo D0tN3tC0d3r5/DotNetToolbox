@@ -5,7 +5,9 @@ public class RequestMessage {
         switch (content) {
             case Message c:
                 Role = c.Role;
-                Content = c.Parts.ToArray(p => new MessageContent(p));
+                Content = c.Parts.Length == 1
+                              ? (string)c.Parts[0].Value
+                              : c.Parts.ToArray(p => new MessageContent(p.Value));
                 break;
             default:
                 throw new NotSupportedException();

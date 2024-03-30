@@ -8,9 +8,4 @@ public enum AuthenticationType {
     Password,
     Jwt,
     OAuth2,
-    //Client,
-    //ByCode,
-    //Account,
-    //Digest,
-    //Windows,
 }

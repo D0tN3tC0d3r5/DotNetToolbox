@@ -7,6 +7,7 @@ public interface IAgentModel : IValidatable {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
     };
+    string ModelId { get; }
     byte NumberOfRetries { get; }
     uint MaximumOutputTokens { get; }
     decimal Temperature { get; }

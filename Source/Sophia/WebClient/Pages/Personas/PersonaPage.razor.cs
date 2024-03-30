@@ -46,41 +46,16 @@ public partial class PersonaPage {
         _persona = await GetPersonaById(PersonaId);
     }
 
-    private void AddPersonality()
-        => _persona.Personality.Add(string.Empty);
-    private void UpdatePersonality(string oldValue, object? newValue) {
-        if (newValue is not string newText) return;
-        if (string.IsNullOrWhiteSpace(newText)) return;
-        if (newText == oldValue) return;
-        _persona.Personality.Remove(oldValue);
-        _persona.Personality.Add(newText);
-    }
-    private void RemovePersonality(string personality)
-        => _persona.Personality.Remove(personality);
-
-    private void AddConduct()
-        => _persona.Conduct.Add(string.Empty);
-    private void UpdateConduct(string oldValue, object? newValue) {
-        if (newValue is not string newText) return;
-        if (string.IsNullOrWhiteSpace(newText)) return;
-        if (newText == oldValue) return;
-        _persona.Conduct.Remove(oldValue);
-        _persona.Conduct.Add(newText);
-    }
-    private void RemoveConduct(string conduct)
-        => _persona.Conduct.Remove(conduct);
-
     private void AddFact()
-        => _persona.Facts.Add(string.Empty);
-    private void UpdateFact(string oldValue, object? newValue) {
+          => _persona.Facts.Add(string.Empty);
+    private void UpdateFact(int index, object? newValue) {
         if (newValue is not string newText) return;
         if (string.IsNullOrWhiteSpace(newText)) return;
-        if (newText == oldValue) return;
-        _persona.Facts.Remove(oldValue);
-        _persona.Facts.Add(newText);
+        if (_persona.Facts.Contains(newText)) return;
+        _persona.Facts[index] = newText;
     }
-    private void RemoveFact(string fact)
-        => _persona.Facts.Remove(fact);
+    private void RemoveFact(int index)
+        => _persona.Facts.RemoveAt(index);
 
     private async Task OpenToolSelectionDialog() {
         _availableTools = await ToolsService.GetList();

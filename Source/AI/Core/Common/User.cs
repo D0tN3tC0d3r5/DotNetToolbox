@@ -3,7 +3,7 @@
 public class User {
     public string Name { get; set; } = string.Empty;
     public string Language { get; set; } = "English";
-    public HashSet<string> Facts { get; set; } = [];
+    public List<string> Facts { get; set; } = [];
 
     public override string ToString() {
         var builder = new StringBuilder();

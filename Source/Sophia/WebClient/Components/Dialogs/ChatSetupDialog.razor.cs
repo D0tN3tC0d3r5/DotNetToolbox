@@ -22,7 +22,6 @@ public partial class ChatSetupDialog {
             AgentNumber = Chat.Agents.Count,
             Persona = _personas[0],
             Options = new() {
-                Provider = providers[0],
                 Model = providers[0].Models[0],
             },
         };

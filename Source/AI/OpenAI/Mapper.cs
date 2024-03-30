@@ -7,12 +7,12 @@ public class Mapper
     public static ChatRequest CreateRequest(IChat chat, World world, User user, IAgent agent) {
         var system = new ChatRequestMessage(CreateSystemMessage(chat, world, user, agent));
         return new() {
-            Model = agent.Model.Id,
-            Temperature = agent.Model.Temperature,
-            MaximumOutputTokens = agent.Model.MaximumOutputTokens,
-            StopSequences = agent.Model.StopSequences.Count == 0 ? null : [.. agent.Model.StopSequences],
-            MinimumTokenProbability = agent.Model.TokenProbabilityCutOff,
-            ResponseIsStream = agent.Model.ResponseIsStream,
+            Model = agent.AgentModel.ModelId,
+            Temperature = agent.AgentModel.Temperature,
+            MaximumOutputTokens = agent.AgentModel.MaximumOutputTokens,
+            StopSequences = agent.AgentModel.StopSequences.Count == 0 ? null : [.. agent.AgentModel.StopSequences],
+            MinimumTokenProbability = agent.AgentModel.TokenProbabilityCutOff,
+            ResponseIsStream = agent.AgentModel.ResponseIsStream,
 
             Messages = [system, .. chat.Messages.ToArray(o => new ChatRequestMessage(o))],
 

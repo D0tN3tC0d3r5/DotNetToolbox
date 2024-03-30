@@ -21,20 +21,20 @@ public class ChatEntity
         builder.HasMany(c => c.Agents)
                .WithOne(a => a.Chat)
                .HasForeignKey(c => c.ChatId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
         builder.ComplexProperty(c => c.Instructions);
         builder.HasMany(c => c.Messages)
                .WithOne(m => m.Chat)
                .HasForeignKey(c => c.ChatId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
     }
 
-    public ChatData ToDto()
+    public ChatData ToDto(ModelData[] models)
         => new() {
             Id = Id,
             Title = Title,
             IsActive = IsActive,
-            Agents = Agents.ToList(a => a.ToDto()),
+            Agents = Agents.ToList(a => a.ToDto(models)),
             Instructions = Instructions.ToDto(),
             Messages = Messages.ToList(m => m.ToDto()),
         };

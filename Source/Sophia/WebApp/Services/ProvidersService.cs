@@ -5,7 +5,7 @@ public class ProvidersService(ApplicationDbContext dbContext) : IProvidersServic
         => await dbContext.Providers
                           .AsNoTracking()
                           .Include(p => p.Models)
-                          .Select(p => p.ToDto())
+                          .Select(p => p.ToDto(true))
                           .ToListAsync();
 
     public async Task<ProviderData?> GetById(int id) {
@@ -13,7 +13,7 @@ public class ProvidersService(ApplicationDbContext dbContext) : IProvidersServic
                                       .AsNoTracking()
                                       .Include(p => p.Models)
                                       .FirstOrDefaultAsync(p => p.Id == id);
-        return provider?.ToDto();
+        return provider?.ToDto(true);
     }
 
     public async Task Add(ProviderData provider) {

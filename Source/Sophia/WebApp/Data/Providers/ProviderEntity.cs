@@ -55,10 +55,10 @@ public class ProviderEntity
         dbContext.Providers.AddRange(openAi, anthropic);
     }
 
-    public ProviderData ToDto()
+    public ProviderData ToDto(bool includeModels)
         => new() {
             Id = Id,
             Name = Name,
-            Models = Models.ToList(f => f.ToDto()),
+            Models = includeModels ? Models.ToList(f => f.ToDto(includeProvider: false)) : [],
         };
 }

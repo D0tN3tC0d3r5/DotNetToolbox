@@ -1,14 +1,17 @@
-﻿namespace DotNetToolbox.AI.OpenAI.Chat;
+﻿using System.Diagnostics.CodeAnalysis;
 
-public class MessageContent {
-    public MessageContent(object value) {
+namespace DotNetToolbox.AI.OpenAI.Chat;
+
+public class MessageContent() {
+    [SetsRequiredMembers]
+    public MessageContent(object value) : this() {
         Text = value as string;
         Image = value as ImageData;
         Type = Text is null ? "image_url" : "text";
     }
 
     [JsonPropertyName("type")]
-    public string Type { get; set; }
+    public required string Type { get; set; }
     [JsonPropertyName("text")]
     public string? Text { get; set; }
     [JsonPropertyName("image_url")]

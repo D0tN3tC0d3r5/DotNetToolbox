@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Models;
+﻿namespace DotNetToolbox.AI.Providers;
 
 public interface IModelsHandler
     : IModelsHandler<string>;

@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
 public interface IAgent {
-    Model Model { get; set; }
+    AgentModel AgentModel { get; set; }
     World World { get; set; }
     User User { get; set; }
     Persona Persona { get; set; }
