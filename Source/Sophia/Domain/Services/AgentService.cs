@@ -1,6 +1,6 @@
 ﻿using IHasMessages = Sophia.Models.Chats.IHasMessages;
 
-namespace Sophia.WebApp.Services;
+namespace Sophia.Services;
 
 public class AgentService(IAgentFactory factory, IWorldService worldService, IUserService userService, IChatsService chatService)
     : AsyncResponseConsumer<AgentService>,
@@ -28,7 +28,7 @@ public class AgentService(IAgentFactory factory, IWorldService worldService, IUs
         var provider = selectedAgent.Model.Provider;
         var agent = factory.Create(provider.Name);
         agent.World = world.ToModel();
-        agent.User = user.ToModel();
+        agent.UserProfile = user.ToModel();
         agent.Persona = selectedAgent.Persona.ToModel();
         agent.AgentModel = selectedAgent.ToModel();
         return agent;

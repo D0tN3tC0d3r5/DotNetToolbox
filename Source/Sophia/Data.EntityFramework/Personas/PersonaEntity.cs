@@ -3,16 +3,19 @@
 [Table("Personas")]
 [EntityTypeConfiguration(typeof(PersonaEntity))]
 public class PersonaEntity
-    : IEntityTypeConfiguration<PersonaEntity>
+    : IEntity<int>,
+      IEntityTypeConfiguration<PersonaEntity>
     , IHasTools<int>
     , IHasFacts<int> {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
+    [Required]
     [MaxLength(100)]
-    public string Name { get; set; } = "Agent";
+    public string Name { get; set; } = default!;
+    [Required]
     [MaxLength(1000)]
-    public string Description { get; set; } = "You are a helpful ASSISTANT.";
+    public string Description { get; set; } = default!;
     public CharacteristicsEntity Characteristics { get; set; } = new();
     public List<string> Facts { get; set; } = [];
     public List<ToolEntity> Tools { get; set; } = [];
@@ -24,9 +27,11 @@ public class PersonaEntity
                .WithMany()
                .UsingEntity<PersonaToolsEntity>(l => l.HasOne<ToolEntity>()
                                                       .WithMany()
-                                                      .HasForeignKey(e => e.ToolId),
+                                                      .HasForeignKey(e => e.ToolId)
+                                                      .OnDelete(DeleteBehavior.ClientCascade),
                                                 r => r.HasOne<PersonaEntity>()
                                                       .WithMany()
-                                                      .HasForeignKey(e => e.PersonaId));
+                                                      .HasForeignKey(e => e.PersonaId)
+                                                      .OnDelete(DeleteBehavior.ClientCascade));
     }
 }

@@ -3,7 +3,8 @@
 [Table("Providers")]
 [EntityTypeConfiguration(typeof(ProviderEntity))]
 public class ProviderEntity
-    : IEntityTypeConfiguration<ProviderEntity>,
+    : IEntity<int>,
+      IEntityTypeConfiguration<ProviderEntity>,
       IHasModels {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -17,6 +18,7 @@ public class ProviderEntity
         builder.HasKey(p => p.Id);
         builder.HasMany(p => p.Models)
                .WithOne(m => m.Provider)
-               .HasForeignKey(m => m.ProviderId);
+               .HasForeignKey(m => m.ProviderId)
+               .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

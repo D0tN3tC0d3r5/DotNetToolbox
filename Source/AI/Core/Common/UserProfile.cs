@@ -1,8 +1,9 @@
 ﻿namespace DotNetToolbox.AI.Common;
 
-public class User {
-    public string Name { get; set; } = string.Empty;
-    public string Language { get; set; } = "English";
+public class UserProfile {
+    public virtual string Id { get; set; } = default!;
+    public virtual string Name { get; set; } = default!;
+    public virtual string Language { get; set; } = "English";
     public List<string> Facts { get; set; } = [];
 
     public override string ToString() {

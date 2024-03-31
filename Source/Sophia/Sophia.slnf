@@ -9,7 +9,6 @@
       "Sophia\\ConsoleClient\\Sophia.ConsoleClient.csproj",
       "Sophia\\Data.EntityFramework\\Sophia.Data.EntityFramework.csproj",
       "Sophia\\Data.JsonFiles\\Sophia.Data.JsonFiles.csproj",
-      "Sophia\\Data\\Sophia.Data.csproj",
       "Sophia\\Domain\\Sophia.Domain.csproj",
       "Sophia\\WebApp\\Sophia.WebApp.csproj",
       "Sophia\\WebClient\\Sophia.WebClient.csproj"

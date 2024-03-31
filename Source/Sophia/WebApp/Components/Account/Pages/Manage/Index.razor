@@ -1,8 +1,8 @@
 ﻿@page "/Account/Manage"
 @using Sophia.Models.Users
 
-@inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<UserData> UserManager
+@inject SignInManager<UserData> SignInManager
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
 
@@ -29,7 +29,7 @@
 </div>
 
 @code {
-    private ApplicationUser _user = default!;
+    private UserData _user = default!;
     private string? _username;
     private string? _phoneNumber;
 

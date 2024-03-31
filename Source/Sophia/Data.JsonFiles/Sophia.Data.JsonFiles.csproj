@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Data\Sophia.Data.csproj" />
+    <ProjectReference Include="..\Domain\Sophia.Domain.csproj" />
   </ItemGroup>
 
 </Project>

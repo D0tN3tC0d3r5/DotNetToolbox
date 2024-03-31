@@ -20,7 +20,7 @@ public class ArgumentEntity
     public ArgumentType Type { get; set; }
 
     [MaxLength(1024)]
-    public string[] Choices { get; set; } = [];
+    public List<string> Choices { get; set; } = [];
     [MaxLength(2000)]
     public string? Description { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿namespace Sophia.Models.Worlds;
 
-public class WorldData() {
+public class WorldData()
+    : IEntity<Guid> {
     private readonly IDateTimeProvider _dateTime = DateTimeProvider.Default;
 
     public WorldData(IDateTimeProvider dateTime)
@@ -8,6 +9,7 @@ public class WorldData() {
         _dateTime = dateTime;
     }
 
+    public Guid Id { get; set; }
     public DateTimeOffset DateTime => _dateTime.Now;
     public List<string> Facts { get; set; } = [];
 

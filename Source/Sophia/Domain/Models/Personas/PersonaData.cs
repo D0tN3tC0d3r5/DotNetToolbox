@@ -1,6 +1,7 @@
 ﻿namespace Sophia.Models.Personas;
 
-public class PersonaData {
+public class PersonaData
+    : IEntity<int> {
     public int Id { get; set; }
     [Required]
     [MinLength(3, ErrorMessage = "Name must be at least 3 characters long.")]

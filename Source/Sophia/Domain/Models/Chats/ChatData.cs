@@ -1,9 +1,8 @@
-﻿using System.Linq.Expressions;
+﻿namespace Sophia.Models.Chats;
 
-namespace Sophia.Models.Chats;
-
-public class ChatData :
-    IHasChatMessages {
+public class ChatData
+    : IEntity<Guid>,
+      IHasChatMessages {
     public Guid Id { get; set; } = default!;
     [MaxLength(100)]
     [Required(AllowEmptyStrings = false)]

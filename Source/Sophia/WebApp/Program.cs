@@ -1,5 +1,7 @@
 using Sophia.Models.Users;
 
+using UserData = Sophia.Models.Users.UserData;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
@@ -27,12 +29,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => {
 });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentityCore<UserData>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddSingleton<IEmailSender<UserData>, IdentityNoOpEmailSender>();
 if (builder.Environment.IsDevelopment())
     builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
 

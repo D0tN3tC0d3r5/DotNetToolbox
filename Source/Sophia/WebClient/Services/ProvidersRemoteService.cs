@@ -16,15 +16,15 @@ public class ProvidersRemoteService(HttpClient httpClient)
         return provider;
     }
 
-    public async Task Add(ProviderData provider) {
-        var response = await httpClient.PostAsJsonAsync("api/providers", provider)!;
+    public async Task Add(ProviderData input) {
+        var response = await httpClient.PostAsJsonAsync("api/providers", input)!;
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<ProviderData>();
-        provider.Id = result!.Id;
+        input.Id = result!.Id;
     }
 
-    public async Task Update(ProviderData provider) {
-        var response = await httpClient.PutAsJsonAsync("api/providers", provider)!;
+    public async Task Update(ProviderData input) {
+        var response = await httpClient.PutAsJsonAsync("api/providers", input)!;
         response.EnsureSuccessStatusCode();
     }
 

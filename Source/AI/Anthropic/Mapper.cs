@@ -2,8 +2,8 @@
 
 public class Mapper()
     : IMapper {
-    IChatRequest IMapper.CreateRequest(IChat chat, World world, User user, IAgent agent) => CreateRequest(chat, world, user, agent);
-    public static ChatRequest CreateRequest(IChat chat, World world, User user, IAgent agent)
+    IChatRequest IMapper.CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent) => CreateRequest(chat, world, userProfile, agent);
+    public static ChatRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent)
         => new() {
             Model = agent.AgentModel.ModelId,
             Temperature = agent.AgentModel.Temperature,
@@ -12,13 +12,13 @@ public class Mapper()
             MinimumTokenProbability = agent.AgentModel.TokenProbabilityCutOff,
             ResponseIsStream = agent.AgentModel.ResponseIsStream,
             Messages = chat.Messages.ToArray(o => new RequestMessage(o)),
-            System = CreateSystemMessage(chat, world, user, agent),
+            System = CreateSystemMessage(chat, world, userProfile, agent),
         };
 
-    private static string CreateSystemMessage(IChat chat, World world, User user, IAgent agent) {
+    private static string CreateSystemMessage(IChat chat, World world, UserProfile userProfile, IAgent agent) {
         var builder = new StringBuilder();
         builder.AppendLine(world.ToString());
-        builder.AppendLine(user.ToString());
+        builder.AppendLine(userProfile.ToString());
         builder.AppendLine(agent.Persona.ToString());
         builder.AppendLine(chat.Instructions.ToString());
         return builder.ToString();

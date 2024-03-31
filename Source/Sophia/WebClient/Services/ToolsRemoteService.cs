@@ -16,11 +16,11 @@ public class ToolsRemoteService(HttpClient httpClient)
         return tool;
     }
 
-    public async Task Add(ToolData tool) {
-        var response = await httpClient.PostAsJsonAsync("api/tools", tool)!;
+    public async Task Add(ToolData input) {
+        var response = await httpClient.PostAsJsonAsync("api/tools", input)!;
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<ToolData>();
-        tool.Id = result!.Id;
+        input.Id = result!.Id;
     }
 
     public async Task Update(ToolData input) {

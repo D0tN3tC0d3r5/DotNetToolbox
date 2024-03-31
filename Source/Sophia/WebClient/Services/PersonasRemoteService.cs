@@ -16,15 +16,15 @@ public class PersonasRemoteService(HttpClient httpClient)
         return persona;
     }
 
-    public async Task Add(PersonaData persona) {
-        var response = await httpClient.PostAsJsonAsync("api/personas", persona);
+    public async Task Add(PersonaData input) {
+        var response = await httpClient.PostAsJsonAsync("api/personas", input);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<PersonaData>();
-        persona.Id = result!.Id;
+        input.Id = result!.Id;
     }
 
-    public async Task Update(PersonaData persona) {
-        var response = await httpClient.PutAsJsonAsync("api/personas", persona);
+    public async Task Update(PersonaData input) {
+        var response = await httpClient.PutAsJsonAsync("api/personas", input);
         response.EnsureSuccessStatusCode();
     }
 

@@ -14,7 +14,7 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
     protected TMapper Mapper { get; } = new();
 
     public World World { get; set; } = default!;
-    public User User { get; set; } = default!;
+    public UserProfile UserProfile { get; set; } = default!;
     public Persona Persona { get; set; } = default!;
     public AgentModel AgentModel { get; set; } = default!;
 
@@ -52,7 +52,7 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
     }
 
     private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
-        var request = (TRequest)Mapper.CreateRequest(chat, World, User, this);
+        var request = (TRequest)Mapper.CreateRequest(chat, World, UserProfile, this);
         HttpResponseMessage httpResult = default!;
         try {
             var content = JsonContent.Create(request, options: IAgentModel.SerializerOptions, mediaType: MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType));

@@ -24,6 +24,7 @@ global using Sophia.Data.Personas;
 global using Sophia.Data.Providers;
 global using Sophia.Data.Tools;
 global using Sophia.Data.World;
+global using Sophia.Models;
 global using Sophia.Models.Chats;
 global using Sophia.Models.Personas;
 global using Sophia.Models.Providers;

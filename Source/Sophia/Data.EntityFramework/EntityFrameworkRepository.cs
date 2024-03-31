@@ -1,39 +1,19 @@
 namespace Sophia.Data;
 
-public abstract class EntityFrameworkRepository<TDomainModel, TEntity>(DataContext dataContext, DbContext dbContext)
-    : Repository<TDomainModel>(dataContext)
-    where TDomainModel : class, new()
-    where TEntity : class, new() {
+public abstract class EntityFrameworkRepository<TModel, TModelKey, TEntity, TEntityKey>(DataContext dataContext, DbContext dbContext)
+    : Repository<TModel, TModelKey>(dataContext)
+    where TModel : class, IEntity<TModelKey>, new()
+    where TModelKey: notnull
+    where TEntity : class, IEntity<TEntityKey>, new()
+    where TEntityKey : notnull {
     protected DbSet<TEntity> DbSet { get; } = dbContext.Set<TEntity>();
 
-    public sealed override IQueryProvider Provider
-        => DbSet.Select(Project).Provider;
-    public sealed override IAsyncEnumerator<TDomainModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-        => DbSet.Select(Project).AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
-    public sealed override IEnumerator<TDomainModel> GetEnumerator()
-        => DbSet.Select(Project).GetEnumerator();
-    public sealed override Expression Expression
-        => DbSet.Select(Project).Expression;
-
-    public sealed override Task Add(TDomainModel input, CancellationToken ct = default)
-        => DbSet.AddAsync(CreateFrom(input), ct).AsTask();
-
-    public sealed override Task Update(TDomainModel input, CancellationToken ct = default) {
-        DbSet.Update(CreateFrom(input));
-        return Task.CompletedTask;
+    protected Expression<Func<TEntity, TResult>> SwitchSource<TResult>(Expression<Func<TModel, TResult>> expression) {
+        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var body = Expression.Invoke(expression, Expression.Property(parameter, "model"));
+        return Expression.Lambda<Func<TEntity, TResult>>(body, parameter);
     }
 
-    public sealed override Task Remove(TDomainModel input, CancellationToken ct = default) {
-        DbSet.Remove(CreateFrom(input));
-        return Task.CompletedTask;
-    }
-
-    protected abstract Expression<Func<TEntity, bool>> Translate(Expression<Func<TDomainModel, bool>> predicate);
-    protected abstract Expression<Func<TEntity, TDomainModel>> Project { get; }
-    protected abstract Action<TDomainModel, TEntity> UpdateFrom { get; }
-    protected virtual TEntity CreateFrom(TDomainModel input) {
-        var entity = new TEntity();
-        UpdateFrom(input, entity);
-        return entity;
-    }
+    public override Task<bool> HasAny(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default)
+        => DbSet.AnyAsync(SwitchSource(predicate), ct);
 }

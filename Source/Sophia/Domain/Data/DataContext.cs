@@ -2,12 +2,13 @@ namespace Sophia.Data;
 
 public abstract class DataContext {
 
-    public abstract Repository<WorldData> Worlds { get; }
-    public abstract Repository<ProviderData> Providers { get; }
-    public abstract Repository<ModelData> Models { get; }
-    public abstract Repository<ToolData> Tools { get; }
-    public abstract Repository<PersonaData> Personas { get; }
-    public abstract Repository<ChatData> Chats { get; }
+    public abstract Repository<UserData, string> Users { get; }
+    public abstract Repository<WorldData, Guid> Worlds { get; }
+    public abstract Repository<ProviderData, int> Providers { get; }
+    public abstract Repository<ModelData, string> Models { get; }
+    public abstract Repository<ToolData, int> Tools { get; }
+    public abstract Repository<PersonaData, int> Personas { get; }
+    public abstract Repository<ChatData, Guid> Chats { get; }
 
     public abstract Task<int> SaveChanges(CancellationToken ct = default);
     public virtual Task EnsureIsUpToDate(CancellationToken ct = default) => Seed(ct);
@@ -20,8 +21,7 @@ public abstract class DataContext {
     }
 
     private async Task SeedWorld(CancellationToken ct = default) {
-        if (Worlds.Any())
-            return;
+        if (await Worlds.HasAny(ct)) return;
         var world = new WorldData();
         await Worlds.Add(world, ct);
     }
@@ -32,15 +32,13 @@ public abstract class DataContext {
     }
 
     private async Task SeedPersonas(CancellationToken ct = default) {
-        if (Personas.Any())
-            return;
+        if (await Personas.HasAny(ct)) return;
         var persona = new PersonaData();
         await Personas.Add(persona, ct);
     }
 
     private async Task TryAddOpenAI(CancellationToken ct = default) {
-        if (Providers.Any(i => i.Name == "OpenAI"))
-            return;
+        if (await Providers.HasAny(i => i.Name == "OpenAI", ct)) return;
         var provider = new ProviderData {
             Name = "OpenAI",
             Models = [
@@ -58,8 +56,7 @@ public abstract class DataContext {
     }
 
     private async Task TryAddAnthropic(CancellationToken ct = default) {
-        if (Providers.Any(i => i.Name == "Anthropic"))
-            return;
+        if (await Providers.HasAny(i => i.Name == "Anthropic", ct)) return;
         var provider = new ProviderData {
             Name = "Anthropic",
             Models = [

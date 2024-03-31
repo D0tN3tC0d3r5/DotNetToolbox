@@ -1,5 +1,4 @@
-﻿
-namespace Sophia.Data.World;
+﻿namespace Sophia.Data.Personas;
 
 public interface IHasTools<TKey> {
     TKey Id { get; set; }

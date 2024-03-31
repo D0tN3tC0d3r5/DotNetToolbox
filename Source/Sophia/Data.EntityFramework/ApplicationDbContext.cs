@@ -1,6 +1,8 @@
+using UserData = Sophia.Models.Users.UserData;
+
 namespace Sophia.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : IdentityDbContext<ApplicationUser>(options) {
+    : IdentityDbContext<UserData>(options) {
 
     public DbSet<WorldEntity> Worlds { get; set; }
     public DbSet<ProviderEntity> Providers { get; set; }
@@ -11,7 +13,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
-        builder.Entity<ApplicationUser>().ToTable("Users");
+        builder.Entity<UserData>().ToTable("Users");
         builder.Entity<IdentityRole>().ToTable("Roles");
         builder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
         builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");

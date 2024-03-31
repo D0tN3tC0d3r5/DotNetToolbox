@@ -2,10 +2,10 @@
 
 public class Mapper
     : IMapper {
-    IChatRequest IMapper.CreateRequest(IChat chat, World world, User user, IAgent agent)
-        => CreateRequest(chat, world, user, agent);
-    public static ChatRequest CreateRequest(IChat chat, World world, User user, IAgent agent) {
-        var system = new ChatRequestMessage(CreateSystemMessage(chat, world, user, agent));
+    IChatRequest IMapper.CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent)
+        => CreateRequest(chat, world, userProfile, agent);
+    public static ChatRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent) {
+        var system = new ChatRequestMessage(CreateSystemMessage(chat, world, userProfile, agent));
         return new() {
             Model = agent.AgentModel.ModelId,
             Temperature = agent.AgentModel.Temperature,
@@ -23,10 +23,10 @@ public class Mapper
         };
     }
 
-    private static string CreateSystemMessage(IChat chat, World world, User user, IAgent agent) {
+    private static string CreateSystemMessage(IChat chat, World world, UserProfile userProfile, IAgent agent) {
         var builder = new StringBuilder();
         builder.AppendLine(world.ToString());
-        builder.AppendLine(user.ToString());
+        builder.AppendLine(userProfile.ToString());
         builder.AppendLine(agent.Persona.ToString());
         builder.AppendLine(chat.Instructions.ToString());
         return builder.ToString();

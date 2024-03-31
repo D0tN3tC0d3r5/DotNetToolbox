@@ -3873,6 +3873,7 @@ dotnet_diagnostic.CA1805.severity = suggestion
 dotnet_diagnostic.CA1838.severity = suggestion
 dotnet_diagnostic.CA1848.severity = silent
 dotnet_diagnostic.CA1852.severity = suggestion
+dotnet_diagnostic.CA1859.severity = silent
 dotnet_diagnostic.CA1863.severity = suggestion
 dotnet_diagnostic.CA2215.severity = warning
 dotnet_diagnostic.CA2251.severity = suggestion

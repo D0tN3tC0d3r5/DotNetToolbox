@@ -3,11 +3,12 @@
 [Table("Worlds")]
 [EntityTypeConfiguration(typeof(WorldEntity))]
 public class WorldEntity
-    : IEntityTypeConfiguration<WorldEntity>
-    , IHasFacts<Guid> {
+    : IEntity<Guid>,
+      IEntityTypeConfiguration<WorldEntity>,
+      IHasFacts<Guid> {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid Id { get; set; } = Guid.Empty;
+    public Guid Id { get; set; }
     public List<string> Facts { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<WorldEntity> builder)

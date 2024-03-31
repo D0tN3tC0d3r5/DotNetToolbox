@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Model;
 
-internal class ModelsHandler(IHttpClientProvider httpClientProvider, ILogger<ModelsHandler> logger)
+public class ModelsHandler(IHttpClientProvider httpClientProvider, ILogger<ModelsHandler> logger)
         : IModelsHandler {
     private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 

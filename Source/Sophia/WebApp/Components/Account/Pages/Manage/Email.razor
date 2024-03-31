@@ -1,8 +1,8 @@
 ﻿@page "/Account/Manage/Email"
 @using Sophia.Models.Users
 
-@inject UserManager<ApplicationUser> UserManager
-@inject IEmailSender<ApplicationUser> EmailSender
+@inject UserManager<UserData> UserManager
+@inject IEmailSender<UserData> EmailSender
 @inject UserAccessor UserAccessor
 @inject NavigationManager NavigationManager
 
@@ -47,7 +47,7 @@
 
 @code {
     private string? _message;
-    private ApplicationUser _user = default!;
+    private UserData _user = default!;
     private string? _email;
     private bool _isEmailConfirmed;
 
