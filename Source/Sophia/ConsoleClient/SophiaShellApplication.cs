@@ -28,7 +28,8 @@ public class SophiaShellApplication : ShellApplication<SophiaShellApplication> {
     }
 
     public override void Exit(int code = IApplication.DefaultExitCode) {
-        if (_stateMachine.CurrentState == 5) base.Exit(code);
+        if (_stateMachine.CurrentState == 5)
+            base.Exit(code);
         _stateMachine.CurrentState = 1;
     }
 }

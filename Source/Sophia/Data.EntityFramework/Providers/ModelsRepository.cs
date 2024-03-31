@@ -10,9 +10,9 @@ public class ModelsRepository(DataContext dataContext, DbContext dbContext)
 
     protected override Expression<Func<ModelEntity, ModelData>> Project { get; } =
         input => new() {
-                           Id = input.ModelId,
-                           Name = input.Name,
-                       };
+            Id = input.ModelId,
+            Name = input.Name,
+        };
 
     protected override Action<ModelData, ModelEntity> UpdateFrom { get; } =
         (input, target) => target.Name = input.Name;

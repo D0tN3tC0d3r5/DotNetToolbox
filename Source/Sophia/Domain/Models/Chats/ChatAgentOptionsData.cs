@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Models.Chats;
 
 public class ChatAgentOptionsData {
-    public int Id;
+    public int Id { get; set; }
     [Range(0, AgentModel.MaximumRetries)]
     public byte NumberOfRetries { get; set; } = AgentModel.DefaultNumberOfRetries;
     public uint MaximumOutputTokens { get; set; } = AgentModel.DefaultMaximumOutputTokens;
@@ -10,8 +10,8 @@ public class ChatAgentOptionsData {
     [Range(0, AgentModel.MaximumTokenProbabilityCutOff)]
     public decimal TokenProbabilityCutOff { get; set; }
     public List<string> StopSequences { get; set; } = [];
-    public bool IsStreaming { get; set; } = false;
-    public bool RespondsAsJson { get; set; } = false;
+    public bool IsStreaming { get; set; }
+    public bool RespondsAsJson { get; set; }
 
     public string? ValidateStopSequences()
         => StopSequences.Count > 0 && StopSequences.Any(string.IsNullOrWhiteSpace)

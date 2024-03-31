@@ -26,8 +26,10 @@ public partial class ToolSelectionDialog {
         => SelectedTools.Contains(tool);
 
     private void ToggleSelection(ToolData tool) {
-        if (IsSelected(tool)) SelectedTools.Remove(tool);
-        else SelectedTools.Add(tool);
+        if (IsSelected(tool))
+            SelectedTools.Remove(tool);
+        else
+            SelectedTools.Add(tool);
     }
 
     private void Confirm()

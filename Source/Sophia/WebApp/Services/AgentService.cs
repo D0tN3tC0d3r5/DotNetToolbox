@@ -9,7 +9,8 @@ public class AgentService(IAgentFactory factory, IWorldService worldService, IUs
     public async Task<string> GetResponse(GetResponseRequest request) {
         try {
             var chat = await chatService.GetById(request.ChatId);
-            if (chat is null) return "Error!";
+            if (chat is null)
+                return "Error!";
             var agent = await CreateAgent(chat);
             var chatModel = chat.ToModel();
             var result = await agent.SendRequest(this, chatModel, request.AgentNumber);
@@ -33,11 +34,11 @@ public class AgentService(IAgentFactory factory, IWorldService worldService, IUs
         return agent;
     }
 
-    protected override async Task OnResponseReceived(Guid chatId, int? agentNumber, Message message, CancellationToken ct) {
+    protected override async Task OnResponseReceived(Guid chatId, int? agentNumber, Message response, CancellationToken ct) {
         try {
             var chat = await chatService.GetById(chatId)
                         ?? throw new ArgumentException("Chat not found.", nameof(chatId));
-            var responseMessage = CreateMessage(chat, message);
+            var responseMessage = CreateMessage(chat, response);
             var agent = chat.Agents.FirstOrDefault(i => i.Number == agentNumber);
             agent?.Messages.Add(responseMessage);
             chat.Messages.Add(responseMessage);

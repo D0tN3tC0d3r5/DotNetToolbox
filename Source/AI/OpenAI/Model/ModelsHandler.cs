@@ -7,12 +7,13 @@ internal class ModelsHandler(IHttpClientProvider httpClientProvider, ILogger<Mod
     public async Task<string[]> GetIds(string? type = null) {
         try {
             logger.LogDebug("Getting list of models...");
+            type ??= "chat";
             var models = await GetModelsAsync().ConfigureAwait(false);
             var result = models
-                        .Where(m => GetModelType(m.Id) == (type ?? "chat"))
+                        .Where(m => GetModelType(m.Id) == type)
                         .Select(m => m.Id)
                         .ToArray();
-            logger.LogDebug("A list of {numberOfModels} models was found.", result.Length);
+            logger.LogDebug("A list of {NumberOfModels} models of type {Type} was found.", result.Length, type);
             return result;
         }
         catch (Exception ex) {

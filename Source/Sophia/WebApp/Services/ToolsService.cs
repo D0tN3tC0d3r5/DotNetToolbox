@@ -14,20 +14,22 @@ public class ToolsService(DataContext dbContext)
         return entity;
     }
 
-    public async Task Add(ToolData tool) {
-        await dbContext.Tools.Add(tool);
+    public async Task Add(ToolData input) {
+        await dbContext.Tools.Add(input);
         await dbContext.SaveChanges();
     }
 
-    public async Task Update(ToolData tool) {
-        if(await dbContext.Tools.AllAsync(s => s.Id != tool.Id)) return;
-        await dbContext.Tools.Update(tool);
+    public async Task Update(ToolData input) {
+        if (await dbContext.Tools.AllAsync(s => s.Id != input.Id))
+            return;
+        await dbContext.Tools.Update(input);
         await dbContext.SaveChanges();
     }
 
     public async Task Delete(int id) {
         var entity = await dbContext.Tools.FirstOrDefaultAsync(s => s.Id == id);
-        if (entity is null) return;
+        if (entity is null)
+            return;
         await dbContext.Tools.Remove(entity);
         await dbContext.SaveChanges();
     }

@@ -29,7 +29,8 @@ public partial class ChatsPage {
 
     private async Task StartChat() {
         if (_selectedChat is not null) {
-            if (_selectedChat.Id == default!) await ChatsService.Create(_selectedChat);
+            if (_selectedChat.Id == default!)
+                await ChatsService.Create(_selectedChat);
             NavigationManager.NavigateTo($"/chat/{_selectedChat.Id}");
         }
         CloseChatDialog();

@@ -10,5 +10,5 @@ public class Chat(IGuidProvider guid)
     public Guid Id { get; set; } = guid.New();
     public Instructions Instructions { get; set; } = new();
     public List<Message> Messages { get; set; } = [];
-    public uint TotalTokens { get; set; } = 0;
+    public uint TotalTokens { get; set; }
 }

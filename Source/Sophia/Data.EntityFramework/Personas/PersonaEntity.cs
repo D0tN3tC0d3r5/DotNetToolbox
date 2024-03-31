@@ -1,6 +1,4 @@
-﻿using Sophia.Models.Personas;
-
-namespace Sophia.Data.Personas;
+﻿namespace Sophia.Data.Personas;
 
 [Table("Personas")]
 [EntityTypeConfiguration(typeof(PersonaEntity))]

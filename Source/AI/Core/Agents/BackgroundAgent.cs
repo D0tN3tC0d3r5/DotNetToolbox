@@ -30,5 +30,5 @@ public abstract class BackgroundAgent<TAgent, TMapper, TRequest, TResponse>(stri
         Logger.LogInformation("Running stopped.");
     }
 
-    protected virtual Task Execute(CancellationToken token) => Task.CompletedTask;
+    protected virtual Task Execute(CancellationToken ct) => Task.CompletedTask;
 }

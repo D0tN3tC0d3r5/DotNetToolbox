@@ -149,8 +149,8 @@ public abstract class ApplicationBase : IApplication {
     public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
     public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
 
-    public virtual void Exit(int exitCode = IApplication.DefaultExitCode) {
-        ExitCode = exitCode;
+    public virtual void Exit(int code = IApplication.DefaultExitCode) {
+        ExitCode = code;
         IsRunning = false;
     }
 

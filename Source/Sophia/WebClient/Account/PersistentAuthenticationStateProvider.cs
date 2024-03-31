@@ -1,5 +1,5 @@
 namespace Sophia.WebClient.Account;
-internal class PersistentAuthenticationStateProvider : AuthenticationStateProvider {
+internal sealed class PersistentAuthenticationStateProvider : AuthenticationStateProvider {
     private static readonly AuthenticationState _unauthenticated =
         new(new(new ClaimsIdentity()));
 

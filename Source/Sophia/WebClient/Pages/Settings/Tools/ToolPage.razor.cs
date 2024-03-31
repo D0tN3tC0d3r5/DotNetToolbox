@@ -44,20 +44,25 @@ public partial class ToolPage {
     private void OnValidationRequested(object? sender, ValidationRequestedEventArgs e) {
         _validationMessageStore.Clear(() => _tool);
         var result = _tool.ValidateSignature(_existingTools);
-        if (result != null) _validationMessageStore.Add(() => _tool, result);
+        if (result != null)
+            _validationMessageStore.Add(() => _tool, result);
     }
 
     private void EnableEdit() => Action = PageAction.Edit;
 
     private async Task Save(EditContext editContext) {
-        if (_tool.Id == 0) await ToolsService.Add(_tool);
-        else await ToolsService.Update(_tool);
+        if (_tool.Id == 0)
+            await ToolsService.Add(_tool);
+        else
+            await ToolsService.Update(_tool);
         Action = PageAction.View;
     }
 
     private async Task Cancel() {
-        if (Action == PageAction.Edit) await CancelEdit();
-        else GoBack();
+        if (Action == PageAction.Edit)
+            await CancelEdit();
+        else
+            GoBack();
         Action = PageAction.View;
     }
 
@@ -117,7 +122,8 @@ public partial class ToolPage {
                           ? 0
                           : _tool.Arguments.Count(a => a.IsRequired);
         var index = _tool.Arguments.IndexOf(argument);
-        if (index <= minimum) return;
+        if (index <= minimum)
+            return;
         _tool.Arguments.Remove(argument);
         _tool.Arguments.Insert(index - 1, argument);
     }
@@ -127,7 +133,8 @@ public partial class ToolPage {
                           ? _tool.Arguments.Count(a => a.IsRequired)
                           : _tool.Arguments.Count;
         var index = _tool.Arguments.IndexOf(argument);
-        if (index >= maximum - 1) return;
+        if (index >= maximum - 1)
+            return;
         _tool.Arguments.Remove(argument);
         _tool.Arguments.Insert(index + 1, argument);
     }

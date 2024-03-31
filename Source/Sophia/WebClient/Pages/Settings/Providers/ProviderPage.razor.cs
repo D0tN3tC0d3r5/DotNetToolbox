@@ -31,7 +31,8 @@ public partial class ProviderPage {
     private void OnValidationRequested(object? sender, ValidationRequestedEventArgs e) {
         _validationMessageStore.Clear(() => _provider.Models);
         var result = _provider.ValidateModels();
-        if (result != null) _validationMessageStore.Add(() => _provider.Models, result);
+        if (result != null)
+            _validationMessageStore.Add(() => _provider.Models, result);
     }
 
     public async Task<ProviderData> GetProviderById(int? providerId)
@@ -42,14 +43,18 @@ public partial class ProviderPage {
     public void EnableEdit() => Action = PageAction.Edit;
 
     public async Task Save() {
-        if (_provider.Id == 0) await ProvidersService.Add(_provider);
-        else await ProvidersService.Update(_provider);
+        if (_provider.Id == 0)
+            await ProvidersService.Add(_provider);
+        else
+            await ProvidersService.Update(_provider);
         Action = PageAction.View;
     }
 
     public async Task Cancel() {
-        if (Action == PageAction.Edit) await CancelEdit();
-        else GoBack();
+        if (Action == PageAction.Edit)
+            await CancelEdit();
+        else
+            GoBack();
         Action = PageAction.View;
     }
 
@@ -62,8 +67,10 @@ public partial class ProviderPage {
 
     private void AddModel(int index = -1) {
         var model = new ModelData();
-        if (index == _provider.Models.Count - 1) _provider.Models.Add(model);
-        else _provider.Models.Insert(index + 1, model);
+        if (index == _provider.Models.Count - 1)
+            _provider.Models.Add(model);
+        else
+            _provider.Models.Insert(index + 1, model);
     }
 
     private void DeleteModel(int index)

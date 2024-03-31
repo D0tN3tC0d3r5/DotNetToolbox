@@ -1,6 +1,5 @@
 // Global using directives
 
-global using System.Diagnostics.CodeAnalysis;
 global using System.Linq;
 global using System.Net;
 global using System.Net.Http.Headers;
@@ -16,7 +15,6 @@ global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.AI.Consumers;
 global using DotNetToolbox.AI.Extensions;
 global using DotNetToolbox.AI.Personas;
-global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Extensions;
 global using DotNetToolbox.Http;

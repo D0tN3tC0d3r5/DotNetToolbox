@@ -28,7 +28,8 @@ public class StateMachine
 
         var factory = new AgentFactory(services);
         _agent = (OpenAIAgent)factory.Create("OpenAI");
-        _agent.World = new(app.Environment.DateTime); ;
+        _agent.World = new(app.Environment.DateTime);
+        ;
         _agent.Persona = _repository.LoadPersona("TimeKeeper");
         _agent.AgentModel = _repository.LoadAgentOptions("Fast");
     }
@@ -133,17 +134,24 @@ public class StateMachine
         var result = await _agent.SendRequest(this, _chat, null, ct);
         if (!result.IsSuccess) {
             _out.WriteLine("An error occurred while sending the request.");
-            if (result.HasException) _out.WriteLine(result.Exception.Message);
-            if (result.HasErrors) foreach (var error in result.Errors) _out.WriteLine(error.ToString());
+            if (result.HasException)
+                _out.WriteLine(result.Exception.Message);
+            if (result.HasErrors) {
+                foreach (var error in result.Errors)
+                    _out.WriteLine(error.ToString());
+            }
+
             CurrentState = 1;
             return;
         }
         CurrentState = Idle;
     }
 
-    protected override void OnResponseReceived(Guid chat, int? agent, Message message) {
-        if (_chat is null || _chat.Id != chat) return;
-        foreach (var part in message.Parts) _out.WriteLine(part.Value);
+    protected override void OnResponseReceived(Guid chat, int? agent, Message response) {
+        if (_chat is null || _chat.Id != chat)
+            return;
+        foreach (var part in response.Parts)
+            _out.WriteLine(part.Value);
         _repository.SaveChat(_chat);
     }
 }

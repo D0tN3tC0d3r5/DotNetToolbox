@@ -28,7 +28,8 @@ public partial class ArgumentDialog {
     private void OnValidationRequested(object? sender, ValidationRequestedEventArgs e) {
         _validationMessageStore.Clear(() => _argument.Choices);
         var result = _argument.ValidateChoices();
-        if (result != null) _validationMessageStore!.Add(() => _argument.Choices, result);
+        if (result != null)
+            _validationMessageStore!.Add(() => _argument.Choices, result);
     }
 
     private void Save() => OnSave.InvokeAsync();
@@ -37,8 +38,10 @@ public partial class ArgumentDialog {
         => OnCancel.InvokeAsync();
 
     private void InsertOption(int index = -1) {
-        if (index == _argument.Choices.Count - 1) _argument.Choices.Add(string.Empty);
-        else _argument.Choices.Insert(index + 1, string.Empty);
+        if (index == _argument.Choices.Count - 1)
+            _argument.Choices.Add(string.Empty);
+        else
+            _argument.Choices.Insert(index + 1, string.Empty);
     }
 
     private void RemoveOption(int index)

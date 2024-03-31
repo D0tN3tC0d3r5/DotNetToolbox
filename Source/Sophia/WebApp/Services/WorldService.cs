@@ -8,7 +8,8 @@ public class WorldService(DataContext dbContext)
                                        .AsNoTracking()
                                        .FirstAsync();
             return world;
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             Console.WriteLine(ex);
             throw;
         }

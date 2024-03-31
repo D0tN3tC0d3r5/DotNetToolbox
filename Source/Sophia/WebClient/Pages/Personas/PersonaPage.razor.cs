@@ -30,13 +30,16 @@ public partial class PersonaPage {
     private void GoBack() => NavigationManager.NavigateTo("/Personas");
 
     private async Task Save() {
-        if (_persona.Id == 0) await PersonasService.Add(_persona);
-        else await PersonasService.Update(_persona);
+        if (_persona.Id == 0)
+            await PersonasService.Add(_persona);
+        else
+            await PersonasService.Update(_persona);
         Action = PageAction.View;
     }
 
     private Task Cancel() {
-        if (Action == PageAction.Edit) return CancelEdit();
+        if (Action == PageAction.Edit)
+            return CancelEdit();
         GoBack();
         return Task.CompletedTask;
     }
@@ -49,9 +52,12 @@ public partial class PersonaPage {
     private void AddFact()
           => _persona.Facts.Add(string.Empty);
     private void UpdateFact(int index, object? newValue) {
-        if (newValue is not string newText) return;
-        if (string.IsNullOrWhiteSpace(newText)) return;
-        if (_persona.Facts.Contains(newText)) return;
+        if (newValue is not string newText)
+            return;
+        if (string.IsNullOrWhiteSpace(newText))
+            return;
+        if (_persona.Facts.Contains(newText))
+            return;
         _persona.Facts[index] = newText;
     }
     private void RemoveFact(int index)

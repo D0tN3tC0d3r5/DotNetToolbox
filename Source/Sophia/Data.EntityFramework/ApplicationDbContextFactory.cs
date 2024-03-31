@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Sophia.Data;
+﻿namespace Sophia.Data;
 
 [ExcludeFromCodeCoverage]
 public class ApplicationDbContextFactory
@@ -10,7 +8,7 @@ public class ApplicationDbContextFactory
                      .SetBasePath(Directory.GetCurrentDirectory())
                      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                      .AddUserSecrets<ApplicationDbContextFactory>();
-            var config = builder.Build();
+        var config = builder.Build();
 
         var connectionString = config.GetConnectionString("Sophia.WebApp")
                             ?? throw new InvalidOperationException("Connection string 'Sophia.WebApp' not found.");

@@ -17,8 +17,8 @@ public class AgentModel
     public decimal Temperature { get; set; } = DefaultTemperature;
     public decimal TokenProbabilityCutOff { get; set; } = DefaultProbabilityCutOff;
     public List<string> StopSequences { get; set; } = [];
-    public bool ResponseIsStream { get; set; } = false;
-    public bool RespondsAsJson { get; set; } = false;
+    public bool ResponseIsStream { get; set; }
+    public bool RespondsAsJson { get; set; }
 
     public Result Validate(IDictionary<string, object?>? context = null) {
         var result = Result.Success();

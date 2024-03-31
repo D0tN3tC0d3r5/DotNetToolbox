@@ -44,9 +44,11 @@ public record HttpClientOptions
 
     private Result ValidateAuthentication(string providerPath) {
         var result = new Result();
-        if (Authentication is null || Authentication.Type is None) return result;
+        if (Authentication is null || Authentication.Type is None)
+            return result;
         if (string.IsNullOrWhiteSpace(Authentication.Value))
-            result += new ValidationError("The http client authentication value is missing.", GetConfigurationPath(providerPath, $"{nameof(Authentication)}:{nameof(HttpClientAuthentication.Value)}")); ;
+            result += new ValidationError("The http client authentication value is missing.", GetConfigurationPath(providerPath, $"{nameof(Authentication)}:{nameof(HttpClientAuthentication.Value)}"));
+        ;
         return result;
     }
 

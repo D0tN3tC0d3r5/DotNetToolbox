@@ -18,13 +18,15 @@ public class HttpClientAuthentication() {
         && (string.IsNullOrWhiteSpace(Value) || _dateTime.UtcNow >= ExpiresOn.Value);
 
     public void Revoke() {
-        if (IsExpired()) ExpiresOn = _dateTime.Minimum;
+        if (IsExpired())
+            ExpiresOn = _dateTime.Minimum;
     }
 
     public void Authorize(string value, DateTimeOffset? expiresOn = null) {
         Value = IsNotNull(value);
         ExpiresOn = null;
-        if (expiresOn is not null) ExtendUntil(expiresOn.Value);
+        if (expiresOn is not null)
+            ExtendUntil(expiresOn.Value);
     }
 
     public void ExtendUntil(DateTimeOffset expiresOn)
@@ -53,7 +55,8 @@ public class HttpClientAuthentication() {
                 client.DefaultRequestHeaders.Authorization = this;
                 break;
             case None:
-            default: break;
+            default:
+                break;
         };
     }
 }

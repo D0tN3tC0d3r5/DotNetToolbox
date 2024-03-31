@@ -5,16 +5,16 @@ public abstract class ResponseConsumer<TConsumer>(int timeoutInMilliseconds = 50
       IResponseConsumer
     where TConsumer : ResponseConsumer<TConsumer> {
 
-    public void ResponseApproved(Guid chat, int? agent, Message message) {
+    public void ResponseApproved(Guid chat, int? agent, Message response) {
         Logger.LogDebug("Approved response received...");
         StopWaiting();
-        OnResponseReceived(chat, agent, message);
+        OnResponseReceived(chat, agent, response);
     }
 
-    public virtual bool VerifyResponse(Guid chat, int? agent, Message message) {
+    public virtual bool VerifyResponse(Guid chat, int? agent, Message response) {
         Logger.LogDebug("Verify received response...");
         return true;
     }
 
-    protected abstract void OnResponseReceived(Guid chat, int? agent, Message message);
+    protected abstract void OnResponseReceived(Guid chat, int? agent, Message response);
 }

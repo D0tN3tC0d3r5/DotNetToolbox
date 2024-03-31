@@ -22,7 +22,7 @@ public class ChatData :
 
     public static Expression<Func<ChatData, bool>> BuildFilter(string? filter)
         => filter switch {
-               "ShowArchived" => (_) => true,
-               _ => c => c.IsActive == true,
-           };
+            "ShowArchived" => (_) => true,
+            _ => c => c.IsActive == true,
+        };
 }

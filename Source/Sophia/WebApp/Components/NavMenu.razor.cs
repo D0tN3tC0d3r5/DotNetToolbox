@@ -2,7 +2,7 @@
 
 public partial class NavMenu : IDisposable {
     private string? _currentUrl;
-    private bool _collapseNavMenu = false;
+    private bool _collapseNavMenu;
 
     private string? CollapseCssClass => _collapseNavMenu ? "collapsed" : null;
     //private string? NavMenuHeaderCssClass => _collapseNavMenu ? "collapse-header" : "collapse-header show";

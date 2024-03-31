@@ -2,14 +2,14 @@
   "solution": {
     "path": "..\\DotNetToolbox.sln",
     "projects": [
-      "Cloud\\Http\\DotNetToolbox.Http.csproj",
       "AI\\Anthropic\\DotNetToolbox.AI.Anthropic.csproj",
-      "AI\\Core\\DotNetToolbox.AI.Core.csproj",
+      "AI\\Core\\DotNetToolbox.AI.csproj",
       "AI\\OpenAI\\DotNetToolbox.AI.OpenAI.csproj",
+      "Cloud\\Http\\DotNetToolbox.Http.csproj",
       "Sophia\\ConsoleClient\\Sophia.ConsoleClient.csproj",
-      "Sophia\\Data\\Sophia.Data.csproj",
-      "Sophia\\Data.JsonFiles\\Sophia.Data.JsonFiles.csproj",
       "Sophia\\Data.EntityFramework\\Sophia.Data.EntityFramework.csproj",
+      "Sophia\\Data.JsonFiles\\Sophia.Data.JsonFiles.csproj",
+      "Sophia\\Data\\Sophia.Data.csproj",
       "Sophia\\Domain\\Sophia.Domain.csproj",
       "Sophia\\WebApp\\Sophia.WebApp.csproj",
       "Sophia\\WebClient\\Sophia.WebClient.csproj"

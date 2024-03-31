@@ -28,7 +28,7 @@ public class ToolsRepository(DataContext dataContext, DbContext dbContext)
             Name = input.Name,
             Description = input.Description,
             Type = input.Type,
-            Choices = [..input.Choices],
+            Choices = [.. input.Choices],
             IsRequired = input.IsRequired,
         };
 

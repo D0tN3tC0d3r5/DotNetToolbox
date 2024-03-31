@@ -11,12 +11,15 @@ public class Argument {
     public override string ToString() {
         var builder = new StringBuilder();
         builder.Append($"{Index}: ");
-        if (!IsRequired) builder.Append('[');
+        if (!IsRequired)
+            builder.Append('[');
         builder.Append($"{Name}: <{Type}>");
         if (Options?.Length > 0)
             builder.Append($" in {{{string.Join('|', Options)}}}");
-        if (!IsRequired) builder.Append(']');
-        if (Description is not null) builder.Append($" '{Description}'");
+        if (!IsRequired)
+            builder.Append(']');
+        if (Description is not null)
+            builder.Append($" '{Description}'");
         return builder.ToString();
     }
 }

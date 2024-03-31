@@ -8,9 +8,9 @@ public class CharacteristicsData {
 
     public Characteristics ToModel()
         => new() {
-                     Cognition = Cognition,
-                     Disposition = Disposition,
-                     Interaction = Interaction,
-                     Attitude = Attitude,
-                 };
+            Cognition = Cognition,
+            Disposition = Disposition,
+            Interaction = Interaction,
+            Attitude = Attitude,
+        };
 }

@@ -20,7 +20,8 @@ public abstract class DataContext {
     }
 
     private async Task SeedWorld(CancellationToken ct = default) {
-        if (Worlds.Any()) return;
+        if (Worlds.Any())
+            return;
         var world = new WorldData();
         await Worlds.Add(world, ct);
     }
@@ -31,13 +32,15 @@ public abstract class DataContext {
     }
 
     private async Task SeedPersonas(CancellationToken ct = default) {
-        if (Personas.Any()) return;
+        if (Personas.Any())
+            return;
         var persona = new PersonaData();
         await Personas.Add(persona, ct);
     }
 
     private async Task TryAddOpenAI(CancellationToken ct = default) {
-        if (Providers.Any(i => i.Name == "OpenAI")) return;
+        if (Providers.Any(i => i.Name == "OpenAI"))
+            return;
         var provider = new ProviderData {
             Name = "OpenAI",
             Models = [
@@ -55,7 +58,8 @@ public abstract class DataContext {
     }
 
     private async Task TryAddAnthropic(CancellationToken ct = default) {
-        if (Providers.Any(i => i.Name == "Anthropic")) return;
+        if (Providers.Any(i => i.Name == "Anthropic"))
+            return;
         var provider = new ProviderData {
             Name = "Anthropic",
             Models = [

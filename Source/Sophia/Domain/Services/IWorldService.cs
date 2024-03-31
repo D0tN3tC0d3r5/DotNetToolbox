@@ -3,5 +3,5 @@
 public interface IWorldRemoteService : IWorldService;
 public interface IWorldService {
     Task<WorldData> GetWorld();
-    Task UpdateWorld(WorldData world);
+    Task UpdateWorld(WorldData input);
 }

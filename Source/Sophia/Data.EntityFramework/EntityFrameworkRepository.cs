@@ -8,22 +8,22 @@ public abstract class EntityFrameworkRepository<TDomainModel, TEntity>(DataConte
 
     public sealed override IQueryProvider Provider
         => DbSet.Select(Project).Provider;
-    public sealed override IAsyncEnumerator<TDomainModel> GetAsyncEnumerator(CancellationToken ct = default)
-        => DbSet.Select(Project).AsAsyncEnumerable().GetAsyncEnumerator(ct);
+    public sealed override IAsyncEnumerator<TDomainModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        => DbSet.Select(Project).AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
     public sealed override IEnumerator<TDomainModel> GetEnumerator()
         => DbSet.Select(Project).GetEnumerator();
     public sealed override Expression Expression
         => DbSet.Select(Project).Expression;
 
-    public sealed override Task Add(TDomainModel input, CancellationToken cancellationToken = default)
-        => DbSet.AddAsync(CreateFrom(input), cancellationToken).AsTask();
+    public sealed override Task Add(TDomainModel input, CancellationToken ct = default)
+        => DbSet.AddAsync(CreateFrom(input), ct).AsTask();
 
-    public sealed override Task Update(TDomainModel input, CancellationToken cancellationToken = default) {
+    public sealed override Task Update(TDomainModel input, CancellationToken ct = default) {
         DbSet.Update(CreateFrom(input));
         return Task.CompletedTask;
     }
 
-    public sealed override Task Remove(TDomainModel input, CancellationToken cancellationToken = default) {
+    public sealed override Task Remove(TDomainModel input, CancellationToken ct = default) {
         DbSet.Remove(CreateFrom(input));
         return Task.CompletedTask;
     }

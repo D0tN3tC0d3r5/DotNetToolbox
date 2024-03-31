@@ -9,8 +9,10 @@ public static class ServiceCollectionExtensions {
 
     public static IServiceCollection AddAIAgent<TAgent>(this IServiceCollection services, string? provider = null)
         where TAgent : class, IAgent {
-        if (provider is null) services.TryAddTransient<IAgent, TAgent>();
-        else services.AddKeyedTransient<IAgent, TAgent>(provider);
+        if (provider is null)
+            services.TryAddTransient<IAgent, TAgent>();
+        else
+            services.AddKeyedTransient<IAgent, TAgent>(provider);
         return services;
     }
 }

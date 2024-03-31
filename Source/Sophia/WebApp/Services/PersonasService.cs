@@ -23,20 +23,22 @@ public class PersonasService(DataContext dbContext)
         return entity;
     }
 
-    public async Task Add(PersonaData persona) {
-        await dbContext.Personas.Add(persona);
+    public async Task Add(PersonaData input) {
+        await dbContext.Personas.Add(input);
         await dbContext.SaveChanges();
     }
 
-    public async Task Update(PersonaData persona) {
-        if (await dbContext.Personas.AllAsync(s => s.Id != persona.Id)) return;
-        await dbContext.Personas.Update(persona);
+    public async Task Update(PersonaData input) {
+        if (await dbContext.Personas.AllAsync(s => s.Id != input.Id))
+            return;
+        await dbContext.Personas.Update(input);
         await dbContext.SaveChanges();
     }
 
     public async Task Delete(int id) {
         var entity = await dbContext.Personas.FirstOrDefaultAsync(s => s.Id == id);
-        if (entity is null) return;
+        if (entity is null)
+            return;
         await dbContext.Personas.Remove(entity);
         await dbContext.SaveChanges();
     }

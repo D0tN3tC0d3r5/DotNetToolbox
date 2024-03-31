@@ -1,5 +1,5 @@
 ﻿namespace Sophia.Data.Helpers;
 
-internal class StringArrayItemComparer()
-    : ValueComparer<string>((a, b) => a != null && a.Equals(b, StringComparison.InvariantCultureIgnoreCase),
+internal sealed class StringArrayItemComparer()
+    : ValueComparer<string>((a, b) => a != null && a.Equals(b, OrdinalIgnoreCase),
                             s => s.GetHashCode());

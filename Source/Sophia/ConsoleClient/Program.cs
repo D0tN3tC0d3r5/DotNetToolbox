@@ -1,7 +1,7 @@
 ﻿var builder = SophiaShellApplication.CreateBuilder(args, configuration => {
-                                                             configuration.AddAppSettings();
-                                                             configuration.AddUserSecrets<Program>();
-                                                         });
+    configuration.AddAppSettings();
+    configuration.AddUserSecrets<Program>();
+});
 
 builder.Services.AddOpenAI();
 

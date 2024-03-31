@@ -11,6 +11,6 @@ public class Message(string role, MessagePart[] parts) {
     }
 
     public string Role { get; set; } = role;
-    public MessagePart[] Parts { get; set; } = [..parts];
+    public MessagePart[] Parts { get; set; } = [.. parts];
     public string AsText() => parts.Aggregate(new(), _concatValues).ToString();
 }

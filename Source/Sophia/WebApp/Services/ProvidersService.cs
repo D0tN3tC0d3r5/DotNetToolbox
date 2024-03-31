@@ -16,20 +16,22 @@ public class ProvidersService(DataContext dbContext)
         return provider;
     }
 
-    public async Task Add(ProviderData provider) {
-        await dbContext.Providers.Add(provider);
+    public async Task Add(ProviderData input) {
+        await dbContext.Providers.Add(input);
         await dbContext.SaveChanges();
     }
 
-    public async Task Update(ProviderData provider) {
-        if (await dbContext.Providers.AllAsync(s => s.Id != provider.Id)) return;
-        await dbContext.Providers.Update(provider);
+    public async Task Update(ProviderData input) {
+        if (await dbContext.Providers.AllAsync(s => s.Id != input.Id))
+            return;
+        await dbContext.Providers.Update(input);
         await dbContext.SaveChanges();
     }
 
     public async Task Delete(int id) {
         var entity = await dbContext.Providers.FirstOrDefaultAsync(i => i.Id == id);
-        if (entity == null) return;
+        if (entity == null)
+            return;
         await dbContext.Providers.Remove(entity);
         await dbContext.SaveChanges();
     }

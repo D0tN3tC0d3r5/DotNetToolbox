@@ -23,9 +23,10 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
             var isCompleted = false;
             var count = 1;
             while (!isCompleted) {
-                Logger.LogDebug("Sending request {count}...", count++);
+                Logger.LogDebug("Sending request {RequestNumber} for {ChatId}...", count++, chat.Id);
                 var result = await Submit(chat, ct);
-                if (!result.IsOk) return result;
+                if (!result.IsOk)
+                    return result;
                 isCompleted = source switch {
                     IResponseConsumer ac => ac.VerifyResponse(chat.Id, number, chat.Messages[^1]),
                     IAsyncResponseConsumer ac => await ac.VerifyResponse(chat.Id, number, chat.Messages[^1], ct),
@@ -34,8 +35,12 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
             }
 
             switch (source) {
-                case IResponseConsumer ac: ac.ResponseApproved(chat.Id, number, chat.Messages[^1]); break;
-                case IAsyncResponseConsumer ac: await ac.ResponseApproved(chat.Id, number, chat.Messages[^1], ct); break;
+                case IResponseConsumer ac:
+                    ac.ResponseApproved(chat.Id, number, chat.Messages[^1]);
+                    break;
+                case IAsyncResponseConsumer ac:
+                    await ac.ResponseApproved(chat.Id, number, chat.Messages[^1], ct);
+                    break;
             }
             Logger.LogDebug("Request completed.");
             return HttpResult.Ok();

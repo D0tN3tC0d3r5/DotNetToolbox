@@ -20,15 +20,17 @@ public partial class ChatPage {
             NavigationManager.NavigateTo("/chats");
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender) 
+    protected override Task OnAfterRenderAsync(bool firstRender)
         => !firstRender
                ? Task.CompletedTask
                : ScrollToBottom();
 
     private async Task Send() {
         try {
-            if (_chat.Messages.Count > 0 && _chat.Messages[^1].Type != "user" && string.IsNullOrWhiteSpace(_newMessage)) return;
-            if (!string.IsNullOrWhiteSpace(_newMessage)) await SaveUserMessage(_newMessage);
+            if (_chat.Messages.Count > 0 && _chat.Messages[^1].Type != "user" && string.IsNullOrWhiteSpace(_newMessage))
+                return;
+            if (!string.IsNullOrWhiteSpace(_newMessage))
+                await SaveUserMessage(_newMessage);
             _newMessage = string.Empty;
 
             _isTyping = true;

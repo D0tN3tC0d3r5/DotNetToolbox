@@ -11,7 +11,7 @@ public interface IApplication : IHasChildren {
     IServiceProvider Services { get; }
     IConfigurationRoot Configuration { get; }
 
-    void Exit(int exitCode = DefaultExitCode);
+    void Exit(int code = DefaultExitCode);
 }
 
 public interface IApplication<TApplication, out TBuilder>

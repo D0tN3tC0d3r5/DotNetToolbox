@@ -35,9 +35,9 @@ public class ChatsService(DataContext dbContext)
         }
     }
 
-    public async Task Create(ChatData chat) {
+    public async Task Create(ChatData input) {
         try {
-            await dbContext.Chats.Add(chat);
+            await dbContext.Chats.Add(input);
             await dbContext.SaveChanges();
         }
         catch (Exception ex) {
@@ -49,7 +49,8 @@ public class ChatsService(DataContext dbContext)
     public async Task Archive(Guid id) {
         try {
             var entity = await dbContext.Chats.FirstOrDefaultAsync(s => s.Id == id);
-            if (entity == null) return;
+            if (entity == null)
+                return;
             entity.IsActive = false;
             await dbContext.Chats.Update(entity);
             await dbContext.SaveChanges();
@@ -63,7 +64,8 @@ public class ChatsService(DataContext dbContext)
     public async Task Unarchive(Guid id) {
         try {
             var entity = await dbContext.Chats.FirstOrDefaultAsync(s => s.Id == id);
-            if (entity == null) return;
+            if (entity == null)
+                return;
             entity.IsActive = true;
             await dbContext.Chats.Update(entity);
             await dbContext.SaveChanges();
@@ -77,7 +79,8 @@ public class ChatsService(DataContext dbContext)
     public async Task Rename(Guid id, string newName) {
         try {
             var entity = await dbContext.Chats.FirstOrDefaultAsync(s => s.Id == id);
-            if (entity == null) return;
+            if (entity == null)
+                return;
             entity.Title = newName;
             await dbContext.Chats.Update(entity);
             await dbContext.SaveChanges();
@@ -88,13 +91,14 @@ public class ChatsService(DataContext dbContext)
         }
     }
 
-    public async Task AddMessage(Guid id, MessageData message) {
+    public async Task AddMessage(Guid id, MessageData newMessage) {
         try {
             var entity = await dbContext.Chats
                                         .Include(c => c.Messages)
                                         .FirstOrDefaultAsync(s => s.Id == id);
-            if (entity == null) return;
-            entity.Messages.Add(message);
+            if (entity == null)
+                return;
+            entity.Messages.Add(newMessage);
             await dbContext.Chats.Update(entity);
             await dbContext.SaveChanges();
         }
@@ -107,7 +111,8 @@ public class ChatsService(DataContext dbContext)
     public async Task Delete(Guid id) {
         try {
             var entity = await dbContext.Chats.FirstOrDefaultAsync(s => s.Id == id);
-            if (entity is null) return;
+            if (entity is null)
+                return;
             await dbContext.Chats.Remove(entity);
             await dbContext.SaveChanges();
         }

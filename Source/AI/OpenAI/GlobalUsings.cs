@@ -16,5 +16,3 @@ global using DotNetToolbox.Http.Extensions;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
-
-global using static DotNetToolbox.Diagnostics.Ensure;

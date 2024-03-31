@@ -44,8 +44,8 @@ public class ChatsRemoteService(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task AddMessage(Guid id, MessageData message) {
-        var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}/add-message", message);
+    public async Task AddMessage(Guid id, MessageData newMessage) {
+        var response = await httpClient.PatchAsJsonAsync($"api/chats/{id}/add-message", newMessage);
         response.EnsureSuccessStatusCode();
     }
 
