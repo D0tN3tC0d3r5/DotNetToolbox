@@ -1,11 +1,15 @@
 ﻿namespace Sophia.Models.Chats;
 
 public class ChatAgentData :
-    IHasMessages {
+    IHasChatAgentMessages {
     public Guid ChatId { get; set; }
-    public int AgentNumber { get; set; }
+    public int Number { get; set; }
     [Required]
     public PersonaData Persona { get; set; } = default!;
+    [Required]
+    [MaxLength(50)]
+    public string ModelId { get; set; } = default!;
+    public ModelData Model { get; set; } = default!;
     [Required]
     public ChatAgentOptionsData Options { get; set; } = default!;
     public List<MessageData> Messages { get; set; } = [];
@@ -16,4 +20,15 @@ public class ChatAgentData :
                : Instructions.Count != Instructions.Distinct().Count()
                    ? "Instructions cannot contain duplicated values."
                    : null;
+
+    public AgentModel ToModel() => new() {
+        ModelId = Model.Id,
+        NumberOfRetries = Options.NumberOfRetries,
+        MaximumOutputTokens = Options.MaximumOutputTokens,
+        Temperature = Options.Temperature,
+        TokenProbabilityCutOff = Options.TokenProbabilityCutOff,
+        StopSequences = [.. Options.StopSequences],
+        ResponseIsStream = Options.IsStreaming,
+        RespondsAsJson = Options.RespondsAsJson,
+    };
 }

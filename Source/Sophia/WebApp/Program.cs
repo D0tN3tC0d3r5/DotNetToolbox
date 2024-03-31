@@ -1,3 +1,5 @@
+using Sophia.Models.Users;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
@@ -67,11 +69,14 @@ else {
 }
 
 app.UseHttpsRedirection();
-
-await ApplicationDbContext.Seed(app.Services);
-
+app.UseBlazorFrameworkFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+await app.Services.GetRequiredService<DataContext>().EnsureIsUpToDate();
 
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode()

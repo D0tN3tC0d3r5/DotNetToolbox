@@ -1,11 +1,11 @@
 ﻿namespace Sophia.WebApp.Services;
 
-public class ProvidersService(ApplicationDbContext dbContext) : IProvidersService {
+public class ProvidersService(DataContext dbContext)
+    : IProvidersService {
     public async Task<IReadOnlyList<ProviderData>> GetList(string? filter = null)
         => await dbContext.Providers
                           .AsNoTracking()
                           .Include(p => p.Models)
-                          .Select(p => p.ToDto(true))
                           .ToListAsync();
 
     public async Task<ProviderData?> GetById(int id) {
@@ -13,30 +13,24 @@ public class ProvidersService(ApplicationDbContext dbContext) : IProvidersServic
                                       .AsNoTracking()
                                       .Include(p => p.Models)
                                       .FirstOrDefaultAsync(p => p.Id == id);
-        return provider?.ToDto(true);
+        return provider;
     }
 
     public async Task Add(ProviderData provider) {
-        var entity = provider.ToEntity();
-        dbContext.Providers.Add(entity);
-        await dbContext.SaveChangesAsync();
+        await dbContext.Providers.Add(provider);
+        await dbContext.SaveChanges();
     }
 
     public async Task Update(ProviderData provider) {
-        var entity = await dbContext.Providers
-                                     .Include(p => p.Models)
-                                     .FirstOrDefaultAsync(p => p.Id == provider.Id);
-        if (entity != null) {
-            entity.UpdateFrom(provider);
-            await dbContext.SaveChangesAsync();
-        }
+        if (await dbContext.Providers.AllAsync(s => s.Id != provider.Id)) return;
+        await dbContext.Providers.Update(provider);
+        await dbContext.SaveChanges();
     }
 
     public async Task Delete(int id) {
-        var entity = await dbContext.Providers.FindAsync(id);
-        if (entity != null) {
-            dbContext.Providers.Remove(entity);
-            await dbContext.SaveChangesAsync();
-        }
+        var entity = await dbContext.Providers.FirstOrDefaultAsync(i => i.Id == id);
+        if (entity == null) return;
+        await dbContext.Providers.Remove(entity);
+        await dbContext.SaveChanges();
     }
 }

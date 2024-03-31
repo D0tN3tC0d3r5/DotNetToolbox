@@ -1,6 +1,7 @@
 ﻿namespace Sophia.Models.Tools;
 
 public class ArgumentData {
+    public int Index { get; set; }
     [Required(ErrorMessage = "Name is required.")]
     [MinLength(2, ErrorMessage = "Name must be at least 2 characters long.")]
     [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]

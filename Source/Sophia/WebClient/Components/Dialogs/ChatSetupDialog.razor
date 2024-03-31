@@ -13,7 +13,7 @@
             <div class="row mb-3">
               <div class="col-8">
                 <label for="model" class="form-label me-2">AI Id</label>
-                <InputSelect id="model" class="form-control me-2" @bind-Value="Chat.Agents[0].Options.Model.Id">
+                <InputSelect id="model" class="form-control me-2" @bind-Value="Chat.Agents[0].Model.Id">
                   @foreach (var model in _models) {
                     <option value="@model.Key">@model.Value</option>
                   }

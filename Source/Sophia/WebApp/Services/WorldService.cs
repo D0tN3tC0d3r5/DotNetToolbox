@@ -1,13 +1,13 @@
 ﻿namespace Sophia.WebApp.Services;
 
-public class WorldService(ApplicationDbContext dbContext)
+public class WorldService(DataContext dbContext)
     : IWorldService {
     public async Task<WorldData> GetWorld() {
         try {
             var world = await dbContext.Worlds
                                        .AsNoTracking()
                                        .FirstAsync();
-            return world.ToDto();
+            return world;
         } catch (Exception ex) {
             Console.WriteLine(ex);
             throw;
@@ -15,8 +15,7 @@ public class WorldService(ApplicationDbContext dbContext)
     }
 
     public async Task UpdateWorld(WorldData world) {
-        var entity = await dbContext.Worlds.FirstAsync();
-        entity.UpdateFrom(world);
-        await dbContext.SaveChangesAsync();
+        await dbContext.Worlds.Update(world);
+        await dbContext.SaveChanges();
     }
 }

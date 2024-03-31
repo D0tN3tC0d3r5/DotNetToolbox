@@ -47,7 +47,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper.UnitTests", "Utilities\ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Core", "AI\Core\DotNetToolbox.AI.Core.csproj", "{7F21AEAC-3285-474E-B19C-333856ACE888}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI", "AI\Core\DotNetToolbox.AI.csproj", "{7F21AEAC-3285-474E-B19C-333856ACE888}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.UnitTests", "AI\Core.UnitTests\DotNetToolbox.AI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
 EndProject
@@ -92,6 +92,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Domain", "Sophia\Domain\Sophia.Domain.csproj", "{0E518EA8-CE79-4A32-A6F6-8C2A0C5CC40A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Sophia", "4 Sophia", "{32ACC08D-5765-480E-A927-E5F67CEC449F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data", "Sophia\Data\Sophia.Data.csproj", "{7DAD741B-A70D-462B-A808-62561695DEA8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data.EntityFramework", "Sophia\Data.EntityFramework\Sophia.Data.EntityFramework.csproj", "{85B05DBC-66D5-4F96-8582-C0B077C4C627}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data.JsonFiles", "Sophia\Data.JsonFiles\Sophia.Data.JsonFiles.csproj", "{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -204,6 +210,18 @@ Global
 		{0E518EA8-CE79-4A32-A6F6-8C2A0C5CC40A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E518EA8-CE79-4A32-A6F6-8C2A0C5CC40A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E518EA8-CE79-4A32-A6F6-8C2A0C5CC40A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DAD741B-A70D-462B-A808-62561695DEA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DAD741B-A70D-462B-A808-62561695DEA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DAD741B-A70D-462B-A808-62561695DEA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DAD741B-A70D-462B-A808-62561695DEA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85B05DBC-66D5-4F96-8582-C0B077C4C627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85B05DBC-66D5-4F96-8582-C0B077C4C627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85B05DBC-66D5-4F96-8582-C0B077C4C627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85B05DBC-66D5-4F96-8582-C0B077C4C627}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -238,6 +256,9 @@ Global
 		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
 		{B55944F2-9B31-4C01-8CFC-0529DDE05814} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
 		{0E518EA8-CE79-4A32-A6F6-8C2A0C5CC40A} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
+		{7DAD741B-A70D-462B-A808-62561695DEA8} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
+		{85B05DBC-66D5-4F96-8582-C0B077C4C627} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
+		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}

@@ -1,3 +1,5 @@
+using Sophia.Models.Users;
+
 namespace Sophia.WebApp.Components.Account;
 internal sealed class UserAccessor(UserManager<ApplicationUser> userManager, Redirect redirect) {
     public async Task<ApplicationUser> GetRequiredUserAsync(HttpContext context) {

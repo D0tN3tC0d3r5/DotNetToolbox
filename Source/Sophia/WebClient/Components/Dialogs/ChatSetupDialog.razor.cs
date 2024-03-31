@@ -19,11 +19,10 @@ public partial class ChatSetupDialog {
             Value = $"{m.Name} ({p.Name})",
         })).ToDictionary(k => k.Id, v => v.Value);
         var agent = new ChatAgentData {
-            AgentNumber = Chat.Agents.Count,
+            Number = Chat.Agents.Count,
             Persona = _personas[0],
-            Options = new() {
-                Model = providers[0].Models[0],
-            },
+            Model = providers[0].Models[0],
+            Options = new(),
         };
         Chat.Agents.Add(agent);
     }

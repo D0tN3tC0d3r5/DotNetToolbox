@@ -1,5 +1,5 @@
 ﻿
-namespace Sophia.WebApp.Services;
+namespace Sophia.Services;
 
 public interface IUserService {
     Task<UserData> GetCurrentUserProfile();

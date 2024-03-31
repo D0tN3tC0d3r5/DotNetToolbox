@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
     <ProjectReference Include="..\..\AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
+    <ProjectReference Include="..\Data.EntityFramework\Sophia.Data.EntityFramework.csproj" />
     <ProjectReference Include="..\Domain\Sophia.Domain.csproj" />
     <ProjectReference Include="..\WebClient\Sophia.WebClient.csproj" />
   </ItemGroup>

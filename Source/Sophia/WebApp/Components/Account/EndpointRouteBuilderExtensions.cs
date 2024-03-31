@@ -1,3 +1,5 @@
+using Sophia.Models.Users;
+
 namespace Sophia.WebApp.Components.Account;
 internal static class EndpointRouteBuilderExtensions {
     // These endpoints are required by the Identity Razor components defined in the /Components/Account/Pages directory of this project.

@@ -1,22 +1,15 @@
-﻿using System.Linq.Expressions;
+﻿namespace Sophia.WebApp.Services;
 
-namespace Sophia.WebApp.Services;
-
-public class ChatsService(ApplicationDbContext dbContext)
+public class ChatsService(DataContext dbContext)
     : IChatsService {
     public async Task<IReadOnlyList<ChatData>> GetList(string? filter = null) {
         try {
-            var filterClause = BuildFilter(filter);
-            var models = await dbContext.Models
-                                           .Include(c => c.Provider)
-                                           .AsNoTracking()
-                                           .Select(s => s.ToDto(true))
-                                           .ToArrayAsync();
+            var filterClause = ChatData.BuildFilter(filter);
             return await dbContext.Chats
                                   .Include(c => c.Agents).ThenInclude(i => i.Persona)
+                                  .Include(c => c.Agents).ThenInclude(i => i.Model)
                                   .AsNoTracking()
                                   .Where(filterClause)
-                                  .Select(s => s.ToDto(models))
                                   .ToArrayAsync();
         }
         catch (Exception ex) {
@@ -25,26 +18,16 @@ public class ChatsService(ApplicationDbContext dbContext)
         }
     }
 
-    private static Expression<Func<ChatEntity, bool>> BuildFilter(string? filter)
-        => filter switch {
-            "ShowArchived" => (_) => true,
-            _ => c => c.IsActive == true,
-        };
-
     public async Task<ChatData?> GetById(Guid id) {
         try {
-            var models = await dbContext.Models
-                                        .Include(c => c.Provider)
-                                        .AsNoTracking()
-                                        .Select(s => s.ToDto(true))
-                                        .ToArrayAsync();
             var entity = await dbContext.Chats
-                                        .Include(c => c.Agents).ThenInclude(i => i.Persona).ThenInclude(i => i.Tools)
+                                        .Include(c => c.Agents).ThenInclude(i => i.Persona).ThenInclude(i => i.KnownTools)
+                                        .Include(c => c.Agents).ThenInclude(i => i.Model)
                                         .Include(c => c.Messages)
                                         .AsNoTracking()
                                         .AsSplitQuery()
                                         .FirstOrDefaultAsync(s => s.Id == id);
-            return entity?.ToDto(models);
+            return entity;
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);
@@ -54,10 +37,8 @@ public class ChatsService(ApplicationDbContext dbContext)
 
     public async Task Create(ChatData chat) {
         try {
-            var entity = chat.ToEntity();
-            dbContext.Chats.Add(entity);
-            await dbContext.SaveChangesAsync();
-            chat.Id = entity.Id;
+            await dbContext.Chats.Add(chat);
+            await dbContext.SaveChanges();
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);
@@ -70,7 +51,8 @@ public class ChatsService(ApplicationDbContext dbContext)
             var entity = await dbContext.Chats.FirstOrDefaultAsync(s => s.Id == id);
             if (entity == null) return;
             entity.IsActive = false;
-            await dbContext.SaveChangesAsync();
+            await dbContext.Chats.Update(entity);
+            await dbContext.SaveChanges();
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);
@@ -83,7 +65,8 @@ public class ChatsService(ApplicationDbContext dbContext)
             var entity = await dbContext.Chats.FirstOrDefaultAsync(s => s.Id == id);
             if (entity == null) return;
             entity.IsActive = true;
-            await dbContext.SaveChangesAsync();
+            await dbContext.Chats.Update(entity);
+            await dbContext.SaveChanges();
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);
@@ -96,7 +79,8 @@ public class ChatsService(ApplicationDbContext dbContext)
             var entity = await dbContext.Chats.FirstOrDefaultAsync(s => s.Id == id);
             if (entity == null) return;
             entity.Title = newName;
-            await dbContext.SaveChangesAsync();
+            await dbContext.Chats.Update(entity);
+            await dbContext.SaveChanges();
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);
@@ -110,8 +94,9 @@ public class ChatsService(ApplicationDbContext dbContext)
                                         .Include(c => c.Messages)
                                         .FirstOrDefaultAsync(s => s.Id == id);
             if (entity == null) return;
-            entity.Messages.Add(message.ToEntity(entity));
-            await dbContext.SaveChangesAsync();
+            entity.Messages.Add(message);
+            await dbContext.Chats.Update(entity);
+            await dbContext.SaveChanges();
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);
@@ -123,8 +108,8 @@ public class ChatsService(ApplicationDbContext dbContext)
         try {
             var entity = await dbContext.Chats.FirstOrDefaultAsync(s => s.Id == id);
             if (entity is null) return;
-            dbContext.Chats.Remove(entity);
-            await dbContext.SaveChangesAsync();
+            await dbContext.Chats.Remove(entity);
+            await dbContext.SaveChanges();
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);

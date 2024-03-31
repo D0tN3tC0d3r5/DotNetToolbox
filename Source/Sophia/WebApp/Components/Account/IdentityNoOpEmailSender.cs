@@ -1,7 +1,8 @@
+using Sophia.Models.Users;
+
 namespace Sophia.WebApp.Components.Account;
 internal sealed class IdentityNoOpEmailSender : IEmailSender<ApplicationUser> {
-    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "<Pending>")]
-    private readonly IEmailSender _emailSender = new NoOpEmailSender();
+    private readonly NoOpEmailSender _emailSender = new();
 
     public Task SendConfirmationLinkAsync(ApplicationUser user, string email, string confirmationLink)
         => _emailSender.SendEmailAsync(email, "Confirm your email", $"Please confirm your account by <a href='{confirmationLink}'>clicking here</a>.");

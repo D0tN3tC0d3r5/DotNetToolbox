@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\DotNetToolbox.AI.Core.csproj" />
+    <ProjectReference Include="..\Core\DotNetToolbox.AI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

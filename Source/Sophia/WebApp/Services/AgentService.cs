@@ -24,12 +24,12 @@ public class AgentService(IAgentFactory factory, IWorldService worldService, IUs
         var world = await worldService.GetWorld();
         var user = await userService.GetCurrentUserProfile();
         var selectedAgent = chat.Agents[0];
-        var provider = selectedAgent.Options.Model.Provider;
+        var provider = selectedAgent.Model.Provider;
         var agent = factory.Create(provider.Name);
         agent.World = world.ToModel();
         agent.User = user.ToModel();
         agent.Persona = selectedAgent.Persona.ToModel();
-        agent.AgentModel = selectedAgent.Options.ToModel();
+        agent.AgentModel = selectedAgent.ToModel();
         return agent;
     }
 
@@ -38,7 +38,7 @@ public class AgentService(IAgentFactory factory, IWorldService worldService, IUs
             var chat = await chatService.GetById(chatId)
                         ?? throw new ArgumentException("Chat not found.", nameof(chatId));
             var responseMessage = CreateMessage(chat, message);
-            var agent = chat.Agents.FirstOrDefault(i => i.AgentNumber == agentNumber);
+            var agent = chat.Agents.FirstOrDefault(i => i.Number == agentNumber);
             agent?.Messages.Add(responseMessage);
             chat.Messages.Add(responseMessage);
         }
