@@ -1,10 +1,10 @@
 ﻿@page "/Account/Register"
 @using Sophia.Models.Users
 
-@inject UserManager<UserData> UserManager
-@inject IUserStore<UserData> UserStore
-@inject SignInManager<UserData> SignInManager
-@inject IEmailSender<UserData> EmailSender
+@inject UserManager<User> UserManager
+@inject IUserStore<User> UserStore
+@inject SignInManager<User> SignInManager
+@inject IEmailSender<User> EmailSender
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject Redirect Redirect
@@ -94,26 +94,26 @@
         Redirect.To(ReturnUrl);
     }
 
-    private UserData CreateUser()
+    private User CreateUser()
     {
         try
         {
-            return Activator.CreateInstance<UserData>();
+            return Activator.CreateInstance<User>();
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(UserData)}'. " +
-                $"Ensure that '{nameof(UserData)}' is not an abstract class and has a parameterless constructor.");
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(User)}'. " +
+                $"Ensure that '{nameof(User)}' is not an abstract class and has a parameterless constructor.");
         }
     }
 
-    private IUserEmailStore<UserData> GetEmailStore()
+    private IUserEmailStore<User> GetEmailStore()
     {
         if (!UserManager.SupportsUserEmail)
         {
             throw new NotSupportedException("The default UI requires a user store with email support.");
         }
-        return (IUserEmailStore<UserData>)UserStore;
+        return (IUserEmailStore<User>)UserStore;
     }
 
     private sealed class InputModel

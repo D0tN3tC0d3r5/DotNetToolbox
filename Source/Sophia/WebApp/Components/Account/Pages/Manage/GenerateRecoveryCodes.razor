@@ -1,7 +1,7 @@
 ﻿@page "/Account/Manage/GenerateRecoveryCodes"
 @using Sophia.Models.Users
 
-@inject UserManager<UserData> UserManager
+@inject UserManager<User> UserManager
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
 @inject ILogger<GenerateRecoveryCodes> Logger
@@ -36,7 +36,7 @@ else
 
 @code {
     private string? _message;
-    private UserData _user = default!;
+    private User _user = default!;
     private IEnumerable<string>? _recoveryCodes;
 
     [CascadingParameter]

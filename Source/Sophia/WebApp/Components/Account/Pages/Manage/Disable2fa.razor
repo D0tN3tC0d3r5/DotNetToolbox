@@ -1,7 +1,7 @@
 ﻿@page "/Account/Manage/Disable2fa"
 @using Sophia.Models.Users
 
-@inject UserManager<UserData> UserManager
+@inject UserManager<User> UserManager
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
 @inject ILogger<Disable2fa> Logger
@@ -27,7 +27,7 @@
 </div>
 
 @code {
-    private UserData _user = default!;
+    private User _user = default!;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;

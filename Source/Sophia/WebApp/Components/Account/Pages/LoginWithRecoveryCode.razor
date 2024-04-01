@@ -1,8 +1,8 @@
 ﻿@page "/Account/LoginWithRecoveryCode"
 @using Sophia.Models.Users
 
-@inject SignInManager<UserData> SignInManager
-@inject UserManager<UserData> UserManager
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 @inject Redirect Redirect
 @inject ILogger<LoginWithRecoveryCode> Logger
 
@@ -30,7 +30,7 @@
 
 @code {
     private string? _message;
-    private UserData _user = default!;
+    private User _user = default!;
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();

@@ -1,10 +1,10 @@
 ﻿@page "/Account/Manage/ExternalLogins"
 @using Sophia.Models.Users
 
-@inject UserManager<UserData> UserManager
-@inject SignInManager<UserData> SignInManager
+@inject UserManager<User> UserManager
+@inject SignInManager<User> SignInManager
 @inject UserAccessor UserAccessor
-@inject IUserStore<UserData> UserStore
+@inject IUserStore<User> UserStore
 @inject Redirect Redirect
 
 <StatusMessage />
@@ -61,7 +61,7 @@
 @code {
     public const string _linkLoginCallbackAction = "LinkLoginCallback";
 
-    private UserData _user = default!;
+    private User _user = default!;
     private IList<UserLoginInfo>? _currentLogins;
     private IList<AuthenticationScheme>? _otherLogins;
     private bool _showRemoveButton;
@@ -87,7 +87,7 @@
             .ToList();
 
         string? passwordHash = null;
-        if (UserStore is IUserPasswordStore<UserData> userPasswordStore)
+        if (UserStore is IUserPasswordStore<User> userPasswordStore)
         {
             passwordHash = await userPasswordStore.GetPasswordHashAsync(_user, HttpContext.RequestAborted);
         }

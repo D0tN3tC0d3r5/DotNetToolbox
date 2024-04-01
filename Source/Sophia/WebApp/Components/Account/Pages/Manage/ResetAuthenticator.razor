@@ -1,8 +1,8 @@
 ﻿@page "/Account/Manage/ResetAuthenticator"
 @using Sophia.Models.Users
 
-@inject UserManager<UserData> UserManager
-@inject SignInManager<UserData> SignInManager
+@inject UserManager<User> UserManager
+@inject SignInManager<User> SignInManager
 @inject UserAccessor UserAccessor
 @inject Redirect Redirect
 @inject ILogger<ResetAuthenticator> Logger

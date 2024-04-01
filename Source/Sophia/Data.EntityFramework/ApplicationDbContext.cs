@@ -1,19 +1,16 @@
-using UserData = Sophia.Models.Users.UserData;
-
 namespace Sophia.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : IdentityDbContext<UserData>(options) {
-
-    public DbSet<WorldEntity> Worlds { get; set; }
-    public DbSet<ProviderEntity> Providers { get; set; }
-    public DbSet<ModelEntity> Models { get; set; }
-    public DbSet<ToolEntity> Tools { get; set; }
-    public DbSet<PersonaEntity> Personas { get; set; }
-    public DbSet<ChatEntity> Chats { get; set; }
+    : IdentityDbContext<User>(options) {
+    public DbSet<WorldEntity> Worlds { get; set; } = default!;
+    public DbSet<ProviderEntity> Providers { get; set; } = default!;
+    public DbSet<ModelEntity> Models { get; set; } = default!;
+    public DbSet<ToolEntity> Tools { get; set; } = default!;
+    public DbSet<PersonaEntity> Personas { get; set; } = default!;
+    public DbSet<ChatEntity> Chats { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
-        builder.Entity<UserData>().ToTable("Users");
+        builder.Entity<User>().ToTable("Users");
         builder.Entity<IdentityRole>().ToTable("Roles");
         builder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
         builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
@@ -23,6 +20,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<WorldEntity>();
         builder.Entity<ProviderEntity>();
+        builder.Entity<ModelEntity>();
         builder.Entity<ToolEntity>();
         builder.Entity<PersonaEntity>();
         builder.Entity<ChatEntity>();

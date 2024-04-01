@@ -10,10 +10,10 @@ using Sophia.Data;
 
 #nullable disable
 
-namespace Sophia.WebApp.Data.Migrations
+namespace Sophia.Data.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240329205132_CreateInitialSchema")]
+    [Migration("20240401022755_CreateInitialSchema")]
     partial class CreateInitialSchema
     {
         /// <inheritdoc />
@@ -159,95 +159,7 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Components.Account.ApplicationUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Components.Account.ApplicationUserProfile", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Facts")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserProfiles");
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatAgentEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Chats.ChatAgentEntity", b =>
                 {
                     b.Property<Guid>("ChatId")
                         .HasColumnType("uniqueidentifier");
@@ -255,10 +167,15 @@ namespace Sophia.WebApp.Data.Migrations
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
+                    b.Property<string>("ModelId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("PersonaId")
                         .HasColumnType("int");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Options", "Sophia.WebApp.Data.Chats.ChatAgentEntity.Options#ChatAgentOptionsEntity", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Options", "Sophia.Data.Chats.ChatAgentEntity.Options#ChatAgentOptionsEntity", b1 =>
                         {
                             b1.IsRequired();
 
@@ -267,11 +184,6 @@ namespace Sophia.WebApp.Data.Migrations
 
                             b1.Property<long>("MaximumOutputTokens")
                                 .HasColumnType("bigint");
-
-                            b1.Property<string>("ModelId")
-                                .IsRequired()
-                                .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)");
 
                             b1.Property<byte>("NumberOfRetries")
                                 .HasColumnType("tinyint");
@@ -292,12 +204,14 @@ namespace Sophia.WebApp.Data.Migrations
 
                     b.HasKey("ChatId", "Number");
 
+                    b.HasIndex("ModelId");
+
                     b.HasIndex("PersonaId");
 
                     b.ToTable("ChatAgent");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Chats.ChatEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -311,7 +225,7 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Instructions", "Sophia.WebApp.Data.Chats.ChatEntity.Instructions#InstructionsEntity", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Instructions", "Sophia.Data.Chats.ChatEntity.Instructions#InstructionsEntity", b1 =>
                         {
                             b1.IsRequired();
 
@@ -353,7 +267,7 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("Chats");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Chats.MessageEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Chats.MessageEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -390,7 +304,7 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Personas.PersonaEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -412,7 +326,7 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Characteristics", "Sophia.WebApp.Data.Personas.PersonaEntity.Characteristics#CharacteristicsEntity", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Characteristics", "Sophia.Data.Personas.PersonaEntity.Characteristics#CharacteristicsEntity", b1 =>
                         {
                             b1.IsRequired();
 
@@ -438,7 +352,7 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("Personas");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaToolsEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Personas.PersonaToolsEntity", b =>
                 {
                     b.Property<int>("PersonaId")
                         .HasColumnType("int");
@@ -453,12 +367,9 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("PersonaTools");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Providers.ModelEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Providers.ModelEntity", b =>
                 {
-                    b.Property<int>("ProviderId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ModelId")
+                    b.Property<string>("Id")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -467,12 +378,17 @@ namespace Sophia.WebApp.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("ProviderId", "ModelId");
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProviderId");
 
                     b.ToTable("Models");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Providers.ProviderEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Providers.ProviderEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -490,7 +406,7 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("Providers");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Tools.ArgumentEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Tools.ArgumentEntity", b =>
                 {
                     b.Property<int>("ToolId")
                         .HasColumnType("int");
@@ -524,7 +440,7 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("Arguments");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Tools.ToolEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Tools.ToolEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -533,6 +449,7 @@ namespace Sophia.WebApp.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -546,7 +463,86 @@ namespace Sophia.WebApp.Data.Migrations
                     b.ToTable("Tools");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.World.WorldEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Users.User", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Facts")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("Sophia.Data.World.WorldEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -572,7 +568,7 @@ namespace Sophia.WebApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Components.Account.ApplicationUser", null)
+                    b.HasOne("Sophia.Data.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -581,7 +577,7 @@ namespace Sophia.WebApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Components.Account.ApplicationUser", null)
+                    b.HasOne("Sophia.Data.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -596,7 +592,7 @@ namespace Sophia.WebApp.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sophia.WebApp.Components.Account.ApplicationUser", null)
+                    b.HasOne("Sophia.Data.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -605,118 +601,105 @@ namespace Sophia.WebApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Components.Account.ApplicationUser", null)
+                    b.HasOne("Sophia.Data.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Components.Account.ApplicationUserProfile", b =>
+            modelBuilder.Entity("Sophia.Data.Chats.ChatAgentEntity", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Components.Account.ApplicationUser", null)
-                        .WithOne("Profile")
-                        .HasForeignKey("Sophia.WebApp.Components.Account.ApplicationUserProfile", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatAgentEntity", b =>
-                {
-                    b.HasOne("Sophia.WebApp.Data.Chats.ChatEntity", "Chat")
+                    b.HasOne("Sophia.Data.Chats.ChatEntity", null)
                         .WithMany("Agents")
                         .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.HasOne("Sophia.Data.Providers.ModelEntity", "Model")
+                        .WithMany()
+                        .HasForeignKey("ModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sophia.WebApp.Data.Personas.PersonaEntity", "Persona")
+                    b.HasOne("Sophia.Data.Personas.PersonaEntity", "Persona")
                         .WithMany()
                         .HasForeignKey("PersonaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Chat");
+                    b.Navigation("Model");
 
                     b.Navigation("Persona");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Chats.MessageEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Chats.MessageEntity", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Data.Chats.ChatEntity", "Chat")
+                    b.HasOne("Sophia.Data.Chats.ChatEntity", null)
                         .WithMany("Messages")
                         .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("Sophia.WebApp.Data.Chats.ChatAgentEntity", "Agent")
+                    b.HasOne("Sophia.Data.Chats.ChatAgentEntity", null)
                         .WithMany("Messages")
                         .HasForeignKey("ChatId", "AgentNumber")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Agent");
-
-                    b.Navigation("Chat");
+                        .OnDelete(DeleteBehavior.ClientCascade);
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Personas.PersonaToolsEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Personas.PersonaToolsEntity", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Data.Personas.PersonaEntity", null)
+                    b.HasOne("Sophia.Data.Personas.PersonaEntity", null)
                         .WithMany()
                         .HasForeignKey("PersonaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("Sophia.WebApp.Data.Tools.ToolEntity", null)
+                    b.HasOne("Sophia.Data.Tools.ToolEntity", null)
                         .WithMany()
                         .HasForeignKey("ToolId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Providers.ModelEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Providers.ModelEntity", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Data.Providers.ProviderEntity", "Provider")
+                    b.HasOne("Sophia.Data.Providers.ProviderEntity", "Provider")
                         .WithMany("Models")
                         .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.Navigation("Provider");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Tools.ArgumentEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Tools.ArgumentEntity", b =>
                 {
-                    b.HasOne("Sophia.WebApp.Data.Tools.ToolEntity", null)
+                    b.HasOne("Sophia.Data.Tools.ToolEntity", null)
                         .WithMany("Arguments")
                         .HasForeignKey("ToolId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Components.Account.ApplicationUser", b =>
-                {
-                    b.Navigation("Profile")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatAgentEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Chats.ChatAgentEntity", b =>
                 {
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Chats.ChatEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Chats.ChatEntity", b =>
                 {
                     b.Navigation("Agents");
 
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Providers.ProviderEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Providers.ProviderEntity", b =>
                 {
                     b.Navigation("Models");
                 });
 
-            modelBuilder.Entity("Sophia.WebApp.Data.Tools.ToolEntity", b =>
+            modelBuilder.Entity("Sophia.Data.Tools.ToolEntity", b =>
                 {
                     b.Navigation("Arguments");
                 });

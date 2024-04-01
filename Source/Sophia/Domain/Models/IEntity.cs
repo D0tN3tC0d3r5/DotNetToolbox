@@ -1,5 +1,15 @@
-﻿namespace Sophia.Models;
+﻿using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
 
-public interface IEntity<TKey> {
+namespace Sophia.Models;
+
+public interface IEntity {
+    internal const DynamicallyAccessedMemberTypes AccessedMembers =
+        PublicConstructors | NonPublicConstructors
+                           | PublicProperties | NonPublicProperties
+                           | PublicFields | NonPublicFields
+                           | Interfaces;
+}
+
+public interface IEntity<TKey> : IEntity {
     TKey Id { get; set; }
 }

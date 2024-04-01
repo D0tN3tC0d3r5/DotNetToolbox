@@ -1,8 +1,8 @@
 ﻿@page "/Account/ResendEmailConfirmation"
 @using Sophia.Models.Users
 
-@inject UserManager<UserData> UserManager
-@inject IEmailSender<UserData> EmailSender
+@inject UserManager<User> UserManager
+@inject IEmailSender<User> EmailSender
 @inject NavigationManager NavigationManager
 @inject Redirect Redirect
 

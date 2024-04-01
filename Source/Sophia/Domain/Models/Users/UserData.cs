@@ -2,14 +2,23 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Sophia.Models.Users;
 
-public class UserData : IdentityUser {
-    public UserProfileData Profile { get; set; } = new();
+public class UserData
+    : IEntity<string> {
+    [Required(AllowEmptyStrings = false)]
+    [MaxLength(36)]
+    public string Id { get; set; } = default!;
+    [Required(AllowEmptyStrings = false)]
+    [MaxLength(250)]
+    public string Name { get; set; } = default!;
+    [Required(AllowEmptyStrings = false)]
+    [MaxLength(50)]
+    public string Language { get; set; } = "English";
+    public List<string> Facts { get; set; } = [];
 
     public UserProfile ToModel() => new() {
         Id = Id,
-        Name = Profile.Name,
-        Language = Profile.Language,
-        Facts = Profile.Facts,
+        Name = Name,
+        Language = Language,
+        Facts = Facts,
     };
 }
-

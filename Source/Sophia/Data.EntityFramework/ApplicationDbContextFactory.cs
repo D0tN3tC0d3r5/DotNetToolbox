@@ -6,7 +6,7 @@ public class ApplicationDbContextFactory
     public ApplicationDbContext CreateDbContext(string[] args) {
         var builder = new ConfigurationBuilder()
                      .SetBasePath(Directory.GetCurrentDirectory())
-                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                      .AddUserSecrets<ApplicationDbContextFactory>();
         var config = builder.Build();
 

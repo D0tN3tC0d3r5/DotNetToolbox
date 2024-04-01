@@ -1,7 +1,3 @@
-using Sophia.Models.Users;
-
-using UserData = Sophia.Models.Users.UserData;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
@@ -19,43 +15,22 @@ builder.Services.AddAuthentication(options => {
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 }).AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("Sophia.WebApp")
-                    ?? throw new InvalidOperationException("Connection string 'Sophia.WebApp' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options => {
-    options.UseSqlServer(connectionString);
-    options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
-    options.EnableDetailedErrors(builder.Environment.IsDevelopment());
-    options.LogTo(Console.WriteLine, LogLevel.Information);
-});
+builder.Services.AddTransient<IUserAccessor, WebAppUserAccessor>();
+builder.Services.AddRepositories(builder.Configuration,
+                                 builder.Environment,
+                                 "Sophia.WebApp",
+                                 identity => identity.AddSignInManager()
+                                                     .AddDefaultTokenProviders());
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<UserData>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager()
-    .AddDefaultTokenProviders();
-
-builder.Services.AddSingleton<IEmailSender<UserData>, IdentityNoOpEmailSender>();
+builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
 if (builder.Environment.IsDevelopment())
     builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
 
 builder.Services.AddAnthropic();
 builder.Services.AddOpenAI();
-builder.Services.AddScoped<IWorldService, WorldService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IProvidersService, ProvidersService>();
-builder.Services.AddScoped<IToolsService, ToolsService>();
-builder.Services.AddScoped<IPersonasService, PersonasService>();
-builder.Services.AddScoped<IChatsService, ChatsService>();
-builder.Services.AddScoped<IAgentService, AgentService>();
-builder.Services.AddScoped<IWorldRemoteService, WorldRemoteService>();
-builder.Services.AddScoped<IProvidersRemoteService, ProvidersRemoteService>();
-builder.Services.AddScoped<IPersonasRemoteService, PersonasRemoteService>();
-builder.Services.AddScoped<IToolsRemoteService, ToolsRemoteService>();
-builder.Services.AddScoped<IChatsRemoteService, ChatsRemoteService>();
-builder.Services.AddScoped<IAgentRemoteService, AgentRemoteService>();
-builder.Services.AddScoped(_ => new HttpClient {
-    BaseAddress = new(builder.Configuration["FrontendUrl"] ?? "https://localhost:7100"),
-});
+builder.Services.AddServices();
+builder.Services.AddRemoteServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -78,7 +53,8 @@ app.UseAuthorization();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-await app.Services.GetRequiredService<DataContext>().EnsureIsUpToDate();
+await using var scope = app.Services.CreateAsyncScope();
+await scope.ServiceProvider.GetRequiredService<DataContext>().EnsureIsUpToDate();
 
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode()

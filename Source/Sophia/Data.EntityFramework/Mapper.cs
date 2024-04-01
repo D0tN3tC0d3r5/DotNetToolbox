@@ -1,9 +1,26 @@
-﻿namespace Sophia.Data;
+﻿using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
+
+namespace Sophia.Data;
 
 public static class Mapper {
+    internal const DynamicallyAccessedMemberTypes AccessedMembers =
+        PublicConstructors | NonPublicConstructors
+                           | PublicProperties | NonPublicProperties
+                           | PublicFields | NonPublicFields
+                           | Interfaces;
+
     #region Project To Domain Model
+    internal static UserData ToUserData(User input)
+        => new() {
+            Id = input.Id,
+            Name = input.Name,
+            Language = input.Language,
+            Facts = input.Facts,
+        };
+
     internal static WorldData ToWorldData(WorldEntity input)
         => new() {
+            Id = input.Id,
             Facts = input.Facts,
         };
 
@@ -105,6 +122,12 @@ public static class Mapper {
 
     #endregion
     #region Update Entity
+    public static void UpdateUser(UserData input, User target) {
+        target.Name = input.Name;
+        target.Language = input.Language;
+        target.Facts = ToDistinctList(input.Facts);
+    }
+
     public static void UpdateWorldEntity(WorldData input, WorldEntity target)
         => target.Facts = ToDistinctList(input.Facts);
 
@@ -218,6 +241,18 @@ public static class Mapper {
     }
     #endregion
     #region Create New Entity
+    internal static User ToUser(UserData input) {
+        var entity = new User();
+        UpdateUser(input, entity);
+        return entity;
+    }
+
+    internal static WorldEntity ToWorldEntity(WorldData input) {
+        var entity = new WorldEntity();
+        UpdateWorldEntity(input, entity);
+        return entity;
+    }
+
     public static ChatEntity ToChatEntity(ChatData input) {
         var entity = new ChatEntity();
         UpdateChatEntity(input, entity);

@@ -2,10 +2,11 @@ namespace Sophia.Data;
 
 public class EntityFrameworkDataContext
     : DataContext {
-    private readonly DbContext _dbContext;
+    private readonly ApplicationDbContext _dbContext;
 
-    public EntityFrameworkDataContext(DbContext dbContext) {
+    public EntityFrameworkDataContext(ApplicationDbContext dbContext) {
         _dbContext = dbContext;
+        Users = new UsersRepository(this, dbContext);
         Worlds = new WorldRepository(this, dbContext);
         Providers = new ProvidersRepository(this, dbContext);
         Models = new ModelsRepository(this, dbContext);
@@ -14,17 +15,20 @@ public class EntityFrameworkDataContext
         Chats = new ChatsRepository(this, dbContext);
     }
 
-    public override Repository<WorldData> Worlds { get; }
-    public override Repository<ProviderData> Providers { get; }
-    public override Repository<ModelData> Models { get; }
-    public override Repository<ToolData> Tools { get; }
-    public override Repository<PersonaData> Personas { get; }
-    public override Repository<ChatData> Chats { get; }
+    public override Repository<UserData, string> Users { get; }
+    public override Repository<WorldData, Guid> Worlds { get; }
+    public override Repository<ProviderData, int> Providers { get; }
+    public override Repository<ModelData, string> Models { get; }
+    public override Repository<ToolData, int> Tools { get; }
+    public override Repository<PersonaData, int> Personas { get; }
+    public override Repository<ChatData, Guid> Chats { get; }
 
-    public override Task<int> SaveChanges(CancellationToken ct = default) => _dbContext.SaveChangesAsync(ct);
+    public override async Task<int> SaveChanges(CancellationToken ct = default)
+        => await _dbContext.SaveChangesAsync(ct);
     public override async Task EnsureIsUpToDate(CancellationToken ct = default) {
         await _dbContext.Database.EnsureCreatedAsync(ct);
         await _dbContext.Database.MigrateAsync(ct);
         await base.EnsureIsUpToDate(ct);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

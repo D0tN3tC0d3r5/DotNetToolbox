@@ -1,7 +1,3 @@
-using Sophia.Models.Users;
-
-using UserData = Sophia.Models.Users.UserData;
-
 namespace Sophia.WebApp.Components.Account;
 internal static class EndpointRouteBuilderExtensions {
     // These endpoints are required by the Identity Razor components defined in the /Components/Account/Pages directory of this project.
@@ -12,7 +8,7 @@ internal static class EndpointRouteBuilderExtensions {
 
         accountGroup.MapPost("/PerformExternalLogin", (
             HttpContext context,
-            [FromServices] SignInManager<UserData> signInManager,
+            [FromServices] SignInManager<User> signInManager,
             [FromForm] string provider,
             [FromForm] string returnUrl) => {
                 IEnumerable<KeyValuePair<string, StringValues>> query = [
@@ -30,7 +26,7 @@ internal static class EndpointRouteBuilderExtensions {
 
         accountGroup.MapPost("/Logout", async (
             ClaimsPrincipal user,
-            SignInManager<UserData> signInManager,
+            SignInManager<User> signInManager,
             [FromForm] string returnUrl) => {
                 await signInManager.SignOutAsync();
                 return TypedResults.LocalRedirect($"~/{returnUrl}");
@@ -40,7 +36,7 @@ internal static class EndpointRouteBuilderExtensions {
 
         manageGroup.MapPost("/LinkExternalLogin", async (
             HttpContext context,
-            [FromServices] SignInManager<UserData> signInManager,
+            [FromServices] SignInManager<User> signInManager,
             [FromForm] string provider) => {
                 // Clear the existing external cookie to ensure a clean login process
                 await context.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -59,7 +55,7 @@ internal static class EndpointRouteBuilderExtensions {
 
         manageGroup.MapPost("/DownloadPersonalData", async (
             HttpContext context,
-            [FromServices] UserManager<UserData> userManager,
+            [FromServices] UserManager<User> userManager,
             [FromServices] AuthenticationStateProvider authenticationStateProvider) => {
                 var user = await userManager.GetUserAsync(context.User);
                 if (user is null) {
@@ -71,7 +67,7 @@ internal static class EndpointRouteBuilderExtensions {
 
                 // Only include personal data for download
                 var personalData = new Dictionary<string, string>();
-                var personalDataProps = typeof(UserData).GetProperties().Where(
+                var personalDataProps = typeof(User).GetProperties().Where(
                     prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
                 foreach (var p in personalDataProps) {
                     personalData.Add(p.Name, p.GetValue(user)?.ToString() ?? "null");

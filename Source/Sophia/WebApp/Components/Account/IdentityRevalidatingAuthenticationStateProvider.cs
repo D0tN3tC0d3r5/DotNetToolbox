@@ -1,7 +1,3 @@
-using Sophia.Models.Users;
-
-using UserData = Sophia.Models.Users.UserData;
-
 namespace Sophia.WebApp.Components.Account;
 // This is a server-side AuthenticationStateProvider that revalidates the security stamp for the connected user
 // every 30 minutes an interactive circuit is connected.
@@ -16,11 +12,11 @@ internal sealed class IdentityRevalidatingAuthenticationStateProvider(
         AuthenticationState authenticationState, CancellationToken cancellationToken) {
         // GetList the user manager from a new scope to ensure it fetches fresh data
         await using var scope = scopeFactory.CreateAsyncScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserData>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
         return await ValidateSecurityStampAsync(userManager, authenticationState.User);
     }
 
-    private async Task<bool> ValidateSecurityStampAsync(UserManager<UserData> userManager, ClaimsPrincipal principal) {
+    private async Task<bool> ValidateSecurityStampAsync(UserManager<User> userManager, ClaimsPrincipal principal) {
         var user = await userManager.GetUserAsync(principal);
         if (user is null) {
             return false;

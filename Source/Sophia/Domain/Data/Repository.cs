@@ -1,6 +1,6 @@
 namespace Sophia.Data;
 
-public abstract class Repository<TModel, TKey>(DataContext dataContext)
+public abstract class Repository<[DynamicallyAccessedMembers(IEntity.AccessedMembers)] TModel, TKey>(DataContext dataContext)
     : IRepository<TModel, TKey>
     where TModel : class, new()
     where TKey : notnull {
@@ -25,9 +25,9 @@ public abstract class Repository<TModel, TKey>(DataContext dataContext)
     public virtual Task<IReadOnlyList<TModel>> GetList(Expression<Func<TModel, bool>> filterBy, Expression<Func<TModel, List<SortClause>>> sortBy, Expression<Func<TModel, List<IncludeClause>>> include, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public Task<bool> HasAny(CancellationToken ct = default)
-        => HasAny(default!, ct);
-    public virtual Task<bool> HasAny(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default)
+    public Task<bool> HaveAny(CancellationToken ct = default)
+        => HaveAny(default!, ct);
+    public virtual Task<bool> HaveAny(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public Task<TModel?> FindFirst(CancellationToken ct = default)

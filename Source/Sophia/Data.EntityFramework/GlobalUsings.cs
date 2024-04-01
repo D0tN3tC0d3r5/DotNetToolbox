@@ -2,6 +2,7 @@ global using System;
 global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel.DataAnnotations.Schema;
 global using System.Diagnostics.CodeAnalysis;
+global using System.Linq;
 global using System.Linq.Expressions;
 
 global using DotNetToolbox.AI.Agents;
@@ -17,12 +18,15 @@ global using Microsoft.EntityFrameworkCore.Design;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.EntityFrameworkCore.Migrations;
 global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
 
 global using Sophia.Data.Chats;
 global using Sophia.Data.Personas;
 global using Sophia.Data.Providers;
 global using Sophia.Data.Tools;
+global using Sophia.Data.Users;
 global using Sophia.Data.World;
 global using Sophia.Models;
 global using Sophia.Models.Chats;

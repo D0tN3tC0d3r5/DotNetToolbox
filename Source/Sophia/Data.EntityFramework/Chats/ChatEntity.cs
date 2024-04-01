@@ -27,7 +27,8 @@ public class ChatEntity
         builder.ComplexProperty(c => c.Instructions);
         builder.HasMany(c => c.Messages)
                .WithOne()
-               .HasForeignKey(c => new { c.ChatId, AgentNumber = (int?)null })
+               .HasForeignKey(c => c.ChatId)
+               .HasPrincipalKey(c => c.Id)
                .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

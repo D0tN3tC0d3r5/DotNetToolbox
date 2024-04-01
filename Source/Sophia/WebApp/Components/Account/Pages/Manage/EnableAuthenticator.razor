@@ -1,7 +1,7 @@
 ﻿@page "/Account/Manage/EnableAuthenticator"
 @using Sophia.Models.Users
 
-@inject UserManager<UserData> UserManager
+@inject UserManager<User> UserManager
 @inject UserAccessor UserAccessor
 @inject UrlEncoder UrlEncoder
 @inject Redirect Redirect
@@ -62,7 +62,7 @@ else
     private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
     private string? _message;
-    private UserData _user = default!;
+    private User _user = default!;
     private string? _sharedKey;
     private string? _authenticatorUri;
     private IEnumerable<string>? _recoveryCodes;
@@ -110,7 +110,7 @@ else
         }
     }
 
-    private async ValueTask LoadSharedKeyAndQrCodeUriAsync(UserData user)
+    private async ValueTask LoadSharedKeyAndQrCodeUriAsync(User user)
     {
         // Load the authenticator key & QR code URI to display on the form
         var unformattedKey = await UserManager.GetAuthenticatorKeyAsync(user);

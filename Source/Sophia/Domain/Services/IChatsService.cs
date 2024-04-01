@@ -1,7 +1,5 @@
 ﻿namespace Sophia.Services;
 
-public interface IChatsRemoteService : IChatsService;
-
 public interface IChatsService {
     Task<IReadOnlyList<ChatData>> GetList(string? filter = null);
     Task<ChatData?> GetById(Guid id);
