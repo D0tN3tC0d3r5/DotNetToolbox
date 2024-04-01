@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Environment;
-
-namespace DotNetToolbox.DependencyInjection;
+﻿namespace DotNetToolbox.DependencyInjection;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection SetEnvironment(this IServiceCollection services,

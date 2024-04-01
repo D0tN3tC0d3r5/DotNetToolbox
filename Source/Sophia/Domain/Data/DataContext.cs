@@ -21,7 +21,8 @@ public abstract class DataContext {
     }
 
     private async Task SeedWorld(CancellationToken ct = default) {
-        if (await Worlds.HaveAny(ct)) return;
+        if (await Worlds.HaveAny(ct))
+            return;
         var world = new WorldData();
         await Worlds.Add(world, ct);
     }
@@ -32,8 +33,12 @@ public abstract class DataContext {
     }
 
     private async Task SeedPersonas(CancellationToken ct = default) {
-        if (await Personas.HaveAny(ct)) return;
-        var persona = new PersonaData();
+        if (await Personas.HaveAny(ct))
+            return;
+        var persona = new PersonaData {
+            Name = "Assistant",
+            Description = "You are a helpful assistant.",
+        };
         await Personas.Add(persona, ct);
     }
 
@@ -42,21 +47,22 @@ public abstract class DataContext {
         var provider = new ProviderData {
             Name = "OpenAI",
             Models = [
-                         new() {
-                                   Id = "gpt-4-turbo-preview",
-                                   Name = "GPT 4 Turbo",
-                               },
-                         new() {
-                                   Id = "gpt-3.5-turbo",
-                                   Name = "GPT 3.5 Turbo",
-                               },
-                     ],
+                new() {
+                    Id = "gpt-4-turbo-preview",
+                    Name = "GPT 4 Turbo",
+                },
+                new() {
+                    Id = "gpt-3.5-turbo",
+                    Name = "GPT 3.5 Turbo",
+                },
+            ],
         };
         await Providers.Add(provider, ct);
     }
 
     private async Task TryAddAnthropic(CancellationToken ct = default) {
-        if (await Providers.HaveAny(i => i.Name == "Anthropic", ct)) return;
+        if (await Providers.HaveAny(i => i.Name == "Anthropic", ct))
+            return;
         var provider = new ProviderData {
             Name = "Anthropic",
             Models = [

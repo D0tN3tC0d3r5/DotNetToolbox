@@ -1,7 +1,7 @@
 namespace Sophia.Data;
 
-public abstract class Repository<[DynamicallyAccessedMembers(IEntity.AccessedMembers)] TModel, TKey>
-    : IRepository<TModel, TKey>
+public class ReadOnlyRepository<[DynamicallyAccessedMembers(IEntity.AccessedMembers)] TModel, TKey>
+    : IReadOnlyRepository<TModel, TKey>
     where TModel : class, IEntity<TKey>, new()
     where TKey : notnull {
 
@@ -13,7 +13,7 @@ public abstract class Repository<[DynamicallyAccessedMembers(IEntity.AccessedMem
     }
 
     protected List<TModel> Local { get; } = [];
-    public IQueryable<TModel> AsQueryable() => this;
+    public IQueryable<TModel> AsQueryable() => Local.AsQueryable();
 
     public IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         => ToAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
@@ -39,16 +39,5 @@ public abstract class Repository<[DynamicallyAccessedMembers(IEntity.AccessedMem
     protected virtual Task<bool> ExecuteHaveAny(Expression<Func<TModel, bool>>? predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
     protected virtual Task<TModel?> ExecuteFindFirst(Expression<Func<TModel, bool>>? predicate, CancellationToken ct = default)
-        => throw new NotImplementedException();
-
-    public virtual Task Add(TModel input, CancellationToken ct = default)
-        => throw new NotImplementedException();
-    public virtual Task Add(Action<TModel> setModel, CancellationToken ct = default)
-        => throw new NotImplementedException();
-    public virtual Task Update(TModel input, CancellationToken ct = default)
-        => throw new NotImplementedException();
-    public virtual Task Update(TKey key, Action<TModel> setModel, CancellationToken ct = default)
-        => throw new NotImplementedException();
-    public virtual Task Remove(TKey key, CancellationToken ct = default)
         => throw new NotImplementedException();
 }

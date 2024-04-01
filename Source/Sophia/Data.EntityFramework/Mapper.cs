@@ -9,7 +9,7 @@ public static class Mapper {
                            | PublicFields | NonPublicFields
                            | Interfaces;
 
-    #region Project To Domain Model
+    #region ProjectTo To Domain Model
     internal static UserData ToUserData(User input)
         => new() {
             Id = input.Id,
@@ -181,8 +181,10 @@ public static class Mapper {
             targetList.Add(ToModelEntity(input));
     }
 
-    internal static void UpdateModelEntity(ModelData input, ModelEntity target)
-        => target.Name = input.Name;
+    internal static void UpdateModelEntity(ModelData input, ModelEntity target) {
+        target.Id = input.Id;
+        target.Name = input.Name;
+    }
 
     public static void UpdateProviderEntity(ProviderData input, ProviderEntity target) {
         target.Name = input.Name;

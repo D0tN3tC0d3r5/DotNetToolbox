@@ -5,7 +5,7 @@ public class ChatsService(DataContext dbContext)
     public async Task<IReadOnlyList<ChatData>> GetList(string? filter = null) {
         try {
             var filterClause = ChatData.BuildFilter(filter);
-            var list = await dbContext.Chats.GetList(filterClause);
+            var list = await dbContext.Chats.Where(filterClause).ToArrayAsync();
             return list;
         }
         catch (Exception ex) {

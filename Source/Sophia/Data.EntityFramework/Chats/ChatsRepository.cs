@@ -2,10 +2,10 @@
 
 public class ChatsRepository(DataContext dataContext, ApplicationDbContext dbContext)
     : EntityFrameworkRepository<ChatData, ChatEntity, Guid>(dataContext, dbContext.Chats) {
-    protected override Expression<Func<ChatEntity, ChatData>> Project { get; }
+    protected override Expression<Func<ChatEntity, ChatData>> ProjectTo { get; }
         = input => Mapper.ToChatData(input);
     protected override Action<ChatData, ChatEntity> UpdateFrom { get; }
         = Mapper.UpdateChatEntity;
-    protected override Func<ChatData, ChatEntity> Create { get; }
+    protected override Func<ChatData, ChatEntity> CreateFrom { get; }
         = Mapper.ToChatEntity;
 }
