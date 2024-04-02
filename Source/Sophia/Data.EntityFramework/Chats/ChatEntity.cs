@@ -3,7 +3,7 @@
 [Table("Chats")]
 [EntityTypeConfiguration(typeof(ChatEntity))]
 public class ChatEntity
-    : IEntity<Guid>,
+    : ISimpleKeyEntity<ChatEntity, Guid>,
       IEntityTypeConfiguration<ChatEntity>
     , IHasChatMessageEntities {
     [Key]

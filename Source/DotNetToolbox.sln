@@ -97,7 +97,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data.EntityFramework
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data.JsonFiles", "Sophia\Data.JsonFiles\Sophia.Data.JsonFiles.csproj", "{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.AsyncLinq", "Core\AsyncLinq\DotNetToolbox.AsyncLinq.csproj", "{02EB8C8C-CC61-4DA9-A52A-8D246270805E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AsyncLinq", "Core\AsyncLinq\DotNetToolbox.AsyncLinq.csproj", "{02EB8C8C-CC61-4DA9-A52A-8D246270805E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Data Storage", "2 Data Storage", "{4EB4A938-96E1-4690-8A51-18135AA362CC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data.Storage", "Data\Storage\DotNetToolbox.Data.Storage.csproj", "{B7BC9617-B5EE-491A-8CAE-728D8280E854}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -222,6 +226,10 @@ Global
 		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -259,6 +267,7 @@ Global
 		{85B05DBC-66D5-4F96-8582-C0B077C4C627} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
 		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
 		{02EB8C8C-CC61-4DA9-A52A-8D246270805E} = {26704704-EAF1-48B3-825A-7471AA3B59ED}
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854} = {4EB4A938-96E1-4690-8A51-18135AA362CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}

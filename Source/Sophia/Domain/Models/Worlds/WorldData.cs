@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Models.Worlds;
 
 public class WorldData()
-    : IEntity<Guid> {
+    : ISimpleKeyEntity<WorldData, Guid> {
     private readonly IDateTimeProvider _dateTime = DateTimeProvider.Default;
 
     public WorldData(IDateTimeProvider dateTime)

@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\AI\Core\DotNetToolbox.AI.csproj" />
+    <ProjectReference Include="..\..\Data\Storage\DotNetToolbox.Data.Storage.csproj" />
   </ItemGroup>
 
 </Project>

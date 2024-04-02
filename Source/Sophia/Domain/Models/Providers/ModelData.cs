@@ -3,7 +3,7 @@
 namespace Sophia.Models.Providers;
 
 public class ModelData
-    : IEntity<string> {
+    : ISimpleKeyEntity<ModelData, string> {
     [Required]
     [MaxLength(50)]
     public string Id { get; set; } = default!;

@@ -2,7 +2,7 @@ namespace Sophia.Data.Users;
 
 public class User
     : IdentityUser,
-      IEntity<string>  {
+      ISimpleKeyEntity<User, string>  {
     [MaxLength(250)]
     [ProtectedPersonalData]
     [Required(AllowEmptyStrings = false)]

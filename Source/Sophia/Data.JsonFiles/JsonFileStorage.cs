@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Data;
 
 public class JsonFileStorage<TData, TKey> : IJsonFileStorage<TData, TKey>
-    where TData : class, IEntity<TKey> {
+    where TData : class, ISimpleKeyEntity<TData, TKey>, new() {
     private readonly ILogger _logger;
     private readonly IFileSystemAccessor _io;
     private readonly IDateTimeProvider _dateTime;
@@ -78,7 +78,7 @@ public class JsonFileStorage<TData, TKey> : IJsonFileStorage<TData, TKey>
             nameof(Int64) => _cachedKeys.AddOrUpdate(_repositoryPath, 1, (_, value) => value + 1),
             nameof(DateTimeOffset) => _dateTime.UtcNow,
             nameof(DateTime) => _dateTime.UtcNow.DateTime,
-            _ => throw new ArgumentException(nameof(IEntity<TKey>.Id), $"The id of type {typeof(TKey)} cannot be auto-generated."),
+            _ => throw new ArgumentException(nameof(ISimpleKeyEntity<TData, TKey>.Id), $"The id of type {typeof(TKey)} cannot be auto-generated."),
         });
 
     public async Task CreateAsync(TData data, CancellationToken ct = default) {

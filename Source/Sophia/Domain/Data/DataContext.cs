@@ -2,13 +2,13 @@ namespace Sophia.Data;
 
 public abstract class DataContext {
 
-    public abstract Repository<UserData, string> Users { get; }
-    public abstract Repository<WorldData, Guid> Worlds { get; }
-    public abstract Repository<ProviderData, int> Providers { get; }
-    public abstract Repository<ModelData, string> Models { get; }
-    public abstract Repository<ToolData, int> Tools { get; }
-    public abstract Repository<PersonaData, int> Personas { get; }
-    public abstract Repository<ChatData, Guid> Chats { get; }
+    public abstract UserRepository Users { get; }
+    public abstract WorldRepository Worlds { get; }
+    public abstract ProviderRepository Providers { get; }
+    public abstract ModelRepository Models { get; }
+    public abstract ToolRepository Tools { get; }
+    public abstract PersonaRepository Personas { get; }
+    public abstract ChatRepository Chats { get; }
 
     public abstract Task<int> SaveChanges(CancellationToken ct = default);
     public virtual Task EnsureIsUpToDate(CancellationToken ct = default) => Seed(ct);
@@ -21,8 +21,7 @@ public abstract class DataContext {
     }
 
     private async Task SeedWorld(CancellationToken ct = default) {
-        if (await Worlds.HaveAny(ct))
-            return;
+        if (await Worlds.HaveAny(ct)) return;
         var world = new WorldData();
         await Worlds.Add(world, ct);
     }

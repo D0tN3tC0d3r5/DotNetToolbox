@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Models.Tools;
 
 public class ToolData
-    : IEntity<int> {
+    : ISimpleKeyEntity<ToolData, int> {
     public int Id { get; set; }
     [Required(ErrorMessage = "Name is required.")]
     [MinLength(2, ErrorMessage = "Name must be at least 2 characters long.")]

@@ -3,7 +3,7 @@
 [Table("Personas")]
 [EntityTypeConfiguration(typeof(PersonaEntity))]
 public class PersonaEntity
-    : IEntity<int>,
+    : ISimpleKeyEntity<PersonaEntity, int>,
       IEntityTypeConfiguration<PersonaEntity>
     , IHasTools<int>
     , IHasFacts<int> {

@@ -2,7 +2,7 @@
 
 [Table("Models")]
 public class ModelEntity
-    : IEntity<string> {
+    : ISimpleKeyEntity<ModelEntity, string> {
 
     [Required]
     [MaxLength(50)]

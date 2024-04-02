@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Models.Providers;
 
 public class ProviderData
-    : IEntity<int> {
+    : ISimpleKeyEntity<ProviderData, int> {
     public int Id { get; set; }
     [Required]
     [MaxLength(100)]

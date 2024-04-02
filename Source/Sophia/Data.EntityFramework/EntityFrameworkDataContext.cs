@@ -2,20 +2,13 @@ namespace Sophia.Data;
 
 public class EntityFrameworkDataContext(ApplicationDbContext dbContext)
     : DataContext {
-    public override Repository<UserData, string> Users { get; }
-        = new UsersRepository(dbContext);
-    public override Repository<WorldData, Guid> Worlds { get; }
-        = new WorldRepository(dbContext);
-    public override Repository<ProviderData, int> Providers { get; }
-        = new ProvidersRepository(dbContext);
-    public override Repository<ModelData, string> Models { get; }
-        = new ModelsRepository(dbContext);
-    public override Repository<ToolData, int> Tools { get; }
-        = new ToolsRepository(dbContext);
-    public override Repository<PersonaData, int> Personas { get; }
-        = new PersonasRepository(dbContext);
-    public override Repository<ChatData, Guid> Chats { get; }
-        = new ChatsRepository(dbContext);
+    public override UserRepository Users { get; } = new UsersDbSet(dbContext);
+    public override WorldRepository Worlds { get; } = new WorldDbSet(dbContext);
+    public override ProviderRepository Providers { get; } = new ProvidersDbSet(dbContext);
+    public override ModelRepository Models { get; } = new ModelsDbSet(dbContext);
+    public override ToolRepository Tools { get; } = new ToolsDbSet(dbContext);
+    public override PersonaRepository Personas { get; } = new PersonasDbSet(dbContext);
+    public override ChatRepository Chats { get; } = new ChatsDbSet(dbContext);
 
     public override Task<int> SaveChanges(CancellationToken ct = default)
         => dbContext.SaveChangesAsync(ct);

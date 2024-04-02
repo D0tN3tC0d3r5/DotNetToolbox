@@ -1,9 +1,7 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace Sophia.Models.Users;
 
 public class UserData
-    : IEntity<string> {
+    : ISimpleKeyEntity<UserData, string> {
     [Required(AllowEmptyStrings = false)]
     [MaxLength(36)]
     public string Id { get; set; } = default!;

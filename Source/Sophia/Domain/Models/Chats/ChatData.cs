@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Models.Chats;
 
 public class ChatData
-    : IEntity<Guid>,
+    : ISimpleKeyEntity<ChatData, Guid>,
       IHasChatMessages {
     public Guid Id { get; set; } = default!;
     [MaxLength(100)]

@@ -3,7 +3,7 @@
 [Table("Providers")]
 [EntityTypeConfiguration(typeof(ProviderEntity))]
 public class ProviderEntity
-    : IEntity<int>,
+    : ISimpleKeyEntity<ProviderEntity, int>,
       IEntityTypeConfiguration<ProviderEntity>,
       IHasModels {
     [Key]

@@ -3,7 +3,7 @@
 [Table("Worlds")]
 [EntityTypeConfiguration(typeof(WorldEntity))]
 public class WorldEntity
-    : IEntity<Guid>,
+    : ISimpleKeyEntity<WorldEntity, Guid>,
       IEntityTypeConfiguration<WorldEntity>,
       IHasFacts<Guid> {
     [Key]

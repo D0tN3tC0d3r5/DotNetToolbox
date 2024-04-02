@@ -3,7 +3,7 @@
 [Table("Tools")]
 [EntityTypeConfiguration(typeof(ToolEntity))]
 public class ToolEntity
-    : IEntity<int>,
+    : ISimpleKeyEntity<ToolEntity, int>,
       IEntityTypeConfiguration<ToolEntity> {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

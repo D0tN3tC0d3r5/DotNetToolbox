@@ -1,12 +1,6 @@
 ﻿namespace Sophia.Data;
 
 public static class Mapper {
-    internal const DynamicallyAccessedMemberTypes AccessedMembers =
-        PublicConstructors | NonPublicConstructors
-                           | PublicProperties | NonPublicProperties
-                           | PublicFields | NonPublicFields
-                           | Interfaces;
-
     #region ProjectTo To Domain Model
     internal static UserData ToUserData(User input)
         => new() {

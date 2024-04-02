@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Data\Storage\DotNetToolbox.Data.Storage.csproj" />
     <ProjectReference Include="..\Domain\Sophia.Domain.csproj" />
   </ItemGroup>
 

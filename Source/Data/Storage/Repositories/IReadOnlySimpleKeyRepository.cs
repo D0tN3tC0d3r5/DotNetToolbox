@@ -1,11 +1,12 @@
-﻿namespace Sophia.Data;
+﻿namespace DotNetToolbox.Data.Repositories;
 
-public interface IReadOnlyRepository<[DynamicallyAccessedMembers(IEntity.AccessedMembers)] TModel, in TKey>
-    : IQueryable<TModel>,
-      IAsyncEnumerable<TModel>
-    where TModel : class
+public interface IReadOnlySimpleKeyRepository<TRepository, TModel, in TKey>
+    : IQueryableRepository<TRepository, TModel>
+    where TRepository : IReadOnlySimpleKeyRepository<TRepository, TModel, TKey>
+    where TModel : class, ISimpleKeyEntity<TModel, TKey>, new()
     where TKey : notnull {
 
+    Task<int> CountAsync(CancellationToken ct = default);
     Task<IReadOnlyList<TModel>> ToArrayAsync(CancellationToken ct = default);
     Task<bool> HaveAny(CancellationToken ct = default);
     Task<bool> HaveAny(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default);
