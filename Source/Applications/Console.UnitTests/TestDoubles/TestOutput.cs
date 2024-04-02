@@ -5,7 +5,7 @@ internal class TestOutput : IOutput {
     public override string ToString() => string.Join(NewLine, Lines);
     public List<string> Lines { get; } = [];
 
-    public TextWriter Error => throw new NotImplementedException();
+    public TextWriter ErrorWriter => throw new NotImplementedException();
     public TextWriter Writer => throw new NotImplementedException();
 
     public Encoding Encoding {

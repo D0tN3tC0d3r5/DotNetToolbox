@@ -8,7 +8,6 @@ global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Anthropic.Chat;
 global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Common;
-global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.Http.Extensions;
 

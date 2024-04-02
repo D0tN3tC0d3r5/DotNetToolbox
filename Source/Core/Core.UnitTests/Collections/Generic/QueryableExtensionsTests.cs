@@ -1,6 +1,5 @@
-using System.Globalization;
-
-namespace DotNetToolbox.Collections.Generic;
+// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Collections.Generic;
 
 public class QueryableExtensionsTests {
     [Fact]
@@ -33,10 +32,9 @@ public class QueryableExtensionsTests {
     public void ToDictionary_WithProjectAndSelectors_ReturnsProjectedDictionary() {
         // Arrange
         var source = new List<string> { "one", "two", "three" }.AsQueryable();
-        Expression<Func<string, string>> project = x => x.ToUpper(CultureInfo.InvariantCulture);
 
         // Act
-        var result = source.ToDictionary<string, string, int>(project, x => x, x => x.Length);
+        var result = source.ToDictionary(x => x.ToUpper(CultureInfo.InvariantCulture), x => x.Length);
 
         // Assert
         result.Should().Equal(new Dictionary<string, int> { { "ONE", 3 }, { "TWO", 3 }, { "THREE", 5 } });

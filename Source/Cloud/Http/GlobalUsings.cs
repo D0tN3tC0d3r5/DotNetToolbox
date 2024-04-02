@@ -2,7 +2,6 @@
 
 global using System.Net.Http.Headers;
 
-global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Results;
 global using DotNetToolbox.Singleton;

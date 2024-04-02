@@ -1,51 +1,60 @@
-﻿namespace DotNetToolbox.Collections.Generic;
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Collections.Generic;
 
 public static class EnumerableExtensions {
 
     #region Projections
 
-    public static IEnumerable<TItem> As<TItem>(this IEnumerable source) => source.Cast<TItem>();
-    public static IEnumerable<TOutput> As<TItem, TOutput>(this IEnumerable source, Func<TItem, TOutput> transform) => source.Cast<TItem>().Select(transform);
-
-    public static TOutput[] ToArray<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform)
-        => [.. IsNotNull(source).Select(transform)];
-
-    public static List<TOutput> ToList<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform)
-        => [.. IsNotNull(source).Select(transform)];
-
-    public static Dictionary<TKey, TOutputValue> ToDictionary<TKey, TInputValue, TOutputValue>(this IEnumerable<KeyValuePair<TKey, TInputValue>> source, Func<TInputValue, TOutputValue> transformValue)
+    public static IEnumerable<TItem> As<TItem>(this IEnumerable source)
+        => source.Cast<TItem>();
+    public static IEnumerable<TNewItem> As<TItem, TNewItem>(this IEnumerable source, Func<TItem, TNewItem> convertTo)
+        => source.As<TItem>().Select(convertTo);
+    public static TItem[] ToArray<TItem>(this IEnumerable source)
+        => [.. IsNotNull(source).As<TItem>()];
+    public static TItem[] ToArray<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static TNewItem[] ToArray<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static List<TItem> ToList<TItem>(this IEnumerable source)
+        => [.. IsNotNull(source).Cast<TItem>()];
+    public static List<TItem> ToList<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static List<TNewItem> ToList<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static HashSet<TItem> ToHashSet<TItem>(this IEnumerable source)
+        => [.. IsNotNull(source).Cast<TItem>()];
+    public static HashSet<TItem> ToHashSet<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static HashSet<TNewItem> ToHashSet<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Func<TValue, TValue> convertTo)
         where TKey : notnull
-        => IsNotNull(source).ToDictionary(i => i.Key, i => transformValue(i.Value));
-
-    public static Dictionary<TKey, TValue> ToDictionary<TInput, TOutput, TKey, TValue>(this IEnumerable<TInput> source, Func<TInput, TOutput> transformElement, Func<TOutput, TKey> selectKey, Func<TOutput, TValue> selectValue)
+        => IsNotNull(source).ToDictionary(i => i.Key, i => convertTo(i.Value));
+    public static Dictionary<TKey, TNewValue> ToDictionary<TKey, TValue, TNewValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Func<TValue, TNewValue> convertToValue)
         where TKey : notnull
-        => IsNotNull(source).Select(transformElement).ToDictionary(selectKey, selectValue);
-
-    public static HashSet<TOutput> ToHashSet<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform)
-        => [.. IsNotNull(source).Select(transform)];
+        => IsNotNull(source).ToDictionary(i => i.Key, i => convertToValue(i.Value));
 
     #endregion
 
-    #region With Index
+    #region Indexed
 
-    public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable source) => source.Cast<TItem>().AsIndexed();
-
-    public static IEnumerable<Indexed<TOutput>> AsIndexed<TItem, TOutput>(this IEnumerable source, Func<TItem, TOutput> transform) => source.Cast<TItem>().AsIndexed(transform);
-
-    public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable<TItem> source) => source.AsIndexed(i => i);
-
-    public static IEnumerable<Indexed<TOutput>> AsIndexed<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform) => source.Select((v, i) => new Indexed<TOutput>(i, transform(v)));
-
+    public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable source)
+        => source.Cast<TItem>().AsIndexed();
+    public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable<TItem> source)
+        => source.AsIndexed(i => i);
+    public static IEnumerable<Indexed<TNewItem>> AsIndexed<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
+        => source.Select((v, i) => new Indexed<TNewItem>(i, convertTo(v)));
+    public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IEnumerable source)
+        => source.Cast<TItem>().ToIndexedList();
     public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IEnumerable<TItem> source)
         => source.ToIndexedList(i => i);
-
-    public static List<IndexedItem<TOutput>> ToIndexedList<TItem, TOutput>(this IEnumerable<TItem> source, Func<TItem, TOutput> transform) {
+    public static List<IndexedItem<TNewItem>> ToIndexedList<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo) {
         using var enumerator = source.GetEnumerator();
-        var list = new List<IndexedItem<TOutput>>();
+        var list = new List<IndexedItem<TNewItem>>();
         var index = 0;
         var hasNext = enumerator.MoveNext();
         while (hasNext) {
-            var value = transform(enumerator.Current);
+            var value = convertTo(enumerator.Current);
             hasNext = enumerator.MoveNext();
             list.Add(new(index++, value, !hasNext));
         }
@@ -56,7 +65,18 @@ public static class EnumerableExtensions {
 
     #region ForEach
 
-    public static void ForEach<TItem>(this IEnumerable source, Action<TItem> action) => source.Cast<TItem>().ToList().ForEach(action);
+    public static void ForEach<TItem>(this IEnumerable source, Action<TItem> action) {
+        using var enumerator = source.Cast<TItem>().GetEnumerator();
+        while (enumerator.MoveNext())
+            action(enumerator.Current);
+    }
 
-    #endregion
+    public static void ForEach<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Action<TKey, TValue> action)
+        where TKey : notnull {
+        using var enumerator = source.GetEnumerator();
+        while (enumerator.MoveNext())
+            action(enumerator.Current.Key, enumerator.Current.Value);
+    }
+
+#endregion
 }

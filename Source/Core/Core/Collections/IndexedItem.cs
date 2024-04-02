@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox.Collections;
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Collections;
 
 public record Indexed<TValue> {
     public Indexed(int index, TValue value) {

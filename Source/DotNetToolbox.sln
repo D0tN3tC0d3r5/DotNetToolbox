@@ -97,6 +97,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data.EntityFramework
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data.JsonFiles", "Sophia\Data.JsonFiles\Sophia.Data.JsonFiles.csproj", "{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.AsyncLinq", "Core\AsyncLinq\DotNetToolbox.AsyncLinq.csproj", "{02EB8C8C-CC61-4DA9-A52A-8D246270805E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -216,6 +218,10 @@ Global
 		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -252,6 +258,7 @@ Global
 		{0E518EA8-CE79-4A32-A6F6-8C2A0C5CC40A} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
 		{85B05DBC-66D5-4F96-8582-C0B077C4C627} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
 		{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C} = {32ACC08D-5765-480E-A927-E5F67CEC449F}
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E} = {26704704-EAF1-48B3-825A-7471AA3B59ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}

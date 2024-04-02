@@ -1,13 +1,12 @@
 global using System;
+global using System.Collections;
 global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel.DataAnnotations.Schema;
 global using System.Diagnostics.CodeAnalysis;
-global using System.Linq;
 global using System.Linq.Expressions;
 
 global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Common;
-global using DotNetToolbox.Collections;
 
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -35,4 +34,5 @@ global using Sophia.Models.Tools;
 global using Sophia.Models.Users;
 global using Sophia.Models.Worlds;
 
+global using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
 global using static System.StringComparison;

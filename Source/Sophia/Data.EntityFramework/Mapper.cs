@@ -1,8 +1,4 @@
-﻿using DotNetToolbox.Collections.Generic;
-
-using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
-
-namespace Sophia.Data;
+﻿namespace Sophia.Data;
 
 public static class Mapper {
     internal const DynamicallyAccessedMemberTypes AccessedMembers =

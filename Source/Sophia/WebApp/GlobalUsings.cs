@@ -3,12 +3,8 @@ global using System.Diagnostics.CodeAnalysis;
 global using System.Security.Claims;
 global using System.Text.Json;
 
-global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Anthropic;
-global using DotNetToolbox.AI.Chats;
-global using DotNetToolbox.AI.Consumers;
 global using DotNetToolbox.AI.OpenAI;
-global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.Diagnostics;
 
 global using Microsoft.AspNetCore.Authentication;
@@ -20,7 +16,6 @@ global using Microsoft.AspNetCore.Http.Extensions;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.UI.Services;
 global using Microsoft.AspNetCore.Mvc;
-global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Options;
 global using Microsoft.Extensions.Primitives;
 
@@ -42,5 +37,4 @@ global using Sophia.WebApp.Components.Account.Pages.Manage;
 global using Sophia.WebApp.Endpoints;
 global using Sophia.WebApp.Utilities;
 global using Sophia.WebClient;
-global using Sophia.WebClient.Services;
 

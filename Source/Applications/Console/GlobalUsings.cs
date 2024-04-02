@@ -3,7 +3,6 @@ global using System.Text;
 global using System.Text.Json;
 global using System.Text.RegularExpressions;
 
-global using DotNetToolbox.Collections.Generic;
 global using DotNetToolbox.ConsoleApplication.Application;
 global using DotNetToolbox.ConsoleApplication.Arguments;
 global using DotNetToolbox.ConsoleApplication.Exceptions;

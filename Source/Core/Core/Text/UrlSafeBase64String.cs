@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox;
+﻿// ReSharper disable once CheckNamespace
+namespace System.Text;
 
 public readonly partial record struct UrlSafeBase64String {
     public UrlSafeBase64String() {

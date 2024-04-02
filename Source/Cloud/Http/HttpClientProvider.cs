@@ -1,15 +1,15 @@
 ﻿namespace DotNetToolbox.Http;
 
-public abstract class HttpClientProvider
+public class HttpClientProvider
     : IHttpClientProvider {
     private readonly IHttpClientFactory _clientFactory;
 
-    protected HttpClientProvider(string name, IHttpClientFactory clientFactory, IConfiguration configuration) {
+    public HttpClientProvider(string name, IHttpClientFactory clientFactory, IConfiguration configuration) {
         Name = IsNotNullOrWhiteSpace(name);
         _clientFactory = clientFactory;
         ConfigurationPath = $"{HttpClientOptions.SectionName}:{Name}";
         Options = new();
-        configuration.GetSection(ConfigurationPath)?.Bind(Options);
+        configuration.GetSection(ConfigurationPath).Bind(Options);
         // ReSharper disable once VirtualMemberCallInConstructor - As intended.
         SetDefaultConfiguration(Options);
     }

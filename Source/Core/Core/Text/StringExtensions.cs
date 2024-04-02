@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox.Text;
+﻿// ReSharper disable once CheckNamespace
+namespace System.Text;
 
 public static class StringExtensions {
     public static string ToBase64(this string value)

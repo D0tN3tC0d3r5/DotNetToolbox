@@ -2,11 +2,11 @@
 
 public class ChatsService(DataContext dbContext)
     : IChatsService {
-    public async Task<IReadOnlyList<ChatData>> GetList(string? filter = null) {
+    public Task<IReadOnlyList<ChatData>> GetList(string? filter = null) {
         try {
             var filterClause = ChatData.BuildFilter(filter);
-            var list = await dbContext.Chats.Where(filterClause).ToArrayAsync();
-            return list;
+            var list = dbContext.Chats.Where(filterClause).ToArray();
+            return Task.FromResult<IReadOnlyList<ChatData>>(list);
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);

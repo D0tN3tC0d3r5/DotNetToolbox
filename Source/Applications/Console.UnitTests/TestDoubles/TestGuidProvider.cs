@@ -2,15 +2,15 @@
 
 internal class TestGuidProvider()
     : IGuidProvider {
-    public Guid New() => throw new NotImplementedException();
-    public Guid New(byte[] bytes) => throw new NotImplementedException();
-    public Guid New(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
+    public Guid Create() => throw new NotImplementedException();
+    public Guid Create(byte[] bytes) => throw new NotImplementedException();
+    public Guid Create(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
         => throw new NotImplementedException();
-    public Guid New(int a, short b, short c, byte[] d) => throw new NotImplementedException();
-    public Guid New(ReadOnlySpan<byte> bytes) => throw new NotImplementedException();
-    public Guid New(ReadOnlySpan<byte> bytes, bool bigEndian) => throw new NotImplementedException();
-    public Guid New(string text) => throw new NotImplementedException();
-    public Guid New(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
+    public Guid Create(int a, short b, short c, byte[] d) => throw new NotImplementedException();
+    public Guid Create(ReadOnlySpan<byte> bytes) => throw new NotImplementedException();
+    public Guid Create(ReadOnlySpan<byte> bytes, bool bigEndian) => throw new NotImplementedException();
+    public Guid Create(string text) => throw new NotImplementedException();
+    public Guid Create(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
         => throw new NotImplementedException();
 
     public Guid Parse(ReadOnlySpan<char> input) => throw new NotImplementedException();

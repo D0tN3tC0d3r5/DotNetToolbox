@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox.Collections.Generic;
+﻿// ReSharper disable once CheckNamespace - This is intended
+namespace System.Collections.Generics;
 
 public interface IAsyncQueryProvider : IQueryProvider {
     TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default);

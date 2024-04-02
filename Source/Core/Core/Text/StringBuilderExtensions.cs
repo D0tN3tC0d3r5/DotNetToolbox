@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Extensions;
+﻿// ReSharper disable once CheckNamespace
+namespace System.Text;
+
 public static class StringBuilderExtensions {
     public static StringBuilder AppendIntoNewLine(this StringBuilder builder, string? text)
         => builder.AppendIntoNewLine(string.Empty, text);

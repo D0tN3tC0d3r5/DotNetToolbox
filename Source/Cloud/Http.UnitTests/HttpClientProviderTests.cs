@@ -13,7 +13,7 @@ public sealed class HttpClientProviderTests : IDisposable {
 
     private HttpClientProvider CreateHttpClientBuilder() {
         var config = Substitute.For<IConfiguration>();
-        return new(_clientFactory, config);
+        return new("Provider", _clientFactory, config);
     }
 
     private HttpClientProvider CreateKeyedHttpClientBuilder(string key) {
