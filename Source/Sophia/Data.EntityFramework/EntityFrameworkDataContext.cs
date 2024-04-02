@@ -1,34 +1,28 @@
 namespace Sophia.Data;
 
-public class EntityFrameworkDataContext
+public class EntityFrameworkDataContext(ApplicationDbContext dbContext)
     : DataContext {
-    private readonly ApplicationDbContext _dbContext;
-
-    public EntityFrameworkDataContext(ApplicationDbContext dbContext) {
-        _dbContext = dbContext;
-        Users = new UsersRepository(this, dbContext);
-        Worlds = new WorldRepository(this, dbContext);
-        Providers = new ProvidersRepository(this, dbContext);
-        Models = new ModelsRepository(this, dbContext);
-        Tools = new ToolsRepository(this, dbContext);
-        Personas = new PersonasRepository(this, dbContext);
-        Chats = new ChatsRepository(this, dbContext);
-    }
-
     public override Repository<UserData, string> Users { get; }
+        = new UsersRepository(dbContext);
     public override Repository<WorldData, Guid> Worlds { get; }
+        = new WorldRepository(dbContext);
     public override Repository<ProviderData, int> Providers { get; }
+        = new ProvidersRepository(dbContext);
     public override Repository<ModelData, string> Models { get; }
+        = new ModelsRepository(dbContext);
     public override Repository<ToolData, int> Tools { get; }
+        = new ToolsRepository(dbContext);
     public override Repository<PersonaData, int> Personas { get; }
+        = new PersonasRepository(dbContext);
     public override Repository<ChatData, Guid> Chats { get; }
+        = new ChatsRepository(dbContext);
 
-    public override async Task<int> SaveChanges(CancellationToken ct = default)
-        => await _dbContext.SaveChangesAsync(ct);
+    public override Task<int> SaveChanges(CancellationToken ct = default)
+        => dbContext.SaveChangesAsync(ct);
     public override async Task EnsureIsUpToDate(CancellationToken ct = default) {
-        await _dbContext.Database.EnsureCreatedAsync(ct);
-        await _dbContext.Database.MigrateAsync(ct);
+        await dbContext.Database.EnsureCreatedAsync(ct);
+        await dbContext.Database.MigrateAsync(ct);
         await base.EnsureIsUpToDate(ct);
-        await _dbContext.SaveChangesAsync(ct);
+        await dbContext.SaveChangesAsync(ct);
     }
 }

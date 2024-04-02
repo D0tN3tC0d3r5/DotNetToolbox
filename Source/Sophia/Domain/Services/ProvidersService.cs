@@ -4,7 +4,7 @@ public class ProvidersService(DataContext dbContext)
     : IProvidersService {
     public async Task<IReadOnlyList<ProviderData>> GetList(string? filter = null) {
         try {
-            var list = await dbContext.Providers.GetList();
+            var list = await dbContext.Providers.ToArrayAsync();
             return list;
         }
         catch (Exception ex) {

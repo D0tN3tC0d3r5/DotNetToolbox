@@ -18,7 +18,7 @@ public static class Ensure {
     [return: NotNull]
     public static TArgument IsOfType<TArgument>(object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => IsNotNull(argument, paramName) is not TArgument result
-            ? throw new ArgumentException(string.Format(ValueMustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName)
+            ? throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName)
             : result;
 
     #endregion

@@ -20,6 +20,8 @@ global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.Abstractions;
 
+global using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
+
 global using static DotNetToolbox.Constants.Messages;
 global using static DotNetToolbox.Diagnostics.Ensure;
 

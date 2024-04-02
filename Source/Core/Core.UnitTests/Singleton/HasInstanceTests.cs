@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Singleton;
 
 public class HasInstanceTests {
-    private class ClassWithInstance : HasInstance<ClassWithInstance>;
+    private sealed class ClassWithInstance : HasInstance<ClassWithInstance>;
 
     [Fact]
     public void Static_Instance_ReturnsSingleton() {

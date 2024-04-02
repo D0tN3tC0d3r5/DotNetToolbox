@@ -25,7 +25,7 @@ public sealed record ValidationError {
         => new(message);
 
     public bool Equals(ValidationError? other)
-        => _formattedMessage.Equals(other?._formattedMessage);
+        => _formattedMessage.Equals(other?._formattedMessage, StringComparison.Ordinal);
 
     public override int GetHashCode()
         => _formattedMessage.GetHashCode();

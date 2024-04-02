@@ -1,14 +1,14 @@
 ﻿namespace DotNetToolbox.Environment;
 
 public interface IGuidProvider {
-    Guid New();
-    Guid New(byte[] bytes);
-    Guid New(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k);
-    Guid New(int a, short b, short c, byte[] d);
-    Guid New(ReadOnlySpan<byte> bytes);
-    Guid New(ReadOnlySpan<byte> bytes, bool bigEndian);
-    Guid New(string text);
-    Guid New(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k);
+    Guid Create();
+    Guid Create(byte[] bytes);
+    Guid Create(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k);
+    Guid Create(int a, short b, short c, byte[] d);
+    Guid Create(ReadOnlySpan<byte> bytes);
+    Guid Create(ReadOnlySpan<byte> bytes, bool bigEndian);
+    Guid Create(string text);
+    Guid Create(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k);
     Guid Parse(ReadOnlySpan<char> input);
     Guid Parse(ReadOnlySpan<char> s, IFormatProvider? provider);
     Guid Parse(string input);

@@ -107,7 +107,7 @@ public class ValidationErrorsTests {
     [Fact]
     public void IReadOnlyListIndexer_ShouldReturnCorrectError() {
         // Arrange
-        IReadOnlyList<ValidationError> errors = new ValidationErrors(new[] { new ValidationError("Error1") });
+        IReadOnlyList<ValidationError> errors = new ValidationErrors([new ValidationError("Error1")]);
 
         // Act
         var error = errors[0];
@@ -133,10 +133,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void ImplicitConversion_ToValidationErrorArray_ShouldReturnArrayWithAllErrors() {
         // Arrange
-        var errors = new ValidationErrors(new[] {
+        var errors = new ValidationErrors([
             new ValidationError("Error1"),
             new ValidationError("Error2"),
-        });
+        ]);
 
         // Act
         ValidationError[] errorArray = errors;
@@ -477,7 +477,7 @@ public class ValidationErrorsTests {
     [Fact]
     public void CopyTo_NonGenericArray_ShouldCopyAllElementsToSpecifiedArrayIndex() {
         // Arrange
-        var errors = new ValidationErrors(new[] { new ValidationError("Error1"), new ValidationError("Error2") });
+        var errors = new ValidationErrors([new ValidationError("Error1"), new ValidationError("Error2")]);
         Array array = new ValidationError[3];
 
         // Act
@@ -543,10 +543,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void IEnumerable_GetEnumerator_ShouldReturnEnumeratorThatIteratesOverAllErrors() {
         // Arrange
-        IEnumerable errorsEnumerable = new ValidationErrors(new[] {
+        IEnumerable errorsEnumerable = new ValidationErrors([
             new ValidationError("Error1"),
             new ValidationError("Error2"),
-        });
+        ]);
         var expectedErrors = new List<ValidationError> {
            new("Error1"),
            new("Error2"),

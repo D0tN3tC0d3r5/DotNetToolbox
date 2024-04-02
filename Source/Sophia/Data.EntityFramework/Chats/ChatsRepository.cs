@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Data.Chats;
 
-public class ChatsRepository(DataContext dataContext, ApplicationDbContext dbContext)
-    : EntityFrameworkRepository<ChatData, ChatEntity, Guid>(dataContext, dbContext.Chats) {
+public class ChatsRepository(ApplicationDbContext dbContext)
+    : EntityFrameworkRepository<ChatData, ChatEntity, Guid>(dbContext.Chats) {
     protected override Expression<Func<ChatEntity, ChatData>> ProjectTo { get; }
         = input => Mapper.ToChatData(input);
     protected override Action<ChatData, ChatEntity> UpdateFrom { get; }

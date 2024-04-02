@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace DotNetToolbox.Collections.Generic;
 
 public class QueryableExtensionsTests {
@@ -8,7 +10,7 @@ public class QueryableExtensionsTests {
         Expression<Func<int, int>> project = x => x * 2;
 
         // Act
-        var result = source.ToArray(project);
+        var result = source.ToArray<int>(project);
 
         // Assert
         result.Should().Equal([2, 4, 6]);
@@ -21,7 +23,7 @@ public class QueryableExtensionsTests {
         Expression<Func<int, int>> project = x => x * 2;
 
         // Act
-        var result = source.ToList(project);
+        var result = source.ToList<int>(project);
 
         // Assert
         result.Should().Equal([2, 4, 6]);
@@ -31,7 +33,7 @@ public class QueryableExtensionsTests {
     public void ToDictionary_WithProjectAndSelectors_ReturnsProjectedDictionary() {
         // Arrange
         var source = new List<string> { "one", "two", "three" }.AsQueryable();
-        Expression<Func<string, string>> project = x => x.ToUpper();
+        Expression<Func<string, string>> project = x => x.ToUpper(CultureInfo.InvariantCulture);
 
         // Act
         var result = source.ToDictionary<string, string, int>(project, x => x, x => x.Length);

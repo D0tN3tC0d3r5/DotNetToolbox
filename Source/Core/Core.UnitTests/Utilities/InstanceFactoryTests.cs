@@ -2,7 +2,7 @@ namespace DotNetToolbox.Utilities;
 
 public class InstanceFactoryTests {
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestClass;
+    private sealed class TestClass;
 
     [Fact]
     public void Create_NoArgs_CreatesObjectOfTypeT() {
@@ -15,7 +15,7 @@ public class InstanceFactoryTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestClassWithArgs(string value) {
+    private sealed class TestClassWithArgs(string value) {
         public string Value { get; } = value;
     }
 

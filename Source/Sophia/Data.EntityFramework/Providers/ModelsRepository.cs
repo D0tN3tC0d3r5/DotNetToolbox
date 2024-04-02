@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Data.Providers;
 
-public class ModelsRepository(DataContext dataContext, ApplicationDbContext dbContext)
-    : EntityFrameworkRepository<ModelData, ModelEntity, string>(dataContext, dbContext.Models) {
+public class ModelsRepository(ApplicationDbContext dbContext)
+    : EntityFrameworkRepository<ModelData, ModelEntity, string>(dbContext.Models) {
     protected override Expression<Func<ModelEntity, ModelData>> ProjectTo { get; }
         = input => Mapper.ToModelData(input, true);
     protected override Action<ModelData, ModelEntity> UpdateFrom { get; }

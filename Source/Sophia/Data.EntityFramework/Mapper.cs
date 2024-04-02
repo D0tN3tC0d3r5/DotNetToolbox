@@ -1,4 +1,6 @@
-﻿using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
+﻿using DotNetToolbox.Collections.Generic;
+
+using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
 
 namespace Sophia.Data;
 

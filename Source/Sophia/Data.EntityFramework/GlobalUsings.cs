@@ -8,7 +8,6 @@ global using System.Linq.Expressions;
 global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.Collections;
-global using DotNetToolbox.Collections.Generic;
 
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

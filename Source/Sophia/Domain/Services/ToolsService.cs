@@ -4,7 +4,7 @@ public class ToolsService(DataContext dbContext)
     : IToolsService {
     public async Task<IReadOnlyList<ToolData>> GetList(string? filter = null) {
         try {
-            var list = await dbContext.Tools.GetList();
+            var list = await dbContext.Tools.ToArrayAsync();
             return list;
         }
         catch (Exception ex) {

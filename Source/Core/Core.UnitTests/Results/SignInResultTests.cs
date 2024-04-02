@@ -240,7 +240,7 @@ public class SignInResultTests {
         result.IsInvalid.Should().BeTrue();
     }
 
-    private class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
+    private sealed class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
         public TestDataForProperties() {
             Add(_invalid, true, false, false, false, false, false, false);
             Add(_blocked, false, true, false, false, false, false, false);
@@ -481,7 +481,7 @@ public class SignInResultTests {
     [Fact]
     public void Error_WithString_CreatesResultWithException() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var result = Error(errorMessage);
@@ -495,7 +495,7 @@ public class SignInResultTests {
     [Fact]
     public void Error_WithException_CreatesResultWithException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var result = Error(exception);
@@ -520,14 +520,14 @@ public class SignInResultTests {
     public void AdditionOperator_CombiningSignInResultWithError_ReturnsResultWithError() {
         // Arrange
         var result = Success("SomeToken");
-        var error = new ValidationError("Error message", "Property");
+        var error = new ValidationError("ErrorWriter message", "Property");
 
         // Act
         var combinedResult = result + error;
 
         // Assert
         combinedResult.HasErrors.Should().BeTrue();
-        combinedResult.Errors.Should().ContainSingle(e => e.Message == "Error message" && e.Source == "Property");
+        combinedResult.Errors.Should().ContainSingle(e => e.Message == "ErrorWriter message" && e.Source == "Property");
     }
 
     [Fact]
@@ -545,7 +545,7 @@ public class SignInResultTests {
     [Fact]
     public void EnsureIsSuccess_WhenHasErrors_ThrowsValidationException() {
         // Arrange
-        var result = InvalidRequest(new ValidationError("Error message"));
+        var result = InvalidRequest(new ValidationError("ErrorWriter message"));
 
         // Act & Assert
         var action = () => result.EnsureIsSuccess();
@@ -568,7 +568,7 @@ public class SignInResultTests {
     [Fact]
     public void TypeProperty_WhenHasException_ReturnsError() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var result = Error(exception);
@@ -580,7 +580,7 @@ public class SignInResultTests {
     [Fact]
     public async Task ErrorTask_WithString_ReturnsTaskWithErrorSignInResult() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var task = ErrorTask(errorMessage);
@@ -595,7 +595,7 @@ public class SignInResultTests {
     [Fact]
     public async Task ErrorTask_WithException_ReturnsTaskWithErrorSignInResult() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var task = ErrorTask(exception);
@@ -609,7 +609,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromHttpResultToValidationErrorArray_ReturnsErrors() {
         // Arrange
-        var errors = new[] { new ValidationError("Error message", "Property") };
+        var errors = new[] { new ValidationError("ErrorWriter message", "Property") };
 
         // Act
         ValidationErrors resultErrors = InvalidRequest(errors);
@@ -625,7 +625,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromHttpResultToException_ReturnsException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         ValidationErrors resultErrors = Error(exception);
@@ -641,7 +641,7 @@ public class SignInResultTests {
     [Fact]
     public void ImplicitConversion_FromExceptionToSignInResult_CreatesResultWithException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         SignInResult result = exception;
@@ -655,7 +655,7 @@ public class SignInResultTests {
     public void ImplicitConversion_FromValidationErrorsToSignInResult_CreatesResultWithErrors() {
         // Arrange
         var errors = new ValidationErrors {
-            new ValidationError("Error message", "Property"),
+            new ValidationError("ErrorWriter message", "Property"),
         };
 
         // Act
@@ -670,7 +670,7 @@ public class SignInResultTests {
     public void ImplicitConversion_FromHashSetValidationErrorToSignInResult_CreatesResultWithErrors() {
         // Arrange
         var errors = new HashSet<ValidationError> {
-            new("Error message", "Property"),
+            new("ErrorWriter message", "Property"),
         };
 
         // Act

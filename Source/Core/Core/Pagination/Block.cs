@@ -17,7 +17,7 @@ public class Block<TItem, TOffset>
     : IBlock<TItem, TOffset> {
     [SetsRequiredMembers]
     public Block() {
-        Items = Array.Empty<TItem>();
+        Items = [];
         Offset = default!;
     }
 

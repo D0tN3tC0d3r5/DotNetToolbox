@@ -48,7 +48,7 @@ public class HttpResultTests {
         result.IsOk.Should().BeFalse();
     }
 
-    private class TestDataForProperties : TheoryData<HttpResult, bool, bool, bool, bool, bool, bool> {
+    private sealed class TestDataForProperties : TheoryData<HttpResult, bool, bool, bool, bool, bool, bool> {
         public TestDataForProperties() {
             Add(_badRequest, true, false, false, false, false, false);
             Add(_failure, false, false, false, false, false, false);
@@ -78,7 +78,7 @@ public class HttpResultTests {
         subject.IsUnauthorized.Should().Be(isUnauthorized);
     }
 
-    private class TestDataForEquality : TheoryData<HttpResult, HttpResult?, bool> {
+    private sealed class TestDataForEquality : TheoryData<HttpResult, HttpResult?, bool> {
         public TestDataForEquality() {
             Add(_ok, null, false);
             Add(_ok, _ok, true);
@@ -525,7 +525,7 @@ public class HttpResultTests {
     [Fact]
     public void Error_WithString_CreatesResultWithException() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var result = InternalError(errorMessage);
@@ -539,7 +539,7 @@ public class HttpResultTests {
     [Fact]
     public void Error_WithException_CreatesResultWithException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var result = InternalError(exception);
@@ -575,14 +575,14 @@ public class HttpResultTests {
     public void AdditionOperator_CombiningHttpResultWithError_ReturnsResultWithError() {
         // Arrange
         var result = Ok();
-        var error = new ValidationError("Error message", "Property");
+        var error = new ValidationError("ErrorWriter message", "Property");
 
         // Act
         var combinedResult = result + error;
 
         // Assert
         combinedResult.HasErrors.Should().BeTrue();
-        combinedResult.Errors.Should().ContainSingle(e => e.Message == "Error message" && e.Source == "Property");
+        combinedResult.Errors.Should().ContainSingle(e => e.Message == "ErrorWriter message" && e.Source == "Property");
     }
 
     // ... similar tests for other operator overloads ...
@@ -590,7 +590,7 @@ public class HttpResultTests {
     [Fact]
     public void MapTo_WithException_ReturnsHttpResultTNewValueWithSameException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
         var subject =  InternalError<int>(exception);
 
         // Act
@@ -618,7 +618,7 @@ public class HttpResultTests {
     [Fact]
     public void EnsureIsSuccess_WhenHasErrors_ThrowsValidationException() {
         // Arrange
-        var result = BadRequest(new ValidationError("Error message"));
+        var result = BadRequest(new ValidationError("ErrorWriter message"));
 
         // Act & Assert
         var action = () => result.EnsureIsSuccess();
@@ -641,7 +641,7 @@ public class HttpResultTests {
     [Fact]
     public void TypeProperty_WhenHasException_ReturnsError() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var result = InternalError(exception);
@@ -653,7 +653,7 @@ public class HttpResultTests {
     [Fact]
     public async Task InternalErrorTask_WithString_ReturnsTaskWithErrorHttpResult() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var task = InternalErrorTask(errorMessage);
@@ -668,7 +668,7 @@ public class HttpResultTests {
     [Fact]
     public async Task InternalErrorTask_WithException_ReturnsTaskWithErrorHttpResult() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var task = InternalErrorTask(exception);
@@ -682,7 +682,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromExceptionToHttpResult_CreatesResultWithException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         HttpResult result = exception;
@@ -695,7 +695,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromStringToHttpResult_CreatesResultWithException() {
         // Act
-        HttpResult result = "Error message";
+        HttpResult result = "ErrorWriter message";
 
         // Assert
         result.HasException.Should().BeFalse();
@@ -707,7 +707,7 @@ public class HttpResultTests {
     public void ImplicitConversion_FromValidationErrorsToHttpResult_CreatesResultWithErrors() {
         // Arrange
         var errors = new ValidationErrors {
-            new ValidationError("Error message", "Property"),
+            new ValidationError("ErrorWriter message", "Property"),
         };
 
         // Act
@@ -722,7 +722,7 @@ public class HttpResultTests {
     public void ImplicitConversion_FromHashSetValidationErrorToHttpResult_CreatesResultWithErrors() {
         // Arrange
         var errors = new HashSet<ValidationError> {
-            new("Error message", "Property"),
+            new("ErrorWriter message", "Property"),
         };
 
         // Act
@@ -736,7 +736,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromHttpResultToValidationErrorArray_ReturnsErrors() {
         // Arrange
-        var errors = new[] { new ValidationError("Error message", "Property") };
+        var errors = new[] { new ValidationError("ErrorWriter message", "Property") };
 
         // Act
         ValidationErrors resultErrors = BadRequest(errors);
@@ -752,7 +752,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromHttpResultToException_ReturnsException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         ValidationErrors resultErrors = InternalError(exception);
@@ -768,7 +768,7 @@ public class HttpResultTests {
     [Fact]
     public void ErrorOfT_WithString_CreatesResultWithException() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var result =  InternalError<int>(errorMessage);
@@ -797,7 +797,7 @@ public class HttpResultTests {
     public async Task BadRequestTaskTValue_ReturnsTaskWithInvalidHttpResult() {
         // Arrange
         const string value = "Test value";
-        var errors = new[] { new ValidationError("Error message", "Property") };
+        var errors = new[] { new ValidationError("ErrorWriter message", "Property") };
         var invalidResult = Result.Invalid(errors);
 
         // Act
@@ -813,7 +813,7 @@ public class HttpResultTests {
     [Fact]
     public async Task InternalErrorTaskTValue_WithString_ReturnsTaskWithErrorHttpResult() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var task = InternalErrorTask<int>(errorMessage);
@@ -828,7 +828,7 @@ public class HttpResultTests {
     [Fact]
     public async Task InternalErrorTaskTValue_WithException_ReturnsTaskWithErrorHttpResult() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var task = InternalErrorTask<int>(exception);
@@ -921,7 +921,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArrayToHttpResultTValue_CreatesResultWithErrors() {
         // Arrange
-        var errors = new[] { new ValidationError("Error 1", "Property1"), new ValidationError("Error 2", "Property2") };
+        var errors = new[] { new ValidationError("ErrorWriter 1", "Property1"), new ValidationError("ErrorWriter 2", "Property2") };
 
         // Act
         HttpResult<string> result = errors;
@@ -934,7 +934,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorListToHttpResultTValue_CreatesResultWithErrors() {
         // Arrange
-        var errors = new List<ValidationError> { new("Error 1", "Property1"), new("Error 2", "Property2") };
+        var errors = new List<ValidationError> { new("ErrorWriter 1", "Property1"), new("ErrorWriter 2", "Property2") };
 
         // Act
         HttpResult<string> result = errors;
@@ -947,7 +947,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorHashSetToHttpResultTValue_CreatesResultWithErrors() {
         // Arrange
-        var errors = new HashSet<ValidationError> { new("Error 1", "Property1"), new("Error 2", "Property2") };
+        var errors = new HashSet<ValidationError> { new("ErrorWriter 1", "Property1"), new("ErrorWriter 2", "Property2") };
 
         // Act
         HttpResult<string> result = errors;
@@ -960,7 +960,7 @@ public class HttpResultTests {
     [Fact]
     public void ImplicitConversion_FromHttpResultTValueToValidationErrorArray_ReturnsErrors() {
         // Arrange
-        var errors = new[] { new ValidationError("Error 1", "Property1"), new ValidationError("Error 2", "Property2") };
+        var errors = new[] { new ValidationError("ErrorWriter 1", "Property1"), new ValidationError("ErrorWriter 2", "Property2") };
         var result = BadRequest("Value", errors);
 
         // Act

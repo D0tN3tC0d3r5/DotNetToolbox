@@ -1,6 +1,6 @@
 namespace Sophia.Data;
 
-public abstract class EntityFrameworkRepository<[DynamicallyAccessedMembers(Mapper.AccessedMembers)] TModel, [DynamicallyAccessedMembers(Mapper.AccessedMembers)] TEntity, TKey>(DataContext dataContext, DbSet<TEntity> dbSet)
+public abstract class EntityFrameworkRepository<[DynamicallyAccessedMembers(Mapper.AccessedMembers)] TModel, [DynamicallyAccessedMembers(Mapper.AccessedMembers)] TEntity, TKey>(DbSet<TEntity> dbSet)
     : Repository<TModel, TKey>
     where TModel : class, IEntity<TKey>, new()
     where TEntity : class, IEntity<TKey>, new()
@@ -11,7 +11,7 @@ public abstract class EntityFrameworkRepository<[DynamicallyAccessedMembers(Mapp
     protected abstract Action<TModel, TEntity> UpdateFrom { get; }
     protected abstract Func<TModel, TEntity> CreateFrom { get; }
 
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     protected Expression? SwitchSource(Expression? expression) {
         if (expression == null)
             return null;
@@ -21,7 +21,7 @@ public abstract class EntityFrameworkRepository<[DynamicallyAccessedMembers(Mapp
 
     public override async Task<IReadOnlyList<TModel>> ToArrayAsync(CancellationToken ct = default) {
         var newExpression = SwitchSource(Expression);
-        return await dbSet
+        return await Set
             .AsQueryable().Provider
             .CreateQuery<TEntity>(newExpression)
             .Select(ProjectTo)
@@ -63,7 +63,7 @@ public abstract class EntityFrameworkRepository<[DynamicallyAccessedMembers(Mapp
                 method = method.GetGenericMethodDefinition().MakeGenericMethod(transformedGenericArguments);
             }
             var objectMember = Visit(node.Object);
-            return Expression.Call(objectMember, method, arguments);
+            return Expression.Call(objectMember, method, arguments!);
         }
         protected override Expression VisitBinary(BinaryExpression node) {
             var left = Visit(node.Left);
@@ -95,9 +95,10 @@ public abstract class EntityFrameworkRepository<[DynamicallyAccessedMembers(Mapp
         }
         protected override Expression VisitNewArray(NewArrayExpression node) {
             var expressions = node.Expressions.Select(Visit).ToList();
+            var elementType = node.Type.GetElementType();
             return node.NodeType == ExpressionType.NewArrayInit
-                ? Expression.NewArrayInit(node.Type.GetElementType(), expressions)
-                : (Expression)Expression.NewArrayBounds(node.Type.GetElementType(), expressions);
+                ? Expression.NewArrayInit(elementType!, expressions!)
+                : (Expression)Expression.NewArrayBounds(elementType!, expressions!);
         }
         protected override Expression VisitLambda<T>(Expression<T> node) {
             var body = Visit(node.Body);

@@ -1,8 +1,8 @@
 ﻿namespace DotNetToolbox.Singleton;
 
 public class NamedOptionsTests {
-    private class TestOptions : NamedOptions<TestOptions>;
-    private class SomeObject : NamedOptions<SomeObject>;
+    private sealed class TestOptions : NamedOptions<TestOptions>;
+    private sealed class SomeObject : NamedOptions<SomeObject>;
 
     [Fact]
     public void Static_Default_ReturnsSingleton() {

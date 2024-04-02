@@ -24,26 +24,26 @@ public class ValidationErrors : IList<ValidationError>, IList, IReadOnlyList<Val
         => new(left.Union([right]));
 
     public int Count => _errors.Count;
-    public int IndexOf(ValidationError error) => _errors.IndexOf(error);
+    public int IndexOf(ValidationError item) => _errors.IndexOf(item);
     public int IndexOf(string value) => IndexOf((ValidationError)value);
-    public bool Contains(ValidationError error) => _errors.Contains(error);
+    public bool Contains(ValidationError item) => _errors.Contains(item);
     public bool Contains(string value) => Contains((ValidationError)value);
 
-    public void Add(ValidationError error) {
-        if (Contains(error)) return;
-        _errors.Add(error);
+    public void Add(ValidationError item) {
+        if (Contains(item)) return;
+        _errors.Add(item);
     }
     public void Add(string value) => Add((ValidationError)value);
 
-    public void Insert(int index, ValidationError error) {
-        var existingIndex = IndexOf(error);
+    public void Insert(int index, ValidationError item) {
+        var existingIndex = IndexOf(item);
         if (existingIndex == index) return;
         if (existingIndex != -1) throw new InvalidOperationException("Cannot insert duplicate error.");
-        ((IList)_errors).Insert(index, error);
+        ((IList)_errors).Insert(index, item);
     }
     public void Insert(int index, string value) => Insert(index, (ValidationError)value);
 
-    public bool Remove(ValidationError error) => _errors.Remove(error);
+    public bool Remove(ValidationError item) => _errors.Remove(item);
     public void Remove(string value) => Remove((ValidationError)value);
 
     public void RemoveAt(int index) => _errors.RemoveAt(index);

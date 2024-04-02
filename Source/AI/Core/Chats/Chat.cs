@@ -7,7 +7,7 @@ public class Chat(IGuidProvider guid)
         : this(new GuidProvider()) {
     }
 
-    public Guid Id { get; set; } = guid.New();
+    public Guid Id { get; set; } = guid.Create();
     public Instructions Instructions { get; set; } = new();
     public List<Message> Messages { get; set; } = [];
     public uint TotalTokens { get; set; }

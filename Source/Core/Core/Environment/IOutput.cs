@@ -4,7 +4,7 @@ public interface IOutput {
     string Prompt { get; set; }
     ConsoleColor BackgroundColor { get; set; }
     Encoding Encoding { get; set; }
-    TextWriter Error { get; }
+    TextWriter ErrorWriter { get; }
     ConsoleColor ForegroundColor { get; set; }
     TextWriter Writer { get; }
 
@@ -65,7 +65,7 @@ public interface IOutput {
     void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, ConsoleColor foreground = default, ConsoleColor background = default);
     void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, ConsoleColor foreground = default, ConsoleColor background = default);
     void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2, ConsoleColor foreground = default, ConsoleColor background = default);
-    void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, params object?[] arg);
+    void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, params object?[] args);
     void WriteOntoNewLine(string? value, ConsoleColor foreground = default, ConsoleColor background = default);
     void WriteOntoNewLine(StringBuilder? builder, ConsoleColor foreground = default, ConsoleColor background = default);
 }

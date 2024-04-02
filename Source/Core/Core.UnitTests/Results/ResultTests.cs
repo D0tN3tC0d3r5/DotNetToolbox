@@ -140,7 +140,7 @@ public class ResultTests {
     [Fact]
     public void AddOperator_FromError_WithInvalid_ReturnsInvalid() {
         // Arrange
-        var result = Result.Error(new Exception("Error"));
+        var result = Result.Error(new Exception("ErrorWriter"));
 
         // Act
         result += new ValidationError("Some error.", "result");
@@ -165,7 +165,7 @@ public class ResultTests {
         result.IsFaulty.Should().BeTrue();
     }
 
-    private class TestDataForEquality : TheoryData<Result, Result?, bool> {
+    private sealed class TestDataForEquality : TheoryData<Result, Result?, bool> {
         public TestDataForEquality() {
             Add(_success, null, false);
             Add(_success, _success, true);
@@ -461,7 +461,7 @@ public class ResultTests {
     [Fact]
     public void AddOperator_WithValue_FromError_WithInvalid_ReturnsInvalid() {
         // Arrange
-        var result = Result.Error<string>(new Exception("Error"));
+        var result = Result.Error<string>(new Exception("ErrorWriter"));
 
         // Act
         result += new ValidationError("Some error.", "result");

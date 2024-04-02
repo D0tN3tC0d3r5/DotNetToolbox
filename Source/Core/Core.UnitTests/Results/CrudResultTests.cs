@@ -44,7 +44,7 @@ public class CrudResultTests {
         result.IsSuccess.Should().BeFalse();
     }
 
-    private class TestDataForProperties : TheoryData<CrudResult, bool, bool, bool> {
+    private sealed class TestDataForProperties : TheoryData<CrudResult, bool, bool, bool> {
         public TestDataForProperties() {
             Add(_invalid, false, false, false);
             Add(_failure, false, false, false);
@@ -67,7 +67,7 @@ public class CrudResultTests {
         subject.HasConflict.Should().Be(isConflict);
     }
 
-    private class TestDataForEquality : TheoryData<CrudResult, CrudResult?, bool> {
+    private sealed class TestDataForEquality : TheoryData<CrudResult, CrudResult?, bool> {
         public TestDataForEquality() {
             Add(_success, null, false);
             Add(_success, _success, true);
@@ -425,7 +425,7 @@ public class CrudResultTests {
     [Fact]
     public void AdditionOperator_CombiningDifferentTypes_PreservesErrorType() {
         // Arrange
-        var resultError = Error(new Exception("Error"));
+        var resultError = Error(new Exception("ErrorWriter"));
         var resultNotFound = Result.Success();
 
         // Act
@@ -559,7 +559,7 @@ public class CrudResultTests {
     [Fact]
     public void Error_WithString_CreatesResultWithException() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var result = Error(errorMessage);
@@ -573,7 +573,7 @@ public class CrudResultTests {
     [Fact]
     public void Error_WithException_CreatesResultWithException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var result = Error(exception);
@@ -609,14 +609,14 @@ public class CrudResultTests {
     public void AdditionOperator_CombiningCrudResultWithError_ReturnsResultWithError() {
         // Arrange
         var result = Success();
-        var error = new ValidationError("Error message", "Property");
+        var error = new ValidationError("ErrorWriter message", "Property");
 
         // Act
         var combinedResult = result + error;
 
         // Assert
         combinedResult.HasErrors.Should().BeTrue();
-        combinedResult.Errors.Should().ContainSingle(e => e.Message == "Error message" && e.Source == "Property");
+        combinedResult.Errors.Should().ContainSingle(e => e.Message == "ErrorWriter message" && e.Source == "Property");
     }
 
     // ... similar tests for other operator overloads ...
@@ -624,7 +624,7 @@ public class CrudResultTests {
     [Fact]
     public void MapTo_WithException_ReturnsCrudResultTNewValueWithSameException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
         var subject = Error<int>(exception);
 
         // Act
@@ -652,7 +652,7 @@ public class CrudResultTests {
     [Fact]
     public void EnsureIsSuccess_WhenHasErrors_ThrowsValidationException() {
         // Arrange
-        var result = Invalid(new ValidationError("Error message"));
+        var result = Invalid(new ValidationError("ErrorWriter message"));
 
         // Act & Assert
         var action = () => result.EnsureIsSuccess();
@@ -675,7 +675,7 @@ public class CrudResultTests {
     [Fact]
     public void TypeProperty_WhenHasException_ReturnsError() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var result = Error(exception);
@@ -687,7 +687,7 @@ public class CrudResultTests {
     [Fact]
     public async Task ErrorTask_WithString_ReturnsTaskWithErrorCrudResult() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var task = ErrorTask(errorMessage);
@@ -702,7 +702,7 @@ public class CrudResultTests {
     [Fact]
     public async Task ErrorTask_WithException_ReturnsTaskWithErrorCrudResult() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var task = ErrorTask(exception);
@@ -716,7 +716,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromExceptionToCrudResult_CreatesResultWithException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         CrudResult result = exception;
@@ -729,7 +729,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromStringToCrudResult_CreatesResultWithException() {
         // Act
-        CrudResult result = "Error message";
+        CrudResult result = "ErrorWriter message";
 
         // Assert
         result.HasException.Should().BeFalse();
@@ -741,7 +741,7 @@ public class CrudResultTests {
     public void ImplicitConversion_FromValidationErrorsToCrudResult_CreatesResultWithErrors() {
         // Arrange
         var errors = new ValidationErrors {
-            new ValidationError("Error message", "Property"),
+            new ValidationError("ErrorWriter message", "Property"),
         };
 
         // Act
@@ -756,7 +756,7 @@ public class CrudResultTests {
     public void ImplicitConversion_FromHashSetValidationErrorToCrudResult_CreatesResultWithErrors() {
         // Arrange
         var errors = new HashSet<ValidationError> {
-            new("Error message", "Property"),
+            new("ErrorWriter message", "Property"),
         };
 
         // Act
@@ -770,7 +770,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromCrudResultToValidationErrorArray_ReturnsErrors() {
         // Arrange
-        var errors = new[] { new ValidationError("Error message", "Property") };
+        var errors = new[] { new ValidationError("ErrorWriter message", "Property") };
 
         // Act
         ValidationError[] errorArray = Invalid(errors);
@@ -782,7 +782,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromCrudResultToException_ReturnsException() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         Exception? resultException = Error(exception);
@@ -794,7 +794,7 @@ public class CrudResultTests {
     [Fact]
     public void ErrorOfT_WithString_CreatesResultWithException() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var result = Error<int>(errorMessage);
@@ -823,7 +823,7 @@ public class CrudResultTests {
     public async Task InvalidTaskTValue_ReturnsTaskWithInvalidCrudResult() {
         // Arrange
         const string value = "Test value";
-        var errors = new[] { new ValidationError("Error message", "Property") };
+        var errors = new[] { new ValidationError("ErrorWriter message", "Property") };
         var invalidResult = Result.Invalid(errors);
 
         // Act
@@ -839,7 +839,7 @@ public class CrudResultTests {
     [Fact]
     public async Task ErrorTaskTValue_WithString_ReturnsTaskWithErrorCrudResult() {
         // Arrange
-        const string errorMessage = "Error message";
+        const string errorMessage = "ErrorWriter message";
 
         // Act
         var task = ErrorTask<int>(errorMessage);
@@ -854,7 +854,7 @@ public class CrudResultTests {
     [Fact]
     public async Task ErrorTaskTValue_WithException_ReturnsTaskWithErrorCrudResult() {
         // Arrange
-        var exception = new Exception("Error message");
+        var exception = new Exception("ErrorWriter message");
 
         // Act
         var task = ErrorTask<int>(exception);
@@ -947,7 +947,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArrayToCrudResultTValue_CreatesResultWithErrors() {
         // Arrange
-        var errors = new[] { new ValidationError("Error 1", "Property1"), new ValidationError("Error 2", "Property2") };
+        var errors = new[] { new ValidationError("ErrorWriter 1", "Property1"), new ValidationError("ErrorWriter 2", "Property2") };
 
         // Act
         CrudResult<string> result = errors;
@@ -960,7 +960,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorListToCrudResultTValue_CreatesResultWithErrors() {
         // Arrange
-        var errors = new List<ValidationError> { new("Error 1", "Property1"), new("Error 2", "Property2") };
+        var errors = new List<ValidationError> { new("ErrorWriter 1", "Property1"), new("ErrorWriter 2", "Property2") };
 
         // Act
         CrudResult<string> result = errors;
@@ -973,7 +973,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorHashSetToCrudResultTValue_CreatesResultWithErrors() {
         // Arrange
-        var errors = new HashSet<ValidationError> { new("Error 1", "Property1"), new("Error 2", "Property2") };
+        var errors = new HashSet<ValidationError> { new("ErrorWriter 1", "Property1"), new("ErrorWriter 2", "Property2") };
 
         // Act
         CrudResult<string> result = errors;
@@ -986,7 +986,7 @@ public class CrudResultTests {
     [Fact]
     public void ImplicitConversion_FromCrudResultTValueToValidationErrorArray_ReturnsErrors() {
         // Arrange
-        var errors = new[] { new ValidationError("Error 1", "Property1"), new ValidationError("Error 2", "Property2") };
+        var errors = new[] { new ValidationError("ErrorWriter 1", "Property1"), new ValidationError("ErrorWriter 2", "Property2") };
         var result = Invalid("Value", errors);
 
         // Act

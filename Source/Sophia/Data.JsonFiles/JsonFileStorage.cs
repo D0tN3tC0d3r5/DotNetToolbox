@@ -73,7 +73,7 @@ public class JsonFileStorage<TData, TKey> : IJsonFileStorage<TData, TKey>
     private readonly ConcurrentDictionary<string, long> _cachedKeys = [];
     private TKey GenerateNewKey()
         => (TKey)(object)(typeof(TKey).Name switch {
-            nameof(Guid) => _guidProvider.New(),
+            nameof(Guid) => _guidProvider.Create(),
             nameof(Int32) => _cachedKeys.AddOrUpdate(_repositoryPath, 1, (_, value) => value + 1),
             nameof(Int64) => _cachedKeys.AddOrUpdate(_repositoryPath, 1, (_, value) => value + 1),
             nameof(DateTimeOffset) => _dateTime.UtcNow,

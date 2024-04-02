@@ -20,7 +20,7 @@ public class ConsoleOutput : HasDefault<ConsoleOutput>, IOutput {
     }
 
     public virtual TextWriter Writer => Console.Out;
-    public virtual TextWriter Error => Console.Error;
+    public virtual TextWriter ErrorWriter => Console.Error;
 
     public virtual void ResetColor() => Console.ResetColor();
     public virtual void ClearScreen() => Console.Clear();

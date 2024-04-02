@@ -253,12 +253,12 @@ public class EnsureTests {
         result.Should().BeSameAs(input);
     }
 
-    private class ValidatableObject(bool isValid) : IValidatable {
+    private sealed class ValidatableObject(bool isValid) : IValidatable {
         public Result Validate(IDictionary<string, object?>? context = null)
             => isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
     }
 
-    private class ValidatableAsyncObject(bool isValid) : IValidatableAsync {
+    private sealed class ValidatableAsyncObject(bool isValid) : IValidatableAsync {
         public Task<Result> Validate(IDictionary<string, object?>? context = null, CancellationToken token = default)
             => isValid ? Result.SuccessTask() : Result.InvalidTask("Source", "Is not valid.");
     }
@@ -418,7 +418,7 @@ public class EnsureTests {
         const string defaultValue = "Valid";
 
         // Act
-        var result = GetDefaultIfInvalid(argument, _ => Result.Invalid("Error"), defaultValue);
+        var result = GetDefaultIfInvalid(argument, _ => Result.Invalid("ErrorWriter"), defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);
@@ -517,7 +517,7 @@ public class EnsureTests {
         var argument = new List<string> { default!, "Valid", "Invalid" };
 
         // Act
-        Action act = () => ItemsAreValid<List<string>, string>(argument, _ => Result.Invalid("Error"));
+        Action act = () => ItemsAreValid<List<string>, string>(argument, _ => Result.Invalid("ErrorWriter"));
 
         // Assert
         act.Should().Throw<ValidationException>().WithMessage($"*{nameof(argument)}*");

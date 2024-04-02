@@ -4,7 +4,7 @@ public class PersonasService(DataContext dbContext)
     : IPersonasService {
     public async Task<IReadOnlyList<PersonaData>> GetList(string? filter = null) {
         try {
-            var list = await dbContext.Personas.GetList();
+            var list = await dbContext.Personas.ToArrayAsync();
             return list;
         }
         catch (Exception ex) {

@@ -1,7 +1,7 @@
 ﻿namespace Sophia.Data.Users;
 
-public class UsersRepository(DataContext dataContext, ApplicationDbContext dbContext)
-    : EntityFrameworkRepository<UserData, User, string>(dataContext, dbContext.Users) {
+public class UsersRepository(ApplicationDbContext dbContext)
+    : EntityFrameworkRepository<UserData, User, string>(dbContext.Users) {
     protected override Expression<Func<User, UserData>> ProjectTo { get; }
         = input => Mapper.ToUserData(input);
     protected override Action<UserData, User> UpdateFrom { get; }
