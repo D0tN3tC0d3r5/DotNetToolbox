@@ -7,4 +7,4 @@ global using Microsoft.Extensions.DependencyInjection;
 
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 
-global using static DotNetToolbox.Diagnostics.Ensure;
+global using static System.Diagnostics.Ensure;

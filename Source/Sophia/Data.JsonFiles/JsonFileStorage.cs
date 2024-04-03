@@ -20,7 +20,7 @@ public class JsonFileStorage<TData, TKey> : IJsonFileStorage<TData, TKey>
         _guidProvider = guidProvider ?? new GuidProvider();
         _dateTime = dateTime ?? new DateTimeProvider();
         _logger = loggerFactory?.CreateLogger(GetType().Name) ?? NullLogger.Instance;
-        _repositoryPath = Ensure.IsNotNullOrWhiteSpace(configuration[_baseFolderKey], $"{nameof(configuration)}[{_baseFolderKey}]").Trim();
+        _repositoryPath = IsNotNullOrWhiteSpace(configuration[_baseFolderKey], $"{nameof(configuration)}[{_baseFolderKey}]").Trim();
         _io.CreateFolder(_repositoryPath);
     }
 

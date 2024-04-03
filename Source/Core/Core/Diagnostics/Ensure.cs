@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox.Diagnostics;
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Diagnostics;
 
 public static class Ensure {
     #region Null

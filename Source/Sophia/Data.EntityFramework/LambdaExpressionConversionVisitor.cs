@@ -1,18 +1,29 @@
 ﻿namespace Sophia.Data;
 
-internal sealed class ExpressionTranslator<TModel, TEntity>(Func<TModel, TEntity>? createFrom = null)
+internal sealed class LambdaExpressionConversionVisitor<TModel, TEntity>(Func<TModel, TEntity>? convertToEntity = null)
         : ExpressionVisitor
         where TModel : class
         where TEntity : class, new() {
+    private bool _isProcessingBody;
+    private ParameterExpression[] _parameters = [];
 
     public TExpression Translate<TExpression>(Expression node)
         where TExpression : Expression
         => (TExpression)Visit(node);
 
+    protected override Expression VisitLambda<T>(Expression<T> node) {
+        _parameters = node.Parameters.ToArray<ParameterExpression>(p => (ParameterExpression)VisitParameter(p));
+        _isProcessingBody = true;
+        var body = Visit(node.Body);
+        return Expression.Lambda(body, _parameters);
+    }
+
     protected override Expression VisitParameter(ParameterExpression node)
-        => node.Type == typeof(TModel)
-        ? Expression.Parameter(typeof(TEntity), "x")
-        : base.VisitParameter(node);
+        => node.Type != typeof(TModel)
+               ? base.VisitParameter(node)
+               : !_isProcessingBody
+                   ? Expression.Parameter(typeof(TEntity), node.Name)
+                   : _parameters.First(i => i.Name == node.Name);
 
     protected override Expression VisitMember(MemberExpression node) {
         if (node.Member.DeclaringType != typeof(TModel))
@@ -60,7 +71,8 @@ internal sealed class ExpressionTranslator<TModel, TEntity>(Func<TModel, TEntity
 
     protected override Expression VisitConstant(ConstantExpression node) {
         if (node.Value == null || node.Value.GetType() != typeof(TModel)) return base.VisitConstant(node);
-        var convertedValue = IsNotNull(createFrom)((TModel)node.Value);
+        convertToEntity = IsNotNull(convertToEntity);
+        var convertedValue = convertToEntity((TModel)node.Value);
         return Expression.Constant(convertedValue, typeof(TEntity));
     }
 
@@ -76,11 +88,5 @@ internal sealed class ExpressionTranslator<TModel, TEntity>(Func<TModel, TEntity
         return node.NodeType == ExpressionType.NewArrayInit
             ? Expression.NewArrayInit(elementType!, expressions!)
             : (Expression)Expression.NewArrayBounds(elementType!, expressions!);
-    }
-
-    protected override Expression VisitLambda<T>(Expression<T> node) {
-        var body = Visit(node.Body);
-        var parameter = (ParameterExpression)VisitParameter(node.Parameters.First());
-        return Expression.Lambda(body, "l", false, [parameter]);
     }
 }

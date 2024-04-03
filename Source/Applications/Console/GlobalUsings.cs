@@ -9,7 +9,6 @@ global using DotNetToolbox.ConsoleApplication.Exceptions;
 global using DotNetToolbox.ConsoleApplication.Nodes;
 global using DotNetToolbox.ConsoleApplication.Questions;
 global using DotNetToolbox.ConsoleApplication.Utilities;
-global using DotNetToolbox.DependencyInjection;
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Results;
 global using DotNetToolbox.Utilities;
@@ -22,7 +21,7 @@ global using Microsoft.Extensions.Logging;
 
 global using static System.ConsoleKey;
 global using static System.ConsoleModifiers;
+global using static System.Diagnostics.Ensure;
 global using static System.Text.RegularExpressions.RegexOptions;
 global using static DotNetToolbox.ConsoleApplication.Utilities.OutputFormatter;
-global using static DotNetToolbox.Diagnostics.Ensure;
 global using static DotNetToolbox.Results.Result;

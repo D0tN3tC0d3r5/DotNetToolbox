@@ -34,6 +34,5 @@ global using Sophia.Models.Tools;
 global using Sophia.Models.Users;
 global using Sophia.Models.Worlds;
 
+global using static System.Diagnostics.Ensure;
 global using static System.StringComparison;
-
-global using static DotNetToolbox.Diagnostics.Ensure;

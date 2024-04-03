@@ -14,7 +14,7 @@ global using NSubstitute;
 
 global using Xunit;
 
-global using static DotNetToolbox.Diagnostics.Ensure;
+global using static System.Diagnostics.Ensure;
 global using static DotNetToolbox.Pagination.BlockSettings;
 
 global using static NSubstitute.Arg;

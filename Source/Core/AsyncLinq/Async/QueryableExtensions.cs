@@ -1,5 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace - This is intended
-namespace System.Collections.Generics;
+using DotNetToolbox.Linq;
+
+namespace System.Linq.Async;
 
 public static class QueryableExtensions {
     #region Messages

@@ -1,5 +1,5 @@
 ﻿// ReSharper disable once CheckNamespace - This is intended
-namespace System.Collections.Generics;
+namespace System.Linq.Async;
 
 public interface IAsyncQueryProvider : IQueryProvider {
     TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default);

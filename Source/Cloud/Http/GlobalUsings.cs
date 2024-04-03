@@ -12,9 +12,8 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 
 global using static System.Convert;
+global using static System.Diagnostics.Ensure;
 global using static System.Text.Encoding;
-
-global using static DotNetToolbox.Diagnostics.Ensure;
 global using static DotNetToolbox.Http.AuthenticationType;
 
 global using Result = DotNetToolbox.Results.Result;

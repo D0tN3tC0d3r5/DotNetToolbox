@@ -2,8 +2,6 @@ global using System.Net.Http.Json;
 global using System.Security.Claims;
 global using System.Text.Encodings.Web;
 
-global using DotNetToolbox.Diagnostics;
-
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
 global using Microsoft.AspNetCore.Components.Forms;
@@ -23,4 +21,4 @@ global using Sophia.WebClient.Account;
 global using Sophia.WebClient.Pages;
 global using Sophia.WebClient.Services;
 
-global using static DotNetToolbox.Diagnostics.Ensure;
+global using static System.Diagnostics.Ensure;

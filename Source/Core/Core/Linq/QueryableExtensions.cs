@@ -1,5 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
-namespace System.Collections.Generic;
+using DotNetToolbox.Linq;
+
+namespace System.Linq;
 
 public static class QueryableExtensions {
     #region Load
@@ -23,7 +25,7 @@ public static class QueryableExtensions {
     public static TItem[] ToArray<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, TItem>> project)
         => [.. IsNotNull(source).Select(project)];
     public static HashSet<TItem> ToHashSet<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, TItem>> project)
-        => ToHashSet<TItem, TItem>(source, project);
+        => source.ToHashSet<TItem, TItem>(project);
     public static HashSet<TOutput> ToHashSet<TItem, TOutput>(this IQueryable<TItem> source, Expression<Func<TItem, TOutput>> project)
         => [.. IsNotNull(source).ToList(project)];
     public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IQueryable<TItem> source)

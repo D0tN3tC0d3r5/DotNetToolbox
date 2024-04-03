@@ -13,6 +13,6 @@ global using DotNetToolbox.ValidationBuilder.Commands;
 
 global using static System.Constants.ErrorMessages;
 
-global using static DotNetToolbox.Diagnostics.Ensure;
+global using static System.Diagnostics.Ensure;
 global using static DotNetToolbox.ValidationBuilder.ValidatorFactory;
 global using static DotNetToolbox.ValidationBuilder.ValidatorMode;

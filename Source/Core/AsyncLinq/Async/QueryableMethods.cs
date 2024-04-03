@@ -1,5 +1,5 @@
 ﻿// ReSharper disable once CheckNamespace - This is intended
-namespace System.Collections.Generics;
+namespace System.Linq.Async;
 
 public static class QueryableMethods {
     private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; } = [];

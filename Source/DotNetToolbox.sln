@@ -97,7 +97,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data.EntityFramework
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophia.Data.JsonFiles", "Sophia\Data.JsonFiles\Sophia.Data.JsonFiles.csproj", "{AB6CB670-31B4-4B9F-8089-D6131ACE3C5C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AsyncLinq", "Core\AsyncLinq\DotNetToolbox.AsyncLinq.csproj", "{02EB8C8C-CC61-4DA9-A52A-8D246270805E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Linq", "Core\AsyncLinq\DotNetToolbox.Linq.csproj", "{02EB8C8C-CC61-4DA9-A52A-8D246270805E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Data Storage", "2 Data Storage", "{4EB4A938-96E1-4690-8A51-18135AA362CC}"
 EndProject
