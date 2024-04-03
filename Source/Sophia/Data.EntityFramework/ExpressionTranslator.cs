@@ -11,7 +11,7 @@ internal sealed class ExpressionTranslator<TModel, TEntity>(Func<TModel, TEntity
 
     protected override Expression VisitParameter(ParameterExpression node)
         => node.Type == typeof(TModel)
-        ? Expression.Parameter(typeof(TEntity), node.Name)
+        ? Expression.Parameter(typeof(TEntity), "x")
         : base.VisitParameter(node);
 
     protected override Expression VisitMember(MemberExpression node) {
@@ -80,7 +80,7 @@ internal sealed class ExpressionTranslator<TModel, TEntity>(Func<TModel, TEntity
 
     protected override Expression VisitLambda<T>(Expression<T> node) {
         var body = Visit(node.Body);
-        var parameters = node.Parameters.Select(p => (ParameterExpression)VisitParameter(p)).ToList();
-        return Expression.Lambda(body, parameters);
+        var parameter = (ParameterExpression)VisitParameter(node.Parameters.First());
+        return Expression.Lambda(body, "l", false, [parameter]);
     }
 }
