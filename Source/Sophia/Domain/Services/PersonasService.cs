@@ -15,7 +15,7 @@ public class PersonasService(DataContext dbContext)
 
     public async Task<PersonaData?> GetById(int id) {
         try {
-            var entity = await dbContext.Personas.FindFirst(s => s.Id == id);
+            var entity = await dbContext.Personas.FindByKey(id);
             return entity;
         }
         catch (Exception ex) {

@@ -1,6 +1,4 @@
 ﻿// ReSharper disable once CheckNamespace - This is intended
-using DotNetToolbox.Linq;
-
 namespace System.Linq.Async;
 
 public static class QueryableExtensions {

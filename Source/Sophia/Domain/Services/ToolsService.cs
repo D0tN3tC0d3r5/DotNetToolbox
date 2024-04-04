@@ -15,7 +15,7 @@ public class ToolsService(DataContext dbContext)
 
     public async Task<ToolData?> GetById(int id) {
         try {
-            var entity = await dbContext.Tools.FindFirst(s => s.Id == id);
+            var entity = await dbContext.Tools.FindByKey(id);
             return entity;
         }
         catch (Exception ex) {

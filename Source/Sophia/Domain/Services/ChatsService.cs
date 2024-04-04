@@ -16,7 +16,7 @@ public class ChatsService(DataContext dbContext)
 
     public async Task<ChatData?> GetById(Guid id) {
         try {
-            var entity = await dbContext.Chats.FindFirst(c => c.Id == id);
+            var entity = await dbContext.Chats.FindByKey(id);
             return entity;
         }
         catch (Exception ex) {

@@ -1,6 +1,6 @@
 ﻿namespace Sophia.Data.Helpers;
 
-public class StringArrayConversion {
+public static class StringArrayConversion {
     internal static string[] ConvertToArray(string? s)
         => s == null ? [] : s.Split('|');
 

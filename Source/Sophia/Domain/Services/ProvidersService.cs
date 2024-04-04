@@ -15,7 +15,7 @@ public class ProvidersService(DataContext dbContext)
 
     public async Task<ProviderData?> GetById(int id) {
         try {
-            var provider = await dbContext.Providers.FindFirst(p => p.Id == id);
+            var provider = await dbContext.Providers.FindByKey(id);
             return provider;
         }
         catch (Exception ex) {
