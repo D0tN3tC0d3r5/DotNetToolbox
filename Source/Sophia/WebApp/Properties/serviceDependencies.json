@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "SophiaDB": {
-      "type": "mssql",
-      "connectionId": "ConnectionStrings:Sophia.WebApp"
-    }
-  }
-}
