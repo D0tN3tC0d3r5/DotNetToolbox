@@ -149,7 +149,7 @@ public class ApplicationBaseTests {
         actualToString.Should().Be(expectedToString);
     }
 
-    private class InvalidCommandDelegates : TheoryData<Delegate> {
+    private sealed class InvalidCommandDelegates : TheoryData<Delegate> {
         public InvalidCommandDelegates() {
             Add(() => 13);
             Add((Command _) => "Invalid");
@@ -198,7 +198,7 @@ public class ApplicationBaseTests {
         await result.Should().ThrowAsync<Exception>();
     }
 
-    private class CommandDelegates : TheoryData<Delegate> {
+    private sealed class CommandDelegates : TheoryData<Delegate> {
         public CommandDelegates() {
             Add(null!);
             Add(() => { });
@@ -435,7 +435,7 @@ public class ApplicationBaseTests {
         child.Should().BeOfType<TestParameter>();
     }
 
-    private class InvalidFlagDelegates : TheoryData<Delegate> {
+    private sealed class InvalidFlagDelegates : TheoryData<Delegate> {
         public InvalidFlagDelegates() {
             Add(() => 13);
             Add((Flag _) => "Invalid");
@@ -471,7 +471,7 @@ public class ApplicationBaseTests {
         await result.Should().ThrowAsync<Exception>();
     }
 
-    private class FlagDelegates : TheoryData<Delegate> {
+    private sealed class FlagDelegates : TheoryData<Delegate> {
         public FlagDelegates() {
             Add(null!);
             Add(() => { });
@@ -553,7 +553,7 @@ public class ApplicationBaseTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestCommand
+    private sealed class TestCommand
         : Command<TestCommand> {
         public TestCommand(IHasChildren app)
             : base(app, "Command", ["c"]) {
@@ -567,11 +567,11 @@ public class ApplicationBaseTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
     private IServiceProvider CreateFakeServiceProvider() {
@@ -594,13 +594,13 @@ public class ApplicationBaseTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestApplication(string[] args, IServiceProvider serviceProvider)
+    private sealed class TestApplication(string[] args, IServiceProvider serviceProvider)
         : ApplicationBase<TestApplication, TestApplicationBuilder>(args, serviceProvider) {
         internal override Task Run(CancellationToken ct = default)
             => Result.SuccessTask();
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestApplicationBuilder(string[] args)
+    private sealed class TestApplicationBuilder(string[] args)
         : ApplicationBuilder<TestApplication, TestApplicationBuilder>(args);
 }

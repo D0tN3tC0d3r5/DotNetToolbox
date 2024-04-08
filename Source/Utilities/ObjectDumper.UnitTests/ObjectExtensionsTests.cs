@@ -171,7 +171,7 @@ public class ObjectExtensionsTests {
 
     [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    private class TestClass(int intValue, string stringValue) {
+    private sealed class TestClass(int intValue, string stringValue) {
         public int IntProperty { get; init; } = intValue;
         public string StringProperty { get; set; } = stringValue;
     }

@@ -35,6 +35,6 @@ public class MultipleChoiceOption<TValue>(int index, TValue value, string text, 
     public string Display { get; } = FormatDefaultDisplay(text, alias);
 
     public bool Matches(string input)
-        => alias?.Equals(input, StringComparison.InvariantCultureIgnoreCase)
-        ?? text.Equals(input, StringComparison.InvariantCultureIgnoreCase);
+        => alias?.Equals(input, StringComparison.OrdinalIgnoreCase)
+        ?? text.Equals(input, StringComparison.OrdinalIgnoreCase);
 }

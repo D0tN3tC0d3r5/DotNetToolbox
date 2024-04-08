@@ -13,7 +13,7 @@ internal sealed class HelpCommand
 
     public override Task<Result> Execute(CancellationToken ct = default) {
         var target = (string?)Context.GetValueOrDefault("Target");
-        var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.CurrentCultureIgnoreCase));
+        var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var help = FormatHelp(command ?? _parent);
         Environment.ConsoleOutput.WriteLine(help);
         return SuccessTask();

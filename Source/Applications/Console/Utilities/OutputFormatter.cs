@@ -110,7 +110,7 @@ internal class OutputFormatter {
 
         void ShowIds() {
             string[] ids = node is IArgument _
-                               ? [$"--{node.Name.ToLower()}", .. node.Aliases.Select(a => $"-{a}")]
+                               ? [$"--{node.Name.ToLowerInvariant()}", .. node.Aliases.Select(a => $"-{a}")]
                                : [node.Name, .. node.Aliases];
             itemId.AppendJoin(", ", ids);
         }

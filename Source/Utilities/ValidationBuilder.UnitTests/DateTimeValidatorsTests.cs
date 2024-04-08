@@ -1,9 +1,9 @@
 namespace DotNetToolbox.ValidationBuilder;
 
-public class DateTimeValidatorsTests {
+public sealed class DateTimeValidatorsTests {
     private static readonly DateTime _baseDate = DateTime.Parse("2023-04-01 12:34:56.789");
 
-    public record TestObject : IValidatable {
+    public sealed record TestObject : IValidatable {
         public DateTime NotNull { get; init; }
         public DateTime? Nullable { get; init; }
         public DateTime? Required { get; init; }
@@ -17,7 +17,7 @@ public class DateTimeValidatorsTests {
         }
     }
 
-    private class TestData : TheoryData<TestObject, bool, int> {
+    private sealed class TestData : TheoryData<TestObject, bool, int> {
         public TestData() {
             Add(new() { NotNull = _baseDate.AddSeconds(1), Nullable = _baseDate.AddSeconds(1), Required = _baseDate.AddSeconds(1) }, true, 0);
             Add(new() { NotNull = _baseDate, Nullable = null, Required = null }, false, 2);

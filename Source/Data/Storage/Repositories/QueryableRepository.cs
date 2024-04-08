@@ -1,24 +1,20 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class QueryableRepository<TRepository, TModel>
-    : IQueryableRepository<TRepository, TModel>
-    where TRepository : QueryableRepository<TRepository, TModel>
-    where TModel : class, IEntity, new() {
-
-    private async IAsyncEnumerable<TModel> ToAsyncEnumerable() {
-        foreach (var item in Local) {
-            yield return item;
-            await Task.Yield();
-        }
+public class QueryableRepository<TModel>
+    : IQueryableRepository<TModel> {
+    private readonly ModelAsyncQueryProvider _queryProvider;
+    public QueryableRepository(ModelAsyncQueryProvider queryProvider, Expression expression) {
+        _queryProvider = queryProvider;
+        Expression = expression;
     }
-
-    protected List<TModel> Local { get; } = [];
-    public IQueryable<TModel> AsQueryable() => Local.AsQueryable();
-    public IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-        => ToAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
-    public IEnumerator<TModel> GetEnumerator() => Local.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     public Type ElementType { get; } = typeof(TModel);
-    public Expression Expression => AsQueryable().Expression;
-    public IQueryProvider Provider => AsQueryable().Provider;
+    public IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        => _queryProvider
+            .ExecuteAsync<IAsyncEnumerable<TModel>>(Expression, cancellationToken)
+            .GetAsyncEnumerator(cancellationToken);
+    public IEnumerator<TModel> GetEnumerator()
+        => _queryProvider.Execute<IEnumerable<TModel>>(Expression).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public virtual Expression Expression { get; }
+    public IQueryProvider Provider => _queryProvider;
 }

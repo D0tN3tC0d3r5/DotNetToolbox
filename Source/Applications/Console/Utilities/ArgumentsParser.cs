@@ -34,7 +34,7 @@ public static class ArgumentsParser {
                ? null
                : token.StartsWith('-')
                    ? token.StartsWith("--")
-                         ? node.Children.FirstOrDefault(c => c.Name.Equals(token.TrimStart('-'), StringComparison.CurrentCultureIgnoreCase))
+                         ? node.Children.FirstOrDefault(c => c.Name.Equals(token.TrimStart('-'), StringComparison.OrdinalIgnoreCase))
                          : node.Children.FirstOrDefault(c => c.Aliases.Contains(token.TrimStart('-')))
                    : node.Children.FirstOrDefault(c => c.Name.Contains(token, StringComparison.CurrentCultureIgnoreCase)
                                                || c.Aliases.Contains(token));

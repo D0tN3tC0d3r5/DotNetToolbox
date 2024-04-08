@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal class TestInput(IOutput output, params string[] inputs) : IInput {
+internal sealed class TestInput(IOutput output, params string[] inputs) : IInput {
     private readonly Queue<string> _inputQueue = new(inputs);
 
     public bool KeyAvailable() => throw new NotImplementedException();

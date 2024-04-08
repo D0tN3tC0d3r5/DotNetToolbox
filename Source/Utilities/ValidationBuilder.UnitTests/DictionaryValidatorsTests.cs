@@ -1,7 +1,7 @@
 namespace DotNetToolbox.ValidationBuilder;
 
-public class DictionaryValidatorsTests {
-    public record TestObject : IValidatable {
+public sealed class DictionaryValidatorsTests {
+    public sealed record TestObject : IValidatable {
         public required IDictionary<string, int> Numbers { get; init; } = new Dictionary<string, int>();
         public required IDictionary<string, string> Names { get; init; } = new Dictionary<string, string>();
         public IDictionary<string, string> Empty { get; } = new Dictionary<string, string>();
@@ -21,7 +21,7 @@ public class DictionaryValidatorsTests {
         }
     }
 
-    private class TestData : TheoryData<TestObject, bool, int> {
+    private sealed class TestData : TheoryData<TestObject, bool, int> {
         public TestData() {
             Add(new() { Numbers = new Dictionary<string, int> { ["One"] = 1, ["Three"] = 3, ["Five"] = 5 }, Names = new Dictionary<string, string> { ["Some"] = "Name" } }, true, 0);
             Add(new() { Numbers = new Dictionary<string, int>(), Names = new Dictionary<string, string> { ["Name"] = default! } }, false, 5);

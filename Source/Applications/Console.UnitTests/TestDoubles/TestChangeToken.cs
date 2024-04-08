@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-public class TestChangeToken
+public sealed class TestChangeToken
     : IChangeToken {
     public IDisposable RegisterChangeCallback(Action<object?> callback, object? state)
         => new DisposableStateHolder(state);

@@ -1,6 +1,8 @@
+using DotNetToolbox.AI.OpenAI.Utilities;
+
 namespace DotNetToolbox.AI.OpenAI.Model;
 
-public class ModelsHandlerTests {
+public sealed class ModelsHandlerTests : IDisposable {
     private readonly ModelsHandler _modelsHandler;
     private readonly ILogger<ModelsHandler> _logger;
     private readonly FakeHttpMessageHandler _httpMessageHandler;
@@ -17,6 +19,8 @@ public class ModelsHandlerTests {
         _logger = new TrackedNullLogger<ModelsHandler>();
         _modelsHandler = new(httpClientProvider, _logger);
     }
+
+    public void Dispose() => _httpMessageHandler.Dispose();
 
     [Fact]
     public async Task Get_ReturnsModels() {

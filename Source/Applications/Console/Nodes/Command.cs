@@ -11,7 +11,7 @@ public class Command<TCommand>(IHasChildren parent, string name, string[] aliase
     where TCommand : Command<TCommand> {
     public NodeContext Context { get; } = [];
 
-    public ICollection<INode> Children { get; } = new HashSet<INode>();
+    public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
     public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
     public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];

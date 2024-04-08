@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>DotNetToolbox</RootNamespace>
-    <PackageId>DotNetToolbox.AsyncLinq</PackageId>
+    <PackageId>DotNetToolbox.Linq</PackageId>
     <Title>DotNetToolbox Asynchronous Linq Library</Title>
     <Version>8.1.0-rc1</Version>
     <Authors>Andre Vianna</Authors>

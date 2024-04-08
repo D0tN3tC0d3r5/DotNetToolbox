@@ -10,7 +10,7 @@ public class SayCommand : Command<SayCommand> {
     public override Task<Result> Execute(CancellationToken ct = default) {
         var name = Application.Context["MyName"];
         Context.TryGetValue("My", out var type);
-        type = type is string s && s.Equals("secret", StringComparison.CurrentCultureIgnoreCase) ? "Secret" : "Public";
+        type = type is string s && s.Equals("secret", StringComparison.OrdinalIgnoreCase) ? "Secret" : "Public";
         Context.TryGetValue("Info", out var info);
         Application.Context.TryGetValue($"{type}{info}", out var secret);
         Environment.ConsoleOutput.WriteLine(secret != null

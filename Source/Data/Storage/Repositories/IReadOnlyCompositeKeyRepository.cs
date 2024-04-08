@@ -1,8 +1,7 @@
 ﻿namespace DotNetToolbox.Data.Repositories;
 
-public interface IReadOnlyCompositeKeyRepository<TRepository, TModel>
-    : IQueryableRepository<TRepository, TModel>
-    where TRepository : IReadOnlyCompositeKeyRepository<TRepository, TModel>
+public interface IReadOnlyCompositeKeyRepository<TModel>
+    : IQueryableRepository<TModel>
     where TModel : class, ICompositeKeyEntity<TModel>, new() {
 
     Task<int> CountAsync(CancellationToken ct = default);

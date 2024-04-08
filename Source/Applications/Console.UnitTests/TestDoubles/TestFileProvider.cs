@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-public class TestFileProvider
+public sealed class TestFileProvider
     : IFileProvider {
     public IFileInfo GetFileInfo(string subpath) => new TestFileInfo();
     public IDirectoryContents GetDirectoryContents(string subpath) => throw new NotImplementedException();

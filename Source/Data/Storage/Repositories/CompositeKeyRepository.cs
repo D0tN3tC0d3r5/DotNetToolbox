@@ -1,10 +1,13 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public abstract class CompositeKeyEntityRepository<TRepository, TModel>
-    : QueryableRepository<TRepository, TModel>,
-      ICompositeKeyEntityRepository<TRepository, TModel>
-    where TRepository : CompositeKeyEntityRepository<TRepository, TModel>
+public class CompositeKeyRepository<TModel>
+    : QueryableRepository<TModel>,
+      ICompositeKeyRepository<TModel>
     where TModel : class, ICompositeKeyEntity<TModel>, new() {
+
+    public CompositeKeyRepository(ModelAsyncQueryProvider queryProvider, Expression expression)
+        : base(queryProvider, expression) {
+    }
 
     public virtual Task<int> CountAsync(CancellationToken ct = default)
         => throw new NotImplementedException();

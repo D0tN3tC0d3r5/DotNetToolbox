@@ -1,8 +1,7 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class InsertOnlyRepository<TRepository, TModel>
-    : IInsertOnlyRepository<TRepository, TModel>
-    where TRepository : InsertOnlyRepository<TRepository, TModel>
+public class InsertOnlyRepository<TModel>
+    : IInsertOnlyRepository<TModel>
     where TModel : class, new() {
 
     public virtual ValueTask Add(TModel input, CancellationToken ct = default)

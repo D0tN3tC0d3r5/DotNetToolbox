@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ValidationBuilder;
 
-public class ValidatableValidatorsTests {
+public sealed class ValidatableValidatorsTests {
     public record ChildObject : IValidatable {
         public required string Name { get; init; }
 
@@ -23,7 +23,7 @@ public class ValidatableValidatorsTests {
         }
     }
 
-    private class TestData : TheoryData<TestObject, bool, int> {
+    private sealed class TestData : TheoryData<TestObject, bool, int> {
         public TestData() {
             Add(new() { Child = new() { Name = "Mario" } }, true, 0);
             Add(new() { Child = new() { Name = default! } }, false, 1);

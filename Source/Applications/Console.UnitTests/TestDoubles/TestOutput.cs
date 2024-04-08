@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal class TestOutput : IOutput {
+internal sealed class TestOutput : IOutput {
     public string Prompt { get; set; } = "> ";
     public override string ToString() => string.Join(NewLine, Lines);
     public List<string> Lines { get; } = [];

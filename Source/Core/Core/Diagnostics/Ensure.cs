@@ -5,19 +5,23 @@ public static class Ensure {
     #region Null
 
     [return: NotNull]
-    public static TArgument IsNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        => argument ?? throw new ArgumentNullException(paramName, ValueCannotBeNull);
+    public static TArgument IsNotNull<TArgument>([NotNull] TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        ArgumentNullException.ThrowIfNull(argument, paramName);
+        return argument;
+    }
 
     [return: NotNull]
-    public static TArgument GetDefaultIfNull<TArgument>(TArgument? argument, TArgument defaultValue)
-        => argument ?? IsNotNull(defaultValue);
+    public static TArgument IsDefaultIfNull<TArgument>([NotNull] TArgument? argument, TArgument defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
+        argument ??= IsNotNull(defaultValue, paramName);
+        return argument;
+    }
 
-    #endregion
+#endregion
 
     #region Type
 
     [return: NotNull]
-    public static TArgument IsOfType<TArgument>(object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument IsOfType<TArgument>([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => IsNotNull(argument, paramName) is not TArgument result
             ? throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName)
             : result;
@@ -27,7 +31,7 @@ public static class Ensure {
     #region Collection
 
     [return: NotNull]
-    public static TArgument IsNotNullOrEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument IsNotNullOrEmpty<TArgument>([NotNull] TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => IsNotNull(argument, paramName) switch {
             string { Length: 0 } => throw new ArgumentException(StringCannotBeNullOrEmpty, paramName),
@@ -36,7 +40,7 @@ public static class Ensure {
         };
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? IsNotEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument? IsNotEmptyWhenNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
             ICollection { Count: 0 } => throw new ArgumentException(CollectionCannotBeEmpty, paramName),
@@ -48,34 +52,99 @@ public static class Ensure {
 
     #region String
 
-    public static string IsNotNullOrEmpty(string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        => string.IsNullOrEmpty(argument)
-               ? throw new ArgumentException(StringCannotBeNullOrEmpty, paramName)
-               : argument;
+    public static string IsNotNullOrEmpty([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        ArgumentException.ThrowIfNullOrEmpty(argument, paramName);
+        return argument;
+    }
 
-    public static string IsNotNullOrWhiteSpace(string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        => argument is null || argument.Trim().Length == 0
-               ? throw new ArgumentException(StringCannotBeNullOrWhiteSpace, paramName)
-               : argument;
+    public static string IsNotNullOrWhiteSpace([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(argument, paramName);
+        return argument;
+    }
 
-    [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static string? GetDefaultIfNullOrEmpty(string? argument, string? defaultValue)
-        => string.IsNullOrEmpty(argument)
-               ? defaultValue
-               : argument;
+    public static string HasDefaultWhenNullOrEmpty([NotNull] string? argument, string defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
+        argument = string.IsNullOrEmpty(argument) ? IsNotNullOrWhiteSpace(defaultValue, paramName) : argument;
+        return argument;
+    }
 
-    [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static string? GetDefaultIfNullOrWhiteSpace(string? argument, string? defaultValue)
-        => string.IsNullOrWhiteSpace(argument)
-               ? defaultValue
-               : argument;
+    public static string HasDefaultWhenNullOrWhiteSpace([NotNull] string? argument, string defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
+        argument = string.IsNullOrWhiteSpace(argument) ? IsNotNullOrWhiteSpace(defaultValue, paramName) : argument;
+        return argument;
+    }
+
+    #endregion
+
+    #region Range
+
+    public static TArgument? IsEqual<TArgument>(TArgument? argument, TArgument? requiredValue, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEquatable<TArgument?> {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(argument, requiredValue, paramName);
+        return argument;
+    }
+    public static TArgument? IsNotEqual<TArgument>(TArgument? argument, TArgument? forbiddenValue, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEquatable<TArgument?> {
+        ArgumentOutOfRangeException.ThrowIfEqual(argument, forbiddenValue, paramName);
+        return argument;
+    }
+    public static TArgument IsGreaterThan<TArgument>(TArgument argument, TArgument maximum, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(argument, maximum, paramName);
+        return argument;
+    }
+    public static TArgument IsLessThan<TArgument>(TArgument argument, TArgument minimum, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(argument, minimum, paramName);
+        return argument;
+    }
+    public static TArgument IsNotGreaterThan<TArgument>(TArgument argument, TArgument maximum, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(argument, maximum, paramName);
+        return argument;
+    }
+    public static TArgument IsNotLessThan<TArgument>(TArgument argument, TArgument minimum, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfLessThan(argument, minimum, paramName);
+        return argument;
+    }
+    public static TArgument IsZero<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(argument, TArgument.Zero, paramName);
+        return argument;
+    }
+    public static TArgument IsNotZero<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfZero(argument, paramName);
+        return argument;
+    }
+    // Does not include Zero
+    public static TArgument IsPositive<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument>, IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(argument, paramName);
+        return argument;
+    }
+    // Does not include Zero
+    public static TArgument IsNegative<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument>, IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(argument, TArgument.Zero, paramName);
+        return argument;
+    }
+    public static TArgument IsNotNegative<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument>, IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfNegative(argument, paramName);
+        return argument;
+    }
+    public static TArgument IsNotPositive<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument>, IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(argument, TArgument.Zero, paramName);
+        return argument;
+    }
 
     #endregion
 
     #region IsValid
 
     [return: NotNull]
-    public static TArgument IsValid<TArgument>(TArgument? argument, IDictionary<string, object?>? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, IDictionary<string, object?>? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatable
         => IsValid(IsNotNull(argument, paramName), arg => arg?.Validate(context) ?? Result.Success(), paramName)!;
 
@@ -88,10 +157,12 @@ public static class Ensure {
                    : defaultValue;
     }
 
-    [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+    [return: NotNull]
+    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, Func<TArgument, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
         var result = validate(IsNotNull(argument, paramName));
-        return result.IsSuccess ? argument : throw new ValidationException(ValueIsInvalid, paramName!);
+        return result.IsSuccess
+            ? argument
+            : throw new ValidationException(ValueIsInvalid, paramName!);
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
@@ -100,8 +171,8 @@ public static class Ensure {
                ? argument
                : defaultValue;
 
-    [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    [return: NotNull]
+    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => isValid(IsNotNull(argument, paramName))
                ? argument
                : throw new ValidationException(ValueIsInvalid, paramName!);

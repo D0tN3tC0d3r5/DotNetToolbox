@@ -1,12 +1,17 @@
 ﻿namespace DotNetToolbox.TestUtilities.Logging;
 
-public class TrackedLoggerFactoryTests {
+public sealed class TrackedLoggerFactoryTests : IDisposable {
     private readonly ILoggerFactory _loggerFactory;
     private readonly TrackedLoggerFactory _trackedLoggerFactory;
 
     public TrackedLoggerFactoryTests() {
         _loggerFactory = Substitute.For<ILoggerFactory>();
-        _trackedLoggerFactory = new TrackedLoggerFactory(_loggerFactory);
+        _trackedLoggerFactory = new(_loggerFactory);
+    }
+
+    public void Dispose() {
+        _loggerFactory.Dispose();
+        _trackedLoggerFactory.Dispose();
     }
 
     [Fact]

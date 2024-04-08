@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ValidationBuilder;
 
-public class TypeValidatorsTests {
+public sealed class TypeValidatorsTests {
     public record TestObject : IValidatable {
         public Type? Type { get; init; }
 
@@ -12,7 +12,7 @@ public class TypeValidatorsTests {
         }
     }
 
-    private class TestData : TheoryData<TestObject, int> {
+    private sealed class TestData : TheoryData<TestObject, int> {
         public TestData() {
             Add(new() { Type = typeof(string) }, 0);
             Add(new() { Type = null }, 1);

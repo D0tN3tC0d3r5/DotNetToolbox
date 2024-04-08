@@ -6,26 +6,30 @@ public class QueryableExtensionsTests {
     public void ToArray_WithProject_ReturnsProjectedArray() {
         // Arrange
         var source = new List<int> { 1, 2, 3 }.AsQueryable();
-        Expression<Func<int, int>> project = x => x * 2;
 
         // Act
-        var result = source.ToArray<int>(project);
+        var result = source.ToArray<int>(Project);
 
         // Assert
         result.Should().Equal([2, 4, 6]);
+        return;
+
+        static int Project(int x) => x * 2;
     }
 
     [Fact]
     public void ToList_WithProject_ReturnsProjectedArray() {
         // Arrange
         var source = new List<int> { 1, 2, 3 }.AsQueryable();
-        Expression<Func<int, int>> project = x => x * 2;
 
         // Act
-        var result = source.ToList<int>(project);
+        var result = source.ToList<int>(Project);
 
         // Assert
         result.Should().Equal([2, 4, 6]);
+        return;
+
+        static int Project(int x) => x * 2;
     }
 
     [Fact]
@@ -44,12 +48,14 @@ public class QueryableExtensionsTests {
     public void ToHashSet_WithProject_ReturnsProjectedHashSet() {
         // Arrange
         var source = new List<int> { 1, 2, 3 }.AsQueryable();
-        Expression<Func<int, int>> project = x => x * 2;
 
         // Act
-        var result = source.ToHashSet<int>(project);
+        var result = source.ToHashSet<int>(Project);
 
         // Assert
         result.Should().Equal(new HashSet<int> { 2, 4, 6 });
+        return;
+
+        static int Project(int x) => x * 2;
     }
 }

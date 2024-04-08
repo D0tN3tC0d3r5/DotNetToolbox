@@ -1,10 +1,14 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class ReadOnlyCompositeKeyRepository<TRepository, TModel>
-    : QueryableRepository<TRepository, TModel>,
-      IReadOnlyCompositeKeyRepository<TRepository, TModel>
-    where TRepository : ReadOnlyCompositeKeyRepository<TRepository, TModel>
+public class ReadOnlyCompositeKeyRepository<TModel>
+    : QueryableRepository<TModel>,
+      IReadOnlyCompositeKeyRepository<TModel>
     where TModel : class, ICompositeKeyEntity<TModel>, new() {
+
+    public ReadOnlyCompositeKeyRepository(ModelAsyncQueryProvider queryProvider, Expression expression)
+        : base(queryProvider, expression) {
+    }
+
     public virtual Task<int> CountAsync(CancellationToken ct = default)
         => throw new NotImplementedException();
     public virtual Task<IReadOnlyList<TModel>> ToArrayAsync(CancellationToken ct = default)

@@ -76,7 +76,7 @@ internal sealed class DumpBuilder : IDisposable {
     private bool TryUseDefaultFormatter([NotNullWhen(false)] object? value) {
         var formattedValue = value switch {
             null => "null",
-            bool => $"{value}".ToLower(),
+            bool => $"{value}".ToLowerInvariant(),
             nint => $"{value}",
             nuint => $"{value}",
             string => $"\"{value}\"",

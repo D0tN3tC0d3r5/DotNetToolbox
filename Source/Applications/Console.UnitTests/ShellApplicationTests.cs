@@ -2,7 +2,7 @@
 
 namespace DotNetToolbox.ConsoleApplication;
 
-public class ShellApplicationTests {
+public sealed class ShellApplicationTests {
     [Fact]
     public void Create_CreatesShellApplication() {
         // Arrange & Act

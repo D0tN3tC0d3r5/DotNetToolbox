@@ -1,6 +1,6 @@
 ﻿namespace SampleCLI.Commands;
 
-internal class SayCommand : Command<SayCommand> {
+internal sealed class SayCommand : Command<SayCommand> {
     public SayCommand(IHasChildren node)
         : base(node, "Say", []) {
         AddParameter("Text");

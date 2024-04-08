@@ -1,7 +1,7 @@
 namespace DotNetToolbox.ValidationBuilder;
 
-public class IntegerValidatorsTests {
-    public record TestObject : IValidatable {
+public sealed class IntegerValidatorsTests {
+    public sealed record TestObject : IValidatable {
         public int NonNull { get; init; }
         public int? Nullable { get; init; }
         public int? Required { get; init; }
@@ -15,7 +15,7 @@ public class IntegerValidatorsTests {
         }
     }
 
-    private class TestData : TheoryData<TestObject, int> {
+    private sealed class TestData : TheoryData<TestObject, int> {
         public TestData() {
             Add(new() { Nullable = 15, Required = 15 }, 0);
             Add(new() { Nullable = null, Required = null }, 1);

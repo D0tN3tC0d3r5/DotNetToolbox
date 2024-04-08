@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ValidationBuilder;
 
-public class ConnectorTests {
+public sealed class ConnectorTests {
     [Theory]
     [InlineData("value", 0)]
     [InlineData("error", 1)]

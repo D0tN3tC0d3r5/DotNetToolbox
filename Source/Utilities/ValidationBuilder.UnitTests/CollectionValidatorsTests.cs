@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ValidationBuilder;
 
-public class CollectionValidatorsTests {
+public sealed class CollectionValidatorsTests {
     public record TestObject : IValidatable {
         public required ICollection<int> Numbers { get; init; } = Array.Empty<int>();
         public required ICollection<(string Name, int Age)> Names { get; init; } = Array.Empty<(string Name, int Age)>();
@@ -21,11 +21,11 @@ public class CollectionValidatorsTests {
         }
     }
 
-    private class TestData : TheoryData<TestObject, int> {
+    private sealed class TestData : TheoryData<TestObject, int> {
         public TestData() {
-            Add(new() { Numbers = [ 1, 3, 5], Names = new[] { ("Name", 30) } }, 0);
-            Add(new() { Numbers = [], Names = new[] { ("Name", 30), default! } }, 5);
-            Add(new() { Numbers = [ 0, 5, 10, 13, 20], Names = new[] { ("Name", 30) } }, 3);
+            Add(new() { Numbers = [ 1, 3, 5], Names = [("Name", 30)] }, 0);
+            Add(new() { Numbers = [], Names = [("Name", 30), default!] }, 5);
+            Add(new() { Numbers = [ 0, 5, 10, 13, 20], Names = [("Name", 30)] }, 3);
             Add(new() { Numbers = null!, Names = null! }, 2);
         }
     }

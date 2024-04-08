@@ -2,8 +2,8 @@
   "solution": {
     "path": "..\\DotNetToolbox.sln",
     "projects": [
-      "Core\\AsyncLinq\\DotNetToolbox.AsyncLinq.csproj",
       "Core\\Core\\DotNetToolbox.Core.csproj",
+      "Core\\Linq\\DotNetToolbox.Linq.csproj",
       "Data\\Storage\\DotNetToolbox.Data.Storage.csproj"
     ]
   }

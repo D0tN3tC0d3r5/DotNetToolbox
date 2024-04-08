@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal class TestDateTimeProvider() : IDateTimeProvider {
+internal sealed class TestDateTimeProvider() : IDateTimeProvider {
     public DateTimeOffset FromFileTime(long fileTime) => throw new NotImplementedException();
 
     public DateTimeOffset FromUnixTimeMilliseconds(long ms) => throw new NotImplementedException();

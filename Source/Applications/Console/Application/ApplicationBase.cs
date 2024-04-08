@@ -91,7 +91,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     private static ICommand? FindCommand(IEnumerable<ICommand> commands, string token)
         => token.StartsWith('"') || token.StartsWith('-')
                ? null
-               : commands.FirstOrDefault(c => c.Name.Equals(token, StringComparison.CurrentCultureIgnoreCase)
+               : commands.FirstOrDefault(c => c.Name.Equals(token, StringComparison.OrdinalIgnoreCase)
                                            || c.Aliases.Contains(token));
 
     public async ValueTask DisposeAsync() {
@@ -144,7 +144,7 @@ public abstract class ApplicationBase : IApplication {
 
     public NodeContext Context { get; } = [];
 
-    public ICollection<INode> Children { get; } = new HashSet<INode>();
+    public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
     public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
     public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];

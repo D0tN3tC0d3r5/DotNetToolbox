@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
-public class NodeTests {
+public sealed class NodeTests {
     [Fact]
     public void Constructor_CreatesNode() {
         // Arrange & Act

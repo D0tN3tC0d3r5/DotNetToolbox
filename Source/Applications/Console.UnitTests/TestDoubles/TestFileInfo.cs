@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-public class TestFileInfo
+public sealed class TestFileInfo
     : IFileInfo {
     private const string _contents = "{}";
     public Stream CreateReadStream() => new MemoryStream(Encoding.UTF8.GetBytes(_contents));

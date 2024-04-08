@@ -1,8 +1,7 @@
 ﻿namespace DotNetToolbox.Data.Repositories;
 
-public interface IWriteOnlySimpleKeyEntityRepository<TRepository, TModel, in TKey>
-    : IInsertOnlyRepository<TRepository, TModel>
-    where TRepository : IWriteOnlySimpleKeyEntityRepository<TRepository, TModel, TKey>
+public interface IWriteOnlySimpleKeyRepository<TModel, in TKey>
+    : IInsertOnlyRepository<TModel>
     where TModel : class, ISimpleKeyEntity<TModel, TKey>, new()
     where TKey : notnull {
     Task Update(TModel input, CancellationToken ct = default);

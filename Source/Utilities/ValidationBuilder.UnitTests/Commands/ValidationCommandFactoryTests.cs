@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ValidationBuilder.Commands;
 
-public class ValidationCommandFactoryTests {
+public sealed class ValidationCommandFactoryTests {
     private static object?[] Args(params object?[] args) => args;
 
     [Theory]
@@ -39,7 +39,7 @@ public class ValidationCommandFactoryTests {
     private static readonly Dictionary<string, decimal?> _strings2NullableDecimals = new() { ["A"] = 1m, ["B"] = 2m, ["C"] = 3m };
     private static readonly Dictionary<string, string> _strings2Strings = new() { ["A"] = "1", ["B"] = "2", ["C"] = "3" };
 
-    private class TestDataForValidateSuccess : TheoryData<string, object?[], object?, Type> {
+    private sealed class TestDataForValidateSuccess : TheoryData<string, object?[], object?, Type> {
         public TestDataForValidateSuccess() {
             Add("Contains", Args(_integers[1]), _integers, _integers.GetType());
             Add("Contains", Args(_string[1..^1]), _string, _string.GetType());
@@ -91,7 +91,7 @@ public class ValidationCommandFactoryTests {
         validResult.IsSuccess.Should().BeTrue();
     }
 
-    private class TestDataForValidateFailure : TheoryData<string, object?[], object?, Type> {
+    private sealed class TestDataForValidateFailure : TheoryData<string, object?[], object?, Type> {
         public TestDataForValidateFailure() {
             Add("IsNull", Args(), "NotNull", typeof(string));
             Add("IsEmpty", Args(), _integers, _integers.GetType());
@@ -147,7 +147,7 @@ public class ValidationCommandFactoryTests {
         invalidResult.IsInvalid.Should().BeTrue();
     }
 
-    private class TestCommand() : ValidationCommand("Source");
+    private sealed class TestCommand() : ValidationCommand("Source");
 
     [Fact]
     public void Validate_WithDefaultCommand_ReturnsSuccess() {

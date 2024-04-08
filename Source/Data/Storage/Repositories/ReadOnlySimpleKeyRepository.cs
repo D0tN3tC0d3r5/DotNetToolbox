@@ -1,11 +1,14 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class ReadOnlySimpleKeyRepository<TRepository, TModel, TKey>
-    : QueryableRepository<TRepository, TModel>,
-      IReadOnlySimpleKeyRepository<TRepository, TModel, TKey>
-    where TRepository : ReadOnlySimpleKeyRepository<TRepository, TModel, TKey>
+public class ReadOnlySimpleKeyRepository<TModel, TKey>
+    : QueryableRepository<TModel>,
+      IReadOnlySimpleKeyRepository<TModel, TKey>
     where TModel : class, ISimpleKeyEntity<TModel, TKey>, new()
     where TKey : notnull {
+
+    public ReadOnlySimpleKeyRepository(ModelAsyncQueryProvider queryProvider, Expression expression)
+        : base(queryProvider, expression) {
+    }
 
     public virtual Task<int> CountAsync(CancellationToken ct = default)
         => throw new NotImplementedException();

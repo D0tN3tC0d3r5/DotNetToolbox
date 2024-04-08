@@ -1,7 +1,7 @@
 namespace DotNetToolbox.ValidationBuilder;
 
-public class StringValidatorsTests {
-    public record TestObject : IValidatable {
+public sealed class StringValidatorsTests {
+    public sealed record TestObject : IValidatable {
         private readonly IValidatable _fakePolicy = Substitute.For<IValidatable>();
 
         public TestObject() {
@@ -40,7 +40,7 @@ public class StringValidatorsTests {
         }
     }
 
-    private class TestData : TheoryData<TestObject, int> {
+    private sealed class TestData : TheoryData<TestObject, int> {
         public TestData() {
             Add(new() { Name = "Text1", Email = "some@email.com" }, 0);
             Add(new() { Name = "Text1", Email = "" }, 2);

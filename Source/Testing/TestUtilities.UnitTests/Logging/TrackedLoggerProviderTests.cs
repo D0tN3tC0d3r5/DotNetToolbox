@@ -1,12 +1,17 @@
 ﻿namespace DotNetToolbox.TestUtilities.Logging;
 
-public class TrackedLoggerProviderTests {
+public sealed class TrackedLoggerProviderTests : IDisposable {
     private readonly ILoggerProvider _loggerProvider;
     private readonly TrackedLoggerProvider _trackedLoggerProvider;
 
     public TrackedLoggerProviderTests() {
         _loggerProvider = Substitute.For<ILoggerProvider>();
-        _trackedLoggerProvider = new TrackedLoggerProvider(_loggerProvider);
+        _trackedLoggerProvider = new(_loggerProvider);
+    }
+
+    public void Dispose() {
+        _loggerProvider.Dispose();
+        _trackedLoggerProvider.Dispose();
     }
 
     [Fact]

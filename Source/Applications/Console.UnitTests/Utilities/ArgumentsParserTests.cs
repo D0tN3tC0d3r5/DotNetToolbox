@@ -76,7 +76,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithFlagByName_AndValue_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "--flag" };
-        _app.Children.Returns(new List<INode> { _flag });
+        _app.Children.Returns([_flag]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -90,7 +90,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithFlagByAlias_AndValue_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "-f" };
-        _app.Children.Returns(new List<INode> { _flag });
+        _app.Children.Returns([_flag]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -104,7 +104,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithOptionByName_WithoutValue_ReturnsInvalid() {
         // Arrange
         var arguments = new[] { "--option" };
-        _app.Children.Returns(new List<INode> { _option });
+        _app.Children.Returns([_option]);
         const string expectedMessage = "Missing value for option '--option'.";
 
         // Act
@@ -119,7 +119,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithOptionByName_AndValue_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "--option", "42" };
-        _app.Children.Returns(new List<INode> { _option });
+        _app.Children.Returns([_option]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -133,7 +133,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithOptionByAlias_AndValue_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "-o", "42" };
-        _app.Children.Returns(new List<INode> { _option });
+        _app.Children.Returns([_option]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -149,7 +149,7 @@ public class ArgumentsParserTests {
         var arguments = new[] { "-o", """
                                       "John Doe"
                                       """ };
-        _app.Children.Returns(new List<INode> { _option });
+        _app.Children.Returns([_option]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -163,7 +163,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithOptionByName_AndDefaultKeyWord_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "-o", "default" };
-        _app.Children.Returns(new List<INode> { _option });
+        _app.Children.Returns([_option]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -177,7 +177,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithOptionByAlias_AndNullKeyWord_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "-o", "null" };
-        _app.Children.Returns(new List<INode> { _option });
+        _app.Children.Returns([_option]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -191,7 +191,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithValueForParameter_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "42" };
-        _app.Children.Returns(new List<INode> { _parameter });
+        _app.Children.Returns([_parameter]);
         _app.Parameters.Returns([_parameter]);
 
         // Act
@@ -206,7 +206,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithValueForRequiredParameterOnly_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "John Doe" };
-        _app.Children.Returns(new List<INode> { _requiredParameter, _parameter });
+        _app.Children.Returns([_requiredParameter, _parameter]);
         _app.Parameters.Returns([_requiredParameter, _parameter]);
 
         // Act
@@ -222,7 +222,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithOptionAfterArgument_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "42", "-o" };
-        _app.Children.Returns(new List<INode> { _requiredParameter, _parameter });
+        _app.Children.Returns([_requiredParameter, _parameter]);
         _app.Parameters.Returns([_requiredParameter, _parameter]);
         const string expectedMessage = "Unknown argument '-o'. For a list of available arguments use '--help'.";
 
@@ -238,7 +238,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithNoValueForOptionalParameter_ReturnsSuccess() {
         // Arrange
         var arguments = Array.Empty<string>();
-        _app.Children.Returns(new List<INode> { _parameter });
+        _app.Children.Returns([_parameter]);
         _app.Parameters.Returns([_parameter]);
 
         // Act
@@ -253,7 +253,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithDefaultKeyWordForParameter_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "default" };
-        _app.Children.Returns(new List<INode> { _parameter });
+        _app.Children.Returns([_parameter]);
         _app.Parameters.Returns([_parameter]);
 
         // Act
@@ -268,7 +268,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithNullKeyWordForParameter_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "null" };
-        _app.Children.Returns(new List<INode> { _parameter });
+        _app.Children.Returns([_parameter]);
         _app.Parameters.Returns([_parameter]);
 
         // Act
@@ -285,7 +285,7 @@ public class ArgumentsParserTests {
         var arguments = new[] { "-o", """
                                       "John Doe"
                                       """ };
-        _app.Children.Returns(new List<INode> { _option, _requiredParameter });
+        _app.Children.Returns([_option, _requiredParameter]);
         _app.Options.Returns([_option]);
         _app.Parameters.Returns([_requiredParameter]);
         const string expectedMessage = "Required parameter is missing: 'Name'.";
@@ -304,7 +304,7 @@ public class ArgumentsParserTests {
         var arguments = new[] { "--flag", "-o", "42", """
                                                       "John Doe"
                                                       """, "20" };
-        _app.Children.Returns(new List<INode> { _flag, _option, _requiredParameter, _parameter });
+        _app.Children.Returns([_flag, _option, _requiredParameter, _parameter]);
         _app.Options.Returns([_flag, _option]);
         _app.Parameters.Returns([_requiredParameter, _parameter]);
         _app.Context.Returns([]);
@@ -324,7 +324,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithNoValueForRequiredParameter_ReturnsInvalid() {
         // Arrange
         var arguments = Array.Empty<string>();
-        _app.Children.Returns(new List<INode> { _requiredParameter });
+        _app.Children.Returns([_requiredParameter]);
         _app.Parameters.Returns([_requiredParameter]);
         const string expectedMessage = "Required parameter is missing: 'Name'.";
 
@@ -340,7 +340,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithCommandByName_ReturnsInvalid() {
         // Arrange
         var arguments = new[] { "say" };
-        _app.Children.Returns(new List<INode> { _command });
+        _app.Children.Returns([_command]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -353,7 +353,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithCommandByAlias_ReturnsInvalid() {
         // Arrange
         var arguments = new[] { "s" };
-        _app.Children.Returns(new List<INode> { _command });
+        _app.Children.Returns([_command]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
@@ -366,7 +366,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithCommand_WithSubCommand_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "s", "-f" };
-        _app.Children.Returns(new List<INode> { _command });
+        _app.Children.Returns([_command]);
         _command.AddFlag("Flag", "f");
         _command.AddCommand("TheCommand", () => { });
         _command.AddFlag("ACommand", () => { });
@@ -384,7 +384,7 @@ public class ArgumentsParserTests {
     public async Task Read_WithCommandWithOption_AndValue_ReturnsSuccess() {
         // Arrange
         var arguments = new[] { "-o", "42" };
-        _app.Children.Returns(new List<INode> { _option });
+        _app.Children.Returns([_option]);
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);

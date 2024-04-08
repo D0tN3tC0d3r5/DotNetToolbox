@@ -34,7 +34,7 @@ public sealed class HttpClientProviderTests : IDisposable {
         var builder = CreateHttpClientBuilder();
 
         // Act
-        var result = () => builder.GetHttpClient();
+        var result = builder.GetHttpClient;
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
