@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.TestUtilities.Logging;
 
-public class TrackedNullLoggerTests {
+public sealed class TrackedNullLoggerTests {
     [Fact]
     public void Constructor_ForGeneric_CreatesLog() {
         // Arrange & Act

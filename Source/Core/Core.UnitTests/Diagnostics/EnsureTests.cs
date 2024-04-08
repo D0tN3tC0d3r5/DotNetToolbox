@@ -341,7 +341,7 @@ public class EnsureTests {
         const string defaultValue = "default";
 
         // Act
-        var result = GetDefaultIfNull(argument, defaultValue);
+        var result = IsDefaultIfNull(argument, defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);
@@ -354,7 +354,7 @@ public class EnsureTests {
         const string defaultValue = "default";
 
         // Act
-        var result = GetDefaultIfNull(argument, defaultValue);
+        var result = IsDefaultIfNull(argument, defaultValue);
 
         // Assert
         result.Should().Be(argument);

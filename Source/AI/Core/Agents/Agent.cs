@@ -1,17 +1,15 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provider,
+public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
                                                                   IHttpClientProviderFactory factory,
                                                                   ILogger<TAgent> logger)
     : IAgent
-    where TAgent : Agent<TAgent, TMapper, TRequest, TResponse>
-    where TMapper : class, IMapper, new()
+    where TAgent : Agent<TAgent, TRequest, TResponse>
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
     private readonly IHttpClientProvider _httpClientProvider = factory.Create(provider);
 
     protected ILogger<TAgent> Logger { get; } = logger;
-    protected TMapper Mapper { get; } = new();
 
     public World World { get; set; } = default!;
     public UserProfile UserProfile { get; set; } = default!;
@@ -51,8 +49,21 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
         }
     }
 
+    protected abstract TRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent);
+
+    protected string CreateSystemMessage(IChat chat, World world, UserProfile userProfile, IAgent agent) {
+        var builder = new StringBuilder();
+        builder.AppendLine(world.ToString());
+        builder.AppendLine(userProfile.ToString());
+        builder.AppendLine(agent.Persona.ToString());
+        builder.AppendLine(chat.Instructions.ToString());
+        return builder.ToString();
+    }
+
+    protected abstract Message GetResponseMessage(IChat chat, TResponse response);
+
     private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
-        var request = (TRequest)Mapper.CreateRequest(chat, World, UserProfile, this);
+        var request = CreateRequest(chat, World, UserProfile, this);
         HttpResponseMessage httpResult = default!;
         try {
             var content = JsonContent.Create(request, options: IAgentModel.SerializerOptions, mediaType: MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType));
@@ -62,7 +73,7 @@ public abstract class Agent<TAgent, TMapper, TRequest, TResponse>(string provide
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentModel.SerializerOptions)!;
-            var responseMessage = Mapper.CreateResponseMessage(chat, apiResponse);
+            var responseMessage = GetResponseMessage(chat, apiResponse);
             chat.Messages.Add(responseMessage);
             return HttpResult.Ok();
         }

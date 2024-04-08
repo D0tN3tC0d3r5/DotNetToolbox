@@ -40,7 +40,7 @@ public static class Ensure {
         };
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? IsNotEmptyWhenNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument? IsNotEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
             ICollection { Count: 0 } => throw new ArgumentException(CollectionCannotBeEmpty, paramName),

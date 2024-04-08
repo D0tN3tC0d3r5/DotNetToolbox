@@ -1,7 +1,10 @@
 ﻿namespace DotNetToolbox.TestUtilities.Logging;
 
-public class TrackedNullLoggerFactoryTests {
+public sealed class TrackedNullLoggerFactoryTests : IDisposable {
     private readonly TrackedNullLoggerFactory _trackedLoggerFactory = TrackedNullLoggerFactory.Instance;
+
+    public void Dispose()
+        => _trackedLoggerFactory.Dispose();
 
     [Fact]
     public void AddProvider_DoesNotThrows() {

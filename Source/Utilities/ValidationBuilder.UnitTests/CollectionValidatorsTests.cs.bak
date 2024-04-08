@@ -1,7 +1,11 @@
 namespace DotNetToolbox.ValidationBuilder;
 
 public sealed class CollectionValidatorsTests {
+<<<<<<< Updated upstream
+    public record TestObject : IValidatable {
+=======
     public sealed record TestObject : IValidatable {
+>>>>>>> Stashed changes
         public required ICollection<int> Numbers { get; init; } = Array.Empty<int>();
         public required ICollection<(string Name, int Age)> Names { get; init; } = Array.Empty<(string Name, int Age)>();
         public ICollection<string> Empty { get; } = Array.Empty<string>();

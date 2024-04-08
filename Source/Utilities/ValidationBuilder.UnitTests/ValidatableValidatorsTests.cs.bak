@@ -1,7 +1,11 @@
 namespace DotNetToolbox.ValidationBuilder;
 
 public sealed class ValidatableValidatorsTests {
+<<<<<<< Updated upstream
+    public record ChildObject : IValidatable {
+=======
     public sealed record ChildObject : IValidatable {
+>>>>>>> Stashed changes
         public required string Name { get; init; }
 
         public Result Validate(IDictionary<string, object?>? context = null) {

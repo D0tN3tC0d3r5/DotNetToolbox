@@ -182,7 +182,7 @@ public class ObjectExtensionsTests {
 
     [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    private class CustomClass<T>(T? value) : ICustomClass<T> {
+    private sealed class CustomClass<T>(T? value) : ICustomClass<T> {
         [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "<Pending>")]
         public const string Name = "CustomClass";
 
@@ -204,21 +204,21 @@ public class ObjectExtensionsTests {
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public class ConvertedArgs : EventArgs {
+        public sealed class ConvertedArgs : EventArgs {
             public object? Value { get; set; }
         }
     }
 
     [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    private class TestClassWithGeneric<T>(T value) {
+    private sealed class TestClassWithGeneric<T>(T value) {
         public T Property { get; set; } = value;
         public Func<T>? ConvertTo { get; set; }
     }
 
     [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local")]
-    private record TestRecord(int IntProperty, string StringProperty);
+    private sealed record TestRecord(int IntProperty, string StringProperty);
 
     [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
@@ -237,7 +237,7 @@ public class ObjectExtensionsTests {
     private static readonly List<object?> _listOfObjects = [null, _list];
     private static readonly Dictionary<string, double> _dictionary = new() { ["A"] = 1.1, ["B"] = 2.2, ["C"] = 3.3 };
 
-    private class TestDataForPrimitives : TheoryData<object?, string> {
+    private sealed class TestDataForPrimitives : TheoryData<object?, string> {
         public TestDataForPrimitives() {
             Add(null, "null");
             Add(true, "<Boolean> true");
@@ -264,13 +264,13 @@ public class ObjectExtensionsTests {
             Add(Guid.Parse("b6d3aec4-daca-4dca-ada7-cda51623ed50"), "<Guid> b6d3aec4-daca-4dca-ada7-cda51623ed50");
         }
     }
-    private class TestDataForFullName : TheoryData<object?, string> {
+    private sealed class TestDataForFullName : TheoryData<object?, string> {
         public TestDataForFullName() {
             Add(new TestClass(42, "Text"), _fullNamedTestClassDump);
             Add(typeof(CustomClass<>), _fullNamedCustomClassTypeDump);
         }
     }
-    private class TestDataForJson : TheoryData<object?> {
+    private sealed class TestDataForJson : TheoryData<object?> {
         public TestDataForJson() {
             Add(null);
             Add(true);
@@ -291,7 +291,7 @@ public class ObjectExtensionsTests {
             Add(new TestClass(42, "Text"));
         }
     }
-    private class TestDataForComplexType : TheoryData<object?, string> {
+    private sealed class TestDataForComplexType : TheoryData<object?, string> {
         public TestDataForComplexType() {
             Add(_array, _arrayDump);
             Add(_list, _listDump);
@@ -309,7 +309,7 @@ public class ObjectExtensionsTests {
             Add(_multiDimensionArray, _multiDimensionArrayDumpLv1);
         }
     }
-    private class TestDataForMaxDepth : TheoryData<byte, string> {
+    private sealed class TestDataForMaxDepth : TheoryData<byte, string> {
         public TestDataForMaxDepth() {
             Add(0, _cultureInfoDumpLv0);
             Add(1, _cultureInfoDumpLv1);
@@ -317,7 +317,7 @@ public class ObjectExtensionsTests {
             Add(3, _cultureInfoDumpLv3);
         }
     }
-    private class TestDataForNotIndented : TheoryData<object?, string> {
+    private sealed class TestDataForNotIndented : TheoryData<object?, string> {
         public TestDataForNotIndented() {
             Add(new TestClass(42, "Text"), _testClassCompactDump);
             Add(new TestClassWithGeneric<double>(42), _testGenericClassDoubleCompactDump);

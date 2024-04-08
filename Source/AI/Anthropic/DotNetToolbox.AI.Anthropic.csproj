@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\DotNetToolbox.AI.csproj" />
+    <PackageReference Include="DotNetToolbox.AI" Version="8.1.0-rc1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.TestUtilities.Logging;
 
-public class TrackedLoggerTests {
+public sealed class TrackedLoggerTests {
     private readonly TrackedLogger<TrackedLoggerTests> _trackedLogger;
     private readonly ILogger<TrackedLoggerTests> _logger;
 

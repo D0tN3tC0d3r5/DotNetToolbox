@@ -1,6 +1,6 @@
 namespace DotNetToolbox.AI.Anthropic.Utilities;
 
-internal class FakeHttpMessageHandler
+internal sealed class FakeHttpMessageHandler
     : HttpMessageHandler {
     private Exception? _exception;
     private HttpStatusCode _statusCode = HttpStatusCode.InternalServerError;

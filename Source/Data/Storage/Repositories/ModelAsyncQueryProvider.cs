@@ -11,11 +11,11 @@ public class ModelAsyncQueryProvider(IQueryCompiler queryCompiler)
         => _genericCreateQueryMethod ??= typeof(ModelAsyncQueryProvider)
         .GetMethod("CreateQuery", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression)], null)!;
 
-    private MethodInfo GenericExecuteMethod
+    private static MethodInfo GenericExecuteMethod
         => _genericExecuteMethod ??= typeof(ModelAsyncQueryProvider)
         .GetMethod("Execute", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression)], null)!;
 
-    private MethodInfo GenericExecuteAsyncMethod
+    private static MethodInfo GenericExecuteAsyncMethod
         => _genericExecuteAsyncMethod ??= typeof(ModelAsyncQueryProvider)
         .GetMethod("ExecuteAsync", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression), typeof(CancellationToken)], null)!;
 

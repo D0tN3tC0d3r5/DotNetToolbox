@@ -137,7 +137,7 @@ public static class QueryableExtensions {
 
     public static IQueryable<TEntity> Including<TEntity>(this IQueryable<TEntity> source, string navigationPropertyPath)
         where TEntity : class {
-        IsNotEmptyWhenNotNull(navigationPropertyPath, nameof(navigationPropertyPath));
+        IsNotEmpty(navigationPropertyPath, nameof(navigationPropertyPath));
         var methodCallExpression = Expression.Call(instance: null,
                                                    method: StringIncludeMethodInfo.MakeGenericMethod(typeof(TEntity)),
                                                    arg0: source.Expression,

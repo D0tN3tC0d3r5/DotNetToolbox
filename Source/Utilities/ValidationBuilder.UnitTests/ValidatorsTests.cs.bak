@@ -1,7 +1,11 @@
 namespace DotNetToolbox.ValidationBuilder;
 
 public sealed class ValidatorsTests {
+<<<<<<< Updated upstream
+    public class TestObject(long subject, string source, ValidatorMode mode = ValidatorMode.And) : Validator<long>(subject, source, mode);
+=======
     public sealed class TestObject(long subject, string source, ValidatorMode mode = ValidatorMode.And) : Validator<long>(subject, source, mode);
+>>>>>>> Stashed changes
 
     [Fact]
     public void Constructor_CreatesBuilder() {

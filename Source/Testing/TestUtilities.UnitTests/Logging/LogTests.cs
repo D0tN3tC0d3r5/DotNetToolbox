@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.TestUtilities.Logging;
 
-public class LogTests {
+public sealed class LogTests {
     [Fact]
     public void Log_Constructor_ShouldSetPropertiesCorrectly() {
         // Arrange
