@@ -1,8 +1,8 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class ReadOnlySimpleKeyRepository<TModel, TKey>(ModelAsyncQueryProvider queryProvider, Expression expression)
-    : QueryableRepository<TModel>(queryProvider, expression),
-      IReadOnlySimpleKeyRepository<TModel, TKey>
+public class ReadOnlySimpleKeyStorage<TModel, TKey>(StorageProvider queryProvider, Expression expression)
+    : Storage<TModel>(queryProvider, expression),
+      IReadOnlySimpleKeyStorage<TModel, TKey>
     where TModel : class, ISimpleKeyEntity<TModel, TKey>, new()
     where TKey : notnull {
     public virtual Task<int> CountAsync(CancellationToken ct = default)

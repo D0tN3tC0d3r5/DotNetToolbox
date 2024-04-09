@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Data.Repositories;
 
-public interface IReadOnlySimpleKeyRepository<TModel, in TKey>
-    : IQueryableRepository<TModel>
+public interface IReadOnlySimpleKeyStorage<TModel, in TKey>
+    : IStorage<TModel>
     where TModel : class, ISimpleKeyEntity<TModel, TKey>, new()
     where TKey : notnull {
 

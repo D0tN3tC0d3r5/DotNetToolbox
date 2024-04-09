@@ -1,7 +1,7 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class QueryableRepository<TModel>(ModelAsyncQueryProvider queryProvider, Expression expression)
-    : IQueryableRepository<TModel> {
+public class Storage<TModel>(StorageProvider queryProvider, Expression expression)
+    : IStorage<TModel> {
     public Type ElementType { get; } = typeof(TModel);
     public IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         => queryProvider
@@ -11,5 +11,6 @@ public class QueryableRepository<TModel>(ModelAsyncQueryProvider queryProvider, 
         => queryProvider.Execute<IEnumerable<TModel>>(Expression).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     public virtual Expression Expression { get; } = expression;
-    public IQueryProvider Provider => queryProvider;
+    IQueryProvider IQueryable.Provider => Provider;
+    public IStorageProvider Provider => queryProvider;
 }

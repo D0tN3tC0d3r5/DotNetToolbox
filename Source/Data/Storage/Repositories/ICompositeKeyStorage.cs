@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Data.Repositories;
 
-public interface ICompositeKeyRepository<TModel>
-    : IReadOnlyCompositeKeyRepository<TModel>,
+public interface ICompositeKeyStorage<TModel>
+    : IReadOnlyCompositeKeyStorage<TModel>,
       IWriteOnlyCompositeKeyRepository<TModel>
     where TModel : class, ICompositeKeyEntity<TModel>, new();

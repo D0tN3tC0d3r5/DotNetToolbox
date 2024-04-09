@@ -1,20 +1,20 @@
 ﻿namespace DotNetToolbox.Data.Repositories;
 
-public static class QueryableRepositoryExtensions {
+public static class RepositoryExtensions {
     // ReSharper disable UnusedMember.Global
-    public static IQueryable<TElement> AsQueryable<TElement>(this IEnumerable<TElement> source) {
+    public static IStorage<TElement> AsQueryable<TElement>(this IEnumerable<TElement> source) {
         // ReSharper disable once PossibleMultipleEnumeration
         IsNotNull(source);
-        if (source is IQueryable<TElement> elements)
+        if (source is IStorage<TElement> elements)
             return elements;
         // ReSharper disable once PossibleMultipleEnumeration
         return new EnumerableQuery<TElement>(source);
     }
 
-    public static IQueryable AsQueryable(this IEnumerable source) {
+    public static IStorage AsQueryable(this IEnumerable source) {
         // ReSharper disable once PossibleMultipleEnumeration
         IsNotNull(source);
-        if (source is IQueryable queryable)
+        if (source is IStorage queryable)
             return queryable;
         var enumType = FindGenericType(typeof(IEnumerable<>), source.GetType());
         // ReSharper disable once PossibleMultipleEnumeration
@@ -23,7 +23,7 @@ public static class QueryableRepositoryExtensions {
                    : CreateEnumerableQuery(enumType.GetGenericArguments()[0], source);
     }
 
-    public static IQueryable<TResult> Where<TResult>(this IQueryable<TResult> source, Expression<Func<TResult, bool>> predicate) {
+    public static IStorage<TResult> Where<TResult>(this IStorage<TResult> source, Expression<Func<TResult, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.Where, source, predicate);
@@ -32,7 +32,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> Where<TResult>(this IQueryable<TResult> source, Expression<Func<TResult, int, bool>> predicate) {
+    public static IStorage<TResult> Where<TResult>(this IStorage<TResult> source, Expression<Func<TResult, int, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.Where, source, predicate);
@@ -41,7 +41,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> OfType<TResult>(this IQueryable source) {
+    public static IStorage<TResult> OfType<TResult>(this IStorage source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.OfType<TResult>, source);
         var args = new[] { source.Expression };
@@ -49,7 +49,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> Cast<TResult>(this IQueryable source) {
+    public static IStorage<TResult> Cast<TResult>(this IStorage source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Cast<TResult>, source);
         var args = new[] { source.Expression };
@@ -57,7 +57,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector) {
+    public static IStorage<TResult> Select<TSource, TResult>(this IStorage<TSource> source, Expression<Func<TSource, TResult>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Select, source, selector);
@@ -66,7 +66,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, TResult>> selector) {
+    public static IStorage<TResult> Select<TSource, TResult>(this IStorage<TSource> source, Expression<Func<TSource, int, TResult>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Select, source, selector);
@@ -75,7 +75,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> SelectMany<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector) {
+    public static IStorage<TResult> SelectMany<TSource, TResult>(this IStorage<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.SelectMany, source, selector);
@@ -84,7 +84,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> SelectMany<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector) {
+    public static IStorage<TResult> SelectMany<TSource, TResult>(this IStorage<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.SelectMany, source, selector);
@@ -93,7 +93,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) {
+    public static IStorage<TResult> SelectMany<TSource, TCollection, TResult>(this IStorage<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) {
         IsNotNull(source);
         IsNotNull(collectionSelector);
         IsNotNull(resultSelector);
@@ -103,7 +103,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) {
+    public static IStorage<TResult> SelectMany<TSource, TCollection, TResult>(this IStorage<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) {
         IsNotNull(source);
         IsNotNull(collectionSelector);
         IsNotNull(resultSelector);
@@ -113,7 +113,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) {
+    public static IStorage<TResult> Join<TOuter, TInner, TKey, TResult>(this IStorage<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) {
         IsNotNull(outer);
         // ReSharper disable PossibleMultipleEnumeration
         IsNotNull(inner);
@@ -133,7 +133,7 @@ public static class QueryableRepositoryExtensions {
         return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
+    public static IStorage<TResult> Join<TOuter, TInner, TKey, TResult>(this IStorage<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
         IsNotNull(outer);
         // ReSharper disable PossibleMultipleEnumeration
         IsNotNull(inner);
@@ -154,7 +154,7 @@ public static class QueryableRepositoryExtensions {
         return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector) {
+    public static IStorage<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IStorage<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector) {
         IsNotNull(outer);
         // ReSharper disable PossibleMultipleEnumeration
         IsNotNull(inner);
@@ -174,7 +174,7 @@ public static class QueryableRepositoryExtensions {
         return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
+    public static IStorage<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IStorage<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
         IsNotNull(outer);
         // ReSharper disable PossibleMultipleEnumeration
         IsNotNull(inner);
@@ -195,7 +195,7 @@ public static class QueryableRepositoryExtensions {
         return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
+    public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.OrderBy, source, keySelector);
@@ -204,7 +204,7 @@ public static class QueryableRepositoryExtensions {
         return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) {
+    public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.OrderBy, source, keySelector, comparer);
@@ -217,7 +217,7 @@ public static class QueryableRepositoryExtensions {
         return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
+    public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.OrderByDescending, source, keySelector);
@@ -226,7 +226,7 @@ public static class QueryableRepositoryExtensions {
         return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) {
+    public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.OrderByDescending, source, keySelector, comparer);
@@ -283,7 +283,7 @@ public static class QueryableRepositoryExtensions {
         return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, int count) {
+    public static IStorage<TSource> Take<TSource>(this IStorage<TSource> source, int count) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Take, source, count);
         var args = new[] { source.Expression, Expression.Constant(count) };
@@ -291,7 +291,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> TakeWhile<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static IStorage<TSource> TakeWhile<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.TakeWhile, source, predicate);
@@ -300,7 +300,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> TakeWhile<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate) {
+    public static IStorage<TSource> TakeWhile<TSource>(this IStorage<TSource> source, Expression<Func<TSource, int, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.TakeWhile, source, predicate);
@@ -309,7 +309,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, int count) {
+    public static IStorage<TSource> Skip<TSource>(this IStorage<TSource> source, int count) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Skip, source, count);
         var args = new[] { source.Expression, Expression.Constant(count) };
@@ -317,7 +317,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> SkipWhile<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static IStorage<TSource> SkipWhile<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.SkipWhile, source, predicate);
@@ -326,7 +326,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> SkipWhile<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate) {
+    public static IStorage<TSource> SkipWhile<TSource>(this IStorage<TSource> source, Expression<Func<TSource, int, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.SkipWhile, source, predicate);
@@ -335,7 +335,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
+    public static IStorage<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.GroupBy, source, keySelector);
@@ -344,7 +344,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<IGrouping<TKey, TSource>>(expression);
     }
 
-    public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector) {
+    public static IStorage<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -354,7 +354,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<IGrouping<TKey, TElement>>(expression);
     }
 
-    public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IEqualityComparer<TKey> comparer) {
+    public static IStorage<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, IEqualityComparer<TKey> comparer) {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.GroupBy, source, keySelector, comparer);
@@ -367,7 +367,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<IGrouping<TKey, TSource>>(expression);
     }
 
-    public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, IEqualityComparer<TKey> comparer) {
+    public static IStorage<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, IEqualityComparer<TKey> comparer) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -382,7 +382,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<IGrouping<TKey, TElement>>(expression);
     }
 
-    public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector) {
+    public static IStorage<TResult> GroupBy<TSource, TKey, TElement, TResult>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -393,7 +393,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector) {
+    public static IStorage<TResult> GroupBy<TSource, TKey, TResult>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(resultSelector);
@@ -403,7 +403,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
+    public static IStorage<TResult> GroupBy<TSource, TKey, TResult>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(resultSelector);
@@ -418,7 +418,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
+    public static IStorage<TResult> GroupBy<TSource, TKey, TElement, TResult>(this IStorage<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -435,7 +435,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TSource> Distinct<TSource>(this IQueryable<TSource> source) {
+    public static IStorage<TSource> Distinct<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Distinct, source);
         var args = new[] { source.Expression };
@@ -443,7 +443,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Distinct<TSource>(this IQueryable<TSource> source, IEqualityComparer<TSource> comparer) {
+    public static IStorage<TSource> Distinct<TSource>(this IStorage<TSource> source, IEqualityComparer<TSource> comparer) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Distinct, source, comparer);
         var args = new[] {
@@ -454,7 +454,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Concat<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2) {
+    public static IStorage<TSource> Concat<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.Concat, source1, source2);
@@ -463,7 +463,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TResult> Zip<TFirst, TSecond, TResult>(this IQueryable<TFirst> source1, IEnumerable<TSecond> source2, Expression<Func<TFirst, TSecond, TResult>> resultSelector) {
+    public static IStorage<TResult> Zip<TFirst, TSecond, TResult>(this IStorage<TFirst> source1, IEnumerable<TSecond> source2, Expression<Func<TFirst, TSecond, TResult>> resultSelector) {
         IsNotNull(source1);
         IsNotNull(source2);
         IsNotNull(resultSelector);
@@ -473,7 +473,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IQueryable<TSource> Union<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2) {
+    public static IStorage<TSource> Union<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.Union, source1, source2);
@@ -482,7 +482,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Union<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
+    public static IStorage<TSource> Union<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.Union, source1, source2, comparer);
@@ -495,7 +495,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Intersect<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2) {
+    public static IStorage<TSource> Intersect<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.Intersect, source1, source2);
@@ -504,7 +504,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Intersect<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
+    public static IStorage<TSource> Intersect<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.Union, source1, source2, comparer);
@@ -517,7 +517,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Except<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2) {
+    public static IStorage<TSource> Except<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.Except, source1, source2);
@@ -526,7 +526,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Except<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
+    public static IStorage<TSource> Except<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.Except, source1, source2, comparer);
@@ -539,7 +539,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static TSource First<TSource>(this IQueryable<TSource> source) {
+    public static TSource First<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.First, source);
         var args = new[] { source.Expression };
@@ -547,7 +547,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource First<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static TSource First<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.First, source, predicate);
@@ -556,7 +556,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource FirstOrDefault<TSource>(this IQueryable<TSource> source) {
+    public static TSource FirstOrDefault<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.FirstOrDefault, source);
         var args = new[] { source.Expression };
@@ -564,7 +564,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource FirstOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static TSource FirstOrDefault<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.FirstOrDefault, source, predicate);
@@ -573,7 +573,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource Last<TSource>(this IQueryable<TSource> source) {
+    public static TSource Last<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Last, source);
         var args = new[] { source.Expression };
@@ -581,7 +581,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource Last<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static TSource Last<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.Last, source, predicate);
@@ -590,7 +590,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource LastOrDefault<TSource>(this IQueryable<TSource> source) {
+    public static TSource LastOrDefault<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.LastOrDefault, source);
         var args = new[] { source.Expression };
@@ -598,7 +598,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource LastOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static TSource LastOrDefault<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.LastOrDefault, source, predicate);
@@ -607,7 +607,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource Single<TSource>(this IQueryable<TSource> source) {
+    public static TSource Single<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Single, source);
         var args = new[] { source.Expression };
@@ -615,7 +615,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource Single<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static TSource Single<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.Single, source, predicate);
@@ -624,7 +624,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source) {
+    public static TSource SingleOrDefault<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.SingleOrDefault, source);
         var args = new[] { source.Expression };
@@ -632,7 +632,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static TSource SingleOrDefault<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.SingleOrDefault, source, predicate);
@@ -641,7 +641,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource ElementAt<TSource>(this IQueryable<TSource> source, int index) {
+    public static TSource ElementAt<TSource>(this IStorage<TSource> source, int index) {
         IsNotNull(source);
         ArgumentOutOfRangeException.ThrowIfNegative(index);
         var method = GetMethodInfo(Queryable.ElementAt, source, index);
@@ -650,7 +650,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TSource ElementAtOrDefault<TSource>(this IQueryable<TSource> source, int index) {
+    public static TSource ElementAtOrDefault<TSource>(this IStorage<TSource> source, int index) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.ElementAtOrDefault, source, index);
         var args = new[] { source.Expression, Expression.Constant(index) };
@@ -658,7 +658,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static IQueryable<TSource> DefaultIfEmpty<TSource>(this IQueryable<TSource> source) {
+    public static IStorage<TSource> DefaultIfEmpty<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.DefaultIfEmpty, source);
         var args = new[] { source.Expression };
@@ -666,7 +666,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> DefaultIfEmpty<TSource>(this IQueryable<TSource> source, TSource defaultValue) {
+    public static IStorage<TSource> DefaultIfEmpty<TSource>(this IStorage<TSource> source, TSource defaultValue) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.DefaultIfEmpty, source, defaultValue);
         var args = new[] { source.Expression, Expression.Constant(defaultValue, typeof(TSource)) };
@@ -674,7 +674,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static bool Contains<TSource>(this IQueryable<TSource> source, TSource item) {
+    public static bool Contains<TSource>(this IStorage<TSource> source, TSource item) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Contains, source, item);
         var args = new[] { source.Expression, Expression.Constant(item, typeof(TSource)) };
@@ -682,7 +682,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<bool>(expression);
     }
 
-    public static bool Contains<TSource>(this IQueryable<TSource> source, TSource item, IEqualityComparer<TSource> comparer) {
+    public static bool Contains<TSource>(this IStorage<TSource> source, TSource item, IEqualityComparer<TSource> comparer) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Contains, source, item, comparer);
         var args = new[] {
@@ -694,7 +694,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<bool>(expression);
     }
 
-    public static IQueryable<TSource> Reverse<TSource>(this IQueryable<TSource> source) {
+    public static IStorage<TSource> Reverse<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Reverse, source);
         var args = new[] { source.Expression };
@@ -702,7 +702,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static bool SequenceEqual<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2) {
+    public static bool SequenceEqual<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.SequenceEqual, source1, source2);
@@ -711,7 +711,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.Execute<bool>(expression);
     }
 
-    public static bool SequenceEqual<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
+    public static bool SequenceEqual<TSource>(this IStorage<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
         IsNotNull(source1);
         IsNotNull(source2);
         var method = GetMethodInfo(Queryable.SequenceEqual, source1, source2, comparer);
@@ -724,7 +724,7 @@ public static class QueryableRepositoryExtensions {
         return source1.Provider.Execute<bool>(expression);
     }
 
-    public static bool Any<TSource>(this IQueryable<TSource> source) {
+    public static bool Any<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Any, source);
         var args = new[] { source.Expression };
@@ -732,7 +732,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<bool>(expression);
     }
 
-    public static bool Any<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static bool Any<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.Any, source, predicate);
@@ -741,7 +741,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<bool>(expression);
     }
 
-    public static bool All<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static bool All<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.All, source, predicate);
@@ -750,7 +750,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<bool>(expression);
     }
 
-    public static int Count<TSource>(this IQueryable<TSource> source) {
+    public static int Count<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Count, source);
         var args = new[] { source.Expression };
@@ -758,7 +758,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<int>(expression);
     }
 
-    public static int Count<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static int Count<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.Any, source, predicate);
@@ -767,7 +767,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<int>(expression);
     }
 
-    public static long LongCount<TSource>(this IQueryable<TSource> source) {
+    public static long LongCount<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.LongCount, source);
         var args = new[] { source.Expression };
@@ -775,7 +775,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<long>(expression);
     }
 
-    public static long LongCount<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+    public static long LongCount<TSource>(this IStorage<TSource> source, Expression<Func<TSource, bool>> predicate) {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.LongCount, source, predicate);
@@ -784,7 +784,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<long>(expression);
     }
 
-    public static TSource Min<TSource>(this IQueryable<TSource> source) {
+    public static TSource Min<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Min, source);
         var args = new[] { source.Expression };
@@ -792,7 +792,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TResult Min<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector) {
+    public static TResult Min<TSource, TResult>(this IStorage<TSource> source, Expression<Func<TSource, TResult>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Min, source, selector);
@@ -801,7 +801,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TResult>(expression);
     }
 
-    public static TSource Max<TSource>(this IQueryable<TSource> source) {
+    public static TSource Max<TSource>(this IStorage<TSource> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Max, source);
         var args = new[] { source.Expression };
@@ -809,7 +809,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TResult Max<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector) {
+    public static TResult Max<TSource, TResult>(this IStorage<TSource> source, Expression<Func<TSource, TResult>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Min, source, selector);
@@ -818,7 +818,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TResult>(expression);
     }
 
-    public static int Sum(this IQueryable<int> source) {
+    public static int Sum(this IStorage<int> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -826,7 +826,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<int>(expression);
     }
 
-    public static int? Sum(this IQueryable<int?> source) {
+    public static int? Sum(this IStorage<int?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -834,7 +834,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<int?>(expression);
     }
 
-    public static long Sum(this IQueryable<long> source) {
+    public static long Sum(this IStorage<long> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -842,7 +842,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<long>(expression);
     }
 
-    public static long? Sum(this IQueryable<long?> source) {
+    public static long? Sum(this IStorage<long?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -850,7 +850,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<long?>(expression);
     }
 
-    public static float Sum(this IQueryable<float> source) {
+    public static float Sum(this IStorage<float> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -858,7 +858,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<float>(expression);
     }
 
-    public static float? Sum(this IQueryable<float?> source) {
+    public static float? Sum(this IStorage<float?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -866,7 +866,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<float?>(expression);
     }
 
-    public static double Sum(this IQueryable<double> source) {
+    public static double Sum(this IStorage<double> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -874,7 +874,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double>(expression);
     }
 
-    public static double? Sum(this IQueryable<double?> source) {
+    public static double? Sum(this IStorage<double?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -882,7 +882,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double?>(expression);
     }
 
-    public static decimal Sum(this IQueryable<decimal> source) {
+    public static decimal Sum(this IStorage<decimal> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -890,7 +890,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<decimal>(expression);
     }
 
-    public static decimal? Sum(this IQueryable<decimal?> source) {
+    public static decimal? Sum(this IStorage<decimal?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
@@ -898,7 +898,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<decimal?>(expression);
     }
 
-    public static int Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector) {
+    public static int Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, int>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -907,7 +907,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<int>(expression);
     }
 
-    public static int? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector) {
+    public static int? Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, int?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -916,7 +916,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<int?>(expression);
     }
 
-    public static long Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector) {
+    public static long Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, long>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -925,7 +925,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<long>(expression);
     }
 
-    public static long? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector) {
+    public static long? Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, long?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -934,7 +934,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<long?>(expression);
     }
 
-    public static float Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector) {
+    public static float Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, float>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -943,7 +943,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<float>(expression);
     }
 
-    public static float? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector) {
+    public static float? Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, float?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -952,7 +952,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<float?>(expression);
     }
 
-    public static double Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector) {
+    public static double Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, double>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -961,7 +961,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double>(expression);
     }
 
-    public static double? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector) {
+    public static double? Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, double?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -970,7 +970,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double?>(expression);
     }
 
-    public static decimal Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector) {
+    public static decimal Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, decimal>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -979,7 +979,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<decimal>(expression);
     }
 
-    public static decimal? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector) {
+    public static decimal? Sum<TSource>(this IStorage<TSource> source, Expression<Func<TSource, decimal?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Sum, source, selector);
@@ -988,7 +988,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<decimal?>(expression);
     }
 
-    public static double Average(this IQueryable<int> source) {
+    public static double Average(this IStorage<int> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -996,7 +996,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double>(expression);
     }
 
-    public static double? Average(this IQueryable<int?> source) {
+    public static double? Average(this IStorage<int?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1004,7 +1004,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double?>(expression);
     }
 
-    public static double Average(this IQueryable<long> source) {
+    public static double Average(this IStorage<long> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1012,7 +1012,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double>(expression);
     }
 
-    public static double? Average(this IQueryable<long?> source) {
+    public static double? Average(this IStorage<long?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1020,7 +1020,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double?>(expression);
     }
 
-    public static float Average(this IQueryable<float> source) {
+    public static float Average(this IStorage<float> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1028,7 +1028,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<float>(expression);
     }
 
-    public static float? Average(this IQueryable<float?> source) {
+    public static float? Average(this IStorage<float?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1036,7 +1036,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<float?>(expression);
     }
 
-    public static double Average(this IQueryable<double> source) {
+    public static double Average(this IStorage<double> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1044,7 +1044,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double>(expression);
     }
 
-    public static double? Average(this IQueryable<double?> source) {
+    public static double? Average(this IStorage<double?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1052,7 +1052,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double?>(expression);
     }
 
-    public static decimal Average(this IQueryable<decimal> source) {
+    public static decimal Average(this IStorage<decimal> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1060,7 +1060,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<decimal>(expression);
     }
 
-    public static decimal? Average(this IQueryable<decimal?> source) {
+    public static decimal? Average(this IStorage<decimal?> source) {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
@@ -1068,7 +1068,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<decimal?>(expression);
     }
 
-    public static double Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector) {
+    public static double Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, int>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1077,7 +1077,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double>(expression);
     }
 
-    public static double? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector) {
+    public static double? Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, int?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1086,7 +1086,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double?>(expression);
     }
 
-    public static float Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector) {
+    public static float Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, float>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1095,7 +1095,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<float>(expression);
     }
 
-    public static float? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector) {
+    public static float? Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, float?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1104,7 +1104,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<float?>(expression);
     }
 
-    public static double Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector) {
+    public static double Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, long>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1113,7 +1113,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double>(expression);
     }
 
-    public static double? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector) {
+    public static double? Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, long?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1122,7 +1122,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double?>(expression);
     }
 
-    public static double Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector) {
+    public static double Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, double>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1131,7 +1131,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double>(expression);
     }
 
-    public static double? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector) {
+    public static double? Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, double?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1140,7 +1140,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<double?>(expression);
     }
 
-    public static decimal Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector) {
+    public static decimal Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, decimal>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1149,7 +1149,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<decimal>(expression);
     }
 
-    public static decimal? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector) {
+    public static decimal? Average<TSource>(this IStorage<TSource> source, Expression<Func<TSource, decimal?>> selector) {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Average, source, selector);
@@ -1158,7 +1158,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<decimal?>(expression);
     }
 
-    public static TSource Aggregate<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, TSource, TSource>> func) {
+    public static TSource Aggregate<TSource>(this IStorage<TSource> source, Expression<Func<TSource, TSource, TSource>> func) {
         IsNotNull(source);
         IsNotNull(func);
         var method = GetMethodInfo(Queryable.Aggregate, source, func);
@@ -1167,7 +1167,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TSource>(expression);
     }
 
-    public static TAccumulate Aggregate<TSource, TAccumulate>(this IQueryable<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func) {
+    public static TAccumulate Aggregate<TSource, TAccumulate>(this IStorage<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func) {
         IsNotNull(source);
         IsNotNull(func);
         var method = GetMethodInfo(Queryable.Aggregate, source, seed, func);
@@ -1176,7 +1176,7 @@ public static class QueryableRepositoryExtensions {
         return source.Provider.Execute<TAccumulate>(expression);
     }
 
-    public static TResult Aggregate<TSource, TAccumulate, TResult>(this IQueryable<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector) {
+    public static TResult Aggregate<TSource, TAccumulate, TResult>(this IStorage<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector) {
         IsNotNull(source);
         IsNotNull(func);
         IsNotNull(selector);
@@ -1187,9 +1187,9 @@ public static class QueryableRepositoryExtensions {
     }
     // ReSharper enable UnusedMember.Global
 
-    private static IQueryable CreateEnumerableQuery(Type elementType, IEnumerable sequence) {
+    private static IStorage CreateEnumerableQuery(Type elementType, IEnumerable sequence) {
         var seqType = typeof(EnumerableQuery<>).MakeGenericType(elementType);
-        return (IQueryable)Activator.CreateInstance(seqType, sequence)!;
+        return (IStorage)Activator.CreateInstance(seqType, sequence)!;
     }
 
     private static Type? FindGenericType(Type definition, Type? type) {
@@ -1210,7 +1210,7 @@ public static class QueryableRepositoryExtensions {
     }
 
     private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
-        => source is IQueryable<TSource> q
+        => source is IStorage<TSource> q
         ? q.Expression
         : Expression.Constant(source, typeof(IEnumerable<TSource>));
 
