@@ -1,7 +1,7 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class SimpleKeyStorage<TModel, TKey>(StorageProvider queryProvider, Expression expression)
-    : Storage<TModel>(queryProvider, expression),
+public class SimpleKeyStorage<TModel, TKey>(IQueryStrategy strategy, Expression expression)
+    : QueryableSet<TModel>(strategy, null, expression),
       ISimpleKeyStorage<TModel, TKey>
     where TModel : class, ISimpleKeyEntity<TModel, TKey>, new()
     where TKey : notnull {

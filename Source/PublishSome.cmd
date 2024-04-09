@@ -4,8 +4,8 @@ if [%1]==[] goto USAGE
 set target=%1
 
 call Publish %target% Core\Core Core 8.1.0-rc1
-call Publish %target% Core\Linq Linq 8.1.0-rc1
-call Publish %target% Data\Storage Data.Storage 8.1.0-rc1
+REM call Publish %target% Core\Linq Linq 8.1.0-rc1
+REM call Publish %target% Data\Storage Data.Storage 8.1.0-rc1
 REM call Publish %target% Utilities\ObjectDumper ObjectDumper 8.1.0-rc1
 REM call Publish %target% Testing\TestUtilities TestUtilities 8.1.0-rc1
 REM call Publish %target% Testing\FluentAssertions FluentAssertions 8.1.0-rc1

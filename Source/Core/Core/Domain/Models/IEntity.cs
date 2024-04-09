@@ -2,6 +2,7 @@
 
 public interface IEntity;
 
-public interface IEntity<TEntity>
-    : IEntity
-    where TEntity : IEntity<TEntity>;
+public interface IEntity<TKey>
+    : IEntity {
+    TKey Id { get; set; }
+}
