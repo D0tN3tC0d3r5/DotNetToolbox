@@ -2,21 +2,16 @@
 
 public static class StorageExtensions {
     // ReSharper disable UnusedMember.Global
-    public static IEntitySet AsStorage(this IEnumerable source) {
+    public static IEntitySet<TEntity> AsRepository<TEntity>(this IEnumerable<TEntity> source) {
         IsNotNull(source);
-        return source as IEntitySet
+        return source as IEntitySet<TEntity>
             ?? throw new NotSupportedException("This collection does not support the storage implementation.");
     }
 
-    public static IEntitySet<TElement> AsStorage<TElement>(this IEnumerable<TElement> source) {
-        IsNotNull(source);
-        return source as IEntitySet<TElement>
-            ?? throw new NotSupportedException("This collection does not support the storage implementation.");
-    }
-
-    public static IEntitySet<TElement> ToStorage<TElement>(this IEnumerable<TElement> source, IRepositoryStrategy? strategy = null)
-        where TElement : class, IEntity, new()
-        => new Repository<TElement>(source, strategy);
+    public static IEntitySet<TEntity> ToRepository<TEntity, TKey>(this IEnumerable<TEntity> source, IRepositoryStrategy? strategy = null)
+        where TEntity : class, IEntity<TKey>, new()
+        where TKey : notnull
+        => new Repository<TEntity, TKey>(source, strategy);
 
     public static IEntitySet<TResult> Where<TResult>(this IEntitySet<TResult> source, Expression<Func<TResult, bool>> predicate) {
         IsNotNull(source);
@@ -24,7 +19,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Where, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> Where<TResult>(this IEntitySet<TResult> source, Expression<Func<TResult, int, bool>> predicate) {
@@ -33,7 +28,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Where, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> OfType<TResult>(this IEntitySet source) {
@@ -41,7 +36,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.OfType<TResult>, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> Cast<TResult>(this IEntitySet source) {
@@ -49,7 +44,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Cast<TResult>, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> Select<TSource, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TResult>> selector) {
@@ -58,7 +53,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Select, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> Select<TSource, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, int, TResult>> selector) {
@@ -67,7 +62,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Select, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> SelectMany<TSource, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector) {
@@ -76,7 +71,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.SelectMany, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> SelectMany<TSource, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector) {
@@ -85,7 +80,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.SelectMany, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> SelectMany<TSource, TCollection, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) {
@@ -95,7 +90,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.SelectMany, source, collectionSelector, resultSelector);
         var args = new[] { source.Expression, Expression.Quote(collectionSelector), Expression.Quote(resultSelector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> SelectMany<TSource, TCollection, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) {
@@ -105,7 +100,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.SelectMany, source, collectionSelector, resultSelector);
         var args = new[] { source.Expression, Expression.Quote(collectionSelector), Expression.Quote(resultSelector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> Join<TOuter, TInner, TKey, TResult>(this IEntitySet<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) {
@@ -125,7 +120,7 @@ public static class StorageExtensions {
         };
         var expression = Expression.Call(null, method, args);
         // ReSharper enable PossibleMultipleEnumeration
-        return outer.Provider.Create<TResult>(expression);
+        return outer.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> Join<TOuter, TInner, TKey, TResult>(this IEntitySet<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
@@ -146,7 +141,7 @@ public static class StorageExtensions {
         };
         var expression = Expression.Call(null, method, args);
         // ReSharper enable PossibleMultipleEnumeration
-        return outer.Provider.Create<TResult>(expression);
+        return outer.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IEntitySet<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector) {
@@ -166,7 +161,7 @@ public static class StorageExtensions {
         };
         var expression = Expression.Call(null, method, args);
         // ReSharper enable PossibleMultipleEnumeration
-        return outer.Provider.Create<TResult>(expression);
+        return outer.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IEntitySet<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
@@ -187,7 +182,7 @@ public static class StorageExtensions {
         };
         var expression = Expression.Call(null, method, args);
         // ReSharper enable PossibleMultipleEnumeration
-        return outer.Provider.Create<TResult>(expression);
+        return outer.Strategy.Create<TResult>(expression);
     }
 
     public static IOrderedEntitySet<TSource> OrderBy<TSource, TKey>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
@@ -196,7 +191,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.OrderBy, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedEntitySet<TSource>)source.Provider.Create<TSource>(expression);
+        return (IOrderedEntitySet<TSource>)source.Strategy.Create<TSource>(expression);
     }
 
     public static IOrderedEntitySet<TSource> OrderBy<TSource, TKey>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) {
@@ -209,7 +204,7 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedEntitySet<TSource>)source.Provider.Create<TSource>(expression);
+        return (IOrderedEntitySet<TSource>)source.Strategy.Create<TSource>(expression);
     }
 
     public static IOrderedEntitySet<TSource> OrderByDescending<TSource, TKey>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
@@ -218,7 +213,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.OrderByDescending, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedEntitySet<TSource>)source.Provider.Create<TSource>(expression);
+        return (IOrderedEntitySet<TSource>)source.Strategy.Create<TSource>(expression);
     }
 
     public static IOrderedEntitySet<TSource> OrderByDescending<TSource, TKey>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) {
@@ -231,7 +226,7 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedEntitySet<TSource>)source.Provider.Create<TSource>(expression);
+        return (IOrderedEntitySet<TSource>)source.Strategy.Create<TSource>(expression);
     }
 
     public static IOrderedEntitySet<TSource> ThenBy<TSource, TKey>(this IOrderedEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
@@ -240,7 +235,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.ThenBy, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedEntitySet<TSource>)source.Provider.Create<TSource>(expression);
+        return (IOrderedEntitySet<TSource>)source.Strategy.Create<TSource>(expression);
     }
 
     public static IOrderedEntitySet<TSource> ThenBy<TSource, TKey>(this IOrderedEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) {
@@ -253,7 +248,7 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedEntitySet<TSource>)source.Provider.Create<TSource>(expression);
+        return (IOrderedEntitySet<TSource>)source.Strategy.Create<TSource>(expression);
     }
 
     public static IOrderedEntitySet<TSource> ThenByDescending<TSource, TKey>(this IOrderedEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
@@ -262,7 +257,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.ThenByDescending, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedEntitySet<TSource>)source.Provider.Create<TSource>(expression);
+        return (IOrderedEntitySet<TSource>)source.Strategy.Create<TSource>(expression);
     }
 
     public static IOrderedEntitySet<TSource> ThenByDescending<TSource, TKey>(this IOrderedEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) {
@@ -275,7 +270,7 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedEntitySet<TSource>)source.Provider.Create<TSource>(expression);
+        return (IOrderedEntitySet<TSource>)source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<TSource> Take<TSource>(this IEntitySet<TSource> source, int count) {
@@ -283,7 +278,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Take, source, count);
         var args = new[] { source.Expression, Expression.Constant(count) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<TSource> TakeWhile<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -292,7 +287,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.TakeWhile, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<TSource> TakeWhile<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, int, bool>> predicate) {
@@ -301,7 +296,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.TakeWhile, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<TSource> Skip<TSource>(this IEntitySet<TSource> source, int count) {
@@ -309,7 +304,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Skip, source, count);
         var args = new[] { source.Expression, Expression.Constant(count) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<TSource> SkipWhile<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -318,7 +313,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.SkipWhile, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<TSource> SkipWhile<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, int, bool>> predicate) {
@@ -327,7 +322,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.SkipWhile, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
@@ -336,17 +331,17 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.GroupBy, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<IGrouping<TKey, TSource>>(expression);
+        return source.Strategy.Create<IGrouping<TKey, TSource>>(expression);
     }
 
-    public static IEntitySet<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector) {
+    public static IEntitySet<IGrouping<TKey, TEntity>> GroupBy<TSource, TKey, TEntity>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TEntity>> elementSelector) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
         var method = GetMethodInfo(Queryable.GroupBy, source, keySelector, elementSelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector), Expression.Quote(elementSelector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<IGrouping<TKey, TElement>>(expression);
+        return source.Strategy.Create<IGrouping<TKey, TEntity>>(expression);
     }
 
     public static IEntitySet<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, IEqualityComparer<TKey> comparer) {
@@ -359,10 +354,10 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<IGrouping<TKey, TSource>>(expression);
+        return source.Strategy.Create<IGrouping<TKey, TSource>>(expression);
     }
 
-    public static IEntitySet<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, IEqualityComparer<TKey> comparer) {
+    public static IEntitySet<IGrouping<TKey, TEntity>> GroupBy<TSource, TKey, TEntity>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TEntity>> elementSelector, IEqualityComparer<TKey> comparer) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -374,10 +369,10 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<IGrouping<TKey, TElement>>(expression);
+        return source.Strategy.Create<IGrouping<TKey, TEntity>>(expression);
     }
 
-    public static IEntitySet<TResult> GroupBy<TSource, TKey, TElement, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector) {
+    public static IEntitySet<TResult> GroupBy<TSource, TKey, TEntity, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TEntity>> elementSelector, Expression<Func<TKey, IEnumerable<TEntity>, TResult>> resultSelector) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -385,7 +380,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.GroupBy, source, keySelector, elementSelector, resultSelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector), Expression.Quote(elementSelector), Expression.Quote(resultSelector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> GroupBy<TSource, TKey, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector) {
@@ -395,7 +390,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.GroupBy, source, keySelector, resultSelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector), Expression.Quote(resultSelector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TResult> GroupBy<TSource, TKey, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
@@ -410,10 +405,10 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
-    public static IEntitySet<TResult> GroupBy<TSource, TKey, TElement, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
+    public static IEntitySet<TResult> GroupBy<TSource, TKey, TEntity, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TEntity>> elementSelector, Expression<Func<TKey, IEnumerable<TEntity>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -427,7 +422,7 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TResult>(expression);
+        return source.Strategy.Create<TResult>(expression);
     }
 
     public static IEntitySet<TSource> Distinct<TSource>(this IEntitySet<TSource> source) {
@@ -435,7 +430,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Distinct, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<TSource> Distinct<TSource>(this IEntitySet<TSource> source, IEqualityComparer<TSource> comparer) {
@@ -446,92 +441,92 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
-    public static IEntitySet<TSource> Concat<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.Concat, source1, source2);
-        var args = new[] { source1.Expression, GetSourceExpression(source2) };
+    public static IEntitySet<TSource> Concat<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.Concat, target, source);
+        var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Create<TSource>(expression);
+        return target.Strategy.Create<TSource>(expression);
     }
 
-    public static IEntitySet<TResult> Zip<TFirst, TSecond, TResult>(this IEntitySet<TFirst> source1, IEnumerable<TSecond> source2, Expression<Func<TFirst, TSecond, TResult>> resultSelector) {
-        IsNotNull(source1);
-        IsNotNull(source2);
+    public static IEntitySet<TResult> Zip<TFirst, TSecond, TResult>(this IEntitySet<TFirst> target, IEnumerable<TSecond> source, Expression<Func<TFirst, TSecond, TResult>> resultSelector) {
+        IsNotNull(target);
+        IsNotNull(source);
         IsNotNull(resultSelector);
-        var method = GetMethodInfo(Queryable.Zip, source1, source2, resultSelector);
-        var args = new[] { source1.Expression, GetSourceExpression(source2) };
+        var method = GetMethodInfo(Queryable.Zip, target, source, resultSelector);
+        var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Create<TResult>(expression);
+        return target.Strategy.Create<TResult>(expression);
     }
 
-    public static IEntitySet<TSource> Union<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.Union, source1, source2);
-        var args = new[] { source1.Expression, GetSourceExpression(source2) };
+    public static IEntitySet<TSource> Union<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.Union, target, source);
+        var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Create<TSource>(expression);
+        return target.Strategy.Create<TSource>(expression);
     }
 
-    public static IEntitySet<TSource> Union<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.Union, source1, source2, comparer);
+    public static IEntitySet<TSource> Union<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.Union, target, source, comparer);
         var args = new[] {
-            source1.Expression,
-            GetSourceExpression(source2),
+            target.Expression,
+            GetSourceExpression(source),
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Create<TSource>(expression);
+        return target.Strategy.Create<TSource>(expression);
     }
 
-    public static IEntitySet<TSource> Intersect<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.Intersect, source1, source2);
-        var args = new[] { source1.Expression, GetSourceExpression(source2) };
+    public static IEntitySet<TSource> Intersect<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.Intersect, target, source);
+        var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Create<TSource>(expression);
+        return target.Strategy.Create<TSource>(expression);
     }
 
-    public static IEntitySet<TSource> Intersect<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.Union, source1, source2, comparer);
+    public static IEntitySet<TSource> Intersect<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.Union, target, source, comparer);
         var args = new[] {
-            source1.Expression,
-            GetSourceExpression(source2),
+            target.Expression,
+            GetSourceExpression(source),
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Create<TSource>(expression);
+        return target.Strategy.Create<TSource>(expression);
     }
 
-    public static IEntitySet<TSource> Except<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.Except, source1, source2);
-        var args = new[] { source1.Expression, GetSourceExpression(source2) };
+    public static IEntitySet<TSource> Except<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.Except, target, source);
+        var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Create<TSource>(expression);
+        return target.Strategy.Create<TSource>(expression);
     }
 
-    public static IEntitySet<TSource> Except<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.Except, source1, source2, comparer);
+    public static IEntitySet<TSource> Except<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.Except, target, source, comparer);
         var args = new[] {
-            source1.Expression,
-            GetSourceExpression(source2),
+            target.Expression,
+            GetSourceExpression(source),
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Create<TSource>(expression);
+        return target.Strategy.Create<TSource>(expression);
     }
 
     public static TSource First<TSource>(this IEntitySet<TSource> source) {
@@ -539,7 +534,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.First, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource First<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -548,7 +543,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.First, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource FirstOrDefault<TSource>(this IEntitySet<TSource> source) {
@@ -556,7 +551,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.FirstOrDefault, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource FirstOrDefault<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -565,7 +560,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.FirstOrDefault, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource Last<TSource>(this IEntitySet<TSource> source) {
@@ -573,7 +568,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Last, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource Last<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -582,7 +577,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Last, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource LastOrDefault<TSource>(this IEntitySet<TSource> source) {
@@ -590,7 +585,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.LastOrDefault, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource LastOrDefault<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -599,7 +594,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.LastOrDefault, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource Single<TSource>(this IEntitySet<TSource> source) {
@@ -607,7 +602,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Single, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource Single<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -616,7 +611,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Single, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource SingleOrDefault<TSource>(this IEntitySet<TSource> source) {
@@ -624,7 +619,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.SingleOrDefault, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource SingleOrDefault<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -633,7 +628,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.SingleOrDefault, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource ElementAt<TSource>(this IEntitySet<TSource> source, int index) {
@@ -642,7 +637,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.ElementAt, source, index);
         var args = new[] { source.Expression, Expression.Constant(index) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TSource ElementAtOrDefault<TSource>(this IEntitySet<TSource> source, int index) {
@@ -650,7 +645,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.ElementAtOrDefault, source, index);
         var args = new[] { source.Expression, Expression.Constant(index) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static IEntitySet<TSource> DefaultIfEmpty<TSource>(this IEntitySet<TSource> source) {
@@ -658,7 +653,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.DefaultIfEmpty, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static IEntitySet<TSource> DefaultIfEmpty<TSource>(this IEntitySet<TSource> source, TSource defaultValue) {
@@ -666,7 +661,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.DefaultIfEmpty, source, defaultValue);
         var args = new[] { source.Expression, Expression.Constant(defaultValue, typeof(TSource)) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
     public static bool Contains<TSource>(this IEntitySet<TSource> source, TSource item) {
@@ -674,7 +669,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Contains, source, item);
         var args = new[] { source.Expression, Expression.Constant(item, typeof(TSource)) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
+        return source.Strategy.ExecuteAsync<bool>(expression, default);
     }
 
     public static bool Contains<TSource>(this IEntitySet<TSource> source, TSource item, IEqualityComparer<TSource> comparer) {
@@ -686,7 +681,7 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
+        return source.Strategy.ExecuteAsync<bool>(expression, default);
     }
 
     public static IEntitySet<TSource> Reverse<TSource>(this IEntitySet<TSource> source) {
@@ -694,29 +689,29 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Reverse, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Create<TSource>(expression);
+        return source.Strategy.Create<TSource>(expression);
     }
 
-    public static bool SequenceEqual<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.SequenceEqual, source1, source2);
-        var args = new[] { source1.Expression, GetSourceExpression(source2) };
+    public static bool SequenceEqual<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.SequenceEqual, target, source);
+        var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Execute<bool>(expression);
+        return target.Strategy.ExecuteAsync<bool>(expression, default);
     }
 
-    public static bool SequenceEqual<TSource>(this IEntitySet<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer) {
-        IsNotNull(source1);
-        IsNotNull(source2);
-        var method = GetMethodInfo(Queryable.SequenceEqual, source1, source2, comparer);
+    public static bool SequenceEqual<TSource>(this IEntitySet<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer) {
+        IsNotNull(target);
+        IsNotNull(source);
+        var method = GetMethodInfo(Queryable.SequenceEqual, target, source, comparer);
         var args = new[] {
-            source1.Expression,
-            GetSourceExpression(source2),
+            target.Expression,
+            GetSourceExpression(source),
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return source1.Provider.Execute<bool>(expression);
+        return target.Strategy.ExecuteAsync<bool>(expression, default);
     }
 
     public static bool Any<TSource>(this IEntitySet<TSource> source) {
@@ -724,7 +719,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Any, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
+        return source.Strategy.ExecuteAsync<bool>(expression, default);
     }
 
     public static bool Any<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -733,7 +728,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Any, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
+        return source.Strategy.ExecuteAsync<bool>(expression, default);
     }
 
     public static bool All<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -742,7 +737,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.All, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
+        return source.Strategy.ExecuteAsync<bool>(expression, default);
     }
 
     public static int Count<TSource>(this IEntitySet<TSource> source) {
@@ -750,7 +745,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Count, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<int>(expression);
+        return source.Strategy.ExecuteAsync<int>(expression, default);
     }
 
     public static int Count<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -759,7 +754,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Any, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<int>(expression);
+        return source.Strategy.ExecuteAsync<int>(expression, default);
     }
 
     public static long LongCount<TSource>(this IEntitySet<TSource> source) {
@@ -767,7 +762,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.LongCount, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<long>(expression);
+        return source.Strategy.ExecuteAsync<long>(expression, default);
     }
 
     public static long LongCount<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, bool>> predicate) {
@@ -776,7 +771,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.LongCount, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<long>(expression);
+        return source.Strategy.ExecuteAsync<long>(expression, default);
     }
 
     public static TSource Min<TSource>(this IEntitySet<TSource> source) {
@@ -784,7 +779,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Min, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TResult Min<TSource, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TResult>> selector) {
@@ -793,7 +788,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Min, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TResult>(expression);
+        return source.Strategy.ExecuteAsync<TResult>(expression, default);
     }
 
     public static TSource Max<TSource>(this IEntitySet<TSource> source) {
@@ -801,7 +796,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Max, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TResult Max<TSource, TResult>(this IEntitySet<TSource> source, Expression<Func<TSource, TResult>> selector) {
@@ -810,7 +805,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Min, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TResult>(expression);
+        return source.Strategy.ExecuteAsync<TResult>(expression, default);
     }
 
     public static int Sum(this IEntitySet<int> source) {
@@ -818,7 +813,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<int>(expression);
+        return source.Strategy.ExecuteAsync<int>(expression, default);
     }
 
     public static int? Sum(this IEntitySet<int?> source) {
@@ -826,7 +821,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<int?>(expression);
+        return source.Strategy.ExecuteAsync<int?>(expression, default);
     }
 
     public static long Sum(this IEntitySet<long> source) {
@@ -834,7 +829,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<long>(expression);
+        return source.Strategy.ExecuteAsync<long>(expression, default);
     }
 
     public static long? Sum(this IEntitySet<long?> source) {
@@ -842,7 +837,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<long?>(expression);
+        return source.Strategy.ExecuteAsync<long?>(expression, default);
     }
 
     public static float Sum(this IEntitySet<float> source) {
@@ -850,7 +845,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<float>(expression);
+        return source.Strategy.ExecuteAsync<float>(expression, default);
     }
 
     public static float? Sum(this IEntitySet<float?> source) {
@@ -858,7 +853,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<float?>(expression);
+        return source.Strategy.ExecuteAsync<float?>(expression, default);
     }
 
     public static double Sum(this IEntitySet<double> source) {
@@ -866,7 +861,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double>(expression);
+        return source.Strategy.ExecuteAsync<double>(expression, default);
     }
 
     public static double? Sum(this IEntitySet<double?> source) {
@@ -874,7 +869,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double?>(expression);
+        return source.Strategy.ExecuteAsync<double?>(expression, default);
     }
 
     public static decimal Sum(this IEntitySet<decimal> source) {
@@ -882,7 +877,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<decimal>(expression);
+        return source.Strategy.ExecuteAsync<decimal>(expression, default);
     }
 
     public static decimal? Sum(this IEntitySet<decimal?> source) {
@@ -890,7 +885,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<decimal?>(expression);
+        return source.Strategy.ExecuteAsync<decimal?>(expression, default);
     }
 
     public static int Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, int>> selector) {
@@ -899,7 +894,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<int>(expression);
+        return source.Strategy.ExecuteAsync<int>(expression, default);
     }
 
     public static int? Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, int?>> selector) {
@@ -908,7 +903,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<int?>(expression);
+        return source.Strategy.ExecuteAsync<int?>(expression, default);
     }
 
     public static long Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, long>> selector) {
@@ -917,7 +912,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<long>(expression);
+        return source.Strategy.ExecuteAsync<long>(expression, default);
     }
 
     public static long? Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, long?>> selector) {
@@ -926,7 +921,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<long?>(expression);
+        return source.Strategy.ExecuteAsync<long?>(expression, default);
     }
 
     public static float Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, float>> selector) {
@@ -935,7 +930,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<float>(expression);
+        return source.Strategy.ExecuteAsync<float>(expression, default);
     }
 
     public static float? Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, float?>> selector) {
@@ -944,7 +939,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<float?>(expression);
+        return source.Strategy.ExecuteAsync<float?>(expression, default);
     }
 
     public static double Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, double>> selector) {
@@ -953,7 +948,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double>(expression);
+        return source.Strategy.ExecuteAsync<double>(expression, default);
     }
 
     public static double? Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, double?>> selector) {
@@ -962,7 +957,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double?>(expression);
+        return source.Strategy.ExecuteAsync<double?>(expression, default);
     }
 
     public static decimal Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, decimal>> selector) {
@@ -971,7 +966,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<decimal>(expression);
+        return source.Strategy.ExecuteAsync<decimal>(expression, default);
     }
 
     public static decimal? Sum<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, decimal?>> selector) {
@@ -980,7 +975,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Sum, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<decimal?>(expression);
+        return source.Strategy.ExecuteAsync<decimal?>(expression, default);
     }
 
     public static double Average(this IEntitySet<int> source) {
@@ -988,7 +983,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double>(expression);
+        return source.Strategy.ExecuteAsync<double>(expression, default);
     }
 
     public static double? Average(this IEntitySet<int?> source) {
@@ -996,7 +991,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double?>(expression);
+        return source.Strategy.ExecuteAsync<double?>(expression, default);
     }
 
     public static double Average(this IEntitySet<long> source) {
@@ -1004,7 +999,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double>(expression);
+        return source.Strategy.ExecuteAsync<double>(expression, default);
     }
 
     public static double? Average(this IEntitySet<long?> source) {
@@ -1012,7 +1007,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double?>(expression);
+        return source.Strategy.ExecuteAsync<double?>(expression, default);
     }
 
     public static float Average(this IEntitySet<float> source) {
@@ -1020,7 +1015,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<float>(expression);
+        return source.Strategy.ExecuteAsync<float>(expression, default);
     }
 
     public static float? Average(this IEntitySet<float?> source) {
@@ -1028,7 +1023,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<float?>(expression);
+        return source.Strategy.ExecuteAsync<float?>(expression, default);
     }
 
     public static double Average(this IEntitySet<double> source) {
@@ -1036,7 +1031,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double>(expression);
+        return source.Strategy.ExecuteAsync<double>(expression, default);
     }
 
     public static double? Average(this IEntitySet<double?> source) {
@@ -1044,7 +1039,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double?>(expression);
+        return source.Strategy.ExecuteAsync<double?>(expression, default);
     }
 
     public static decimal Average(this IEntitySet<decimal> source) {
@@ -1052,7 +1047,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<decimal>(expression);
+        return source.Strategy.ExecuteAsync<decimal>(expression, default);
     }
 
     public static decimal? Average(this IEntitySet<decimal?> source) {
@@ -1060,7 +1055,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<decimal?>(expression);
+        return source.Strategy.ExecuteAsync<decimal?>(expression, default);
     }
 
     public static double Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, int>> selector) {
@@ -1069,7 +1064,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double>(expression);
+        return source.Strategy.ExecuteAsync<double>(expression, default);
     }
 
     public static double? Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, int?>> selector) {
@@ -1078,7 +1073,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double?>(expression);
+        return source.Strategy.ExecuteAsync<double?>(expression, default);
     }
 
     public static float Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, float>> selector) {
@@ -1087,7 +1082,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<float>(expression);
+        return source.Strategy.ExecuteAsync<float>(expression, default);
     }
 
     public static float? Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, float?>> selector) {
@@ -1096,7 +1091,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<float?>(expression);
+        return source.Strategy.ExecuteAsync<float?>(expression, default);
     }
 
     public static double Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, long>> selector) {
@@ -1105,7 +1100,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double>(expression);
+        return source.Strategy.ExecuteAsync<double>(expression, default);
     }
 
     public static double? Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, long?>> selector) {
@@ -1114,7 +1109,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double?>(expression);
+        return source.Strategy.ExecuteAsync<double?>(expression, default);
     }
 
     public static double Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, double>> selector) {
@@ -1123,7 +1118,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double>(expression);
+        return source.Strategy.ExecuteAsync<double>(expression, default);
     }
 
     public static double? Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, double?>> selector) {
@@ -1132,7 +1127,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<double?>(expression);
+        return source.Strategy.ExecuteAsync<double?>(expression, default);
     }
 
     public static decimal Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, decimal>> selector) {
@@ -1141,7 +1136,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<decimal>(expression);
+        return source.Strategy.ExecuteAsync<decimal>(expression, default);
     }
 
     public static decimal? Average<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, decimal?>> selector) {
@@ -1150,7 +1145,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Average, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<decimal?>(expression);
+        return source.Strategy.ExecuteAsync<decimal?>(expression, default);
     }
 
     public static TSource Aggregate<TSource>(this IEntitySet<TSource> source, Expression<Func<TSource, TSource, TSource>> func) {
@@ -1159,7 +1154,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Aggregate, source, func);
         var args = new[] { source.Expression, Expression.Quote(func) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
+        return source.Strategy.ExecuteAsync<TSource>(expression, default);
     }
 
     public static TAccumulate Aggregate<TSource, TAccumulate>(this IEntitySet<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func) {
@@ -1168,7 +1163,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Aggregate, source, seed, func);
         var args = new[] { source.Expression, Expression.Constant(seed), Expression.Quote(func) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TAccumulate>(expression);
+        return source.Strategy.ExecuteAsync<TAccumulate>(expression, default);
     }
 
     public static TResult Aggregate<TSource, TAccumulate, TResult>(this IEntitySet<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector) {
@@ -1178,7 +1173,7 @@ public static class StorageExtensions {
         var method = GetMethodInfo(Queryable.Aggregate, source, seed, func, selector);
         var args = new[] { source.Expression, Expression.Constant(seed), Expression.Quote(func), Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TResult>(expression);
+        return source.Strategy.ExecuteAsync<TResult>(expression, default);
     }
     // ReSharper enable UnusedMember.Global
 

@@ -1,69 +1,33 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class ReadOnlyRepository<TModel, TKey>
-    : EntitySet<TModel>,
-      IReadOnlyRepository<TModel, TKey>
-    where TModel : class, IEntity<TKey>, new()
+public class ReadOnlyRepository<TEntity, TKey>
+    : EntitySet<TEntity>,
+      IReadOnlyRepository<TEntity, TKey>
+    where TEntity : class, IEntity<TKey>, new()
     where TKey : notnull {
-    protected ReadOnlyRepository(Expression? expression, IEnumerable<TModel>? source, IRepositoryStrategy? strategy)
-        : base(expression, source, strategy) {
-    }
     public ReadOnlyRepository(IRepositoryStrategy? strategy = null)
-        : this(default, default, strategy) {
-    }
-    public ReadOnlyRepository(IEnumerable<TModel> source, IRepositoryStrategy? strategy = null)
-        : this(default, IsNotNull(source), strategy) {
+        : base(strategy) {
     }
     public ReadOnlyRepository(Expression expression, IRepositoryStrategy? strategy = null)
-        : this(IsNotNull(expression), default, strategy) {
+        : base(expression, strategy) {
     }
-
-    public Task<int> CountAsync(CancellationToken ct = default)
-        => Strategy.ExecuteAsync<int>("Count", Expression, ct);
-    public Task<IReadOnlyList<TModel>> ToArrayAsync(CancellationToken ct = default)
-        => Strategy.ExecuteAsync<IReadOnlyList<TModel>>("ToArray", Expression, ct);
-    public Task<bool> HaveAny(CancellationToken ct = default)
-        => HaveAny(default!, ct);
-    public Task<bool> HaveAny(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default)
-        => Strategy.ExecuteAsync<bool>("Any", Expression, ct);
-    public Task<TModel?> FindByKey(TKey key, CancellationToken ct = default)
-        => Strategy.ExecuteAsync<TKey, TModel?>("FindByKey", key, Expression, ct);
-    public Task<TModel?> FindFirst(CancellationToken ct = default)
-        => FindFirst(default!, ct);
-    public Task<TModel?> FindFirst(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default)
-        => Strategy.ExecuteAsync<TModel?>("FindFirst", Expression, ct);
-}
-
-public class ReadOnlyRepository<TModel>
-    : EntitySet<TModel>,
-      IReadOnlyRepository<TModel>
-    where TModel : class, IEntity, new() {
-    protected ReadOnlyRepository(Expression? expression, IEnumerable<TModel>? source, IRepositoryStrategy? strategy)
-        : base(expression, source, strategy) {
+    public ReadOnlyRepository(IEnumerable<TEntity> source, IRepositoryStrategy? strategy = null)
+        : base(source, strategy) {
     }
-    public ReadOnlyRepository(IRepositoryStrategy? strategy = null)
-        : this(default, default, strategy) {
-    }
-    public ReadOnlyRepository(IEnumerable<TModel> source, IRepositoryStrategy? strategy = null)
-        : this(default, IsNotNull(source), strategy) {
-    }
-    public ReadOnlyRepository(Expression expression, IRepositoryStrategy? strategy = null)
-        : this(IsNotNull(expression), default, strategy) {
-    }
-
-    public Task<int> CountAsync(CancellationToken ct = default)
-        => Strategy.ExecuteAsync<int>("Count", Expression, ct);
-    public Task<IReadOnlyList<TModel>> ToArrayAsync(CancellationToken ct = default)
-        => Strategy.ExecuteAsync<IReadOnlyList<TModel>>("ToArray", Expression, ct);
-    public Task<bool> HaveAny(CancellationToken ct = default)
-        => HaveAny(default!, ct);
-    public Task<bool> HaveAny(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default)
-        => Strategy.ExecuteAsync<bool>("Any", Expression, ct);
-    public Task<TModel?> FindByKey<TKey>(TKey key, CancellationToken ct = default)
-        where TKey : notnull
-        => Strategy.ExecuteAsync<TKey, TModel?>("FindByKey", key, Expression, ct);
-    public Task<TModel?> FindFirst(CancellationToken ct = default)
-        => FindFirst(default!, ct);
-    public Task<TModel?> FindFirst(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default)
-        => Strategy.ExecuteAsync<TModel?>("FindFirst", Expression, ct);
+    public virtual Task<IReadOnlyList<TEntity>> GetListAsync(CancellationToken ct = default)
+        => Strategy.ExecuteAsync<IReadOnlyList<TEntity>>("GetList", ct);
+    public virtual Task<int> CountAsync(CancellationToken ct = default)
+        => CountAsync(_ => true, ct);
+    public virtual Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+        => Strategy.ExecuteAsync<int>("Count", predicate, ct);
+    public virtual Task<bool> HaveAny(CancellationToken ct = default)
+        => HaveAny(_ => true, ct);
+    public virtual Task<bool> HaveAny(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+        => Strategy.ExecuteAsync<bool>("Any", predicate, ct);
+    public virtual Task<TEntity?> FindByKey(TKey key, CancellationToken ct = default)
+        => FindFirst(m => m.Id.Equals(key), ct);
+    public virtual Task<TEntity?> FindFirst(CancellationToken ct = default)
+        => FindFirst(_ => true, ct);
+    public virtual Task<TEntity?> FindFirst(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+        => Strategy.ExecuteAsync<TEntity?>("FindFirst", predicate, ct);
 }
