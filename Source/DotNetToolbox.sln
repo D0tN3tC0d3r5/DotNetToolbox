@@ -91,6 +91,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data.Storage"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Anthropic.UnitTests", "AI\Anthropic.UnitTests\DotNetToolbox.AI.Anthropic.UnitTests.csproj", "{8685397D-C8BF-4DC8-A62A-020C64A96A10}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data.Storage.UnitTests", "Data\Storage.UnitTests\DotNetToolbox.Data.Storage.UnitTests.csproj", "{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -199,6 +201,10 @@ Global
 		{8685397D-C8BF-4DC8-A62A-020C64A96A10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8685397D-C8BF-4DC8-A62A-020C64A96A10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8685397D-C8BF-4DC8-A62A-020C64A96A10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -232,6 +238,7 @@ Global
 		{02EB8C8C-CC61-4DA9-A52A-8D246270805E} = {26704704-EAF1-48B3-825A-7471AA3B59ED}
 		{B7BC9617-B5EE-491A-8CAE-728D8280E854} = {4EB4A938-96E1-4690-8A51-18135AA362CC}
 		{8685397D-C8BF-4DC8-A62A-020C64A96A10} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3} = {4EB4A938-96E1-4690-8A51-18135AA362CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}

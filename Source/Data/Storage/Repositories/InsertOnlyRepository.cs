@@ -1,22 +1,46 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class InsertOnlyRepository<TModel, TKey>
-    : ReadOnlyStorage<TModel, TKey>,
-      IInsertOnlyStorage<TModel, TKey>
+    : ReadOnlyRepository<TModel, TKey>,
+      IInsertOnlyRepository<TModel, TKey>
     where TModel : class, IEntity<TKey>, new()
     where TKey : notnull {
-    public virtual ValueTask Add(TModel input, CancellationToken ct = default)
-        => throw new NotImplementedException();
-    public virtual ValueTask Add(Action<TModel> setModel, CancellationToken ct = default)
-        => throw new NotImplementedException();
+    protected InsertOnlyRepository(Expression? expression, IEnumerable<TModel>? source, IRepositoryStrategy? strategy)
+        : base(expression, source, strategy) {
+    }
+    public InsertOnlyRepository(IRepositoryStrategy? strategy = null)
+        : this(default, default, strategy) {
+    }
+    public InsertOnlyRepository(IEnumerable<TModel> source, IRepositoryStrategy? strategy = null)
+        : this(default, IsNotNull(source), strategy) {
+    }
+    public InsertOnlyRepository(Expression expression, IRepositoryStrategy? strategy = null)
+        : this(IsNotNull(expression), default, strategy) {
+    }
+    public Task Add(TModel input, CancellationToken ct = default)
+        => Strategy.ExecuteAsync("Add", input, Expression, ct);
+    public Task Create(Action<TModel> setModel, CancellationToken ct = default)
+        => Strategy.ExecuteAsync("Create", setModel, Expression, ct);
 }
 
 public class InsertOnlyRepository<TModel>
-    : ReadOnlyStorage<TModel>,
-      IInsertOnlyStorage<TModel>
+    : ReadOnlyRepository<TModel>,
+      IInsertOnlyRepository<TModel>
     where TModel : class, IEntity, new() {
-    public virtual ValueTask Add(TModel input, CancellationToken ct = default)
-        => throw new NotImplementedException();
-    public virtual ValueTask Add(Action<TModel> setModel, CancellationToken ct = default)
-        => throw new NotImplementedException();
+    protected InsertOnlyRepository(Expression? expression, IEnumerable<TModel>? source, IRepositoryStrategy? strategy)
+        : base(expression, source, strategy) {
+    }
+    public InsertOnlyRepository(IRepositoryStrategy? strategy = null)
+        : this(default, default, strategy) {
+    }
+    public InsertOnlyRepository(IEnumerable<TModel> source, IRepositoryStrategy? strategy = null)
+        : this(default, IsNotNull(source), strategy) {
+    }
+    public InsertOnlyRepository(Expression expression, IRepositoryStrategy? strategy = null)
+        : this(IsNotNull(expression), default, strategy) {
+    }
+    public Task Add(TModel input, CancellationToken ct = default)
+        => Strategy.ExecuteAsync("Add", input, Expression, ct);
+    public Task Create(Action<TModel> setModel, CancellationToken ct = default)
+        => Strategy.ExecuteAsync("Create", setModel, Expression, ct);
 }

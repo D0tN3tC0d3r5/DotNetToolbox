@@ -58,7 +58,7 @@ public record HttpClientOptions
     public void Configure(HttpClient client) {
         client.BaseAddress = new(BaseAddress);
         client.DefaultRequestHeaders.Accept.Clear();
-        client.DefaultRequestHeaders.Accept.Add(new(GetDefaultIfNullOrWhiteSpace(ResponseFormat, DefaultResponseFormat)));
+        client.DefaultRequestHeaders.Accept.Add(new(HasDefaultWhenNullOrWhiteSpace(ResponseFormat, DefaultResponseFormat)));
         Authentication?.SetHttpClientAuthentication(client);
         CustomHeaders?.ForEach(client.DefaultRequestHeaders.Add);
     }

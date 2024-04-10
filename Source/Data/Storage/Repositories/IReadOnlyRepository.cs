@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Data.Repositories;
 
-public interface IReadOnlyStorage<TModel, in TKey>
-    : IQueryableSet<TModel>
+public interface IReadOnlyRepository<TModel, in TKey>
+    : IEntitySet<TModel>
     where TModel : class, IEntity<TKey>, new()
     where TKey : notnull {
 
@@ -14,8 +14,8 @@ public interface IReadOnlyStorage<TModel, in TKey>
     Task<TModel?> FindFirst(Expression<Func<TModel, bool>> predicate, CancellationToken ct = default);
 }
 
-public interface IReadOnlyStorage<TModel>
-    : IQueryableSet<TModel>
+public interface IReadOnlyRepository<TModel>
+    : IEntitySet<TModel>
     where TModel : class, IEntity, new() {
 
     Task<int> CountAsync(CancellationToken ct = default);

@@ -4,7 +4,8 @@
     "projects": [
       "Core\\Core\\DotNetToolbox.Core.csproj",
       "Core\\Linq\\DotNetToolbox.Linq.csproj",
-      "Data\\Storage\\DotNetToolbox.Data.Storage.csproj"
+      "Data\\Storage\\DotNetToolbox.Data.Storage.csproj",
+      "Data\\Storage.UnitTests\\DotNetToolbox.Data.Storage.UnitTests.csproj"
     ]
   }
 }
