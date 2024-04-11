@@ -1,60 +1,33 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class ReadOnlyRepositoryTests {
-    private readonly IRepositoryStrategy _strategy;
-    private readonly ReadOnlyRepository<EntityWithKey, string> _keyedRepository;
+    private readonly ReadOnlyRepository<int> _set = new([1, 2, 3]);
 
-    public ReadOnlyRepositoryTests() {
-        _strategy = Substitute.For<IRepositoryStrategy>();
-        _keyedRepository = new(_strategy);
-    }
+    [Fact]
+    public async Task Count_ForInMemory_ReturnsCount() {
+        var result = await _set.Count();
 
-    private class EntityWithKey : IEntity<string> {
-        public string Id { get; set; } = default!;
+        result.Should().Be(3);
     }
 
     [Fact]
-    public async Task Update_CallsExecuteAsyncOnStrategy() {
-        var mockModel = new EntityWithKey();
+    public async Task HaveAny_ForInMemory_Returns() {
+        var result = await _set.HaveAny();
 
-        await _keyedRepository.CountAsync();
-
-        await _strategy.Received().ExecuteAsync("Update", mockModel, default);
+        result.Should().BeTrue();
     }
 
     [Fact]
-    public async Task AddOrUpdate_CallsExecuteAsyncOnStrategy() {
-        var mockModel = new EntityWithKey();
+    public async Task FindFirst_ForInMemory_Returns() {
+        var result = await _set.FindFirst();
 
-        await _keyedRepository.HaveAny();
-
-        await _strategy.Received().ExecuteAsync("AddOrUpdate", mockModel, default);
+        result.Should().Be(1);
     }
 
     [Fact]
-    public async Task Patch_CallsExecuteAsyncOnStrategy() {
-        var key = "key";
+    public async Task GetList_ForInMemory_Returns() {
+        var result = await _set.GetList();
 
-        await _keyedRepository.FindByKey(key);
-
-        await _strategy.Received().ExecuteAsync("Patch", key, default);
-    }
-
-    [Fact]
-    public async Task CreateOrPatch_CallsExecuteAsyncOnStrategy() {
-        const string key = "key";
-
-        await _keyedRepository.FindFirst();
-
-        await _strategy.Received().ExecuteAsync("CreateOrPatch", key, default);
-    }
-
-    [Fact]
-    public async Task Remove_CallsExecuteAsyncOnStrategy() {
-        const string key = "key";
-
-        await _keyedRepository.GetListAsync();
-
-        await _strategy.Received().ExecuteAsync("Remove", key, default);
+        result.Should().BeEquivalentTo([1, 2, 3]);
     }
 }

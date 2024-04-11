@@ -2,62 +2,61 @@ namespace DotNetToolbox.Data.Repositories;
 
 public class RepositoryTests {
     private readonly IRepositoryStrategy _strategy;
-    private readonly Repository<EntityWithKey, string> _keyedRepository;
+    private readonly Repository<Entity> _repository;
 
     public RepositoryTests() {
         _strategy = Substitute.For<IRepositoryStrategy>();
-        _keyedRepository = new(_strategy);
+        _repository = new(_strategy);
     }
 
-    private class EntityWithKey : IEntity<string> {
+    private class Entity : IEntity<string> {
         public string Id { get; set; } = default!;
     }
 
     [Fact]
     public async Task Update_CallsExecuteAsyncOnStrategy() {
-        var mockModel = new EntityWithKey();
+        var mockModel = new Entity();
 
-        await _keyedRepository.Update(mockModel);
+        await _repository.Update(mockModel);
 
         await _strategy.Received().ExecuteAsync("Update", mockModel, default);
     }
 
     [Fact]
     public async Task AddOrUpdate_CallsExecuteAsyncOnStrategy() {
-        var mockModel = new EntityWithKey();
+        var mockModel = new Entity();
 
-        await _keyedRepository.AddOrUpdate(mockModel);
+        await _repository.AddOrUpdate(mockModel);
 
         await _strategy.Received().ExecuteAsync("AddOrUpdate", mockModel, default);
     }
 
     [Fact]
     public async Task Patch_CallsExecuteAsyncOnStrategy() {
-        var model = new EntityWithKey();
-        Task<EntityWithKey?> Find(CancellationToken _) => Task.FromResult<EntityWithKey?>(model);
-        void Update(EntityWithKey _) { }
+        const string key = "key";
+        void Update(Entity _) { }
 
-        await _keyedRepository.Patch("key", Update);
+        await _repository.Patch(i => i.Id == key, Update);
 
-        await _strategy.Received().ExecuteAsync("Patch", ((Func<CancellationToken, Task<EntityWithKey?>>)Find, (Action<EntityWithKey>)Update), default);
+        await _strategy.Received().ExecuteAsync<(Expression<Func<Entity, bool>>, Action<Entity>), Entity?>("Patch", Arg.Any<(Expression<Func<Entity, bool>>, Action<Entity>)>(), default);
     }
 
     [Fact]
     public async Task CreateOrPatch_CallsExecuteAsyncOnStrategy() {
         const string key = "key";
-        static void MockAction(EntityWithKey _) { }
+        static void Update(Entity _) { }
 
-        await _keyedRepository.CreateOrPatch(key, MockAction);
+        await _repository.PatchOrCreate(i => i.Id == key, Update);
 
-        await _strategy.Received().ExecuteAsync("CreateOrPatch", (key, (Action<EntityWithKey>)MockAction), default);
+        await _strategy.Received().ExecuteAsync<(Expression<Func<Entity, bool>>, Action<Entity>), Entity?>("PatchOrCreate", Arg.Any<(Expression<Func<Entity, bool>>, Action<Entity>)>(), default);
     }
 
     [Fact]
     public async Task Remove_CallsExecuteAsyncOnStrategy() {
         var key = "key";
 
-        await _keyedRepository.Remove(key);
+        await _repository.Remove(i => i.Id == key);
 
-        await _strategy.Received().ExecuteAsync("Remove", key, default);
+        await _strategy.Received().ExecuteAsync("Remove", Arg.Any<Expression<Func<Entity, bool>>>(), default);
     }
 }
