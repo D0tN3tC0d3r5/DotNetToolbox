@@ -4,7 +4,6 @@ global using System.Collections;
 global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Globalization;
-global using System.Linq.Expressions;
 global using System.Net;
 global using System.Numerics;
 global using System.Reflection;
@@ -21,8 +20,7 @@ global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.Abstractions;
 
-global using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
-global using static System.Diagnostics.Ensure;
+global using static System.Ensure;
 global using static DotNetToolbox.Constants.Messages;
 
 global using Syntax = System.Diagnostics.CodeAnalysis.StringSyntaxAttribute;

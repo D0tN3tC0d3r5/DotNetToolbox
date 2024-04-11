@@ -1,4 +1,7 @@
-﻿namespace DotNetToolbox.Utilities;
+﻿using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
+
+// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System;
 
 public static class InstanceFactory {
     private const BindingFlags _allConstructors = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance;

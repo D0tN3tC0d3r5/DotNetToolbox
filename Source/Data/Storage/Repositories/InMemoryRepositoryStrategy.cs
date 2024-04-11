@@ -1,44 +1,38 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class InMemoryRepositoryStrategy<TEntity>
-    : IRepositoryStrategy {
-    protected IEnumerable<TEntity> Source { get; }
+public class InMemoryRepositoryStrategy<TItem>(IItemSet<TItem> repository)
+    : IRepositoryStrategy<InMemoryRepositoryStrategy<TItem>> {
+    protected ItemSet<TItem> Repository { get; } = (ItemSet<TItem>)repository;
 
-    public InMemoryRepositoryStrategy(IEnumerable<TEntity>? source = null) {
-        Source = source ?? [];
+    public TResult ExecuteQuery<TResult>(Expression expression, CancellationToken cancellationToken)
+        => throw new NotImplementedException();
+
+    public TResult ExecuteFunction<TResult>(string command, object? input = null) {
+        object? result = command switch {
+            "Count" when Repository.Data is ICollection<TItem> c && typeof(TResult) == typeof(int) => c.Count,
+            "Any" when typeof(TResult) == typeof(bool) => Repository.Data.Any(),
+            "FindFirst" when typeof(TResult) == typeof(TItem) => Repository.Data.First(),
+            "GetList" when typeof(TResult) == typeof(TItem[]) => Repository.Data.ToArray(),
+            "Create" when Repository.Data is ICollection<TItem> c && input is Action<TItem> set && typeof(TResult) == typeof(TItem) => CreateSetAndAddItem(c, set),
+            _ => throw new NotSupportedException($"Command '{command}' is not supported for a '{Repository.GetType().Name}<{typeof(TItem).Name}>'."),
+        };
+        return IsOfType<TResult>(result);
     }
 
-    public IItemSet Create(Expression expression)
-        => ItemSet.Create(expression.Type, expression, this);
-    public IItemSet<TResult> Create<TResult>(Expression expression)
-        => new ItemSet<TResult>(expression);
+    private static TItem CreateSetAndAddItem(ICollection<TItem> collection, Action<TItem> set)
+    {
+        var item = Activator.CreateInstance<TItem>();
+        set(item);
+        collection.Add(item);
+        return item;
+    }
 
-    public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
-        => throw new NotImplementedException();
-
-    public Task<TResult> ExecuteAsync<TInput, TResult>(string command, TInput input, CancellationToken cancellationToken)
-        => throw new NotImplementedException();
-    public Task<TResult> ExecuteAsync<TInput, TResult>(string command, TInput input, Expression expression, CancellationToken cancellationToken)
-        => throw new NotImplementedException();
-
-    public Task<TResult> ExecuteAsync<TResult>(string command, CancellationToken cancellationToken)
-        => ExecuteAsync<TResult>(command, default(Expression)!, cancellationToken);
-
-    public async Task<TResult> ExecuteAsync<TResult>(string command, Expression expression, CancellationToken cancellationToken)
-        => (TResult?)await ExecuteStrategyAsync(command, expression, default, cancellationToken);
-
-    public Task ExecuteAsync<TInput>(string command, TInput input, Expression expression, CancellationToken cancellationToken)
-        => throw new NotImplementedException();
-    public async Task ExecuteAsync<TInput>(string command, TInput input, CancellationToken cancellationToken)
-        => await ExecuteStrategyAsync(command, default, input, cancellationToken);
-
-    private async Task<object?> ExecuteStrategyAsync(string command, Expression? expression, object? input, CancellationToken ct)
-        => IsNotNull(command) switch {
-            "Count" when Source is ICollection c => c.Count,
-            "Count" => Source.Count(),
-            "Any" => Source.Any(),
-            "FindFirst" => Source.First(),
-            "GetList" => Source.ToArray(),
-            _ => throw new NotSupportedException($"Command '{command}' is not supported."),
-        };
+    public void ExecuteAction(string command, object? input = null) {
+        switch (command) {
+            case "Add" when Repository.Data is ICollection<TItem> c && input is TItem i:
+                c.Add(i);
+                return;
+        }
+        throw new NotSupportedException($"Command '{command}' is not supported.");
+    }
 }

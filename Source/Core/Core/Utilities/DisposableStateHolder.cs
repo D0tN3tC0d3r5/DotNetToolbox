@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox.Utilities;
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System;
 
 public class DisposableStateHolder(object? state)
     : DisposableStateHolder<object?>(state);

@@ -1,29 +1,71 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class ReadOnlyRepository<TEntity>
-    : ItemSet<TEntity>,
-      IReadOnlyRepository<TEntity> {
-    public ReadOnlyRepository(IRepositoryStrategy? strategy = null)
+public class AddOnlyRepository<TItem>
+    : ReadOnlyRepository<TItem>,
+      ICanAddItem<TItem> {
+    public AddOnlyRepository() {
+    }
+    public AddOnlyRepository(Expression expression)
+        : base(expression) {
+    }
+    public AddOnlyRepository(IEnumerable<TItem> data)
+        : base(data) {
+    }
+    public virtual void Add(TItem item)
+        => Strategy.ExecuteAction("Add", item);
+}
+
+public class ReadOnlyRepository<TItem>
+    : ItemSet<TItem> {
+    public ReadOnlyRepository(){
+    }
+    public ReadOnlyRepository(Expression expression)
+        : base(expression) {
+    }
+    public ReadOnlyRepository(IEnumerable<TItem> data)
+        : base(data) {
+    }
+    public virtual TItem[] GetList()
+        => Strategy.ExecuteFunction<TItem[]>("GetList");
+    public virtual int Count()
+        => CountWhere(_ => true);
+    public virtual int CountWhere(Expression<Func<TItem, bool>> predicate)
+        => Strategy.ExecuteFunction<int>("Count", predicate);
+    public virtual bool HaveAny()
+        => HaveAnyWhere(_ => true);
+    public virtual bool HaveAnyWhere(Expression<Func<TItem, bool>> predicate)
+        => Strategy.ExecuteFunction<bool>("Any", predicate);
+    public virtual TItem? FindFirst()
+        => FindFirstWhere(_ => true);
+    public virtual TItem? FindFirstWhere(Expression<Func<TItem, bool>> predicate)
+        => Strategy.ExecuteFunction<TItem?>("FindFirst", predicate);
+}
+
+public class ReadOnlyRepository<TItem, TStrategy>
+    : ItemSet<TItem, TStrategy>,
+      IRepository<TItem, TStrategy>
+    where TStrategy : class, IRepositoryStrategy<TStrategy> {
+    public ReadOnlyRepository(TStrategy? strategy = null)
         : base(strategy) {
     }
-    public ReadOnlyRepository(Expression expression, IRepositoryStrategy? strategy = null)
+    public ReadOnlyRepository(Expression expression, TStrategy? strategy = null)
         : base(expression, strategy) {
     }
-    public ReadOnlyRepository(IEnumerable<TEntity> source, IRepositoryStrategy? strategy = null)
-        : base(source, strategy) {
+    public ReadOnlyRepository(IEnumerable<TItem> data, TStrategy? strategy = null)
+        : base(data, strategy) {
     }
-    public virtual Task<TEntity[]> GetList(CancellationToken ct = default)
-        => Strategy.ExecuteAsync<TEntity[]>("GetList", ct);
-    public virtual Task<int> Count(CancellationToken ct = default)
-        => Count(_ => true, ct);
-    public virtual Task<int> Count(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
-        => Strategy.ExecuteAsync<int>("Count", predicate, ct);
-    public virtual Task<bool> HaveAny(CancellationToken ct = default)
-        => HaveAny(_ => true, ct);
-    public virtual Task<bool> HaveAny(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
-        => Strategy.ExecuteAsync<bool>("Any", predicate, ct);
-    public virtual Task<TEntity?> FindFirst(CancellationToken ct = default)
-        => FindFirst(_ => true, ct);
-    public virtual Task<TEntity?> FindFirst(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
-        => Strategy.ExecuteAsync<TEntity?>("FindFirst", predicate, ct);
+    public virtual TItem[] GetList()
+        => Strategy.ExecuteFunction<TItem[]>("GetList");
+    public virtual int Count()
+        => CountWhere(_ => true);
+    public virtual int CountWhere(Expression<Func<TItem, bool>> predicate)
+        => Strategy.ExecuteFunction<int>("Count", predicate);
+    public virtual bool HaveAny()
+        => HaveAnyWhere(_ => true);
+    public virtual bool HaveAnyWhere(Expression<Func<TItem, bool>> predicate)
+        => Strategy.ExecuteFunction<bool>("Any", predicate);
+    public virtual TItem? FindFirst()
+        => FindFirstWhere(_ => true);
+    public virtual TItem? FindFirstWhere(Expression<Func<TItem, bool>> predicate)
+        => Strategy.ExecuteFunction<TItem?>("FindFirst", predicate);
 }

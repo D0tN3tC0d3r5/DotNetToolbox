@@ -2,16 +2,23 @@
 
 #pragma warning disable CA1010
 public interface IItemSet
-    : IQueryable {
-    IRepositoryStrategy Strategy { get; }
-}
+    : IQueryable;
 #pragma warning restore CA1010
 
-public interface IItemSet<out TItem>
-    : IQueryable<TItem>,
-      IAsyncEnumerable<TItem>,
-      IItemSet;
+public interface IItemSet<TItem>
+    : IItemSet<TItem, InMemoryRepositoryStrategy<TItem>>;
 
-public interface IOrderedItemSet<out TItem>
+public interface IOrderedItemSet<TItem>
     : IOrderedQueryable<TItem>,
       IItemSet<TItem>;
+
+public interface IItemSet<out TItem, out TStrategy>
+    : IQueryable<TItem>
+    where TStrategy : IQueryStrategy<TStrategy> {
+    TStrategy Strategy { get; }
+}
+
+public interface IOrderedItemSet<out TItem, out TStrategy>
+    : IOrderedQueryable<TItem>,
+      IItemSet<TItem, TStrategy>
+    where TStrategy : IQueryStrategy<TStrategy>;

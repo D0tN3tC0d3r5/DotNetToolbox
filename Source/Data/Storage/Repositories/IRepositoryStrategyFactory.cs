@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IRepositoryStrategyFactory {
-    IRepositoryStrategy Create<TStrategy, TEntity>(IEnumerable<TEntity> source)
-        where TStrategy : class, IRepositoryStrategy;
+    TStrategy Create<TEntity, TStrategy>(IItemSet<TEntity, TStrategy> repository)
+        where TStrategy : class, IQueryStrategy<TStrategy>;
 }
