@@ -26,6 +26,13 @@ public static class Ensure {
             ? throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName)
             : result;
 
+    public static TArgument? IsOfTypeOrDefault<TArgument>(object? argument, TArgument? defaultValue = default, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => argument switch {
+            null => defaultValue,
+            TArgument result => result,
+            _ => throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName),
+        };
+
     #endregion
 
     #region Collection

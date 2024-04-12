@@ -14,11 +14,11 @@ public interface IOrderedItemSet<TItem>
 
 public interface IItemSet<out TItem, out TStrategy>
     : IQueryable<TItem>
-    where TStrategy : IQueryStrategy<TStrategy> {
+    where TStrategy : IQueryStrategy {
     TStrategy Strategy { get; }
 }
 
 public interface IOrderedItemSet<out TItem, out TStrategy>
     : IOrderedQueryable<TItem>,
       IItemSet<TItem, TStrategy>
-    where TStrategy : IQueryStrategy<TStrategy>;
+    where TStrategy : IQueryStrategy;

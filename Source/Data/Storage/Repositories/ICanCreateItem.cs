@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Data.Repositories;
 
-public interface ICanCreateItem<TItem>
+public interface ICanCreateItem<out TItem>
     where TItem : class, new() {
-    Task<TItem> Create(Action<TItem> setItem, CancellationToken ct = default);
+    TItem Create(Action<TItem> setItem);
 }

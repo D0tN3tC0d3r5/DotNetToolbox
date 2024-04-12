@@ -9,11 +9,11 @@ public interface IAsyncOrderedItemSet<TItem>
 
 public interface IAsyncItemSet<out TItem, out TStrategy>
     : IItemSet<TItem, TStrategy>
-    where TStrategy : IQueryStrategy<TStrategy> {
+    where TStrategy : IAsyncQueryStrategy<TStrategy> {
     new TStrategy Strategy { get; }
 }
 
 public interface IAsyncOrderedItemSet<out TItem, out TStrategy>
     : IOrderedQueryable<TItem>,
       IItemSet<TItem, TStrategy>
-    where TStrategy : IQueryStrategy<TStrategy>;
+    where TStrategy : IAsyncQueryStrategy<TStrategy>;

@@ -4,10 +4,10 @@ public class InMemoryAsyncRepositoryStrategy<TItem>(IAsyncItemSet<TItem, InMemor
     : IAsyncRepositoryStrategy<InMemoryAsyncRepositoryStrategy<TItem>> {
     protected AsyncItemSet<TItem> Repository { get; } = (AsyncItemSet<TItem>)repository;
 
-    //public IItemSet Create(Expression expression)
-    //    => AsyncItemSet.Create(expression.Type, expression, this);
-    //public IAsyncItemSet<TResult> Create<TResult>(Expression expression)
-    //    => new AsyncItemSet<TResult>(expression);
+    public IItemSet Create(Expression expression)
+        => AsyncItemSet.Create(expression.Type, expression, this);
+    public IAsyncItemSet<TResult> Create<TResult>(Expression expression)
+        => new AsyncItemSet<TResult>(expression);
 
     public TResult ExecuteQuery<TResult>(Expression expression, CancellationToken cancellationToken)
         => throw new NotImplementedException();

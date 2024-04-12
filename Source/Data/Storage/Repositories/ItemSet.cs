@@ -16,7 +16,7 @@ public class ItemSet<TItem>
 public class ItemSet<TItem, TStrategy>
     : Queryable<TItem>,
       IItemSet<TItem, TStrategy>
-    where TStrategy : class, IQueryStrategy<TStrategy> {
+    where TStrategy : class, IQueryStrategy {
     private TStrategy? _strategy;
 
     public ItemSet(TStrategy? strategy = null)

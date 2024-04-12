@@ -39,7 +39,7 @@ public class AsyncItemSet<TItem>
 public class AsyncItemSet<TItem, TStrategy>
     : ItemSet<TItem, TStrategy>,
       IAsyncItemSet<TItem, TStrategy>
-    where TStrategy : class, IQueryStrategy<TStrategy> {
+    where TStrategy : class, IAsyncQueryStrategy<TStrategy> {
     public AsyncItemSet(TStrategy? strategy = null)
         : base(strategy) {
     }

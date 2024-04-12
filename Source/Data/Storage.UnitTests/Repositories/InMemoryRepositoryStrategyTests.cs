@@ -11,21 +11,21 @@ public class InMemoryRepositoryStrategyTests {
     [Fact]
     public void ExecuteQuery_WithQuery_ShouldThrowNotImplementedException() {
         Expression query = default!; // Replace with actual query
-        var act = () => _strategy.ExecuteQuery<string[]>(query, CancellationToken.None);
+        var act = () => _strategy.ExecuteQuery<string[]>(query);
         act.Should().Throw<NotImplementedException>();
     }
 
     [Fact]
     public void ExecuteFunction_WithCommand_ShouldThrowNotImplementedException() {
         string command = default!; // Replace with actual command
-        var act = () => _strategy.ExecuteFunction<int>(command, CancellationToken.None);
+        var act = () => _strategy.ExecuteFunction<int>(command);
         act.Should().Throw<NotSupportedException>();
     }
 
     [Fact]
     public void ExecuteAction_WithCommand_ShouldThrowNotImplementedException() {
         string command = default!; // Replace with actual command
-        var act = () => _strategy.ExecuteAction(command, CancellationToken.None);
+        var act = () => _strategy.ExecuteAction(command);
         act.Should().Throw<NotSupportedException>();
     }
 }

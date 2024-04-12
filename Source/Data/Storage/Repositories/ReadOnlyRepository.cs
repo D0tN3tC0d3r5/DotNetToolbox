@@ -1,5 +1,40 @@
 namespace DotNetToolbox.Data.Repositories;
 
+public class AddOrCreateOnlyRepository<TItem>
+    : ReadOnlyRepository<TItem>,
+      ICanAddItem<TItem>,
+      ICanCreateItem<TItem>
+    where TItem : class, new() {
+    public AddOrCreateOnlyRepository() {
+    }
+    public AddOrCreateOnlyRepository(Expression expression)
+        : base(expression) {
+    }
+    public AddOrCreateOnlyRepository(IEnumerable<TItem> data)
+        : base(data) {
+    }
+    public virtual void Add(TItem item)
+        => Strategy.ExecuteAction("Add", input: item);
+    public virtual TItem Create(Action<TItem> set)
+        => Strategy.ExecuteFunction<TItem>("Create", default!, set);
+}
+
+public class CreateOnlyRepository<TItem>
+    : ReadOnlyRepository<TItem>,
+      ICanCreateItem<TItem>
+    where TItem : class, new() {
+    public CreateOnlyRepository() {
+    }
+    public CreateOnlyRepository(Expression expression)
+        : base(expression) {
+    }
+    public CreateOnlyRepository(IEnumerable<TItem> data)
+        : base(data) {
+    }
+    public virtual TItem Create(Action<TItem> set)
+        => Strategy.ExecuteFunction<TItem>("Create", default!, set);
+}
+
 public class AddOnlyRepository<TItem>
     : ReadOnlyRepository<TItem>,
       ICanAddItem<TItem> {
@@ -12,7 +47,7 @@ public class AddOnlyRepository<TItem>
         : base(data) {
     }
     public virtual void Add(TItem item)
-        => Strategy.ExecuteAction("Add", item);
+        => Strategy.ExecuteAction("Add", input: item);
 }
 
 public class ReadOnlyRepository<TItem>

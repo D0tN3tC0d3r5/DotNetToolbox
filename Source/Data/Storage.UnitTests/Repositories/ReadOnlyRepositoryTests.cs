@@ -1,7 +1,36 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class ReadOnlyRepositoryTests {
+    private readonly ReadOnlyRepository<int?> _emptySet = new();
     private readonly ReadOnlyRepository<int> _set = new([1, 2, 3]);
+
+    [Fact]
+    public void Count_ForEmptySet_ReturnsCount() {
+        var result = _emptySet.Count();
+
+        result.Should().Be(0);
+    }
+
+    [Fact]
+    public void HaveAny_ForEmptySet_Returns() {
+        var result = _emptySet.HaveAny();
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FindFirst_ForEmptySet_Returns() {
+        var result = _emptySet.FindFirst();
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetList_ForEmptySet_Returns() {
+        var result = _emptySet.GetList();
+
+        result.Should().BeEmpty();
+    }
 
     [Fact]
     public void Count_ForInMemory_ReturnsCount() {
