@@ -639,7 +639,7 @@ public static class StorageExtensions {
 
     public static TSource ElementAt<TSource>(this IItemSet<TSource> source, int index) {
         IsNotNull(source);
-        ArgumentOutOfRangeException.ThrowIfNegative(index);
+        IsNotNegative(index);
         var method = GetMethodInfo(Queryable.ElementAt, source, index);
         var args = new[] { source.Expression, Expression.Constant(index) };
         var expression = Expression.Call(null, method, args);

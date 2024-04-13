@@ -3,19 +3,23 @@ namespace DotNetToolbox.Data.Repositories;
 public abstract class Queryable<TItem>
     : IQueryable<TItem> {
     private readonly Expression _expression;
-    internal IQueryable<TItem> Data { get; }
+    internal IEnumerable<TItem> Data { get; }
+    internal IQueryable<TItem> Query { get; }
 
     protected Queryable(IEnumerable<TItem> data, Expression? expression) {
-        var source = data.AsQueryable();
-        if (expression is not null && expression.Type.GetElementType() != typeof(TItem))
+        Data = data;
+        Query = Data.AsQueryable();
+        _expression = Expression.Constant(Query);
+        if (expression is null) return;
+        if (expression.Type.GetElementType() != typeof(TItem))
             throw new ArgumentException($"Expression element type must be of type {typeof(TItem).Name}.", nameof(expression));
-        _expression = expression ?? Expression.Constant(source);
-        Data = source.Provider.CreateQuery<TItem>(_expression);
+        _expression = expression;
+        Query = Query.Provider.CreateQuery<TItem>(_expression);
     }
 
     public IQueryable Create(LambdaExpression expression) {
         try {
-            return LambdaExpressionConverter.Apply(expression, Data);
+            return LambdaExpressionConverter.Apply(expression, Query);
         } catch (Exception ex) {
             throw new InvalidOperationException("Failed to create query.", ex);
         }
@@ -27,8 +31,7 @@ public abstract class Queryable<TItem>
         => Data.GetEnumerator();
 
     Expression IQueryable.Expression => _expression;
-    IQueryProvider IQueryable.Provider => Provider;
-    protected IQueryProvider Provider => Data.AsQueryable().Provider;
+    IQueryProvider IQueryable.Provider => Query.Provider;
 }
 
 internal class ExpressionTreeParameterReplacer : ExpressionVisitor {

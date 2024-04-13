@@ -33,7 +33,7 @@ public abstract class AsyncItemSet<TItem, TStrategy>(IEnumerable<TItem> data, Ex
     where TStrategy : class, IAsyncQueryStrategy<TStrategy> {
     public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         => Strategy
-            .ExecuteQuery<IAsyncEnumerable<TItem>>((LambdaExpression)Data.AsQueryable().Expression, cancellationToken)
+            .ExecuteQuery<IAsyncEnumerable<TItem>>((LambdaExpression)Query.Expression, cancellationToken)
             .GetAsyncEnumerator(cancellationToken);
 }
 

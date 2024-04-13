@@ -2,14 +2,12 @@ namespace DotNetToolbox.Data.Repositories;
 
 public static class ItemSet {
     public static IItemSet Create(Type itemType, Expression expression) {
-        var strategyType = typeof(InMemoryRepositoryStrategy<>).MakeGenericType(itemType);
-        var setType = typeof(ItemSet<,>).MakeGenericType(itemType, strategyType);
-        return (IItemSet)Activator.CreateInstance(setType, expression)!;
+        var setType = typeof(ItemSet<>).MakeGenericType(itemType);
+        return (IItemSet)Activator.CreateInstance(setType, Array.CreateInstance(itemType, 0), expression)!;
     }
     public static IItemSet Create(Type itemType, IEnumerable source) {
-        var strategyType = typeof(InMemoryRepositoryStrategy<>).MakeGenericType(itemType);
-        var setType = typeof(ItemSet<,>).MakeGenericType(itemType, strategyType);
-        return (IItemSet)Activator.CreateInstance(setType, source)!;
+        var setType = typeof(ItemSet<>).MakeGenericType(itemType);
+        return (IItemSet)Activator.CreateInstance(setType, source, null)!;
     }
     // ReSharper disable once SuspiciousTypeConversion.Global
     public static IItemSet<TItem> Create<TItem>(Expression expression)
@@ -38,11 +36,11 @@ public static class ItemSet {
         => (IItemSet<TItem>)Create<TStrategy>(typeof(TItem), source, strategy);
 }
 
-public abstract class ItemSet<TItem>(IEnumerable<TItem> data, Expression? expression)
+public class ItemSet<TItem>(IEnumerable<TItem> data, Expression? expression)
     : ItemSet<TItem, InMemoryRepositoryStrategy<TItem>>(IsNotNull(data), expression),
       IItemSet<TItem>;
 
-public abstract class ItemSet<TItem, TStrategy>(IEnumerable<TItem> data,
+public class ItemSet<TItem, TStrategy>(IEnumerable<TItem> data,
                                                 Expression? expression,
                                                 TStrategy? strategy = null)
     : Queryable<TItem>(IsNotNull(data), expression),

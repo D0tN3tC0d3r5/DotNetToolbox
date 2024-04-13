@@ -19,7 +19,7 @@ public class InMemoryRepositoryStrategyTests {
     public void ExecuteFunction_WithCommand_ShouldThrowNotImplementedException() {
         string command = default!; // Replace with actual command
         var act = () => _strategy.ExecuteFunction<int>(command);
-        act.Should().Throw<NotSupportedException>();
+        act.Should().Throw<NotImplementedException>();
     }
 
     [Fact]
