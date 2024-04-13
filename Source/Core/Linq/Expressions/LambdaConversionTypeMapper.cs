@@ -1,28 +1,33 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+
 namespace System.Linq.Expressions;
 
-public record LambdaConversionTypeMapper<TSource, TTarget>
+public record LambdaConversionTypeMapper(Type SourceType, Type TargetType, Func<object?, object?>? Convert = null)
     : ILambdaConversionTypeMapper {
-    private readonly Func<TSource?, TTarget?>? _convert;
-
-    public LambdaConversionTypeMapper(Func<TSource?, TTarget?>? convert = null) {
-        _convert = convert;
-        SourceType = typeof(TSource);
-        TargetType = typeof(TTarget);
+    public LambdaConversionTypeMapper(Expression expression, Type targetType, Func<object?, object?>? convert = null)
+        : this(expression.Type, targetType, convert) {
+        SourceType = expression.Type;
     }
 
-    public Type SourceType { get; }
-    public Type TargetType { get; }
-    object? ILambdaConversionTypeMapper.Convert(object? input) => Convert((TSource?)input);
-
-    public TTarget? Convert(TSource? input)
-        => _convert != null
-            ? _convert.Invoke(input)
-            : throw new NotImplementedException();
-
-    public void Deconstruct(out Type sourceType, out Type targetType, out Func<TSource?, TTarget?> convert) {
+    public void Deconstruct(out Type sourceType, out Type targetType, out Func<object?, object?>? convert) {
         convert = Convert;
         sourceType = SourceType;
         targetType = TargetType;
+    }
+}
+
+public record LambdaConversionTypeMapper<TTarget>
+    : LambdaConversionTypeMapper {
+
+    public LambdaConversionTypeMapper(Expression expression, Func<object?, TTarget?>? convert = null)
+        : base(expression, typeof(TTarget), convert is null ? null : s => convert(s)) {
+    }
+}
+
+public record LambdaConversionTypeMapper<TSource, TTarget>
+    : LambdaConversionTypeMapper {
+
+    public LambdaConversionTypeMapper(Func<TSource?, TTarget?>? convert = null)
+        : base(typeof(TSource), typeof(TTarget), convert is null ? null : s => convert((TSource?)s)) {
     }
 }

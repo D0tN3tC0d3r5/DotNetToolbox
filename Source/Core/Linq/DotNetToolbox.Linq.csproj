@@ -19,14 +19,14 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.AsyncLinq Version 8.1.0-rc1
+      DotNetToolbox.Linq Version 8.1.0-rc1
 
-      Stable release of the DotNetToolbox.AsyncLinq library.
+      Stable release of the DotNetToolbox.Linq library.
     </PackageReleaseNotes>
-    <Product>DotNetToolbox.AsyncLinq</Product>
+    <Product>DotNetToolbox.Linq</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <AssemblyName>DotNetToolbox.AsyncLinq</AssemblyName>
+    <AssemblyName>DotNetToolbox.Linq</AssemblyName>
     <Deterministic>false</Deterministic>
     <AssemblyVersion>8.1.0.*</AssemblyVersion>
     <FileVersion>8.1.0</FileVersion>

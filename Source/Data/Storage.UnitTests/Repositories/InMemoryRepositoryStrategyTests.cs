@@ -4,14 +4,14 @@ public class InMemoryRepositoryStrategyTests {
     private readonly InMemoryRepositoryStrategy<string> _strategy;
 
     public InMemoryRepositoryStrategyTests() {
-        var repository = new ItemSet<string>();
+        var repository = ItemSet.Create(new List<string>());
         _strategy = new(repository);
     }
 
     [Fact]
     public void ExecuteQuery_WithQuery_ShouldThrowNotImplementedException() {
         Expression query = default!; // Replace with actual query
-        var act = () => _strategy.ExecuteQuery<string[]>(query);
+        var act = () => _strategy.ExecuteQuery<string[]>((LambdaExpression)query);
         act.Should().Throw<NotImplementedException>();
     }
 

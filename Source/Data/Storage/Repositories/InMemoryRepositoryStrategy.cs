@@ -1,22 +1,20 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace DotNetToolbox.Data.Repositories;
 
 public class InMemoryRepositoryStrategy<TItem>(IItemSet<TItem> repository)
     : IRepositoryStrategy<InMemoryRepositoryStrategy<TItem>> {
     protected ItemSet<TItem> Repository { get; } = (ItemSet<TItem>)repository;
 
-    public TResult ExecuteQuery<TResult>(Expression expression)
+    public TResult ExecuteQuery<TResult>(LambdaExpression expression)
         => throw new NotImplementedException();
 
-    public IItemSet Create(Expression expression)
-        => throw new NotImplementedException();
-
-    public IItemSet<TResult> Create<TResult>(Expression expression)
-        => throw new NotImplementedException();
+    public IItemSet Create(LambdaExpression expression)
+        => ItemSet.Create(expression.Type, expression, this);
+    // ReSharper disable once SuspiciousTypeConversion.Global
+    public IItemSet<TResult> Create<TResult>(LambdaExpression expression)
+        => (IItemSet<TResult>)ItemSet.Create(typeof(TResult), expression);
 
     public TResult ExecuteFunction<TResult>(string command, Expression? expression = null, object? input = null) {
-        var source = expression is null ? Repository.Data : Repository.Create(expression);
+        var source = expression is LambdaExpression lambda ? Repository.Create(lambda) : Repository.Data;
         object? result = command switch {
             "Any" when typeof(TResult) == typeof(bool) => source.Cast<object?>().Any(),
             "Count" when Repository.Data is ICollection<TItem> c && typeof(TResult) == typeof(int) => source.Cast<object?>().Count(),
@@ -30,7 +28,7 @@ public class InMemoryRepositoryStrategy<TItem>(IItemSet<TItem> repository)
     }
 
     public void ExecuteAction(string command, Expression? expression = null, object? input = null) {
-        var source = expression is null ? Repository.Data : Repository.Create(expression);
+        var source = expression is LambdaExpression lambda ? Repository.Create(lambda) : Repository.Data;
         switch (command) {
             case "Add" when Repository.Data is ICollection<TItem> c && input is TItem i:
                 c.Add(i);

@@ -52,13 +52,11 @@ public class AddOnlyRepository<TItem>
 
 public class ReadOnlyRepository<TItem>
     : ItemSet<TItem> {
-    public ReadOnlyRepository(){
+    public ReadOnlyRepository(IEnumerable<TItem>? data = null)
+        : base(data ?? [], null) {
     }
     public ReadOnlyRepository(Expression expression)
-        : base(expression) {
-    }
-    public ReadOnlyRepository(IEnumerable<TItem> data)
-        : base(data) {
+        : base([], expression) {
     }
     public virtual TItem[] GetList()
         => Strategy.ExecuteFunction<TItem[]>("GetList");
@@ -81,13 +79,13 @@ public class ReadOnlyRepository<TItem, TStrategy>
       IRepository<TItem, TStrategy>
     where TStrategy : class, IRepositoryStrategy<TStrategy> {
     public ReadOnlyRepository(TStrategy? strategy = null)
-        : base(strategy) {
+        : base([], null, strategy) {
     }
     public ReadOnlyRepository(Expression expression, TStrategy? strategy = null)
-        : base(expression, strategy) {
+        : base([], expression, strategy) {
     }
     public ReadOnlyRepository(IEnumerable<TItem> data, TStrategy? strategy = null)
-        : base(data, strategy) {
+        : base(data, null, strategy) {
     }
     public virtual TItem[] GetList()
         => Strategy.ExecuteFunction<TItem[]>("GetList");

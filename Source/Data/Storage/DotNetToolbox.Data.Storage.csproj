@@ -57,8 +57,14 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <PackageReference Include="DotNetToolbox.Core" Version="8.1.0-rc1" />
+    <PackageReference Include="DotNetToolbox.Linq" Version="8.1.0-rc1" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core\DotNetToolbox.Core.csproj" />
+    <ProjectReference Include="..\..\Core\Linq\DotNetToolbox.Linq.csproj" />
   </ItemGroup>
 
   <ItemGroup>

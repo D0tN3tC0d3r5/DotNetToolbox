@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class AsyncItemSet {
+public static class AsyncItemSet {
     public static IItemSet Create(Type entityType, Expression expression) {
         var strategyType = typeof(InMemoryAsyncRepositoryStrategy<>).MakeGenericType(entityType);
         var setType = typeof(ItemSet<,>).MakeGenericType(entityType, strategyType);
@@ -23,36 +23,17 @@ public class AsyncItemSet {
     }
 }
 
-public class AsyncItemSet<TItem>
-    : AsyncItemSet<TItem, InMemoryAsyncRepositoryStrategy<TItem>>,
-      IAsyncItemSet<TItem> {
-    public AsyncItemSet() {
-    }
-    public AsyncItemSet(Expression expression)
-        : base(expression) {
-    }
-    public AsyncItemSet(IEnumerable<TItem> data)
-        : base(data) {
-    }
-}
+public abstract class AsyncItemSet<TItem>(IEnumerable<TItem> data, Expression? expression)
+    : AsyncItemSet<TItem, InMemoryAsyncRepositoryStrategy<TItem>>(data, expression),
+      IAsyncItemSet<TItem>;
 
-public class AsyncItemSet<TItem, TStrategy>
-    : ItemSet<TItem, TStrategy>,
+public abstract class AsyncItemSet<TItem, TStrategy>(IEnumerable<TItem> data, Expression? expression, TStrategy? strategy = null)
+    : ItemSet<TItem, TStrategy>(IsNotNull(data), expression, strategy),
       IAsyncItemSet<TItem, TStrategy>
     where TStrategy : class, IAsyncQueryStrategy<TStrategy> {
-    public AsyncItemSet(TStrategy? strategy = null)
-        : base(strategy) {
-    }
-    public AsyncItemSet(Expression expression, TStrategy? strategy = null)
-        : base(expression, strategy) {
-    }
-    public AsyncItemSet(IEnumerable<TItem> data, TStrategy? strategy = null)
-        : base(data, strategy) {
-    }
-
     public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         => Strategy
-            .ExecuteQuery<IAsyncEnumerable<TItem>>(Data.AsQueryable().Expression, cancellationToken)
+            .ExecuteQuery<IAsyncEnumerable<TItem>>((LambdaExpression)Data.AsQueryable().Expression, cancellationToken)
             .GetAsyncEnumerator(cancellationToken);
 }
 

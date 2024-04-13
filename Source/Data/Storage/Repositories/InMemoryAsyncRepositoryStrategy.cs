@@ -4,12 +4,13 @@ public class InMemoryAsyncRepositoryStrategy<TItem>(IAsyncItemSet<TItem, InMemor
     : IAsyncRepositoryStrategy<InMemoryAsyncRepositoryStrategy<TItem>> {
     protected AsyncItemSet<TItem> Repository { get; } = (AsyncItemSet<TItem>)repository;
 
-    public IItemSet Create(Expression expression)
+    public IItemSet Create(LambdaExpression expression)
         => AsyncItemSet.Create(expression.Type, expression, this);
-    public IAsyncItemSet<TResult> Create<TResult>(Expression expression)
-        => new AsyncItemSet<TResult>(expression);
+    // ReSharper disable once SuspiciousTypeConversion.Global
+    public IAsyncItemSet<TResult> Create<TResult>(LambdaExpression expression)
+        => (IAsyncItemSet<TResult>)AsyncItemSet.Create(typeof(TResult), expression);
 
-    public TResult ExecuteQuery<TResult>(Expression expression, CancellationToken cancellationToken)
+    public TResult ExecuteQuery<TResult>(LambdaExpression expression, CancellationToken ct)
         => throw new NotImplementedException();
 
     public Task<TResult> ExecuteFunction<TResult>(string command, object? input, CancellationToken ct = default)

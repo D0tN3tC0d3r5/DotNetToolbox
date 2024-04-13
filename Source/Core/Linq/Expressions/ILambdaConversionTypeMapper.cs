@@ -2,7 +2,7 @@
 namespace System.Linq.Expressions;
 
 public interface ILambdaConversionTypeMapper {
-    Type SourceType { get; }
     Type TargetType { get; }
-    object? Convert(object? input);
+    Type SourceType { get; }
+    Func<object?, object?>? Convert { get; }
 }

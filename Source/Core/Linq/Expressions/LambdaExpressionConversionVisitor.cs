@@ -9,9 +9,16 @@ public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMappe
     private bool _isProcessingBody;
     private ParameterExpression[] _parameters = [];
 
-    public TExpression Translate<TExpression>(Expression node)
+    public LambdaExpressionConversionVisitor(Type sourceType, Type targetType, Func<object?, object?>? convert = null)
+        : this (new LambdaConversionTypeMapper(sourceType, targetType, convert)) {
+    }
+
+    public Expression Convert(Expression expression)
+        => Visit(expression);
+
+    public TExpression Translate<TExpression>(Expression expression)
         where TExpression : Expression
-        => (TExpression)Visit(node);
+        => (TExpression)Convert(expression);
 
     protected override Expression VisitLambda<TDelegate>(Expression<TDelegate> node) {
         _parameters = node.Parameters.ToArray<ParameterExpression>(p => (ParameterExpression)VisitParameter(p));
@@ -31,7 +38,8 @@ public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMappe
 
     protected override Expression VisitConstant(ConstantExpression node) {
         var typeMapping = GetTypeMapping(node.Value?.GetType());
-        if (typeMapping == null) return base.VisitConstant(node);
+        if (typeMapping == null || typeMapping.SourceType == typeMapping.TargetType) return base.VisitConstant(node);
+        if (typeMapping.Convert == null) throw new NotSupportedException($"Cannot convert a value from '{typeMapping.SourceType.Name}' to '{typeMapping.TargetType.Name}'.");
         var convertedValue = typeMapping.Convert(node.Value);
         return Expression.Constant(convertedValue, typeMapping.TargetType);
     }
