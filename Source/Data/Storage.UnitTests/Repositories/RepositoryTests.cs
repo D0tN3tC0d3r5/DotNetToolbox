@@ -1,62 +1,68 @@
-//namespace DotNetToolbox.Data.Repositories;
+namespace DotNetToolbox.Data.Repositories;
 
-//public class RepositoryTests {
-//    private readonly IRepositoryStrategy _strategy;
-//    private readonly Repository<Entity> _repository;
+public class RepositoryTests {
+    private readonly Repository<int?> _emptySet = new();
+    private readonly Repository<int> _set = new([1, 2, 3]);
 
-//    public RepositoryTests() {
-//        _strategy = Substitute.For<IRepositoryStrategy>();
-//        _repository = new(_strategy);
-//    }
+    [Fact]
+    public void Count_ForEmptySet_ReturnsCount() {
+        var result = _emptySet.Count();
 
-//    private class Entity : IEntity<string> {
-//        public string Id { get; set; } = default!;
-//    }
+        result.Should().Be(0);
+    }
 
-//    [Fact]
-//    public void Update_CallsExecuteFunctionOnStrategy() {
-//        var mockModel = new Entity();
+    [Fact]
+    public void HaveAny_ForEmptySet_Returns() {
+        var result = _emptySet.HaveAny();
 
-//        _repository.Update(mockModel);
+        result.Should().BeFalse();
+    }
 
-//        _strategy.Received().ExecuteFunction("Update", mockModel);
-//    }
+    [Fact]
+    public void GetFirst_ForEmptySet_Returns() {
+        var result = _emptySet.GetFirst();
 
-//    [Fact]
-//    public void AddOrUpdate_CallsExecuteFunctionOnStrategy() {
-//        var mockModel = new Entity();
+        result.Should().BeNull();
+    }
 
-//        _repository.AddOrUpdate(mockModel);
+    [Fact]
+    public void GetList_ForEmptySet_Returns() {
+        var result = _emptySet.ToArray();
 
-//        _strategy.Received().ExecuteFunction("AddOrUpdate", mockModel);
-//    }
+        result.Should().BeEmpty();
+    }
 
-//    [Fact]
-//    public void Patch_CallsExecuteFunctionOnStrategy() {
-//        const string key = "key";
-//        void Update(Entity _) { }
+    [Fact]
+    public void Count_ForInMemory_ReturnsCount() {
+        var result = _set.Count();
 
-//        _repository.Patch(i => i.Id == key, Update);
+        result.Should().Be(3);
+    }
 
-//        _strategy.Received().ExecuteFunction<(Expression<Func<Entity, bool>>, Action<Entity>), Entity?>("Patch", Arg.Any<(Expression<Func<Entity, bool>>, Action<Entity>)>());
-//    }
+    [Fact]
+    public void HaveAny_ForInMemory_Returns() {
+        var result = _set.HaveAny();
 
-//    [Fact]
-//    public void CreateOrPatch_CallsExecuteFunctionOnStrategy() {
-//        const string key = "key";
-//        static void Update(Entity _) { }
+        result.Should().BeTrue();
+    }
 
-//        _repository.PatchOrCreate(i => i.Id == key, Update);
+    [Fact]
+    public void GetFirst_ForInMemory_Returns() {
+        var result = _set.GetFirst();
 
-//        _strategy.Received().ExecuteFunction<(Expression<Func<Entity, bool>>, Action<Entity>), Entity?>("PatchOrCreate", Arg.Any<(Expression<Func<Entity, bool>>, Action<Entity>)>());
-//    }
+        result.Should().Be(1);
+    }
 
-//    [Fact]
-//    public void Remove_CallsExecuteFunctionOnStrategy() {
-//        var key = "key";
+    [Fact]
+    public void GetList_ForInMemory_Returns() {
+        var result = _set.ToArray();
 
-//        _repository.Remove(i => i.Id == key);
+        result.Should().BeEquivalentTo([1, 2, 3]);
+    }
 
-//        _strategy.Received().ExecuteFunction("Remove", Arg.Any<Expression<Func<Entity, bool>>>());
-//    }
-//}
+    [Fact]
+    public void Add_ForInMemory_ReturnsCount() {
+        _set.Add(4);
+        _set.Count().Should().Be(4);
+    }
+}

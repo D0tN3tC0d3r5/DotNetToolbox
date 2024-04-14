@@ -1,8 +1,12 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public interface IAsyncRepositoryStrategy<out TStrategy>
-    : IAsyncQueryStrategy<TStrategy>
-    where TStrategy : IAsyncRepositoryStrategy<TStrategy> {
-    Task<TResult> ExecuteFunction<TResult>(string command, object? input, CancellationToken ct);
-    Task ExecuteActionAsync(string command, object? input, CancellationToken ct = default);
+public interface IAsyncRepositoryStrategy<TItem>
+    : IRepositoryStrategy {
+    Task<bool> HaveAny(CancellationToken ct = default);
+    Task<int> Count(CancellationToken ct = default);
+    Task<TItem[]> ToArray(CancellationToken ct = default);
+    Task<TItem?> GetFirst(CancellationToken ct = default);
+    Task Add(TItem newItem, CancellationToken ct = default);
+    Task Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default);
+    Task Remove(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 }

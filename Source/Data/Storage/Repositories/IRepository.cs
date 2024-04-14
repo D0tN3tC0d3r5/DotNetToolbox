@@ -1,13 +1,11 @@
-﻿namespace DotNetToolbox.Data.Repositories;
+namespace DotNetToolbox.Data.Repositories;
 
-public interface IRepository<TItem, out TStrategy>
-    : IItemSet<TItem, TStrategy>
-    where TStrategy : IRepositoryStrategy<TStrategy> {
-    TItem[] GetList();
-    int Count();
-    int CountWhere(Expression<Func<TItem, bool>> predicate);
-    bool HaveAny();
-    bool HaveAnyWhere(Expression<Func<TItem, bool>> predicate);
-    TItem? FindFirst();
-    TItem? FindFirstWhere(Expression<Func<TItem, bool>> predicate);
+public interface IRepository
+    : IReadOnlyRepository;
+
+public interface IRepository<TItem>
+    : IReadOnlyRepository<TItem> {
+    void Add(TItem newItem);
+    void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem);
+    void Remove(Expression<Func<TItem, bool>> predicate);
 }

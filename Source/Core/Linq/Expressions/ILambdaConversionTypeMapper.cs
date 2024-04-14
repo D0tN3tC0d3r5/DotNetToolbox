@@ -4,5 +4,5 @@ namespace System.Linq.Expressions;
 public interface ILambdaConversionTypeMapper {
     Type TargetType { get; }
     Type SourceType { get; }
-    Func<object?, object?>? Convert { get; }
+    Func<object, object>? Convert { get; }
 }

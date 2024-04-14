@@ -1,7 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
 namespace System.Linq.Expressions;
 
-public class LambdaExpressionConversionVisitor<TSource, TTarget>(Func<TSource?, TTarget?>? convert = null)
+public class LambdaExpressionConversionVisitor<TSource, TTarget>(Func<TSource, TTarget>? convert = null)
     : LambdaExpressionConversionVisitor(new LambdaConversionTypeMapper<TSource, TTarget>(convert));
 
 public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMapper[] mappers)
@@ -9,16 +9,12 @@ public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMappe
     private bool _isProcessingBody;
     private ParameterExpression[] _parameters = [];
 
-    public LambdaExpressionConversionVisitor(Type sourceType, Type targetType, Func<object?, object?>? convert = null)
+    public LambdaExpressionConversionVisitor(Type sourceType, Type targetType, Func<object, object>? convert = null)
         : this (new LambdaConversionTypeMapper(sourceType, targetType, convert)) {
     }
 
     public Expression Convert(Expression expression)
         => Visit(expression);
-
-    public TExpression Translate<TExpression>(Expression expression)
-        where TExpression : Expression
-        => (TExpression)Convert(expression);
 
     protected override Expression VisitLambda<TDelegate>(Expression<TDelegate> node) {
         _parameters = node.Parameters.ToArray<ParameterExpression>(p => (ParameterExpression)VisitParameter(p));
@@ -40,7 +36,7 @@ public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMappe
         var typeMapping = GetTypeMapping(node.Value?.GetType());
         if (typeMapping == null || typeMapping.SourceType == typeMapping.TargetType) return base.VisitConstant(node);
         if (typeMapping.Convert == null) throw new NotSupportedException($"Cannot convert a value from '{typeMapping.SourceType.Name}' to '{typeMapping.TargetType.Name}'.");
-        var convertedValue = typeMapping.Convert(node.Value);
+        var convertedValue = node.Value is null ? null : typeMapping.Convert(node.Value);
         return Expression.Constant(convertedValue, typeMapping.TargetType);
     }
 

@@ -1,54 +1,34 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class ReadOnlyRepository<TItem>
-    : ItemSet<TItem> {
-    public ReadOnlyRepository(IEnumerable<TItem>? data = null)
-        : base(data ?? [], null) {
-    }
-    public ReadOnlyRepository(Expression expression)
-        : base([], expression) {
-    }
-    public virtual TItem[] GetList()
-        => Strategy.ExecuteFunction<TItem[]>("GetList");
-    public virtual int Count()
-        => CountWhere(_ => true);
-    public virtual int CountWhere(Expression<Func<TItem, bool>> predicate)
-        => Strategy.ExecuteFunction<int>("Count", predicate);
-    public virtual bool HaveAny()
-        => HaveAnyWhere(_ => true);
-    public virtual bool HaveAnyWhere(Expression<Func<TItem, bool>> predicate)
-        => Strategy.ExecuteFunction<bool>("Any", predicate);
-    public virtual TItem? FindFirst()
-        => FindFirstWhere(_ => true);
-    public virtual TItem? FindFirstWhere(Expression<Func<TItem, bool>> predicate)
-        => Strategy.ExecuteFunction<TItem?>("FindFirst", predicate);
-}
+    : IReadOnlyRepository<TItem> {
+    private readonly IQueryable<TItem> _data;
 
-public class ReadOnlyRepository<TItem, TStrategy>
-    : ItemSet<TItem, TStrategy>,
-      IRepository<TItem, TStrategy>
-    where TStrategy : class, IRepositoryStrategy<TStrategy> {
-    public ReadOnlyRepository(TStrategy? strategy = null)
-        : base([], null, strategy) {
+    public ReadOnlyRepository(IStrategyProvider? provider = null)
+        : this([], provider) {
     }
-    public ReadOnlyRepository(Expression expression, TStrategy? strategy = null)
-        : base([], expression, strategy) {
+
+    public ReadOnlyRepository(IEnumerable<TItem> source, IStrategyProvider? provider = null) {
+        _data = IsNotNull(source).ToList().AsQueryable();
+        Strategy = provider?.GetStrategy<TItem>()
+            ?? new InMemoryRepositoryStrategy<TItem>(_data);
     }
-    public ReadOnlyRepository(IEnumerable<TItem> data, TStrategy? strategy = null)
-        : base(data, null, strategy) {
-    }
-    public virtual TItem[] GetList()
-        => Strategy.ExecuteFunction<TItem[]>("GetList");
-    public virtual int Count()
-        => CountWhere(_ => true);
-    public virtual int CountWhere(Expression<Func<TItem, bool>> predicate)
-        => Strategy.ExecuteFunction<int>("Count", predicate);
-    public virtual bool HaveAny()
-        => HaveAnyWhere(_ => true);
-    public virtual bool HaveAnyWhere(Expression<Func<TItem, bool>> predicate)
-        => Strategy.ExecuteFunction<bool>("Any", predicate);
-    public virtual TItem? FindFirst()
-        => FindFirstWhere(_ => true);
-    public virtual TItem? FindFirstWhere(Expression<Func<TItem, bool>> predicate)
-        => Strategy.ExecuteFunction<TItem?>("FindFirst", predicate);
+
+    public Type ElementType => _data.ElementType;
+    public Expression Expression => _data.Expression;
+    public IQueryProvider Provider => _data.Provider;
+
+    public IRepositoryStrategy<TItem> Strategy { get; }
+
+    public IEnumerator<TItem> GetEnumerator() => _data.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public bool HaveAny()
+        => Strategy.HaveAny();
+    public int Count()
+        => Strategy.Count();
+    public TItem[] ToArray()
+        => Strategy.ToArray();
+    public TItem? GetFirst()
+        => Strategy.GetFirst();
 }

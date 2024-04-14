@@ -1,60 +1,58 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class InMemoryRepositoryStrategy<TItem>(IItemSet<TItem> repository)
-    : IRepositoryStrategy<InMemoryRepositoryStrategy<TItem>> {
-    protected ItemSet<TItem> Repository { get; } = (ItemSet<TItem>)repository;
+public class InMemoryRepositoryStrategy<TModel>(IEnumerable<TModel> remote)
+    : InMemoryRepositoryStrategy<TModel, TModel>(remote) {
+    public override void Add(TModel newItem)
+        => AddEntity(newItem);
 
-    public TResult ExecuteQuery<TResult>(LambdaExpression expression)
-        => throw new NotImplementedException();
+    public override void Update(Expression<Func<TModel, bool>> predicate, TModel updatedItem)
+        => UpdateEntity(predicate, updatedItem);
+}
 
-    public IItemSet Create(LambdaExpression expression)
-        => ItemSet.Create(expression.Type, expression, this);
-    // ReSharper disable once SuspiciousTypeConversion.Global
-    public IItemSet<TResult> Create<TResult>(LambdaExpression expression)
-        => (IItemSet<TResult>)ItemSet.Create(typeof(TResult), expression);
+public class InMemoryRepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote, Expression<Func<TEntity, TModel>>? convertToModel = null, Func<TModel, TEntity>? convertToEntity = null)
+    : RepositoryStrategy<TModel, TEntity>(remote, convertToModel, convertToEntity) {
+    public override TModel[] ToArray()
+        => [.. ApplyExpressionToRemote().Select(ProjectToModel!)];
 
-    public TResult ExecuteFunction<TResult>(string command, Expression? expression = null, object? input = null) {
-        object? result = command switch {
-            "Any" when expression is not null => Repository.Data.Any(ToDelegate<Func<TItem, bool>>(expression)),
-            "Any" => Repository.Data.Any(),
-            "Count" when expression is not null => Repository.Data.Count(ToDelegate<Func<TItem, bool>>(expression)),
-            "Count" => Repository.Data.Count(),
-            "FindFirst" when expression is not null => Repository.Data.FirstOrDefault(ToDelegate<Func<TItem, bool>>(expression)),
-            "FindFirst" => Repository.Data.FirstOrDefault(),
-            "GetList" => Repository.Data.ToArray(),
-            "Create" when typeof(TItem).IsClass && input is Action<TItem> set => CreateSetAndAddItem(set),
-            _ when expression is not null => Repository.Query.Provider.Execute<TItem>(expression),
-            _ => throw new NotImplementedException($"Command '{command}' is not implemented for '{Repository.GetType().Name}<{typeof(TItem).Name}>'."),
-        };
-        return IsOfTypeOrDefault<TResult>(result)!;
+    public override TModel? GetFirst() {
+        var entity = ApplyExpressionToRemote().FirstOrDefault();
+        return entity is null
+            ? default
+            : ConvertToModel!(entity);
     }
 
-    private TResult ToDelegate<TResult>(Expression expression)
-        where TResult : Delegate {
-        if (expression is LambdaExpression lambda)
-            return (TResult)lambda.Compile(true);
-        throw new NotImplementedException($"Command expression '{expression}' is not implemented for '{Repository.GetType().Name}<{typeof(TItem).Name}>'.");
+    public override bool HaveAny()
+        => ApplyExpressionToRemote().Any();
+
+    public override void Add(TModel newItem)
+        => AddEntity(ConvertToEntity!(newItem));
+
+    protected void AddEntity(TEntity newEntity) {
+        var collection = Remote as ICollection<TEntity>
+            ?? throw new NotSupportedException($"Remote is not a collection. Found '{Remote.GetType().Name}'.");
+        collection.Add(newEntity);
     }
 
-    public void ExecuteAction(string command, Expression? expression = null, object? input = null) {
-        var source = expression is LambdaExpression lambda ? Repository.Create(lambda) : Repository.Query;
-        switch (command) {
-            case "Add" when input is TItem i:
-                DataAsCollection.Add(i);
-                return;
-        }
-        throw new NotSupportedException($"Command '{command}' is not supported.");
+    public override void Update(Expression<Func<TModel, bool>> predicate, TModel updatedItem)
+        => UpdateEntity(predicate, ConvertToEntity!(updatedItem));
+
+    protected void UpdateEntity(Expression<Func<TModel, bool>> predicate, TEntity updatedItem) {
+        var collection = Remote as ICollection<TEntity>
+            ?? throw new NotSupportedException($"Remote is not a collection. Found '{Remote.GetType().Name}'.");
+        var itemToRemove = ConvertToRemoteAndApply<IQueryable<TEntity>>(predicate).FirstOrDefault();
+        if (itemToRemove is null)
+            return;
+        if (!collection.Remove(itemToRemove))
+            return;
+        collection.Add(updatedItem);
     }
 
-    private ICollection<TItem> DataAsCollection
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        => Repository.Data as ICollection<TItem>
-        ?? throw new NotSupportedException($"Repository is not a collection. Found '{Repository.Data.GetType().Name}'.");
-
-    private TItem CreateSetAndAddItem(Action<TItem> set) {
-        var item = Activator.CreateInstance<TItem>();
-        set(item);
-        DataAsCollection.Add(item);
-        return item;
+    public override void Remove(Expression<Func<TModel, bool>> predicate) {
+        var collection = Remote as ICollection<TEntity>
+            ?? throw new NotSupportedException($"Remote is not a collection. Found '{Remote.GetType().Name}'.");
+        var itemToRemove = ConvertToRemoteAndApply<IQueryable<TEntity>>(predicate).FirstOrDefault();
+        if (itemToRemove is null)
+            return;
+        collection.Remove(itemToRemove);
     }
 }

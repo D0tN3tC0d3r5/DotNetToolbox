@@ -1,9 +1,14 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public interface IRepositoryStrategy<out TStrategy>
-    : IQueryStrategy<TStrategy>
-    where TStrategy : IRepositoryStrategy<TStrategy> {
-    IItemSet<TResult> Create<TResult>(LambdaExpression expression);
-    TResult ExecuteFunction<TResult>(string command, Expression? expression = null, object? input = null);
-    void ExecuteAction(string command, Expression? expression = null, object? input = null);
+public interface IRepositoryStrategy;
+
+public interface IRepositoryStrategy<TItem>
+    : IRepositoryStrategy {
+    bool HaveAny();
+    int Count();
+    TItem[] ToArray();
+    TItem? GetFirst();
+    void Add(TItem newItem);
+    void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem);
+    void Remove(Expression<Func<TItem, bool>> predicate);
 }
