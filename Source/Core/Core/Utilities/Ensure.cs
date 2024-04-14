@@ -21,10 +21,18 @@ public static class Ensure {
     #region Type
 
     [return: NotNull]
-    public static TArgument IsOfType<TArgument>([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        => IsNotNull(argument, paramName) is not TArgument result
-            ? throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName)
-            : result;
+    public static TArgument IsOfType<TArgument>([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        if (IsNotNull(argument, paramName) is not TArgument result) {
+            throw new ArgumentException(string.Format(null,
+                                                      ValueMustBeOfType,
+                                                      typeof(TArgument).Name,
+                                                      argument!.GetType()
+                                                               .Name),
+                                        paramName);
+        }
+        else
+            return result;
+    }
 
     public static TArgument? IsOfTypeOrDefault<TArgument>(object? argument, TArgument? defaultValue = default, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument switch {

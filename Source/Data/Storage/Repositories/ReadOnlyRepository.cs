@@ -9,9 +9,10 @@ public class ReadOnlyRepository<TItem>
     }
 
     public ReadOnlyRepository(IEnumerable<TItem> source, IStrategyProvider? provider = null) {
-        _data = IsNotNull(source).ToList().AsQueryable();
-        Strategy = provider?.GetStrategy<TItem>()
-            ?? new InMemoryRepositoryStrategy<TItem>(_data);
+        var list = IsNotNull(source).ToList();
+        _data = list.AsQueryable();
+        Strategy = (IRepositoryStrategy<TItem>?)provider?.GetStrategy<TItem>()
+            ?? new InMemoryRepositoryStrategy<TItem>(list);
     }
 
     public Type ElementType => _data.ElementType;

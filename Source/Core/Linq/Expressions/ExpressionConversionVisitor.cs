@@ -1,17 +1,10 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
 namespace System.Linq.Expressions;
 
-public class LambdaExpressionConversionVisitor<TSource, TTarget>(Func<TSource, TTarget>? convert = null)
-    : LambdaExpressionConversionVisitor(new LambdaConversionTypeMapper<TSource, TTarget>(convert));
-
-public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMapper[] mappers)
+public class ExpressionConversionVisitor(params TypeMapper[] mappers)
         : ExpressionVisitor {
     private bool _isProcessingBody;
     private ParameterExpression[] _parameters = [];
-
-    public LambdaExpressionConversionVisitor(Type sourceType, Type targetType, Func<object, object>? convert = null)
-        : this (new LambdaConversionTypeMapper(sourceType, targetType, convert)) {
-    }
 
     public Expression Convert(Expression expression)
         => Visit(expression);
@@ -24,7 +17,7 @@ public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMappe
     }
 
     protected override Expression VisitParameter(ParameterExpression node) {
-        var typeMapping = GetTypeMapping(node.Type);
+        var typeMapping = GetTypeMapper(node.Type);
         return typeMapping == null
                    ? base.VisitParameter(node)
                    : !_isProcessingBody
@@ -33,16 +26,19 @@ public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMappe
     }
 
     protected override Expression VisitConstant(ConstantExpression node) {
-        var typeMapping = GetTypeMapping(node.Value?.GetType());
-        if (typeMapping == null || typeMapping.SourceType == typeMapping.TargetType) return base.VisitConstant(node);
-        if (typeMapping.Convert == null) throw new NotSupportedException($"Cannot convert a value from '{typeMapping.SourceType.Name}' to '{typeMapping.TargetType.Name}'.");
-        var convertedValue = node.Value is null ? null : typeMapping.Convert(node.Value);
+        if (node.Value is null)
+            return base.VisitConstant(node);
+        var typeMapping = GetTypeMapper(node.Value.GetType());
+        if (typeMapping == null)
+            return base.VisitConstant(node);
+        var convertedValue = typeMapping.Convert(node.Value);
         return Expression.Constant(convertedValue, typeMapping.TargetType);
     }
 
     protected override Expression VisitMember(MemberExpression node) {
-        var typeMapping = GetTypeMapping(node.Member.DeclaringType);
-        if (typeMapping == null) return base.VisitMember(node);
+        var typeMapping = GetTypeMapper(node.Member.DeclaringType);
+        if (typeMapping == null)
+            return base.VisitMember(node);
         var newMember = typeMapping.TargetType.GetMember(node.Member.Name).FirstOrDefault()
             ?? throw new InvalidOperationException($"No member with the name {node.Member.Name} exists on type {typeMapping.TargetType.Name}.");
         var newExpression = Visit(node.Expression);
@@ -52,10 +48,9 @@ public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMappe
     protected override Expression VisitMethodCall(MethodCallExpression node) {
         var method = node.Method;
         var arguments = node.Arguments.ToList<Expression>(Visit);
-
         if (method.IsGenericMethod) {
             var genericArguments = method.GetGenericArguments();
-            var transformedGenericArguments = genericArguments.ToArray<Type>(t => GetTypeMapping(t)?.TargetType ?? t);
+            var transformedGenericArguments = genericArguments.ToArray<Type>(t => GetTypeMapper(t)?.TargetType ?? t);
             method = method.GetGenericMethodDefinition().MakeGenericMethod(transformedGenericArguments);
         }
 
@@ -98,6 +93,6 @@ public class LambdaExpressionConversionVisitor(params ILambdaConversionTypeMappe
             : (Expression)Expression.NewArrayBounds(elementType!, expressions!);
     }
 
-    private ILambdaConversionTypeMapper? GetTypeMapping(Type? sourceType)
+    private TypeMapper? GetTypeMapper(Type? sourceType)
         => mappers.FirstOrDefault(m => m.SourceType == sourceType);
 }

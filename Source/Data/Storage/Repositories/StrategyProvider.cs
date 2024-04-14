@@ -2,13 +2,14 @@ namespace DotNetToolbox.Data.Repositories;
 
 public class StrategyProvider
     : IStrategyProvider {
-    private readonly Dictionary<Type, IRepositoryStrategy> _strategies = [];
+    private readonly Dictionary<Type, IQueryableStrategy> _strategies = [];
 
-    public void RegisterStrategy<TModel>(IRepositoryStrategy strategy)
+    public void RegisterStrategy<TModel>(IQueryableStrategy strategy)
         => _strategies[typeof(TModel)] = strategy;
 
-    public IRepositoryStrategy<TModel>? GetStrategy<TModel>()
-        => _strategies.TryGetValue(typeof(TModel), out var strategy)
-               ? (IRepositoryStrategy<TModel>)strategy
-               : null;
+    public IQueryableStrategy<TModel>? GetStrategy<TModel>()
+        => (IQueryableStrategy<TModel>?)GetStrategy(typeof(TModel));
+
+    public IQueryableStrategy? GetStrategy(Type modelType)
+        => _strategies.GetValueOrDefault(modelType);
 }

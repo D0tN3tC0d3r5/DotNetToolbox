@@ -1,16 +1,13 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public abstract class RepositoryStrategy<TModel>(IEnumerable<TModel> remote)
-    : RepositoryStrategy<TModel, TModel>(remote);
+    : RepositoryStrategy<TModel, TModel>(remote, s => s, s => s);
 
-public abstract class RepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote, Expression<Func<TEntity, TModel>>? convertToModel = null, Func<TModel, TEntity>? convertToEntity = null)
-    : IRepositoryStrategy<TModel> {
-    protected IQueryable<TModel> Local { get; } = Enumerable.Empty<TModel>().AsQueryable();
-    protected IEnumerable<TEntity> Remote { get; } = remote;
-    protected Expression<Func<TEntity, TModel>>? ProjectToModel { get; } = convertToModel;
-    protected Func<TEntity, TModel>? ConvertToModel { get; } = convertToModel?.Compile();
-    protected Func<TModel, TEntity>? ConvertToEntity { get; } = convertToEntity;
-
+public abstract class RepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote,
+                                                          Expression<Func<TModel, TEntity>> projectToEntity,
+                                                          Expression<Func<TEntity, TModel>> projectToModel)
+    : QueryableStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel),
+      IRepositoryStrategy<TModel> {
     public virtual bool HaveAny()
         => throw new NotImplementedException(nameof(HaveAny));
     public virtual int Count()
@@ -25,16 +22,4 @@ public abstract class RepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> r
         => throw new NotImplementedException(nameof(Update));
     public virtual void Remove(Expression<Func<TModel, bool>> predicate)
         => throw new NotImplementedException(nameof(Remove));
-
-    protected TResult ConvertToRemoteAndApply<TResult>(LambdaExpression expression) {
-        var target = ApplyExpressionToRemote();
-        return ConvertToEntity is null
-            ? expression.Apply<TEntity, TResult>(target)
-            : expression.ConvertAndApply<TModel, TEntity, TResult>(target, ConvertToEntity);
-    }
-
-    protected IQueryable<TEntity> ApplyExpressionToRemote() {
-        var expression = ((LambdaExpression)Local.Expression).ConvertParameterType<TEntity>();
-        return Remote.AsQueryable().Provider.CreateQuery<TEntity>(expression);
-    }
 }

@@ -9,20 +9,20 @@ public class InMemoryRepositoryStrategyTests {
     }
 
     [Fact]
-    public void ExecuteQuery_WithQuery_ShouldThrowNotImplementedException() {
-        var act = _strategy.HaveAny;
-        act.Should().Throw<NotImplementedException>();
+    public void HaveAny_ShouldThrowNotImplementedException() {
+        var result = _strategy.HaveAny();
+        result.Should().BeTrue();
     }
 
     [Fact]
-    public void ExecuteFunction_WithCommand_ShouldThrowNotImplementedException() {
-        var act = _strategy.Count;
-        act.Should().Throw<NotImplementedException>();
+    public void Count_ShouldThrowNotImplementedException() {
+        var result = _strategy.Count();
+        result.Should().Be(3);
     }
 
     [Fact]
-    public void ExecuteAction_WithCommand_ShouldThrowNotImplementedException() {
-        var act = _strategy.ToArray;
-        act.Should().Throw<NotSupportedException>();
+    public void ToArray_ShouldThrowNotImplementedException() {
+        var result = _strategy.ToArray();
+        result.Should().BeEquivalentTo(["A", "B", "C"]);
     }
 }
