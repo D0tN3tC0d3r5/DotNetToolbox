@@ -3,7 +3,7 @@ namespace DotNetToolbox.Data.Repositories;
 public class Repository<TItem>(IEnumerable<TItem> source, IStrategyProvider? provider = null)
     : ReadOnlyRepository<TItem>(source, provider),
       IRepository<TItem>
-    where TItem : class, new() {
+    where TItem : class {
     public Repository(IStrategyProvider? provider = null)
         : this([], provider) {
     }

@@ -2,7 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public interface IRepositoryStrategy<TItem>
     : IQueryableStrategy
-      where TItem : class, new() {
+      where TItem : class {
     bool HaveAny();
     int Count();
     TItem[] ToArray();

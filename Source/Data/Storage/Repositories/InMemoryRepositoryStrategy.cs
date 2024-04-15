@@ -2,14 +2,14 @@ namespace DotNetToolbox.Data.Repositories;
 
 public class InMemoryRepositoryStrategy<TItem>(IEnumerable<TItem> remote)
     : InMemoryRepositoryStrategy<TItem, TItem>(remote, s => s, s => s)
-    where TItem : class, new();
+    where TItem : class;
 
 public class InMemoryRepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote,
                                                          Expression<Func<TModel, TEntity>> projectToEntity,
                                                          Expression<Func<TEntity, TModel>> projectToModel)
     : RepositoryStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel)
-    where TModel : class, new()
-    where TEntity : class, new() {
+    where TModel : class
+    where TEntity : class {
     public override bool HaveAny()
         => GetQueryableRemote().Any();
 
@@ -39,9 +39,9 @@ public class InMemoryRepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> re
 
     public override void Remove(Expression<Func<TModel, bool>> predicate) {
         var collection = IsOfType<ICollection<TEntity>>(Remote);
-        var itemToRemove = ConvertToRemoteAndApply<IQueryable<TEntity>>(predicate).FirstOrDefault();
-        if (itemToRemove is null)
-            return;
+        var convertedPredicate = ConvertToRemoteExpression<Func<TEntity, bool>>(predicate);
+        var itemToRemove = Remote.AsQueryable().FirstOrDefault(convertedPredicate);
+        if (itemToRemove is null) return;
         collection.Remove(itemToRemove);
     }
 }

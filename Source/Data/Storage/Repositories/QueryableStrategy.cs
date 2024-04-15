@@ -2,12 +2,12 @@ namespace DotNetToolbox.Data.Repositories;
 
 public abstract class QueryableStrategy<TItem>(IEnumerable<TItem> remote)
     : QueryableStrategy<TItem, TItem>(remote, s => s, s => s)
-        where TItem : class, new();
+        where TItem : class;
 
 public abstract class QueryableStrategy<TModel, TEntity>
     : IQueryableStrategy
-    where TModel : class, new()
-    where TEntity : class, new() {
+    where TModel : class
+    where TEntity : class {
     protected QueryableStrategy(IEnumerable<TEntity> remote,
                                 Expression<Func<TModel, TEntity>> projectToEntity,
                                 Expression<Func<TEntity, TModel>> projectToModel) {
@@ -37,6 +37,14 @@ public abstract class QueryableStrategy<TModel, TEntity>
                                   .Provider
                                   .Execute<IEnumerable<TEntity>>(convertedLocalExpression);
         return updatedRemote.AsQueryable();
+    }
+    protected Expression<TDelegate> ConvertToRemoteExpression<TDelegate>(Expression expression)
+        where TDelegate : Delegate {
+        var mappers = new TypeMapper[] {
+            new TypeMapper<TModel, TEntity>(ConvertToEntity),
+            new(Local.GetType(), Remote.GetType(), Remote),
+        };
+        return (Expression<TDelegate>)expression.ReplaceExpressionType(mappers);
     }
 
     protected TResult ConvertToRemoteAndApply<TResult>(Expression expression) {

@@ -2,7 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public class ReadOnlyRepository<TItem>
     : IReadOnlyRepository<TItem>
-    where TItem : class, new() {
+    where TItem : class {
     private readonly IQueryable<TItem> _data;
 
     public ReadOnlyRepository(IStrategyProvider? provider = null)

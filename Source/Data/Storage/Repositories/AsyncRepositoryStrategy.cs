@@ -2,7 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public abstract class AsyncRepositoryStrategy<TItem>(IEnumerable<TItem> remote)
     : QueryableStrategy<TItem, TItem>(remote, s => s, s => s)
-    where TItem : class, new() {
+    where TItem : class {
 }
 
 public abstract class AsyncRepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote,
@@ -10,8 +10,8 @@ public abstract class AsyncRepositoryStrategy<TModel, TEntity>(IEnumerable<TEnti
                                                                Expression<Func<TEntity, TModel>> projectToModel)
     : QueryableStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel),
       IAsyncRepositoryStrategy<TModel>
-    where TModel : class, new()
-    where TEntity : class, new() {
+    where TModel : class
+    where TEntity : class {
     public virtual Task<bool> HaveAny(CancellationToken ct = default)
         => throw new NotImplementedException(nameof(HaveAny));
     public virtual Task<int> Count(CancellationToken ct = default)

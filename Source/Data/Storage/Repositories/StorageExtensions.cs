@@ -3,129 +3,129 @@
 public static class StorageExtensions {
     // ReSharper disable UnusedMember.Global
     public static IRepository<TItem> AsRepository<TItem>(this IEnumerable<TItem> source)
-        where TItem : class, new() {
+        where TItem : class {
         IsNotNull(source);
         return source as IRepository<TItem>
             ?? throw new NotSupportedException("This collection does not support the repository implementation.");
     }
 
     public static IReadOnlyRepository<TItem> ToReadOnlyRepository<TItem>(this IEnumerable<TItem> source, IStrategyProvider? provider = null)
-        where TItem : class, new()
+        where TItem : class
         => new ReadOnlyRepository<TItem>(source, provider);
     public static IRepository<TItem> ToRepository<TItem>(this IEnumerable<TItem> source, IStrategyProvider? provider = null)
-        where TItem : class, new()
+        where TItem : class
         => new Repository<TItem>(source, provider);
 
-    public static IRepository<TItem> Where<TItem>(this IRepository<TItem> source, Expression<Func<TItem, bool>> predicate)
-        where TItem : class, new() {
+    public static IQueryable<TItem> Where<TItem>(this IRepository<TItem> source, Expression<Func<TItem, bool>> predicate)
+        where TItem : class {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.Where, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TItem>)source.Provider.CreateQuery<TItem>(expression);
+        return source.Provider.CreateQuery<TItem>(expression);
     }
 
-    public static IRepository<TItem> Where<TItem>(this IRepository<TItem> source, Expression<Func<TItem, int, bool>> predicate)
-        where TItem : class, new() {
+    public static IQueryable<TItem> Where<TItem>(this IRepository<TItem> source, Expression<Func<TItem, int, bool>> predicate)
+        where TItem : class {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.Where, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TItem>)source.Provider.CreateQuery<TItem>(expression);
+        return source.Provider.CreateQuery<TItem>(expression);
     }
 
-    public static IRepository<TItem> OfType<TItem>(this IRepository source)
-        where TItem : class, new() {
+    public static IQueryable<TItem> OfType<TItem>(this IRepository source)
+        where TItem : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.OfType<TItem>, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TItem>)source.Provider.CreateQuery<TItem>(expression);
+        return source.Provider.CreateQuery<TItem>(expression);
     }
 
-    public static IRepository<TItem> Cast<TItem>(this IRepository source)
-        where TItem : class, new() {
+    public static IQueryable<TItem> Cast<TItem>(this IRepository source)
+        where TItem : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Cast<TItem>, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TItem>)source.Provider.CreateQuery<TItem>(expression);
+        return source.Provider.CreateQuery<TItem>(expression);
     }
 
-    public static IRepository<TResult> Select<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TResult>> selector)
-        where TSource : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> Select<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TResult>> selector)
+        where TSource : class
+        where TResult : class {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Select, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TResult>)source.Provider.CreateQuery<TResult>(expression);
+        return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> Select<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, int, TResult>> selector)
-        where TSource : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> Select<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, int, TResult>> selector)
+        where TSource : class
+        where TResult : class {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.Select, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TResult>)source.Provider.CreateQuery<TResult>(expression);
+        return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> SelectMany<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector)
-        where TSource : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> SelectMany<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector)
+        where TSource : class
+        where TResult : class {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.SelectMany, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TResult>)source.Provider.CreateQuery<TResult>(expression);
+        return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> SelectMany<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector)
-        where TSource : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> SelectMany<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector)
+        where TSource : class
+        where TResult : class {
         IsNotNull(source);
         IsNotNull(selector);
         var method = GetMethodInfo(Queryable.SelectMany, source, selector);
         var args = new[] { source.Expression, Expression.Quote(selector) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TResult>)source.Provider.CreateQuery<TResult>(expression);
+        return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> SelectMany<TSource, TCollection, TResult>(this IRepository<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
-        where TSource : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IRepository<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
+        where TSource : class
+        where TResult : class {
         IsNotNull(source);
         IsNotNull(collectionSelector);
         IsNotNull(resultSelector);
         var method = GetMethodInfo(Queryable.SelectMany, source, collectionSelector, resultSelector);
         var args = new[] { source.Expression, Expression.Quote(collectionSelector), Expression.Quote(resultSelector) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TResult>)source.Provider.CreateQuery<TResult>(expression);
+        return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> SelectMany<TSource, TCollection, TResult>(this IRepository<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
-        where TSource : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IRepository<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
+        where TSource : class
+        where TResult : class {
         IsNotNull(source);
         IsNotNull(collectionSelector);
         IsNotNull(resultSelector);
         var method = GetMethodInfo(Queryable.SelectMany, source, collectionSelector, resultSelector);
         var args = new[] { source.Expression, Expression.Quote(collectionSelector), Expression.Quote(resultSelector) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TResult>)source.Provider.CreateQuery<TResult>(expression);
+        return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> Join<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
-        where TOuter : class, new()
-        where TInner : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+        where TOuter : class
+        where TInner : class
+        where TResult : class {
         IsNotNull(outer);
         // ReSharper disable PossibleMultipleEnumeration
         IsNotNull(inner);
@@ -142,13 +142,13 @@ public static class StorageExtensions {
         };
         var expression = Expression.Call(null, method, args);
         // ReSharper enable PossibleMultipleEnumeration
-        return (IRepository<TResult>)outer.Provider.CreateQuery<TResult>(expression);
+        return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> Join<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
-        where TOuter : class, new()
-        where TInner : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
+        where TOuter : class
+        where TInner : class
+        where TResult : class {
         IsNotNull(outer);
         // ReSharper disable PossibleMultipleEnumeration
         IsNotNull(inner);
@@ -166,13 +166,13 @@ public static class StorageExtensions {
         };
         var expression = Expression.Call(null, method, args);
         // ReSharper enable PossibleMultipleEnumeration
-        return (IRepository<TResult>)outer.Provider.CreateQuery<TResult>(expression);
+        return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
-        where TOuter : class, new()
-        where TInner : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
+        where TOuter : class
+        where TInner : class
+        where TResult : class {
         IsNotNull(outer);
         // ReSharper disable PossibleMultipleEnumeration
         IsNotNull(inner);
@@ -189,13 +189,13 @@ public static class StorageExtensions {
         };
         var expression = Expression.Call(null, method, args);
         // ReSharper enable PossibleMultipleEnumeration
-        return (IRepository<TResult>)outer.Provider.CreateQuery<TResult>(expression);
+        return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
-        where TOuter : class, new()
-        where TInner : class, new()
-        where TResult : class, new() {
+    public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
+        where TOuter : class
+        where TInner : class
+        where TResult : class {
         IsNotNull(outer);
         // ReSharper disable PossibleMultipleEnumeration
         IsNotNull(inner);
@@ -213,21 +213,21 @@ public static class StorageExtensions {
         };
         var expression = Expression.Call(null, method, args);
         // ReSharper enable PossibleMultipleEnumeration
-        return (IRepository<TResult>)outer.Provider.CreateQuery<TResult>(expression);
+        return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IOrderedRepository<TSource> OrderBy<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
-        where TSource : class, new() {
+    public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.OrderBy, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedRepository<TSource> OrderBy<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
-        where TSource : class, new() {
+    public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.OrderBy, source, keySelector, comparer);
@@ -237,21 +237,21 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedRepository<TSource> OrderByDescending<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
-        where TSource : class, new() {
+    public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.OrderByDescending, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedRepository<TSource> OrderByDescending<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
-        where TSource : class, new() {
+    public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.OrderByDescending, source, keySelector, comparer);
@@ -261,21 +261,21 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedRepository<TSource> ThenBy<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
-        where TSource : class, new() {
+    public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.ThenBy, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedRepository<TSource> ThenBy<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
-        where TSource : class, new() {
+    public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.ThenBy, source, keySelector, comparer);
@@ -285,21 +285,21 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedRepository<TSource> ThenByDescending<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
-        where TSource : class, new() {
+    public static IOrderedQueryable<TSource> ThenByDescending<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.ThenByDescending, source, keySelector);
         var args = new[] { source.Expression, Expression.Quote(keySelector) };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IOrderedRepository<TSource> ThenByDescending<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
-        where TSource : class, new() {
+    public static IOrderedQueryable<TSource> ThenByDescending<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.ThenByDescending, source, keySelector, comparer);
@@ -309,69 +309,69 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TKey>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IOrderedRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Take<TSource>(this IRepository<TSource> source, int count)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Take<TSource>(this IRepository<TSource> source, int count)
+        where TSource : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Take, source, count);
         var args = new[] { source.Expression, Expression.Constant(count) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> TakeWhile<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
+    public static IQueryable<TSource> TakeWhile<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.TakeWhile, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> TakeWhile<TSource>(this IRepository<TSource> source, Expression<Func<TSource, int, bool>> predicate)
-        where TSource : class, new() {
+    public static IQueryable<TSource> TakeWhile<TSource>(this IRepository<TSource> source, Expression<Func<TSource, int, bool>> predicate)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.TakeWhile, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Skip<TSource>(this IRepository<TSource> source, int count)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Skip<TSource>(this IRepository<TSource> source, int count)
+        where TSource : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Skip, source, count);
         var args = new[] { source.Expression, Expression.Constant(count) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> SkipWhile<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
+    public static IQueryable<TSource> SkipWhile<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.SkipWhile, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> SkipWhile<TSource>(this IRepository<TSource> source, Expression<Func<TSource, int, bool>> predicate)
-        where TSource : class, new() {
+    public static IQueryable<TSource> SkipWhile<TSource>(this IRepository<TSource> source, Expression<Func<TSource, int, bool>> predicate)
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(predicate);
         var method = GetMethodInfo(Queryable.SkipWhile, source, predicate);
         var args = new[] { source.Expression, Expression.Quote(predicate) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
     public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
-        where TSource : class, new() {
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.GroupBy, source, keySelector);
@@ -381,7 +381,7 @@ public static class StorageExtensions {
     }
 
     public static IQueryable<IGrouping<TKey, TResult>> GroupBy<TSource, TKey, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TResult>> elementSelector)
-        where TSource : class, new() {
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -392,7 +392,7 @@ public static class StorageExtensions {
     }
 
     public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IEqualityComparer<TKey> comparer)
-        where TSource : class, new() {
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         var method = GetMethodInfo(Queryable.GroupBy, source, keySelector, comparer);
@@ -406,7 +406,7 @@ public static class StorageExtensions {
     }
 
     public static IQueryable<IGrouping<TKey, TResult>> GroupBy<TSource, TKey, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TResult>> elementSelector, IEqualityComparer<TKey> comparer)
-        where TSource : class, new() {
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -422,7 +422,7 @@ public static class StorageExtensions {
     }
 
     public static IQueryable<TResult> GroupBy<TSource, TKey, TItem, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TItem>> elementSelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
-        where TSource : class, new() {
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -434,7 +434,7 @@ public static class StorageExtensions {
     }
 
     public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector)
-        where TSource : class, new() {
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(resultSelector);
@@ -445,7 +445,7 @@ public static class StorageExtensions {
     }
 
     public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
-        where TSource : class, new() {
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(resultSelector);
@@ -461,7 +461,7 @@ public static class StorageExtensions {
     }
 
     public static IQueryable<TResult> GroupBy<TSource, TKey, TItem, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TItem>> elementSelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
-        where TSource : class, new() {
+        where TSource : class {
         IsNotNull(source);
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
@@ -478,17 +478,17 @@ public static class StorageExtensions {
         return source.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TSource> Distinct<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Distinct<TSource>(this IRepository<TSource> source)
+        where TSource : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Distinct, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Distinct<TSource>(this IRepository<TSource> source, IEqualityComparer<TSource> comparer)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Distinct<TSource>(this IRepository<TSource> source, IEqualityComparer<TSource> comparer)
+        where TSource : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Distinct, source, comparer);
         var args = new[] {
@@ -496,22 +496,22 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Concat<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Concat<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
+        where TSource : class {
         IsNotNull(target);
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Concat, target, source);
         var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)target.Provider.CreateQuery<TSource>(expression);
+        return target.Provider.CreateQuery<TSource>(expression);
     }
 
     public static IQueryable<TResult> Zip<TFirst, TSecond, TResult>(this IRepository<TFirst> first, IEnumerable<TSecond> second, Expression<Func<TFirst, TSecond, TResult>> resultSelector)
-        where TFirst : class, new()
-        where TSecond : class, new() {
+        where TFirst : class
+        where TSecond : class {
         IsNotNull(first);
         IsNotNull(second);
         IsNotNull(resultSelector);
@@ -521,18 +521,18 @@ public static class StorageExtensions {
         return first.Provider.CreateQuery<TResult>(expression);
     }
 
-    public static IRepository<TSource> Union<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Union<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
+        where TSource : class {
         IsNotNull(target);
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Union, target, source);
         var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)target.Provider.CreateQuery<TSource>(expression);
+        return target.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Union<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Union<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
+        where TSource : class {
         IsNotNull(target);
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Union, target, source, comparer);
@@ -542,21 +542,21 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)target.Provider.CreateQuery<TSource>(expression);
+        return target.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Intersect<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Intersect<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
+        where TSource : class {
         IsNotNull(target);
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Intersect, target, source);
         var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)target.Provider.CreateQuery<TSource>(expression);
+        return target.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Intersect<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Intersect<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
+        where TSource : class {
         IsNotNull(target);
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Union, target, source, comparer);
@@ -566,21 +566,21 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)target.Provider.CreateQuery<TSource>(expression);
+        return target.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Except<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Except<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
+        where TSource : class {
         IsNotNull(target);
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Except, target, source);
         var args = new[] { target.Expression, GetSourceExpression(source) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)target.Provider.CreateQuery<TSource>(expression);
+        return target.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> Except<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Except<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
+        where TSource : class {
         IsNotNull(target);
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Except, target, source, comparer);
@@ -590,319 +590,319 @@ public static class StorageExtensions {
             Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
         };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)target.Provider.CreateQuery<TSource>(expression);
+        return target.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static TSource First<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.First, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource First<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.First, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource First<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.First, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource First<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.First, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource FirstOrDefault<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.FirstOrDefault, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource FirstOrDefault<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.FirstOrDefault, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource FirstOrDefault<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.FirstOrDefault, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource FirstOrDefault<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.FirstOrDefault, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource Last<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.Last, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource Last<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.Last, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource Last<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.Last, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource Last<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.Last, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource LastOrDefault<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.LastOrDefault, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource LastOrDefault<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.LastOrDefault, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource LastOrDefault<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.LastOrDefault, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource LastOrDefault<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.LastOrDefault, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource Single<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.Single, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource Single<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.Single, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource Single<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.Single, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource Single<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.Single, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource SingleOrDefault<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.SingleOrDefault, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource SingleOrDefault<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.SingleOrDefault, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource SingleOrDefault<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.SingleOrDefault, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource SingleOrDefault<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.SingleOrDefault, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource ElementAt<TSource>(this IRepository<TSource> source, int index)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNegative(index);
-        var method = GetMethodInfo(Queryable.ElementAt, source, index);
-        var args = new[] { source.Expression, Expression.Constant(index) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource ElementAt<TSource>(this IRepository<TSource> source, int index)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNegative(index);
+    //    var method = GetMethodInfo(Queryable.ElementAt, source, index);
+    //    var args = new[] { source.Expression, Expression.Constant(index) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TSource ElementAtOrDefault<TSource>(this IRepository<TSource> source, int index)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.ElementAtOrDefault, source, index);
-        var args = new[] { source.Expression, Expression.Constant(index) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource ElementAtOrDefault<TSource>(this IRepository<TSource> source, int index)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.ElementAtOrDefault, source, index);
+    //    var args = new[] { source.Expression, Expression.Constant(index) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static IRepository<TSource> DefaultIfEmpty<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
+    public static IQueryable<TSource> DefaultIfEmpty<TSource>(this IRepository<TSource> source)
+        where TSource : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.DefaultIfEmpty, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IRepository<TSource> DefaultIfEmpty<TSource>(this IRepository<TSource> source, TSource defaultValue)
-        where TSource : class, new() {
+    public static IQueryable<TSource> DefaultIfEmpty<TSource>(this IRepository<TSource> source, TSource defaultValue)
+        where TSource : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.DefaultIfEmpty, source, defaultValue);
         var args = new[] { source.Expression, Expression.Constant(defaultValue, typeof(TSource)) };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static bool Contains<TSource>(this IRepository<TSource> source, TSource item)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.Contains, source, item);
-        var args = new[] { source.Expression, Expression.Constant(item, typeof(TSource)) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
-    }
+    //public static bool Contains<TSource>(this IRepository<TSource> source, TSource item)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.Contains, source, item);
+    //    var args = new[] { source.Expression, Expression.Constant(item, typeof(TSource)) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<bool>(expression);
+    //}
 
-    public static bool Contains<TSource>(this IRepository<TSource> source, TSource item, IEqualityComparer<TSource> comparer)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.Contains, source, item, comparer);
-        var args = new[] {
-            source.Expression,
-            Expression.Constant(item, typeof(TSource)),
-            Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
-        };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
-    }
+    //public static bool Contains<TSource>(this IRepository<TSource> source, TSource item, IEqualityComparer<TSource> comparer)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.Contains, source, item, comparer);
+    //    var args = new[] {
+    //        source.Expression,
+    //        Expression.Constant(item, typeof(TSource)),
+    //        Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
+    //    };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<bool>(expression);
+    //}
 
-    public static IRepository<TSource> Reverse<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
+    public static IQueryable<TSource> Reverse<TSource>(this IRepository<TSource> source)
+        where TSource : class {
         IsNotNull(source);
         var method = GetMethodInfo(Queryable.Reverse, source);
         var args = new[] { source.Expression };
         var expression = Expression.Call(null, method, args);
-        return (IRepository<TSource>)source.Provider.CreateQuery<TSource>(expression);
+        return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static bool SequenceEqual<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(target);
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.SequenceEqual, target, source);
-        var args = new[] { target.Expression, GetSourceExpression(source) };
-        var expression = Expression.Call(null, method, args);
-        return target.Provider.Execute<bool>(expression);
-    }
+    //public static bool SequenceEqual<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(target);
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.SequenceEqual, target, source);
+    //    var args = new[] { target.Expression, GetSourceExpression(source) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return target.Provider.Execute<bool>(expression);
+    //}
 
-    public static bool SequenceEqual<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
-        where TSource : class, new() {
-        IsNotNull(target);
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.SequenceEqual, target, source, comparer);
-        var args = new[] {
-            target.Expression,
-            GetSourceExpression(source),
-            Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
-        };
-        var expression = Expression.Call(null, method, args);
-        return target.Provider.Execute<bool>(expression);
-    }
+    //public static bool SequenceEqual<TSource>(this IRepository<TSource> target, IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
+    //    where TSource : class {
+    //    IsNotNull(target);
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.SequenceEqual, target, source, comparer);
+    //    var args = new[] {
+    //        target.Expression,
+    //        GetSourceExpression(source),
+    //        Expression.Constant(comparer, typeof(IEqualityComparer<TSource>)),
+    //    };
+    //    var expression = Expression.Call(null, method, args);
+    //    return target.Provider.Execute<bool>(expression);
+    //}
 
-    public static bool Any<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.Any, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
-    }
+    //public static bool Any<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.Any, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<bool>(expression);
+    //}
 
-    public static bool Any<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.Any, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
-    }
+    //public static bool Any<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.Any, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<bool>(expression);
+    //}
 
-    public static bool All<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.All, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<bool>(expression);
-    }
+    //public static bool All<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.All, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<bool>(expression);
+    //}
 
-    public static int Count<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.Count, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<int>(expression);
-    }
+    //public static int Count<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.Count, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<int>(expression);
+    //}
 
-    public static int Count<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.Any, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<int>(expression);
-    }
+    //public static int Count<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.Any, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<int>(expression);
+    //}
 
-    public static long LongCount<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.LongCount, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<long>(expression);
-    }
+    //public static long LongCount<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.LongCount, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<long>(expression);
+    //}
 
-    public static long LongCount<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(predicate);
-        var method = GetMethodInfo(Queryable.LongCount, source, predicate);
-        var args = new[] { source.Expression, Expression.Quote(predicate) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<long>(expression);
-    }
+    //public static long LongCount<TSource>(this IRepository<TSource> source, Expression<Func<TSource, bool>> predicate)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(predicate);
+    //    var method = GetMethodInfo(Queryable.LongCount, source, predicate);
+    //    var args = new[] { source.Expression, Expression.Quote(predicate) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<long>(expression);
+    //}
 
-    public static TSource Min<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.Min, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource Min<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.Min, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TResult Min<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TResult>> selector)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(selector);
-        var method = GetMethodInfo(Queryable.Min, source, selector);
-        var args = new[] { source.Expression, Expression.Quote(selector) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TResult>(expression);
-    }
+    //public static TResult Min<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TResult>> selector)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(selector);
+    //    var method = GetMethodInfo(Queryable.Min, source, selector);
+    //    var args = new[] { source.Expression, Expression.Quote(selector) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TResult>(expression);
+    //}
 
-    public static TSource Max<TSource>(this IRepository<TSource> source)
-        where TSource : class, new() {
-        IsNotNull(source);
-        var method = GetMethodInfo(Queryable.Max, source);
-        var args = new[] { source.Expression };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TSource>(expression);
-    }
+    //public static TSource Max<TSource>(this IRepository<TSource> source)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    var method = GetMethodInfo(Queryable.Max, source);
+    //    var args = new[] { source.Expression };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TSource>(expression);
+    //}
 
-    public static TResult Max<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TResult>> selector)
-        where TSource : class, new() {
-        IsNotNull(source);
-        IsNotNull(selector);
-        var method = GetMethodInfo(Queryable.Min, source, selector);
-        var args = new[] { source.Expression, Expression.Quote(selector) };
-        var expression = Expression.Call(null, method, args);
-        return source.Provider.Execute<TResult>(expression);
-    }
+    //public static TResult Max<TSource, TResult>(this IRepository<TSource> source, Expression<Func<TSource, TResult>> selector)
+    //    where TSource : class {
+    //    IsNotNull(source);
+    //    IsNotNull(selector);
+    //    var method = GetMethodInfo(Queryable.Min, source, selector);
+    //    var args = new[] { source.Expression, Expression.Quote(selector) };
+    //    var expression = Expression.Call(null, method, args);
+    //    return source.Provider.Execute<TResult>(expression);
+    //}
 
     //public static int Sum(this IRepository<int> source) {
     //    IsNotNull(source);
@@ -1274,7 +1274,7 @@ public static class StorageExtensions {
     // ReSharper enable UnusedMember.Global
 
     private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
-        where TSource : class, new()
+        where TSource : class
         => source is IRepository<TSource> storage
         ? storage.Expression
         : Expression.Constant(source, typeof(IEnumerable<TSource>));

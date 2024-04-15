@@ -11,7 +11,7 @@ public interface IReadOnlyRepository
 public interface IReadOnlyRepository<TItem>
     : IReadOnlyRepository,
       IQueryable<TItem>
-    where TItem : class, new() {
+    where TItem : class {
     new TItem[] ToArray();
     new TItem? GetFirst();
     IRepositoryStrategy<TItem> Strategy { get; }

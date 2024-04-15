@@ -2,15 +2,15 @@ namespace DotNetToolbox.Data.Repositories;
 
 public abstract class RepositoryStrategy<TItem>(IEnumerable<TItem> remote)
     : RepositoryStrategy<TItem, TItem>(remote, s => s, s => s)
-    where TItem : class, new();
+    where TItem : class;
 
 public abstract class RepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote,
                                                           Expression<Func<TModel, TEntity>> projectToEntity,
                                                           Expression<Func<TEntity, TModel>> projectToModel)
     : QueryableStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel),
       IRepositoryStrategy<TModel>
-    where TModel : class, new()
-    where TEntity : class, new() {
+    where TModel : class
+    where TEntity : class {
     public virtual bool HaveAny()
         => throw new NotImplementedException(nameof(HaveAny));
     public virtual int Count()

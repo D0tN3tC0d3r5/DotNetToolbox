@@ -2,7 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public interface IAsyncRepositoryStrategy<TItem>
     : IQueryableStrategy
-    where TItem : class, new() {
+    where TItem : class {
     Task<bool> HaveAny(CancellationToken ct = default);
     Task<int> Count(CancellationToken ct = default);
     Task<TItem[]> ToArray(CancellationToken ct = default);
