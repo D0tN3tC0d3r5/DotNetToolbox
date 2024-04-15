@@ -1,10 +1,14 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class InMemoryRepositoryStrategyTests {
-    private readonly InMemoryRepositoryStrategy<string> _strategy;
+    public class TestEntity {
+        public string Name { get; set; } = default!;
+    };
+
+    private readonly InMemoryRepositoryStrategy<TestEntity> _strategy;
 
     public InMemoryRepositoryStrategyTests() {
-        var data = new[] { "A", "B", "C" };
+        var data = new TestEntity[] { new(), new(), new() };
         _strategy = new(data);
     }
 
@@ -22,7 +26,8 @@ public class InMemoryRepositoryStrategyTests {
 
     [Fact]
     public void ToArray_ShouldThrowNotImplementedException() {
+        var expectedResult = new TestEntity[] { new(), new(), new() };
         var result = _strategy.ToArray();
-        result.Should().BeEquivalentTo(["A", "B", "C"]);
+        result.Should().BeEquivalentTo(expectedResult);
     }
 }

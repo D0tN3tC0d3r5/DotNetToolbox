@@ -1,68 +1,40 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class RepositoryTests {
-    private readonly Repository<int?> _emptySet = new();
-    private readonly Repository<int> _set = new([1, 2, 3]);
+    public class TestEntity {
+        public string Name { get; set; } = default!;
+    };
 
-    [Fact]
-    public void Count_ForEmptySet_ReturnsCount() {
-        var result = _emptySet.Count();
+    private sealed class TestDataForRepositories : TheoryData<Repository<TestEntity>, bool, int, TestEntity?, TestEntity[]> {
+        public TestDataForRepositories() {
+            Repository<TestEntity> emptySet = [];
+            var one = new TestEntity();
+            var two = new TestEntity();
+            var three = new TestEntity();
+            Repository<TestEntity> filledSet = [one, two, three];
 
-        result.Should().Be(0);
+            Add(emptySet, false, 0, null, []);
+            Add(filledSet, true, 3, one, [one, two, three]);
+        }
+    }
+    [Theory]
+    [ClassData(typeof(TestDataForRepositories))]
+    public void Repository_ReturnsCorrectPropertyValues(Repository<TestEntity> subject, bool haveAny, int count, TestEntity? first, TestEntity[] array) {
+        subject.HaveAny().Should().Be(haveAny);
+        subject.Count().Should().Be(count);
+        subject.GetFirst().Should().Be(first);
+        subject.ToArray().Should().BeEquivalentTo(array);
     }
 
     [Fact]
-    public void HaveAny_ForEmptySet_Returns() {
-        var result = _emptySet.HaveAny();
+    public void Add_ReturnsNewCount() {
+        var one = new TestEntity();
+        var two = new TestEntity();
+        var three = new TestEntity();
+        var filledSet = new Repository<TestEntity> { one, two, three };
+        var four = new TestEntity();
 
-        result.Should().BeFalse();
-    }
-
-    [Fact]
-    public void GetFirst_ForEmptySet_Returns() {
-        var result = _emptySet.GetFirst();
-
-        result.Should().BeNull();
-    }
-
-    [Fact]
-    public void GetList_ForEmptySet_Returns() {
-        var result = _emptySet.ToArray();
-
-        result.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Count_ForInMemory_ReturnsCount() {
-        var result = _set.Count();
-
-        result.Should().Be(3);
-    }
-
-    [Fact]
-    public void HaveAny_ForInMemory_Returns() {
-        var result = _set.HaveAny();
-
-        result.Should().BeTrue();
-    }
-
-    [Fact]
-    public void GetFirst_ForInMemory_Returns() {
-        var result = _set.GetFirst();
-
-        result.Should().Be(1);
-    }
-
-    [Fact]
-    public void GetList_ForInMemory_Returns() {
-        var result = _set.ToArray();
-
-        result.Should().BeEquivalentTo([1, 2, 3]);
-    }
-
-    [Fact]
-    public void Add_ForInMemory_ReturnsCount() {
-        _set.Add(4);
-        _set.Count().Should().Be(4);
+        filledSet.Add(four);
+        filledSet.Count().Should().Be(4);
     }
 }

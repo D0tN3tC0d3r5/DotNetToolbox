@@ -1,10 +1,13 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public abstract class QueryableStrategy<TModel>(IEnumerable<TModel> remote)
-    : QueryableStrategy<TModel, TModel>(remote, s => s, s => s);
+public abstract class QueryableStrategy<TItem>(IEnumerable<TItem> remote)
+    : QueryableStrategy<TItem, TItem>(remote, s => s, s => s)
+        where TItem : class, new();
 
 public abstract class QueryableStrategy<TModel, TEntity>
-    : IQueryableStrategy<TModel> {
+    : IQueryableStrategy
+    where TModel : class, new()
+    where TEntity : class, new() {
     protected QueryableStrategy(IEnumerable<TEntity> remote,
                                 Expression<Func<TModel, TEntity>> projectToEntity,
                                 Expression<Func<TEntity, TModel>> projectToModel) {

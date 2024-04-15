@@ -1,14 +1,8 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public interface IQueryableStrategy {
-}
-
-public interface IQueryableStrategy<TItem>
-    : IQueryableStrategy {
-}
-
 public interface IRepositoryStrategy<TItem>
-    : IQueryableStrategy<TItem> {
+    : IQueryableStrategy
+      where TItem : class, new() {
     bool HaveAny();
     int Count();
     TItem[] ToArray();

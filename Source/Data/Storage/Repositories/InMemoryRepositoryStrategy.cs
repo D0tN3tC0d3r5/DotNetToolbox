@@ -1,12 +1,15 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class InMemoryRepositoryStrategy<TModel>(IEnumerable<TModel> remote)
-    : InMemoryRepositoryStrategy<TModel, TModel>(remote, s => s, s => s);
+public class InMemoryRepositoryStrategy<TItem>(IEnumerable<TItem> remote)
+    : InMemoryRepositoryStrategy<TItem, TItem>(remote, s => s, s => s)
+    where TItem : class, new();
 
 public class InMemoryRepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote,
                                                          Expression<Func<TModel, TEntity>> projectToEntity,
                                                          Expression<Func<TEntity, TModel>> projectToModel)
-    : RepositoryStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel) {
+    : RepositoryStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel)
+    where TModel : class, new()
+    where TEntity : class, new() {
     public override bool HaveAny()
         => GetQueryableRemote().Any();
 

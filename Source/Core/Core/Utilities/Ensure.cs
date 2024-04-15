@@ -1,6 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
 namespace System;
 
+// ReSharper disable UnusedMember.Global
 public static class Ensure {
     #region Null
 
@@ -21,24 +22,16 @@ public static class Ensure {
     #region Type
 
     [return: NotNull]
-    public static TArgument IsOfType<TArgument>([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
-        if (IsNotNull(argument, paramName) is not TArgument result) {
-            throw new ArgumentException(string.Format(null,
-                                                      ValueMustBeOfType,
-                                                      typeof(TArgument).Name,
-                                                      argument!.GetType()
-                                                               .Name),
-                                        paramName);
-        }
-        else
-            return result;
-    }
+    public static TArgument IsOfType<TArgument>([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => IsNotNull(argument, paramName) is TArgument result
+            ? result
+            : throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument.GetType().Name), paramName);
 
     public static TArgument? IsOfTypeOrDefault<TArgument>(object? argument, TArgument? defaultValue = default, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => argument switch {
             null => defaultValue,
             TArgument result => result,
-            _ => throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument!.GetType().Name), paramName),
+            _ => throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument.GetType().Name), paramName),
         };
 
     #endregion
@@ -157,7 +150,7 @@ public static class Ensure {
     [return: NotNull]
     public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, IDictionary<string, object?>? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatable
-        => IsValid(IsNotNull(argument, paramName), arg => arg?.Validate(context) ?? Result.Success(), paramName)!;
+        => IsValid(IsNotNull(argument, paramName), arg => arg.Validate(context), paramName);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? GetDefaultIfInvalid<TArgument>(TArgument? argument, IDictionary<string, object?>? context = null, TArgument? defaultValue = default)
@@ -208,7 +201,7 @@ public static class Ensure {
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? ItemsAreValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<IValidatable>
-        => argument?.All(i => i?.Validate().IsSuccess ?? true) ?? true
+        => argument?.All(i => i.Validate().IsSuccess) ?? true
                ? argument
                : throw new ValidationException(CollectionContainsInvalid, paramName!);
 
@@ -232,7 +225,7 @@ public static class Ensure {
 
     public static Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, IDictionary<string, object?>? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatableAsync
-        => IsValidAsync(IsNotNull(argument, paramName), arg => arg?.Validate(context) ?? Result.SuccessTask(), paramName)!;
+        => IsValidAsync(IsNotNull(argument, paramName), arg => arg.Validate(context), paramName);
 
     public static async Task<TArgument?> GetDefaultIfIsNotValidAsync<TArgument>(TArgument? argument, IDictionary<string, object?>? context = null, TArgument? defaultValue = default)
         where TArgument : IValidatableAsync {
@@ -266,3 +259,4 @@ public static class Ensure {
 
     #endregion
 }
+// ReSharper enable UnusedMember.Global

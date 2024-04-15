@@ -1,7 +1,8 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class ReadOnlyAsyncRepository<TItem>(IEnumerable<TItem>? source = null, IAsyncRepositoryStrategy<TItem>? strategy = null)
-    : IReadOnlyAsyncRepository<TItem> {
+    : IReadOnlyAsyncRepository<TItem>
+    where TItem : class, new() {
     private readonly IQueryable<TItem> _data = new List<TItem>(source ?? []).AsQueryable();
 
     public Type ElementType => _data.ElementType;

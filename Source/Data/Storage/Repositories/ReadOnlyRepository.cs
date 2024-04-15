@@ -1,7 +1,8 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class ReadOnlyRepository<TItem>
-    : IReadOnlyRepository<TItem> {
+    : IReadOnlyRepository<TItem>
+    where TItem : class, new() {
     private readonly IQueryable<TItem> _data;
 
     public ReadOnlyRepository(IStrategyProvider? provider = null)
@@ -28,8 +29,10 @@ public class ReadOnlyRepository<TItem>
         => Strategy.HaveAny();
     public int Count()
         => Strategy.Count();
+    object[] IReadOnlyRepository.ToArray() => ToArray().Cast<object>().ToArray();
     public TItem[] ToArray()
         => Strategy.ToArray();
+    object? IReadOnlyRepository.GetFirst() => GetFirst();
     public TItem? GetFirst()
         => Strategy.GetFirst();
 }

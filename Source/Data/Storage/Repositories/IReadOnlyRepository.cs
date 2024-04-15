@@ -4,12 +4,15 @@ public interface IReadOnlyRepository
     : IQueryable {
     bool HaveAny();
     int Count();
+    object[] ToArray();
+    object? GetFirst();
 }
 
 public interface IReadOnlyRepository<TItem>
     : IReadOnlyRepository,
-      IQueryable<TItem> {
-    TItem[] ToArray();
-    TItem? GetFirst();
+      IQueryable<TItem>
+    where TItem : class, new() {
+    new TItem[] ToArray();
+    new TItem? GetFirst();
     IRepositoryStrategy<TItem> Strategy { get; }
 }

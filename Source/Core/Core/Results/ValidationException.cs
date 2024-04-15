@@ -1,12 +1,22 @@
 ﻿namespace DotNetToolbox.Results;
 
-public class ValidationException(string message, string source, IEnumerable<ValidationError> errors, Exception? innerException = null)
-    : Exception(FormatSource(source) + FormatMessage(message), innerException) {
+public class ValidationException
+    : Exception {
     public const string DefaultMessage = "Validation failed.";
 
-    public ValidationError[] Errors { get; } = errors.Distinct().ToArray();
+    public ValidationError[] Errors { get; }
 
-    public ValidationException(Exception? innerException = null)
+    public ValidationException()
+        : base(DefaultMessage) {
+        Errors = [new(ValidationError.DefaultErrorMessage)];
+    }
+
+    public ValidationException(string message)
+        : base(message) {
+        Errors = [new(ValidationError.DefaultErrorMessage)];
+    }
+
+    public ValidationException(Exception innerException)
         : this(DefaultMessage, innerException) {
     }
 
@@ -36,6 +46,11 @@ public class ValidationException(string message, string source, IEnumerable<Vali
 
     public ValidationException(string message, string source, ValidationError error, Exception? innerException = null)
         : this(message, source, [error], innerException) {
+    }
+
+    public ValidationException(string message, string source, IEnumerable<ValidationError> errors, Exception? innerException = null)
+        : base(FormatSource(source) + FormatMessage(message), innerException) {
+        Errors = errors.Distinct().ToArray();
     }
 
     private static string FormatMessage(string message) => IsNotNullOrWhiteSpace(message);

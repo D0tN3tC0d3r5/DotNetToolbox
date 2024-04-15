@@ -4,11 +4,13 @@ public class StrategyProvider
     : IStrategyProvider {
     private readonly Dictionary<Type, IQueryableStrategy> _strategies = [];
 
-    public void RegisterStrategy<TModel>(IQueryableStrategy strategy)
-        => _strategies[typeof(TModel)] = strategy;
+    public void RegisterStrategy<TItem>(IQueryableStrategy strategy)
+        where TItem : class, new()
+        => _strategies[typeof(TItem)] = strategy;
 
-    public IQueryableStrategy<TModel>? GetStrategy<TModel>()
-        => (IQueryableStrategy<TModel>?)GetStrategy(typeof(TModel));
+    public IQueryableStrategy? GetStrategy<TItem>()
+        where TItem : class, new()
+        => GetStrategy(typeof(TItem));
 
     public IQueryableStrategy? GetStrategy(Type modelType)
         => _strategies.GetValueOrDefault(modelType);
