@@ -7,7 +7,7 @@ public abstract class RepositoryStrategy<TItem>(IEnumerable<TItem> remote)
 public abstract class RepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote,
                                                           Expression<Func<TModel, TEntity>> projectToEntity,
                                                           Expression<Func<TEntity, TModel>> projectToModel)
-    : QueryableStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel),
+    : QueryStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel),
       IRepositoryStrategy<TModel>
     where TModel : class
     where TEntity : class {

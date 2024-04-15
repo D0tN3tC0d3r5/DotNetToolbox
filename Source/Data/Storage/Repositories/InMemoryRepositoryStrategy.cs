@@ -11,16 +11,16 @@ public class InMemoryRepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> re
     where TModel : class
     where TEntity : class {
     public override bool HaveAny()
-        => GetQueryableRemote().Any();
+        => Remote.Any();
 
     public override int Count()
-        => GetQueryableRemote().Count();
+        => Remote.Count();
 
     public override TModel[] ToArray()
-        => [.. GetQueryableRemote().Select(ProjectToModel!)];
+        => [.. Remote.AsQueryable().Select(ProjectToModel)];
 
     public override TModel? GetFirst() {
-        var entity = GetQueryableRemote().FirstOrDefault();
+        var entity = Remote.FirstOrDefault();
         return entity is null
             ? default
             : ConvertToModel(entity);
@@ -28,13 +28,17 @@ public class InMemoryRepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> re
 
     public override void Add(TModel newItem) {
         var collection = IsOfType<ICollection<TEntity>>(Remote);
-        var newEntity = ConvertToEntity!(newItem);
+        var newEntity = ConvertToEntity(newItem);
         collection.Add(newEntity);
     }
 
     public override void Update(Expression<Func<TModel, bool>> predicate, TModel updatedItem) {
-        Remove(predicate);
-        Add(updatedItem);
+        var collection = IsOfType<IList<TEntity>>(Remote);
+        var convertedPredicate = ConvertToRemoteExpression<Func<TEntity, bool>>(predicate);
+        var itemToUpdate = Remote.AsQueryable().FirstOrDefault(convertedPredicate);
+        if (itemToUpdate is null) return;
+        var index = collection.IndexOf(itemToUpdate);
+        collection[index] = ConvertToEntity(updatedItem);
     }
 
     public override void Remove(Expression<Func<TModel, bool>> predicate) {

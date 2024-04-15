@@ -1,14 +1,14 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public abstract class AsyncRepositoryStrategy<TItem>(IEnumerable<TItem> remote)
-    : QueryableStrategy<TItem, TItem>(remote, s => s, s => s)
+    : QueryStrategy<TItem, TItem>(remote, s => s, s => s)
     where TItem : class {
 }
 
 public abstract class AsyncRepositoryStrategy<TModel, TEntity>(IEnumerable<TEntity> remote,
                                                                Expression<Func<TModel, TEntity>> projectToEntity,
                                                                Expression<Func<TEntity, TModel>> projectToModel)
-    : QueryableStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel),
+    : QueryStrategy<TModel, TEntity>(remote, projectToEntity, projectToModel),
       IAsyncRepositoryStrategy<TModel>
     where TModel : class
     where TEntity : class {

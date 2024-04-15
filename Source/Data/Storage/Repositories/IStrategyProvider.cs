@@ -1,9 +1,9 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IStrategyProvider {
-    void RegisterStrategy<TItem>(IQueryableStrategy strategy)
+    void RegisterStrategy<TItem>(IQueryStrategy<TItem> strategy)
         where TItem : class;
-    IQueryableStrategy? GetStrategy<TItem>()
+    IQueryStrategy<TItem>? GetStrategy<TItem>()
         where TItem : class;
-    IQueryableStrategy? GetStrategy(Type modelType);
+    IQueryStrategy? GetStrategy(Type modelType);
 }
