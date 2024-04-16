@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Data.Repositories;
 
-public static class StorageExtensions {
+public static class RepositoryExtensions {
     // ReSharper disable UnusedMember.Global
     public static IRepository<TItem> AsRepository<TItem>(this IEnumerable<TItem> source)
         where TItem : class {
