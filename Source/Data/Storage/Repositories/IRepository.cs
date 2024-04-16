@@ -10,6 +10,8 @@ public interface IRepository<TItem>
     , IRepository
     where TItem : class {
     new IRepositoryStrategy<TItem> Provider { get; }
+    bool HaveAny();
+    int Count();
     TItem[] ToArray();
     TItem? GetFirst();
     void Add(TItem newItem);

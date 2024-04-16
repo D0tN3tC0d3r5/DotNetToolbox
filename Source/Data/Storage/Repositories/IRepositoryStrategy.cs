@@ -4,8 +4,7 @@ public interface IRepositoryStrategy
     : IQueryStrategy;
 
 public interface IRepositoryStrategy<TItem>
-    : IRepositoryStrategy,
-      IQueryStrategy<TItem>
+    : IRepositoryStrategy
     where TItem : class {
     bool HaveAny();
     int Count();

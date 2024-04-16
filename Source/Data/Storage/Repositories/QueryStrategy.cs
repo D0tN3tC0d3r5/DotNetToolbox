@@ -54,17 +54,6 @@ public abstract class QueryStrategy<TModel, TEntity>
     protected Expression<Func<TEntity, TModel>> ProjectToModel { get; }
     protected Func<TEntity, TModel> ConvertToModel { get; }
 
-    //protected IQueryable<TEntity> GetQueryableRemote() {
-    //    var mappers = new TypeMapper[] {
-    //        new TypeMapper<TModel, TEntity>(ConvertToEntity),
-    //        new(Local.GetType(), Remote.GetType(), Remote),
-    //    };
-    //    var convertedLocalExpression = Local.AsQueryable().Expression.ReplaceExpressionType(mappers);
-    //    var updatedRemote = Remote.AsQueryable()
-    //                              .Provider
-    //                              .Execute<IEnumerable<TEntity>>(convertedLocalExpression);
-    //    return updatedRemote.AsQueryable();
-    //}
     protected Expression<TDelegate> ConvertToRemoteExpression<TDelegate>(Expression expression)
         where TDelegate : Delegate {
         var mappers = new TypeMapper[] {
@@ -73,10 +62,4 @@ public abstract class QueryStrategy<TModel, TEntity>
         };
         return (Expression<TDelegate>)expression.ReplaceExpressionType(mappers);
     }
-
-    //protected TResult ConvertToRemoteAndApply<TResult>(Expression expression) {
-    //    //var updatedRemote = GetQueryableRemote();
-    //    var result = expression.Apply<TEntity, TResult>(Remote);
-    //    return result;
-    //}
 }
