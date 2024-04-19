@@ -2,7 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public abstract class RepositoryUpdateStrategy<TItem>
     : RepositoryReadStrategy<TItem>,
-      IRepository<TItem>
+      IUpdatableRepository<TItem>
     where TItem : class {
     public virtual void Add(TItem newItem) => throw new NotImplementedException();
 

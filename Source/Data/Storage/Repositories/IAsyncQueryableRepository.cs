@@ -55,29 +55,21 @@ public interface IAsyncQueryableRepository<TItem>
                                                                    IEqualityComparer<TKey>? comparer)
         where TResult : class;
 
-    IOrderedQueryableRepository<TItem> Order();
+    AsyncOrderedRepository<TItem> Order();
 
-    IOrderedQueryableRepository<TItem> Order(IComparer<TItem> comparer);
+    AsyncOrderedRepository<TItem> Order(IComparer<TItem> comparer);
 
-    IOrderedQueryableRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
+    AsyncOrderedRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
-    IOrderedQueryableRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
+    AsyncOrderedRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
 
-    IOrderedQueryableRepository<TItem> OrderDescending();
+    AsyncOrderedRepository<TItem> OrderDescending();
 
-    IOrderedQueryableRepository<TItem> OrderDescending(IComparer<TItem> comparer);
+    AsyncOrderedRepository<TItem> OrderDescending(IComparer<TItem> comparer);
 
-    IOrderedQueryableRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector);
+    AsyncOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
-    IOrderedQueryableRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
-
-    IOrderedQueryableRepository<TItem> ThenBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
-
-    IOrderedQueryableRepository<TItem> ThenBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
-
-    IOrderedQueryableRepository<TItem> ThenByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector);
-
-    IOrderedQueryableRepository<TItem> ThenByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
+    AsyncOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
 
     AsyncRepository<TItem> Take(int count);
 

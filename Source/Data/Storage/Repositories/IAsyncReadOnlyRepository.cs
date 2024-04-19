@@ -1,7 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IAsyncReadOnlyRepository<TItem>
-    : IAsyncQueryableRepository<TItem>
     where TItem : class {
     Task<IReadOnlyList<TItem>> ToArray(CancellationToken ct = default);
 

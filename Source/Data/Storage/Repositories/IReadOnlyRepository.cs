@@ -1,7 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IReadOnlyRepository<TItem>
-    : IQueryableRepository<TItem>
     where TItem : class {
     IReadOnlyList<TItem> ToArray();
 

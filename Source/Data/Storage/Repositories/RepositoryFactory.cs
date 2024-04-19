@@ -1,33 +1,31 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public static class RepositoryFactory {
-    //public static TRepository CreateRepository<TSource, TRepository, TResult>(IQueryable<TSource> source, RepositoryQueryStrategy strategy, Expression expression, Func<TSource, TResult> convert)
-    //    where TRepository : class, IQueryableRepository<TResult>
-    //    where TResult : class {
-    //    var resultType = source.GetType().GetGenericTypeDefinition().MakeGenericType(typeof(TResult));
-    //    var result = (IQueryable<TResult>)Activator.CreateInstance(resultType)!;
-    //    var local = expression.Apply<TSource, IQueryable<TResult>>(source);
-    //    var mappers = new TypeMapper[] {
-    //                                       new TypeMapper<TSource, TResult>(convert),
-    //                                       new(source.GetType(), typeof(IQueryable<TResult>), result),
-    //                                   };
-    //    var remoteExpression = expression.ReplaceExpressionType(mappers);
-    //    result = remoteExpression.Apply<TResult, IQueryable<TResult>>(result);
-    //    var repository = InstanceFactory.Create<TRepository>(local, strategy);
-    //    return repository;
-    //}
-
-    public static Repository<TResult> CreateRepository<TRepository, TResult>(IQueryable<TResult> result)
-        where TRepository : class, IQueryableRepository
+    public static IRepository<TResult> CreateRepository<TSourceRepository, TResult>(IQueryable<TResult> result)
+        where TSourceRepository : class, IQueryableRepository
         where TResult : class {
-        var resultRepositoryType = typeof(TRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TResult));
-        return (Repository<TResult>)Activator.CreateInstance(resultRepositoryType, result)!;
+        var resultRepositoryType = typeof(TSourceRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TResult));
+        return (IRepository<TResult>)Activator.CreateInstance(resultRepositoryType, result)!;
     }
 
-    public static AsyncRepository<TResult> CreateAsyncRepository<TRepository, TResult>(IQueryable<TResult> result)
-        where TRepository : class, IAsyncQueryableRepository
+    public static IOrderedRepository<TResult> CreateOrderedRepository<TSourceRepository, TResult>(IQueryable<TResult> result)
+        where TSourceRepository : class, IOrderedQueryableRepository
         where TResult : class {
-        var resultRepositoryType = typeof(TRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TResult));
-        return (AsyncRepository<TResult>)Activator.CreateInstance(resultRepositoryType, result)!;
+        var resultRepositoryType = typeof(TSourceRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TResult));
+        return (IOrderedRepository<TResult>)Activator.CreateInstance(resultRepositoryType, result)!;
+    }
+
+    public static IAsyncRepository<TResult> CreateAsyncRepository<TSourceRepository, TResult>(IQueryable<TResult> result)
+        where TSourceRepository : class, IAsyncQueryableRepository
+        where TResult : class {
+        var resultRepositoryType = typeof(TSourceRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TResult));
+        return (IAsyncRepository<TResult>)Activator.CreateInstance(resultRepositoryType, result)!;
+    }
+
+    public static IAsyncOrderedRepository<TResult> CreateAsyncOrderedRepository<TOrderedRepository, TResult>(IQueryable<TResult> result)
+        where TOrderedRepository : class, IAsyncOrderedQueryableRepository
+        where TResult : class {
+        var resultRepositoryType = typeof(TOrderedRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TResult));
+        return (IAsyncOrderedRepository<TResult>)Activator.CreateInstance(resultRepositoryType, result)!;
     }
 }

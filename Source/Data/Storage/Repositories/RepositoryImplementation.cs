@@ -211,143 +211,143 @@
 //                outer.Expression, GetSourceExpression(inner), Expression.Quote(outerKeySelector), Expression.Quote(innerKeySelector), Expression.Quote(resultSelector), Expression.Constant(comparer, typeof(IEqualityComparer<TKey>))));
 //    }
 
-//    public static IOrderedQueryableRepository<T> Order<T>(this IQueryableRepository<T> source)
+//    public static IOrderedRepository<T> Order<T>(this IQueryableRepository<T> source)
 //        where T : class {
 //        IsNotNull(source);
 
-//        return (IOrderedQueryableRepository<T>)source.Provider.CreateRepository<T>(
+//        return (IOrderedRepository<T>)source.Provider.CreateRepository<T>(
 //            Expression.Call(
 //                null,
 //                new Func<IQueryable<T>, IOrderedQueryable<T>>(Queryable.Order).Method,
 //                source.Expression));
 //    }
 
-//    public static IOrderedQueryableRepository<T> Order<T>(this IQueryableRepository<T> source, IComparer<T> comparer)
+//    public static IOrderedRepository<T> Order<T>(this IQueryableRepository<T> source, IComparer<T> comparer)
 //        where T : class {
 //        IsNotNull(source);
 
-//        return (IOrderedQueryableRepository<T>)source.Provider.CreateRepository<T>(
+//        return (IOrderedRepository<T>)source.Provider.CreateRepository<T>(
 //            Expression.Call(
 //                null,
 //                new Func<IQueryable<T>, IComparer<T>, IOrderedQueryable<T>>(Queryable.Order).Method,
 //                source.Expression, Expression.Constant(comparer, typeof(IComparer<T>))));
 //    }
 
-//    public static IOrderedQueryableRepository<TSource> OrderBy<TSource, TKey>(this IQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+//    public static IOrderedRepository<TSource> OrderBy<TSource, TKey>(this IQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 //        where TSource : class {
 //        IsNotNull(source);
 //        IsNotNull(keySelector);
 
-//        return (IOrderedQueryableRepository<TSource>)source.Provider.CreateRepository<TSource>(
+//        return (IOrderedRepository<TSource>)source.Provider.CreateRepository<TSource>(
 //            Expression.Call(
 //                null,
 //                new Func<IQueryable<TSource>, Expression<Func<TSource, TKey>>, IOrderedQueryable<TSource>>(Queryable.OrderBy).Method,
 //                source.Expression, Expression.Quote(keySelector)));
 //    }
 
-//    public static IOrderedQueryableRepository<TSource> OrderBy<TSource, TKey>(this IQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey>? comparer)
+//    public static IOrderedRepository<TSource> OrderBy<TSource, TKey>(this IQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey>? comparer)
 //        where TSource : class {
 //        IsNotNull(source);
 //        IsNotNull(keySelector);
 
-//        return (IOrderedQueryableRepository<TSource>)source.Provider.CreateRepository<TSource>(
+//        return (IOrderedRepository<TSource>)source.Provider.CreateRepository<TSource>(
 //            Expression.Call(
 //                null,
 //                new Func<IQueryable<TSource>, Expression<Func<TSource, TKey>>, IComparer<TKey>, IOrderedQueryable<TSource>>(Queryable.OrderBy).Method,
 //                source.Expression, Expression.Quote(keySelector), Expression.Constant(comparer, typeof(IComparer<TKey>))));
 //    }
 
-//    public static IOrderedQueryableRepository<T> OrderDescending<T>(this IQueryableRepository<T> source)
+//    public static IOrderedRepository<T> OrderDescending<T>(this IQueryableRepository<T> source)
 //        where T : class {
 //        IsNotNull(source);
 
-//        return (IOrderedQueryableRepository<T>)source.Provider.CreateRepository<T>(
+//        return (IOrderedRepository<T>)source.Provider.CreateRepository<T>(
 //            Expression.Call(
 //                null,
 //                new Func<IQueryable<T>, IOrderedQueryable<T>>(Queryable.OrderDescending).Method,
 //                source.Expression));
 //    }
 
-//    public static IOrderedQueryableRepository<T> OrderDescending<T>(this IQueryableRepository<T> source, IComparer<T> comparer)
+//    public static IOrderedRepository<T> OrderDescending<T>(this IQueryableRepository<T> source, IComparer<T> comparer)
 //        where T : class {
 //        IsNotNull(source);
 
-//        return (IOrderedQueryableRepository<T>)source.Provider.CreateRepository<T>(
+//        return (IOrderedRepository<T>)source.Provider.CreateRepository<T>(
 //            Expression.Call(
 //                null,
 //                new Func<IQueryable<T>, IComparer<T>, IOrderedQueryable<T>>(Queryable.OrderDescending).Method,
 //                source.Expression, Expression.Constant(comparer, typeof(IComparer<T>))));
 //    }
 
-//    public static IOrderedQueryableRepository<TSource> OrderByDescending<TSource, TKey>(this IQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+//    public static IOrderedRepository<TSource> OrderByDescending<TSource, TKey>(this IQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 //        where TSource : class {
 //        IsNotNull(source);
 //        IsNotNull(keySelector);
 
-//        return (IOrderedQueryableRepository<TSource>)source.Provider.CreateRepository<TSource>(
+//        return (IOrderedRepository<TSource>)source.Provider.CreateRepository<TSource>(
 //            Expression.Call(
 //                null,
 //                new Func<IQueryable<TSource>, Expression<Func<TSource, TKey>>, IOrderedQueryable<TSource>>(Queryable.OrderByDescending).Method,
 //                source.Expression, Expression.Quote(keySelector)));
 //    }
 
-//    public static IOrderedQueryableRepository<TSource> OrderByDescending<TSource, TKey>(this IQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey>? comparer)
+//    public static IOrderedRepository<TSource> OrderByDescending<TSource, TKey>(this IQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey>? comparer)
 //        where TSource : class {
 //        IsNotNull(source);
 //        IsNotNull(keySelector);
 
-//        return (IOrderedQueryableRepository<TSource>)source.Provider.CreateRepository<TSource>(
+//        return (IOrderedRepository<TSource>)source.Provider.CreateRepository<TSource>(
 //            Expression.Call(
 //                null,
 //                new Func<IQueryable<TSource>, Expression<Func<TSource, TKey>>, IComparer<TKey>, IOrderedQueryable<TSource>>(Queryable.OrderByDescending).Method,
 //                source.Expression, Expression.Quote(keySelector), Expression.Constant(comparer, typeof(IComparer<TKey>))));
 //    }
 
-//    public static IOrderedQueryableRepository<TSource> ThenBy<TSource, TKey>(this IOrderedQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+//    public static IOrderedRepository<TSource> ThenBy<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 //        where TSource : class {
 //        IsNotNull(source);
 //        IsNotNull(keySelector);
 
-//        return (IOrderedQueryableRepository<TSource>)source.Provider.CreateRepository<TSource>(
+//        return (IOrderedRepository<TSource>)source.Provider.CreateRepository<TSource>(
 //            Expression.Call(
 //                null,
-//                new Func<IOrderedQueryableRepository<TSource>, Expression<Func<TSource, TKey>>, IOrderedQueryable<TSource>>(Queryable.ThenBy).Method,
+//                new Func<IOrderedRepository<TSource>, Expression<Func<TSource, TKey>>, IOrderedQueryable<TSource>>(Queryable.ThenBy).Method,
 //                source.Expression, Expression.Quote(keySelector)));
 //    }
 
-//    public static IOrderedQueryableRepository<TSource> ThenBy<TSource, TKey>(this IOrderedQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey>? comparer)
+//    public static IOrderedRepository<TSource> ThenBy<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey>? comparer)
 //        where TSource : class {
 //        IsNotNull(source);
 //        IsNotNull(keySelector);
 
-//        return (IOrderedQueryableRepository<TSource>)source.Provider.CreateRepository<TSource>(
+//        return (IOrderedRepository<TSource>)source.Provider.CreateRepository<TSource>(
 //            Expression.Call(
 //                null,
-//                new Func<IOrderedQueryableRepository<TSource>, Expression<Func<TSource, TKey>>, IComparer<TKey>, IOrderedQueryable<TSource>>(Queryable.ThenBy).Method,
+//                new Func<IOrderedRepository<TSource>, Expression<Func<TSource, TKey>>, IComparer<TKey>, IOrderedQueryable<TSource>>(Queryable.ThenBy).Method,
 //                source.Expression, Expression.Quote(keySelector), Expression.Constant(comparer, typeof(IComparer<TKey>))));
 //    }
 
-//    public static IOrderedQueryableRepository<TSource> ThenByDescending<TSource, TKey>(this IOrderedQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+//    public static IOrderedRepository<TSource> ThenByDescending<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 //        where TSource : class {
 //        IsNotNull(source);
 //        IsNotNull(keySelector);
 
-//        return (IOrderedQueryableRepository<TSource>)source.Provider.CreateRepository<TSource>(
+//        return (IOrderedRepository<TSource>)source.Provider.CreateRepository<TSource>(
 //            Expression.Call(
 //                null,
-//                new Func<IOrderedQueryableRepository<TSource>, Expression<Func<TSource, TKey>>, IOrderedQueryable<TSource>>(Queryable.ThenByDescending).Method,
+//                new Func<IOrderedRepository<TSource>, Expression<Func<TSource, TKey>>, IOrderedQueryable<TSource>>(Queryable.ThenByDescending).Method,
 //                source.Expression, Expression.Quote(keySelector)));
 //    }
 
-//    public static IOrderedQueryableRepository<TSource> ThenByDescending<TSource, TKey>(this IOrderedQueryableRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey>? comparer)
+//    public static IOrderedRepository<TSource> ThenByDescending<TSource, TKey>(this IOrderedRepository<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey>? comparer)
 //        where TSource : class {
 //        IsNotNull(source);
 //        IsNotNull(keySelector);
 
-//        return (IOrderedQueryableRepository<TSource>)source.Provider.CreateRepository<TSource>(
+//        return (IOrderedRepository<TSource>)source.Provider.CreateRepository<TSource>(
 //            Expression.Call(
 //                null,
-//                new Func<IOrderedQueryableRepository<TSource>, Expression<Func<TSource, TKey>>, IComparer<TKey>, IOrderedQueryable<TSource>>(Queryable.ThenByDescending).Method,
+//                new Func<IOrderedRepository<TSource>, Expression<Func<TSource, TKey>>, IComparer<TKey>, IOrderedQueryable<TSource>>(Queryable.ThenByDescending).Method,
 //                source.Expression, Expression.Quote(keySelector), Expression.Constant(comparer, typeof(IComparer<TKey>))));
 //    }
 

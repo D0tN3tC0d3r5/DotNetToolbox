@@ -1,11 +1,11 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class Repository<TItem>
+public class Repository<TRepository, TItem>
     : IRepository<TItem>,
       IEnumerable<TItem>
+    where TRepository : OrderedRepository<TRepository, TItem>
     where TItem : class {
     private readonly IQueryable<TItem> _data;
-    private readonly RepositoryStrategy<TItem> _strategy;
 
     public Repository(IStrategyFactory? provider = null)
         : this([], provider) {
@@ -14,471 +14,486 @@ public class Repository<TItem>
     public Repository(IEnumerable<TItem> data, IStrategyFactory? provider = null) {
         var list = data.ToList();
         _data = IsNotNull(list).AsQueryable();
-        _strategy = provider?.GetRepositoryStrategy<TItem>(_data)
-            ?? new InMemoryRepositoryStrategy<Repository<TItem>, TItem>(_data);
+        Strategy = provider?.GetRepositoryStrategy(_data)
+            ?? new InMemoryRepositoryStrategy<TRepository, TItem>(_data);
     }
+
+    protected RepositoryStrategy<TItem> Strategy { get; }
 
     public IEnumerator<TItem> GetEnumerator()
         => _data.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
-    public Repository<TResult> OfType<TResult>()
+    public IRepository<TResult> OfType<TResult>()
         where TResult : class
-        => _strategy.OfType<TResult>();
+        => Strategy.OfType<TResult>();
 
-    public Repository<TResult> Cast<TResult>()
+    public IRepository<TResult> Cast<TResult>()
         where TResult : class
-        => _strategy.Cast<TResult>();
+        => Strategy.Cast<TResult>();
 
-    public Repository<TItem> Where(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Where(Expression<Func<TItem, bool>> predicate)
+        => Strategy.Where(predicate);
 
-    public Repository<TItem> Where(Expression<Func<TItem, int, bool>> predicate)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Where(Expression<Func<TItem, int, bool>> predicate)
+        => Strategy.Where(predicate);
 
-    public Repository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
+    public IRepository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.Select(selector);
 
-    public Repository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
+    public IRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.Select(selector);
 
-    public Repository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+    public IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.SelectMany(selector);
 
-    public Repository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
+    public IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.SelectMany(selector);
 
-    public Repository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+    public IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.SelectMany(collectionSelector, resultSelector);
 
-    public Repository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+    public IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.SelectMany(collectionSelector, resultSelector);
 
-    public Repository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner, Expression<Func<TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TInner, TResult>> resultSelector)
-        where TResult : class
-        => throw new NotImplementedException();
-
-    public Repository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
-                                                           Expression<Func<TKey>> outerKeySelector,
+    public IRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
+                                                           Expression<Func<TItem, TKey>> outerKeySelector,
                                                            Expression<Func<TInner, TKey>> innerKeySelector,
-                                                           Expression<Func<TInner, TResult>> resultSelector,
+                                                           Expression<Func<TItem, TInner, TResult>> resultSelector)
+        where TResult : class
+        => Strategy.Join(inner,
+                          outerKeySelector,
+                          innerKeySelector,
+                          resultSelector);
+
+    public IRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
+                                                           Expression<Func<TItem, TKey>> outerKeySelector,
+                                                           Expression<Func<TInner, TKey>> innerKeySelector,
+                                                           Expression<Func<TItem, TInner, TResult>> resultSelector,
                                                            IEqualityComparer<TKey>? comparer)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.Join(inner,
+                          outerKeySelector,
+                          innerKeySelector,
+                          resultSelector,
+                          comparer);
 
-    public Repository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner, Expression<Func<TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<IEnumerable<TInner>, TResult>> resultSelector)
-        where TResult : class
-        => throw new NotImplementedException();
-
-    public Repository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
-                                                                Expression<Func<TKey>> outerKeySelector,
+    public IRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
+                                                                Expression<Func<TItem, TKey>> outerKeySelector,
                                                                 Expression<Func<TInner, TKey>> innerKeySelector,
-                                                                Expression<Func<IEnumerable<TInner>, TResult>> resultSelector,
+                                                                Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector)
+        where TResult : class
+        => Strategy.GroupJoin(inner,
+                               outerKeySelector,
+                               innerKeySelector,
+                               resultSelector);
+
+    public IRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
+                                                                Expression<Func<TItem, TKey>> outerKeySelector,
+                                                                Expression<Func<TInner, TKey>> innerKeySelector,
+                                                                Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector,
                                                                 IEqualityComparer<TKey>? comparer)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.GroupJoin(inner,
+                               outerKeySelector,
+                               innerKeySelector,
+                               resultSelector,
+                               comparer);
 
-    public virtual IOrderedQueryableRepository<TItem> Order()
-        => throw new NotImplementedException();
+    public IOrderedRepository<TItem> Order()
+        => Strategy.Order();
 
-    public virtual IOrderedQueryableRepository<TItem> Order(IComparer<TItem> comparer)
-        => throw new NotImplementedException();
+    public IOrderedRepository<TItem> Order(IComparer<TItem> comparer)
+        => Strategy.Order(comparer);
 
-    public virtual IOrderedQueryableRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
+    public IOrderedRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.OrderBy(keySelector);
 
-    public virtual IOrderedQueryableRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
-        => throw new NotImplementedException();
+    public IOrderedRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
+        => Strategy.OrderBy(keySelector, comparer);
 
-    public virtual IOrderedQueryableRepository<TItem> OrderDescending()
-        => throw new NotImplementedException();
+    public IOrderedRepository<TItem> OrderDescending()
+        => Strategy.OrderDescending();
 
-    public virtual IOrderedQueryableRepository<TItem> OrderDescending(IComparer<TItem> comparer)
-        => throw new NotImplementedException();
+    public IOrderedRepository<TItem> OrderDescending(IComparer<TItem> comparer)
+        => Strategy.OrderDescending(comparer);
 
-    public virtual IOrderedQueryableRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
+    public IOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.OrderByDescending(keySelector);
 
-    public virtual IOrderedQueryableRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
-        => throw new NotImplementedException();
+    public IOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
+        => Strategy.OrderByDescending(keySelector, comparer);
 
-    public virtual IOrderedQueryableRepository<TItem> ThenBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Take(int count)
+        => Strategy.Take(count);
 
-    public virtual IOrderedQueryableRepository<TItem> ThenBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Take(Range range)
+        => Strategy.Take(range);
 
-    public virtual IOrderedQueryableRepository<TItem> ThenByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
+    public IRepository<TItem> TakeWhile(Expression<Func<TItem, bool>> predicate)
+        => Strategy.TakeWhile(predicate);
 
-    public virtual IOrderedQueryableRepository<TItem> ThenByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> TakeWhile(Expression<Func<TItem, int, bool>> predicate)
+        => Strategy.TakeWhile(predicate);
 
-    public Repository<TItem> Take(int count)
-        => throw new NotImplementedException();
+    public IRepository<TItem> TakeLast(int count)
+        => Strategy.TakeLast(count);
 
-    public Repository<TItem> Take(Range range)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Skip(int count)
+        => Strategy.Skip(count);
 
-    public Repository<TItem> TakeWhile(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
+    public IRepository<TItem> SkipWhile(Expression<Func<TItem, bool>> predicate)
+        => Strategy.SkipWhile(predicate);
 
-    public Repository<TItem> TakeWhile(Expression<Func<TItem, int, bool>> predicate)
-        => throw new NotImplementedException();
+    public IRepository<TItem> SkipWhile(Expression<Func<TItem, int, bool>> predicate)
+        => Strategy.SkipWhile(predicate);
 
-    public Repository<TItem> TakeLast(int count)
-        => throw new NotImplementedException();
+    public IRepository<TItem> SkipLast(int count)
+        => Strategy.SkipLast(count);
 
-    public Repository<TItem> Skip(int count)
-        => throw new NotImplementedException();
+    public IRepository<IGrouping<TKey, TItem>> GroupBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.GroupBy(keySelector);
 
-    public Repository<TItem> SkipWhile(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
+    public IRepository<IGrouping<TKey, TElement>> GroupBy<TKey, TElement>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector)
+        => Strategy.GroupBy(keySelector, elementSelector);
 
-    public Repository<TItem> SkipWhile(Expression<Func<TItem, int, bool>> predicate)
-        => throw new NotImplementedException();
+    public IRepository<IGrouping<TKey, TItem>> GroupBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
+        => Strategy.GroupBy(keySelector, comparer);
 
-    public Repository<TItem> SkipLast(int count)
-        => throw new NotImplementedException();
+    public IRepository<IGrouping<TKey, TElement>> GroupBy<TKey, TElement>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, IEqualityComparer<TKey>? comparer)
+        => Strategy.GroupBy(keySelector, elementSelector, comparer);
 
-    public Repository<IGrouping<TKey, TItem>> GroupBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
-
-    public Repository<IGrouping<TKey, TElement>> GroupBy<TKey, TElement>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector)
-        => throw new NotImplementedException();
-
-    public Repository<IGrouping<TKey, TItem>> GroupBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
-        => throw new NotImplementedException();
-
-    public Repository<IGrouping<TKey, TElement>> GroupBy<TKey, TElement>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, IEqualityComparer<TKey>? comparer)
-        => throw new NotImplementedException();
-
-    public Repository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
+    public IRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.GroupBy(keySelector, elementSelector, resultSelector);
 
-    public Repository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
+    public IRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.GroupBy(keySelector, resultSelector);
 
-    public Repository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+    public IRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.GroupBy(keySelector, resultSelector, comparer);
 
-    public Repository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+    public IRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.GroupBy(keySelector,
+                             elementSelector,
+                             resultSelector,
+                             comparer);
 
-    public Repository<TItem> Distinct()
-        => throw new NotImplementedException();
+    public IRepository<TItem> Distinct()
+        => Strategy.Distinct();
 
-    public Repository<TItem> Distinct(IEqualityComparer<TItem>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Distinct(IEqualityComparer<TItem>? comparer)
+        => Strategy.Distinct(comparer);
 
-    public Repository<TItem> DistinctBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
+    public IRepository<TItem> DistinctBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.DistinctBy(keySelector);
 
-    public Repository<TItem> DistinctBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> DistinctBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
+        => Strategy.DistinctBy(keySelector, comparer);
 
-    public Repository<TItem[]> Chunk(int size)
-        => throw new NotImplementedException();
+    public IRepository<TItem[]> Chunk(int size)
+        => Strategy.Chunk(size);
 
-    public Repository<TItem> Concat(IEnumerable<TItem> source)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Concat(IEnumerable<TItem> source)
+        => Strategy.Concat(source);
 
-    public Repository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
+    public IRepository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.Combine(source2, resultSelector);
 
-    public Repository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source)
-        => throw new NotImplementedException();
+    public IRepository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source)
+        => Strategy.Zip(source);
 
-    public Repository<IPack<TItem, TSecond, TThird>> Zip<TSecond, TThird>(IEnumerable<TSecond> source2, IEnumerable<TThird> source3)
-        => throw new NotImplementedException();
+    public IRepository<IPack<TItem, TSecond, TThird>> Zip<TSecond, TThird>(IEnumerable<TSecond> source2, IEnumerable<TThird> source3)
+        => Strategy.Zip(source2, source3);
 
-    public Repository<TItem> Union(IEnumerable<TItem> source2)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Union(IEnumerable<TItem> source2)
+        => Strategy.Union(source2);
 
-    public Repository<TItem> Union(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Union(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer)
+        => Strategy.Union(source2, comparer);
 
-    public Repository<TItem> UnionBy<TKey>(IEnumerable<TItem> source2, Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
+    public IRepository<TItem> UnionBy<TKey>(IEnumerable<TItem> source2, Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.UnionBy(source2, keySelector);
 
-    public Repository<TItem> UnionBy<TKey>(IEnumerable<TItem> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> UnionBy<TKey>(IEnumerable<TItem> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
+        => Strategy.UnionBy(source2, keySelector, comparer);
 
-    public Repository<TItem> Intersect(IEnumerable<TItem> source2)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Intersect(IEnumerable<TItem> source2)
+        => Strategy.Intersect(source2);
 
-    public Repository<TItem> Intersect(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Intersect(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer)
+        => Strategy.Intersect(source2, comparer);
 
-    public Repository<TItem> IntersectBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
+    public IRepository<TItem> IntersectBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.IntersectBy(source2, keySelector);
 
-    public Repository<TItem> IntersectBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> IntersectBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
+        => Strategy.IntersectBy(source2, keySelector, comparer);
 
-    public Repository<TItem> Except(IEnumerable<TItem> source2)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Except(IEnumerable<TItem> source2)
+        => Strategy.Except(source2);
 
-    public Repository<TItem> Except(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Except(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer)
+        => Strategy.Except(source2, comparer);
 
-    public Repository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
+    public IRepository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.ExceptBy(source2, keySelector);
 
-    public Repository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
-        => throw new NotImplementedException();
+    public IRepository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
+        => Strategy.ExceptBy(source2, keySelector, comparer);
 
-    public Repository<TItem> DefaultIfEmpty()
-        => throw new NotImplementedException();
+    #pragma warning disable CS8634 // This warning is wrong. TItem has the class constraint.
+    public IRepository<TItem?> DefaultIfEmpty()
+        => Strategy.DefaultIfEmpty();
+    #pragma warning restore CS8634
 
-    public Repository<TItem> DefaultIfEmpty(TItem defaultValue)
-        => throw new NotImplementedException();
+    public IRepository<TItem> DefaultIfEmpty(TItem defaultValue)
+        => Strategy.DefaultIfEmpty(defaultValue);
 
-    public Repository<TItem> Reverse()
-        => throw new NotImplementedException();
+    public IRepository<TItem> Reverse()
+        => Strategy.Reverse();
 
-    public Repository<TItem> Append(TItem element)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Append(TItem element)
+        => Strategy.Append(element);
 
-    public Repository<TItem> Prepend(TItem element)
-        => throw new NotImplementedException();
+    public IRepository<TItem> Prepend(TItem element)
+        => Strategy.Prepend(element);
 
-    public virtual TItem First()
-        => throw new NotImplementedException();
+    public IReadOnlyList<TItem> ToArray()
+        => Strategy.ToArray();
 
-    public virtual TItem First(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
+    public IReadOnlyList<TResult> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping)
+        => Strategy.ToArray(mapping);
 
-    public virtual TItem FirstOrDefault()
-        => throw new NotImplementedException();
+    public IList<TItem> ToList()
+        => Strategy.ToList();
 
-    public virtual TItem FirstOrDefault(TItem defaultValue)
-        => throw new NotImplementedException();
+    public IList<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping)
+        => Strategy.ToList(mapping);
 
-    public virtual TItem FirstOrDefault(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
+    public ISet<TItem> ToHashSet()
+        => Strategy.ToHashSet();
 
-    public virtual TItem FirstOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
-        => throw new NotImplementedException();
+    public ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
+        => Strategy.ToHashSet(mapping);
 
-    public virtual TItem Last()
-        => throw new NotImplementedException();
-
-    public virtual TItem Last(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
-
-    public virtual TItem LastOrDefault()
-        => throw new NotImplementedException();
-
-    public virtual TItem LastOrDefault(TItem defaultValue)
-        => throw new NotImplementedException();
-
-    public virtual TItem LastOrDefault(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
-
-    public virtual TItem LastOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
-        => throw new NotImplementedException();
-
-    public virtual TItem Single()
-        => throw new NotImplementedException();
-
-    public virtual TItem Single(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
-
-    public virtual TItem SingleOrDefault()
-        => throw new NotImplementedException();
-
-    public virtual TItem SingleOrDefault(TItem defaultValue)
-        => throw new NotImplementedException();
-
-    public virtual TItem SingleOrDefault(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
-
-    public virtual TItem SingleOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
-        => throw new NotImplementedException();
-
-    public virtual TItem ElementAt(int index)
-        => throw new NotImplementedException();
-
-    public virtual TItem ElementAt(Index index)
-        => throw new NotImplementedException();
-
-    public virtual TItem ElementAtOrDefault(int index)
-        => throw new NotImplementedException();
-
-    public virtual TItem ElementAtOrDefault(Index index)
-        => throw new NotImplementedException();
-
-    public virtual bool Contains(TItem item)
-        => throw new NotImplementedException();
-
-    public virtual bool Contains(TItem item, IEqualityComparer<TItem>? comparer)
-        => throw new NotImplementedException();
-
-    public virtual bool SequenceEqual(IEnumerable<TItem> source2)
-        => throw new NotImplementedException();
-
-    public virtual bool SequenceEqual(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer)
-        => throw new NotImplementedException();
-
-    public virtual bool Any()
-        => throw new NotImplementedException();
-
-    public virtual bool Any(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
-
-    public virtual bool All(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
-
-    public virtual int Count()
-        => throw new NotImplementedException();
-
-    public virtual int Count(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
-
-    public virtual long LongCount()
-        => throw new NotImplementedException();
-
-    public virtual long LongCount(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
-
-    public virtual TItem Min()
-        => throw new NotImplementedException();
-
-    public virtual TResult Min<TResult>(Expression<Func<TItem, TResult>> selector)
-        => throw new NotImplementedException();
-
-    public virtual TItem MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
-
-    public virtual TItem MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer)
-        => throw new NotImplementedException();
-
-    public virtual TItem Max()
-        => throw new NotImplementedException();
-
-    public virtual TResult Max<TResult>(Expression<Func<TItem, TResult>> selector)
-        => throw new NotImplementedException();
-
-    public virtual TItem MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
-        => throw new NotImplementedException();
-
-    public virtual TItem MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer)
-        => throw new NotImplementedException();
-
-    public virtual int Sum(Expression<Func<TItem, int>> selector)
-        => throw new NotImplementedException();
-
-    public virtual int? Sum(Expression<Func<TItem, int?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual long Sum(Expression<Func<TItem, long>> selector)
-        => throw new NotImplementedException();
-
-    public virtual long? Sum(Expression<Func<TItem, long?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual float Sum(Expression<Func<TItem, float>> selector)
-        => throw new NotImplementedException();
-
-    public virtual float? Sum(Expression<Func<TItem, float?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual double Sum(Expression<Func<TItem, double>> selector)
-        => throw new NotImplementedException();
-
-    public virtual double? Sum(Expression<Func<TItem, double?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual decimal Sum(Expression<Func<TItem, decimal>> selector)
-        => throw new NotImplementedException();
-
-    public virtual decimal? Sum(Expression<Func<TItem, decimal?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual double Average(Expression<Func<TItem, int>> selector)
-        => throw new NotImplementedException();
-
-    public virtual double? Average(Expression<Func<TItem, int?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual float Average(Expression<Func<TItem, float>> selector)
-        => throw new NotImplementedException();
-
-    public virtual float? Average(Expression<Func<TItem, float?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual double Average(Expression<Func<TItem, long>> selector)
-        => throw new NotImplementedException();
-
-    public virtual double? Average(Expression<Func<TItem, long?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual double Average(Expression<Func<TItem, double>> selector)
-        => throw new NotImplementedException();
-
-    public virtual double? Average(Expression<Func<TItem, double?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual decimal Average(Expression<Func<TItem, decimal>> selector)
-        => throw new NotImplementedException();
-
-    public virtual decimal? Average(Expression<Func<TItem, decimal?>> selector)
-        => throw new NotImplementedException();
-
-    public virtual TItem Aggregate(Expression<Func<TItem, TItem, TItem>> func)
-        => throw new NotImplementedException();
-
-    public virtual TAccumulate Aggregate<TAccumulate>(TAccumulate seed, Expression<Func<TAccumulate, TItem, TAccumulate>> func)
-        => throw new NotImplementedException();
-
-    public virtual TResult Aggregate<TAccumulate, TResult>(TAccumulate seed, Expression<Func<TAccumulate, TItem, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector)
-        => throw new NotImplementedException();
-
-    public virtual IReadOnlyList<TItem> ToArray()
-        => throw new NotImplementedException();
-
-    public virtual IReadOnlyList<TResult> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping)
-        => throw new NotImplementedException();
-
-    public virtual IList<TItem> ToList()
-        => throw new NotImplementedException();
-
-    public virtual IList<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping)
-        => throw new NotImplementedException();
-
-    public virtual ISet<TItem> ToHashSet()
-        => throw new NotImplementedException();
-
-    public virtual ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
-        => throw new NotImplementedException();
-
-    public virtual IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
         where TResult : class
-        => throw new NotImplementedException();
+        => Strategy.ToRepository(mapping);
 
-    public virtual IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue)
+    public IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue)
         where TKey : notnull
-        => throw new NotImplementedException();
+        => Strategy.ToDictionary(selectKey, selectValue);
 
-    public virtual void Add(TItem newItem)
-        => throw new NotImplementedException();
+    public TItem First()
+        => Strategy.First();
 
-    public virtual void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem)
-        => throw new NotImplementedException();
+    public TItem First(Expression<Func<TItem, bool>> predicate)
+        => Strategy.First(predicate);
 
-    public virtual void Remove(Expression<Func<TItem, bool>> predicate)
-        => throw new NotImplementedException();
+    public TItem FirstOrDefault()
+        => Strategy.FirstOrDefault();
+
+    public TItem FirstOrDefault(TItem defaultValue)
+        => Strategy.FirstOrDefault(defaultValue);
+
+    public TItem FirstOrDefault(Expression<Func<TItem, bool>> predicate)
+        => Strategy.FirstOrDefault(predicate);
+
+    public TItem FirstOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
+        => Strategy.FirstOrDefault(predicate, defaultValue);
+
+    public TItem Last()
+        => Strategy.Last();
+
+    public TItem Last(Expression<Func<TItem, bool>> predicate)
+        => Strategy.Last(predicate);
+
+    public TItem LastOrDefault()
+        => Strategy.LastOrDefault();
+
+    public TItem LastOrDefault(TItem defaultValue)
+        => Strategy.LastOrDefault(defaultValue);
+
+    public TItem LastOrDefault(Expression<Func<TItem, bool>> predicate)
+        => Strategy.LastOrDefault(predicate);
+
+    public TItem LastOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
+        => Strategy.LastOrDefault(predicate, defaultValue);
+
+    public TItem Single()
+        => Strategy.Single();
+
+    public TItem Single(Expression<Func<TItem, bool>> predicate)
+        => Strategy.Single(predicate);
+
+    public TItem SingleOrDefault()
+        => Strategy.SingleOrDefault();
+
+    public TItem SingleOrDefault(TItem defaultValue)
+        => Strategy.SingleOrDefault(defaultValue);
+
+    public TItem SingleOrDefault(Expression<Func<TItem, bool>> predicate)
+        => Strategy.SingleOrDefault(predicate);
+
+    public TItem SingleOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
+        => Strategy.SingleOrDefault(predicate, defaultValue);
+
+    public TItem ElementAt(int index)
+        => Strategy.ElementAt(index);
+
+    public TItem ElementAt(Index index)
+        => Strategy.ElementAt(index);
+
+    public TItem ElementAtOrDefault(int index)
+        => Strategy.ElementAtOrDefault(index);
+
+    public TItem ElementAtOrDefault(Index index)
+        => Strategy.ElementAtOrDefault(index);
+
+    public bool Contains(TItem item)
+        => Strategy.Contains(item);
+
+    public bool Contains(TItem item, IEqualityComparer<TItem>? comparer)
+        => Strategy.Contains(item, comparer);
+
+    public bool SequenceEqual(IEnumerable<TItem> source2)
+        => Strategy.SequenceEqual(source2);
+
+    public bool SequenceEqual(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer)
+        => Strategy.SequenceEqual(source2, comparer);
+
+    public bool Any()
+        => Strategy.Any();
+
+    public bool Any(Expression<Func<TItem, bool>> predicate)
+        => Strategy.Any(predicate);
+
+    public bool All(Expression<Func<TItem, bool>> predicate)
+        => Strategy.All(predicate);
+
+    public int Count()
+        => Strategy.Count();
+
+    public int Count(Expression<Func<TItem, bool>> predicate)
+        => Strategy.Count(predicate);
+
+    public long LongCount()
+        => Strategy.LongCount();
+
+    public long LongCount(Expression<Func<TItem, bool>> predicate)
+        => Strategy.LongCount(predicate);
+
+    public TItem Min()
+        => Strategy.Min();
+
+    public TResult Min<TResult>(Expression<Func<TItem, TResult>> selector)
+        => Strategy.Min(selector);
+
+    public TItem MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.MinBy(keySelector);
+
+    public TItem MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer)
+        => Strategy.MinBy(keySelector, comparer);
+
+    public TItem Max()
+        => Strategy.Max();
+
+    public TResult Max<TResult>(Expression<Func<TItem, TResult>> selector)
+        => Strategy.Max(selector);
+
+    public TItem MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.MaxBy(keySelector);
+
+    public TItem MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer)
+        => Strategy.MaxBy(keySelector, comparer);
+
+    public int Sum(Expression<Func<TItem, int>> selector)
+        => Strategy.Sum(selector);
+
+    public int? Sum(Expression<Func<TItem, int?>> selector)
+        => Strategy.Sum(selector);
+
+    public long Sum(Expression<Func<TItem, long>> selector)
+        => Strategy.Sum(selector);
+
+    public long? Sum(Expression<Func<TItem, long?>> selector)
+        => Strategy.Sum(selector);
+
+    public float Sum(Expression<Func<TItem, float>> selector)
+        => Strategy.Sum(selector);
+
+    public float? Sum(Expression<Func<TItem, float?>> selector)
+        => Strategy.Sum(selector);
+
+    public double Sum(Expression<Func<TItem, double>> selector)
+        => Strategy.Sum(selector);
+
+    public double? Sum(Expression<Func<TItem, double?>> selector)
+        => Strategy.Sum(selector);
+
+    public decimal Sum(Expression<Func<TItem, decimal>> selector)
+        => Strategy.Sum(selector);
+
+    public decimal? Sum(Expression<Func<TItem, decimal?>> selector)
+        => Strategy.Sum(selector);
+
+    public double Average(Expression<Func<TItem, int>> selector)
+        => Strategy.Average(selector);
+
+    public double? Average(Expression<Func<TItem, int?>> selector)
+        => Strategy.Average(selector);
+
+    public float Average(Expression<Func<TItem, float>> selector)
+        => Strategy.Average(selector);
+
+    public float? Average(Expression<Func<TItem, float?>> selector)
+        => Strategy.Average(selector);
+
+    public double Average(Expression<Func<TItem, long>> selector)
+        => Strategy.Average(selector);
+
+    public double? Average(Expression<Func<TItem, long?>> selector)
+        => Strategy.Average(selector);
+
+    public double Average(Expression<Func<TItem, double>> selector)
+        => Strategy.Average(selector);
+
+    public double? Average(Expression<Func<TItem, double?>> selector)
+        => Strategy.Average(selector);
+
+    public decimal Average(Expression<Func<TItem, decimal>> selector)
+        => Strategy.Average(selector);
+
+    public decimal? Average(Expression<Func<TItem, decimal?>> selector)
+        => Strategy.Average(selector);
+
+    public TItem Aggregate(Expression<Func<TItem, TItem, TItem>> func)
+        => Strategy.Aggregate(func);
+
+    public TAccumulate Aggregate<TAccumulate>(TAccumulate seed, Expression<Func<TAccumulate, TItem, TAccumulate>> func)
+        => Strategy.Aggregate(seed, func);
+
+    public TResult Aggregate<TAccumulate, TResult>(TAccumulate seed, Expression<Func<TAccumulate, TItem, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector)
+        => Strategy.Aggregate(seed, func, selector);
+
+    public void Add(TItem newItem)
+        => Strategy.Add(newItem);
+
+    public void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem)
+        => Strategy.Update(predicate, updatedItem);
+
+    public void Remove(Expression<Func<TItem, bool>> predicate)
+        => Strategy.Remove(predicate);
 }
