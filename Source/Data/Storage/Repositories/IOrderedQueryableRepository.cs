@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public interface IOrderedRepository<TItem>
-    : IRepository<TItem>,
+public interface IOrderedQueryableRepository<TItem>
+    : IQueryableRepository<TItem>,
       IOrderedQueryable<TItem>
     where TItem : class;

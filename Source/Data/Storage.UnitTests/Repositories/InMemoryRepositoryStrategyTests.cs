@@ -5,7 +5,7 @@ public class InMemoryRepositoryStrategyTests {
         public string Name { get; set; } = name;
     };
 
-    private readonly InMemoryRepositoryStrategy<TestEntity> _strategy;
+    private readonly InMemoryRepositoryStrategy<Repository<TestEntity>, TestEntity> _strategy;
 
     public InMemoryRepositoryStrategyTests() {
         var data = new TestEntity[] { new("One"), new("Two"), new("Three") };
@@ -14,7 +14,7 @@ public class InMemoryRepositoryStrategyTests {
 
     [Fact]
     public void HaveAny_ReturnsHaveAny() {
-        var result = _strategy.HaveAny();
+        var result = _strategy.Any();
         result.Should().BeTrue();
     }
 

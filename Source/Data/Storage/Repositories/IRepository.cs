@@ -1,19 +1,8 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public interface IRepository
-    : IQueryable {
-    new IRepositoryStrategy Provider { get; }
-}
-
 public interface IRepository<TItem>
-    : IQueryable<TItem>
-    , IRepository
+    : IReadOnlyRepository<TItem>
     where TItem : class {
-    new IRepositoryStrategy<TItem> Provider { get; }
-    bool HaveAny();
-    int Count();
-    TItem[] ToArray();
-    TItem? GetFirst();
     void Add(TItem newItem);
     void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem);
     void Remove(Expression<Func<TItem, bool>> predicate);

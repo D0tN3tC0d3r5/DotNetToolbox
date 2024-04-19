@@ -19,9 +19,9 @@ public class RepositoryTests {
     [Theory]
     [ClassData(typeof(TestDataForRepositories))]
     public void Repository_ReturnsCorrectPropertyValues(Repository<TestEntity> subject, bool haveAny, int count, TestEntity? first, TestEntity[] array) {
-        subject.HaveAny().Should().Be(haveAny);
+        subject.Any().Should().Be(haveAny);
         subject.Count().Should().Be(count);
-        subject.GetFirst().Should().Be(first);
+        subject.FirstOrDefault().Should().Be(first);
         subject.ToArray().Should().BeEquivalentTo(array);
     }
 
@@ -37,8 +37,8 @@ public class RepositoryTests {
         var other = new TestEntity("Z");
         _filledSet.Update(s => s.Name == "B", other);
         _filledSet.Count().Should().Be(3);
-        _filledSet.Where(s => s.Name == "B").GetFirst().Should().BeNull();
-        _filledSet.Where(s => s.Name == "Z").GetFirst().Should().NotBeNull();
+        _filledSet.Where(s => s.Name == "B").FirstOrDefault().Should().BeNull();
+        _filledSet.Where(s => s.Name == "Z").FirstOrDefault().Should().NotBeNull();
     }
 
     [Fact]
