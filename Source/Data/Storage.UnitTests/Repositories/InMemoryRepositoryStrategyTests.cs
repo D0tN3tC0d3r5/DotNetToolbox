@@ -1,15 +1,13 @@
+using DotNetToolbox.Data.Strategies;
+
 namespace DotNetToolbox.Data.Repositories;
 
 public class InMemoryRepositoryStrategyTests {
 
-    public class TestEntity(string name) {
-        public string Name { get; set; } = name;
-    };
-
-    private readonly InMemoryRepositoryStrategy<Repository<TestEntity>, TestEntity> _strategy;
+    private readonly InMemoryRepositoryStrategy<InMemoryRepository<int>, int> _strategy;
 
     public InMemoryRepositoryStrategyTests() {
-        var data = new TestEntity[] { new("One"), new("Two"), new("Three") };
+        var data = new [] { 1, 2, 3 };
         _strategy = new(data);
     }
 
@@ -27,7 +25,7 @@ public class InMemoryRepositoryStrategyTests {
 
     [Fact]
     public void ToArray_ReturnsArray() {
-        var expectedResult = new TestEntity[] { new("One"), new("Two"), new("Three") };
+        var expectedResult = new[] { 1, 2, 3 };
         var result = _strategy.ToArray();
         result.Should().BeEquivalentTo(expectedResult);
     }

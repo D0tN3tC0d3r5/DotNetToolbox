@@ -4,6 +4,8 @@ global using System.Linq.Expressions;
 global using System.Reflection;
 global using System.Runtime.CompilerServices;
 
+global using DotNetToolbox.Data.Repositories;
+global using DotNetToolbox.Data.Strategies;
 global using DotNetToolbox.Domain.Models;
 
 global using Microsoft.Extensions.DependencyInjection;
