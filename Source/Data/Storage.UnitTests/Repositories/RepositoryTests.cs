@@ -1,11 +1,11 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class RepositoryTests {
-    private readonly Repository<TestEntity> _filledSet = [ new("A"), new("B"), new("C") ];
-
     public class TestEntity(string name) {
-        public string Name { get; set; } = name;
+        public string Name { get; } = name;
     }
+
+    private readonly Repository<TestEntity> _filledSet = [new("A"), new("B"), new("C")];
 
     private sealed class TestDataForRepositories : TheoryData<Repository<TestEntity>, bool, int, TestEntity?, TestEntity[]> {
         public TestDataForRepositories() {
@@ -37,8 +37,8 @@ public class RepositoryTests {
         var other = new TestEntity("Z");
         _filledSet.Update(s => s.Name == "B", other);
         _filledSet.Count().Should().Be(3);
-        _filledSet.Where(s => s.Name == "B").FirstOrDefault().Should().BeNull();
-        _filledSet.Where(s => s.Name == "Z").FirstOrDefault().Should().NotBeNull();
+        _filledSet.FirstOrDefault(s => s.Name == "B").Should().BeNull();
+        _filledSet.FirstOrDefault(s => s.Name == "Z").Should().NotBeNull();
     }
 
     [Fact]

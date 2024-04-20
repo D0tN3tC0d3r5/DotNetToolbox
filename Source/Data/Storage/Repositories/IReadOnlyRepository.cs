@@ -14,21 +14,25 @@ public interface IReadOnlyRepository<TItem>
 
     ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping);
 
+    TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
+        where TResultRepository : class, IRepository<TResult>
+        where TResult : class;
+
     IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
         where TResult : class;
 
-    IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue)
+    IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
         where TKey : notnull;
 
     TItem First();
 
     TItem First(Expression<Func<TItem, bool>> predicate);
 
-    TItem FirstOrDefault();
+    TItem? FirstOrDefault();
 
     TItem FirstOrDefault(TItem defaultValue);
 
-    TItem FirstOrDefault(Expression<Func<TItem, bool>> predicate);
+    TItem? FirstOrDefault(Expression<Func<TItem, bool>> predicate);
 
     TItem FirstOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue);
 
@@ -36,11 +40,11 @@ public interface IReadOnlyRepository<TItem>
 
     TItem Last(Expression<Func<TItem, bool>> predicate);
 
-    TItem LastOrDefault();
+    TItem? LastOrDefault();
 
     TItem LastOrDefault(TItem defaultValue);
 
-    TItem LastOrDefault(Expression<Func<TItem, bool>> predicate);
+    TItem? LastOrDefault(Expression<Func<TItem, bool>> predicate);
 
     TItem LastOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue);
 
@@ -48,11 +52,11 @@ public interface IReadOnlyRepository<TItem>
 
     TItem Single(Expression<Func<TItem, bool>> predicate);
 
-    TItem SingleOrDefault();
+    TItem? SingleOrDefault();
 
     TItem SingleOrDefault(TItem defaultValue);
 
-    TItem SingleOrDefault(Expression<Func<TItem, bool>> predicate);
+    TItem? SingleOrDefault(Expression<Func<TItem, bool>> predicate);
 
     TItem SingleOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue);
 
@@ -60,9 +64,9 @@ public interface IReadOnlyRepository<TItem>
 
     TItem ElementAt(Index index);
 
-    TItem ElementAtOrDefault(int index);
+    TItem? ElementAtOrDefault(int index);
 
-    TItem ElementAtOrDefault(Index index);
+    TItem? ElementAtOrDefault(Index index);
 
     bool Contains(TItem item);
 
@@ -86,21 +90,21 @@ public interface IReadOnlyRepository<TItem>
 
     long LongCount(Expression<Func<TItem, bool>> predicate);
 
-    TItem Min();
+    TItem? Min();
 
-    TResult Min<TResult>(Expression<Func<TItem, TResult>> selector);
+    TResult? Min<TResult>(Expression<Func<TItem, TResult>> selector);
 
-    TItem MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
+    TItem? MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
-    TItem MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer);
+    TItem? MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer);
 
-    TItem Max();
+    TItem? Max();
 
-    TResult Max<TResult>(Expression<Func<TItem, TResult>> selector);
+    TResult? Max<TResult>(Expression<Func<TItem, TResult>> selector);
 
-    TItem MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
+    TItem? MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
-    TItem MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer);
+    TItem? MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer);
 
     int Sum(Expression<Func<TItem, int>> selector);
 

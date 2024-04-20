@@ -22,11 +22,16 @@ public abstract class AsyncRepositoryReadStrategy<TItem>
     public virtual Task<ISet<TResult>> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         => throw new NotImplementedException();
 
+    public virtual Task<TResultRepository> ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
+        where TResultRepository : class, IRepository<TResult>
+        where TResult : class
+        => throw new NotImplementedException();
+
     public virtual Task<IRepository<TResult>> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         where TResult : class
         => throw new NotImplementedException();
 
-    public virtual Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue, CancellationToken ct = default)
+    public virtual Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
         where TKey : notnull
         => throw new NotImplementedException();
 

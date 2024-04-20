@@ -1,167 +1,172 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IAsyncQueryableRepository {
-    AsyncRepository<TResult> OfType<TResult>()
+    IAsyncRepository<TResult> OfType<TResult>()
         where TResult : class;
-    AsyncRepository<TResult> Cast<TResult>()
+    IAsyncRepository<TResult> Cast<TResult>()
         where TResult : class;
 }
 
 public interface IAsyncQueryableRepository<TItem>
     : IAsyncQueryableRepository
     where TItem : class {
-    AsyncRepository<TItem> Where(Expression<Func<TItem, bool>> predicate);
+    IAsyncRepository<TItem> Where(Expression<Func<TItem, bool>> predicate);
 
-    AsyncRepository<TItem> Where(Expression<Func<TItem, int, bool>> predicate);
+    IAsyncRepository<TItem> Where(Expression<Func<TItem, int, bool>> predicate);
 
-    AsyncRepository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
+    IAsyncRepository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
         where TResult : class;
 
-    AsyncRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
+    IAsyncRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
         where TResult : class;
 
-    AsyncRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+    IAsyncRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
         where TResult : class;
 
-    AsyncRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
+    IAsyncRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
         where TResult : class;
 
-    AsyncRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+    IAsyncRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
         where TResult : class;
 
-    AsyncRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+    IAsyncRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
         where TResult : class;
 
-    AsyncRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner, Expression<Func<TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TInner, TResult>> resultSelector)
+    IAsyncRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
+                                                          Expression<Func<TItem, TKey>> outerKeySelector,
+                                                          Expression<Func<TInner, TKey>> innerKeySelector,
+                                                          Expression<Func<TItem, TInner, TResult>> resultSelector)
         where TResult : class;
 
-    AsyncRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
-                                                              Expression<Func<TKey>> outerKeySelector,
+    IAsyncRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
+                                                              Expression<Func<TItem, TKey>> outerKeySelector,
                                                               Expression<Func<TInner, TKey>> innerKeySelector,
-                                                              Expression<Func<TInner, TResult>> resultSelector,
+                                                              Expression<Func<TItem, TInner, TResult>> resultSelector,
                                                               IEqualityComparer<TKey>? comparer)
         where TResult : class;
 
-    AsyncRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
-                                                                   Expression<Func<TKey>> outerKeySelector,
+    IAsyncRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
+                                                                   Expression<Func<TItem, TKey>> outerKeySelector,
                                                                    Expression<Func<TInner, TKey>> innerKeySelector,
-                                                                   Expression<Func<IEnumerable<TInner>, TResult>> resultSelector)
+                                                                   Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector)
         where TResult : class;
 
-    AsyncRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
-                                                                   Expression<Func<TKey>> outerKeySelector,
+    IAsyncRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
+                                                                   Expression<Func<TItem, TKey>> outerKeySelector,
                                                                    Expression<Func<TInner, TKey>> innerKeySelector,
-                                                                   Expression<Func<IEnumerable<TInner>, TResult>> resultSelector,
+                                                                   Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector,
                                                                    IEqualityComparer<TKey>? comparer)
         where TResult : class;
 
-    AsyncOrderedRepository<TItem> Order();
+   IAsyncOrderedRepository<TItem> Order();
 
-    AsyncOrderedRepository<TItem> Order(IComparer<TItem> comparer);
+   IAsyncOrderedRepository<TItem> Order(IComparer<TItem> comparer);
 
-    AsyncOrderedRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
+   IAsyncOrderedRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
-    AsyncOrderedRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
+   IAsyncOrderedRepository<TItem> OrderBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
 
-    AsyncOrderedRepository<TItem> OrderDescending();
+   IAsyncOrderedRepository<TItem> OrderDescending();
 
-    AsyncOrderedRepository<TItem> OrderDescending(IComparer<TItem> comparer);
+   IAsyncOrderedRepository<TItem> OrderDescending(IComparer<TItem> comparer);
 
-    AsyncOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector);
+   IAsyncOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
-    AsyncOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
+   IAsyncOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);
 
-    AsyncRepository<TItem> Take(int count);
+    IAsyncRepository<TItem> Take(int count);
 
-    AsyncRepository<TItem> Take(Range range);
+    IAsyncRepository<TItem> Take(Range range);
 
-    AsyncRepository<TItem> TakeWhile(Expression<Func<TItem, bool>> predicate);
+    IAsyncRepository<TItem> TakeWhile(Expression<Func<TItem, bool>> predicate);
 
-    AsyncRepository<TItem> TakeWhile(Expression<Func<TItem, int, bool>> predicate);
+    IAsyncRepository<TItem> TakeWhile(Expression<Func<TItem, int, bool>> predicate);
 
-    AsyncRepository<TItem> TakeLast(int count);
+    IAsyncRepository<TItem> TakeLast(int count);
 
-    AsyncRepository<TItem> Skip(int count);
+    IAsyncRepository<TItem> Skip(int count);
 
-    AsyncRepository<TItem> SkipWhile(Expression<Func<TItem, bool>> predicate);
+    IAsyncRepository<TItem> SkipWhile(Expression<Func<TItem, bool>> predicate);
 
-    AsyncRepository<TItem> SkipWhile(Expression<Func<TItem, int, bool>> predicate);
+    IAsyncRepository<TItem> SkipWhile(Expression<Func<TItem, int, bool>> predicate);
 
-    AsyncRepository<TItem> SkipLast(int count);
+    IAsyncRepository<TItem> SkipLast(int count);
 
-    AsyncRepository<IGrouping<TKey, TItem>> GroupBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
+    IAsyncRepository<IGrouping<TKey, TItem>> GroupBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
-    AsyncRepository<IGrouping<TKey, TElement>> GroupBy<TKey, TElement>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector);
+    IAsyncRepository<IGrouping<TKey, TElement>> GroupBy<TKey, TElement>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector);
 
-    AsyncRepository<IGrouping<TKey, TItem>> GroupBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
+    IAsyncRepository<IGrouping<TKey, TItem>> GroupBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
 
-    AsyncRepository<IGrouping<TKey, TElement>> GroupBy<TKey, TElement>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, IEqualityComparer<TKey>? comparer);
+    IAsyncRepository<IGrouping<TKey, TElement>> GroupBy<TKey, TElement>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, IEqualityComparer<TKey>? comparer);
 
-    AsyncRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
+    IAsyncRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
         where TResult : class;
 
-    AsyncRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
+    IAsyncRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
         where TResult : class;
 
-    AsyncRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+    IAsyncRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
         where TResult : class;
 
-    AsyncRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector,
+    IAsyncRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector,
                                                                    Expression<Func<TItem, TElement>> elementSelector,
                                                                    Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector,
                                                                    IEqualityComparer<TKey>? comparer)
         where TResult : class;
 
-    AsyncRepository<TItem> Distinct();
+    IAsyncRepository<TItem> Distinct();
 
-    AsyncRepository<TItem> Distinct(IEqualityComparer<TItem>? comparer);
+    IAsyncRepository<TItem> Distinct(IEqualityComparer<TItem>? comparer);
 
-    AsyncRepository<TItem> DistinctBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
+    IAsyncRepository<TItem> DistinctBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
-    AsyncRepository<TItem> DistinctBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
+    IAsyncRepository<TItem> DistinctBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
 
-    AsyncRepository<TItem[]> Chunk(int size);
+    IAsyncRepository<TItem[]> Chunk(int size);
 
-    AsyncRepository<TItem> Concat(IEnumerable<TItem> source);
+    IAsyncRepository<TItem> Concat(IEnumerable<TItem> source);
 
-    AsyncRepository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
+    IAsyncRepository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
         where TResult : class;
 
-    AsyncRepository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source);
+    IAsyncRepository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source);
 
-    AsyncRepository<IPack<TItem, TSecond, TThird>> Zip<TSecond, TThird>(IEnumerable<TSecond> source2, IEnumerable<TThird> source3);
+    IAsyncRepository<IPack<TItem, TSecond, TThird>> Zip<TSecond, TThird>(IEnumerable<TSecond> source2, IEnumerable<TThird> source3);
 
-    AsyncRepository<TItem> Union(IEnumerable<TItem> source2);
+    IAsyncRepository<TItem> Union(IEnumerable<TItem> source2);
 
-    AsyncRepository<TItem> Union(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer);
+    IAsyncRepository<TItem> Union(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer);
 
-    AsyncRepository<TItem> UnionBy<TKey>(IEnumerable<TItem> source2, Expression<Func<TItem, TKey>> keySelector);
+    IAsyncRepository<TItem> UnionBy<TKey>(IEnumerable<TItem> source2, Expression<Func<TItem, TKey>> keySelector);
 
-    AsyncRepository<TItem> UnionBy<TKey>(IEnumerable<TItem> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
+    IAsyncRepository<TItem> UnionBy<TKey>(IEnumerable<TItem> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
 
-    AsyncRepository<TItem> Intersect(IEnumerable<TItem> source2);
+    IAsyncRepository<TItem> Intersect(IEnumerable<TItem> source2);
 
-    AsyncRepository<TItem> Intersect(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer);
+    IAsyncRepository<TItem> Intersect(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer);
 
-    AsyncRepository<TItem> IntersectBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector);
+    IAsyncRepository<TItem> IntersectBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector);
 
-    AsyncRepository<TItem> IntersectBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
+    IAsyncRepository<TItem> IntersectBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
 
-    AsyncRepository<TItem> Except(IEnumerable<TItem> source2);
+    IAsyncRepository<TItem> Except(IEnumerable<TItem> source2);
 
-    AsyncRepository<TItem> Except(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer);
+    IAsyncRepository<TItem> Except(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer);
 
-    AsyncRepository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector);
+    IAsyncRepository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector);
 
-    AsyncRepository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
+    IAsyncRepository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer);
 
-    AsyncRepository<TItem> DefaultIfEmpty();
+    #pragma warning disable CS8634 // This warning is wrong. TItem has the class constraint.
+    IAsyncRepository<TItem?> DefaultIfEmpty();
+    #pragma warning restore CS8634
 
-    AsyncRepository<TItem> DefaultIfEmpty(TItem defaultValue);
+    IAsyncRepository<TItem> DefaultIfEmpty(TItem defaultValue);
 
-    AsyncRepository<TItem> Reverse();
+    IAsyncRepository<TItem> Reverse();
 
-    AsyncRepository<TItem> Append(TItem element);
+    IAsyncRepository<TItem> Append(TItem element);
 
-    AsyncRepository<TItem> Prepend(TItem element);
+    IAsyncRepository<TItem> Prepend(TItem element);
 }

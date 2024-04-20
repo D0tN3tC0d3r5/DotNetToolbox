@@ -1,27 +1,37 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class Repository<TRepository, TItem>
-    : IRepository<TItem>,
-      IEnumerable<TItem>
-    where TRepository : OrderedRepository<TRepository, TItem>
+public class Repository<TItem>
+    : Repository<Repository<TItem>, TItem>
     where TItem : class {
-    private readonly IQueryable<TItem> _data;
+    public Repository(IStrategyFactory? factory = null)
+        : base([], factory) { }
 
-    public Repository(IStrategyFactory? provider = null)
-        : this([], provider) {
+    public Repository(IEnumerable<TItem> data, IStrategyFactory? factory = null)
+        : base(data, factory) { }
+}
+
+public abstract class Repository<TRepository, TItem>(IEnumerable<TItem> data, RepositoryStrategy<TItem>? strategy = null)
+    : IOrderedRepository<TItem>
+    , IEnumerable<TItem>
+    where TRepository : IOrderedRepository<TItem>
+    where TItem : class {
+    // ReSharper disable once PossibleMultipleEnumeration
+    private readonly IQueryable<TItem> _query = data.AsQueryable();
+
+    protected Repository(IStrategyFactory? factory = null)
+        : this([], factory) {
     }
 
-    public Repository(IEnumerable<TItem> data, IStrategyFactory? provider = null) {
-        var list = data.ToList();
-        _data = IsNotNull(list).AsQueryable();
-        Strategy = provider?.GetRepositoryStrategy(_data)
-            ?? new InMemoryRepositoryStrategy<TRepository, TItem>(_data);
+    // ReSharper disable PossibleMultipleEnumeration
+    protected Repository(IEnumerable<TItem> data, IStrategyFactory? factory = null)
+        : this(data, factory?.GetRepositoryStrategy(data)){
     }
+    // ReSharper enable PossibleMultipleEnumeration
 
-    protected RepositoryStrategy<TItem> Strategy { get; }
+    protected RepositoryStrategy<TItem> Strategy { get; } = strategy ?? new InMemoryRepositoryStrategy<TRepository, TItem>(data);
 
     public IEnumerator<TItem> GetEnumerator()
-        => _data.GetEnumerator();
+        => _query.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
@@ -130,6 +140,18 @@ public class Repository<TRepository, TItem>
 
     public IOrderedRepository<TItem> OrderByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
         => Strategy.OrderByDescending(keySelector, comparer);
+
+    public IOrderedRepository<TItem> ThenBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.ThenBy(keySelector);
+
+    public IOrderedRepository<TItem> ThenBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
+        => Strategy.ThenBy(keySelector, comparer);
+
+    public IOrderedRepository<TItem> ThenByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector)
+        => Strategy.ThenByDescending(keySelector);
+
+    public IOrderedRepository<TItem> ThenByDescending<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer)
+        => Strategy.ThenByDescending(keySelector, comparer);
 
     public IRepository<TItem> Take(int count)
         => Strategy.Take(count);
@@ -288,13 +310,18 @@ public class Repository<TRepository, TItem>
     public ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
         => Strategy.ToHashSet(mapping);
 
+    public TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
+        where TResultRepository : class, IRepository<TResult>
+        where TResult : class
+        => Strategy.ToRepository<TResultRepository, TResult>(mapping);
+
     public IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
         where TResult : class
         => Strategy.ToRepository(mapping);
 
-    public IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue)
+    public IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
         where TKey : notnull
-        => Strategy.ToDictionary(selectKey, selectValue);
+        => Strategy.ToDictionary(selectKey, selectValue, comparer);
 
     public TItem First()
         => Strategy.First();
@@ -302,13 +329,13 @@ public class Repository<TRepository, TItem>
     public TItem First(Expression<Func<TItem, bool>> predicate)
         => Strategy.First(predicate);
 
-    public TItem FirstOrDefault()
+    public TItem? FirstOrDefault()
         => Strategy.FirstOrDefault();
 
     public TItem FirstOrDefault(TItem defaultValue)
         => Strategy.FirstOrDefault(defaultValue);
 
-    public TItem FirstOrDefault(Expression<Func<TItem, bool>> predicate)
+    public TItem? FirstOrDefault(Expression<Func<TItem, bool>> predicate)
         => Strategy.FirstOrDefault(predicate);
 
     public TItem FirstOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
@@ -320,13 +347,13 @@ public class Repository<TRepository, TItem>
     public TItem Last(Expression<Func<TItem, bool>> predicate)
         => Strategy.Last(predicate);
 
-    public TItem LastOrDefault()
+    public TItem? LastOrDefault()
         => Strategy.LastOrDefault();
 
     public TItem LastOrDefault(TItem defaultValue)
         => Strategy.LastOrDefault(defaultValue);
 
-    public TItem LastOrDefault(Expression<Func<TItem, bool>> predicate)
+    public TItem? LastOrDefault(Expression<Func<TItem, bool>> predicate)
         => Strategy.LastOrDefault(predicate);
 
     public TItem LastOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
@@ -338,13 +365,13 @@ public class Repository<TRepository, TItem>
     public TItem Single(Expression<Func<TItem, bool>> predicate)
         => Strategy.Single(predicate);
 
-    public TItem SingleOrDefault()
+    public TItem? SingleOrDefault()
         => Strategy.SingleOrDefault();
 
     public TItem SingleOrDefault(TItem defaultValue)
         => Strategy.SingleOrDefault(defaultValue);
 
-    public TItem SingleOrDefault(Expression<Func<TItem, bool>> predicate)
+    public TItem? SingleOrDefault(Expression<Func<TItem, bool>> predicate)
         => Strategy.SingleOrDefault(predicate);
 
     public TItem SingleOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue)
@@ -356,10 +383,10 @@ public class Repository<TRepository, TItem>
     public TItem ElementAt(Index index)
         => Strategy.ElementAt(index);
 
-    public TItem ElementAtOrDefault(int index)
+    public TItem? ElementAtOrDefault(int index)
         => Strategy.ElementAtOrDefault(index);
 
-    public TItem ElementAtOrDefault(Index index)
+    public TItem? ElementAtOrDefault(Index index)
         => Strategy.ElementAtOrDefault(index);
 
     public bool Contains(TItem item)
@@ -395,28 +422,28 @@ public class Repository<TRepository, TItem>
     public long LongCount(Expression<Func<TItem, bool>> predicate)
         => Strategy.LongCount(predicate);
 
-    public TItem Min()
+    public TItem? Min()
         => Strategy.Min();
 
-    public TResult Min<TResult>(Expression<Func<TItem, TResult>> selector)
+    public TResult? Min<TResult>(Expression<Func<TItem, TResult>> selector)
         => Strategy.Min(selector);
 
-    public TItem MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
+    public TItem? MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
         => Strategy.MinBy(keySelector);
 
-    public TItem MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer)
+    public TItem? MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer)
         => Strategy.MinBy(keySelector, comparer);
 
-    public TItem Max()
+    public TItem? Max()
         => Strategy.Max();
 
-    public TResult Max<TResult>(Expression<Func<TItem, TResult>> selector)
+    public TResult? Max<TResult>(Expression<Func<TItem, TResult>> selector)
         => Strategy.Max(selector);
 
-    public TItem MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
+    public TItem? MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector)
         => Strategy.MaxBy(keySelector);
 
-    public TItem MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer)
+    public TItem? MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer)
         => Strategy.MaxBy(keySelector, comparer);
 
     public int Sum(Expression<Func<TItem, int>> selector)

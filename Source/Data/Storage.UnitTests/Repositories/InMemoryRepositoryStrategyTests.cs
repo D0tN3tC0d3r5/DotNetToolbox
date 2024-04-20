@@ -1,6 +1,7 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public class InMemoryRepositoryStrategyTests {
+
     public class TestEntity(string name) {
         public string Name { get; set; } = name;
     };
@@ -13,7 +14,7 @@ public class InMemoryRepositoryStrategyTests {
     }
 
     [Fact]
-    public void HaveAny_ReturnsHaveAny() {
+    public void Any_ReturnsBoolean() {
         var result = _strategy.Any();
         result.Should().BeTrue();
     }

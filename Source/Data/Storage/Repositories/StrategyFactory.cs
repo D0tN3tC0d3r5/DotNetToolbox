@@ -9,18 +9,19 @@ public class StrategyFactory
         where TItem : class
         => _strategies[typeof(TItem)] = typeof(TStrategy);
 
-    public RepositoryStrategy<TItem>? GetRepositoryStrategy<TItem>(IQueryable<TItem> data)
+    public RepositoryStrategy<TItem>? GetRepositoryStrategy<TItem>(IEnumerable<TItem> data)
         where TItem : class
         => CreateStrategy(data) as RepositoryStrategy<TItem>;
 
-    public AsyncRepositoryStrategy<TItem>? GetAsyncRepositoryStrategy<TItem>(IQueryable<TItem> data)
+    public AsyncRepositoryStrategy<TItem>? GetAsyncRepositoryStrategy<TItem>(IEnumerable<TItem> data)
         where TItem : class
         => CreateStrategy(data) as AsyncRepositoryStrategy<TItem>;
 
-    public object? CreateStrategy<TItem>(IQueryable<TItem> data)
+    public object? CreateStrategy<TItem>(IEnumerable<TItem> data)
         where TItem : class {
         var strategyType = _strategies.GetValueOrDefault(typeof(TItem));
-        if (strategyType is null) return null;
-        return Activator.CreateInstance(strategyType, data);
+        return strategyType is null
+            ? null
+            : Activator.CreateInstance(strategyType, data);
     }
 }
