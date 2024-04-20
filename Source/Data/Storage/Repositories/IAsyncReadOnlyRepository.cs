@@ -4,7 +4,7 @@ public interface IAsyncReadOnlyRepository<TItem>
     where TItem : class {
     Task<IReadOnlyList<TItem>> ToArray(CancellationToken ct = default);
 
-    Task<IReadOnlyList<TItem>> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
+    Task<IReadOnlyList<TResult>> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
 
     Task<IList<TItem>> ToList(CancellationToken ct = default);
 
@@ -21,18 +21,18 @@ public interface IAsyncReadOnlyRepository<TItem>
     Task<IRepository<TResult>> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         where TResult : class;
 
-    Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
+    Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
         where TKey : notnull;
 
     Task<TItem> First(CancellationToken ct = default);
 
     Task<TItem> First(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
-    Task<TItem> FirstOrDefault(CancellationToken ct = default);
+    Task<TItem?> FirstOrDefault(CancellationToken ct = default);
 
     Task<TItem> FirstOrDefault(TItem defaultValue, CancellationToken ct = default);
 
-    Task<TItem> FirstOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
+    Task<TItem?> FirstOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
     Task<TItem> FirstOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default);
 
@@ -40,11 +40,11 @@ public interface IAsyncReadOnlyRepository<TItem>
 
     Task<TItem> Last(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
-    Task<TItem> LastOrDefault(CancellationToken ct = default);
+    Task<TItem?> LastOrDefault(CancellationToken ct = default);
 
     Task<TItem> LastOrDefault(TItem defaultValue, CancellationToken ct = default);
 
-    Task<TItem> LastOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
+    Task<TItem?> LastOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
     Task<TItem> LastOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default);
 
@@ -52,11 +52,11 @@ public interface IAsyncReadOnlyRepository<TItem>
 
     Task<TItem> Single(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
-    Task<TItem> SingleOrDefault(CancellationToken ct = default);
+    Task<TItem?> SingleOrDefault(CancellationToken ct = default);
 
     Task<TItem> SingleOrDefault(TItem defaultValue, CancellationToken ct = default);
 
-    Task<TItem> SingleOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
+    Task<TItem?> SingleOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
     Task<TItem> SingleOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default);
 
@@ -64,9 +64,9 @@ public interface IAsyncReadOnlyRepository<TItem>
 
     Task<TItem> ElementAt(Index index, CancellationToken ct = default);
 
-    Task<TItem> ElementAtOrDefault(int index, CancellationToken ct = default);
+    Task<TItem?> ElementAtOrDefault(int index, CancellationToken ct = default);
 
-    Task<TItem> ElementAtOrDefault(Index index, CancellationToken ct = default);
+    Task<TItem?> ElementAtOrDefault(Index index, CancellationToken ct = default);
 
     Task<bool> Contains(TItem item, CancellationToken ct = default);
 
@@ -82,35 +82,35 @@ public interface IAsyncReadOnlyRepository<TItem>
 
     Task<bool> All(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
-    Task<int?> Count(CancellationToken ct = default);
+    Task<int> Count(CancellationToken ct = default);
 
-    Task<int?> Count(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
+    Task<int> Count(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
-    Task<long?> LongCount(CancellationToken ct = default);
+    Task<long> LongCount(CancellationToken ct = default);
 
-    Task<long?> LongCount(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
+    Task<long> LongCount(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
-    Task<TItem> Min(CancellationToken ct = default);
+    Task<TItem?> Min(CancellationToken ct = default);
 
-    Task<TResult> Min<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default);
+    Task<TResult?> Min<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default);
 
-    Task<TItem> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default);
+    Task<TItem?> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default);
 
-    Task<TItem> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default);
+    Task<TItem?> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default);
 
-    Task<TItem> Max(CancellationToken ct = default);
+    Task<TItem?> Max(CancellationToken ct = default);
 
-    Task<TResult> Max<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default);
+    Task<TResult?> Max<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default);
 
-    Task<TItem> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default);
+    Task<TItem?> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default);
 
-    Task<TItem> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default);
+    Task<TItem?> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default);
 
-    Task<int?> Sum(Expression<Func<TItem, int>> selector, CancellationToken ct = default);
+    Task<int> Sum(Expression<Func<TItem, int>> selector, CancellationToken ct = default);
 
     Task<int?> Sum(Expression<Func<TItem, int?>> selector, CancellationToken ct = default);
 
-    Task<long?> Sum(Expression<Func<TItem, long>> selector, CancellationToken ct = default);
+    Task<long> Sum(Expression<Func<TItem, long>> selector, CancellationToken ct = default);
 
     Task<long?> Sum(Expression<Func<TItem, long?>> selector, CancellationToken ct = default);
 

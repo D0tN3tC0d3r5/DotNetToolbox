@@ -7,7 +7,7 @@ public abstract class AsyncRepositoryReadStrategy<TItem>
     public virtual Task<IReadOnlyList<TItem>> ToArray(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<IReadOnlyList<TItem>> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
+    public virtual Task<IReadOnlyList<TResult>> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<IList<TItem>> ToList(CancellationToken ct = default)
@@ -31,7 +31,7 @@ public abstract class AsyncRepositoryReadStrategy<TItem>
         where TResult : class
         => throw new NotImplementedException();
 
-    public virtual Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
+    public virtual Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
         where TKey : notnull
         => throw new NotImplementedException();
 
@@ -41,13 +41,13 @@ public abstract class AsyncRepositoryReadStrategy<TItem>
     public virtual Task<TItem> First(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> FirstOrDefault(CancellationToken ct = default)
+    public virtual Task<TItem?> FirstOrDefault(CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<TItem> FirstOrDefault(TItem defaultValue, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> FirstOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public virtual Task<TItem?> FirstOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<TItem> FirstOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
@@ -59,13 +59,13 @@ public abstract class AsyncRepositoryReadStrategy<TItem>
     public virtual Task<TItem> Last(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> LastOrDefault(CancellationToken ct = default)
+    public virtual Task<TItem?> LastOrDefault(CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<TItem> LastOrDefault(TItem defaultValue, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> LastOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public virtual Task<TItem?> LastOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<TItem> LastOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
@@ -77,13 +77,13 @@ public abstract class AsyncRepositoryReadStrategy<TItem>
     public virtual Task<TItem> Single(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> SingleOrDefault(CancellationToken ct = default)
+    public virtual Task<TItem?> SingleOrDefault(CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<TItem> SingleOrDefault(TItem defaultValue, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> SingleOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public virtual Task<TItem?> SingleOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<TItem> SingleOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
@@ -95,10 +95,10 @@ public abstract class AsyncRepositoryReadStrategy<TItem>
     public virtual Task<TItem> ElementAt(Index index, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> ElementAtOrDefault(int index, CancellationToken ct = default)
+    public virtual Task<TItem?> ElementAtOrDefault(int index, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> ElementAtOrDefault(Index index, CancellationToken ct = default)
+    public virtual Task<TItem?> ElementAtOrDefault(Index index, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<bool> Contains(TItem item, CancellationToken ct = default)
@@ -122,49 +122,49 @@ public abstract class AsyncRepositoryReadStrategy<TItem>
     public virtual Task<bool> All(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<int?> Count(CancellationToken ct = default)
+    public virtual Task<int> Count(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<int?> Count(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public virtual Task<int> Count(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<long?> LongCount(CancellationToken ct = default)
+    public virtual Task<long> LongCount(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<long?> LongCount(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public virtual Task<long> LongCount(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> Min(CancellationToken ct = default)
+    public virtual Task<TItem?> Min(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TResult> Min<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
+    public virtual Task<TResult?> Min<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
+    public virtual Task<TItem?> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
+    public virtual Task<TItem?> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> Max(CancellationToken ct = default)
+    public virtual Task<TItem?> Max(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TResult> Max<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
+    public virtual Task<TResult?> Max<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
+    public virtual Task<TItem?> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TItem> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
+    public virtual Task<TItem?> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<int?> Sum(Expression<Func<TItem, int>> selector, CancellationToken ct = default)
+    public virtual Task<int> Sum(Expression<Func<TItem, int>> selector, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<int?> Sum(Expression<Func<TItem, int?>> selector, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<long?> Sum(Expression<Func<TItem, long>> selector, CancellationToken ct = default)
+    public virtual Task<long> Sum(Expression<Func<TItem, long>> selector, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task<long?> Sum(Expression<Func<TItem, long?>> selector, CancellationToken ct = default)

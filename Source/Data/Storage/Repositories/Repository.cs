@@ -28,7 +28,8 @@ public abstract class Repository<TRepository, TItem>(IEnumerable<TItem> data, Re
     }
     // ReSharper enable PossibleMultipleEnumeration
 
-    protected RepositoryStrategy<TItem> Strategy { get; } = strategy ?? new InMemoryRepositoryStrategy<TRepository, TItem>(data);
+    protected RepositoryStrategy<TItem> Strategy { get; } = strategy
+                                                          ?? new InMemoryRepositoryStrategy<TRepository, TItem>(data);
 
     public IEnumerator<TItem> GetEnumerator()
         => _query.GetEnumerator();

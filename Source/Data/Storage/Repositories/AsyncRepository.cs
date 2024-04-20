@@ -1,45 +1,45 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class AsyncRepository<TItem> : AsyncRepository<AsyncRepository<TItem>, TItem>
+public class AsyncRepository<TItem>
+    : AsyncRepository<AsyncRepository<TItem>, TItem>
     where TItem : class {
-    public AsyncRepository(IStrategyFactory? provider = null)
-        : base([], provider) { }
+    public AsyncRepository(IStrategyFactory? factory = null)
+        : base([], factory) { }
 
-    public AsyncRepository(IEnumerable<TItem> data, IStrategyFactory? provider = null)
-        : base(data, provider) { }
+    public AsyncRepository(IEnumerable<TItem> data, IStrategyFactory? factory = null)
+        : base(data, factory) { }
 }
 
-public class AsyncRepository<TRepository, TItem>
+public class AsyncRepository<TRepository, TItem>(IEnumerable<TItem> data, AsyncRepositoryStrategy<TItem>? strategy = null)
     : IAsyncOrderedRepository<TItem>,
       IEnumerable<TItem>,
       IAsyncEnumerable<TItem>
     where TRepository : IAsyncOrderedRepository<TItem>
     where TItem : class {
-    private readonly IQueryable<TItem> _data;
+    // ReSharper disable once PossibleMultipleEnumeration
+    private readonly IQueryable<TItem> _query = data.AsQueryable();
 
-    protected AsyncRepository(IStrategyFactory? provider = null)
-        : this([], provider) {
+    protected AsyncRepository(IStrategyFactory? factory = null)
+        : this([], factory) {
     }
 
-    protected AsyncRepository(IEnumerable<TItem> source, IStrategyFactory? provider = null) {
-        var list = source.ToList();
-        _data = IsNotNull(list).AsQueryable();
-        Strategy = provider?.GetAsyncRepositoryStrategy(_data)
-            ?? new InMemoryAsyncRepositoryStrategy<TRepository, TItem>(_data);
+    // ReSharper disable PossibleMultipleEnumeration
+    protected AsyncRepository(IEnumerable<TItem> data, IStrategyFactory? factory = null)
+        : this(data, factory?.GetAsyncRepositoryStrategy(data)) {
     }
+    // ReSharper enable PossibleMultipleEnumeration
 
-    protected AsyncRepositoryStrategy<TItem> Strategy { get; }
+    protected AsyncRepositoryStrategy<TItem> Strategy { get; } = strategy
+                                                               ?? new InMemoryAsyncRepositoryStrategy<TRepository, TItem>(data);
 
     public IEnumerator<TItem> GetEnumerator()
-        => _data.GetEnumerator();
+        => _query.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "<Pending>")]
     public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
-        => _data is IAsyncEnumerable<TItem> asyncData
-               ? asyncData.GetAsyncEnumerator(ct)
-               : throw new NotSupportedException("This collection does not support asynchronous enumeration.");
+        => new AsyncEnumerator<TItem>(_query.GetEnumerator(), ct);
 
     public IAsyncRepository<TResult> OfType<TResult>()
         where TResult : class
@@ -301,7 +301,7 @@ public class AsyncRepository<TRepository, TItem>
     public Task<IReadOnlyList<TItem>> ToArray(CancellationToken ct = default)
         => Strategy.ToArray(ct);
 
-    public Task<IReadOnlyList<TItem>> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
+    public Task<IReadOnlyList<TResult>> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         => Strategy.ToArray(mapping, ct);
 
     public Task<IList<TItem>> ToList(CancellationToken ct = default)
@@ -325,7 +325,7 @@ public class AsyncRepository<TRepository, TItem>
         where TResult : class
         => Strategy.ToRepository(mapping, ct);
 
-    public Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Expression<Func<TItem, TKey>> selectKey, Expression<Func<TItem, TValue>> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
+    public Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
         where TKey : notnull
         => Strategy.ToDictionary(selectKey, selectValue, comparer, ct);
 
@@ -335,13 +335,13 @@ public class AsyncRepository<TRepository, TItem>
     public Task<TItem> First(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.First(predicate, ct);
 
-    public Task<TItem> FirstOrDefault(CancellationToken ct = default)
+    public Task<TItem?> FirstOrDefault(CancellationToken ct = default)
         => Strategy.FirstOrDefault(ct);
 
     public Task<TItem> FirstOrDefault(TItem defaultValue, CancellationToken ct = default)
         => Strategy.FirstOrDefault(defaultValue, ct);
 
-    public Task<TItem> FirstOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public Task<TItem?> FirstOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.FirstOrDefault(predicate, ct);
 
     public Task<TItem> FirstOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
@@ -353,13 +353,13 @@ public class AsyncRepository<TRepository, TItem>
     public Task<TItem> Last(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.Last(predicate, ct);
 
-    public Task<TItem> LastOrDefault(CancellationToken ct = default)
+    public Task<TItem?> LastOrDefault(CancellationToken ct = default)
         => Strategy.LastOrDefault(ct);
 
     public Task<TItem> LastOrDefault(TItem defaultValue, CancellationToken ct = default)
         => Strategy.LastOrDefault(defaultValue, ct);
 
-    public Task<TItem> LastOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public Task<TItem?> LastOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.LastOrDefault(predicate, ct);
 
     public Task<TItem> LastOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
@@ -371,13 +371,13 @@ public class AsyncRepository<TRepository, TItem>
     public Task<TItem> Single(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.Single(predicate, ct);
 
-    public Task<TItem> SingleOrDefault(CancellationToken ct = default)
+    public Task<TItem?> SingleOrDefault(CancellationToken ct = default)
         => Strategy.SingleOrDefault(ct);
 
     public Task<TItem> SingleOrDefault(TItem defaultValue, CancellationToken ct = default)
         => Strategy.SingleOrDefault(defaultValue, ct);
 
-    public Task<TItem> SingleOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public Task<TItem?> SingleOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.SingleOrDefault(predicate, ct);
 
     public Task<TItem> SingleOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
@@ -389,10 +389,10 @@ public class AsyncRepository<TRepository, TItem>
     public Task<TItem> ElementAt(Index index, CancellationToken ct = default)
         => Strategy.ElementAt(index, ct);
 
-    public Task<TItem> ElementAtOrDefault(int index, CancellationToken ct = default)
+    public Task<TItem?> ElementAtOrDefault(int index, CancellationToken ct = default)
         => Strategy.ElementAtOrDefault(index, ct);
 
-    public Task<TItem> ElementAtOrDefault(Index index, CancellationToken ct = default)
+    public Task<TItem?> ElementAtOrDefault(Index index, CancellationToken ct = default)
         => Strategy.ElementAtOrDefault(index, ct);
 
     public Task<bool> Contains(TItem item, CancellationToken ct = default)
@@ -416,49 +416,49 @@ public class AsyncRepository<TRepository, TItem>
     public Task<bool> All(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.All(predicate, ct);
 
-    public Task<int?> Count(CancellationToken ct = default)
+    public Task<int> Count(CancellationToken ct = default)
         => Strategy.Count(ct);
 
-    public Task<int?> Count(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public Task<int> Count(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.Count(predicate, ct);
 
-    public Task<long?> LongCount(CancellationToken ct = default)
+    public Task<long> LongCount(CancellationToken ct = default)
         => Strategy.LongCount(ct);
 
-    public Task<long?> LongCount(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public Task<long> LongCount(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.LongCount(predicate, ct);
 
-    public Task<TItem> Min(CancellationToken ct = default)
+    public Task<TItem?> Min(CancellationToken ct = default)
         => Strategy.Min(ct);
 
-    public Task<TResult> Min<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
+    public Task<TResult?> Min<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
         => Strategy.Min(selector, ct);
 
-    public Task<TItem> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
+    public Task<TItem?> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
         => Strategy.MinBy(keySelector, ct);
 
-    public Task<TItem> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
+    public Task<TItem?> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
         => Strategy.MinBy(keySelector, comparer, ct);
 
-    public Task<TItem> Max(CancellationToken ct = default)
+    public Task<TItem?> Max(CancellationToken ct = default)
         => Strategy.Max(ct);
 
-    public Task<TResult> Max<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
+    public Task<TResult?> Max<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
         => Strategy.Max(selector, ct);
 
-    public Task<TItem> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
+    public Task<TItem?> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
         => Strategy.MaxBy(keySelector, ct);
 
-    public Task<TItem> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
+    public Task<TItem?> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
         => Strategy.MaxBy(keySelector, comparer, ct);
 
-    public Task<int?> Sum(Expression<Func<TItem, int>> selector, CancellationToken ct = default)
+    public Task<int> Sum(Expression<Func<TItem, int>> selector, CancellationToken ct = default)
         => Strategy.Sum(selector, ct);
 
     public Task<int?> Sum(Expression<Func<TItem, int?>> selector, CancellationToken ct = default)
         => Strategy.Sum(selector, ct);
 
-    public Task<long?> Sum(Expression<Func<TItem, long>> selector, CancellationToken ct = default)
+    public Task<long> Sum(Expression<Func<TItem, long>> selector, CancellationToken ct = default)
         => Strategy.Sum(selector, ct);
 
     public Task<long?> Sum(Expression<Func<TItem, long?>> selector, CancellationToken ct = default)

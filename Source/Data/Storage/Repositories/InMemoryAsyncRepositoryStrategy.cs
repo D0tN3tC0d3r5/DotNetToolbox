@@ -245,10 +245,10 @@ internal sealed class InMemoryAsyncRepositoryStrategy<TRepository, TItem>
     public override IAsyncRepository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
         => ApplyAndCreate(() => _query.ExceptBy(source2, keySelector, comparer));
 
-    #pragma warning disable CS8634 // This warning is wrong. TItem has the class constraint.
+#pragma warning disable CS8634 // This warning is wrong. TItem has the class constraint.
     public override IAsyncRepository<TItem?> DefaultIfEmpty()
         => ApplyAndCreate(_query.DefaultIfEmpty);
-    #pragma warning restore CS8634
+#pragma warning restore CS8634
 
     public override IAsyncRepository<TItem> DefaultIfEmpty(TItem defaultValue)
         => ApplyAndCreate(() => _query.DefaultIfEmpty(defaultValue));
@@ -263,242 +263,246 @@ internal sealed class InMemoryAsyncRepositoryStrategy<TRepository, TItem>
         => ApplyAndCreate(() => _query.Prepend(element));
 
     public override Task<TItem> First(CancellationToken ct = default)
-        => _query.First();
+        => Task.Run(() => _query.First(), ct);
 
     public override Task<TItem> First(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.First(predicate);
+        => Task.Run(() => _query.First(predicate), ct);
 
     public override Task<TItem?> FirstOrDefault(CancellationToken ct = default)
-        => _query.FirstOrDefault();
+        => Task.Run(() => _query.FirstOrDefault(), ct);
 
     public override Task<TItem> FirstOrDefault(TItem defaultValue, CancellationToken ct = default)
-        => _query.FirstOrDefault() ?? defaultValue;
+        => Task.Run(() => _query.FirstOrDefault() ?? defaultValue, ct);
 
     public override Task<TItem?> FirstOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.FirstOrDefault(predicate);
+        => Task.Run(() => _query.FirstOrDefault(predicate), ct);
 
     public override Task<TItem> FirstOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
-        => _query.FirstOrDefault(predicate) ?? defaultValue;
+        => Task.Run(() => _query.FirstOrDefault(predicate) ?? defaultValue, ct);
 
     public override Task<TItem> Last(CancellationToken ct = default)
-        => _query.Last();
+        => Task.Run(() => _query.Last(), ct);
 
     public override Task<TItem> Last(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.Last(predicate);
+        => Task.Run(() => _query.Last(predicate), ct);
 
     public override Task<TItem?> LastOrDefault(CancellationToken ct = default)
-        => _query.LastOrDefault();
+        => Task.Run(() => _query.LastOrDefault(), ct);
 
     public override Task<TItem> LastOrDefault(TItem defaultValue, CancellationToken ct = default)
-        => _query.LastOrDefault() ?? defaultValue;
+        => Task.Run(() => _query.LastOrDefault() ?? defaultValue, ct);
 
     public override Task<TItem?> LastOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.LastOrDefault(predicate);
+        => Task.Run(() => _query.LastOrDefault(predicate), ct);
 
     public override Task<TItem> LastOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
-        => _query.LastOrDefault(predicate) ?? defaultValue;
+        => Task.Run(() => _query.LastOrDefault(predicate) ?? defaultValue, ct);
 
     public override Task<TItem> Single(CancellationToken ct = default)
-        => _query.Single();
+        => Task.Run(() => _query.Single(), ct);
 
     public override Task<TItem> Single(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.Single(predicate);
+        => Task.Run(() => _query.Single(predicate), ct);
 
     public override Task<TItem?> SingleOrDefault(CancellationToken ct = default)
-        => _query.SingleOrDefault();
+        => Task.Run(() => _query.SingleOrDefault(), ct);
 
     public override Task<TItem> SingleOrDefault(TItem defaultValue, CancellationToken ct = default)
-        => _query.SingleOrDefault() ?? defaultValue;
+        => Task.Run(() => _query.SingleOrDefault() ?? defaultValue, ct);
 
     public override Task<TItem?> SingleOrDefault(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.SingleOrDefault(predicate);
+        => Task.Run(() => _query.SingleOrDefault(predicate), ct);
 
     public override Task<TItem> SingleOrDefault(Expression<Func<TItem, bool>> predicate, TItem defaultValue, CancellationToken ct = default)
-        => _query.SingleOrDefault(predicate) ?? defaultValue;
+        => Task.Run(() => _query.SingleOrDefault(predicate) ?? defaultValue, ct);
 
     public override Task<TItem> ElementAt(int index, CancellationToken ct = default)
-        => _query.ElementAt(index);
+        => Task.Run(() => _query.ElementAt(index), ct);
 
     public override Task<TItem> ElementAt(Index index, CancellationToken ct = default)
-        => _query.ElementAt(index);
+        => Task.Run(() => _query.ElementAt(index), ct);
 
     public override Task<TItem?> ElementAtOrDefault(int index, CancellationToken ct = default)
-        => _query.ElementAtOrDefault(index);
+        => Task.Run(() => _query.ElementAtOrDefault(index), ct);
 
     public override Task<TItem?> ElementAtOrDefault(Index index, CancellationToken ct = default)
-        => _query.ElementAtOrDefault(index);
+        => Task.Run(() => _query.ElementAtOrDefault(index), ct);
 
     public override Task<bool> Contains(TItem item, CancellationToken ct = default)
-        => _query.Contains(item);
+        => Task.Run(() => _query.Contains(item), ct);
 
     public override Task<bool> Contains(TItem item, IEqualityComparer<TItem>? comparer, CancellationToken ct = default)
-        => _query.Contains(item, comparer);
+        => Task.Run(() => _query.Contains(item, comparer), ct);
 
     public override Task<bool> SequenceEqual(IEnumerable<TItem> source2, CancellationToken ct = default)
-        => _query.SequenceEqual(source2);
+        => Task.Run(() => _query.SequenceEqual(source2), ct);
 
     public override Task<bool> SequenceEqual(IEnumerable<TItem> source2, IEqualityComparer<TItem>? comparer, CancellationToken ct = default)
-        => _query.SequenceEqual(source2, comparer);
+        => Task.Run(() => _query.SequenceEqual(source2, comparer), ct);
 
     public override Task<bool> Any(CancellationToken ct = default)
-        => _query.Any();
+        => Task.Run(() => _query.Any(), ct);
 
     public override Task<bool> Any(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.Any(predicate);
+        => Task.Run(() => _query.Any(predicate), ct);
 
     public override Task<bool> All(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.All(predicate);
+        => Task.Run(() => _query.All(predicate), ct);
 
-    public override int Count(CancellationToken ct = default)
-        => _query.Count();
+    public override Task<int> Count(CancellationToken ct = default)
+        => Task.Run(() => _query.Count(), ct);
 
-    public override int Count(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.Count(predicate);
+    public override Task<int> Count(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => Task.Run(() => _query.Count(predicate), ct);
 
-    public override long LongCount(CancellationToken ct = default)
-        => _query.LongCount();
+    public override Task<long> LongCount(CancellationToken ct = default)
+        => Task.Run(() => _query.LongCount(), ct);
 
-    public override long LongCount(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => _query.LongCount(predicate);
+    public override Task<long> LongCount(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => Task.Run(() => _query.LongCount(predicate), ct);
 
     public override Task<TItem?> Min(CancellationToken ct = default)
-        => _query.Min();
+        => Task.Run(() => _query.Min(), ct);
 
-    public override TResult? Min<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
+    public override Task<TResult?> Min<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
         where TResult : default
-        => _query.Min(selector);
+        => Task.Run(() => _query.Min(selector), ct);
 
     public override Task<TItem?> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
-        => _query.MinBy(keySelector);
+        => Task.Run(() => _query.MinBy(keySelector), ct);
 
     public override Task<TItem?> MinBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
-        => _query.MinBy(keySelector, comparer);
+        => Task.Run(() => _query.MinBy(keySelector, comparer), ct);
 
     public override Task<TItem?> Max(CancellationToken ct = default)
-        => _query.Max();
+        => Task.Run(() => _query.Max(), ct);
 
-    public override TResult? Max<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
+    public override Task<TResult?> Max<TResult>(Expression<Func<TItem, TResult>> selector, CancellationToken ct = default)
         where TResult : default
-        => _query.Max(selector);
+        => Task.Run(() => _query.Max(selector), ct);
 
     public override Task<TItem?> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, CancellationToken ct = default)
-        => _query.MaxBy(keySelector);
+        => Task.Run(() => _query.MaxBy(keySelector), ct);
 
     public override Task<TItem?> MaxBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TItem>? comparer, CancellationToken ct = default)
-        => _query.MaxBy(keySelector, comparer);
+        => Task.Run(() => _query.MaxBy(keySelector, comparer), ct);
 
-    public override int Sum(Expression<Func<TItem, int>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+    public override Task<int> Sum(Expression<Func<TItem, int>> selector, CancellationToken ct = default)
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<int?> Sum(Expression<Func<TItem, int?>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+        => Task.Run(() => _query.Sum(selector), ct);
 
-    public override long Sum(Expression<Func<TItem, long>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+    public override Task<long> Sum(Expression<Func<TItem, long>> selector, CancellationToken ct = default)
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<long?> Sum(Expression<Func<TItem, long?>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<float> Sum(Expression<Func<TItem, float>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<float?> Sum(Expression<Func<TItem, float?>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<double> Sum(Expression<Func<TItem, double>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<double?> Sum(Expression<Func<TItem, double?>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<decimal> Sum(Expression<Func<TItem, decimal>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<decimal?> Sum(Expression<Func<TItem, decimal?>> selector, CancellationToken ct = default)
-        => _query.Sum(selector);
+        => Task.Run(() => _query.Sum(selector), ct);
 
     public override Task<double> Average(Expression<Func<TItem, int>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+        => Task.Run(() => _query.Average(selector), ct);
 
-    public override Task<double>? Average(Expression<Func<TItem, int?>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+    public override Task<double?> Average(Expression<Func<TItem, int?>> selector, CancellationToken ct = default)
+        => Task.Run(() => _query.Average(selector), ct);
 
     public override Task<float> Average(Expression<Func<TItem, float>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+        => Task.Run(() => _query.Average(selector), ct);
 
     public override Task<float?> Average(Expression<Func<TItem, float?>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+        => Task.Run(() => _query.Average(selector), ct);
 
     public override Task<double> Average(Expression<Func<TItem, long>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+        => Task.Run(() => _query.Average(selector), ct);
 
-    public override Task<double>? Average(Expression<Func<TItem, long?>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+    public override Task<double?> Average(Expression<Func<TItem, long?>> selector, CancellationToken ct = default)
+        => Task.Run(() => _query.Average(selector), ct);
 
     public override Task<double> Average(Expression<Func<TItem, double>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+        => Task.Run(() => _query.Average(selector), ct);
 
-    public override Task<double>? Average(Expression<Func<TItem, double?>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+    public override Task<double?> Average(Expression<Func<TItem, double?>> selector, CancellationToken ct = default)
+        => Task.Run(() => _query.Average(selector), ct);
 
     public override Task<decimal> Average(Expression<Func<TItem, decimal>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+        => Task.Run(() => _query.Average(selector), ct);
 
     public override Task<decimal?> Average(Expression<Func<TItem, decimal?>> selector, CancellationToken ct = default)
-        => _query.Average(selector);
+        => Task.Run(() => _query.Average(selector), ct);
 
     public override Task<TItem> Aggregate(Expression<Func<TItem, TItem, TItem>> func, CancellationToken ct = default)
-        => _query.Aggregate(func);
+        => Task.Run(() => _query.Aggregate(func), ct);
 
     public override Task<TAccumulate> Aggregate<TAccumulate>(TAccumulate seed, Expression<Func<TAccumulate, TItem, TAccumulate>> func, CancellationToken ct = default)
-        => _query.Aggregate(seed, func);
+        => Task.Run(() => _query.Aggregate(seed, func), ct);
 
     public override Task<TResult> Aggregate<TAccumulate, TResult>(TAccumulate seed, Expression<Func<TAccumulate, TItem, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector, CancellationToken ct = default)
-        => _query.Aggregate(seed, func, selector);
+        => Task.Run(() => _query.Aggregate(seed, func, selector), ct);
 
     public override Task<IReadOnlyList<TItem>> ToArray(CancellationToken ct = default)
-        => [.. _query];
+        => Task.Run<IReadOnlyList<TItem>>(() => _query.ToArray(), ct);
 
     public override Task<IReadOnlyList<TResult>> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        => _query.ToArray(mapping);
+        => Task.Run<IReadOnlyList<TResult>>(() => _query.ToArray(mapping), ct);
 
     public override Task<IList<TItem>> ToList(CancellationToken ct = default)
-        => [.. _query];
+        => Task.Run<IList<TItem>>(() => _query.ToArray(), ct);
 
     public override Task<IList<TResult>> ToList<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        => _query.ToList(mapping);
+        => Task.Run<IList<TResult>>(() => _query.ToList(mapping), ct);
 
     public override Task<ISet<TItem>> ToHashSet(CancellationToken ct = default)
-        => _query.ToHashSet();
+        => Task.Run<ISet<TItem>>(() => _query.ToHashSet(), ct);
 
     public override Task<ISet<TResult>> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        => _query.ToHashSet(mapping);
+        => Task.Run<ISet<TResult>>(() => _query.ToHashSet(mapping), ct);
 
     public override Task<TResultRepository> ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         where TResultRepository : class
         where TResult : class
-        => InstanceFactory.Create<TResultRepository>(_query.ToList(mapping));
+        => Task.FromResult(InstanceFactory.Create<TResultRepository>(_query.ToList(mapping)));
 
     public override Task<IRepository<TResult>> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         where TResult : class
-        => new Repository<TResult>(_query.ToList(mapping));
+        => Task.FromResult<IRepository<TResult>>(new Repository<TResult>(_query.ToList(mapping)));
 
     public override Task<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
-        => _query.ToDictionary(selectKey, selectValue, comparer);
+        => Task.Run<IDictionary<TKey, TValue>>(() => _query.ToDictionary(selectKey, selectValue, comparer), ct);
 
-    public override Task Add(TItem newItem, CancellationToken ct = default) => _data.Add(newItem);
+    public override Task Add(TItem newItem, CancellationToken ct = default)
+        => Task.Run(() => _data.Add(newItem), ct);
 
-    public override Task Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default) {
-        var itemToUpdate = _query.FirstOrDefault(predicate);
-        if (itemToUpdate is null) return;
-        var index = _data.IndexOf(itemToUpdate);
-        _data[index] = updatedItem;
-    }
+    public override Task Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default)
+        => Task.Run(() => {
+                        var itemToUpdate = _query.FirstOrDefault(predicate);
+                        if (itemToUpdate is null) return;
+                        var index = _data.IndexOf(itemToUpdate);
+                        _data[index] = updatedItem;
+                    },
+                    ct);
 
-    public override Task Remove(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
-        var itemToRemove = _query.FirstOrDefault(predicate);
-        if (itemToRemove is null)
-            return;
-        _data.Remove(itemToRemove);
-    }
+    public override Task Remove(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => Task.Run(() => {
+                        var itemToRemove = _query.FirstOrDefault(predicate);
+                        if (itemToRemove is null) return;
+                        _data.Remove(itemToRemove);
+                    },
+                    ct);
 }
