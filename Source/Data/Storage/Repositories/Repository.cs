@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace DotNetToolbox.Data.Repositories;
 
 public class Repository<TStrategy, TItem>(IEnumerable<TItem> data, TStrategy strategy)
     : Repository<Repository<TStrategy, TItem>, TStrategy, TItem>(data, strategy)
-    where TStrategy : class, IRepositoryStrategy<TItem> {
+    where TStrategy : class, IRepositoryStrategy<TItem>
+    where TItem : class {
     // ReSharper disable PossibleMultipleEnumeration
     protected Repository(IEnumerable<TItem> data, IStrategyFactory factory)
         : this(data, IsNotNull(factory).GetRequiredStrategy<TStrategy, TItem>(data)) {
@@ -17,7 +20,8 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
     : IOrderedRepository<TItem>
     , IEnumerable<TItem>
     where TRepository : Repository<TRepository, TStrategy, TItem>
-    where TStrategy : class, IRepositoryStrategy<TItem> {
+    where TStrategy : class, IRepositoryStrategy<TItem>
+    where TItem : class {
     // ReSharper disable once PossibleMultipleEnumeration
     private readonly IQueryable<TItem> _query = data.AsQueryable();
 
@@ -38,9 +42,11 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
         => GetEnumerator();
 
     public IRepository<TResult> OfType<TResult>()
+        where TResult : class
         => Strategy.OfType<TResult>();
 
     public IRepository<TResult> Cast<TResult>()
+        where TResult : class
         => Strategy.Cast<TResult>();
 
     public IRepository<TItem> Where(Expression<Func<TItem, bool>> predicate)
@@ -50,27 +56,34 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
         => Strategy.Where(predicate);
 
     public IRepository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
+        where TResult : class
         => Strategy.Select(selector);
 
     public IRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
+        where TResult : class
         => Strategy.Select(selector);
 
     public IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+        where TResult : class
         => Strategy.SelectMany(selector);
 
     public IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
+        where TResult : class
         => Strategy.SelectMany(selector);
 
     public IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+        where TResult : class
         => Strategy.SelectMany(collectionSelector, resultSelector);
 
     public IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+        where TResult : class
         => Strategy.SelectMany(collectionSelector, resultSelector);
 
     public IRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
                                                            Expression<Func<TItem, TKey>> outerKeySelector,
                                                            Expression<Func<TInner, TKey>> innerKeySelector,
                                                            Expression<Func<TItem, TInner, TResult>> resultSelector)
+        where TResult : class
         => Strategy.Join(inner,
                           outerKeySelector,
                           innerKeySelector,
@@ -81,6 +94,7 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
                                                            Expression<Func<TInner, TKey>> innerKeySelector,
                                                            Expression<Func<TItem, TInner, TResult>> resultSelector,
                                                            IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => Strategy.Join(inner,
                           outerKeySelector,
                           innerKeySelector,
@@ -91,6 +105,7 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
                                                                 Expression<Func<TItem, TKey>> outerKeySelector,
                                                                 Expression<Func<TInner, TKey>> innerKeySelector,
                                                                 Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector)
+        where TResult : class
         => Strategy.GroupJoin(inner,
                                outerKeySelector,
                                innerKeySelector,
@@ -101,6 +116,7 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
                                                                 Expression<Func<TInner, TKey>> innerKeySelector,
                                                                 Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector,
                                                                 IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => Strategy.GroupJoin(inner,
                                outerKeySelector,
                                innerKeySelector,
@@ -183,15 +199,19 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
         => Strategy.GroupBy(keySelector, elementSelector, comparer);
 
     public IRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
+        where TResult : class
         => Strategy.GroupBy(keySelector, elementSelector, resultSelector);
 
     public IRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
+        where TResult : class
         => Strategy.GroupBy(keySelector, resultSelector);
 
     public IRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => Strategy.GroupBy(keySelector, resultSelector, comparer);
 
     public IRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => Strategy.GroupBy(keySelector,
                              elementSelector,
                              resultSelector,
@@ -216,6 +236,7 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
         => Strategy.Concat(source);
 
     public IRepository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
+        where TResult : class
         => Strategy.Combine(source2, resultSelector);
 
     public IRepository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source)
@@ -297,9 +318,11 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
 
     public TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
         where TResultRepository : class, IRepository<TResult>
+        where TResult : class
         => Strategy.ToRepository<TResultRepository, TResult>(mapping);
 
     public IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
+        where TResult : class
         => Strategy.ToRepository(mapping);
 
     public IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)

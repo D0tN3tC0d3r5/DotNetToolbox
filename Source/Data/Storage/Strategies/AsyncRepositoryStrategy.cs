@@ -5,4 +5,5 @@ public abstract partial class AsyncRepositoryStrategy
 
 public abstract partial class AsyncRepositoryStrategy<TItem>
     : AsyncRepositoryStrategy
-    , IAsyncRepositoryStrategy<TItem>;
+    , IAsyncRepositoryStrategy<TItem>
+    where TItem : class;

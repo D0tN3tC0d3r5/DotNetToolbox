@@ -2,7 +2,8 @@ namespace DotNetToolbox.Data.Strategies;
 
 public sealed class InMemoryAsyncRepositoryStrategy<TRepository, TItem>
     : AsyncRepositoryStrategy<TItem>
-    where TRepository : IAsyncOrderedRepository<TItem> {
+    where TRepository : IAsyncOrderedRepository<TItem>
+    where TItem : class {
     private readonly IList<TItem> _data;
     private readonly IQueryable<TItem> _query;
 
@@ -11,20 +12,24 @@ public sealed class InMemoryAsyncRepositoryStrategy<TRepository, TItem>
         _query = _data.AsQueryable();
     }
 
-    private static IAsyncRepository<TResult> ApplyAndCreate<TResult>(Func<IQueryable<TResult>> updateSource) {
+    private static IAsyncRepository<TResult> ApplyAndCreate<TResult>(Func<IQueryable<TResult>> updateSource)
+        where TResult : class {
         var result = updateSource();
         return RepositoryFactory.CreateAsyncRepository<TRepository, TResult>(result);
     }
 
-    private static IAsyncOrderedRepository<TResult> ApplyAndCreateOrdered<TResult>(Func<IQueryable<TResult>> updateSource) {
+    private static IAsyncOrderedRepository<TResult> ApplyAndCreateOrdered<TResult>(Func<IQueryable<TResult>> updateSource)
+        where TResult : class {
         var result = updateSource();
         return RepositoryFactory.CreateAsyncOrderedRepository<TRepository, TResult>(result);
     }
 
     public override IAsyncRepository<TResult> OfType<TResult>()
+        where TResult : class
         => ApplyAndCreate(_query.OfType<TResult>);
 
     public override IAsyncRepository<TResult> Cast<TResult>()
+        where TResult : class
         => ApplyAndCreate(_query.Cast<TResult>);
 
     public override IAsyncRepository<TItem> Where(Expression<Func<TItem, bool>> predicate)

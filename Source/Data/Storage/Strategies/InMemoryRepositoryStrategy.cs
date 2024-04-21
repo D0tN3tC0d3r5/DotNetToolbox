@@ -2,7 +2,8 @@ namespace DotNetToolbox.Data.Strategies;
 
 public class InMemoryRepositoryStrategy<TRepository, TItem>
     : RepositoryStrategy<TItem>
-    where TRepository : IOrderedRepository<TItem> {
+    where TRepository : IOrderedRepository<TItem>
+    where TItem : class {
     private readonly ISet<TItem> _data;
     private readonly IQueryable<TItem> _query;
 
@@ -11,20 +12,24 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         _query = _data.AsQueryable();
     }
 
-    private IRepository<TResult> ApplyAndCreate<TResult>(Func<IQueryable<TResult>> updateSource) {
+    private IRepository<TResult> ApplyAndCreate<TResult>(Func<IQueryable<TResult>> updateSource)
+        where TResult : class {
         var result = updateSource();
         return RepositoryFactory.CreateRepository<TRepository, TResult>(result, this);
     }
 
-    private IOrderedRepository<TResult> ApplyAndCreateOrdered<TResult>(Func<IQueryable<TResult>> updateSource) {
+    private IOrderedRepository<TResult> ApplyAndCreateOrdered<TResult>(Func<IQueryable<TResult>> updateSource)
+        where TResult : class {
         var result = updateSource();
         return RepositoryFactory.CreateOrderedRepository<TRepository, TResult>(result, this);
     }
 
     public override IRepository<TResult> OfType<TResult>()
+        where TResult : class
         => ApplyAndCreate(_query.OfType<TResult>);
 
     public override IRepository<TResult> Cast<TResult>()
+        where TResult : class
         => ApplyAndCreate(_query.Cast<TResult>);
 
     public override IRepository<TItem> Where(Expression<Func<TItem, bool>> predicate)
@@ -34,33 +39,43 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         => ApplyAndCreate(() => _query.Where(predicate));
 
     public override IRepository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
+        where TResult : class
         => ApplyAndCreate(() => _query.Select(selector));
 
     public override IRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
+        where TResult : class
         => ApplyAndCreate(() => _query.Select(selector));
 
     public override IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+        where TResult : class
         => ApplyAndCreate(() => _query.SelectMany(selector));
 
     public override IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
+        where TResult : class
         => ApplyAndCreate(() => _query.SelectMany(selector));
 
     public override IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+        where TResult : class
         => ApplyAndCreate(() => _query.SelectMany(collectionSelector, resultSelector));
 
     public override IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+        where TResult : class
         => ApplyAndCreate(() => _query.SelectMany(collectionSelector, resultSelector));
 
     public override IRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner, Expression<Func<TItem, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TItem, TInner, TResult>> resultSelector)
+        where TResult : class
         => ApplyAndCreate(() => _query.Join(inner, outerKeySelector, innerKeySelector, resultSelector));
 
     public override IRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner, Expression<Func<TItem, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TItem, TInner, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => ApplyAndCreate(() => _query.Join(inner, outerKeySelector, innerKeySelector, resultSelector, comparer));
 
     public override IRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner, Expression<Func<TItem, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector)
+        where TResult : class
         => ApplyAndCreate(() => _query.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector));
 
     public override IRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner, Expression<Func<TItem, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => ApplyAndCreate(() => _query.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer));
 
     public override IOrderedRepository<TItem> Order()
@@ -147,15 +162,19 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         => ApplyAndCreate(() => _query.GroupBy(keySelector, elementSelector, comparer));
 
     public override IRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
+        where TResult : class
         => ApplyAndCreate(() => _query.GroupBy(keySelector, elementSelector, resultSelector));
 
     public override IRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
+        where TResult : class
         => ApplyAndCreate(() => _query.GroupBy(keySelector, resultSelector));
 
     public override IRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => ApplyAndCreate(() => _query.GroupBy(keySelector, resultSelector, comparer));
 
     public override IRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => ApplyAndCreate(() => _query.GroupBy(keySelector, elementSelector, resultSelector, comparer));
 
     public override IRepository<TItem> Distinct()
@@ -177,6 +196,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         => ApplyAndCreate(() => _query.Concat(source));
 
     public override IRepository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
+        where TResult : class
         => ApplyAndCreate(() => _query.Zip(source2, resultSelector));
 
     public override IRepository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source) {
@@ -254,9 +274,8 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
     public override TItem FirstOrDefault(TItem defaultValue)
         => _query.FirstOrDefault() ?? defaultValue;
 
-    public override TItem? FirstOrDefault(Expression<Func<TItem, bool>> predicate) {
-        return _query.FirstOrDefault(predicate) ?? default;
-    }
+    public override TItem? FirstOrDefault(Expression<Func<TItem, bool>> predicate)
+        => _query.FirstOrDefault(predicate);
 
     public override TItem Last()
         => _query.Last();
@@ -457,6 +476,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         => InstanceFactory.Create<TResultRepository>(_query.ToList(mapping));
 
     public override IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
+        where TResult : class
         => new InMemoryRepository<TResult>(_query.ToList(mapping));
 
     public override IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)

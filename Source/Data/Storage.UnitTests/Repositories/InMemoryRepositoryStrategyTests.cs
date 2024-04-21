@@ -3,11 +3,11 @@ using DotNetToolbox.Data.Strategies;
 namespace DotNetToolbox.Data.Repositories;
 
 public class InMemoryRepositoryStrategyTests {
-
-    private readonly InMemoryRepositoryStrategy<InMemoryRepository<int>, int> _strategy;
+    public record TestEntity(string Name);
+    private readonly InMemoryRepositoryStrategy<InMemoryRepository<TestEntity>, TestEntity> _strategy;
 
     public InMemoryRepositoryStrategyTests() {
-        var data = new [] { 1, 2, 3 };
+        var data = new TestEntity[] { new("One"), new("Two"), new("Three") };
         _strategy = new(data);
     }
 
@@ -25,7 +25,7 @@ public class InMemoryRepositoryStrategyTests {
 
     [Fact]
     public void ToArray_ReturnsArray() {
-        var expectedResult = new[] { 1, 2, 3 };
+        var expectedResult = new TestEntity[] { new("One"), new("Two"), new("Three") };
         var result = _strategy.ToArray();
         result.Should().BeEquivalentTo(expectedResult);
     }

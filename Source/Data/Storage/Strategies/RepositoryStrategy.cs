@@ -5,4 +5,5 @@ public abstract partial class RepositoryStrategy
 
 public abstract partial class RepositoryStrategy<TItem>
     : RepositoryStrategy,
-      IRepositoryStrategy<TItem>;
+      IRepositoryStrategy<TItem>
+    where TItem : class;

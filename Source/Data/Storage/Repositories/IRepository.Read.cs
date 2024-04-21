@@ -7,8 +7,10 @@ public partial interface IRepository<TItem> {
     ISet<TItem> ToHashSet();
     ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping);
     TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
-        where TResultRepository : class, IRepository<TResult>;
-    IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping);
+        where TResultRepository : class, IRepository<TResult>
+        where TResult : class;
+    IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
+        where TResult : class;
     IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
         where TKey : notnull;
     TItem First();

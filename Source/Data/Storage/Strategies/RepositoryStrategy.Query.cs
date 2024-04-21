@@ -2,9 +2,11 @@ namespace DotNetToolbox.Data.Strategies;
 
 public abstract partial class RepositoryStrategy {
     public virtual IRepository<TResult> OfType<TResult>()
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> Cast<TResult>()
+        where TResult : class
         => throw new NotImplementedException();
 }
 
@@ -17,27 +19,34 @@ public abstract partial class RepositoryStrategy<TItem> {
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
                                                                    Expression<Func<TItem, TKey>> outerKeySelector,
                                                                    Expression<Func<TInner, TKey>> innerKeySelector,
                                                                    Expression<Func<TItem, TInner, TResult>> resultSelector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
@@ -45,12 +54,14 @@ public abstract partial class RepositoryStrategy<TItem> {
                                                                    Expression<Func<TInner, TKey>> innerKeySelector,
                                                                    Expression<Func<TItem, TInner, TResult>> resultSelector,
                                                                    IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
                                                                         Expression<Func<TItem, TKey>> outerKeySelector,
                                                                         Expression<Func<TInner, TKey>> innerKeySelector,
                                                                         Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
@@ -58,6 +69,7 @@ public abstract partial class RepositoryStrategy<TItem> {
                                                                         Expression<Func<TInner, TKey>> innerKeySelector,
                                                                         Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector,
                                                                         IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IOrderedRepository<TItem> Order()
@@ -136,15 +148,19 @@ public abstract partial class RepositoryStrategy<TItem> {
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TItem> Distinct()
@@ -166,6 +182,7 @@ public abstract partial class RepositoryStrategy<TItem> {
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
+        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source)
