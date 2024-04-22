@@ -6,5 +6,4 @@ public interface IAsyncRepositoryStrategy
 // ReSharper disable once UnusedTypeParameter
 public interface IAsyncRepositoryStrategy<TItem>
     : IAsyncRepositoryStrategy
-    , IAsyncOrderedRepository<TItem>
-    where TItem : class;
+    , IAsyncOrderedRepository<TItem>;

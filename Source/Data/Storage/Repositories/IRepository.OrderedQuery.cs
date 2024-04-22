@@ -5,8 +5,7 @@ public interface IOrderedRepository
 
 public interface IOrderedRepository<TItem>
     : IRepository<TItem>
-    , IOrderedRepository
-    where TItem : class {
+    , IOrderedRepository{
     IOrderedRepository<TItem> ThenBy<TKey>(Expression<Func<TItem, TKey>> keySelector);
 
     IOrderedRepository<TItem> ThenBy<TKey>(Expression<Func<TItem, TKey>> keySelector, IComparer<TKey>? comparer);

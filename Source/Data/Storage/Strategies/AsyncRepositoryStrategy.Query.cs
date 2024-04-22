@@ -2,11 +2,9 @@ namespace DotNetToolbox.Data.Strategies;
 
 public abstract partial class AsyncRepositoryStrategy {
     public virtual IAsyncRepository<TResult> OfType<TResult>()
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> Cast<TResult>()
-        where TResult : class
         => throw new NotImplementedException();
 }
 
@@ -18,34 +16,27 @@ public abstract partial class AsyncRepositoryStrategy<TItem> {
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
                                                                          Expression<Func<TItem, TKey>> outerKeySelector,
                                                                          Expression<Func<TInner, TKey>> innerKeySelector,
                                                                          Expression<Func<TItem, TInner, TResult>> resultSelector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
@@ -53,14 +44,12 @@ public abstract partial class AsyncRepositoryStrategy<TItem> {
                                                                          Expression<Func<TInner, TKey>> innerKeySelector,
                                                                          Expression<Func<TItem, TInner, TResult>> resultSelector,
                                                                          IEqualityComparer<TKey>? comparer)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
                                                                               Expression<Func<TItem, TKey>> outerKeySelector,
                                                                               Expression<Func<TInner, TKey>> innerKeySelector,
                                                                               Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> GroupJoin<TInner, TKey, TResult>(IEnumerable<TInner> inner,
@@ -68,7 +57,6 @@ public abstract partial class AsyncRepositoryStrategy<TItem> {
                                                                               Expression<Func<TInner, TKey>> innerKeySelector,
                                                                               Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector,
                                                                               IEqualityComparer<TKey>? comparer)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncOrderedRepository<TItem> Order()
@@ -147,19 +135,15 @@ public abstract partial class AsyncRepositoryStrategy<TItem> {
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TItem> Distinct()
@@ -181,7 +165,6 @@ public abstract partial class AsyncRepositoryStrategy<TItem> {
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IAsyncRepository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source)

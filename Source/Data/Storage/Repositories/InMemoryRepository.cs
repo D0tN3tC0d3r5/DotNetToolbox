@@ -1,16 +1,24 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class InMemoryRepository<TItem>(IEnumerable<TItem> data)
-    : InMemoryRepository<InMemoryRepository<TItem>, TItem>(data)
-    where TItem : class {
-    public InMemoryRepository() : this([]) { }
+public class InMemoryRepository<TItem>
+    : InMemoryRepository<InMemoryRepository<TItem>, TItem>{
+
+    internal InMemoryRepository(List<TItem> data, Expression expression)
+        : base(data, expression) {
+    }
 }
 
 // ReSharper disable PossibleMultipleEnumeration
-public class InMemoryRepository<TRepository, TItem>(IEnumerable<TItem> data)
-    : Repository<TRepository, InMemoryRepositoryStrategy<TRepository, TItem>, TItem>(data, new InMemoryRepositoryStrategy<TRepository, TItem>(data))
-    where TRepository : Repository<TRepository, InMemoryRepositoryStrategy<TRepository, TItem>, TItem>
-    where TItem : class {
-    public InMemoryRepository() : this([]) { }
+public class InMemoryRepository<TRepository, TItem>
+    : Repository<TRepository, InMemoryRepositoryStrategy<TRepository, TItem>, TItem>
+    where TRepository : Repository<TRepository, InMemoryRepositoryStrategy<TRepository, TItem>, TItem> {
+
+    public InMemoryRepository()
+        : this(new InMemoryRepositoryStrategy<TRepository, TItem>()) {
+    }
+
+    internal InMemoryRepository(List<TItem> data, Expression expression) {
+        Strategy = new InMemoryRepositoryStrategy<TRepository, TItem>(data, expression);
+    }
 }
 // ReSharper enable PossibleMultipleEnumeration

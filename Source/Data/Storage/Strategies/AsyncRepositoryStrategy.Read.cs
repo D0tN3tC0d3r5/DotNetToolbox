@@ -21,11 +21,9 @@ public abstract partial class AsyncRepositoryStrategy<TItem> {
 
     public virtual Task<TResultRepository> ToRepositoryAsync<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         where TResultRepository : class, IRepository<TResult>
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual Task<IAsyncRepository<TResult>> ToRepositoryAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual Task<IDictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)

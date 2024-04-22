@@ -4,11 +4,24 @@ public class InMemoryRepositoryTests {
     private abstract record BaseTestEntity(string Name);
     private record TestEntity1(string Name) : BaseTestEntity(Name);
     private record TestEntity2(string Name, List<int> Numbers) : BaseTestEntity(Name);
+    // ReSharper disable once UseCollectionExpression - I want to use the default constructor
     private readonly InMemoryRepository<BaseTestEntity> _emptySet = new();
     private readonly InMemoryRepository<TestEntity1> _set1 = [new("A"), new("B"), new("C")];
     private readonly InMemoryRepository<TestEntity1> _set2 = [new("X"), new("Y"), new("Z")];
-    private readonly InMemoryRepository<TestEntity2> _set3 = [new("1", [1, 2, 3]), new("2", [4, 5, 6]), new("3", [3, 6, 9])];
+    private readonly InMemoryRepository<TestEntity2> _set3 = [new("One", [1, 2, 3]), new("Two", [4, 5, 6]), new("Three", [3, 6, 9])];
     private readonly InMemoryRepository<BaseTestEntity> _mixedSet = [new TestEntity1("A"), new TestEntity1("Y"), new TestEntity2("3", [3, 6, 9])];
+
+    [Fact]
+    public void Enumeration_AllowsLoop() {
+        var count = 0;
+        var expectedNames = new[] { "A", "B", "C" };
+        foreach (var item in _set2) {
+            expectedNames[count].Should().Be(item.Name);
+            count++;
+        }
+
+        count.Should().Be(_set2.Count());
+    }
 
     [Fact]
     public void OfType_ForEmptySet_ReturnsFalse()
@@ -58,8 +71,26 @@ public class InMemoryRepositoryTests {
 
     [Fact]
     public void SelectMany_ReturnsProjectedSet() {
-        var expectedSet = new[] { 1, 2, 3, 4, 5, 6, 3, 6, 9 };
-        _set3.SelectMony(x => x.Numbers).ToArray().Should().BeEquivalentTo(expectedSet);
+        var expectedSet = new[] { 1, 2, 3, 4, 5, 6, 9 };
+        _set3.SelectMany(x => x.Numbers).ToArray().Should().BeEquivalentTo(expectedSet);
+    }
+
+    [Fact]
+    public void SelectMany_WithIndex_ReturnsProjectedSet() {
+        var expectedSet = new[] { "0=>1", "0=>2", "0=>3", "1=>4", "1=>5", "1=>6", "2=>3", "2=>6", "2=>9" };
+        _set3.SelectMany((x, i) => x.Numbers.Select(n => $"{i}=>{n}")).ToArray().Should().BeEquivalentTo(expectedSet);
+    }
+
+    [Fact]
+    public void SelectMany_WithParent_ReturnsProjectedSet() {
+        var expectedSet = new[] { "One:1", "One:2", "One:3", "Two:4", "Two:5", "Two:6", "Three:3", "Three:6", "Three:9" };
+        _set3.SelectMany(x => x.Numbers, (p, n) => $"{p.Name}:{n}").ToArray().Should().BeEquivalentTo(expectedSet);
+    }
+
+    [Fact]
+    public void SelectMany_WithParentAndIndex_ReturnsProjectedSet() {
+        var expectedSet = new[] { "One:0=>1", "One:0=>2", "One:0=>3", "Two:1=>4", "Two:1=>5", "Two:1=>6", "Three:2=>3", "Three:2=>6", "Three:2=>9" };
+        _set3.SelectMany((x, i) => x.Numbers.Select(n => $"{i}=>{n}"), (p, n) => $"{p.Name}:{n}").ToArray().Should().BeEquivalentTo(expectedSet);
     }
 
     [Fact]

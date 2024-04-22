@@ -2,8 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public class AsyncUnitOfWorkRepository<TStrategy, TItem>(IEnumerable<TItem> data, TStrategy strategy)
     : AsyncUnitOfWorkRepository<AsyncUnitOfWorkRepository<TStrategy, TItem>, TStrategy, TItem>(data, strategy)
-    where TStrategy : class, IAsyncUnitOfWorkRepositoryStrategy<TItem>
-    where TItem : class {
+    where TStrategy : class, IAsyncUnitOfWorkRepositoryStrategy<TItem>{
     // ReSharper disable PossibleMultipleEnumeration
     public AsyncUnitOfWorkRepository(IEnumerable<TItem> data, IStrategyFactory factory)
         : this(data, IsNotNull(factory).GetRequiredAsyncStrategy<TStrategy, TItem>(data)) { }
@@ -16,8 +15,7 @@ public class AsyncUnitOfWorkRepository<TRepository, TStrategy, TItem>(IEnumerabl
     : AsyncRepository<TRepository, TStrategy, TItem>(data, strategy),
       IAsyncUnitOfWorkRepository<TItem>
     where TRepository : AsyncUnitOfWorkRepository<TRepository, TStrategy, TItem>
-    where TStrategy : class, IAsyncUnitOfWorkRepositoryStrategy<TItem>
-    where TItem : class {
+    where TStrategy : class, IAsyncUnitOfWorkRepositoryStrategy<TItem>{
     public virtual Task<int> SaveChangesAsync(CancellationToken ct = default)
         => Strategy.SaveChangesAsync(ct);
     // ReSharper disable PossibleMultipleEnumeration

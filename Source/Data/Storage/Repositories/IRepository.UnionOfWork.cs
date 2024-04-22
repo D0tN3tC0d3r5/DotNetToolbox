@@ -7,6 +7,5 @@ public interface IUnitOfWorkRepository
 
 public interface IUnitOfWorkRepository<TItem>
     : IUnitOfWorkRepository
-    , IOrderedRepository<TItem>
-    where TItem : class {
+    , IOrderedRepository<TItem>{
 }

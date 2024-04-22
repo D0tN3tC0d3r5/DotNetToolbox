@@ -2,8 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public class AsyncRepository<TStrategy, TItem>(IEnumerable<TItem> data, TStrategy strategy)
     : AsyncRepository<AsyncRepository<TStrategy, TItem>, TStrategy, TItem>(data, strategy)
-    where TStrategy : class, IAsyncRepositoryStrategy<TItem>
-    where TItem : class {
+    where TStrategy : class, IAsyncRepositoryStrategy<TItem>{
     // ReSharper disable PossibleMultipleEnumeration
     public AsyncRepository(IEnumerable<TItem> data, IStrategyFactory factory)
         : this(data, IsNotNull(factory).GetRequiredAsyncStrategy<TStrategy, TItem>(data)) { }
@@ -17,8 +16,7 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
       IEnumerable<TItem>,
       IAsyncEnumerable<TItem>
     where TRepository : AsyncRepository<TRepository, TStrategy, TItem>
-    where TStrategy : class, IAsyncRepositoryStrategy<TItem>
-    where TItem : class {
+    where TStrategy : class, IAsyncRepositoryStrategy<TItem>{
     // ReSharper disable once PossibleMultipleEnumeration
     private readonly IQueryable<TItem> _query = data.AsQueryable();
 
@@ -43,11 +41,9 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
         => new AsyncEnumerator<TItem>(_query.GetEnumerator(), ct);
 
     public IAsyncRepository<TResult> OfType<TResult>()
-        where TResult : class
         => Strategy.OfType<TResult>();
 
     public IAsyncRepository<TResult> Cast<TResult>()
-        where TResult : class
         => Strategy.Cast<TResult>();
 
     public IAsyncRepository<TItem> Where(Expression<Func<TItem, bool>> predicate)
@@ -57,34 +53,27 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
         => Strategy.Where(predicate);
 
     public IAsyncRepository<TResult> Select<TResult>(Expression<Func<TItem, TResult>> selector)
-        where TResult : class
         => Strategy.Select(selector);
 
     public IAsyncRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
-        where TResult : class
         => Strategy.Select(selector);
 
     public IAsyncRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
-        where TResult : class
         => Strategy.SelectMany(selector);
 
     public IAsyncRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
-        where TResult : class
         => Strategy.SelectMany(selector);
 
     public IAsyncRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
-        where TResult : class
         => Strategy.SelectMany(collectionSelector, resultSelector);
 
     public IAsyncRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
-        where TResult : class
         => Strategy.SelectMany(collectionSelector, resultSelector);
 
     public IAsyncRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner,
                                                                  Expression<Func<TItem, TKey>> outerKeySelector,
                                                                  Expression<Func<TInner, TKey>> innerKeySelector,
                                                                  Expression<Func<TItem, TInner, TResult>> resultSelector)
-        where TResult : class
         => Strategy.Join(inner,
                           outerKeySelector,
                           innerKeySelector,
@@ -95,7 +84,6 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
                                                                 Expression<Func<TInner, TKey>> innerKeySelector,
                                                                 Expression<Func<TItem, TInner, TResult>> resultSelector,
                                                                 IEqualityComparer<TKey>? comparer)
-        where TResult : class
         => Strategy.Join(inner,
                           outerKeySelector,
                           innerKeySelector,
@@ -106,7 +94,6 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
                                                                       Expression<Func<TItem, TKey>> outerKeySelector,
                                                                       Expression<Func<TInner, TKey>> innerKeySelector,
                                                                       Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector)
-        where TResult : class
         => Strategy.GroupJoin(inner,
                                outerKeySelector,
                                innerKeySelector,
@@ -117,7 +104,6 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
                                                                      Expression<Func<TInner, TKey>> innerKeySelector,
                                                                      Expression<Func<TItem, IEnumerable<TInner>, TResult>> resultSelector,
                                                                      IEqualityComparer<TKey>? comparer)
-        where TResult : class
         => Strategy.GroupJoin(inner,
                                outerKeySelector,
                                innerKeySelector,
@@ -200,19 +186,15 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
         => Strategy.GroupBy(keySelector, elementSelector, comparer);
 
     public IAsyncRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
-        where TResult : class
         => Strategy.GroupBy(keySelector, elementSelector, resultSelector);
 
     public IAsyncRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector)
-        where TResult : class
         => Strategy.GroupBy(keySelector, resultSelector);
 
     public IAsyncRepository<TResult> GroupBy<TKey, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TItem>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
-        where TResult : class
         => Strategy.GroupBy(keySelector, resultSelector, comparer);
 
     public IAsyncRepository<TResult> GroupBy<TKey, TElement, TResult>(Expression<Func<TItem, TKey>> keySelector, Expression<Func<TItem, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey>? comparer)
-        where TResult : class
         => Strategy.GroupBy(keySelector,
                              elementSelector,
                              resultSelector,
@@ -237,7 +219,6 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
         => Strategy.Concat(source);
 
     public IAsyncRepository<TResult> Combine<TSecond, TResult>(IEnumerable<TSecond> source2, Expression<Func<TItem, TSecond, TResult>> resultSelector)
-        where TResult : class
         => Strategy.Combine(source2, resultSelector);
 
     public IAsyncRepository<IPack<TItem, TSecond>> Zip<TSecond>(IEnumerable<TSecond> source)
@@ -318,12 +299,10 @@ public class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> d
         => Strategy.ToHashSetAsync(mapping, ct);
 
     public virtual Task<TResultRepository> ToRepositoryAsync<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        where TResult : class
         where TResultRepository : class, IRepository<TResult>
         => Strategy.ToRepositoryAsync<TResultRepository, TResult>(mapping, ct);
 
     public Task<IAsyncRepository<TResult>> ToRepositoryAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        where TResult : class
         => Strategy.ToRepositoryAsync(mapping, ct);
 
     public Task<IDictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)

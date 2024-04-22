@@ -6,5 +6,4 @@ public interface IUnitOfWorkRepositoryStrategy
 
 public interface IUnitOfWorkRepositoryStrategy<TItem>
     : IRepositoryStrategy<TItem>
-    , IUnitOfWorkRepositoryStrategy
-    where TItem : class;
+    , IUnitOfWorkRepositoryStrategy;

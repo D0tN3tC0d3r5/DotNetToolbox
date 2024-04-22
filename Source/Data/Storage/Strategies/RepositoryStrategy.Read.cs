@@ -21,11 +21,9 @@ public abstract partial class RepositoryStrategy<TItem> {
 
     public virtual TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
         where TResultRepository : class, IRepository<TResult>
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
-        where TResult : class
         => throw new NotImplementedException();
 
     public virtual IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)

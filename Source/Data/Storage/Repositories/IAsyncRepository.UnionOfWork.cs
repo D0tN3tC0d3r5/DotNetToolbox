@@ -7,6 +7,5 @@ public interface IAsyncUnitOfWorkRepository
 
 public interface IAsyncUnitOfWorkRepository<TItem>
     : IAsyncUnitOfWorkRepository
-    , IAsyncOrderedRepository<TItem>
-    where TItem : class {
+    , IAsyncOrderedRepository<TItem>{
 }

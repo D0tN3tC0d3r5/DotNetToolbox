@@ -6,5 +6,4 @@ public interface IAsyncUnitOfWorkRepositoryStrategy
 
 public interface IAsyncUnitOfWorkRepositoryStrategy<TItem>
     : IAsyncRepositoryStrategy<TItem>,
-    IAsyncUnitOfWorkRepositoryStrategy
-    where TItem : class;
+    IAsyncUnitOfWorkRepositoryStrategy;
