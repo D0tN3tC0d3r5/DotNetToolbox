@@ -12,16 +12,16 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         _query = _data.AsQueryable();
     }
 
-    private IRepository<TResult> ApplyAndCreate<TResult>(Func<IQueryable<TResult>> updateSource)
+    private static IRepository<TResult> ApplyAndCreate<TResult>(Func<IQueryable<TResult>> updateSource)
         where TResult : class {
         var result = updateSource();
-        return RepositoryFactory.CreateRepository<TRepository, TResult>(result, this);
+        return RepositoryFactory.CreateRepository<TRepository, TResult>(result);
     }
 
-    private IOrderedRepository<TResult> ApplyAndCreateOrdered<TResult>(Func<IQueryable<TResult>> updateSource)
+    private static IOrderedRepository<TResult> ApplyAndCreateOrdered<TResult>(Func<IQueryable<TResult>> updateSource)
         where TResult : class {
         var result = updateSource();
-        return RepositoryFactory.CreateOrderedRepository<TRepository, TResult>(result, this);
+        return RepositoryFactory.CreateOrderedRepository<TRepository, TResult>(result);
     }
 
     public override IRepository<TResult> OfType<TResult>()
@@ -29,8 +29,11 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         => ApplyAndCreate(_query.OfType<TResult>);
 
     public override IRepository<TResult> Cast<TResult>()
-        where TResult : class
-        => ApplyAndCreate(_query.Cast<TResult>);
+        where TResult : class {
+        if (!typeof(TItem).IsAssignableTo(typeof(TResult)))
+            throw new InvalidCastException("The cast is invalid.");
+        return ApplyAndCreate(_query.Cast<TResult>);
+    }
 
     public override IRepository<TItem> Where(Expression<Func<TItem, bool>> predicate)
         => ApplyAndCreate(() => _query.Where(predicate));
@@ -46,7 +49,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         where TResult : class
         => ApplyAndCreate(() => _query.Select(selector));
 
-    public override IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+    public override IRepository<TResult> SelectMony<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
         where TResult : class
         => ApplyAndCreate(() => _query.SelectMany(selector));
 

@@ -13,13 +13,13 @@ public partial interface IRepository<TItem>{
         where TResult : class;
     IRepository<TResult> Select<TResult>(Expression<Func<TItem, int, TResult>> selector)
         where TResult : class;
-    IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+    IRepository<TResult> SelectMony<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
         where TResult : class;
     IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
         where TResult : class;
-    IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+    IRepository<TResult> SelectMany<TSource, TResult>(Expression<Func<TItem, int, IEnumerable<TSource>>> collectionSelector, Expression<Func<TItem, TSource, TResult>> resultSelector)
         where TResult : class;
-    IRepository<TResult> SelectMany<TCollection, TResult>(Expression<Func<TItem, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TItem, TCollection, TResult>> resultSelector)
+    IRepository<TResult> SelectMany<TSource, TResult>(Expression<Func<TItem, IEnumerable<TSource>>> collectionSelector, Expression<Func<TItem, TSource, TResult>> resultSelector)
         where TResult : class;
     IRepository<TResult> Join<TInner, TKey, TResult>(IEnumerable<TInner> inner, Expression<Func<TItem, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TItem, TInner, TResult>> resultSelector)
         where TResult : class;

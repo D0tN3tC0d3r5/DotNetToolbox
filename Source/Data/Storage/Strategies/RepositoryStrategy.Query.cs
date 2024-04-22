@@ -26,7 +26,7 @@ public abstract partial class RepositoryStrategy<TItem> {
         where TResult : class
         => throw new NotImplementedException();
 
-    public virtual IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+    public virtual IRepository<TResult> SelectMony<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
         where TResult : class
         => throw new NotImplementedException();
 

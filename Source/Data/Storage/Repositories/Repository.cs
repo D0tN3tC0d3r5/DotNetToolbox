@@ -63,9 +63,9 @@ public abstract class Repository<TRepository, TStrategy, TItem>(IEnumerable<TIte
         where TResult : class
         => Strategy.Select(selector);
 
-    public IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
+    public IRepository<TResult> SelectMony<TResult>(Expression<Func<TItem, IEnumerable<TResult>>> selector)
         where TResult : class
-        => Strategy.SelectMany(selector);
+        => Strategy.SelectMony(selector);
 
     public IRepository<TResult> SelectMany<TResult>(Expression<Func<TItem, int, IEnumerable<TResult>>> selector)
         where TResult : class
