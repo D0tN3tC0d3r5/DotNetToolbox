@@ -210,10 +210,8 @@ public abstract partial class RepositoryStrategy<TItem> {
     public virtual IRepository<TItem> ExceptBy<TKey>(IEnumerable<TKey> source2, Expression<Func<TItem, TKey>> keySelector, IEqualityComparer<TKey>? comparer)
         => throw new NotImplementedException();
 
-    #pragma warning disable CS8634 // This warning is wrong. TItem has the class constraint.
     public virtual IRepository<TItem?> DefaultIfEmpty()
         => throw new NotImplementedException();
-    #pragma warning restore CS8634
 
     public virtual IRepository<TItem> DefaultIfEmpty(TItem defaultValue)
         => throw new NotImplementedException();

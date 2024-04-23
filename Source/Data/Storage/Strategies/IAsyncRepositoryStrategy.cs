@@ -5,5 +5,7 @@ public interface IAsyncRepositoryStrategy
 
 // ReSharper disable once UnusedTypeParameter
 public interface IAsyncRepositoryStrategy<TItem>
-    : IAsyncRepositoryStrategy
-    , IAsyncOrderedRepository<TItem>;
+    : IAsyncRepositoryStrategy,
+    IAsyncOrderedRepository<TItem> {
+    IQueryable Query { get; }
+}

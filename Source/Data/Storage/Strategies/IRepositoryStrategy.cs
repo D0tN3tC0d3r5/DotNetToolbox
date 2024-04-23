@@ -6,6 +6,5 @@ public interface IRepositoryStrategy
 // ReSharper disable once UnusedTypeParameter
 public interface IRepositoryStrategy<TItem>
     : IRepositoryStrategy, IOrderedRepository<TItem> {
-
     IQueryable Query { get; }
 }

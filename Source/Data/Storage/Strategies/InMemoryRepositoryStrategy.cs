@@ -4,21 +4,16 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
     where TRepository : IOrderedRepository<TItem>{
 
     public InMemoryRepositoryStrategy() {
-        UpdatableData = OriginalData.Cast<TItem>().ToList();
     }
 
-    internal InMemoryRepositoryStrategy(IEnumerable data, IQueryable query)
-        : base(data, query) {
-        UpdatableData = Query.Cast<TItem>().ToList();
+    public InMemoryRepositoryStrategy(IEnumerable<TItem> data)
+        : base(data) {
     }
 
     public override void Seed(IEnumerable<TItem> seed) {
         OriginalData = seed;
         Query = OriginalData.AsQueryable();
-        UpdatableData = Query.Cast<TItem>().ToList();
     }
-
-    protected IList<TItem> UpdatableData { get; set; }
 
     private static IRepository<TResult> ApplyAndCreate<TResult>(Func<IQueryable<TResult>> updateSource){
         var result = updateSource();
@@ -309,28 +304,26 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         => Query.Aggregate(seed, func);
     public override TResult Aggregate<TAccumulate, TResult>(TAccumulate seed, Expression<Func<TAccumulate, TItem, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector)
         => Query.Aggregate(seed, func, selector);
-    public override IReadOnlyList<TItem> ToArray()
+    public override TItem[] ToArray()
         => [.. Query];
-    public override IReadOnlyList<TResult> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public override TResult[] ToArray<TResult>(Expression<Func<TItem, TResult>> mapping)
         => Query.ToArray(mapping);
-    public override IList<TItem> ToList()
+    public override List<TItem> ToList()
         => [.. Query];
-    public override IList<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public override List<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping)
         => Query.ToList(mapping);
-    public override ISet<TItem> ToHashSet()
-        => Query.ToHashSet();
-    public override ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public override HashSet<TItem> ToHashSet()
+        => [.. Query];
+    public override HashSet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
         => Query.ToHashSet(mapping);
-    public override TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
-        where TResultRepository : class
-        => InstanceFactory.Create<TResultRepository>(Data, Query.Select(mapping).Expression);
-    public override IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
-        => new InMemoryRepository<TResult>(OriginalData, Query.Cast<TItem>().Select(mapping).Expression);
 
-    public override IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
+    public override Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
         => Query.ToDictionary(selectKey, selectValue, comparer);
-    public override void Add(TItem newItem)
-        => UpdatableData.Add(newItem);
+    public override void Add(TItem newItem) {
+        UpdatableData.Add(newItem);
+        Query = UpdatableData.AsQueryable();
+    }
+
     public override void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem) {
         Remove(predicate);
         Add(updatedItem);
@@ -340,5 +333,6 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         if (itemToRemove is null)
             return;
         UpdatableData.Remove(itemToRemove);
+        Query = UpdatableData.AsQueryable();
     }
 }

@@ -7,18 +7,20 @@ public abstract partial class RepositoryStrategy<TItem>
     : RepositoryStrategy,
     IRepositoryStrategy<TItem> {
 
-    internal RepositoryStrategy(IEnumerable data, IQueryable? query = null) {
-        OriginalData = data;
-        Query = query ?? OriginalData.AsQueryable();
+    protected RepositoryStrategy()
+        : this([]) {
     }
 
-    protected RepositoryStrategy() {
-        OriginalData = new List<TItem>();
-        Query = OriginalData.Cast<TItem>().AsQueryable();
+    protected RepositoryStrategy(IEnumerable<TItem> data) {
+        OriginalData = data.ToList();
+        Query = OriginalData.AsQueryable();
     }
 
-    protected IEnumerable OriginalData { get; set; }
-    public IQueryable Query { get; protected set; }
+    IQueryable IRepositoryStrategy<TItem>.Query => Query;
+    protected IQueryable<TItem> Query { get; set; }
+    protected IEnumerable<TItem> OriginalData { get; set; }
+    protected List<TItem> UpdatableData => IsOfType<List<TItem>>(OriginalData);
+
     public virtual void Seed(IEnumerable<TItem> seed)
         => throw new NotImplementedException();
 }

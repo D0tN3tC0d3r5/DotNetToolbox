@@ -1,15 +1,12 @@
 namespace DotNetToolbox.Data.Repositories;
 public partial interface IRepository<TItem> {
-    IReadOnlyList<TItem> ToArray();
-    IReadOnlyList<TResult> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping);
-    IList<TItem> ToList();
-    IList<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping);
-    ISet<TItem> ToHashSet();
-    ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping);
-    TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
-        where TResultRepository : class, IRepository<TResult>;
-    IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping);
-    IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
+    TItem[] ToArray();
+    TResult[] ToArray<TResult>(Expression<Func<TItem, TResult>> mapping);
+    List<TItem> ToList();
+    List<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping);
+    HashSet<TItem> ToHashSet();
+    HashSet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping);
+    Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
         where TKey : notnull;
     TItem First();
     TItem First(Expression<Func<TItem, bool>> predicate);

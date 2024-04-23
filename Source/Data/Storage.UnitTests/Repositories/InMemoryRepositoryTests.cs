@@ -4,8 +4,7 @@ public class InMemoryRepositoryTests {
     private abstract record BaseTestEntity(string Name);
     private record TestEntity1(string Name) : BaseTestEntity(Name);
     private record TestEntity2(string Name, List<int> Numbers) : BaseTestEntity(Name);
-    // ReSharper disable once UseCollectionExpression - I want to use the default constructor
-    private readonly InMemoryRepository<BaseTestEntity> _emptySet = new();
+    private readonly InMemoryRepository<BaseTestEntity> _emptySet = [];
     private readonly InMemoryRepository<TestEntity1> _set1 = [new("A"), new("B"), new("C")];
     private readonly InMemoryRepository<TestEntity1> _set2 = [new("X"), new("Y"), new("Z")];
     private readonly InMemoryRepository<TestEntity2> _set3 = [new("One", [1, 2, 3]), new("Two", [4, 5, 6]), new("Three", [3, 6, 9])];
@@ -14,7 +13,7 @@ public class InMemoryRepositoryTests {
     [Fact]
     public void Enumeration_AllowsLoop() {
         var count = 0;
-        var expectedNames = new[] { "A", "B", "C" };
+        var expectedNames = new[] { "X", "Y", "Z" };
         foreach (var item in _set2) {
             expectedNames[count].Should().Be(item.Name);
             count++;

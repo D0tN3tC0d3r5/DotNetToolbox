@@ -1,15 +1,12 @@
 namespace DotNetToolbox.Data.Repositories;
 public partial interface IAsyncRepository<TItem> {
-    Task<IReadOnlyList<TItem>> ToArrayAsync(CancellationToken ct = default);
-    Task<IReadOnlyList<TResult>> ToArrayAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
-    Task<IList<TItem>> ToListAsync(CancellationToken ct = default);
-    Task<IList<TResult>> ToListAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
-    Task<ISet<TItem>> ToHashSetAsync(CancellationToken ct = default);
-    Task<ISet<TResult>> ToHashSetAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
-    Task<TResultRepository> ToRepositoryAsync<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        where TResultRepository : class, IRepository<TResult>;
-    Task<IAsyncRepository<TResult>> ToRepositoryAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
-    Task<IDictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
+    Task<TItem[]> ToArrayAsync(CancellationToken ct = default);
+    Task<TResult[]> ToArrayAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
+    Task<List<TItem>> ToListAsync(CancellationToken ct = default);
+    Task<List<TResult>> ToListAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
+    Task<HashSet<TItem>> ToHashSetAsync(CancellationToken ct = default);
+    Task<HashSet<TResult>> ToHashSetAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default);
+    Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
         where TKey : notnull;
     Task<TItem> FirstAsync(CancellationToken ct = default);
     Task<TItem> FirstAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);

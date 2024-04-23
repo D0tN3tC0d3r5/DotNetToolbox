@@ -1,17 +1,19 @@
 namespace DotNetToolbox.Data.Strategies;
 public interface IStrategyFactory {
-    void RegisterStrategy<TStrategy, TItem>()
+    void RegisterStrategy<TItem, TStrategy>()
         where TStrategy : class, IRepositoryStrategy<TItem>;
-    void RegisterAsyncStrategy<TStrategy, TItem>()
+    void RegisterAsyncStrategy<TItem, TStrategy>()
         where TStrategy : class, IAsyncRepositoryStrategy<TItem>;
-    IRepositoryStrategy<TItem>? GetStrategy<TItem>(IEnumerable<TItem> data);
-    TStrategy? GetStrategy<TStrategy, TItem>(IEnumerable<TItem> data)
+
+    IRepositoryStrategy<TItem>? GetStrategy<TItem>();
+    TStrategy? GetStrategy<TItem, TStrategy>()
         where TStrategy : class, IRepositoryStrategy<TItem>;
-    TStrategy GetRequiredStrategy<TStrategy, TItem>(IEnumerable<TItem> data)
+    TStrategy GetRequiredStrategy<TItem, TStrategy>()
         where TStrategy : class, IRepositoryStrategy<TItem>;
-    IAsyncRepositoryStrategy<TItem>? GetAsyncStrategy<TItem>(IEnumerable<TItem> data);
-    TStrategy? GetAsyncStrategy<TStrategy, TItem>(IEnumerable<TItem> data)
+
+    IAsyncRepositoryStrategy<TItem>? GetAsyncStrategy<TItem>();
+    TStrategy? GetAsyncStrategy<TItem, TStrategy>()
         where TStrategy : class, IAsyncRepositoryStrategy<TItem>;
-    TStrategy GetRequiredAsyncStrategy<TStrategy, TItem>(IEnumerable<TItem> data)
+    TStrategy GetRequiredAsyncStrategy<TItem, TStrategy>()
         where TStrategy : class, IAsyncRepositoryStrategy<TItem>;
 }

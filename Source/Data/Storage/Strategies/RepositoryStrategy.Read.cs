@@ -1,32 +1,25 @@
 namespace DotNetToolbox.Data.Strategies;
 
 public abstract partial class RepositoryStrategy<TItem> {
-    public virtual IReadOnlyList<TItem> ToArray()
+    public virtual TItem[] ToArray()
         => throw new NotImplementedException();
 
-    public virtual IReadOnlyList<TResult> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public virtual TResult[] ToArray<TResult>(Expression<Func<TItem, TResult>> mapping)
         => throw new NotImplementedException();
 
-    public virtual IList<TItem> ToList()
+    public virtual List<TItem> ToList()
         => throw new NotImplementedException();
 
-    public virtual IList<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public virtual List<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping)
         => throw new NotImplementedException();
 
-    public virtual ISet<TItem> ToHashSet()
+    public virtual HashSet<TItem> ToHashSet()
         => throw new NotImplementedException();
 
-    public virtual ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public virtual HashSet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
         => throw new NotImplementedException();
 
-    public virtual TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
-        where TResultRepository : class, IRepository<TResult>
-        => throw new NotImplementedException();
-
-    public virtual IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
-        => throw new NotImplementedException();
-
-    public virtual IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
+    public virtual Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
         where TKey : notnull
         => throw new NotImplementedException();
 

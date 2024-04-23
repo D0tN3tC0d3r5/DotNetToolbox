@@ -1,39 +1,38 @@
 namespace DotNetToolbox.Data.Repositories;
-public class Repository<TStrategy, TItem>
+
+public abstract class Repository<TStrategy, TItem>
     : Repository<Repository<TStrategy, TItem>, TStrategy, TItem>
-    where TStrategy : class, IRepositoryStrategy<TItem>{
-    // ReSharper disable PossibleMultipleEnumeration
-
-    protected Repository(IEnumerable<TItem> data, IStrategyFactory factory)
-        : this(IsNotNull(factory).GetRequiredStrategy<TStrategy, TItem>(data)) {
-    }
-    // ReSharper enable PossibleMultipleEnumeration
+    where TStrategy : class, IRepositoryStrategy<TItem> {
     protected Repository(IStrategyFactory factory)
-        : this([], factory) {
+        : base(factory) {
     }
-
-    public Repository(TStrategy strategy)
+    protected Repository(TStrategy strategy)
         : base(strategy) {
+    }
+    protected Repository(IEnumerable<TItem> data, IStrategyFactory factory)
+        : base(data, factory) {
+    }
+    protected Repository(IEnumerable<TItem> data, TStrategy strategy)
+        : base(data, strategy) {
     }
 }
 
-public abstract class Repository<TRepository, TStrategy, TItem>
-    : IOrderedRepository<TItem>, IEnumerable<TItem>
+public abstract class Repository<TRepository, TStrategy, TItem> : IOrderedRepository<TItem>, IEnumerable<TItem>
     where TRepository : Repository<TRepository, TStrategy, TItem>
     where TStrategy : class, IRepositoryStrategy<TItem> {
 
-    // ReSharper disable PossibleMultipleEnumeration
-    protected Repository(IEnumerable<TItem> data, IStrategyFactory factory)
-        : this(IsNotNull(factory).GetRequiredStrategy<TStrategy, TItem>(data)) {
+    protected Repository(TStrategy strategy)
+        : this([], strategy) {
     }
-
-    // ReSharper enable PossibleMultipleEnumeration
     protected Repository(IStrategyFactory factory)
         : this([], factory) {
     }
-
-    protected Repository(TStrategy strategy) {
+    protected Repository(IEnumerable<TItem> data, IStrategyFactory factory)
+        : this(data, IsNotNull(factory).GetRequiredStrategy<TItem, TStrategy>()) {
+    }
+    protected Repository(IEnumerable<TItem> data, TStrategy strategy) {
         Strategy = IsNotNull(strategy);
+        Strategy.Seed(data.ToList());
     }
 
     protected TStrategy Strategy { get; init; }
@@ -42,7 +41,7 @@ public abstract class Repository<TRepository, TStrategy, TItem>
         => Strategy.Seed(seed);
 
     public IEnumerator<TItem> GetEnumerator()
-        => Strategy.Query.GetEnumerator();
+        => IsOfType<IQueryable<TItem>>(Strategy.Query).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
@@ -215,24 +214,19 @@ public abstract class Repository<TRepository, TStrategy, TItem>
         => Strategy.Append(element);
     public IRepository<TItem> Prepend(TItem element)
         => Strategy.Prepend(element);
-    public IReadOnlyList<TItem> ToArray()
+    public TItem[] ToArray()
         => Strategy.ToArray();
-    public IReadOnlyList<TResult> ToArray<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public TResult[] ToArray<TResult>(Expression<Func<TItem, TResult>> mapping)
         => Strategy.ToArray(mapping);
-    public IList<TItem> ToList()
+    public List<TItem> ToList()
         => Strategy.ToList();
-    public IList<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public List<TResult> ToList<TResult>(Expression<Func<TItem, TResult>> mapping)
         => Strategy.ToList(mapping);
-    public ISet<TItem> ToHashSet()
+    public HashSet<TItem> ToHashSet()
         => Strategy.ToHashSet();
-    public ISet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
+    public HashSet<TResult> ToHashSet<TResult>(Expression<Func<TItem, TResult>> mapping)
         => Strategy.ToHashSet(mapping);
-    public TResultRepository ToRepository<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping)
-        where TResultRepository : class, IRepository<TResult>
-        => Strategy.ToRepository<TResultRepository, TResult>(mapping);
-    public IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
-        => Strategy.ToRepository(mapping);
-    public IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
+    public Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
         where TKey : notnull
         => Strategy.ToDictionary(selectKey, selectValue, comparer);
     public TItem First()

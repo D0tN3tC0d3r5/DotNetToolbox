@@ -1,32 +1,25 @@
 namespace DotNetToolbox.Data.Strategies;
 
 public abstract partial class AsyncRepositoryStrategy<TItem> {
-    public virtual Task<IReadOnlyList<TItem>> ToArrayAsync(CancellationToken ct = default)
+    public virtual Task<TItem[]> ToArrayAsync(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<IReadOnlyList<TResult>> ToArrayAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
+    public virtual Task<TResult[]> ToArrayAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<IList<TItem>> ToListAsync(CancellationToken ct = default)
+    public virtual Task<List<TItem>> ToListAsync(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<IList<TResult>> ToListAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
+    public virtual Task<List<TResult>> ToListAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<ISet<TItem>> ToHashSetAsync(CancellationToken ct = default)
+    public virtual Task<HashSet<TItem>> ToHashSetAsync(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<ISet<TResult>> ToHashSetAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
+    public virtual Task<HashSet<TResult>> ToHashSetAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<TResultRepository> ToRepositoryAsync<TResultRepository, TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        where TResultRepository : class, IRepository<TResult>
-        => throw new NotImplementedException();
-
-    public virtual Task<IAsyncRepository<TResult>> ToRepositoryAsync<TResult>(Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
-        => throw new NotImplementedException();
-
-    public virtual Task<IDictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
+    public virtual Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null, CancellationToken ct = default)
         where TKey : notnull
         => throw new NotImplementedException();
 
