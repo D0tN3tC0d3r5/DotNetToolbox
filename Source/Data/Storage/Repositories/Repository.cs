@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
-public class Repository<TStrategy, TItem>(TStrategy strategy)
-    : Repository<Repository<TStrategy, TItem>, TStrategy, TItem>(strategy)
+public class Repository<TStrategy, TItem>
+    : Repository<Repository<TStrategy, TItem>, TStrategy, TItem>
     where TStrategy : class, IRepositoryStrategy<TItem>{
     // ReSharper disable PossibleMultipleEnumeration
 
@@ -11,9 +11,13 @@ public class Repository<TStrategy, TItem>(TStrategy strategy)
     protected Repository(IStrategyFactory factory)
         : this([], factory) {
     }
+
+    public Repository(TStrategy strategy)
+        : base(strategy) {
+    }
 }
 
-public abstract class Repository<TRepository, TStrategy, TItem>(TStrategy strategy)
+public abstract class Repository<TRepository, TStrategy, TItem>
     : IOrderedRepository<TItem>, IEnumerable<TItem>
     where TRepository : Repository<TRepository, TStrategy, TItem>
     where TStrategy : class, IRepositoryStrategy<TItem> {
@@ -28,13 +32,17 @@ public abstract class Repository<TRepository, TStrategy, TItem>(TStrategy strate
         : this([], factory) {
     }
 
-    protected TStrategy Strategy { get; } = IsNotNull(strategy);
+    protected Repository(TStrategy strategy) {
+        Strategy = IsNotNull(strategy);
+    }
+
+    protected TStrategy Strategy { get; init; }
 
     public void Seed(IEnumerable<TItem> seed)
         => Strategy.Seed(seed);
 
     public IEnumerator<TItem> GetEnumerator()
-        => Strategy.Data.GetEnumerator();
+        => Strategy.Query.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 

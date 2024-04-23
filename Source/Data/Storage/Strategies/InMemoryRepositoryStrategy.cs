@@ -7,8 +7,9 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         UpdatableData = OriginalData.Cast<TItem>().ToList();
     }
 
-    internal InMemoryRepositoryStrategy(IQueryable query)
+    internal InMemoryRepositoryStrategy(IEnumerable data, IQueryable query)
         : base(data, query) {
+        UpdatableData = Query.Cast<TItem>().ToList();
     }
 
     public override void Seed(IEnumerable<TItem> seed) {
@@ -324,7 +325,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>
         where TResultRepository : class
         => InstanceFactory.Create<TResultRepository>(Data, Query.Select(mapping).Expression);
     public override IRepository<TResult> ToRepository<TResult>(Expression<Func<TItem, TResult>> mapping)
-        => new InMemoryRepository<TResult>(Data, Query.Select(mapping).Expression);
+        => new InMemoryRepository<TResult>(OriginalData, Query.Cast<TItem>().Select(mapping).Expression);
 
     public override IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<TItem, TKey> selectKey, Func<TItem, TValue> selectValue, IEqualityComparer<TKey>? comparer = null)
         => Query.ToDictionary(selectKey, selectValue, comparer);

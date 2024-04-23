@@ -3,8 +3,8 @@ namespace DotNetToolbox.Data.Repositories;
 public class InMemoryRepository<TItem>
     : InMemoryRepository<InMemoryRepository<TItem>, TItem>{
 
-    internal InMemoryRepository(List<TItem> data, Expression expression)
-        : base(data, expression) {
+    internal InMemoryRepository(IEnumerable<TItem> data, IQueryable query)
+        : base(data, query) {
     }
 }
 
@@ -14,11 +14,11 @@ public class InMemoryRepository<TRepository, TItem>
     where TRepository : Repository<TRepository, InMemoryRepositoryStrategy<TRepository, TItem>, TItem> {
 
     public InMemoryRepository()
-        : this(new InMemoryRepositoryStrategy<TRepository, TItem>()) {
+        : this(new List<TItem>()) {
     }
 
-    internal InMemoryRepository(List<TItem> data, Expression expression) {
-        Strategy = new InMemoryRepositoryStrategy<TRepository, TItem>(data, expression);
+    internal InMemoryRepository(IEnumerable data, IQueryable? query = null)
+        : base(new InMemoryRepositoryStrategy<TRepository, TItem>(data, query ?? data.AsQueryable())) {
     }
 }
 // ReSharper enable PossibleMultipleEnumeration

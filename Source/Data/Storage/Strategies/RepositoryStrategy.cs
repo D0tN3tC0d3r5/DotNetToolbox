@@ -18,7 +18,7 @@ public abstract partial class RepositoryStrategy<TItem>
     }
 
     protected IEnumerable OriginalData { get; set; }
-    protected IQueryable Query { get; set; }
+    public IQueryable Query { get; protected set; }
     public virtual void Seed(IEnumerable<TItem> seed)
         => throw new NotImplementedException();
 }
