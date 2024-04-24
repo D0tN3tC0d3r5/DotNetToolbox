@@ -36,7 +36,8 @@ public class AsyncRepository<TRepository, TStrategy, TItem>
 
     protected TStrategy Strategy { get; }
 
-    IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct) => GetAsyncEnumerator(ct);
+    IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
+        => GetAsyncEnumerator(ct);
     public System.Collections.Async.Generic.IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
         => Strategy.GetAsyncEnumerator(ct);
 
@@ -44,8 +45,8 @@ public class AsyncRepository<TRepository, TStrategy, TItem>
     public Expression Expression => Strategy.Expression;
     public IAsyncQueryProvider Provider => Strategy.Provider;
 
-    public Task SeedAsync(IEnumerable<TItem> seed)
-        => Strategy.SeedAsync(seed);
+    public Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default)
+        => Strategy.SeedAsync(seed, ct);
 
     public Task AddAsync(TItem newItem, CancellationToken ct = default)
         => Strategy.AddAsync(newItem, ct);

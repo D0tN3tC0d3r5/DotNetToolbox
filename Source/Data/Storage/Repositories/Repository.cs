@@ -17,7 +17,8 @@ public abstract class Repository<TStrategy, TItem>
     }
 }
 
-public abstract class Repository<TRepository, TStrategy, TItem> : IRepository<TItem>, IEnumerable<TItem>
+public abstract class Repository<TRepository, TStrategy, TItem>
+    : IRepository<TItem>
     where TRepository : Repository<TRepository, TStrategy, TItem>
     where TStrategy : class, IRepositoryStrategy<TItem> {
 

@@ -9,7 +9,7 @@ public class InMemoryRepository<TRepository, TItem>
     where TRepository : Repository<TRepository, InMemoryRepositoryStrategy<TRepository, TItem>, TItem> {
 
     public InMemoryRepository()
-        : base(new InMemoryRepositoryStrategy<TRepository, TItem>()) {
+        : base([]) {
     }
 }
 // ReSharper enable PossibleMultipleEnumeration

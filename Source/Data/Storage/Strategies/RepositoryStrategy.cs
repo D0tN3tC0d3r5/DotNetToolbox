@@ -1,9 +1,9 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public abstract partial class RepositoryStrategy
+public abstract class RepositoryStrategy
     : IRepositoryStrategy;
 
-public abstract partial class RepositoryStrategy<TItem>
+public abstract class RepositoryStrategy<TItem>
     : RepositoryStrategy,
     IRepositoryStrategy<TItem> {
 
@@ -13,7 +13,7 @@ public abstract partial class RepositoryStrategy<TItem>
 
     protected RepositoryStrategy(IEnumerable<TItem> data) {
         OriginalData = data.ToList();
-        Query = OriginalData.AsQueryable();
+        Query = new EnumerableQuery<TItem>(OriginalData);
     }
 
     public IEnumerator<TItem> GetEnumerator() => Query.GetEnumerator();

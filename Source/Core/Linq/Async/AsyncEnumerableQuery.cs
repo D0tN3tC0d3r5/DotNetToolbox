@@ -6,16 +6,16 @@ public class AsyncEnumerableQuery;
 
 public class AsyncEnumerableQuery<TItem>
     : AsyncEnumerableQuery
-    , IOrderedAsyncQueryable<TItem>
+    , IAsyncQueryable<TItem>
     , IAsyncQueryProvider {
     private readonly Expression _expression;
-    private readonly IAsyncEnumerable<TItem>? _enumerable;
+    private readonly IAsyncQueryable<TItem>? _query;
 
     IAsyncQueryProvider IAsyncQueryable.Provider => this;
     Type IAsyncQueryable.ElementType => typeof(TItem);
 
-    public AsyncEnumerableQuery(IAsyncEnumerable<TItem> enumerable) {
-        _enumerable = enumerable;
+    public AsyncEnumerableQuery(IEnumerable<TItem> enumerable) {
+        _query = enumerable.AsAsyncQueryable();
         _expression = Expression.Constant(this);
     }
 

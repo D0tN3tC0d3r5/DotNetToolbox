@@ -2,7 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public class InMemoryRepositoryTests {
     private abstract record BaseTestEntity(string Name);
-    private record TestEntity1(string Name) : BaseTestEntity(Name);
+    private sealed record TestEntity1(string Name) : BaseTestEntity(Name);
     private record TestEntity2(string Name, List<int> Numbers) : BaseTestEntity(Name);
     private readonly InMemoryRepository<BaseTestEntity> _emptySet = [];
     private readonly InMemoryRepository<TestEntity1> _set1 = [new("A"), new("B"), new("C")];
@@ -70,7 +70,7 @@ public class InMemoryRepositoryTests {
 
     [Fact]
     public void SelectMany_ReturnsProjectedSet() {
-        var expectedSet = new[] { 1, 2, 3, 4, 5, 6, 9 };
+        var expectedSet = new[] { 1, 2, 3, 4, 5, 6, 3, 6, 9 };
         _set3.SelectMany(x => x.Numbers).ToArray().Should().BeEquivalentTo(expectedSet);
     }
 

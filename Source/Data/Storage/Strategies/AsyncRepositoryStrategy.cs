@@ -16,8 +16,10 @@ public abstract class AsyncRepositoryStrategy<TItem>
         Query = OriginalData.AsAsyncQueryable();
     }
 
-    public System.Collections.Async.Generic.IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default) => Query.GetEnumerator();
-    IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct) => GetAsyncEnumerator(ct);
+    public System.Collections.Async.Generic.IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
+        => Query.GetAsyncEnumerator(ct);
+    IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
+        => GetAsyncEnumerator(ct);
 
     public Type ElementType => Query.ElementType;
     public Expression Expression => Query.Expression;
@@ -27,7 +29,7 @@ public abstract class AsyncRepositoryStrategy<TItem>
     protected IEnumerable<TItem> OriginalData { get; set; }
     protected List<TItem> UpdatableData => IsOfType<List<TItem>>(OriginalData);
 
-    public virtual Task SeedAsync(IEnumerable<TItem> seed)
+    public virtual Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task AddAsync(TItem newItem, CancellationToken ct = default)
