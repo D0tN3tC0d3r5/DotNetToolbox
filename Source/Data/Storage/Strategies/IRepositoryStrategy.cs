@@ -1,10 +1,10 @@
 namespace DotNetToolbox.Data.Strategies;
 
 public interface IRepositoryStrategy
-    : IOrderedRepository;
+    : IRepository;
 
 // ReSharper disable once UnusedTypeParameter
 public interface IRepositoryStrategy<TItem>
-    : IRepositoryStrategy, IOrderedRepository<TItem> {
-    IQueryable Query { get; }
+    : IRepositoryStrategy
+    , IRepository<TItem> {
 }

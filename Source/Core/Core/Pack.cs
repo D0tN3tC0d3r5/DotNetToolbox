@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox.Data;
+﻿// ReSharper disable once CheckNamespace
+namespace System;
 
 public record Pack<TFirst, TSecond>(TFirst First, TSecond Second)
     : IPack<TFirst, TSecond>;

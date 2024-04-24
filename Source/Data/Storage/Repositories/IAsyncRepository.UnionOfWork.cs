@@ -1,11 +1,11 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IAsyncUnitOfWorkRepository
-    : IAsyncOrderedRepository {
+    : IAsyncRepository {
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
 
 public interface IAsyncUnitOfWorkRepository<TItem>
     : IAsyncUnitOfWorkRepository
-    , IAsyncOrderedRepository<TItem>{
+    , IAsyncRepository<TItem>{
 }
