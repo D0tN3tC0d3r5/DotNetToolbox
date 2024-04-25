@@ -1,15 +1,11 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public class InMemoryRepositoryStrategy<TRepository, TItem>
-    : RepositoryStrategy<TItem>
-    where TRepository : IRepository<TItem>{
+public class InMemoryRepositoryStrategy<TItem>
+    : RepositoryStrategy<TItem> {
 
-    public InMemoryRepositoryStrategy() {
-    }
-
+    public InMemoryRepositoryStrategy() { }
     public InMemoryRepositoryStrategy(IEnumerable<TItem> data)
-        : base(data) {
-    }
+        : base(data) { }
 
     public override void Seed(IEnumerable<TItem> seed) {
         OriginalData = seed.ToList();

@@ -1,51 +1,44 @@
 namespace DotNetToolbox.Data.Repositories;
-public class AsyncRepository<TStrategy, TItem>
+
+public abstract class AsyncRepository<TStrategy, TItem>
     : AsyncRepository<AsyncRepository<TStrategy, TItem>, TStrategy, TItem>
     where TStrategy : class, IAsyncRepositoryStrategy<TItem>{
-    public AsyncRepository(TStrategy strategy)
+    protected AsyncRepository(TStrategy strategy)
         : base(strategy) { }
-    public AsyncRepository(IStrategyFactory factory)
+    protected AsyncRepository(IStrategyFactory factory)
         : base(factory) { }
-    public AsyncRepository(IEnumerable<TItem> data, IStrategyFactory factory)
+    protected AsyncRepository(IEnumerable<TItem> data, IStrategyFactory factory)
         : base(data, factory) { }
-    public AsyncRepository(IEnumerable<TItem> data, TStrategy strategy)
+    protected AsyncRepository(IEnumerable<TItem> data, TStrategy strategy)
         : base(data, strategy) {
     }
 }
 
-public class AsyncRepository<TRepository, TStrategy, TItem>
-    : IAsyncRepository<TItem>
+public abstract class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> data, TStrategy strategy)
+    : Repository<TRepository, TStrategy, TItem>(data, strategy)
+    , IAsyncRepository<TItem>
     where TRepository : AsyncRepository<TRepository, TStrategy, TItem>
-    where TStrategy : class, IAsyncRepositoryStrategy<TItem>{
+    where TStrategy : class, IAsyncRepositoryStrategy<TItem> {
 
-    public AsyncRepository(TStrategy strategy)
+    protected AsyncRepository(TStrategy strategy)
         : this([], strategy) {
     }
-    public AsyncRepository(IStrategyFactory factory)
+    protected AsyncRepository(IStrategyFactory factory)
         : this([], factory) {
     }
-    public AsyncRepository(IEnumerable<TItem> data, IStrategyFactory factory)
+    protected AsyncRepository(IEnumerable<TItem> data, IStrategyFactory factory)
         : this(data, factory.GetRequiredAsyncStrategy<TItem, TStrategy>()) {
     }
-    // ReSharper disable PossibleMultipleEnumeration
-    public AsyncRepository(IEnumerable<TItem> data, TStrategy strategy) {
-        Strategy = IsNotNull(strategy);
-        Strategy.SeedAsync(data.ToList()).GetAwaiter().GetResult();
-    }
-    // ReSharper enable PossibleMultipleEnumeration
 
-    protected TStrategy Strategy { get; }
-
-    IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
-        => GetAsyncEnumerator(ct);
-    public System.Collections.Async.Generic.IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
+    //IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
+    //    => GetAsyncEnumerator(ct);
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "<Pending>")]
+    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
         => Strategy.GetAsyncEnumerator(ct);
 
-    public Type ElementType => Strategy.ElementType;
-    public Expression Expression => Strategy.Expression;
-    public IAsyncQueryProvider Provider => Strategy.Provider;
+    public IAsyncQueryProvider AsyncProvider => Strategy.AsyncProvider;
 
-    public Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default)
+    public Task SeedAsync(IAsyncEnumerable<TItem> seed, CancellationToken ct = default)
         => Strategy.SeedAsync(seed, ct);
 
     public Task AddAsync(TItem newItem, CancellationToken ct = default)

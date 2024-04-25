@@ -4,7 +4,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public class InMemoryRepositoryStrategyTests {
     public record TestEntity(string Name);
-    private readonly InMemoryRepositoryStrategy<InMemoryRepository<TestEntity>, TestEntity> _strategy;
+    private readonly InMemoryRepositoryStrategy<TestEntity> _strategy;
 
     public InMemoryRepositoryStrategyTests() {
         var data = new TestEntity[] { new("One"), new("Two"), new("Three") };

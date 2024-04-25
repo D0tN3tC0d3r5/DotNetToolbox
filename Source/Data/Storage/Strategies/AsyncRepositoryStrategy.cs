@@ -1,11 +1,8 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public abstract class AsyncRepositoryStrategy
-    : IAsyncRepositoryStrategy;
-
 public abstract class AsyncRepositoryStrategy<TItem>
-    : AsyncRepositoryStrategy,
-    IAsyncRepositoryStrategy<TItem> {
+    : RepositoryStrategy<TItem>
+    , IAsyncRepositoryStrategy<TItem> {
 
     protected AsyncRepositoryStrategy()
         : this([]) {
@@ -13,23 +10,21 @@ public abstract class AsyncRepositoryStrategy<TItem>
 
     protected AsyncRepositoryStrategy(IEnumerable<TItem> data) {
         OriginalData = data.ToList();
-        Query = OriginalData.AsAsyncQueryable();
+        Query = OriginalData.AsQueryable();
+        AsyncQuery = OriginalData.AsAsyncQueryable();
     }
 
-    public System.Collections.Async.Generic.IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
-        => Query.GetAsyncEnumerator(ct);
-    IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
-        => GetAsyncEnumerator(ct);
+    //IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
+    //    => GetAsyncEnumerator(ct);
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "<Pending>")]
+    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
+        => AsyncQuery.GetAsyncEnumerator(ct);
 
-    public Type ElementType => Query.ElementType;
-    public Expression Expression => Query.Expression;
-    public IAsyncQueryProvider Provider => Query.Provider;
+    public IAsyncQueryProvider AsyncProvider => AsyncQuery.AsyncProvider;
 
-    protected IAsyncQueryable<TItem> Query { get; set; }
-    protected IEnumerable<TItem> OriginalData { get; set; }
-    protected List<TItem> UpdatableData => IsOfType<List<TItem>>(OriginalData);
+    protected IAsyncQueryable<TItem> AsyncQuery { get; set; }
 
-    public virtual Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default)
+    public virtual Task SeedAsync(IAsyncEnumerable<TItem> seed, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task AddAsync(TItem newItem, CancellationToken ct = default)

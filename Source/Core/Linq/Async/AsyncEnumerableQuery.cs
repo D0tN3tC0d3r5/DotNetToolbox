@@ -1,4 +1,4 @@
-using System.Collections.Async;
+using System.Collections.Async.Generic;
 
 namespace DotNetToolbox.Linq.Async;
 
@@ -9,34 +9,45 @@ public class AsyncEnumerableQuery<TItem>
     , IAsyncQueryable<TItem>
     , IAsyncQueryProvider {
     private readonly Expression _expression;
-    private readonly IAsyncQueryable<TItem>? _query;
+    private readonly IEnumerable<TItem> _source;
+    private readonly CancellationToken _ct;
 
-    IAsyncQueryProvider IAsyncQueryable.Provider => this;
-    Type IAsyncQueryable.ElementType => typeof(TItem);
+    IQueryProvider IQueryable.Provider => this;
+    IAsyncQueryProvider IAsyncQueryable<TItem>.AsyncProvider => this;
+    Type IQueryable.ElementType => typeof(TItem);
 
-    public AsyncEnumerableQuery(IEnumerable<TItem> enumerable) {
-        _query = enumerable.AsAsyncQueryable();
-        _expression = Expression.Constant(this);
+    public AsyncEnumerableQuery(IEnumerable<TItem> source, Expression? expression = null, CancellationToken ct = default) {
+        _source = source;
+        _expression = expression ?? Expression.Constant(this);
+        _ct = ct;
     }
 
-    public AsyncEnumerableQuery(Expression expression) {
-        _expression = expression;
+    public AsyncEnumerableQuery(Expression expression, CancellationToken ct = default)
+        : this([], expression, ct) {
     }
 
-    System.Collections.Async.Generic.IAsyncEnumerator<TItem> System.Collections.Async.Generic.IAsyncEnumerable<TItem>.GetAsyncEnumerator(CancellationToken ct)
-        => throw new NotImplementedException();
-    IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
-        => throw new NotImplementedException();
+    IEnumerator IEnumerable.GetEnumerator()
+        => _source.GetEnumerator();
+    IEnumerator<TItem> IEnumerable<TItem>.GetEnumerator()
+        => _source.GetEnumerator();
+    IAsyncEnumerator<TItem> IAsyncEnumerable<TItem>.GetAsyncEnumerator(CancellationToken ct) {
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(ct, _ct);
+        return new AsyncEnumerator<TItem>(_source.GetEnumerator(), cts.Token);
+    }
 
-    Expression IAsyncQueryable.Expression => _expression;
+    Expression IQueryable.Expression => _expression;
 
-    IQueryable IAsyncQueryProvider.CreateQuery(Expression expression)
-        => throw new NotImplementedException();
-    IQueryable<TElement> IAsyncQueryProvider.CreateQuery<TElement>(Expression expression)
-        => throw new NotImplementedException();
+    IQueryable IQueryProvider.CreateQuery(Expression expression)
+        => new EnumerableQuery<TItem>(expression);
+    IQueryable<TElement> IQueryProvider.CreateQuery<TElement>(Expression expression)
+        => new EnumerableQuery<TElement>(expression);
+    IAsyncQueryable<TElement> IAsyncQueryProvider.CreateAsyncQuery<TElement>(Expression expression)
+        => new AsyncEnumerableQuery<TElement>(expression);
 
-    Task<object?> IAsyncQueryProvider.ExecuteAsync(Expression expression)
+    object? IQueryProvider.Execute(Expression expression)
         => throw new NotImplementedException();
-    Task<TResult> IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression)
+    TResult IQueryProvider.Execute<TResult>(Expression expression)
+        => throw new NotImplementedException();
+    Task<TResult> IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken ct)
         => throw new NotImplementedException();
 }

@@ -4,33 +4,25 @@ public abstract class Repository<TStrategy, TItem>
     : Repository<Repository<TStrategy, TItem>, TStrategy, TItem>
     where TStrategy : class, IRepositoryStrategy<TItem> {
     protected Repository(IStrategyFactory factory)
-        : base(factory) {
-    }
+        : base(factory) { }
     protected Repository(TStrategy strategy)
-        : base(strategy) {
-    }
+        : base(strategy) { }
     protected Repository(IEnumerable<TItem> data, IStrategyFactory factory)
-        : base(data, factory) {
-    }
+        : base(data, factory) { }
     protected Repository(IEnumerable<TItem> data, TStrategy strategy)
-        : base(data, strategy) {
-    }
+        : base(data, strategy) { }
 }
 
 public abstract class Repository<TRepository, TStrategy, TItem>
     : IRepository<TItem>
     where TRepository : Repository<TRepository, TStrategy, TItem>
     where TStrategy : class, IRepositoryStrategy<TItem> {
-
     protected Repository(TStrategy strategy)
-        : this([], strategy) {
-    }
+        : this([], strategy) { }
     protected Repository(IStrategyFactory factory)
-        : this([], factory) {
-    }
+        : this([], factory) { }
     protected Repository(IEnumerable<TItem> data, IStrategyFactory factory)
-        : this(data, IsNotNull(factory).GetRequiredStrategy<TItem, TStrategy>()) {
-    }
+        : this(data, IsNotNull(factory).GetRequiredStrategy<TItem, TStrategy>()) { }
     protected Repository(IEnumerable<TItem> data, TStrategy strategy) {
         Strategy = IsNotNull(strategy);
         Strategy.Seed(data.ToList());

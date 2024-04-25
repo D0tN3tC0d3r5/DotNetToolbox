@@ -1,4 +1,7 @@
 global using System.Collections;
+global using System.Collections.Async;
+global using System.Collections.Async.Generic;
+global using System.Diagnostics.CodeAnalysis;
 global using System.Linq.Expressions;
 global using System.Reflection;
 

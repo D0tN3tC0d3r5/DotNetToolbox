@@ -2,19 +2,25 @@
 namespace System.Collections.Async.Generic;
 
 public static class AsyncEnumerable {
-    public static System.Collections.Async.Generic.IAsyncEnumerable<T> Empty<T>() => AsyncEnumerable<T>.Empty;
-
-    internal sealed class EmptyAsyncEnumerable<T> : System.Collections.Async.Generic.IAsyncEnumerable<T> {
-        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct) => GetAsyncEnumerator(ct);
-        public System.Collections.Async.Generic.IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default)
-            => AsyncEnumerator.Empty<T>();
-    }
+    public static IAsyncEnumerable<TItem> Empty<TItem>()
+        =>  new AsyncEnumerable<TItem>();
 }
 
-public class AsyncEnumerable<T>(IEnumerable<T>? data = null) : System.Collections.Async.Generic.IAsyncEnumerable<T> {
-    private readonly IEnumerable<T> _data = data ?? [];
-    public static System.Collections.Async.Generic.IAsyncEnumerable<T> Empty { get; } = new AsyncEnumerable.EmptyAsyncEnumerable<T>();
+public class AsyncEnumerable<TItem>(IEnumerable<TItem>? data = null)
+    : IAsyncEnumerable<TItem> {
+    private readonly IEnumerable<TItem> _data = data ?? [];
+    private readonly CancellationToken _cancellationToken;
 
-    IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct) => GetAsyncEnumerator(ct);
-    public System.Collections.Async.Generic.IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => new AsyncEnumerator<T>(_data.GetEnumerator(), ct);
+    internal AsyncEnumerable(AsyncEnumerable<TItem> source, CancellationToken cancellationToken)
+        : this(source._data) {
+        _cancellationToken = cancellationToken;
+    }
+
+    //IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
+    //    => GetAsyncEnumerator(cancellationToken);
+
+    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default) {
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationToken);
+        return new AsyncEnumerator<TItem>(_data.GetEnumerator(), cts.Token);
+    }
 }
