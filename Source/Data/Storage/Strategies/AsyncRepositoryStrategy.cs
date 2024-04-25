@@ -4,12 +4,8 @@ public abstract class AsyncRepositoryStrategy<TItem>
     : RepositoryStrategy<TItem>
     , IAsyncRepositoryStrategy<TItem> {
 
-    protected AsyncRepositoryStrategy()
-        : this([]) {
-    }
-
-    protected AsyncRepositoryStrategy(IEnumerable<TItem> data) {
-        OriginalData = data.ToList();
+    protected AsyncRepositoryStrategy(IEnumerable<TItem>? data = null) {
+        OriginalData = data?.ToList() ?? [];
         Query = OriginalData.AsQueryable();
         AsyncQuery = OriginalData.AsAsyncQueryable();
     }

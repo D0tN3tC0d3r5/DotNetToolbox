@@ -3,6 +3,12 @@ namespace System.Collections.Generic;
 
 public static class EnumerableExtensions {
 
+    public static IAsyncEnumerable<TItem> ToAsyncEnumerable<TItem>(this IEnumerable<TItem> source)
+        => new AsyncEnumerable<TItem>(source);
+
+    public static IAsyncEnumerator<TItem> GetAsyncEnumerator<TItem>(this IEnumerable<TItem> source)
+        => source.ToAsyncEnumerable().GetAsyncEnumerator();
+
     #region Projections
 
     public static IEnumerable<TItem> As<TItem>(this IEnumerable source)

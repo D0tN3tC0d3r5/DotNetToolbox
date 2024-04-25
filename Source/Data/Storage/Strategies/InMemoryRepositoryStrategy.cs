@@ -1,11 +1,7 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public class InMemoryRepositoryStrategy<TItem>
-    : RepositoryStrategy<TItem> {
-
-    public InMemoryRepositoryStrategy() { }
-    public InMemoryRepositoryStrategy(IEnumerable<TItem> data)
-        : base(data) { }
+public class InMemoryRepositoryStrategy<TItem>(IEnumerable<TItem>? data = null)
+    : AsyncRepositoryStrategy<TItem>(data) {
 
     public override void Seed(IEnumerable<TItem> seed) {
         OriginalData = seed.ToList();
@@ -18,14 +14,19 @@ public class InMemoryRepositoryStrategy<TItem>
     }
 
     public override void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem) {
-        Remove(predicate);
-        Add(updatedItem);
+        if (TryRemove(predicate))
+            Add(updatedItem);
     }
-    public override void Remove(Expression<Func<TItem, bool>> predicate) {
+
+    public override void Remove(Expression<Func<TItem, bool>> predicate)
+        => TryRemove(predicate);
+
+    private bool TryRemove(Expression<Func<TItem, bool>> predicate) {
         var itemToRemove = Query.FirstOrDefault(predicate);
         if (itemToRemove is null)
-            return;
+            return false;
         UpdatableData.Remove(itemToRemove);
         Query = UpdatableData.AsQueryable();
+        return true;
     }
 }

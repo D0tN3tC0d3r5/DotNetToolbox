@@ -597,7 +597,7 @@ Extension classes provide additional methods to existing types, enhancing their 
     IQueryable<Person> people = GetPeopleQuery();
     PersonDto[] dtos = people.ToArray(person => new PersonDto(person.Name, person.Age));
 
-    // dtos contains PersonDto objects projected from the Person query
+    // dtos contains PersonDto objects projected from the Person source
     ```
 
 2. **Transforming IQueryable into HashSet with projection:**
@@ -605,7 +605,7 @@ Extension classes provide additional methods to existing types, enhancing their 
     IQueryable<string> names = GetNamesQuery();
     HashSet<string> upperCaseNames = names.ToHashSet(name => name.ToUpper());
 
-    // upperCaseNames contains upper case versions of the names from the query
+    // upperCaseNames contains upper case versions of the names from the source
     ```
 
 - **Task Extensions**: Adds methods to `Task` and `ValueTask` to handle fire-and-forget scenarios with optional exception handling callbacks.

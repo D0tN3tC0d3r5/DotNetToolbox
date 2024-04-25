@@ -2,7 +2,7 @@ namespace DotNetToolbox.Data.Repositories;
 
 public interface IUnitOfWorkRepository
     : IRepository {
-    Task<int> SaveChanges(CancellationToken ct = default);
+    void SaveChanges();
 }
 
 public interface IUnitOfWorkRepository<TItem>

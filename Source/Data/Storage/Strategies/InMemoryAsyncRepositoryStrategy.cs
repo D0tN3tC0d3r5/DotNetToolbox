@@ -1,56 +1,59 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public class InMemoryAsyncRepositoryStrategy<TItem>
-    : AsyncRepositoryStrategy<TItem> {
-
-    public InMemoryAsyncRepositoryStrategy() { }
-    public InMemoryAsyncRepositoryStrategy(IEnumerable<TItem> data)
-        : base(data) { }
-
+public class InMemoryAsyncRepositoryStrategy<TItem>(IEnumerable<TItem>? data = null)
+    : InMemoryRepositoryStrategy<TItem>(data) {
     public override void Seed(IEnumerable<TItem> seed) {
-        OriginalData = seed.ToList();
-        Query = OriginalData.AsQueryable();
+        base.Seed(seed);
         AsyncQuery = OriginalData.AsAsyncQueryable();
     }
 
     public override async Task SeedAsync(IAsyncEnumerable<TItem> seed, CancellationToken ct = default) {
-        OriginalData = await seed.ToListAsync(ct);
+        var list = new List<TItem>();
+        await foreach (var item in seed.WithCancellation(ct))
+            list.Add(item);
+        OriginalData = list;
         Query = OriginalData.AsQueryable();
         AsyncQuery = OriginalData.AsAsyncQueryable();
     }
 
     public override void Add(TItem newItem) {
-        UpdatableData.Add(newItem);
-        Query = OriginalData.AsQueryable();
+        base.Add(newItem);
         AsyncQuery = OriginalData.AsAsyncQueryable();
     }
 
-    public override Task AddAsync(TItem newItem, CancellationToken ct = default)
-        => Task.Run(() => Add(newItem), ct);
+    public override Task AddAsync(TItem newItem, CancellationToken ct = default) {
+        Add(newItem);
+        AsyncQuery = OriginalData.AsAsyncQueryable();
+        return Task.CompletedTask;
+    }
 
     public override void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem) {
-        Remove(predicate);
-        Add(updatedItem);
+        base.Update(predicate, updatedItem);
+        AsyncQuery = OriginalData.AsAsyncQueryable();
     }
 
     public override async Task UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default) {
-        await RemoveAsync(predicate, ct);
+        if (!await TryRemoveAsync(predicate, ct)) return;
         await AddAsync(updatedItem, ct);
+        AsyncQuery = OriginalData.AsAsyncQueryable();
     }
 
     public override void Remove(Expression<Func<TItem, bool>> predicate) {
-        var itemToRemove = Query.FirstOrDefault(predicate);
-        if (itemToRemove is null) return;
-        UpdatableData.Remove(itemToRemove);
-        Query = OriginalData.AsQueryable();
+        base.Remove(predicate);
         AsyncQuery = OriginalData.AsAsyncQueryable();
     }
 
     public override async Task RemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
+        if (!await TryRemoveAsync(predicate, ct)) return;
+        AsyncQuery = OriginalData.AsAsyncQueryable();
+    }
+
+    private async Task<bool> TryRemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
         var itemToRemove = await AsyncQuery.FirstOrDefaultAsync(predicate.Compile(), ct);
-        if (itemToRemove is null) return;
+        if (itemToRemove is null)
+            return false;
         UpdatableData.Remove(itemToRemove);
         Query = OriginalData.AsQueryable();
-        AsyncQuery = OriginalData.AsAsyncQueryable();
+        return true;
     }
 }

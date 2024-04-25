@@ -1,34 +1,17 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public abstract class AsyncRepository<TStrategy, TItem>
-    : AsyncRepository<AsyncRepository<TStrategy, TItem>, TStrategy, TItem>
-    where TStrategy : class, IAsyncRepositoryStrategy<TItem>{
-    protected AsyncRepository(TStrategy strategy)
-        : base(strategy) { }
-    protected AsyncRepository(IStrategyFactory factory)
-        : base(factory) { }
-    protected AsyncRepository(IEnumerable<TItem> data, IStrategyFactory factory)
-        : base(data, factory) { }
-    protected AsyncRepository(IEnumerable<TItem> data, TStrategy strategy)
-        : base(data, strategy) {
-    }
+public class AsyncRepository<TItem>(IAsyncRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
+    : AsyncRepository<IAsyncRepositoryStrategy<TItem>, TItem>(IsNotNull(strategy), data ?? []) {
+    public AsyncRepository(IEnumerable<TItem>? data = null)
+        : this(new InMemoryAsyncRepositoryStrategy<TItem>(), data) { }
+    public AsyncRepository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
+        : this(IsNotNull(provider).GetRequiredAsyncStrategyFor<TItem>(), data) { }
 }
 
-public abstract class AsyncRepository<TRepository, TStrategy, TItem>(IEnumerable<TItem> data, TStrategy strategy)
-    : Repository<TRepository, TStrategy, TItem>(data, strategy)
+public abstract class AsyncRepository<TStrategy, TItem>(TStrategy strategy, IEnumerable<TItem> data)
+    : Repository<TStrategy, TItem>(strategy, data)
     , IAsyncRepository<TItem>
-    where TRepository : AsyncRepository<TRepository, TStrategy, TItem>
     where TStrategy : class, IAsyncRepositoryStrategy<TItem> {
-
-    protected AsyncRepository(TStrategy strategy)
-        : this([], strategy) {
-    }
-    protected AsyncRepository(IStrategyFactory factory)
-        : this([], factory) {
-    }
-    protected AsyncRepository(IEnumerable<TItem> data, IStrategyFactory factory)
-        : this(data, factory.GetRequiredAsyncStrategy<TItem, TStrategy>()) {
-    }
 
     //IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
     //    => GetAsyncEnumerator(ct);
