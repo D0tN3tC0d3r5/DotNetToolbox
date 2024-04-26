@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox.Linq.Async;
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
     public static async ValueTask<TItem[]> ToArrayAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken ct = default) {
@@ -6,7 +7,7 @@ public static partial class AsyncEnumerableExtensions {
         var result = new TItem[capacity];
         var length = 0;
         await using var enumerator = IsNotNull(source).GetAsyncEnumerator(ct);
-        while (await enumerator.MoveNextAsync() && length < Array.MaxLength) {
+        while (await enumerator.MoveNextAsync().ConfigureAwait(false) && length < Array.MaxLength) {
             result[length++] = enumerator.Current;
             if (length < capacity) continue;
             capacity <<= 1;
@@ -21,7 +22,7 @@ public static partial class AsyncEnumerableExtensions {
         var result = new TResult[capacity];
         var length = 0;
         await using var enumerator = IsNotNull(source).GetAsyncEnumerator(ct);
-        while (await enumerator.MoveNextAsync() && length < Array.MaxLength) {
+        while (await enumerator.MoveNextAsync().ConfigureAwait(false) && length < Array.MaxLength) {
             result[length++] = mapping(enumerator.Current);
             if (length < capacity)
                 continue;
@@ -38,7 +39,7 @@ public static partial class AsyncEnumerableExtensions {
         var result = new TResult[capacity];
         var length = 0;
         await using var enumerator = IsNotNull(source).GetAsyncEnumerator(ct);
-        while (await enumerator.MoveNextAsync() && length < Array.MaxLength) {
+        while (await enumerator.MoveNextAsync().ConfigureAwait(false) && length < Array.MaxLength) {
             result[length++] = mapping(enumerator.Current, length);
             if (length < capacity) continue;
             capacity <<= 1;

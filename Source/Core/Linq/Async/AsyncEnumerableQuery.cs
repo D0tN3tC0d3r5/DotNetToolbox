@@ -1,6 +1,5 @@
-using System.Collections.Async.Generic;
-
-namespace DotNetToolbox.Linq.Async;
+// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Linq.Async;
 
 public class AsyncEnumerableQuery;
 
@@ -44,7 +43,7 @@ public class AsyncEnumerableQuery<TItem>
     IAsyncQueryable<TElement> IAsyncQueryProvider.CreateAsyncQuery<TElement>(Expression expression)
         => new AsyncEnumerableQuery<TElement>(expression);
 
-    object? IQueryProvider.Execute(Expression expression)
+    object IQueryProvider.Execute(Expression expression)
         => throw new NotImplementedException();
     TResult IQueryProvider.Execute<TResult>(Expression expression)
         => throw new NotImplementedException();

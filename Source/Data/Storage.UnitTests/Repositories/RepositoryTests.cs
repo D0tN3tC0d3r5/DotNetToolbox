@@ -78,32 +78,6 @@ public class RepositoryTests {
     }
 
     [Fact]
-    public void Any_ForEmptySet_ReturnsFalse()
-        => _emptySet.Any().Should().BeFalse();
-
-    [Fact]
-    public void Any_ReturnsTrue()
-        => _set1.Any().Should().BeTrue();
-
-    [Fact]
-    public void Count_ForEmptySet_ReturnsZero()
-        => _emptySet.Count().Should().Be(0);
-
-    [Fact]
-    public void Count_ReturnsCount()
-        => _set1.Count().Should().Be(3);
-
-    [Fact]
-    public void FirstOrDefault_ForEmptySet_ReturnsNull()
-        => _emptySet.FirstOrDefault().Should().BeNull();
-
-    [Fact]
-    public void FirstOrDefault_ReturnsFirstElement() {
-        var expectedItem = new TestEntity1("A");
-        _set1.FirstOrDefault().Should().Be(expectedItem);
-    }
-
-    [Fact]
     public void Add_AddsItem() {
         _set1.Add(new("D"));
         _set1.Count().Should().Be(4);

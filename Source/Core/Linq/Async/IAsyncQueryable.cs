@@ -1,11 +1,5 @@
-namespace DotNetToolbox.Linq.Async;
-
-//[SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = "Does not apply.")]
-//public interface IAsyncQueryable
-//    : IAsyncEnumerable
-//    , IQueryable {
-//    IAsyncQueryProvider AsyncProvider { get; }
-//}
+// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Linq.Async;
 
 public interface IAsyncQueryable<out TItem>
     : IAsyncEnumerable<TItem>

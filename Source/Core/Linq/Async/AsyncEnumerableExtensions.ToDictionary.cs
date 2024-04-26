@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox.Linq.Async;
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
     public static async ValueTask<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(this IAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, CancellationToken cancellationToken = default)
