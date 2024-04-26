@@ -7,9 +7,9 @@ public class RepositoryTests {
     private readonly Repository<TestEntity1> _set1 = [new("A"), new("B"), new("C")];
     private readonly Repository<TestEntity1> _set2 = [new("X"), new("Y"), new("Z")];
 
-    private class TestRepository : Repository<TestEntity1>;
+    private sealed  class TestRepository : Repository<TestEntity1>;
 
-    private class DummyRepositoryStrategy : RepositoryStrategy<TestEntity1>;
+    private sealed class DummyRepositoryStrategy : RepositoryStrategy<TestEntity1>;
 
     private readonly TestRepository _childRepo = [new("X"), new("Y"), new("Z")];
 

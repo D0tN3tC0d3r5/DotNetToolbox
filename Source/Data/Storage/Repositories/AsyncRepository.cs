@@ -13,8 +13,6 @@ public abstract class AsyncRepository<TStrategy, TItem>(TStrategy strategy, IEnu
     , IAsyncRepository<TItem>
     where TStrategy : class, IAsyncRepositoryStrategy<TItem> {
 
-    //IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)
-    //    => GetAsyncEnumerator(ct);
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "<Pending>")]
     public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
         => Strategy.GetAsyncEnumerator(ct);

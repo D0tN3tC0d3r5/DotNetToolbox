@@ -9,10 +9,7 @@ public static class AsyncEnumerable {
 public class AsyncEnumerable<TItem>(IEnumerable<TItem>? data = null)
     : IAsyncEnumerable<TItem> {
     private readonly IEnumerable<TItem> _data = data ?? [];
-    private readonly CancellationToken _cancellationToken;
 
-    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default) {
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationToken);
-        return new AsyncEnumerator<TItem>(_data.GetEnumerator(), cts.Token);
-    }
+    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        => new AsyncEnumerator<TItem>(_data.GetEnumerator(), cancellationToken);
 }

@@ -12,7 +12,7 @@ public static class Ensure {
     }
 
     [return: NotNull]
-    public static TArgument DefaultIfNull<TArgument>([NotNull] TArgument? argument, TArgument defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
+    public static TArgument DefaultIfNull<TArgument>([NotNull] TArgument? argument, TArgument defaultValue) {
         argument ??= IsNotNull(defaultValue);
         return argument;
     }
@@ -28,7 +28,7 @@ public static class Ensure {
             : throw new ArgumentException(string.Format(null, ValueMustBeOfType, typeof(TArgument).Name, argument.GetType().Name), paramName);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static TArgument DefaultIfNotOfType<TArgument>(object? argument, TArgument? defaultValue = default, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument DefaultIfNotOfType<TArgument>(object? argument, TArgument? defaultValue = default)
         => argument switch {
             TArgument result => result,
             _ => IsNotNull(defaultValue),
