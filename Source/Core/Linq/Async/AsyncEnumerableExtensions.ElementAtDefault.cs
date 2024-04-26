@@ -7,18 +7,17 @@ public static partial class AsyncEnumerableExtensions {
         await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
         var count = 0;
         while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (index == count++) return enumerator.Current;
+            if (index != count++) continue;
+            return enumerator.Current;
         }
         return default;
     }
 
     public static async ValueTask<TItem?> ElementAtOrDefaultAsync<TItem>(this IAsyncQueryable<TItem> source, Index index, CancellationToken cancellationToken = default) {
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        var count = 0;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (index.Value == count++) return enumerator.Current;
-        }
-        return default;
+        if (!index.IsFromEnd)
+            return await source.ElementAtOrDefaultAsync(index.Value, cancellationToken).ConfigureAwait(false);
+        var list = await source.ToArrayAsync(cancellationToken).ConfigureAwait(false);
+        return index.Value >= list.Length ? default : list[index];
     }
 
     public static async ValueTask<TItem> ElementAtOrDefaultAsync<TItem>(this IAsyncQueryable<TItem> source, int index, TItem defaultValue, CancellationToken cancellationToken = default) {
@@ -27,20 +26,16 @@ public static partial class AsyncEnumerableExtensions {
         await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
         var count = 0;
         while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (index == count++)
-                return enumerator.Current;
+            if (index != count++) continue;
+            return enumerator.Current;
         }
         return defaultValue;
     }
 
     public static async ValueTask<TItem> ElementAtOrDefaultAsync<TItem>(this IAsyncQueryable<TItem> source, Index index, TItem defaultValue, CancellationToken cancellationToken = default) {
-        IsNotNull(defaultValue);
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        var count = 0;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (index.Value == count++)
-                return enumerator.Current;
-        }
-        return defaultValue;
+        if (!index.IsFromEnd)
+            return await source.ElementAtOrDefaultAsync(index.Value, defaultValue, cancellationToken).ConfigureAwait(false);
+        var list = await source.ToArrayAsync(cancellationToken).ConfigureAwait(false);
+        return index.Value >= list.Length ? defaultValue : list[index];
     }
 }

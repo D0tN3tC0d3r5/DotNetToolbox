@@ -2,7 +2,7 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<bool> SequenceEqual<TItem>(this IAsyncQueryable<TItem> first, IEnumerable<TItem> second, CancellationToken cancellationToken = default) {
+    public static async ValueTask<bool> SequenceEqualAsync<TItem>(this IAsyncQueryable<TItem> first, IEnumerable<TItem> second, CancellationToken cancellationToken = default) {
         await using var firstEnumerator = IsNotNull(first).GetAsyncEnumerator(cancellationToken);
         await using var secondEnumerator = IsNotNull(second).GetAsyncEnumerator(cancellationToken);
 
@@ -10,7 +10,7 @@ public static partial class AsyncEnumerableExtensions {
             if (!await secondEnumerator.MoveNextAsync().ConfigureAwait(false))
                 // second has fewer elements
                 return false;
-            if (!object.Equals(firstEnumerator.Current, secondEnumerator.Current))
+            if (!Equals(firstEnumerator.Current, secondEnumerator.Current))
                 return false;
         }
 
@@ -18,7 +18,7 @@ public static partial class AsyncEnumerableExtensions {
         return !await secondEnumerator.MoveNextAsync();
     }
 
-    public static async ValueTask<bool> SequenceEqual<TItem>(this IAsyncQueryable<TItem> first, IEnumerable<TItem> second, IEqualityComparer<TItem> comparer, CancellationToken cancellationToken = default) {
+    public static async ValueTask<bool> SequenceEqualAsync<TItem>(this IAsyncQueryable<TItem> first, IEnumerable<TItem> second, IEqualityComparer<TItem> comparer, CancellationToken cancellationToken = default) {
         await using var firstEnumerator = IsNotNull(first).GetAsyncEnumerator(cancellationToken);
         await using var secondEnumerator = IsNotNull(second).GetAsyncEnumerator(cancellationToken);
 
