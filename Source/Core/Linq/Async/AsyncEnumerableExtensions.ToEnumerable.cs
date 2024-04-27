@@ -5,7 +5,7 @@ public static partial class AsyncEnumerableExtensions {
     public static IEnumerable<TSource> ToEnumerable<TSource>(this IAsyncQueryable<TSource> source) {
         var enumerable = source.GetAsyncEnumerator();
         try {
-            while (!enumerable.MoveNextAsync().GetResult()) {
+            while (enumerable.MoveNextAsync().GetAwaiter().GetResult()) {
                 yield return enumerable.Current;
             }
         }
