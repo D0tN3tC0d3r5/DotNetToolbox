@@ -86,11 +86,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Linq", "Core\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Data Storage", "2 Data Storage", "{4EB4A938-96E1-4690-8A51-18135AA362CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data.Storage", "Data\Storage\DotNetToolbox.Data.Storage.csproj", "{B7BC9617-B5EE-491A-8CAE-728D8280E854}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data", "Data\Storage\DotNetToolbox.Data.csproj", "{B7BC9617-B5EE-491A-8CAE-728D8280E854}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Anthropic.UnitTests", "AI\Anthropic.UnitTests\DotNetToolbox.AI.Anthropic.UnitTests.csproj", "{8685397D-C8BF-4DC8-A62A-020C64A96A10}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data.Storage.UnitTests", "Data\Storage.UnitTests\DotNetToolbox.Data.Storage.UnitTests.csproj", "{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data.UnitTests", "Data\Storage.UnitTests\DotNetToolbox.Data.UnitTests.csproj", "{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{52A7B2E4-6E27-4C00-B4A8-6ABAFACC146A}"
 EndProject
@@ -245,3 +245,8 @@ Global
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}
 	EndGlobalSection
 EndGlobal
+ion
+EndGlobal
+
+EndGlobal
+al

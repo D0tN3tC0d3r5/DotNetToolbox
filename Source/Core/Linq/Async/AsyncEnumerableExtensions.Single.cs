@@ -2,32 +2,24 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<TItem> SingleAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default) {
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        var found = false;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (found) throw new InvalidOperationException("Sequence contains more than one element.");
-            found = true;
-        }
+    public static ValueTask<TItem> SingleAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default)
+        => FindSingle(source, _ => true, cancellationToken);
 
-        return found
-            ? enumerator.Current
-            : throw new InvalidOperationException("Collection contains no elements.");
-    }
+    public static ValueTask<TItem> SingleAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default)
+        => FindSingle(source, predicate, cancellationToken);
 
-    public static async ValueTask<TItem> SingleAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default) {
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
+    private static async ValueTask<TItem> FindSingle<TItem>(IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken) {
+        IsNotNull(predicate);
         var result = default(TItem);
-        var found = false;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (found) throw new InvalidOperationException("Collection contains more than one element that satisfies the given predicate.");
-            if (!predicate(enumerator.Current)) continue;
+        var found  = false;
+        await foreach(var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
+            if (!predicate(item)) continue;
+            if (found) throw new InvalidOperationException("Collection contains more than one element satisfying the given criteria.");
             found = true;
-            result = enumerator.Current;
+            result = item;
         }
-
         return found
-            ? result!
-            : throw new InvalidOperationException("Collection does not contain any element that satisfy the given predicate.");
+                   ? result!
+                   : throw new InvalidOperationException("Collection does not contain any element satisfying the given criteria.");
     }
 }

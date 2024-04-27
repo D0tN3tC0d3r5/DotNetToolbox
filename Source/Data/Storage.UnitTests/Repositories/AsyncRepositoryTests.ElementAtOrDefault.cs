@@ -4,26 +4,33 @@ public partial class AsyncRepositoryTests {
     [Fact]
     public async Task ElementAtOrDefaultAsync_WithInteger_ForValidIndex_ReturnsElement() {
         var expectedItem = new TestEntity("B");
-        var result = await _set1.ElementAtOrDefaultAsync(1);
+        var result = await _repo.ElementAtOrDefaultAsync(1);
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task ElementAtOrDefaultAsync_WithInteger_ForInvalidIndex_ReturnsDefaultValue() {
-        var result = await _emptySet.ElementAtOrDefaultAsync(5);
+        var result = await _emptyRepo.ElementAtOrDefaultAsync(5);
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task ElementAtOrDefaultAsync_WithIndex_ForValidIndex_ReturnsElement() {
+    public async Task ElementAtOrDefaultAsync_WithIndex_ForIndexFromStart_ReturnsElement() {
         var expectedItem = new TestEntity("B");
-        var result = await _set1.ElementAtOrDefaultAsync(^2);
+        var result = await _repo.ElementAtOrDefaultAsync(new Index(1));
+        result.Should().Be(expectedItem);
+    }
+
+    [Fact]
+    public async Task ElementAtOrDefaultAsync_WithIndex_ForIndexFromEnd_ReturnsElement() {
+        var expectedItem = new TestEntity("B");
+        var result = await _repo.ElementAtOrDefaultAsync(^2);
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task ElementAtOrDefaultAsync_WithIndex_ForInvalidIndex_ReturnsDefaultValue() {
-        var result = await _set1.ElementAtOrDefaultAsync(^5);
+        var result = await _repo.ElementAtOrDefaultAsync(^5);
         result.Should().BeNull();
     }
 
@@ -31,29 +38,37 @@ public partial class AsyncRepositoryTests {
     public async Task ElementAtOrDefaultAsync_WithIntegerAndDefaultValue_ForValidIndex_ReturnsElement() {
         var expectedItem = new TestEntity("B");
         var defaultValue = new TestEntity("D");
-        var result = await _set1.ElementAtOrDefaultAsync(1, defaultValue);
+        var result = await _repo.ElementAtOrDefaultAsync(1, defaultValue);
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task ElementAtOrDefaultAsync_WithIntegerAndDefaultValue_ForInvalidIndex_ReturnsDefaultValue() {
         var defaultValue = new TestEntity("D");
-        var result = await _emptySet.ElementAtOrDefaultAsync(5, defaultValue);
+        var result = await _emptyRepo.ElementAtOrDefaultAsync(5, defaultValue);
         result.Should().Be(defaultValue);
     }
 
     [Fact]
-    public async Task ElementAtOrDefaultAsync_WithIndexAndDefaultValue_ForValidIndex_ReturnsElement() {
+    public async Task ElementAtOrDefaultAsync_WithIndexAndDefaultValue_ForIndexFromStart_ReturnsElement() {
         var expectedItem = new TestEntity("B");
         var defaultValue = new TestEntity("D");
-        var result = await _set1.ElementAtOrDefaultAsync(^2, defaultValue);
+        var result = await _repo.ElementAtOrDefaultAsync(new Index(1), defaultValue);
+        result.Should().Be(expectedItem);
+    }
+
+    [Fact]
+    public async Task ElementAtOrDefaultAsync_WithIndexAndDefaultValue_ForIndexFromEnd_ReturnsElement() {
+        var expectedItem = new TestEntity("B");
+        var defaultValue = new TestEntity("D");
+        var result = await _repo.ElementAtOrDefaultAsync(^2, defaultValue);
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task ElementAtOrDefaultAsync_WithIndexAndDefaultValue_ForInvalidIndex_ReturnsDefaultValue() {
         var defaultValue = new TestEntity("D");
-        var result = await _set1.ElementAtOrDefaultAsync(^5, defaultValue);
+        var result = await _repo.ElementAtOrDefaultAsync(^5, defaultValue);
         result.Should().Be(defaultValue);
     }
 }

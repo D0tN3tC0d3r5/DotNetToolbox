@@ -2,26 +2,23 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<TItem> LastAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default) {
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) { }
-        return enumerator.Current
-            ?? throw new InvalidOperationException("Collection contains no elements.");
-    }
+    public static ValueTask<TItem> LastAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default)
+        => FindLast(source, _ => true, cancellationToken);
 
-    public static async ValueTask<TItem> LastAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default) {
+    public static ValueTask<TItem> LastAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default)
+        => FindLast(source, predicate, cancellationToken);
+
+    private static async ValueTask<TItem> FindLast<TItem>(IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken) {
         IsNotNull(predicate);
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
         var result = default(TItem);
-        var found = false;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (!predicate(enumerator.Current)) continue;
-            found = true;
-            result = enumerator.Current;
+        var found  = false;
+        await foreach(var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
+            if (!predicate(item)) continue;
+            found  = true;
+            result = item;
         }
         return found
-            ? result!
-            : throw new InvalidOperationException("Collection does not contain any element that satisfy the given predicate.");
-        ;
+                   ? result!
+                   : throw new InvalidOperationException("Collection does not contain any element that satisfy the given predicate.");
     }
 }

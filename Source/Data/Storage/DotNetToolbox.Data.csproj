@@ -5,14 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>DotNetToolbox.Data</RootNamespace>
-    <PackageId>DotNetToolbox.Data.Storage</PackageId>
-    <Title>DotNetToolbox Data Storage Library</Title>
+    <PackageId>DotNetToolbox.Data</PackageId>
+    <Title>DotNetToolbox Data Library</Title>
     <Version>8.1.0-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
-    <PackageTags>DotNet;Toolbox;Data;Storage;Repository;Data;Library</PackageTags>
+    <PackageTags>DotNet;Toolbox;Data;Repository;Storage;Library</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.Data.Storage: A comprehensive utility library for handling data storage in a agnostic way.</Description>
+    <Description>DotNetToolbox.Data: A comprehensive utility library for handling data storage in a agnostic way.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
@@ -26,7 +26,7 @@
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
-    <AssemblyName>DotNetToolbox.Data.Storage</AssemblyName>
+    <AssemblyName>DotNetToolbox.Data</AssemblyName>
     <AssemblyVersion>8.1.0.*</AssemblyVersion>
     <FileVersion>8.1.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

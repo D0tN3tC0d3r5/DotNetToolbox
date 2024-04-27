@@ -4,13 +4,13 @@ public partial class AsyncRepositoryTests {
     [Fact]
     public void Enumeration_AllowsForEach() {
         var count = 0;
-        var expectedNames = new[] { "X", "Y", "Z" };
-        foreach (var item in _set2) {
+        var expectedNames = new[] { "A", "B", "C" };
+        foreach (var item in _repo) {
             expectedNames[count].Should().Be(item.Name);
             count++;
         }
 
-        count.Should().Be(_set2.Count());
+        count.Should().Be(_repo.Count());
     }
 
     [Fact]
@@ -22,6 +22,6 @@ public partial class AsyncRepositoryTests {
             count++;
         }
 
-        count.Should().Be(_set2.Count());
+        count.Should().Be(_repo.Count());
     }
 }

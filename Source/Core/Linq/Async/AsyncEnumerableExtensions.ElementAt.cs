@@ -10,7 +10,7 @@ public static partial class AsyncEnumerableExtensions {
             if (index != count++) continue;
             return enumerator.Current;
         }
-        throw new InvalidOperationException($"Collection does not contain an element at index {index}.");
+        throw new ArgumentOutOfRangeException(nameof(index), index, $"Collection contains only {count} elements.");
     }
 
     public static async ValueTask<TItem?> ElementAtAsync<TItem>(this IAsyncQueryable<TItem> source, Index index, CancellationToken cancellationToken = default) {
@@ -18,7 +18,7 @@ public static partial class AsyncEnumerableExtensions {
             return await source.ElementAtAsync(index.Value, cancellationToken).ConfigureAwait(false);
         var list = await source.ToArrayAsync(cancellationToken).ConfigureAwait(false);
         return index.Value >= list.Length
-            ? throw new InvalidOperationException($"Collection does not contain an element at index {index}.")
+            ? throw new ArgumentOutOfRangeException(nameof(index), index, $"Collection contains only {list.Length} elements.")
             : list[index];
     }
 }

@@ -2,14 +2,14 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<TItem> FirstAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default) {
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        return await enumerator.MoveNextAsync().ConfigureAwait(false)
-                   ? enumerator.Current
-                   : throw new InvalidOperationException("Collection contains no elements.");
-    }
+    public static ValueTask<TItem> FirstAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default)
+        => FindFirst(source, _ => true, cancellationToken);
+        
+    public static ValueTask<TItem> FirstAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default)
+        => FindFirst(source, predicate, cancellationToken);
 
-    public static async ValueTask<TItem> FirstAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default) {
+    private static async ValueTask<TItem> FindFirst<TItem>(IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken)
+    {
         IsNotNull(predicate);
         await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
             if (!predicate(item)) continue;

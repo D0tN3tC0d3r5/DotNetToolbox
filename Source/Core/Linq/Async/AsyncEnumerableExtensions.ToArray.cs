@@ -11,18 +11,17 @@ public static partial class AsyncEnumerableExtensions {
     public static async ValueTask<TResult[]> ToArrayAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, int, TResult> mapping, CancellationToken ct = default) {
         var capacity = 4;
         var result = new TResult[capacity];
-        var length = 0;
+        var index = 0;
         await using var enumerator = IsNotNull(source).GetAsyncEnumerator(ct);
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false) && length < Array.MaxLength) {
-            result[length++] = mapping(enumerator.Current, length);
-            if (length < capacity)
-                continue;
+        while (await enumerator.MoveNextAsync().ConfigureAwait(false) && index < Array.MaxLength) {
+            result[index] = mapping(enumerator.Current, index);
+            index++;
+            if (index < capacity) continue;
             capacity <<= 1;
-            if (capacity >= Array.MaxLength)
-                capacity = Array.MaxLength;
+            if (capacity >= Array.MaxLength) capacity = Array.MaxLength;
             Array.Resize(ref result, capacity);
         }
-        Array.Resize(ref result, length);
+        Array.Resize(ref result, index);
         return result;
     }
 }
