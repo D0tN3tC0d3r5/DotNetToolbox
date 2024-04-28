@@ -3,23 +3,35 @@ namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
     public static ValueTask<TItem> AggregateAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, TItem, TItem> aggregate, CancellationToken cancellationToken = default)
-        => source.AggregateAsync(default!, aggregate, cancellationToken);
+        => GetAggregatedValue(source, default, aggregate, x => x, cancellationToken);
 
-    public static ValueTask<TResult> AggregateAsync<TItem, TAccumulate, TResult>(this IAsyncQueryable<TItem> source, Func<TAccumulate, TItem, TAccumulate> aggregate, Func<TAccumulate, TResult> selector, CancellationToken cancellationToken = default)
-        => source.AggregateAsync(default!, aggregate, selector, cancellationToken);
+    public static ValueTask<TResult> AggregateAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TItem, TItem> aggregate, Func<TItem, TResult> resultSelector, CancellationToken cancellationToken = default)
+        => GetAggregatedValue(source, default, aggregate, resultSelector, cancellationToken);
 
-    public static async ValueTask<TResult> AggregateAsync<TItem, TAccumulate, TResult>(this IAsyncQueryable<TItem> source, TAccumulate seed, Func<TAccumulate, TItem, TAccumulate> aggregate, Func<TAccumulate, TResult> selector, CancellationToken cancellationToken = default) {
-        IsNotNull(selector);
-        var result = await source.AggregateAsync(seed, aggregate, cancellationToken);
-        return selector(result);
-    }
+    public static ValueTask<TAccumulate> AggregateAsync<TItem, TAccumulate>(this IAsyncQueryable<TItem> source, TAccumulate seed, Func<TAccumulate, TItem, TAccumulate> aggregate, CancellationToken cancellationToken = default)
+        => GetAggregatedValue(source, seed, aggregate, x => x, cancellationToken);
 
-    public static async ValueTask<TResult> AggregateAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, TResult seed, Func<TResult, TItem, TResult> aggregate, CancellationToken cancellationToken = default) {
+    public static ValueTask<TResult> AggregateAsync<TItem, TAccumulate, TResult>(this IAsyncQueryable<TItem> source, TAccumulate seed, Func<TAccumulate, TItem, TAccumulate> aggregate, Func<TAccumulate, TResult> resultSelector, CancellationToken cancellationToken = default)
+        => GetAggregatedValue(source, seed, aggregate, resultSelector, cancellationToken);
+
+    private static async ValueTask<TResult> GetAggregatedValue<TItem, TAccumulate, TResult>(
+        IAsyncQueryable<TItem> source,
+        TAccumulate? seed,
+        Func<TAccumulate, TItem, TAccumulate> aggregate,
+        Func<TAccumulate, TResult> resultSelector,
+        CancellationToken cancellationToken)
+    {
+        IsNotNull(resultSelector);
         IsNotNull(aggregate);
-        var result = seed;
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
-            result = aggregate(result, item);
+        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
+        if (!await enumerator.MoveNextAsync().ConfigureAwait(false))
+            throw new InvalidOperationException("Collection contains no elements.");
+        var result = seed is not null
+            ? aggregate(seed, enumerator.Current)
+            : (TAccumulate)(object)enumerator.Current!;
+        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
+            result = aggregate(result, enumerator.Current);
         }
-        return result;
+        return resultSelector(result);
     }
 }

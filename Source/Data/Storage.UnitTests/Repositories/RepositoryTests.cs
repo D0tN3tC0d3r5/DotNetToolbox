@@ -6,7 +6,7 @@ public class RepositoryTests {
     private sealed  class TestRepository : Repository<TestEntity1>;
     private sealed class DummyRepositoryStrategy : RepositoryStrategy<TestEntity1>;
 
-    private readonly Repository<TestEntity1> _repo = [new("A"), new("B"), new("C")];
+    private readonly Repository<TestEntity1> _repo = [new("A"), new("BB"), new("CCC")];
     private readonly TestRepository _childRepo = [new("X"), new("Y"), new("Z")];
     private readonly RepositoryStrategyProvider _provider = new();
 
@@ -22,7 +22,7 @@ public class RepositoryTests {
 
     [Fact]
     public void Constructor_WithSeed_CreatesRepository() {
-        var subject = new Repository<TestEntity1>([new("A"), new("B"), new("C")]);
+        var subject = new Repository<TestEntity1>([new("A"), new("BB"), new("CCC")]);
         subject.Should().NotBeNull();
         subject.Count().Should().Be(3);
     }
@@ -36,7 +36,7 @@ public class RepositoryTests {
     [Fact]
     public void Seed_PopulatesRepository() {
         var subject = new Repository<TestEntity1>();
-        subject.Seed([new("A"), new("B"), new("C")]);
+        subject.Seed([new("A"), new("BB"), new("CCC")]);
         subject.Count().Should().Be(3);
     }
 
@@ -51,7 +51,7 @@ public class RepositoryTests {
     [Fact]
     public void Enumeration_AllowsForEach() {
         var count = 0;
-        var expectedNames = new[] { "A", "B", "C" };
+        var expectedNames = new[] { "A", "BB", "CCC" };
         foreach (var item in _repo) {
             expectedNames[count].Should().Be(item.Name);
             count++;
@@ -80,15 +80,15 @@ public class RepositoryTests {
 
     [Fact]
     public void Update_ChangesItem() {
-        _repo.Update(s => s.Name == "B", new("Z"));
+        _repo.Update(s => s.Name == "BB", new("Z"));
         _repo.Count().Should().Be(3);
-        _repo.FirstOrDefault(s => s.Name == "B").Should().BeNull();
+        _repo.FirstOrDefault(s => s.Name == "BB").Should().BeNull();
         _repo.FirstOrDefault(s => s.Name == "Z").Should().NotBeNull();
     }
 
     [Fact]
     public void Remove_RemovesItem() {
-        _repo.Remove(s => s.Name == "B");
+        _repo.Remove(s => s.Name == "BB");
         _repo.Count().Should().Be(2);
     }
 

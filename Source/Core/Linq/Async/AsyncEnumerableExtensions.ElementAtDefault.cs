@@ -10,11 +10,10 @@ public static partial class AsyncEnumerableExtensions {
 
     public static async ValueTask<TItem?> ElementAtOrDefaultAsync<TItem>(this IAsyncQueryable<TItem> source, int index, TItem? defaultValue, CancellationToken cancellationToken = default) {
         IsNotNegative(index);
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
         var count = 0;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
+        await foreach (var item in source.AsConfigured(cancellationToken)) {
             if (index != count++) continue;
-            return enumerator.Current;
+            return item;
         }
         return defaultValue;
     }

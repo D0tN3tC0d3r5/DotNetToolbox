@@ -2,50 +2,28 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<TItem> MinAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default)
-        where TItem : struct, IMinMaxValue<TItem>, INumber<TItem> {
-        var result = TItem.MaxValue;
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
-            result = TItem.Min(result, item);
-        }
-        return result;
-    }
+    public static ValueTask<TItem> MinAsync<TItem>(
+            this IAsyncQueryable<TItem> source,
+            CancellationToken cancellationToken = default)
+        => source.MinAsync(x => x, cancellationToken);
 
-    public static async ValueTask<TResult> MinAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TResult> selector, CancellationToken cancellationToken = default)
-        where TResult : struct, IMinMaxValue<TResult>, INumber<TResult> {
-        IsNotNull(selector);
-        var result = TResult.MaxValue;
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
-            result = TResult.Min(result, selector(item));
-        }
-        return result;
-    }
+    public static async ValueTask<TResult> MinAsync<TItem, TResult>(
+            this IAsyncQueryable<TItem> source,
+            Func<TItem, TResult> selector,
+            CancellationToken cancellationToken = default)
+        => await source.MinByAsync(selector, Comparer<TResult>.Default, selector, cancellationToken)
+        ?? throw new InvalidOperationException("Collection contains no elements.");
 
-    public static async ValueTask<TItem?> MinAsync<TItem>(this IAsyncQueryable<TItem?> source, CancellationToken cancellationToken = default)
-        where TItem : struct, IMinMaxValue<TItem>, INumber<TItem> {
-        var result = default(TItem?);
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
-            if (!item.HasValue)
-                continue;
-            result = !result.HasValue
-                         ? item
-                         : TItem.Min(result.Value, item.Value);
-        }
-        return result;
-    }
+    public static ValueTask<TItem> MinAsync<TItem>(
+            this IAsyncQueryable<TItem> source,
+            IComparer<TItem> itemComparer,
+            CancellationToken cancellationToken = default)
+        => source.MinAsync(x => x, itemComparer, cancellationToken);
 
-    public static async ValueTask<TResult?> MinAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TResult?> selector, CancellationToken cancellationToken = default)
-        where TResult : struct, IMinMaxValue<TResult>, INumber<TResult> {
-        IsNotNull(selector);
-        var result = default(TResult?);
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
-            var value = selector(item);
-            if (!value.HasValue)
-                continue;
-            result = !result.HasValue
-                         ? value
-                         : TResult.Min(result.Value, value.Value);
-        }
-        return result;
-    }
+    public static ValueTask<TResult> MinAsync<TItem, TResult>(
+            this IAsyncQueryable<TItem> source,
+            Func<TItem, TResult> selector,
+            IComparer<TResult> valueComparer,
+            CancellationToken cancellationToken = default)
+        => source.MinByAsync(selector, valueComparer, selector, cancellationToken);
 }

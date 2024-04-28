@@ -12,13 +12,13 @@ public static partial class AsyncEnumerableExtensions {
         IsNotNull(predicate);
         var result = default(TItem);
         var found  = false;
-        await foreach(var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
+        await foreach(var item in source.AsConfigured(cancellationToken)) {
             if (!predicate(item)) continue;
             found  = true;
             result = item;
         }
         return found
                    ? result!
-                   : throw new InvalidOperationException("Collection does not contain any element that satisfy the given predicate.");
+                   : throw new InvalidOperationException("Collection contains no matching element.");
     }
 }

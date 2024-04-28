@@ -4,13 +4,12 @@ namespace System.Linq.Async;
 public static partial class AsyncEnumerableExtensions {
     public static async ValueTask<TItem?> ElementAtAsync<TItem>(this IAsyncQueryable<TItem> source, int index, CancellationToken cancellationToken = default) {
         IsNotNegative(index);
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
         var count = 0;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
+        await foreach (var item in source.AsConfigured(cancellationToken)) {
             if (index != count++) continue;
-            return enumerator.Current;
+            return item;
         }
-        throw new ArgumentOutOfRangeException(nameof(index), index, $"Collection contains only {count} elements.");
+        throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range. Must be non-negative and less than the size of the collection.");
     }
 
     public static async ValueTask<TItem?> ElementAtAsync<TItem>(this IAsyncQueryable<TItem> source, Index index, CancellationToken cancellationToken = default) {
@@ -18,7 +17,7 @@ public static partial class AsyncEnumerableExtensions {
             return await source.ElementAtAsync(index.Value, cancellationToken).ConfigureAwait(false);
         var list = await source.ToArrayAsync(cancellationToken).ConfigureAwait(false);
         return index.Value >= list.Length
-            ? throw new ArgumentOutOfRangeException(nameof(index), index, $"Collection contains only {list.Length} elements.")
+            ? throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range. Must be non-negative and less than the size of the collection.")
             : list[index];
     }
 }

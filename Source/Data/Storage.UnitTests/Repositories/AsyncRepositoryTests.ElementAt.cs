@@ -3,7 +3,7 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class AsyncRepositoryTests {
     [Fact]
     public async Task ElementAtAsync_WithInteger_ForValidIndex_ReturnsElement() {
-        var expectedItem = new TestEntity("B");
+        var expectedItem = new TestEntity("BB");
         var result = await _repo.ElementAtAsync(1);
         result.Should().Be(expectedItem);
     }
@@ -16,14 +16,14 @@ public partial class AsyncRepositoryTests {
 
     [Fact]
     public async Task ElementAtAsync_WithIndex_ForIndexFromStart_ReturnsElement() {
-        var expectedItem = new TestEntity("B");
+        var expectedItem = new TestEntity("BB");
         var result = await _repo.ElementAtAsync(new Index(1));
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task ElementAtAsync_WithIndex_ForIndexFromEnd_ReturnsElement() {
-        var expectedItem = new TestEntity("B");
+        var expectedItem = new TestEntity("BB");
         var result = await _repo.ElementAtAsync(^2);
         result.Should().Be(expectedItem);
     }

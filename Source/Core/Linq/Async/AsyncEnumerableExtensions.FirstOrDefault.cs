@@ -17,7 +17,7 @@ public static partial class AsyncEnumerableExtensions {
 
     private static async ValueTask<TItem?> FindFirstOrDefault<TItem>(IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, TItem? defaultValue, CancellationToken cancellationToken) {
         IsNotNull(predicate);
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
+        await foreach (var item in source.AsConfigured(cancellationToken)) {
             if (!predicate(item)) continue;
             return item;
         }

@@ -16,8 +16,8 @@ public partial class AsyncRepositoryTests {
 
     [Fact]
     public async Task FirstAsync_WithValidPredicate_ReturnsElement() {
-        var expectedItem = new TestEntity("B");
-        var result = await _repo.FirstAsync(x => x.Name == "B");
+        var expectedItem = new TestEntity("BB");
+        var result = await _repo.FirstAsync(x => x.Name == "BB");
         result.Should().Be(expectedItem);
     }
 

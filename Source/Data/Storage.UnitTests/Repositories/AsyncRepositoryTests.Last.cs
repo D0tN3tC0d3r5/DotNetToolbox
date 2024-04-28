@@ -3,7 +3,7 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class AsyncRepositoryTests {
     [Fact]
     public async Task LastAsync_ForPopulatedSet_ReturnsLastElement() {
-        var expectedItem = new TestEntity("C");
+        var expectedItem = new TestEntity("CCC");
         var result = await _repo.LastAsync();
         result.Should().Be(expectedItem);
     }
@@ -16,8 +16,8 @@ public partial class AsyncRepositoryTests {
 
     [Fact]
     public async Task LastAsync_WithValidPredicate_ReturnsElement() {
-        var expectedItem = new TestEntity("B");
-        var result = await _repo.LastAsync(x => x.Name == "B");
+        var expectedItem = new TestEntity("BB");
+        var result = await _repo.LastAsync(x => x.Name == "BB");
         result.Should().Be(expectedItem);
     }
 

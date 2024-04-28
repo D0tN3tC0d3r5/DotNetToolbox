@@ -11,10 +11,10 @@ public static partial class AsyncEnumerableExtensions {
     private static async ValueTask<TItem> FindFirst<TItem>(IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken)
     {
         IsNotNull(predicate);
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
+        await foreach (var item in source.AsConfigured(cancellationToken)) {
             if (!predicate(item)) continue;
             return item;
         }
-        throw new InvalidOperationException("Collection does not contain any element that satisfy the given predicate.");
+        throw new InvalidOperationException("Collection contains no matching element.");
     }
 }

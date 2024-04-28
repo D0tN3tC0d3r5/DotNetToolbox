@@ -8,13 +8,13 @@ public partial class AsyncRepositoryTests {
     }
 
     [Fact]
-    public async Task Count_ReturnsCount() {
+    public async Task CountAsync_ReturnsCount() {
         var result = await _repo.CountAsync();
         result.Should().Be(3);
     }
 
     [Fact]
-    public async Task Count_WithPredicate_ReturnsFilteredCount() {
+    public async Task CountAsync_WithPredicate_ReturnsFilteredCount() {
         var result = await _repo.CountAsync(x => x.Name != "A");
         result.Should().Be(2);
     }

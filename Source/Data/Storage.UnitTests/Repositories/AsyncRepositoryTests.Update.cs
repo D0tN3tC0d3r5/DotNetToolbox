@@ -2,18 +2,30 @@ namespace DotNetToolbox.Data.Repositories;
 
 public partial class AsyncRepositoryTests {
     [Fact]
+    public void Update_BaseStrategy_ShouldThrow() {
+        var action = () => _dummyStrategy.Update(_ => true, new(""));
+        action.Should().Throw<NotImplementedException>();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_BaseStrategy_ShouldThrow() {
+        var action = () => _dummyStrategy.UpdateAsync(_ => true, new(""));
+        await action.Should().ThrowAsync<NotImplementedException>();
+    }
+
+    [Fact]
     public void Update_UpdatedItem() {
-        _repo.Update(s => s.Name == "B", new("Z"));
-        _repo.Count().Should().Be(3);
-        _repo.FirstOrDefault(s => s.Name == "B").Should().BeNull();
-        _repo.FirstOrDefault(s => s.Name == "Z").Should().NotBeNull();
+        _updatableRepo.Update(s => s.Name == "BB", new("Z"));
+        _updatableRepo.Count().Should().Be(3);
+        _updatableRepo.FirstOrDefault(s => s.Name == "BB").Should().BeNull();
+        _updatableRepo.FirstOrDefault(s => s.Name == "Z").Should().NotBeNull();
     }
 
     [Fact]
     public async Task UpdateAsync_UpdatesItem() {
-        await _repo.UpdateAsync(s => s.Name == "B", new("Z"));
-        _repo.Count().Should().Be(3);
-        _repo.FirstOrDefault(s => s.Name == "B").Should().BeNull();
-        _repo.FirstOrDefault(s => s.Name == "Z").Should().NotBeNull();
+        await _updatableRepo.UpdateAsync(s => s.Name == "BB", new("Z"));
+        _updatableRepo.Count().Should().Be(3);
+        _updatableRepo.FirstOrDefault(s => s.Name == "BB").Should().BeNull();
+        _updatableRepo.FirstOrDefault(s => s.Name == "Z").Should().NotBeNull();
     }
 }

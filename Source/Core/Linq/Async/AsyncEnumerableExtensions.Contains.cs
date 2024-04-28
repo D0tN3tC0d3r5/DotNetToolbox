@@ -2,18 +2,15 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<bool> ContainsAsync<TItem>(this IAsyncQueryable<TItem> source, TItem item, CancellationToken cancellationToken = default) {
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false))
-            if (Equals(item, enumerator.Current)) return true;
-        return false;
-    }
+    public static ValueTask<bool> ContainsAsync<TItem>(this IAsyncQueryable<TItem> source, TItem searchedItem, CancellationToken cancellationToken = default)
+        => source.ContainsAsync(searchedItem, EqualityComparer<TItem>.Default, cancellationToken);
 
-    public static async ValueTask<bool> ContainsAsync<TItem>(this IAsyncQueryable<TItem> source, TItem item, IEqualityComparer<TItem> comparer, CancellationToken cancellationToken = default) {
+    public static async ValueTask<bool> ContainsAsync<TItem>(this IAsyncQueryable<TItem> source, TItem searchedItem, IEqualityComparer<TItem> comparer, CancellationToken cancellationToken = default) {
         IsNotNull(comparer);
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false))
-            if (comparer.Equals(item, enumerator.Current)) return true;
+        await foreach (var item in source.AsConfigured(cancellationToken)) {
+            if (!comparer.Equals(searchedItem, item)) continue;
+            return true;
+        }
         return false;
     }
 }

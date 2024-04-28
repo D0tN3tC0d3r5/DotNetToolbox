@@ -4,7 +4,7 @@ public partial class AsyncRepositoryTests {
     [Fact]
     public void ToEnumerable_AllowsLoop() {
         var count = 0;
-        var expectedNames = new[] { "A", "B", "C" };
+        var expectedNames = new[] { "A", "BB", "CCC" };
         foreach (var item in _repo.ToEnumerable()) {
             expectedNames[count].Should().Be(item.Name);
             count++;

@@ -22,6 +22,12 @@ public partial class AsyncRepositoryTests {
     }
 
     [Fact]
+    public async Task SingleOrDefaultAsync_WithDuplicatedItem_ReturnsNull() {
+        var result = async () => await _repoWithDuplicate.SingleOrDefaultAsync(x => x.Name == "CCC");
+        await result.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
     public async Task SingleOrDefaultAsync_WithInvalidItem_ReturnsNull() {
         var result = await _repo.SingleOrDefaultAsync(x => x.Name == "K");
         result.Should().BeNull();

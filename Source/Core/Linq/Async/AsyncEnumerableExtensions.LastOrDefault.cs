@@ -19,12 +19,11 @@ public static partial class AsyncEnumerableExtensions {
 
     private static async ValueTask<TItem?> FindLastOrDefault<TItem>(IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, TItem? defaultValue, CancellationToken cancellationToken) {
         IsNotNull(predicate);
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
         var result = defaultValue;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (!predicate(enumerator.Current))
+        await foreach (var item in source.AsConfigured(cancellationToken)) {
+            if (!predicate(item))
                 continue;
-            result = enumerator.Current;
+            result = item;
         }
 
         return result;

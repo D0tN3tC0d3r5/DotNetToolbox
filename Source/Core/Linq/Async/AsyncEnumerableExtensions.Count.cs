@@ -2,20 +2,14 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<int> CountAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default) {
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        var count = 0;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false))
-            count++;
-        return count;
-    }
+    public static ValueTask<int> CountAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken cancellationToken = default)
+        => source.CountAsync(_ => true, cancellationToken);
 
     public static async ValueTask<int> CountAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default) {
         IsNotNull(predicate);
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
         var count = 0;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (predicate(enumerator.Current))
+        await foreach (var item in source.AsConfigured(cancellationToken)) {
+            if (predicate(item))
                 count++;
         }
 

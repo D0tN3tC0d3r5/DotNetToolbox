@@ -22,7 +22,7 @@ public static partial class AsyncEnumerableExtensions {
         var result = defaultValue;
         while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
             if (!predicate(enumerator.Current)) continue;
-            if (found) throw new InvalidOperationException("Sequence contains more than one element.");
+            if (found) throw new InvalidOperationException("Collection contains more than one matching element.");
             found  = true;
             result = enumerator.Current;
         }

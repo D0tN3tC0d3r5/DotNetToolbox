@@ -15,7 +15,7 @@ public partial class AsyncRepositoryTests {
 
     [Fact]
     public async Task AnyAsync_WithExistingItem_ReturnsTrue() {
-        var result = await _repo.AnyAsync(x => x.Name == "B");
+        var result = await _repo.AnyAsync(x => x.Name == "BB");
         result.Should().BeTrue();
     }
 

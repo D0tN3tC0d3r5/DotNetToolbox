@@ -2,63 +2,55 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<TItem?> MinByAsync<TItem, TKey>(this IAsyncQueryable<TItem> source, Func<TItem, TKey> keySelector, CancellationToken cancellationToken = default)
-        where TKey : struct, IMinMaxValue<TKey>, INumber<TKey> {
-        IsNotNull(keySelector);
-        var key = TKey.MaxValue;
-        var result = default(TItem);
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
-            var itemKey = keySelector(item);
-            if (itemKey >= key)
-                continue;
-            key = itemKey;
-            result = item;
-        }
-        return result;
-    }
+    public static ValueTask<TItem> MinByAsync<TItem, TKey>(
+            this IAsyncQueryable<TItem> source,
+            Func<TItem, TKey> keySelector,
+            CancellationToken cancellationToken = default)
+        => source.MinByAsync(keySelector, Comparer<TKey>.Default, x => x, cancellationToken);
 
-    public static async ValueTask<TItem?> MinByAsync<TItem, TKey>(this IAsyncQueryable<TItem> source, Func<TItem, TKey> keySelector, IComparer<TKey> comparer, CancellationToken cancellationToken = default)
-        where TKey : struct, IMinMaxValue<TKey>, INumber<TKey> {
-        IsNotNull(keySelector);
-        var key = TKey.MaxValue;
-        var result = default(TItem);
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
-            var itemKey = keySelector(item);
-            if (comparer.Compare(itemKey, key) > -1)
-                continue;
-            key = itemKey;
-            result = item;
-        }
-        return result;
-    }
+    public static ValueTask<TItem> MinByAsync<TItem, TKey>(
+            this IAsyncQueryable<TItem> source,
+            Func<TItem, TKey> keySelector,
+            IComparer<TKey> keyComparer,
+            CancellationToken cancellationToken = default)
+        => source.MinByAsync(keySelector, keyComparer, x => x, cancellationToken);
 
-    public static async ValueTask<TResult?> MinByAsync<TItem, TKey, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TKey> keySelector, Func<TItem, TResult?> valueSelector, CancellationToken cancellationToken = default)
-        where TKey : struct, IMinMaxValue<TKey>, INumber<TKey> {
+    public static ValueTask<TResult> MinByAsync<TItem, TKey, TResult>(
+            this IAsyncQueryable<TItem> source,
+            Func<TItem, TKey> keySelector,
+            Func<TItem, TResult> valueSelector,
+            CancellationToken cancellationToken = default)
+        => source.MinByAsync(keySelector, Comparer<TKey>.Default, valueSelector, cancellationToken);
+
+    public static ValueTask<TResult> MinByAsync<TItem, TKey, TResult>(
+            this IAsyncQueryable<TItem> source,
+            Func<TItem, TKey> keySelector,
+            IComparer<TKey> keyComparer,
+            Func<TItem, TResult> valueSelector,
+            CancellationToken cancellationToken = default)
+        => GetMinBy(source, keySelector, keyComparer, valueSelector, cancellationToken);
+
+    private static async ValueTask<TResult> GetMinBy<TItem, TKey, TResult>(
+            IAsyncQueryable<TItem> source,
+            Func<TItem, TKey> keySelector,
+            IComparer<TKey> keyComparer,
+            Func<TItem, TResult> valueSelector,
+            CancellationToken cancellationToken) {
         IsNotNull(keySelector);
         IsNotNull(valueSelector);
-        var key = TKey.MaxValue;
+        object? key = null;
         var result = default(TResult);
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
+        var isEmpty = true;
+        await foreach (var item in source.AsConfigured(cancellationToken)) {
+            isEmpty = false;
             var itemKey = keySelector(item);
-            if (itemKey >= key) continue;
+            if (key is not null && keyComparer.Compare((TKey)key, itemKey) <= 1)
+                continue;
             key = itemKey;
             result = valueSelector(item);
         }
-        return result;
-    }
-
-    public static async ValueTask<TResult?> MinByAsync<TItem, TKey, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TKey> keySelector, IComparer<TKey> comparer, Func<TItem, TResult?> valueSelector, CancellationToken cancellationToken = default)
-        where TKey : struct, IMinMaxValue<TKey>, INumber<TKey> {
-        IsNotNull(keySelector);
-        IsNotNull(valueSelector);
-        var key = TKey.MaxValue;
-        var result = default(TResult);
-        await foreach (var item in IsNotNull(source).WithCancellation(cancellationToken).ConfigureAwait(false)) {
-            var itemKey = keySelector(item);
-            if (comparer.Compare(itemKey, key) > -1) continue;
-            key = itemKey;
-            result = valueSelector(item);
-        }
-        return result;
+        return isEmpty
+            ? throw new InvalidOperationException("Collection contains no elements.")
+            : result!;
     }
 }

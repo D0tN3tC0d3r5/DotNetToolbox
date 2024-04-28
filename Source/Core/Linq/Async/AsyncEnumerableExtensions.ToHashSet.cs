@@ -2,41 +2,20 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncEnumerableExtensions {
-    public static async ValueTask<HashSet<TItem>> ToHashSetAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken ct = default) {
-        var result = new HashSet<TItem>();
-        await foreach (var item in IsNotNull(source).WithCancellation(ct).ConfigureAwait(false))
-            result.Add(item);
-        return result;
-    }
+    public static ValueTask<HashSet<TItem>> ToHashSetAsync<TItem>(this IAsyncQueryable<TItem> source, CancellationToken ct = default)
+        => source.ToHashSetAsync((x, _) => x, EqualityComparer<TItem>.Default, ct);
 
-    public static async ValueTask<HashSet<TItem>> ToHashSetAsync<TItem>(this IAsyncQueryable<TItem> source, IEqualityComparer<TItem> comparer, CancellationToken ct = default) {
-        var result = new HashSet<TItem>(IsNotNull(comparer));
-        await foreach (var item in IsNotNull(source).WithCancellation(ct).ConfigureAwait(false))
-            result.Add(item);
-        return result;
-    }
+    public static ValueTask<HashSet<TItem>> ToHashSetAsync<TItem>(this IAsyncQueryable<TItem> source, IEqualityComparer<TItem> comparer, CancellationToken ct = default)
+        => source.ToHashSetAsync((x, _) => x, comparer, ct);
 
-    public static async ValueTask<HashSet<TResult>> ToHashSetAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TResult> mapping, CancellationToken ct = default) {
-        var result = new HashSet<TResult>();
-        await foreach (var item in IsNotNull(source).WithCancellation(ct).ConfigureAwait(false))
-            result.Add(mapping(item));
-        return result;
-    }
+    public static ValueTask<HashSet<TResult>> ToHashSetAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TResult> mapping, CancellationToken ct = default)
+        => source.ToHashSetAsync((x, _) => mapping(x), EqualityComparer<TResult>.Default, ct);
 
-    public static async ValueTask<HashSet<TResult>> ToHashSetAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TResult> mapping, IEqualityComparer<TResult> comparer, CancellationToken ct = default) {
-        var result = new HashSet<TResult>(IsNotNull(comparer));
-        await foreach (var item in IsNotNull(source).WithCancellation(ct).ConfigureAwait(false))
-            result.Add(mapping(item));
-        return result;
-    }
+    public static ValueTask<HashSet<TResult>> ToHashSetAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TResult> mapping, IEqualityComparer<TResult> comparer, CancellationToken ct = default)
+        => source.ToHashSetAsync((x, _) => mapping(x), comparer, ct);
 
-    public static async ValueTask<HashSet<TResult>> ToHashSetAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, int, TResult> mapping, CancellationToken ct = default) {
-        var result = new HashSet<TResult>();
-        var index = 0;
-        await foreach (var item in IsNotNull(source).WithCancellation(ct).ConfigureAwait(false))
-            result.Add(mapping(item, index++));
-        return result;
-    }
+    public static ValueTask<HashSet<TResult>> ToHashSetAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, int, TResult> mapping, CancellationToken ct = default)
+        => source.ToHashSetAsync(mapping, EqualityComparer<TResult>.Default, ct);
 
     public static async ValueTask<HashSet<TResult>> ToHashSetAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, int, TResult> mapping, IEqualityComparer<TResult> comparer, CancellationToken ct = default) {
         var result = new HashSet<TResult>(IsNotNull(comparer));

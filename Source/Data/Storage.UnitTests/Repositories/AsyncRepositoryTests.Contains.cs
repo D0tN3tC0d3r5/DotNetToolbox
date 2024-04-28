@@ -3,7 +3,7 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class AsyncRepositoryTests {
     [Fact]
     public async Task ContainsAsync_WithExistingItem_ReturnsTrue() {
-        var item = new TestEntity("B");
+        var item = new TestEntity("BB");
         var result = await _repo.ContainsAsync(item);
         result.Should().BeTrue();
     }
