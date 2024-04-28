@@ -1,11 +1,11 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IUnitOfWorkRepository
-    : IOrderedRepository {
-    Task<int> SaveChanges(CancellationToken ct = default);
+    : IRepository {
+    void SaveChanges();
 }
 
 public interface IUnitOfWorkRepository<TItem>
     : IUnitOfWorkRepository
-    , IOrderedRepository<TItem>{
+    , IRepository<TItem>{
 }

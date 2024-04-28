@@ -1,9 +1,9 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public abstract partial class RepositoryStrategy
+public abstract class RepositoryStrategy
     : IRepositoryStrategy;
 
-public abstract partial class RepositoryStrategy<TItem>
+public abstract class RepositoryStrategy<TItem>
     : RepositoryStrategy,
     IRepositoryStrategy<TItem> {
 
@@ -13,14 +13,29 @@ public abstract partial class RepositoryStrategy<TItem>
 
     protected RepositoryStrategy(IEnumerable<TItem> data) {
         OriginalData = data.ToList();
-        Query = OriginalData.AsQueryable();
+        Query = new EnumerableQuery<TItem>(OriginalData);
     }
 
-    IQueryable IRepositoryStrategy<TItem>.Query => Query;
+    public IEnumerator<TItem> GetEnumerator() => Query.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public Type ElementType => Query.ElementType;
+    public Expression Expression => Query.Expression;
+    public IQueryProvider Provider => Query.Provider;
+
     protected IQueryable<TItem> Query { get; set; }
     protected IEnumerable<TItem> OriginalData { get; set; }
     protected List<TItem> UpdatableData => IsOfType<List<TItem>>(OriginalData);
 
     public virtual void Seed(IEnumerable<TItem> seed)
+        => throw new NotImplementedException();
+
+    public virtual void Add(TItem newItem)
+        => throw new NotImplementedException();
+
+    public virtual void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem)
+        => throw new NotImplementedException();
+
+    public virtual void Remove(Expression<Func<TItem, bool>> predicate)
         => throw new NotImplementedException();
 }

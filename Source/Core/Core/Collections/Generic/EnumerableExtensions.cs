@@ -3,6 +3,12 @@ namespace System.Collections.Generic;
 
 public static class EnumerableExtensions {
 
+    public static IAsyncEnumerable<TItem> ToAsyncEnumerable<TItem>(this IEnumerable<TItem> source)
+        => new AsyncEnumerable<TItem>(source);
+
+    public static IAsyncEnumerator<TItem> GetAsyncEnumerator<TItem>(this IEnumerable<TItem> source, CancellationToken cancellationToken = default)
+        => source.ToAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
+
     #region Projections
 
     public static IEnumerable<TItem> As<TItem>(this IEnumerable source)
@@ -11,25 +17,16 @@ public static class EnumerableExtensions {
         => source.As<TItem>().Select(convertTo);
     public static TItem[] ToArray<TItem>(this IEnumerable source)
         => [.. IsNotNull(source).As<TItem>()];
-    public static TItem[] ToArray<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> convertTo)
-        => [.. IsNotNull(source).Select(convertTo)];
     public static TNewItem[] ToArray<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
         => [.. IsNotNull(source).Select(convertTo)];
     public static List<TItem> ToList<TItem>(this IEnumerable source)
         => [.. IsNotNull(source).Cast<TItem>()];
-    public static List<TItem> ToList<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> convertTo)
-        => [.. IsNotNull(source).Select(convertTo)];
     public static List<TNewItem> ToList<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
         => [.. IsNotNull(source).Select(convertTo)];
     public static HashSet<TItem> ToHashSet<TItem>(this IEnumerable source)
         => [.. IsNotNull(source).Cast<TItem>()];
-    public static HashSet<TItem> ToHashSet<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> convertTo)
-        => [.. IsNotNull(source).Select(convertTo)];
     public static HashSet<TNewItem> ToHashSet<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
         => [.. IsNotNull(source).Select(convertTo)];
-    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Func<TValue, TValue> convertTo)
-        where TKey : notnull
-        => IsNotNull(source).ToDictionary(i => i.Key, i => convertTo(i.Value));
     public static Dictionary<TKey, TNewValue> ToDictionary<TKey, TValue, TNewValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Func<TValue, TNewValue> convertToValue)
         where TKey : notnull
         => IsNotNull(source).ToDictionary(i => i.Key, i => convertToValue(i.Value));

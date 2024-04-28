@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>DotNetToolbox</RootNamespace>
+    <RootNamespace>System.Linq</RootNamespace>
     <PackageId>DotNetToolbox.Linq</PackageId>
     <Title>DotNetToolbox Asynchronous Linq Library</Title>
     <Version>8.1.0-rc1</Version>

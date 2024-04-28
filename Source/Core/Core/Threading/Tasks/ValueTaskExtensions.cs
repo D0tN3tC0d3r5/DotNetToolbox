@@ -2,6 +2,22 @@
 namespace System.Threading.Tasks;
 
 public static class ValueTaskExtensions {
+    public static void Wait(this ValueTask task) {
+        var awaiter = task.GetAwaiter();
+        if (awaiter.IsCompleted) {
+            awaiter.GetResult();
+            return;
+        }
+        task.AsTask().GetAwaiter().GetResult();
+    }
+
+    public static T GetResult<T>(this ValueTask<T> task) {
+        var awaiter = task.GetAwaiter();
+        return awaiter.IsCompleted
+            ? awaiter.GetResult()
+            : task.AsTask().GetAwaiter().GetResult();
+    }
+
     public static void FireAndForget(this ValueTask task)
         => FireAndForgetHandler.Send(task, default, default(Action<Exception>));
     public static void FireAndForget(this ValueTask task, Action<Exception> onException)

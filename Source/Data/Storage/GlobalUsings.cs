@@ -1,5 +1,5 @@
 global using System.Collections;
-global using System.Diagnostics.CodeAnalysis;
+global using System.Linq.Async;
 global using System.Linq.Expressions;
 
 global using DotNetToolbox.Data.Repositories;
