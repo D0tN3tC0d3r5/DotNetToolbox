@@ -4,10 +4,14 @@ public abstract class AsyncRepositoryStrategy<TItem>
     : RepositoryStrategy<TItem>
     , IAsyncRepositoryStrategy<TItem> {
 
-    protected AsyncRepositoryStrategy(IEnumerable<TItem>? data = null) {
-        OriginalData = data?.ToList() ?? [];
+    protected AsyncRepositoryStrategy()
+        : this([]) {
+    }
+
+    protected AsyncRepositoryStrategy(IEnumerable<TItem> data) {
+        OriginalData = IsNotNull(data).ToList();
         Query = OriginalData.AsQueryable();
-        AsyncQuery = OriginalData.AsAsyncQueryable();
+        AsyncQuery = OriginalData.ToAsyncQueryable();
     }
 
     //IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken ct)

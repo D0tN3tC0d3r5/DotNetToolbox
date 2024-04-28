@@ -2,8 +2,12 @@
 namespace DotNetToolbox.Data.Repositories;
 
 internal interface IRepositoryFactory {
-    IAsyncRepository<TResult> CreateAsyncRepository<TRepository, TResult>(IQueryable<TResult> result) where TRepository : IAsyncRepository;
-    IAsyncRepository<TResult> CreateAsyncRepository<TRepository, TResult>(IQueryable<TResult> result, IRepositoryStrategy strategy) where TRepository : IAsyncRepository;
-    IRepository<TResult> CreateRepository<TRepository, TResult>(IQueryable<TResult> result) where TRepository : IRepository;
-    IRepository<TResult> CreateRepository<TRepository, TResult>(IQueryable<TResult> result, IRepositoryStrategy strategy) where TRepository : IRepository;
+    IRepository<TItem> CreateRepository<TRepository, TItem>(IEnumerable<TItem>? data = null)
+        where TRepository : IRepository<TItem>;
+    IRepository<TItem> CreateRepository<TRepository, TItem>(IRepositoryStrategy strategy, IEnumerable<TItem>? data = null)
+        where TRepository : IRepository<TItem>;
+    IAsyncRepository<TItem> CreateAsyncRepository<TRepository, TItem>(IEnumerable<TItem>? data = null)
+        where TRepository : IAsyncRepository<TItem>;
+    IAsyncRepository<TItem> CreateAsyncRepository<TRepository, TItem>(IAsyncRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
+        where TRepository : IAsyncRepository<TItem>;
 }

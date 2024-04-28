@@ -8,11 +8,10 @@ global using System.Text;
 global using System.Text.RegularExpressions;
 
 global using DotNetToolbox.Results;
-global using DotNetToolbox.Utilities;
 global using DotNetToolbox.ValidationBuilder.Commands;
 
 global using static System.Constants.ErrorMessages;
 
-global using static System.Diagnostics.Ensure;
+global using static System.Ensure;
 global using static DotNetToolbox.ValidationBuilder.ValidatorFactory;
 global using static DotNetToolbox.ValidationBuilder.ValidatorMode;

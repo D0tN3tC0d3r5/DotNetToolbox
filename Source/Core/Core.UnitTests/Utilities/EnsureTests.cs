@@ -341,7 +341,7 @@ public class EnsureTests {
         const string defaultValue = "default";
 
         // Act
-        var result = IsDefaultIfNull(argument, defaultValue);
+        var result = DefaultIfNull(argument, defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);
@@ -354,7 +354,7 @@ public class EnsureTests {
         const string defaultValue = "default";
 
         // Act
-        var result = IsDefaultIfNull(argument, defaultValue);
+        var result = DefaultIfNull(argument, defaultValue);
 
         // Assert
         result.Should().Be(argument);
@@ -367,7 +367,7 @@ public class EnsureTests {
         argument.Validate().Returns(Result.Success());
 
         // Act
-        var result = GetDefaultIfInvalid(argument, defaultValue: argument);
+        var result = DefaultIfNotValid(argument, defaultValue: argument);
 
         // Assert
         result.Should().Be(argument);
@@ -380,7 +380,7 @@ public class EnsureTests {
         var defaultValue = new ValidatableObject(true);
 
         // Act
-        var result = GetDefaultIfInvalid(argument, defaultValue: defaultValue);
+        var result = DefaultIfNotValid(argument, defaultValue: defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);
@@ -393,7 +393,7 @@ public class EnsureTests {
         var defaultValue = new ValidatableObject(true);
 
         // Act
-        var result = GetDefaultIfInvalid(argument, defaultValue: defaultValue);
+        var result = DefaultIfNotValid(argument, defaultValue: defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);
@@ -405,7 +405,7 @@ public class EnsureTests {
         const string argument = "Valid";
 
         // Act
-        var result = GetDefaultIfInvalid(argument, _ => Result.Success(), argument);
+        var result = DefaultIfNotValid(argument, _ => Result.Success(), argument);
 
         // Assert
         result.Should().Be(argument);
@@ -418,7 +418,7 @@ public class EnsureTests {
         const string defaultValue = "Valid";
 
         // Act
-        var result = GetDefaultIfInvalid(argument, _ => Result.Invalid("ErrorWriter"), defaultValue);
+        var result = DefaultIfNotValid(argument, _ => Result.Invalid("ErrorWriter"), defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);
@@ -431,7 +431,7 @@ public class EnsureTests {
         const string defaultValue = "Valid";
 
         // Act
-        var result = GetDefaultIfInvalid(argument, _ => Result.Success(), defaultValue);
+        var result = DefaultIfNotValid(argument, _ => Result.Success(), defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);
@@ -443,7 +443,7 @@ public class EnsureTests {
         const string argument = "Valid";
 
         // Act
-        var result = GetDefaultIfInvalid(argument, _ => true, argument);
+        var result = DefaultIfNotValid(argument, _ => true, argument);
 
         // Assert
         result.Should().Be(argument);
@@ -456,7 +456,7 @@ public class EnsureTests {
         const string defaultValue = "Valid";
 
         // Act
-        var result = GetDefaultIfInvalid(argument, _ => false, defaultValue);
+        var result = DefaultIfNotValid(argument, _ => false, defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);
@@ -469,7 +469,7 @@ public class EnsureTests {
         const string defaultValue = "Valid";
 
         // Act
-        var result = GetDefaultIfInvalid(argument, _ => true, defaultValue);
+        var result = DefaultIfNotValid(argument, _ => true, defaultValue);
 
         // Assert
         result.Should().Be(defaultValue);

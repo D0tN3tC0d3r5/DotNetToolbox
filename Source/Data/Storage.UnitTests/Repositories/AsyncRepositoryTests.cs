@@ -3,6 +3,7 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class AsyncRepositoryTests {
     private abstract record BaseTestEntity(string Name);
     private sealed record TestEntity(string Name) : BaseTestEntity(Name);
+
     private static readonly AsyncRepository<BaseTestEntity> _emptyRepo = [];
     private static readonly AsyncRepository<TestEntity> _singleRepo = [new("A")];
     private static readonly AsyncRepository<TestEntity> _repo = [new("A"), new("BB"), new("CCC")];
@@ -14,7 +15,9 @@ public partial class AsyncRepositoryTests {
     private static readonly AsyncRepository<int?> _emptyNullableIntRepo = [];
     private static readonly AsyncRepository<int?> _nullableIntRepo = [null, 2, null, 4, null, 6, null, 8, null];
     private static readonly AsyncRepository<int?> _allNullIntRepo = [null, null, null];
-    private readonly AsyncRepository<TestEntity> _updatableRepo = [new("A"), new("BB"), new("CCC")];
+
+    private sealed class TestRepository : AsyncRepository<TestEntity>;
+    private readonly TestRepository _updatableRepo = [new("A"), new("BB"), new("CCC")];
 
     private sealed class TestEntityEqualityComparer : IEqualityComparer<TestEntity> {
         public bool Equals(TestEntity? x, TestEntity? y)
@@ -26,7 +29,6 @@ public partial class AsyncRepositoryTests {
 
         public int GetHashCode(TestEntity obj) => obj.Name.GetHashCode();
     }
-
     private static readonly TestEntityEqualityComparer _equalityComparer = new();
 
     private sealed class TestEntityComparer : IComparer<BaseTestEntity> {
@@ -35,16 +37,8 @@ public partial class AsyncRepositoryTests {
     }
     private static readonly TestEntityComparer _comparer = new();
 
-    private sealed class TestRepository : AsyncRepository<TestEntity>;
-
-    private sealed class DummyAsyncRepositoryStrategy : AsyncRepositoryStrategy<TestEntity>;
-    private readonly DummyAsyncRepositoryStrategy _dummyStrategy = [];
-
-    private readonly TestRepository _childRepo = [new("X"), new("Y"), new("Z")];
-
-    private readonly RepositoryStrategyProvider _provider = new();
-
-    public AsyncRepositoryTests() {
-        _provider.TryAdd<DummyAsyncRepositoryStrategy>();
-    }
+    private sealed class DummyRepositoryStrategy : AsyncRepositoryStrategy<TestEntity>;
+    private sealed class DummyRepository()
+        : AsyncRepository<DummyRepositoryStrategy, TestEntity>([], []);
+    private static readonly DummyRepository _dummyRepository = [];
 }

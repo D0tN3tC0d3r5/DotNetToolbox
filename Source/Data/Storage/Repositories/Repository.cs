@@ -1,19 +1,23 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class Repository<TItem>(IRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
-    : Repository<IRepositoryStrategy<TItem>, TItem>(IsNotNull(strategy), data ?? []) {
+public class Repository<TItem>
+    : Repository<IRepositoryStrategy<TItem>, TItem> {
     public Repository(IEnumerable<TItem>? data = null)
-        : this(new InMemoryRepositoryStrategy<TItem>(), data ?? []) { }
+        : base(new InMemoryRepositoryStrategy<TItem>(), data ?? []) { }
     public Repository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
-        : this(IsNotNull(provider).GetRequiredStrategyFor<TItem>(), data) { }
+        : base(IsNotNull(provider).GetStrategyFor<TItem>(), data) { }
+
+    public Repository(IRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
+        : base(strategy, data ?? []) {
+    }
 }
 
 public abstract class Repository<TStrategy, TItem>
     : IRepository<TItem>
     where TStrategy : class, IRepositoryStrategy<TItem> {
-    protected Repository(TStrategy strategy, IEnumerable<TItem> data) {
+    protected Repository(TStrategy strategy, IEnumerable<TItem>? data = null) {
         Strategy = IsNotNull(strategy);
-        var list = DefaultIfNotOfType(data, data.ToList());
+        var list = DefaultIfNotOfType(data, (data ?? []).ToList());
         if (list.Count == 0)
             return;
         Strategy.Seed(list);

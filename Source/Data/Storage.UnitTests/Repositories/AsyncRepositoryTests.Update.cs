@@ -3,13 +3,13 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class AsyncRepositoryTests {
     [Fact]
     public void Update_BaseStrategy_ShouldThrow() {
-        var action = () => _dummyStrategy.Update(_ => true, new(""));
+        var action = () => _dummyRepository.Update(_ => true, new(""));
         action.Should().Throw<NotImplementedException>();
     }
 
     [Fact]
     public async Task UpdateAsync_BaseStrategy_ShouldThrow() {
-        var action = () => _dummyStrategy.UpdateAsync(_ => true, new(""));
+        var action = () => _dummyRepository.UpdateAsync(_ => true, new(""));
         await action.Should().ThrowAsync<NotImplementedException>();
     }
 

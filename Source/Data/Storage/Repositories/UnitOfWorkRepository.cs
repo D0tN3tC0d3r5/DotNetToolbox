@@ -6,7 +6,7 @@ public class UnitOfWorkRepository<TItem>(IUnitOfWorkRepositoryStrategy<TItem> st
     public UnitOfWorkRepository(IEnumerable<TItem>? data = null)
         : this(new InMemoryUnitOfWorkRepositoryStrategy<TItem>(), data) { }
     public UnitOfWorkRepository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
-        : this(IsNotNull(provider).GetRequiredUnitOfWorkStrategyFor<TItem>(), data) { }
+        : this((IUnitOfWorkRepositoryStrategy<TItem>)IsNotNull(provider).GetStrategyFor<TItem>(), data) { }
 
     public virtual void SaveChanges()
         => Strategy.SaveChanges();

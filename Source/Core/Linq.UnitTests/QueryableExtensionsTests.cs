@@ -1,5 +1,5 @@
 // ReSharper disable once CheckNamespace - Intended to be in this namespace
-namespace System.Collections.Generic;
+namespace System.Linq;
 
 public class QueryableExtensionsTests {
     [Fact]

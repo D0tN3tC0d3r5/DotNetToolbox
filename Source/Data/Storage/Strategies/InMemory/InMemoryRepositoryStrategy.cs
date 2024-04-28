@@ -1,7 +1,13 @@
-namespace DotNetToolbox.Data.Strategies;
+namespace DotNetToolbox.Data.Strategies.InMemory;
 
-public class InMemoryRepositoryStrategy<TItem>(IEnumerable<TItem>? data = null)
-    : AsyncRepositoryStrategy<TItem>(data) {
+public class InMemoryRepositoryStrategy<TItem>
+    : AsyncRepositoryStrategy<TItem> {
+    public InMemoryRepositoryStrategy() {
+    }
+
+    public InMemoryRepositoryStrategy(IEnumerable<TItem> data)
+        : base(data) {
+    }
 
     public override void Seed(IEnumerable<TItem> seed) {
         OriginalData = seed.ToList();

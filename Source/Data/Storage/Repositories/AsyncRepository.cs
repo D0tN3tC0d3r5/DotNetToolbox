@@ -1,18 +1,19 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public class AsyncRepository<TItem>(IAsyncRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
-    : AsyncRepository<IAsyncRepositoryStrategy<TItem>, TItem>(IsNotNull(strategy), data ?? []) {
+public class AsyncRepository<TItem>
+    : AsyncRepository<IAsyncRepositoryStrategy<TItem>, TItem> {
     public AsyncRepository(IEnumerable<TItem>? data = null)
-        : this(new InMemoryAsyncRepositoryStrategy<TItem>(), data) { }
+        : base(new InMemoryAsyncRepositoryStrategy<TItem>(), data) { }
     public AsyncRepository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
-        : this(IsNotNull(provider).GetRequiredAsyncStrategyFor<TItem>(), data) { }
+        : base((IAsyncRepositoryStrategy<TItem>)IsNotNull(provider).GetStrategyFor<TItem>(), data) { }
+
+    public AsyncRepository(IAsyncRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
+        : base(IsNotNull(strategy), data ?? []) {
+    }
 }
 
-public abstract class AsyncRepository<TStrategy, TItem>(TStrategy strategy, IEnumerable<TItem> data)
-    : Repository<TStrategy, TItem>(strategy, data)
-    , IAsyncRepository<TItem>
+public abstract class AsyncRepository<TStrategy, TItem>(TStrategy strategy, IEnumerable<TItem>? data = null) : Repository<TStrategy, TItem>(strategy, data), IAsyncRepository<TItem>
     where TStrategy : class, IAsyncRepositoryStrategy<TItem> {
-
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "<Pending>")]
     public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
         => Strategy.GetAsyncEnumerator(ct);

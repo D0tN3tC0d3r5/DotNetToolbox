@@ -6,7 +6,10 @@ public class AsyncUnitOfWorkRepository<TItem>(IAsyncUnitOfWorkRepositoryStrategy
     public AsyncUnitOfWorkRepository(IEnumerable<TItem>? data = null)
         : this(new InMemoryAsyncUnitOfWorkRepositoryStrategy<TItem>(), data) { }
     public AsyncUnitOfWorkRepository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
-        : this(IsNotNull(provider).GetRequiredAsyncUnitOfWorkStrategyFor<TItem>(), data) { }
+        : this((IAsyncUnitOfWorkRepositoryStrategy<TItem>)IsNotNull(provider).GetStrategyFor<TItem>(), data) { }
+
+    public virtual void SaveChanges()
+        => Strategy.SaveChanges();
 
     public virtual Task SaveChangesAsync(CancellationToken ct = default)
         => Strategy.SaveChangesAsync(ct);

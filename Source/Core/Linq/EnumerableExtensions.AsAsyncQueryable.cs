@@ -2,6 +2,6 @@
 namespace System.Linq;
 
 public static partial class EnumerableExtensions {
-    public static IAsyncQueryable<TItem> AsAsyncQueryable<TItem>(this IEnumerable<TItem> source)
+    public static IAsyncQueryable<TItem> ToAsyncQueryable<TItem>(this IEnumerable<TItem> source)
         => new AsyncEnumerableQuery<TItem>(source);
 }

@@ -16,8 +16,8 @@ public partial class AsyncRepositoryTests {
     [Fact]
     public void Enumeration_ForChildRepo_AllowsForEach() {
         var count = 0;
-        var expectedNames = new[] { "X", "Y", "Z" };
-        foreach (var item in _childRepo) {
+        var expectedNames = new[] { "A", "BB", "CCC" };
+        foreach (var item in _updatableRepo) {
             expectedNames[count].Should().Be(item.Name);
             count++;
         }

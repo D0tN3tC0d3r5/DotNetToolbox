@@ -59,7 +59,7 @@
 
   <ItemGroup>
     <!-- ReSharper disable once VulnerablePackage -->
-    <PackageReference Include="Azure.Identity" Version="1.10.4" />
+    <PackageReference Include="Azure.Identity" Version="1.11.2" />
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
     <PackageReference Include="DotNetToolbox.Core" Version="8.1.0-rc1" />
   </ItemGroup>

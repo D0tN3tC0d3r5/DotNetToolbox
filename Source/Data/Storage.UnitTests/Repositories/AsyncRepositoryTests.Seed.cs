@@ -3,13 +3,13 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class AsyncRepositoryTests {
     [Fact]
     public void Seed_ForBaseStrategy_ShouldThrow() {
-        var action = () => _dummyStrategy.Seed([]);
+        var action = () => _dummyRepository.Seed([]);
         action.Should().Throw<NotImplementedException>();
     }
 
     [Fact]
     public async Task SeedAsync_ForBaseStrategy_ShouldThrow() {
-        var action = () => _dummyStrategy.SeedAsync(AsyncEnumerable.Empty<TestEntity>());
+        var action = () => _dummyRepository.SeedAsync(AsyncEnumerable.Empty<TestEntity>());
         await action.Should().ThrowAsync<NotImplementedException>();
     }
 

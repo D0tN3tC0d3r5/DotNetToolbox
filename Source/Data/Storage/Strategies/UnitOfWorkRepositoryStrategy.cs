@@ -1,7 +1,8 @@
 namespace DotNetToolbox.Data.Strategies;
 
 public abstract class UnitOfWorkRepositoryStrategy<TItem>
-    : RepositoryStrategy<TItem>{
-    public virtual Task<int> SaveChanges(CancellationToken ct = default)
+    : RepositoryStrategy<TItem>
+    , IUnitOfWorkRepositoryStrategy<TItem> {
+    public virtual void SaveChanges()
         => throw new NotImplementedException();
 }
