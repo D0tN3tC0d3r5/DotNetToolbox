@@ -10,7 +10,7 @@ public class ExpressionConversionVisitor(params TypeMapper[] mappers)
         => Visit(expression);
 
     protected override Expression VisitLambda<TDelegate>(Expression<TDelegate> node) {
-        _parameters = node.Parameters.ToArray(p => (ParameterExpression)VisitParameter(p));
+        _parameters = node.Parameters.ToArray<ParameterExpression>(p => (ParameterExpression)VisitParameter(p));
         _isProcessingBody = true;
         var body = Visit(node.Body);
         return Expression.Lambda(body, _parameters);
@@ -47,10 +47,10 @@ public class ExpressionConversionVisitor(params TypeMapper[] mappers)
 
     protected override Expression VisitMethodCall(MethodCallExpression node) {
         var method = node.Method;
-        var arguments = node.Arguments.ToList(Visit);
+        var arguments = node.Arguments.ToList<Expression>(Visit);
         if (method.IsGenericMethod) {
             var genericArguments = method.GetGenericArguments();
-            var transformedGenericArguments = genericArguments.ToArray(t => GetTypeMapper(t)?.TargetType ?? t);
+            var transformedGenericArguments = genericArguments.ToArray<Type>(t => GetTypeMapper(t)?.TargetType ?? t);
             method = method.GetGenericMethodDefinition().MakeGenericMethod(transformedGenericArguments);
         }
 

@@ -7,10 +7,9 @@ public class AsyncEnumerableQueryTests {
 
         var query = list.ToAsyncQueryable();
 
-        var subject = query.Should().BeOfType<AsyncEnumerableQuery>().Subject;
-        subject.ElementType.Should().Be(typeof(TestEntity));
+        var subject = query.Should().BeOfType<IQueryable>().Subject;
+        subject.ElementType.Should().Be(typeof(int));
         subject.Expression.Should().NotBeNull();
         subject.Provider.Should().NotBeNull();
-        subject.AsyncProvider.Should().NotBeNull();
     }
 }

@@ -5,31 +5,29 @@ public class QueryableExtensionsTests {
     [Fact]
     public void ToArray_WithProject_ReturnsProjectedArray() {
         // Arrange
+        Expression<Func<int, int>> project = x => x * 2;
         var source = new List<int> { 1, 2, 3 }.AsQueryable();
 
         // Act
-        var result = source.ToArray<int>(Project);
+        var result = source.ToArray<int>(project);
 
         // Assert
         result.Should().Equal([2, 4, 6]);
         return;
-
-        static int Project(int x) => x * 2;
     }
 
     [Fact]
     public void ToList_WithProject_ReturnsProjectedArray() {
         // Arrange
+        Expression<Func<int, int>> project = x => x * 2;
         var source = new List<int> { 1, 2, 3 }.AsQueryable();
 
         // Act
-        var result = source.ToList<int>(Project);
+        var result = source.ToList<int>(project);
 
         // Assert
         result.Should().Equal([2, 4, 6]);
         return;
-
-        static int Project(int x) => x * 2;
     }
 
     [Fact]

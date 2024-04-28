@@ -11,10 +11,6 @@ public class AsyncEnumerableQuery<TItem>
     private readonly IEnumerable<TItem> _source;
     private readonly CancellationToken _ct;
 
-    IQueryProvider IQueryable.Provider => this;
-    IAsyncQueryProvider IAsyncQueryable<TItem>.AsyncProvider => this;
-    Type IQueryable.ElementType => typeof(TItem);
-
     public AsyncEnumerableQuery(IEnumerable<TItem> source, Expression? expression = null, CancellationToken ct = default) {
         _source = source;
         _expression = expression ?? Expression.Constant(this);
@@ -35,6 +31,9 @@ public class AsyncEnumerableQuery<TItem>
     }
 
     Expression IQueryable.Expression => _expression;
+    IQueryProvider IQueryable.Provider => this;
+    IAsyncQueryProvider IAsyncQueryable<TItem>.AsyncProvider => this;
+    Type IQueryable.ElementType => typeof(TItem);
 
     IQueryable IQueryProvider.CreateQuery(Expression expression)
         => new EnumerableQuery<TItem>(expression);
