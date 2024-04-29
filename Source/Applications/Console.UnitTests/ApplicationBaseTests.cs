@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DotNetToolbox.ConsoleApplication.Questions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotNetToolbox.ConsoleApplication;
 
@@ -578,8 +580,13 @@ public class ApplicationBaseTests {
         var output = new TestOutput();
         var input = new TestInput(output);
         var environment = Substitute.For<ISystemEnvironment>();
+        var assembly = Substitute.For<IAssemblyDescriptor>();
+        environment.Assembly.Returns(assembly);
+        assembly.Name.Returns("TestApp");
+        assembly.Version.Returns(new Version(1, 0));
         var serviceProvider = Substitute.For<IKeyedServiceProvider>();
-        serviceProvider.GetService(typeof(IConfiguration)).Returns(Substitute.For<IConfiguration>());
+        serviceProvider.GetService(typeof(IConfigurationRoot)).Returns(Substitute.For<IConfigurationRoot>());
+        serviceProvider.GetService(typeof(IPromptFactory)).Returns(Substitute.For<IPromptFactory>());
         serviceProvider.GetRequiredKeyedService(typeof(IAssemblyDescriptor), Arg.Any<string>()).Returns(_assemblyDescriptor);
         serviceProvider.GetRequiredKeyedService(typeof(IDateTimeProvider), Arg.Any<string>()).Returns(Substitute.For<IDateTimeProvider>());
         serviceProvider.GetRequiredKeyedService(typeof(IGuidProvider), Arg.Any<string>()).Returns(Substitute.For<IGuidProvider>());

@@ -12,7 +12,7 @@ public static partial class Ensure {
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? ItemsAreValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable<IValidatable>
-        => argument?.All(i => i.Validate().IsSuccess) ?? true
+        => argument?.All(i => i?.Validate().IsSuccess ?? true) ?? true
                ? argument
                : throw new ValidationException(CollectionContainsInvalid, paramName!);
 

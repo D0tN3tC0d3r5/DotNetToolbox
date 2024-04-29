@@ -14,5 +14,5 @@ public static partial class Ensure {
     [return: NotNull]
     public static TArgument IsNotNullOrEmpty<TArgument>([NotNull] TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
-        => IsNotEmpty(IsNotNull(argument, paramName));
+        => IsNotEmpty(IsNotNull(argument, paramName), paramName);
 }

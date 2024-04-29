@@ -529,7 +529,7 @@ public sealed class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestShellApp(string[] args, IServiceProvider serviceProvider)
+    private sealed class TestShellApp(string[] args, IServiceProvider serviceProvider)
         : ShellApplication<TestShellApp>(args, serviceProvider) {
         protected override Task<Result> OnStart(CancellationToken ct) => Result.InvalidTask("Some error.");
     }
@@ -551,7 +551,7 @@ public sealed class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestFaultyShellApp(string[] args, IServiceProvider serviceProvider)
+    private sealed class TestFaultyShellApp(string[] args, IServiceProvider serviceProvider)
         : ShellApplication<TestFaultyShellApp>(args, serviceProvider) {
         protected override Task<Result> OnStart(CancellationToken ct = default) => Result.ErrorTask(new ConsoleException(13));
     }
@@ -592,9 +592,9 @@ public sealed class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
 }

@@ -40,7 +40,7 @@ public sealed class NodeTests {
         actualToString.Should().Be(expectedToString);
     }
 
-    private class InvalidCommandDelegates : TheoryData<Delegate> {
+    private sealed class InvalidCommandDelegates : TheoryData<Delegate> {
         public InvalidCommandDelegates() {
             Add(() => 13);
             Add((Command _) => "Invalid");
@@ -79,7 +79,7 @@ public sealed class NodeTests {
         await result.Should().ThrowAsync<Exception>();
     }
 
-    private class CommandDelegates : TheoryData<Delegate> {
+    private sealed class CommandDelegates : TheoryData<Delegate> {
         public CommandDelegates() {
             Add(null!);
             Add(() => { });
@@ -331,7 +331,7 @@ public sealed class NodeTests {
         child.Should().BeOfType<TestParameter>();
     }
 
-    private class InvalidFlagDelegates : TheoryData<Delegate> {
+    private sealed class InvalidFlagDelegates : TheoryData<Delegate> {
         public InvalidFlagDelegates() {
             Add(() => 13);
             Add((Flag _) => "Invalid");
@@ -371,7 +371,7 @@ public sealed class NodeTests {
         await result.Should().ThrowAsync<Exception>();
     }
 
-    private class FlagDelegates : TheoryData<Delegate> {
+    private sealed class FlagDelegates : TheoryData<Delegate> {
         public FlagDelegates() {
             Add(null!);
             Add(() => { });
@@ -461,7 +461,7 @@ public sealed class NodeTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestCommand
+    private sealed class TestCommand
         : Command<TestCommand> {
         public TestCommand(IHasChildren app)
             : base(app, "Command", ["c"]) {
@@ -475,11 +475,11 @@ public sealed class NodeTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
     private readonly IAssemblyAccessor _assemblyAccessor = Substitute.For<IAssemblyAccessor>();
@@ -502,6 +502,6 @@ public sealed class NodeTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private class TestNode(IHasChildren parent, string name, params string[] aliases)
+    private sealed class TestNode(IHasChildren parent, string name, params string[] aliases)
         : Command<TestNode>(parent, name, aliases);
 }
