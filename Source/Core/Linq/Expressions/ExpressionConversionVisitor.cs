@@ -1,13 +1,9 @@
-﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
-namespace System.Linq.Expressions;
+﻿namespace System.Linq.Expressions;
 
 public class ExpressionConversionVisitor(params TypeMapper[] mappers)
         : ExpressionVisitor {
     private bool _isProcessingBody;
     private ParameterExpression[] _parameters = [];
-
-    public Expression Convert(Expression expression)
-        => Visit(expression);
 
     protected override Expression VisitLambda<TDelegate>(Expression<TDelegate> node) {
         _parameters = node.Parameters.ToArray<ParameterExpression>(p => (ParameterExpression)VisitParameter(p));
@@ -47,7 +43,7 @@ public class ExpressionConversionVisitor(params TypeMapper[] mappers)
 
     protected override Expression VisitMethodCall(MethodCallExpression node) {
         var method = node.Method;
-        var arguments = node.Arguments.ToList<Expression>(Visit);
+        var arguments = node.Arguments.ToArray<Expression>(Visit);
         if (method.IsGenericMethod) {
             var genericArguments = method.GetGenericArguments();
             var transformedGenericArguments = genericArguments.ToArray<Type>(t => GetTypeMapper(t)?.TargetType ?? t);
@@ -55,7 +51,7 @@ public class ExpressionConversionVisitor(params TypeMapper[] mappers)
         }
 
         var objectMember = Visit(node.Object);
-        return Expression.Call(objectMember, method, arguments!);
+        return Expression.Call(objectMember, method, arguments);
     }
 
     protected override Expression VisitBinary(BinaryExpression node) {

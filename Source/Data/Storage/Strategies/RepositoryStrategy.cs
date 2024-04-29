@@ -16,8 +16,8 @@ public abstract class RepositoryStrategy<TItem>
         Query = new EnumerableQuery<TItem>(OriginalData);
     }
 
-    public IEnumerator<TItem> GetEnumerator() => Query.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public IEnumerator<TItem> GetEnumerator() => Query.GetEnumerator();
 
     public Type ElementType => Query.ElementType;
     public Expression Expression => Query.Expression;

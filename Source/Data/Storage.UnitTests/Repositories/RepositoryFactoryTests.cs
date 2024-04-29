@@ -12,7 +12,7 @@ public class RepositoryFactoryTests {
 
     [Fact]
     public void CreateRepository_WithStrategy_ReturnsRepository() {
-        var result = _factory.CreateRepository<Repository<int>, int>([]);
+        var result = _factory.CreateRepository<Repository<int>, int>(new InMemoryRepositoryStrategy<int>());
 
         result.Should().BeOfType<Repository<int>>();
     }
@@ -26,7 +26,7 @@ public class RepositoryFactoryTests {
 
     [Fact]
     public void CreateAsyncRepository_WithStrategy_ReturnsRepository() {
-        var result = _factory.CreateAsyncRepository<AsyncRepository<int>, int>([]);
+        var result = _factory.CreateAsyncRepository<AsyncRepository<int>, int>(new InMemoryAsyncRepositoryStrategy<int>());
 
         result.Should().BeOfType<AsyncRepository<int>>();
     }

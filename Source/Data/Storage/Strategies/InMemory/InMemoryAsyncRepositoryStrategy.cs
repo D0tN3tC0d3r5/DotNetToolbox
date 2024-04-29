@@ -1,14 +1,7 @@
 namespace DotNetToolbox.Data.Strategies.InMemory;
 
-public class InMemoryAsyncRepositoryStrategy<TItem>
-    : InMemoryRepositoryStrategy<TItem> {
-    public InMemoryAsyncRepositoryStrategy() {
-    }
-
-    public InMemoryAsyncRepositoryStrategy(IEnumerable<TItem> data)
-        : base(data) {
-    }
-
+public class InMemoryAsyncRepositoryStrategy<TItem>(IEnumerable<TItem>? data = null)
+    : InMemoryRepositoryStrategy<TItem>(data ?? []) {
     public override void Seed(IEnumerable<TItem> seed) {
         base.Seed(seed);
         AsyncQuery = OriginalData.ToAsyncQueryable();

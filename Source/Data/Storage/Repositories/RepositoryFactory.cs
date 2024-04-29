@@ -8,10 +8,10 @@ internal class RepositoryFactory
         return (IRepository<TItem>)Activator.CreateInstance(resultRepositoryType, data)!;
     }
 
-    public IRepository<TItem> CreateRepository<TRepository, TItem>(IRepositoryStrategy strategy, IEnumerable<TItem>? data = null)
+    public IRepository<TItem> CreateRepository<TRepository, TItem>(IRepositoryStrategy<TItem> strategy)
         where TRepository : IRepository<TItem> {
         var resultRepositoryType = typeof(TRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TItem));
-        return (IRepository<TItem>)Activator.CreateInstance(resultRepositoryType, IsNotNull(strategy), data)!;
+        return (IRepository<TItem>)Activator.CreateInstance(resultRepositoryType, IsNotNull(strategy), new List<TItem>())!;
     }
 
     public IAsyncRepository<TItem> CreateAsyncRepository<TRepository, TItem>(IEnumerable<TItem>? data = null)
@@ -20,9 +20,9 @@ internal class RepositoryFactory
         return (IAsyncRepository<TItem>)Activator.CreateInstance(resultRepositoryType, data)!;
     }
 
-    public IAsyncRepository<TItem> CreateAsyncRepository<TRepository, TItem>(IAsyncRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
+    public IAsyncRepository<TItem> CreateAsyncRepository<TRepository, TItem>(IAsyncRepositoryStrategy<TItem> strategy)
         where TRepository : IAsyncRepository<TItem> {
         var resultRepositoryType = typeof(TRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TItem));
-        return (IAsyncRepository<TItem>)Activator.CreateInstance(resultRepositoryType, IsNotNull(strategy), data)!;
+        return (IAsyncRepository<TItem>)Activator.CreateInstance(resultRepositoryType, IsNotNull(strategy), new List<TItem>())!;
     }
 }
