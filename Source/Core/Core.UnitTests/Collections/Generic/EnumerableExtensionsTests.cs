@@ -8,7 +8,7 @@ public class EnumerableExtensionsTests {
         IEnumerable<int>? subject = default;
 
         // Act
-        var result = () => subject!.ToArray<int>(i => i + 2);
+        var result = () => subject!.ToArray(i => i + 2);
 
         // Assert
         result.Should().Throw<ArgumentNullException>();
@@ -17,7 +17,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToArray_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToArray<int>(i => i + 2);
+        var result = Enumerable.Range(0, 100).ToArray(i => i + 2);
 
         // Assert
         result.Should().BeOfType<int[]>();
@@ -43,6 +43,94 @@ public class EnumerableExtensionsTests {
 
         // Assert
         result.Should().BeOfType<string[]>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToList_FromNull_Throw() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToList(i => i + 2);
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToList_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToList(i => i + 2);
+
+        // Assert
+        result.Should().BeOfType<List<int>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToList_WithOutput_FromNull_GetsArray() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToList(i => $"{i + 2}");
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToList_WithOutput_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToList(i => $"{i + 2}");
+
+        // Assert
+        result.Should().BeOfType<List<string>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToHashSet_FromNull_Throw() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToHashSet(i => i + 2);
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToHashSet_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToHashSet(i => i + 2);
+
+        // Assert
+        result.Should().BeOfType<HashSet<int>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToHashSet_WithOutput_FromNull_GetsArray() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToHashSet(i => $"{i + 2}");
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToHashSet_WithOutput_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToHashSet(i => $"{i + 2}");
+
+        // Assert
+        result.Should().BeOfType<HashSet<string>>();
         result.Should().HaveCount(100);
     }
 
@@ -82,7 +170,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToHashSet_GetsHashSet() {
         // Act
-        var result = Enumerable.Range(0, 100).ToHashSet<int>(i => i + 2);
+        var result = Enumerable.Range(0, 100).ToHashSet(i => i + 2);
 
         // Assert
         result.Should().BeOfType<HashSet<int>>();

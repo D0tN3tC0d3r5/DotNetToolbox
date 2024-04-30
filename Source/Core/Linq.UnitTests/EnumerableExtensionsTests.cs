@@ -5,8 +5,8 @@ public class EnumerableExtensionsTests {
     public void ToAsyncQueryable_ReturnsIQueryable() {
         var list = new[] { 1, 2, 3 };
 
-        var query = list.ToAsyncQueryable();
+        var query = list.AsAsyncQueryable();
 
-        query.Should().BeOfType<AsyncEnumerableQuery<int>>();
+        query.Should().BeOfType<AsyncQueryable<int>>();
     }
 }

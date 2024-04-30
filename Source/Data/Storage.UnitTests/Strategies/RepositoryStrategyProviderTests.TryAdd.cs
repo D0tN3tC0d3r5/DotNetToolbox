@@ -2,6 +2,28 @@ namespace DotNetToolbox.Data.Strategies;
 
 public partial class RepositoryStrategyProviderTests {
     [Fact]
+    public void RepositoryStrategyEntry_StrategyTypeSetter_Creates() {
+        var subject = new RepositoryStrategyEntry(typeof(InMemoryRepositoryStrategy<string>), () => new InMemoryRepositoryStrategy<string>());
+
+        subject = subject with {
+            StrategyType = typeof(InMemoryRepositoryStrategy<int>),
+        };
+
+        subject.StrategyType.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void RepositoryStrategyEntry_CreateSetter_Creates() {
+        var subject = new RepositoryStrategyEntry(typeof(InMemoryRepositoryStrategy<string>), () => new InMemoryRepositoryStrategy<string>());
+
+        subject = subject with {
+            Create = () => new InMemoryRepositoryStrategy<int>(),
+        };
+
+        subject.Create.Should().NotBeNull();
+    }
+
+    [Fact]
     public void TryAdd_ForNotRegisteredStrategy_AddsItem() {
         _provider.TryAdd<RepositoryStrategy>();
 

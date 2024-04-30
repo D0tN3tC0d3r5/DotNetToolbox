@@ -16,18 +16,4 @@ public class RepositoryFactoryTests {
 
         result.Should().BeOfType<Repository<int>>();
     }
-
-    [Fact]
-    public void CreateAsyncRepository_ReturnsRepository() {
-        var result = _factory.CreateAsyncRepository<AsyncRepository<int>, int>();
-
-        result.Should().BeOfType<AsyncRepository<int>>();
-    }
-
-    [Fact]
-    public void CreateAsyncRepository_WithStrategy_ReturnsRepository() {
-        var result = _factory.CreateAsyncRepository<AsyncRepository<int>, int>(new InMemoryAsyncRepositoryStrategy<int>());
-
-        result.Should().BeOfType<AsyncRepository<int>>();
-    }
 }

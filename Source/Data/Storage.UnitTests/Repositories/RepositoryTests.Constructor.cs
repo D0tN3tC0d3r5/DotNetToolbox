@@ -9,6 +9,7 @@ public partial class RepositoryTests {
         subject.ElementType.Should().Be(typeof(TestEntity));
         subject.Expression.Should().NotBeNull();
         subject.Provider.Should().NotBeNull();
+        subject.AsyncProvider.Should().NotBeNull();
     }
 
     [Fact]
@@ -22,6 +23,7 @@ public partial class RepositoryTests {
         subject.ElementType.Should().Be(typeof(TestEntity));
         subject.Expression.Should().NotBeNull();
         subject.Provider.Should().NotBeNull();
+        subject.AsyncProvider.Should().NotBeNull();
     }
 
     [Fact]

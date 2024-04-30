@@ -1,14 +1,8 @@
 ﻿namespace System.Linq.Expressions;
 
-public class ExpressionConversionVisitor
+public class ExpressionConversionVisitor(IEnumerable<ParameterExpression> parentParameters, IEnumerable<TypeMapper> mappers)
     : ExpressionVisitor {
-    private readonly List<ParameterExpression> _parameters;
-    private readonly TypeMapper[] _mappers;
-
-    public ExpressionConversionVisitor(IEnumerable<ParameterExpression> parentParameters, TypeMapper[] mappers) {
-        _mappers = mappers;
-        _parameters = IsNotNull(parentParameters).ToList();
-    }
+    private readonly List<ParameterExpression> _parameters = IsNotNull(parentParameters).ToList();
 
     public ExpressionConversionVisitor(params TypeMapper[] mappers)
         : this([], mappers) {
@@ -17,15 +11,16 @@ public class ExpressionConversionVisitor
     protected override Expression VisitLambda<TDelegate>(Expression<TDelegate> node) {
         var lambdaParameters = node.Parameters.ToList(i => (ParameterExpression)Visit(i));
         _parameters.AddRange(lambdaParameters);
-        var visitor = new ExpressionConversionVisitor(_parameters, _mappers);
+        var visitor = new ExpressionConversionVisitor(_parameters, mappers);
         var body = visitor.Visit(node.Body);
         return Expression.Lambda(body, lambdaParameters);
     }
 
     protected override Expression VisitParameter(ParameterExpression node) {
         var typeMapping = GetTypeMapper(node.Type);
-        if (typeMapping == null) return base.VisitParameter(node);
-        return Expression.Parameter(typeMapping.TargetType, node.Name);
+        return typeMapping == null
+            ? base.VisitParameter(node)
+            : Expression.Parameter(typeMapping.TargetType, node.Name);
     }
 
     protected override Expression VisitConstant(ConstantExpression node) {
@@ -34,7 +29,7 @@ public class ExpressionConversionVisitor
         var typeMapping = GetTypeMapper(node.Value.GetType());
         if (typeMapping == null)
             return base.VisitConstant(node);
-        var convertedValue = typeMapping.Convert(node.Value);
+        var convertedValue = typeMapping.Convert?.Invoke(node.Value) ?? node.Value;
         return Expression.Constant(convertedValue, typeMapping.TargetType);
     }
 
@@ -110,5 +105,5 @@ public class ExpressionConversionVisitor
     }
 
     private TypeMapper? GetTypeMapper(Type? sourceType)
-        => _mappers.FirstOrDefault(m => m.SourceType == sourceType);
+        => mappers.FirstOrDefault(m => m.SourceType == sourceType);
 }

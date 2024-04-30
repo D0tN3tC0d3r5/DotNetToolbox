@@ -26,7 +26,7 @@ public record TypeMapper {
     public override int GetHashCode()
         => HashCode.Combine(SourceType, TargetType);
 
-    public void Deconstruct(out Type sourceType, out Type targetType, out Func<object?, object?> convert) {
+    public void Deconstruct(out Type sourceType, out Type targetType, out Func<object?, object?>? convert) {
         sourceType = SourceType;
         targetType = TargetType;
         convert = Convert;

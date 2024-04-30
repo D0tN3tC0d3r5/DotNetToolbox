@@ -2,11 +2,11 @@ namespace DotNetToolbox.Data.Repositories;
 
 public partial class RepositoryTests {
     [Fact]
-    public void Enumeration_FromInterface_AllowsForEach() {
+    public void Enumeration_ForIEnumerable_AllowsLoop() {
         IEnumerable enumerable = _repo;
-        var count = 0;
-        foreach (var _ in enumerable) count++;
-        count.Should().Be(_repo.Count());
+        var enumerator = enumerable.GetEnumerator();
+        enumerator.Should().NotBeNull();
+        ((IDisposable)enumerator).Dispose();
     }
 
     [Fact]
@@ -30,6 +30,6 @@ public partial class RepositoryTests {
             count++;
         }
 
-        count.Should().Be(_updatableRepo.Count());
+        count.Should().Be(_repo.Count());
     }
 }

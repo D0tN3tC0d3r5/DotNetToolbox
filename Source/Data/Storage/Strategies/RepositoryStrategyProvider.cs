@@ -10,8 +10,7 @@ public class RepositoryStrategyProvider
     public void TryAdd<TStrategy>(Func<TStrategy>? create = null)
         where TStrategy : class, IRepositoryStrategy, new() {
         var strategyType = typeof(TStrategy);
-        var strategyInterface = strategyType.GetInterface(typeof(IRepositoryStrategy<>).Name)
-            ?? throw new InvalidOperationException("The repository strategy must derive from IRepositoryStrategy<T>.");
+        var strategyInterface = strategyType.GetInterface(typeof(IRepositoryStrategy<>).Name)!;
         var itemType = strategyInterface.GetGenericArguments().First();
         if (Entries.TryGetValue(itemType, out var entry)) {
             if (entry.StrategyType == strategyType)

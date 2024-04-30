@@ -39,7 +39,7 @@ public class ExpressionExtensionsTests {
         // Arrange
         var arrayMapper = new TypeMapper<string[], int[]>();
         var elementMapper = new TypeMapper<string, int>(int.Parse);
-        Expression<Func<string[], bool>> expression = x => x.SequenceEqual(new[]  { "1", "2", "3" });
+        Expression<Func<string[], bool>> expression = x => x.SequenceEqual(new[] { "1", "2", "3" });
         Expression<Func<int[], bool>> expectedExpression = x => x.SequenceEqual(new[] { 1, 2, 3 });
 
         // Act
@@ -54,8 +54,8 @@ public class ExpressionExtensionsTests {
         // Arrange
         var arrayMapper = new TypeMapper<TestModel[], TestEntity[]>();
         var elementMapper = new TypeMapper<TestModel, TestEntity>(x => new(x.Name, x.Age));
-        Expression<Func<TestModel[], int>> expression = x => (x.Length == 0 ? 0 : -x.Length + x.Sum(i => i.Age));
-        Expression<Func<TestEntity[], int>> expectedExpression = x => (x.Length == 0 ? 0 : -x.Length + x.Sum(i => i.Age));
+        Expression<Func<TestModel[], int>> expression = x => x.Length == 0 ? 0 : -x.Length + x.Sum(i => i.Age);
+        Expression<Func<TestEntity[], int>> expectedExpression = x => x.Length == 0 ? 0 : -x.Length + x.Sum(i => i.Age);
 
         // Act
         var result = expression.ReplaceExpressionType(arrayMapper, elementMapper);
@@ -84,8 +84,8 @@ public class ExpressionExtensionsTests {
         // Arrange
         var arrayMapper = new TypeMapper<TestModel[], TestEntity[]>();
         var elementMapper = new TypeMapper<TestModel, TestEntity>(x => new(x.Name, x.Age));
-        Expression<Func<TestModel[], IEnumerable<TestResult>>> expression = x => x.Select(i => new TestResult { Output = $"{i.Name}: {i.Age}y" });
-        Expression<Func<TestEntity[], IEnumerable<TestResult>>> expectedExpression = x => x.Select(i => new TestResult { Output = $"{i.Name}: {i.Age}y" });
+        Expression<Func<TestModel[], IEnumerable<string>>> expression = x => x.Select(i => new TestResult { Output = $"{i.Name}: {i.Age}y" }).Select(o => o.Output.Trim());
+        Expression<Func<TestEntity[], IEnumerable<string>>> expectedExpression = x => x.Select(i => new TestResult { Output = $"{i.Name}: {i.Age}y" }).Select(o => o.Output.Trim());
 
         // Act
         var result = expression.ReplaceExpressionType(arrayMapper, elementMapper);
