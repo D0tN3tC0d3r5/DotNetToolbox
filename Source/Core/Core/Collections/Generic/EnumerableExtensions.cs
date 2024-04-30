@@ -17,14 +17,10 @@ public static class EnumerableExtensions {
         => source.As<TItem>().Select(convertTo);
     public static TItem[] ToArray<TItem>(this IEnumerable source)
         => [.. IsNotNull(source).As<TItem>()];
-    public static TItem[] ToArray<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> convertTo)
-        => [.. IsNotNull(source).Select(convertTo)];
     public static TNewItem[] ToArray<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
         => [.. IsNotNull(source).Select(convertTo)];
     public static List<TItem> ToList<TItem>(this IEnumerable source)
         => [.. IsNotNull(source).Cast<TItem>()];
-    public static List<TItem> ToList<TItem>(this IEnumerable<TItem> source, Func<TItem, TItem> convertTo)
-        => [.. IsNotNull(source).Select(convertTo)];
     public static List<TNewItem> ToList<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
         => [.. IsNotNull(source).Select(convertTo)];
     public static HashSet<TItem> ToHashSet<TItem>(this IEnumerable source)

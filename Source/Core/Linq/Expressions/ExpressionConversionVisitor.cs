@@ -1,24 +1,31 @@
 ﻿namespace System.Linq.Expressions;
 
-public class ExpressionConversionVisitor(params TypeMapper[] mappers)
-        : ExpressionVisitor {
-    private bool _isProcessingBody;
-    private ParameterExpression[] _parameters = [];
+public class ExpressionConversionVisitor
+    : ExpressionVisitor {
+    private readonly List<ParameterExpression> _parameters;
+    private readonly TypeMapper[] _mappers;
+
+    public ExpressionConversionVisitor(IEnumerable<ParameterExpression> parentParameters, TypeMapper[] mappers) {
+        _mappers = mappers;
+        _parameters = IsNotNull(parentParameters).ToList();
+    }
+
+    public ExpressionConversionVisitor(params TypeMapper[] mappers)
+        : this([], mappers) {
+    }
 
     protected override Expression VisitLambda<TDelegate>(Expression<TDelegate> node) {
-        _parameters = node.Parameters.ToArray<ParameterExpression>(p => (ParameterExpression)VisitParameter(p));
-        _isProcessingBody = true;
-        var body = Visit(node.Body);
-        return Expression.Lambda(body, _parameters);
+        var lambdaParameters = node.Parameters.ToList(i => (ParameterExpression)Visit(i));
+        _parameters.AddRange(lambdaParameters);
+        var visitor = new ExpressionConversionVisitor(_parameters, _mappers);
+        var body = visitor.Visit(node.Body);
+        return Expression.Lambda(body, lambdaParameters);
     }
 
     protected override Expression VisitParameter(ParameterExpression node) {
         var typeMapping = GetTypeMapper(node.Type);
-        return typeMapping == null
-                   ? base.VisitParameter(node)
-                   : !_isProcessingBody
-                       ? Expression.Parameter(typeMapping.TargetType, node.Name)
-                       : _parameters.First(i => i.Name == node.Name);
+        if (typeMapping == null) return base.VisitParameter(node);
+        return Expression.Parameter(typeMapping.TargetType, node.Name);
     }
 
     protected override Expression VisitConstant(ConstantExpression node) {
@@ -43,15 +50,15 @@ public class ExpressionConversionVisitor(params TypeMapper[] mappers)
 
     protected override Expression VisitMethodCall(MethodCallExpression node) {
         var method = node.Method;
-        var arguments = node.Arguments.ToArray<Expression>(Visit);
+        var arguments = node.Arguments.ToArray(Visit);
         if (method.IsGenericMethod) {
             var genericArguments = method.GetGenericArguments();
-            var transformedGenericArguments = genericArguments.ToArray<Type>(t => GetTypeMapper(t)?.TargetType ?? t);
+            var transformedGenericArguments = genericArguments.ToArray(t => GetTypeMapper(t)?.TargetType ?? t);
             method = method.GetGenericMethodDefinition().MakeGenericMethod(transformedGenericArguments);
         }
 
-        var objectMember = Visit(node.Object);
-        return Expression.Call(objectMember, method, arguments);
+        var caller = Visit(node.Object);
+        return Expression.Call(caller, method, arguments!);
     }
 
     protected override Expression VisitBinary(BinaryExpression node) {
@@ -75,6 +82,18 @@ public class ExpressionConversionVisitor(params TypeMapper[] mappers)
         return Expression.Condition(test, ifTrue, ifFalse);
     }
 
+    protected override Expression VisitNew(NewExpression node) {
+        var typeMapping = GetTypeMapper(node.Type);
+        if (typeMapping == null)
+            return base.VisitNew(node);
+        var arguments = node.Arguments.ToArray(Visit);
+        var types = arguments.ToArray(a => a!.Type);
+        var constructor = typeMapping.TargetType.GetConstructor(types)
+                       ?? throw new InvalidOperationException($"No matching constructor for type '{typeMapping.TargetType.Name}'");
+        var members = arguments.OfType<MemberExpression>().ToArray(m => m.Member);
+        return Expression.New(constructor, arguments!, members);
+    }
+
     protected override Expression VisitMemberInit(MemberInitExpression node) {
         var newExpression = (NewExpression)VisitNew(node.NewExpression);
         var bindings = node.Bindings.Select(VisitMemberBinding).ToList();
@@ -82,13 +101,14 @@ public class ExpressionConversionVisitor(params TypeMapper[] mappers)
     }
 
     protected override Expression VisitNewArray(NewArrayExpression node) {
-        var expressions = node.Expressions.Select(Visit).ToList();
-        var elementType = node.Type.GetElementType();
+        var expressions = node.Expressions.Select(Visit);
+        var elementType = node.Type.GetElementType()!;
+        elementType = GetTypeMapper(elementType)?.TargetType ?? elementType;
         return node.NodeType == ExpressionType.NewArrayInit
-            ? Expression.NewArrayInit(elementType!, expressions!)
-            : (Expression)Expression.NewArrayBounds(elementType!, expressions!);
+            ? Expression.NewArrayInit(elementType, expressions!)
+            : (Expression)Expression.NewArrayBounds(elementType, expressions!);
     }
 
     private TypeMapper? GetTypeMapper(Type? sourceType)
-        => mappers.FirstOrDefault(m => m.SourceType == sourceType);
+        => _mappers.FirstOrDefault(m => m.SourceType == sourceType);
 }
