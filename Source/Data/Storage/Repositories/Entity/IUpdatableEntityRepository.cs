@@ -16,7 +16,7 @@ public interface IUpdatableEntityRepository<TItem, TKey>
 
     #region Async
 
-    Task<TKey> GetNextKeyAsync(IReadOnlyDictionary<object, object?>? keyContext = null);
+    Task<TKey> GetNextKeyAsync(IReadOnlyDictionary<object, object?>? keyContext = null, CancellationToken ct = default);
     Task UpdateAsync(TItem updatedItem, CancellationToken ct = default);
     Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
     Task RemoveAsync(TKey key, CancellationToken ct = default);

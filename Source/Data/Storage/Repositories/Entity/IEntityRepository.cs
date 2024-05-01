@@ -1,7 +1,7 @@
 namespace DotNetToolbox.Data.Repositories.Entity;
 
 public interface IEntityRepository<TItem, TKey>
-    : IRepository
+    : IRepository<TItem>
     , IQueryableEntityRepository<TItem, TKey>
     , IUpdatableEntityRepository<TItem, TKey>
     where TItem : IEntity<TKey>

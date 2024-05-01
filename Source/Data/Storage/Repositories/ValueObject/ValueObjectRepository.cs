@@ -4,49 +4,33 @@ public class ValueObjectRepository<TItem>
     : ValueObjectRepository<IValueObjectRepositoryStrategy<TItem>, TItem> {
     public ValueObjectRepository(IEnumerable<TItem>? data = null)
         : base(new InMemoryValueObjectRepositoryStrategy<TItem>(), data) { }
-
     public ValueObjectRepository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
         : base((IValueObjectRepositoryStrategy<TItem>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
-
     public ValueObjectRepository(IValueObjectRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
         : base(strategy, data ?? []) { }
 }
 
 public abstract class ValueObjectRepository<TStrategy, TItem>
-    : IValueObjectRepository<TItem>
+    : Repository<TStrategy, TItem>
+    , IValueObjectRepository<TItem>
     where TStrategy : class, IValueObjectRepositoryStrategy<TItem> {
-    protected ValueObjectRepository(TStrategy strategy, IEnumerable<TItem>? data = null) {
-        Strategy = IsNotNull(strategy);
-        if (data is null)
-            return;
-        var list = data as List<TItem> ?? data.ToList();
-        Strategy.Seed(list);
+    protected ValueObjectRepository(TStrategy strategy, IEnumerable<TItem>? data = null)
+        : base(strategy, data) {
     }
-
-    protected TStrategy Strategy { get; init; }
-    public Type ElementType => Strategy.ElementType;
-    public Expression Expression => Strategy.Expression;
 
     #region Blocking
 
-    IEnumerator IEnumerable.GetEnumerator() => Strategy.GetEnumerator();
-    public IEnumerator<TItem> GetEnumerator() => Strategy.GetEnumerator();
-    public IQueryProvider Provider => Strategy.Provider;
+    public IReadOnlyList<TItem> GetAll()
+        => Strategy.GetAll();
+    public TItem? Find(Expression<Func<TItem, bool>> predicate)
+        => Strategy.Find(predicate);
 
-    public void Seed(IEnumerable<TItem> seed)
-        => Strategy.Seed(seed);
-
-    public TItem Find(Expression<Func<TItem, bool>> predicate) => throw new NotImplementedException();
-
-    public void Create(Action<TItem> setNewItem) => throw new NotImplementedException();
-
-    public void Add(TItem newItem) {
-        Debug.Assert(true);
-        Strategy.Add(newItem);
-        Debug.Assert(true);
-    }
-
-    public void Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem) => throw new NotImplementedException();
+    public void Create(Action<TItem> setItem)
+        => Strategy.Create(setItem);
+    public void Add(TItem newItem)
+        => Strategy.Add(newItem);
+    public void Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem)
+        => Strategy.Patch(predicate, setItem);
     public void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem)
         => Strategy.Update(predicate, updatedItem);
     public void Remove(Expression<Func<TItem, bool>> predicate)
@@ -56,26 +40,19 @@ public abstract class ValueObjectRepository<TStrategy, TItem>
 
     #region Async
 
-    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
-        => Strategy.GetAsyncEnumerator(ct);
+    public Task<IReadOnlyList<TItem>> GetAllAsync(CancellationToken ct = default)
+        => Strategy.GetAllAsync(ct);
+    public Task<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => Strategy.FindAsync(predicate, ct);
 
-    public IAsyncQueryProvider AsyncProvider => Strategy.AsyncProvider;
-
-    public Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default)
-        => Strategy.SeedAsync(seed, ct);
-
-    public Task<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) => throw new NotImplementedException();
-
-    public Task CreateAsync(Func<TItem, CancellationToken, Task> setNewItem, CancellationToken ct = default) => throw new NotImplementedException();
-
+    public Task CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+        => Strategy.CreateAsync(setItem, ct);
     public Task AddAsync(TItem newItem, CancellationToken ct = default)
         => Strategy.AddAsync(newItem, ct);
-
-    public Task PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) => throw new NotImplementedException();
-
+    public Task PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+        => Strategy.PatchAsync(predicate, setItem, ct);
     public Task UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default)
         => Strategy.UpdateAsync(predicate, updatedItem, ct);
-
     public Task RemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.RemoveAsync(predicate, ct);
 

@@ -1,9 +1,8 @@
-namespace DotNetToolbox.Data.Repositories.Entity;
+namespace DotNetToolbox.Data.Repositories;
 
-public interface IPagedQueryableEntityRepository<TItem, TKey>
-    : IQueryableEntityRepository<TItem, TKey>
-    where TItem : IEntity<TKey>
-    where TKey : notnull {
+public interface IPagedQueryableRepository<TItem>
+    : IQueryableRepository<TItem> {
+
     #region Blocking
 
     IReadOnlyList<int> GetAllowedPageSizes();

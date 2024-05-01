@@ -1,34 +1,21 @@
 namespace DotNetToolbox.Data.Strategies.ValueObject;
 
-public abstract class ValueObjectRepositoryStrategy
-    : IValueObjectRepositoryStrategy {
-    public abstract Type ElementType { get; }
-    public abstract Expression Expression { get; }
-    public abstract IQueryProvider Provider { get; }
-
-    public abstract IEnumerator GetEnumerator();
-}
-
 public abstract class ValueObjectRepositoryStrategy<TItem>
-    : ValueObjectRepositoryStrategy,
+    : RepositoryStrategy<TItem>,
     IValueObjectRepositoryStrategy<TItem> {
-
-    public override Type ElementType => Query.ElementType;
-    public override Expression Expression => Query.Expression;
-    protected List<TItem> OriginalData { get; private set; } = [];
 
     #region Blocking
 
-    protected IQueryable<TItem> Query => OriginalData.AsQueryable();
-    public override IQueryProvider Provider => Query.Provider;
+    public IReadOnlyList<int> GetAllowedPageSizes() => throw new NotImplementedException();
+    public IReadOnlyList<int> GetAllowedBlockSizes() => throw new NotImplementedException();
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    public override IEnumerator<TItem> GetEnumerator() => Query.GetEnumerator();
+    public IReadOnlyList<TItem> GetAll() => throw new NotImplementedException();
+    public IPage<TItem> GetPage(uint pageSize, uint pageIndex = 0) => throw new NotImplementedException();
+    public IBlock<TItem, TOffsetMarker> GetBlock<TOffsetMarker>(uint blockSize, TOffsetMarker? marker = default) => throw new NotImplementedException();
 
-    public virtual void Seed(IEnumerable<TItem> seed)
-        => OriginalData = seed as List<TItem> ?? IsNotNull(seed).ToList();
+    public virtual TItem Find(Expression<Func<TItem, bool>> predicate) => throw new NotImplementedException();
 
-    public void Create(Action<TItem> setNewItem) => throw new NotImplementedException();
+    public void Create(Action<TItem> setItem) => throw new NotImplementedException();
 
     public virtual void Add(TItem newItem) => throw new NotImplementedException();
     public virtual void Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem) => throw new NotImplementedException();
@@ -40,17 +27,13 @@ public abstract class ValueObjectRepositoryStrategy<TItem>
 
     #region Async
 
-    protected IAsyncQueryable<TItem> AsyncQuery => OriginalData.AsAsyncQueryable();
-    public IAsyncQueryProvider AsyncProvider => AsyncQuery.AsyncProvider;
+    public Task<IReadOnlyList<TItem>> GetAllAsync(CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<IPage<TItem>> GetPageAsync(uint pageSize, uint pageIndex = 0, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<IBlock<TItem, TOffsetMarker>> GetBlockAsync<TOffsetMarker>(uint blockSize, TOffsetMarker? marker = default, CancellationToken ct = default) => throw new NotImplementedException();
 
-    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default) => AsyncQuery.GetAsyncEnumerator(ct);
+    public Task<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) => throw new NotImplementedException();
 
-    public virtual Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default) {
-        Seed(seed);
-        return Task.CompletedTask;
-    }
-
-    public virtual Task CreateAsync(Func<TItem, CancellationToken, Task> setNewItem, CancellationToken ct = default) => throw new NotImplementedException();
+    public virtual Task CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) => throw new NotImplementedException();
 
     public virtual Task AddAsync(TItem newItem, CancellationToken ct = default) => throw new NotImplementedException();
     public virtual Task PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) => throw new NotImplementedException();
