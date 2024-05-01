@@ -1,9 +1,8 @@
-﻿
-namespace DotNetToolbox.Data.Repositories;
+﻿namespace DotNetToolbox.Data.Repositories;
 
 internal interface IRepositoryFactory {
-    IRepository<TItem> CreateRepository<TRepository, TItem>(IEnumerable<TItem>? data = null)
-        where TRepository : IRepository<TItem>;
-    IRepository<TItem> CreateRepository<TRepository, TItem>(IRepositoryStrategy<TItem> strategy)
-        where TRepository : IRepository<TItem>;
+    IUpdatableValueObjectRepository<TItem> CreateRepository<TRepository, TItem>(IEnumerable<TItem>? data = null)
+        where TRepository : IUpdatableValueObjectRepository<TItem>;
+    IUpdatableValueObjectRepository<TItem> CreateRepository<TRepository, TItem>(IValueObjectRepositoryStrategy<TItem> strategy)
+        where TRepository : IUpdatableValueObjectRepository<TItem>;
 }

@@ -18,7 +18,7 @@ public class ServiceCollectionExtensionsTests {
     public void AddRepositoryStrategyProvider_WithConfiguration_AddsProvider() {
         var services = new ServiceCollection();
 
-        services.AddRepositoryStrategyProvider(p => p.TryAdd<InMemoryRepositoryStrategy<string>>());
+        services.AddRepositoryStrategyProvider(p => p.TryAdd<InMemoryValueObjectRepositoryStrategy<string>>());
 
         var provider = services.BuildServiceProvider();
 
