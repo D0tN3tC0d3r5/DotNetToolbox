@@ -6,14 +6,14 @@ public interface IValueObjectRepository<TItem>
 
     #region Blocking
 
-    IReadOnlyList<TItem> GetAll();
+    TItem[] GetAll();
     TItem? Find(Expression<Func<TItem, bool>> predicate);
 
     #endregion
 
     #region Async
 
-    Task<IReadOnlyList<TItem>> GetAllAsync(CancellationToken ct = default);
+    ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default);
     Task<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
     #endregion

@@ -1,3 +1,5 @@
+using static DotNetToolbox.Pagination.PaginationSettings;
+
 namespace DotNetToolbox.Data.Repositories.ValueObject;
 
 public class PagedValueObjectRepository<TItem>
@@ -23,19 +25,17 @@ public abstract class PagedValueObjectRepository<TStrategy, TItem>
         Strategy.Seed(list);
     }
 
-    #region Pageing
+    #region Blocking
 
-    public IReadOnlyList<int> GetAllowedPageSizes()
-        => Strategy.GetAllowedPageSizes();
-    public IPage<TItem> GetPage(uint pageSize, uint pageIndex = 0)
-        => Strategy.GetPage(pageSize, pageIndex);
+    public Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize)
+        => Strategy.GetPage(pageIndex, pageSize);
 
     #endregion
 
     #region Async
 
-    public Task<IPage<TItem>> GetPageAsync(uint pageSize, uint pageIndex = 0, CancellationToken ct = default)
-        => Strategy.GetPageAsync(pageSize, pageIndex, ct);
+    public ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0U, uint pageSize = DefaultPageSize, CancellationToken ct = default)
+        => Strategy.GetPageAsync(pageIndex, pageSize, ct);
 
     #endregion
 }

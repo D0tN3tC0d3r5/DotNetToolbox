@@ -1,3 +1,5 @@
+using static DotNetToolbox.Pagination.PaginationSettings;
+
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IOffsetQueryableRepository<TItem>
@@ -5,14 +7,13 @@ public interface IOffsetQueryableRepository<TItem>
 
     #region Blocking
 
-    IReadOnlyList<int> GetAllowedBlockSizes();
-    IBlock<TItem, TOffsetMarker> GetBlock<TOffsetMarker>(uint blockSize, TOffsetMarker? marker = default);
+    Block<TItem> GetBlock(Expression<Func<TItem, bool>> isNotStart, uint blockSize = DefaultBlockSize);
 
     #endregion
 
     #region Async
 
-    Task<IBlock<TItem, TOffsetMarker>> GetBlockAsync<TOffsetMarker>(uint blockSize, TOffsetMarker? marker = default, CancellationToken ct = default);
+    ValueTask<Block<TItem>> GetBlockAsync(Expression<Func<TItem, bool>> findStart, uint blockSize = DefaultBlockSize, CancellationToken ct = default);
 
     #endregion
 }

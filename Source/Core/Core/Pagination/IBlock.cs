@@ -1,9 +1,11 @@
 ﻿namespace DotNetToolbox.Pagination;
 
-public interface IBlock<out TItem> : IBlock<TItem, TItem>;
-
-public interface IBlock<out TItem, out TOffset> {
+public interface IBlock<out TItem> {
     uint Size { get; }
-    TOffset Offset { get; }
     IReadOnlyList<TItem> Items { get; }
+};
+
+public interface IBlock<out TItem, out TOffset>
+    : IBlock<TItem> {
+    TOffset Marker { get; }
 }

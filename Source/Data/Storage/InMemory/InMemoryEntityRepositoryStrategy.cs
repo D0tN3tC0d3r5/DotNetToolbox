@@ -20,8 +20,10 @@ public class InMemoryEntityRepositoryStrategy<TItem, TKey>
     public Task<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
 
     public Task<TKey> GetNextKeyAsync(IReadOnlyDictionary<object, object?>? keyContext = null, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task UpdateAsync(TItem updatedItem, CancellationToken ct = default) => throw new NotImplementedException();
+
     public Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) => throw new NotImplementedException();
     public Task RemoveAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
 
-#endregion
+    #endregion
 }

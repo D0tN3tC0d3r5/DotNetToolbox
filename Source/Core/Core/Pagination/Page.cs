@@ -1,17 +1,23 @@
-﻿namespace DotNetToolbox.Pagination;
+﻿using static DotNetToolbox.Pagination.PaginationSettings;
+
+namespace DotNetToolbox.Pagination;
 
 public class Page<TItem>
-    : Block<TItem, uint>,
-      IPage<TItem> {
+    : IPage<TItem> {
     [SetsRequiredMembers]
     public Page() {
     }
 
     [SetsRequiredMembers]
-    public Page(IReadOnlyList<TItem> items, uint offset = 0, uint size = BlockSettings.DefaultBlockSize, uint totalCount = 0)
-        : base(items, offset, size) {
+    public Page(IReadOnlyList<TItem> items, uint index = 0, uint size = DefaultPageSize, uint totalCount = 0) {
+        Items = IsNotNull(items);
+        Size = size;
+        Index = index;
         TotalCount = totalCount;
     }
 
     public uint TotalCount { get; init; }
+    public required IReadOnlyList<TItem> Items { get; init; }
+    public uint Index { get; init; }
+    public uint Size { get; init; }
 }

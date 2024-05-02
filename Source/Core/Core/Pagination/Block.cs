@@ -1,34 +1,36 @@
-﻿namespace DotNetToolbox.Pagination;
+﻿using static DotNetToolbox.Pagination.PaginationSettings;
+
+namespace DotNetToolbox.Pagination;
 
 public class Block<TItem>
-    : Block<TItem, TItem>,
-      IBlock<TItem> {
+    : IBlock<TItem> {
     [SetsRequiredMembers]
-    public Block() {
+    public Block() : this([]) {
     }
 
     [SetsRequiredMembers]
-    public Block(IReadOnlyList<TItem> items, TItem offset, uint size = BlockSettings.DefaultBlockSize)
-        : base(items, offset, size) {
-    }
-}
-
-public class Block<TItem, TOffset>
-    : IBlock<TItem, TOffset> {
-    [SetsRequiredMembers]
-    public Block() {
-        Items = [];
-        Offset = default!;
-    }
-
-    [SetsRequiredMembers]
-    public Block(IReadOnlyList<TItem> items, TOffset offset, uint size = BlockSettings.DefaultBlockSize) {
+    public Block(IReadOnlyList<TItem> items, uint size = DefaultBlockSize) {
         Items = IsNotNull(items);
-        Offset = offset;
         Size = size;
     }
 
     public required IReadOnlyList<TItem> Items { get; init; }
-    public required TOffset Offset { get; init; }
-    public uint Size { get; init; } = BlockSettings.DefaultBlockSize;
+    public uint Size { get; init; }
+}
+
+public class Block<TItem, TMarker>
+    : Block<TItem>
+    , IBlock<TItem, TMarker> {
+    [SetsRequiredMembers]
+    public Block()
+        : this([], default!) {
+    }
+
+    [SetsRequiredMembers]
+    public Block(IReadOnlyList<TItem> items, TMarker marker, uint size = DefaultBlockSize)
+        : base(items, size) {
+        Marker = marker;
+    }
+
+    public required TMarker? Marker { get; init; }
 }

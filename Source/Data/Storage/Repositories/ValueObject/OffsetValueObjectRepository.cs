@@ -1,3 +1,5 @@
+using static DotNetToolbox.Pagination.PaginationSettings;
+
 namespace DotNetToolbox.Data.Repositories.ValueObject;
 
 public class OffsetValueObjectRepository<TItem>
@@ -25,17 +27,15 @@ public abstract class OffsetValueObjectRepository<TStrategy, TItem>
 
     #region Blocking
 
-    public IReadOnlyList<int> GetAllowedBlockSizes()
-        => Strategy.GetAllowedBlockSizes();
-    public IBlock<TItem, TOffsetMarker> GetBlock<TOffsetMarker>(uint blockSize, TOffsetMarker? marker = default)
-        => Strategy.GetBlock(blockSize, marker);
+    public Block<TItem> GetBlock(Expression<Func<TItem, bool>> isNotStart, uint blockSize = DefaultBlockSize)
+        => Strategy.GetBlock(isNotStart, blockSize);
 
     #endregion
 
     #region Async
 
-    public Task<IBlock<TItem, TOffsetMarker>> GetBlockAsync<TOffsetMarker>(uint blockSize, TOffsetMarker? marker = default, CancellationToken ct = default)
-        => Strategy.GetBlockAsync(blockSize, marker, ct);
+    public ValueTask<Block<TItem>> GetBlockAsync(Expression<Func<TItem, bool>> findStart, uint blockSize = DefaultBlockSize, CancellationToken ct = default)
+        => Strategy.GetBlockAsync(findStart, blockSize, ct);
 
     #endregion
 }

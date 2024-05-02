@@ -1,3 +1,5 @@
+using static DotNetToolbox.Pagination.PaginationSettings;
+
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IPagedQueryableRepository<TItem>
@@ -5,14 +7,13 @@ public interface IPagedQueryableRepository<TItem>
 
     #region Blocking
 
-    IReadOnlyList<int> GetAllowedPageSizes();
-    IPage<TItem> GetPage(uint pageSize, uint pageIndex = 0);
+    Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize);
 
     #endregion
 
     #region Async
 
-    Task<IPage<TItem>> GetPageAsync(uint pageSize, uint pageIndex = 0, CancellationToken ct = default);
+    ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default);
 
     #endregion
 }

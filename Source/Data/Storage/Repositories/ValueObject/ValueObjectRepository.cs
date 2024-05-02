@@ -20,12 +20,12 @@ public abstract class ValueObjectRepository<TStrategy, TItem>
 
     #region Blocking
 
-    public IReadOnlyList<TItem> GetAll()
+    public TItem[] GetAll()
         => Strategy.GetAll();
     public TItem? Find(Expression<Func<TItem, bool>> predicate)
         => Strategy.Find(predicate);
 
-    public void Create(Action<TItem> setItem)
+    public TItem Create(Action<TItem> setItem)
         => Strategy.Create(setItem);
     public void Add(TItem newItem)
         => Strategy.Add(newItem);
@@ -40,12 +40,12 @@ public abstract class ValueObjectRepository<TStrategy, TItem>
 
     #region Async
 
-    public Task<IReadOnlyList<TItem>> GetAllAsync(CancellationToken ct = default)
+    public ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default)
         => Strategy.GetAllAsync(ct);
     public Task<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.FindAsync(predicate, ct);
 
-    public Task CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+    public Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
         => Strategy.CreateAsync(setItem, ct);
     public Task AddAsync(TItem newItem, CancellationToken ct = default)
         => Strategy.AddAsync(newItem, ct);

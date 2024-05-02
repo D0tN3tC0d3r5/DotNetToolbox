@@ -5,8 +5,8 @@ public interface IRepository
     , IUpdatableRepository;
 
 public interface IRepository<TItem>
-    : IQueryableRepository<TItem>
-    , IUpdatableRepository {
+    : IRepository
+    , IQueryableRepository<TItem> {
 
     #region Blocking
 
