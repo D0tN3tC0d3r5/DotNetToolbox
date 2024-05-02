@@ -2,41 +2,41 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
-    public static ValueTask<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(this IAsyncQueryable<TSource> source, Func<TSource, TKey> keySelector, CancellationToken cancellationToken = default)
+    public static ValueTask<Dictionary<TKey, TItem>> ToDictionaryAsync<TItem, TKey>(this IQueryable<TItem> source, Func<TItem, TKey> keySelector, CancellationToken cancellationToken = default)
         where TKey : notnull
         => source.ToDictionaryAsync((x, _) => keySelector(x), (x, _) => x, null!, cancellationToken);
 
-    public static ValueTask<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(this IAsyncQueryable<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer, CancellationToken cancellationToken = default)
+    public static ValueTask<Dictionary<TKey, TItem>> ToDictionaryAsync<TItem, TKey>(this IQueryable<TItem> source, Func<TItem, TKey> keySelector, IEqualityComparer<TKey> comparer, CancellationToken cancellationToken = default)
         where TKey : notnull
         => source.ToDictionaryAsync((x, _) => keySelector(x), (x, _) => x, comparer, cancellationToken);
 
-    public static ValueTask<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(this IAsyncQueryable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, CancellationToken cancellationToken = default)
+    public static ValueTask<Dictionary<TKey, TElement>> ToDictionaryAsync<TItem, TKey, TElement>(this IQueryable<TItem> source, Func<TItem, TKey> keySelector, Func<TItem, TElement> elementSelector, CancellationToken cancellationToken = default)
         where TKey : notnull
         => source.ToDictionaryAsync((x, _) => keySelector(x), (x, _) => elementSelector(x), null!, cancellationToken);
 
-    public static ValueTask<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(this IAsyncQueryable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IEqualityComparer<TKey> comparer, CancellationToken cancellationToken = default)
+    public static ValueTask<Dictionary<TKey, TElement>> ToDictionaryAsync<TItem, TKey, TElement>(this IQueryable<TItem> source, Func<TItem, TKey> keySelector, Func<TItem, TElement> elementSelector, IEqualityComparer<TKey> comparer, CancellationToken cancellationToken = default)
         where TKey : notnull
         => source.ToDictionaryAsync((x, _) => keySelector(x), (x, _) => elementSelector(x), comparer, cancellationToken);
 
-    public static ValueTask<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(this IAsyncQueryable<TSource> source, Func<TSource, int, TKey> keySelector, CancellationToken cancellationToken = default)
+    public static ValueTask<Dictionary<TKey, TItem>> ToDictionaryAsync<TItem, TKey>(this IQueryable<TItem> source, Func<TItem, int, TKey> keySelector, CancellationToken cancellationToken = default)
         where TKey : notnull
         => source.ToDictionaryAsync(keySelector, (x, _) => x, null!, cancellationToken);
 
-    public static ValueTask<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(this IAsyncQueryable<TSource> source, Func<TSource, int, TKey> keySelector, IEqualityComparer<TKey> comparer, CancellationToken cancellationToken = default)
+    public static ValueTask<Dictionary<TKey, TItem>> ToDictionaryAsync<TItem, TKey>(this IQueryable<TItem> source, Func<TItem, int, TKey> keySelector, IEqualityComparer<TKey> comparer, CancellationToken cancellationToken = default)
         where TKey : notnull
         => source.ToDictionaryAsync(keySelector, (x, _) => x, comparer, cancellationToken);
 
-    public static ValueTask<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(this IAsyncQueryable<TSource> source, Func<TSource, int, TKey> keySelector, Func<TSource, int, TElement> elementSelector, CancellationToken cancellationToken = default)
+    public static ValueTask<Dictionary<TKey, TElement>> ToDictionaryAsync<TItem, TKey, TElement>(this IQueryable<TItem> source, Func<TItem, int, TKey> keySelector, Func<TItem, int, TElement> elementSelector, CancellationToken cancellationToken = default)
         where TKey : notnull
         => source.ToDictionaryAsync(keySelector, elementSelector, null!, cancellationToken);
 
-    public static async ValueTask<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(this IAsyncQueryable<TSource> source, Func<TSource, int, TKey> keySelector, Func<TSource, int, TElement> elementSelector, IEqualityComparer<TKey> comparer, CancellationToken cancellationToken = default)
+    public static async ValueTask<Dictionary<TKey, TElement>> ToDictionaryAsync<TItem, TKey, TElement>(this IQueryable<TItem> source, Func<TItem, int, TKey> keySelector, Func<TItem, int, TElement> elementSelector, IEqualityComparer<TKey> comparer, CancellationToken cancellationToken = default)
         where TKey : notnull {
         IsNotNull(keySelector);
         IsNotNull(elementSelector);
         var result = new Dictionary<TKey, TElement>(comparer);
         var index = 0;
-        await foreach (var item in source.AsConfigured(cancellationToken)) {
+        await foreach (var item in source.AsAsyncQueryable().AsConfigured(cancellationToken)) {
             var key = keySelector(item, index);
             var value = elementSelector(item, index);
             result.Add(key, value);

@@ -77,7 +77,7 @@ public class InMemoryValueObjectRepositoryStrategy<TItem>
 
     public override async ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default) {
         var count = await AsyncQuery.CountAsync(ct);
-        var items = await Query.Skip((int)(pageIndex * pageSize))
+        var items = await AsyncQuery.Skip((int)(pageIndex * pageSize))
                    .Take((int)pageSize)
                    .ToArrayAsync(ct);
         return new() {
@@ -87,9 +87,9 @@ public class InMemoryValueObjectRepositoryStrategy<TItem>
             Items = items,
         };
     }
-        
+
     public override async ValueTask<Block<TItem>> GetBlockAsync(Expression<Func<TItem, bool>> isNotStart, uint blockSize = DefaultBlockSize, CancellationToken ct = default) {
-        var items = await Query.SkipWhile(isNotStart)
+        var items = await AsyncQuery.SkipWhile(isNotStart)
                    .Take((int)blockSize)
                    .ToArrayAsync();
         return new Block<TItem> {

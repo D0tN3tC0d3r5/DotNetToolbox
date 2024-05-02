@@ -3,27 +3,27 @@ namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
     public static ValueTask<TItem> MinByAsync<TItem, TKey>(
-            this IAsyncQueryable<TItem> source,
+            this IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             CancellationToken cancellationToken = default)
         => source.MinByAsync(keySelector, Comparer<TKey>.Default, x => x, cancellationToken);
 
     public static ValueTask<TItem> MinByAsync<TItem, TKey>(
-            this IAsyncQueryable<TItem> source,
+            this IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             IComparer<TKey> keyComparer,
             CancellationToken cancellationToken = default)
         => source.MinByAsync(keySelector, keyComparer, x => x, cancellationToken);
 
     public static ValueTask<TResult> MinByAsync<TItem, TKey, TResult>(
-            this IAsyncQueryable<TItem> source,
+            this IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             Func<TItem, TResult> valueSelector,
             CancellationToken cancellationToken = default)
         => source.MinByAsync(keySelector, Comparer<TKey>.Default, valueSelector, cancellationToken);
 
     public static ValueTask<TResult> MinByAsync<TItem, TKey, TResult>(
-            this IAsyncQueryable<TItem> source,
+            this IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             IComparer<TKey> keyComparer,
             Func<TItem, TResult> valueSelector,
@@ -31,7 +31,7 @@ public static partial class AsyncQueryableExtensions {
         => GetMinBy(source, keySelector, keyComparer, valueSelector, cancellationToken);
 
     private static async ValueTask<TResult> GetMinBy<TItem, TKey, TResult>(
-            IAsyncQueryable<TItem> source,
+            IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             IComparer<TKey> keyComparer,
             Func<TItem, TResult> valueSelector,
@@ -41,7 +41,7 @@ public static partial class AsyncQueryableExtensions {
         object? key = null;
         var result = default(TResult);
         var isEmpty = true;
-        await foreach (var item in source.AsConfigured(cancellationToken)) {
+        await foreach (var item in source.AsAsyncQueryable().AsConfigured(cancellationToken)) {
             isEmpty = false;
             var itemKey = keySelector(item);
             if (key is not null && keyComparer.Compare((TKey)key, itemKey) <= 1)

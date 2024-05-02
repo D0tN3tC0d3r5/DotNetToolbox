@@ -135,7 +135,7 @@ csharp_style_allow_blank_line_after_colon_in_constructor_initializer_experimenta
 csharp_style_allow_blank_line_after_token_in_arrow_expression_clause_experimental = false:warning
 csharp_style_allow_blank_line_after_token_in_conditional_expression_experimental = false:warning
 csharp_style_allow_blank_lines_between_consecutive_braces_experimental = false:warning
-csharp_style_allow_embedded_statements_on_same_line_experimental = true:warning
+csharp_style_allow_embedded_statements_on_same_line_experimental = false:warning
 
 #### C# Formatting Rules ####
 
@@ -362,7 +362,7 @@ resharper_csharp_int_align_fix_in_adjacent = false
 resharper_csharp_keep_blank_lines_in_code = 1
 resharper_csharp_keep_blank_lines_in_declarations = 1
 resharper_csharp_keep_nontrivial_alias = false
-resharper_csharp_max_line_length = 240
+resharper_csharp_max_line_length = 160
 resharper_csharp_naming_rule.enum_member = AaBb
 resharper_csharp_naming_rule.method_property_event = AaBb
 resharper_csharp_naming_rule.other = AaBb

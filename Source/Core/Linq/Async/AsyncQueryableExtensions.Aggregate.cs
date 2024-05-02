@@ -2,25 +2,24 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
-    public static ValueTask<TItem> AggregateAsync<TItem>(this IAsyncQueryable<TItem> source, Func<TItem, TItem, TItem> aggregate, CancellationToken cancellationToken = default)
+    public static ValueTask<TItem> AggregateAsync<TItem>(this IQueryable<TItem> source, Func<TItem, TItem, TItem> aggregate, CancellationToken cancellationToken = default)
         => GetAggregatedValue(source, default, aggregate, x => x, cancellationToken);
 
-    public static ValueTask<TResult> AggregateAsync<TItem, TResult>(this IAsyncQueryable<TItem> source, Func<TItem, TItem, TItem> aggregate, Func<TItem, TResult> resultSelector, CancellationToken cancellationToken = default)
+    public static ValueTask<TResult> AggregateAsync<TItem, TResult>(this IQueryable<TItem> source, Func<TItem, TItem, TItem> aggregate, Func<TItem, TResult> resultSelector, CancellationToken cancellationToken = default)
         => GetAggregatedValue(source, default, aggregate, resultSelector, cancellationToken);
 
-    public static ValueTask<TAccumulate> AggregateAsync<TItem, TAccumulate>(this IAsyncQueryable<TItem> source, TAccumulate seed, Func<TAccumulate, TItem, TAccumulate> aggregate, CancellationToken cancellationToken = default)
+    public static ValueTask<TAccumulate> AggregateAsync<TItem, TAccumulate>(this IQueryable<TItem> source, TAccumulate seed, Func<TAccumulate, TItem, TAccumulate> aggregate, CancellationToken cancellationToken = default)
         => GetAggregatedValue(source, seed, aggregate, x => x, cancellationToken);
 
-    public static ValueTask<TResult> AggregateAsync<TItem, TAccumulate, TResult>(this IAsyncQueryable<TItem> source, TAccumulate seed, Func<TAccumulate, TItem, TAccumulate> aggregate, Func<TAccumulate, TResult> resultSelector, CancellationToken cancellationToken = default)
+    public static ValueTask<TResult> AggregateAsync<TItem, TAccumulate, TResult>(this IQueryable<TItem> source, TAccumulate seed, Func<TAccumulate, TItem, TAccumulate> aggregate, Func<TAccumulate, TResult> resultSelector, CancellationToken cancellationToken = default)
         => GetAggregatedValue(source, seed, aggregate, resultSelector, cancellationToken);
 
     private static async ValueTask<TResult> GetAggregatedValue<TItem, TAccumulate, TResult>(
-        IAsyncQueryable<TItem> source,
+        IQueryable<TItem> source,
         TAccumulate? seed,
         Func<TAccumulate, TItem, TAccumulate> aggregate,
         Func<TAccumulate, TResult> resultSelector,
-        CancellationToken cancellationToken)
-    {
+        CancellationToken cancellationToken) {
         IsNotNull(resultSelector);
         IsNotNull(aggregate);
         await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);

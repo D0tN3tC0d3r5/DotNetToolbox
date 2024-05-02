@@ -27,7 +27,7 @@ public class Block<TItem, TMarker>
     }
 
     [SetsRequiredMembers]
-    public Block(IReadOnlyList<TItem> items, TMarker marker, uint size = DefaultBlockSize)
+    public Block(IReadOnlyList<TItem> items, TMarker? marker, uint size = DefaultBlockSize)
         : base(items, size) {
         Marker = marker;
     }

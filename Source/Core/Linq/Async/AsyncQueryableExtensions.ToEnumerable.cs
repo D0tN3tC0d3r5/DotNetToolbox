@@ -2,7 +2,7 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
-    public static IEnumerable<TSource> ToEnumerable<TSource>(this IAsyncQueryable<TSource> source) {
+    public static IEnumerable<TSource> ToEnumerable<TSource>(this IQueryable<TSource> source) {
         var enumerable = source.GetAsyncEnumerator();
         try {
             while (enumerable.MoveNextAsync().AsTask().GetAwaiter().GetResult()) {

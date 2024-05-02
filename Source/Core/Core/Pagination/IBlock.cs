@@ -5,7 +5,7 @@ public interface IBlock<out TItem> {
     IReadOnlyList<TItem> Items { get; }
 };
 
-public interface IBlock<out TItem, out TOffset>
+public interface IBlock<out TItem, out TMarker>
     : IBlock<TItem> {
-    TOffset Marker { get; }
+    TMarker? Marker { get; }
 }

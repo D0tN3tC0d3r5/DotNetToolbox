@@ -19,7 +19,6 @@ public class BlockTests {
 
         subject.Items.Should().BeEquivalentTo([1, 2, 3, 4]);
         subject.Size.Should().Be(4);
-        subject.Size.Should().Be(DefaultBlockSize);
     }
 
     [Fact]

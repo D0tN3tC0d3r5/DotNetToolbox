@@ -5,7 +5,7 @@ namespace DotNetToolbox.Pagination;
 public class Page<TItem>
     : IPage<TItem> {
     [SetsRequiredMembers]
-    public Page() {
+    public Page() : this([]) {
     }
 
     [SetsRequiredMembers]

@@ -2,7 +2,8 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
-    public static async Task LoadAsync<TSource>(this IAsyncQueryable<TSource> source, CancellationToken cancellationToken = default) {
-        await foreach (var item in source.AsConfigured(cancellationToken)) { }
+    public static async Task LoadAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) {
+        await foreach (var item in source.AsAsyncQueryable().AsConfigured(cancellationToken)) {
+        }
     }
 }

@@ -11,6 +11,8 @@ public class InMemoryEntityRepositoryStrategy<TItem, TKey>
 
     public TKey GetNextKey(IReadOnlyDictionary<object, object?>? keyContext = null) => throw new NotImplementedException();
     public void Patch(TKey key, Action<TItem> setItem) => throw new NotImplementedException();
+    public void Update(TItem updatedItem) => throw new NotImplementedException();
+
     public void Remove(TKey key) => throw new NotImplementedException();
 
     #endregion

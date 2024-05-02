@@ -33,7 +33,7 @@ public class AsyncQueryable<TItem>
 
     Expression IQueryable.Expression => _expression;
     IQueryProvider IQueryable.Provider => _source.Provider;
-    IAsyncQueryProvider IAsyncQueryable<TItem>.AsyncProvider => this;
+    IAsyncQueryProvider IAsyncQueryable.AsyncProvider => this;
     Type IQueryable.ElementType => typeof(TItem);
 
     IAsyncQueryable<TElement> IAsyncQueryProvider.CreateAsyncQuery<TElement>(Expression expression)
