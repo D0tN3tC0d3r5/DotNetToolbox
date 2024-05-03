@@ -11,12 +11,14 @@ public interface IRepository<TItem>
     #region Blocking
 
     void Seed(IEnumerable<TItem> seed);
+    void Load();
 
     #endregion
 
     #region Async
 
     Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default);
+    Task LoadAsync(CancellationToken ct = default);
 
     #endregion
 }

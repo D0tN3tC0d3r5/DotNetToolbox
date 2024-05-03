@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Repositories.Entity;
 
-public interface IQueryableEntityRepository<TItem, in TKey>
+public interface IQueryableEntityRepository<TItem, TKey>
     : IQueryableRepository<TItem>
     where TItem : IEntity<TKey>
     where TKey : notnull {
@@ -13,7 +13,7 @@ public interface IQueryableEntityRepository<TItem, in TKey>
 
 #region Async
 
-    Task<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default);
+    ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default);
 
 #endregion
 }

@@ -2,17 +2,14 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
-    public static ValueTask<int> CountAsync<TItem>(this IQueryable<TItem> source, CancellationToken cancellationToken = default)
-        => source.CountAsync(_ => true, cancellationToken);
+    public static ValueTask<int> CountAsync<TItem>(this IQueryable<TItem> source, CancellationToken ct = default)
+        => source.CountAsync(_ => true, ct);
 
-    public static async ValueTask<int> CountAsync<TItem>(this IQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default) {
+    public static async ValueTask<int> CountAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
         IsNotNull(predicate);
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
         var count = 0;
-        await foreach (var item in source.AsAsyncQueryable().AsConfigured(cancellationToken)) {
-            if (predicate(item))
-                count++;
-        }
-
+        await foreach (var item in filteredSource) count++;
         return count;
     }
 }

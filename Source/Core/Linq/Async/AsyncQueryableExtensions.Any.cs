@@ -2,16 +2,14 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
-    public static ValueTask<bool> AnyAsync<TItem>(this IQueryable<TItem> source, CancellationToken cancellationToken = default)
-        => source.AnyAsync(_ => true, cancellationToken);
+    public static ValueTask<bool> AnyAsync<TItem>(this IQueryable<TItem> source, CancellationToken ct = default)
+        => source.AnyAsync(_ => true, ct);
 
-    public static async ValueTask<bool> AnyAsync<TItem>(this IQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default) {
+    public static async ValueTask<bool> AnyAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
         IsNotNull(predicate);
-        await foreach (var item in source.AsAsyncQueryable().AsConfigured(cancellationToken)) {
-            if (predicate(item))
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
+        await foreach (var item in filteredSource)
                 return true;
-        }
-
         return false;
     }
 }

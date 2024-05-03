@@ -3,16 +3,18 @@ namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
     public static ValueTask<List<TItem>> ToListAsync<TItem>(this IQueryable<TItem> source, CancellationToken ct = default)
-        => source.ToListAsync((x, _) => x, ct);
+        => IsNotNull(source).MakeListAsync(ct);
 
-    public static ValueTask<List<TResult>> ToListAsync<TItem, TResult>(this IQueryable<TItem> source, Func<TItem, TResult> mapping, CancellationToken ct = default)
-    => source.ToListAsync((x, _) => mapping(x), ct);
+    public static ValueTask<List<TResult>> ToListAsync<TItem, TResult>(this IQueryable<TItem> source, Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
+        => IsNotNull(source).Select(mapping).MakeListAsync(ct);
 
-    public static async ValueTask<List<TResult>> ToListAsync<TItem, TResult>(this IQueryable<TItem> source, Func<TItem, int, TResult> mapping, CancellationToken ct = default) {
+    public static ValueTask<List<TResult>> ToListAsync<TItem, TResult>(this IQueryable<TItem> source, Expression<Func<TItem, int, TResult>> mapping, CancellationToken ct = default)
+        => IsNotNull(source).Select(mapping).MakeListAsync(ct);
+
+    private static async ValueTask<List<TResult>> MakeListAsync<TResult>(this IQueryable<TResult> source, CancellationToken ct = default) {
         var result = new List<TResult>();
-        var index = 0;
-        await foreach (var item in IsNotNull(source).AsAsyncQueryable().AsConfigured(ct))
-            result.Add(mapping(item, index++));
+        await foreach (var item in source.AsAsyncQueryable().AsConfigured(ct))
+            result.Add(item);
         return result;
     }
 }

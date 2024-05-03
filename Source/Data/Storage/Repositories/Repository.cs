@@ -23,6 +23,8 @@ public abstract class Repository<TStrategy, TItem>
 
     public void Seed(IEnumerable<TItem> seed)
         => Strategy.Seed(seed);
+    public void Load()
+        => Strategy.Load();
 
     #endregion
 
@@ -35,6 +37,8 @@ public abstract class Repository<TStrategy, TItem>
 
     public Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default)
         => Strategy.SeedAsync(seed, ct);
+    public Task LoadAsync(CancellationToken ct = default)
+        => Strategy.LoadAsync(ct);
 
     #endregion
 }

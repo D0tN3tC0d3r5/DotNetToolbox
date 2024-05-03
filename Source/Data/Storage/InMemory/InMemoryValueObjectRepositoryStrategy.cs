@@ -6,6 +6,10 @@ public class InMemoryValueObjectRepositoryStrategy<TItem>
     : ValueObjectRepositoryStrategy<TItem> {
     #region Blocking
 
+    public override void Seed(IEnumerable<TItem> seed)
+        => Data = seed as List<TItem> ?? IsNotNull(seed).ToList();
+    public override void Load() { }
+
     public override TItem[] GetAll()
         => Query.ToArray();
 
@@ -72,6 +76,16 @@ public class InMemoryValueObjectRepositoryStrategy<TItem>
 
     #region Async
 
+    public override Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default) {
+        Seed(seed);
+        return Task.CompletedTask;
+    }
+
+    public override Task LoadAsync(CancellationToken ct = default) {
+        Load();
+        return Task.CompletedTask;
+    }
+
     public override ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default)
         => AsyncQuery.ToArrayAsync(ct);
 
@@ -91,11 +105,20 @@ public class InMemoryValueObjectRepositoryStrategy<TItem>
     public override async ValueTask<Block<TItem>> GetBlockAsync(Expression<Func<TItem, bool>> isNotStart, uint blockSize = DefaultBlockSize, CancellationToken ct = default) {
         var items = await AsyncQuery.SkipWhile(isNotStart)
                    .Take((int)blockSize)
-                   .ToArrayAsync();
-        return new Block<TItem> {
+                   .ToArrayAsync(ct);
+        return new() {
             Size = blockSize,
             Items = items,
         };
+    }
+
+    public override ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => Query.FirstOrDefaultAsync(predicate, ct);
+
+    public override async Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) {
+        var item = Activator.CreateInstance<TItem>();
+        await setItem(item, ct);
+        return item;
     }
 
     public override Task AddAsync(TItem newItem, CancellationToken ct = default) {
@@ -109,11 +132,17 @@ public class InMemoryValueObjectRepositoryStrategy<TItem>
         await AddAsync(updatedItem, ct);
     }
 
+    public override async Task PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) {
+        var itemToPatch = await AsyncQuery.FirstOrDefaultAsync(predicate, ct);
+        if (itemToPatch is null) return;
+        await setItem(itemToPatch, ct);
+    }
+
     public override Task RemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => TryRemoveAsync(predicate, ct);
 
     private async Task<bool> TryRemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
-        var itemToRemove = await AsyncQuery.FirstOrDefaultAsync(predicate.Compile(), ct);
+        var itemToRemove = await AsyncQuery.FirstOrDefaultAsync(predicate, ct);
         if (itemToRemove is null)
             return false;
         Data.Remove(itemToRemove);

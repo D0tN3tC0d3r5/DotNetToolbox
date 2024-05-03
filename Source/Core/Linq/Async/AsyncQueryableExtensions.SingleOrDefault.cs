@@ -2,30 +2,28 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
-    public static ValueTask<TItem?> SingleOrDefaultAsync<TItem>(this IQueryable<TItem> source, CancellationToken cancellationToken = default)
-        => FindSingleOrDefault(source, _ => true, default, cancellationToken);
+    public static ValueTask<TItem?> SingleOrDefaultAsync<TItem>(this IQueryable<TItem> source, CancellationToken ct = default)
+        => FindSingleOrDefault(source, _ => true, default, ct);
 
-    public static ValueTask<TItem?> SingleOrDefaultAsync<TItem>(this IQueryable<TItem> source, Func<TItem, bool> predicate, CancellationToken cancellationToken = default)
-        => FindSingleOrDefault(source, predicate, default, cancellationToken);
+    public static ValueTask<TItem?> SingleOrDefaultAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => FindSingleOrDefault(source, predicate, default, ct);
 
-    public static ValueTask<TItem?> SingleOrDefaultAsync<TItem>(this IQueryable<TItem> source, TItem? defaultValue, CancellationToken cancellationToken = default)
-        => FindSingleOrDefault(source, _ => true, defaultValue, cancellationToken);
+    public static ValueTask<TItem?> SingleOrDefaultAsync<TItem>(this IQueryable<TItem> source, TItem? defaultValue, CancellationToken ct = default)
+        => FindSingleOrDefault(source, _ => true, defaultValue, ct);
 
-    public static ValueTask<TItem?> SingleOrDefaultAsync<TItem>(this IQueryable<TItem> source, Func<TItem, bool> predicate, TItem? defaultValue, CancellationToken cancellationToken = default)
-        => FindSingleOrDefault(source, predicate, defaultValue, cancellationToken);
+    public static ValueTask<TItem?> SingleOrDefaultAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, TItem? defaultValue, CancellationToken ct = default)
+        => FindSingleOrDefault(source, predicate, defaultValue, ct);
 
-    private static async ValueTask<TItem?> FindSingleOrDefault<TItem>(IQueryable<TItem> source, Func<TItem, bool> predicate, TItem? defaultValue, CancellationToken cancellationToken) {
+    private static async ValueTask<TItem?> FindSingleOrDefault<TItem>(IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, TItem? defaultValue, CancellationToken ct) {
         IsNotNull(predicate);
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(cancellationToken);
-        var found = false;
         var result = defaultValue;
-        while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (!predicate(enumerator.Current))
-                continue;
+        var found = false;
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
+        await foreach (var item in filteredSource) {
             if (found)
                 throw new InvalidOperationException("Collection contains more than one matching element.");
             found = true;
-            result = enumerator.Current;
+            result = item;
         }
         return result;
     }

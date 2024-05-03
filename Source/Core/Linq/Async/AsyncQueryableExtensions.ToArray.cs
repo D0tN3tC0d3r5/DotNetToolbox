@@ -3,18 +3,21 @@ namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
     public static ValueTask<TItem[]> ToArrayAsync<TItem>(this IQueryable<TItem> source, CancellationToken ct = default)
-        => ToArrayAsync(source, (item, _) => item, ct);
+        => IsNotNull(source).MakeArray(ct);
 
-    public static ValueTask<TResult[]> ToArrayAsync<TItem, TResult>(this IQueryable<TItem> source, Func<TItem, TResult> mapping, CancellationToken ct = default)
-        => ToArrayAsync(source, (item, _) => mapping(item), ct);
+    public static ValueTask<TResult[]> ToArrayAsync<TItem, TResult>(this IQueryable<TItem> source, Expression<Func<TItem, TResult>> mapping, CancellationToken ct = default)
+        => IsNotNull(source).Select(mapping).MakeArray(ct);
 
-    public static async ValueTask<TResult[]> ToArrayAsync<TItem, TResult>(this IQueryable<TItem> source, Func<TItem, int, TResult> mapping, CancellationToken ct = default) {
+    public static ValueTask<TResult[]> ToArrayAsync<TItem, TResult>(this IQueryable<TItem> source, Expression<Func<TItem, int, TResult>> mapping, CancellationToken ct = default)
+        => IsNotNull(source).Select(mapping).MakeArray(ct);
+
+    private static async ValueTask<TResult[]> MakeArray<TResult>(this IEnumerable<TResult> source, CancellationToken ct = default) {
         var capacity = 4;
         var result = new TResult[capacity];
         var index = 0;
-        await using var enumerator = IsNotNull(source).GetAsyncEnumerator(ct);
+        await using var enumerator = source.GetAsyncEnumerator(ct);
         while (await enumerator.MoveNextAsync().ConfigureAwait(false) && index < Array.MaxLength) {
-            result[index] = mapping(enumerator.Current, index);
+            result[index] = enumerator.Current;
             index++;
             if (index < capacity)
                 continue;

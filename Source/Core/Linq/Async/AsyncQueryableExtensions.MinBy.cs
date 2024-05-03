@@ -5,43 +5,43 @@ public static partial class AsyncQueryableExtensions {
     public static ValueTask<TItem> MinByAsync<TItem, TKey>(
             this IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
-            CancellationToken cancellationToken = default)
-        => source.MinByAsync(keySelector, Comparer<TKey>.Default, x => x, cancellationToken);
+            CancellationToken ct = default)
+        => source.MinByAsync(keySelector, Comparer<TKey>.Default, x => x, ct);
 
     public static ValueTask<TItem> MinByAsync<TItem, TKey>(
             this IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             IComparer<TKey> keyComparer,
-            CancellationToken cancellationToken = default)
-        => source.MinByAsync(keySelector, keyComparer, x => x, cancellationToken);
+            CancellationToken ct = default)
+        => source.MinByAsync(keySelector, keyComparer, x => x, ct);
 
     public static ValueTask<TResult> MinByAsync<TItem, TKey, TResult>(
             this IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             Func<TItem, TResult> valueSelector,
-            CancellationToken cancellationToken = default)
-        => source.MinByAsync(keySelector, Comparer<TKey>.Default, valueSelector, cancellationToken);
+            CancellationToken ct = default)
+        => source.MinByAsync(keySelector, Comparer<TKey>.Default, valueSelector, ct);
 
     public static ValueTask<TResult> MinByAsync<TItem, TKey, TResult>(
             this IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             IComparer<TKey> keyComparer,
             Func<TItem, TResult> valueSelector,
-            CancellationToken cancellationToken = default)
-        => GetMinBy(source, keySelector, keyComparer, valueSelector, cancellationToken);
+            CancellationToken ct = default)
+        => GetMinBy(source, keySelector, keyComparer, valueSelector, ct);
 
     private static async ValueTask<TResult> GetMinBy<TItem, TKey, TResult>(
             IQueryable<TItem> source,
             Func<TItem, TKey> keySelector,
             IComparer<TKey> keyComparer,
             Func<TItem, TResult> valueSelector,
-            CancellationToken cancellationToken) {
+            CancellationToken ct) {
         IsNotNull(keySelector);
         IsNotNull(valueSelector);
         object? key = null;
         var result = default(TResult);
         var isEmpty = true;
-        await foreach (var item in source.AsAsyncQueryable().AsConfigured(cancellationToken)) {
+        await foreach (var item in source.AsAsyncQueryable().AsConfigured(ct)) {
             isEmpty = false;
             var itemKey = keySelector(item);
             if (key is not null && keyComparer.Compare((TKey)key, itemKey) <= 1)

@@ -19,8 +19,10 @@ public abstract class EntityRepository<TStrategy, TItem, TKey>
     where TStrategy : class, IEntityRepositoryStrategy<TItem, TKey>
     where TItem : IEntity<TKey>
     where TKey : notnull {
-    protected EntityRepository(TStrategy strategy, IEnumerable<TItem>? data = null)
+
+    protected EntityRepository(TStrategy strategy, IEnumerable<TItem>? data = null, IEqualityComparer<TKey>? comparer = null)
         : base(strategy, data) {
+        Strategy.SetKeyComparer(comparer ?? EqualityComparer<TKey>.Default);
     }
 
     #region Blocking
@@ -40,7 +42,7 @@ public abstract class EntityRepository<TStrategy, TItem, TKey>
 
     #region Async
 
-    public Task<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default)
+    public ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default)
         => Strategy.FindByKeyAsync(key, ct);
     public Task<TKey> GetNextKeyAsync(IReadOnlyDictionary<object, object?>? keyContext = null, CancellationToken ct = default)
         => Strategy.GetNextKeyAsync(keyContext, ct);

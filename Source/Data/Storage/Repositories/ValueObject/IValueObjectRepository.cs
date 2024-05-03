@@ -14,7 +14,7 @@ public interface IValueObjectRepository<TItem>
     #region Async
 
     ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default);
-    Task<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
+    ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
     #endregion
 }

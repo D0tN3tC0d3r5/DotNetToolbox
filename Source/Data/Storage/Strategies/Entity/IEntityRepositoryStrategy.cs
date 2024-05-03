@@ -4,4 +4,7 @@ public interface IEntityRepositoryStrategy<TItem, TKey>
     : IValueObjectRepositoryStrategy<TItem>
     , IEntityRepository<TItem, TKey>
     where TItem : IEntity<TKey>
-    where TKey : notnull;
+    where TKey : notnull {
+
+    void SetKeyComparer(IEqualityComparer<TKey> comparer);
+}

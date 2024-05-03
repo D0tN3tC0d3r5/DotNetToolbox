@@ -6,6 +6,10 @@ public abstract class EntityRepositoryStrategy<TItem, TKey>
     where TItem : IEntity<TKey>
     where TKey : notnull {
 
+    public void SetKeyComparer(IEqualityComparer<TKey> comparer)
+        => KeyComparer = IsNotNull(comparer);
+    protected IEqualityComparer<TKey> KeyComparer { get; private set; } = EqualityComparer<TKey>.Default;
+
     #region Blocking
 
     public virtual TItem FindByKey(TKey key) => throw new NotImplementedException();
@@ -18,7 +22,7 @@ public abstract class EntityRepositoryStrategy<TItem, TKey>
     #endregion
 
     #region Async
-    public virtual Task<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
+    public virtual ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
 
     public virtual Task<TKey> GetNextKeyAsync(IReadOnlyDictionary<object, object?>? keyContext = null, CancellationToken ct = default) => throw new NotImplementedException();
     public virtual Task UpdateAsync(TItem updatedItem, CancellationToken ct = default) => throw new NotImplementedException();
@@ -26,5 +30,4 @@ public abstract class EntityRepositoryStrategy<TItem, TKey>
     public virtual Task RemoveAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
 
     #endregion
-
 }

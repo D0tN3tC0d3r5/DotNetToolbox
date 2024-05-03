@@ -2,12 +2,12 @@
 namespace System.Linq.Async;
 
 public static partial class AsyncQueryableExtensions {
-    public static ValueTask<bool> SequenceEqualAsync<TItem>(this IQueryable<TItem> first, IEnumerable<TItem> second, CancellationToken cancellationToken = default)
-        => first.SequenceEqualAsync(second, EqualityComparer<TItem>.Default, cancellationToken);
+    public static ValueTask<bool> SequenceEqualAsync<TItem>(this IQueryable<TItem> first, IEnumerable<TItem> second, CancellationToken ct = default)
+        => first.SequenceEqualAsync(second, EqualityComparer<TItem>.Default, ct);
 
-    public static async ValueTask<bool> SequenceEqualAsync<TItem>(this IQueryable<TItem> first, IEnumerable<TItem> second, IEqualityComparer<TItem> comparer, CancellationToken cancellationToken = default) {
-        await using var firstEnumerator = IsNotNull(first).GetAsyncEnumerator(cancellationToken);
-        await using var secondEnumerator = IsNotNull(second).GetAsyncEnumerator(cancellationToken);
+    public static async ValueTask<bool> SequenceEqualAsync<TItem>(this IQueryable<TItem> first, IEnumerable<TItem> second, IEqualityComparer<TItem> comparer, CancellationToken ct = default) {
+        await using var firstEnumerator = IsNotNull(first).GetAsyncEnumerator(ct);
+        await using var secondEnumerator = IsNotNull(second).GetAsyncEnumerator(ct);
 
         while (await firstEnumerator.MoveNextAsync().ConfigureAwait(false)) {
             if (!await secondEnumerator.MoveNextAsync().ConfigureAwait(false))

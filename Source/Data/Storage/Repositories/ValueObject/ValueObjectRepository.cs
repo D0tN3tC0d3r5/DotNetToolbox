@@ -42,7 +42,7 @@ public abstract class ValueObjectRepository<TStrategy, TItem>
 
     public ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default)
         => Strategy.GetAllAsync(ct);
-    public Task<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+    public ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => Strategy.FindAsync(predicate, ct);
 
     public Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
