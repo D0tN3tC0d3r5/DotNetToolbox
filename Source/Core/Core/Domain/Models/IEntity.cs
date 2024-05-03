@@ -2,12 +2,11 @@
 
 public interface IEntity {
     [NotNull]
-    object Id { get; }
+    object Key { get; }
 }
 
 public interface IEntity<TKey>
     : IEntity
     where TKey : notnull {
-    object IEntity.Id => Id;
-    new TKey Id { get; set; }
+    new TKey Key { get; set; }
 }

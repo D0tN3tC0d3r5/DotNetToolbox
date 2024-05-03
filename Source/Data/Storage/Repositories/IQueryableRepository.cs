@@ -5,6 +5,5 @@ public interface IQueryableRepository
 
 public interface IQueryableRepository<out TItem>
     : IQueryableRepository
-    , IAsyncQueryable<TItem> {
-}
+    , IAsyncQueryable<TItem>;
 

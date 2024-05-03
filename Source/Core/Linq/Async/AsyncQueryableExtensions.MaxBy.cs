@@ -42,7 +42,7 @@ public static partial class AsyncQueryableExtensions {
         object? key = null;
         var result = default(TResult);
         var isEmpty = true;
-        await foreach (var item in source.AsAsyncQueryable().AsConfigured(ct)) {
+        await foreach (var item in IsNotNull(source).AsAsyncEnumerable(ct)) {
             isEmpty = false;
             var itemKey = keySelector(item);
             if (key is not null && keyComparer.Compare((TKey)key, itemKey) >= 1)

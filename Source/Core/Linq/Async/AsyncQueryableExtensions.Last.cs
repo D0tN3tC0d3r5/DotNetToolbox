@@ -10,7 +10,7 @@ public static partial class AsyncQueryableExtensions {
 
     private static async ValueTask<TItem> FindLast<TItem>(IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct) {
         IsNotNull(predicate);
-        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
         var result = default(TItem);
         var found = false;
         await foreach (var item in filteredSource) {

@@ -1,5 +1,3 @@
-using static DotNetToolbox.Pagination.PaginationSettings;
-
 namespace DotNetToolbox.Data.Repositories.ValueObject;
 
 public class PagedValueObjectRepository<TItem>
@@ -11,18 +9,24 @@ public class PagedValueObjectRepository<TItem>
     public PagedValueObjectRepository(IValueObjectRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
         : base(strategy, data) {
     }
+    public PagedValueObjectRepository(string name, IEnumerable<TItem>? data = null)
+        : base(name, new InMemoryValueObjectRepositoryStrategy<TItem>(), data) { }
+    public PagedValueObjectRepository(string name, IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
+        : base(name, (IValueObjectRepositoryStrategy<TItem>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
+    public PagedValueObjectRepository(string name, IValueObjectRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
+        : base(name, strategy, data) {
+    }
 }
 
 public abstract class PagedValueObjectRepository<TStrategy, TItem>
     : ValueObjectRepository<TItem>
     , IPagedQueryableRepository<TItem>
     where TStrategy : class, IValueObjectRepositoryStrategy<TItem> {
-    protected PagedValueObjectRepository(TStrategy strategy, IEnumerable<TItem>? data = null) {
-        Strategy = IsNotNull(strategy);
-        if (data is null)
-            return;
-        var list = data as List<TItem> ?? data.ToList();
-        Strategy.Seed(list);
+    protected PagedValueObjectRepository(TStrategy strategy, IEnumerable<TItem>? data = null)
+        : base(strategy, data) {
+    }
+    protected PagedValueObjectRepository(string name, TStrategy strategy, IEnumerable<TItem>? data = null)
+        : base(name, strategy, data) {
     }
 
     #region Blocking

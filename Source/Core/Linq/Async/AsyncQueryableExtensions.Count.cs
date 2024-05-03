@@ -7,9 +7,10 @@ public static partial class AsyncQueryableExtensions {
 
     public static async ValueTask<int> CountAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
         IsNotNull(predicate);
-        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
         var count = 0;
-        await foreach (var item in filteredSource) count++;
+        await foreach (var item in filteredSource)
+            count++;
         return count;
     }
 }

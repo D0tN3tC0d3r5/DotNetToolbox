@@ -1,5 +1,3 @@
-using static DotNetToolbox.Pagination.PaginationSettings;
-
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IOffsetQueryableRepository<TItem>

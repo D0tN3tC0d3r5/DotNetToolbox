@@ -1,5 +1,5 @@
 namespace DotNetToolbox.Data.Strategies;
 
 public interface IRepositoryStrategyProvider {
-    IRepositoryStrategy GetStrategy<TItem>();
+    IRepositoryStrategy GetStrategy<TItem>(string name);
 }

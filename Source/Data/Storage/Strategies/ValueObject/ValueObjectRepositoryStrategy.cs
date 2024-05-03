@@ -1,10 +1,8 @@
-using static DotNetToolbox.Pagination.PaginationSettings;
-
 namespace DotNetToolbox.Data.Strategies.ValueObject;
 
-public abstract class ValueObjectRepositoryStrategy<TItem>
-    : RepositoryStrategy<TItem>,
-    IValueObjectRepositoryStrategy<TItem> {
+public abstract class ValueObjectRepositoryStrategy<TItem>(string name)
+    : RepositoryStrategy<TItem>(name)
+    , IValueObjectRepositoryStrategy<TItem> {
 
     #region Blocking
 

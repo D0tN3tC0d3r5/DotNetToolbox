@@ -17,7 +17,7 @@ public static partial class AsyncQueryableExtensions {
 
     private static async ValueTask<TItem?> FindLastOrDefault<TItem>(IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, TItem? defaultValue, CancellationToken ct) {
         IsNotNull(predicate);
-        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
         var result = defaultValue;
         await foreach (var item in filteredSource)
             result = item;

@@ -1,7 +1,8 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public abstract class RepositoryStrategy<TItem>
+public abstract class RepositoryStrategy<TItem>(string name)
     : IRepositoryStrategy {
+    public string Name { get; } = name;
 
     protected List<TItem> Data { get; set; } = [];
     public Type ElementType => Query.ElementType;
@@ -33,5 +34,5 @@ public abstract class RepositoryStrategy<TItem>
     public virtual Task LoadAsync(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-#endregion
+    #endregion
 }

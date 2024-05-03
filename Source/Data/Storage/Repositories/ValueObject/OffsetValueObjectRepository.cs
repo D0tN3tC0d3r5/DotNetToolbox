@@ -1,5 +1,3 @@
-using static DotNetToolbox.Pagination.PaginationSettings;
-
 namespace DotNetToolbox.Data.Repositories.ValueObject;
 
 public class OffsetValueObjectRepository<TItem>
@@ -11,18 +9,24 @@ public class OffsetValueObjectRepository<TItem>
     public OffsetValueObjectRepository(IValueObjectRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
         : base(strategy, data) {
     }
+    public OffsetValueObjectRepository(string name, IEnumerable<TItem>? data = null)
+        : base(name, new InMemoryValueObjectRepositoryStrategy<TItem>(), data) { }
+    public OffsetValueObjectRepository(string name, IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
+        : base(name, (IValueObjectRepositoryStrategy<TItem>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
+    public OffsetValueObjectRepository(string name, IValueObjectRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
+        : base(name, strategy, data) {
+    }
 }
 
 public abstract class OffsetValueObjectRepository<TStrategy, TItem>
     : ValueObjectRepository<TItem>
     , IOffsetQueryableRepository<TItem>
     where TStrategy : class, IValueObjectRepositoryStrategy<TItem> {
-    protected OffsetValueObjectRepository(TStrategy strategy, IEnumerable<TItem>? data = null) {
-        Strategy = IsNotNull(strategy);
-        if (data is null)
-            return;
-        var list = data as List<TItem> ?? data.ToList();
-        Strategy.Seed(list);
+    protected OffsetValueObjectRepository(TStrategy strategy, IEnumerable<TItem>? data = null)
+        : base(strategy, data) {
+    }
+    protected OffsetValueObjectRepository(string name, TStrategy strategy, IEnumerable<TItem>? data = null)
+        : base(name, strategy, data) {
     }
 
     #region Blocking

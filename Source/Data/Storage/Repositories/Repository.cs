@@ -3,13 +3,23 @@ namespace DotNetToolbox.Data.Repositories;
 public abstract class Repository<TStrategy, TItem>
     : IRepository<TItem>
     where TStrategy : class, IRepositoryStrategy<TItem> {
-    protected Repository(TStrategy strategy, IEnumerable<TItem>? data = null) {
+
+    protected Repository(TStrategy strategy, IEnumerable<TItem>? data = null)
+        : this($"|>{nameof(Repository<TStrategy, TItem>)}_{Guid.NewGuid():N}<|", strategy, data) {
+    }
+
+    protected Repository(string name, TStrategy strategy, IEnumerable<TItem>? data = null) {
+        Name = name;
         Strategy = IsNotNull(strategy);
         if (data is null)
             return;
         var list = data as List<TItem> ?? data.ToList();
+        if (list.Count == 0)
+            return;
         Strategy.Seed(list);
     }
+
+    public string Name { get; }
 
     protected TStrategy Strategy { get; init; }
     public Type ElementType => Strategy.ElementType;

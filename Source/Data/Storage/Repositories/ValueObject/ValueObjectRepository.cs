@@ -7,7 +7,13 @@ public class ValueObjectRepository<TItem>
     public ValueObjectRepository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
         : base((IValueObjectRepositoryStrategy<TItem>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
     public ValueObjectRepository(IValueObjectRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
-        : base(strategy, data ?? []) { }
+        : base(strategy, data) { }
+    public ValueObjectRepository(string name, IEnumerable<TItem>? data = null)
+        : base(name, new InMemoryValueObjectRepositoryStrategy<TItem>(), data) { }
+    public ValueObjectRepository(string name, IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
+        : base(name, (IValueObjectRepositoryStrategy<TItem>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
+    public ValueObjectRepository(string name, IValueObjectRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
+        : base(name, strategy, data) { }
 }
 
 public abstract class ValueObjectRepository<TStrategy, TItem>
@@ -16,6 +22,9 @@ public abstract class ValueObjectRepository<TStrategy, TItem>
     where TStrategy : class, IValueObjectRepositoryStrategy<TItem> {
     protected ValueObjectRepository(TStrategy strategy, IEnumerable<TItem>? data = null)
         : base(strategy, data) {
+    }
+    protected ValueObjectRepository(string name, TStrategy strategy, IEnumerable<TItem>? data = null)
+        : base(name, strategy, data) {
     }
 
     #region Blocking

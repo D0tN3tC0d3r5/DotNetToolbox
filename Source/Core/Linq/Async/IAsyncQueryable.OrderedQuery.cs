@@ -2,5 +2,4 @@
 namespace System.Linq.Async;
 
 public interface IOrderedAsyncQueryable<out TItem>
-    : IAsyncQueryable<TItem> {
-}
+    : IAsyncQueryable<TItem>;

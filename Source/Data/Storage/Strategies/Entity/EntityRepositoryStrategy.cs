@@ -1,20 +1,20 @@
+using DotNetToolbox.Data.Strategies.Key;
+
 namespace DotNetToolbox.Data.Strategies.Entity;
 
-public abstract class EntityRepositoryStrategy<TItem, TKey>
-    : ValueObjectRepositoryStrategy<TItem>
-    , IEntityRepositoryStrategy<TItem, TKey>
+public abstract class EntityRepositoryStrategy<TItem, TKey, TKeyHandler>(string name)
+    : ValueObjectRepositoryStrategy<TItem>(name)
+    , IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>
     where TItem : IEntity<TKey>
+    where TKeyHandler : class, IKeyHandler<TKey>, IHasDefault<TKeyHandler>
     where TKey : notnull {
 
-    public void SetKeyComparer(IEqualityComparer<TKey> comparer)
-        => KeyComparer = IsNotNull(comparer);
-    protected IEqualityComparer<TKey> KeyComparer { get; private set; } = EqualityComparer<TKey>.Default;
+    public TKeyHandler KeyHandler { get; set; } = TKeyHandler.Default;
 
     #region Blocking
 
-    public virtual TItem FindByKey(TKey key) => throw new NotImplementedException();
+    public virtual TItem? FindByKey(TKey key) => throw new NotImplementedException();
 
-    public virtual TKey GetNextKey(IReadOnlyDictionary<object, object?>? keyContext = null) => throw new NotImplementedException();
     public virtual void Update(TItem updatedItem) => throw new NotImplementedException();
     public virtual void Patch(TKey key, Action<TItem> setItem) => throw new NotImplementedException();
     public virtual void Remove(TKey key) => throw new NotImplementedException();
@@ -24,7 +24,6 @@ public abstract class EntityRepositoryStrategy<TItem, TKey>
     #region Async
     public virtual ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
 
-    public virtual Task<TKey> GetNextKeyAsync(IReadOnlyDictionary<object, object?>? keyContext = null, CancellationToken ct = default) => throw new NotImplementedException();
     public virtual Task UpdateAsync(TItem updatedItem, CancellationToken ct = default) => throw new NotImplementedException();
     public virtual Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) => throw new NotImplementedException();
     public virtual Task RemoveAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();

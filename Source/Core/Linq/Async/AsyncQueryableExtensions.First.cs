@@ -10,7 +10,7 @@ public static partial class AsyncQueryableExtensions {
 
     private static async ValueTask<TItem> FindFirst<TItem>(IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct) {
         IsNotNull(predicate);
-        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
         await foreach (var item in filteredSource)
             return item;
         throw new InvalidOperationException("Collection contains no matching element.");

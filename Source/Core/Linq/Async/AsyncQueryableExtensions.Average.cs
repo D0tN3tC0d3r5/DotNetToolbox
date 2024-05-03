@@ -24,7 +24,7 @@ public static partial class AsyncQueryableExtensions {
         var result = default(TResult?);
         var count = 0D;
         var isEmpty = true;
-        await foreach (var item in source.AsAsyncQueryable().AsConfigured(ct)) {
+        await foreach (var item in IsNotNull(source).AsAsyncEnumerable(ct)) {
             isEmpty = false;
             var value = selector(item);
             if (!value.HasValue)

@@ -12,9 +12,10 @@ public static partial class AsyncQueryableExtensions {
         IsNotNull(predicate);
         var result = default(TItem);
         var found = false;
-        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
         await foreach (var item in filteredSource) {
-            if (found) throw new InvalidOperationException("Collection contains more than one matching element.");
+            if (found)
+                throw new InvalidOperationException("Collection contains more than one matching element.");
             found = true;
             result = item;
         }

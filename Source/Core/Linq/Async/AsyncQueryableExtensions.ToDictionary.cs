@@ -36,7 +36,7 @@ public static partial class AsyncQueryableExtensions {
         IsNotNull(elementSelector);
         var result = new Dictionary<TKey, TElement>(comparer);
         var index = 0;
-        await foreach (var item in source.AsAsyncQueryable().AsConfigured(ct)) {
+        await foreach (var item in IsNotNull(source).AsAsyncEnumerable(ct)) {
             var key = keySelector(item, index);
             var value = elementSelector(item, index);
             result.Add(key, value);

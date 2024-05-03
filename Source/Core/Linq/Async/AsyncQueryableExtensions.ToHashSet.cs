@@ -22,7 +22,7 @@ public static partial class AsyncQueryableExtensions {
 
     private static async ValueTask<HashSet<TResult>> MakeHashSetAsync<TResult>(this IQueryable<TResult> source, IEqualityComparer<TResult> comparer, CancellationToken ct = default) {
         var result = new HashSet<TResult>(IsNotNull(comparer));
-        await foreach (var item in IsNotNull(source).AsAsyncQueryable().AsConfigured(ct).ConfigureAwait(false))
+        await foreach (var item in IsNotNull(source).AsAsyncEnumerable(ct))
             result.Add(item);
         return result;
     }

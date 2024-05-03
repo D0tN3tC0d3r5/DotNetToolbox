@@ -13,7 +13,7 @@ public static partial class AsyncQueryableExtensions {
 
     private static async ValueTask<List<TResult>> MakeListAsync<TResult>(this IQueryable<TResult> source, CancellationToken ct = default) {
         var result = new List<TResult>();
-        await foreach (var item in source.AsAsyncQueryable().AsConfigured(ct))
+        await foreach (var item in IsNotNull(source).AsAsyncEnumerable(ct))
             result.Add(item);
         return result;
     }

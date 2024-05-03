@@ -8,6 +8,8 @@ public interface IRepository<TItem>
     : IRepository
     , IQueryableRepository<TItem> {
 
+    string Name { get; }
+
     #region Blocking
 
     void Seed(IEnumerable<TItem> seed);

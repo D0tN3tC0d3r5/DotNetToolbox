@@ -18,7 +18,7 @@ public static partial class AsyncQueryableExtensions {
         IsNotNull(predicate);
         var result = defaultValue;
         var found = false;
-        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncQueryable().AsConfigured(ct);
+        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
         await foreach (var item in filteredSource) {
             if (found)
                 throw new InvalidOperationException("Collection contains more than one matching element.");

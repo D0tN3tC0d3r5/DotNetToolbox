@@ -23,7 +23,7 @@ public static partial class AsyncQueryableExtensions {
         where TResult : struct, INumberBase<TResult> {
         IsNotNull(selector);
         var result = TResult.Zero;
-        await foreach (var item in source.AsAsyncQueryable().AsConfigured(ct)) {
+        await foreach (var item in IsNotNull(source).AsAsyncEnumerable(ct)) {
             var value = selector(item);
             if (!value.HasValue)
                 continue;

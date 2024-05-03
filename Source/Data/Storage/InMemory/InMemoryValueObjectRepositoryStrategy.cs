@@ -1,9 +1,8 @@
-using static DotNetToolbox.Pagination.PaginationSettings;
-
 namespace DotNetToolbox.Data.InMemory;
 
 public class InMemoryValueObjectRepositoryStrategy<TItem>
     : ValueObjectRepositoryStrategy<TItem> {
+
     #region Blocking
 
     public override void Seed(IEnumerable<TItem> seed)
@@ -134,7 +133,8 @@ public class InMemoryValueObjectRepositoryStrategy<TItem>
 
     public override async Task PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) {
         var itemToPatch = await AsyncQuery.FirstOrDefaultAsync(predicate, ct);
-        if (itemToPatch is null) return;
+        if (itemToPatch is null)
+            return;
         await setItem(itemToPatch, ct);
     }
 
