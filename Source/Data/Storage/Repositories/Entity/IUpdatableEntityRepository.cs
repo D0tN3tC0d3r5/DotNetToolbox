@@ -1,7 +1,7 @@
 namespace DotNetToolbox.Data.Repositories.Entity;
 
-public interface IUpdatableEntityRepository<TItem, TKey>
-    : IUpdatableValueObjectRepository<TItem>
+public interface IUpdatableEntityRepository<TItem, in TKey>
+    : IUpdatableRepository<TItem>
     where TItem : IEntity<TKey>
     where TKey : notnull {
 

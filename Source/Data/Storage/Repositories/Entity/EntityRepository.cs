@@ -8,34 +8,32 @@ public class EntityRepository<TItem, TKey, TKeyHandler>
     where TKeyHandler : class, IKeyHandler<TKey>, IHasDefault<TKeyHandler>
     where TKey : notnull {
     public EntityRepository(IEnumerable<TItem>? data = null)
-        : base(new InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>(), data) { }
-    public EntityRepository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
-        : base((IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
+        : base(new InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>(), data) {
+    }
     public EntityRepository(IEntityRepositoryStrategy<TItem, TKey, TKeyHandler> strategy, IEnumerable<TItem>? data = null)
         : base(strategy, data) {
     }
     public EntityRepository(string name, IEnumerable<TItem>? data = null)
-        : base(name, new InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>(), data) { }
-    public EntityRepository(string name, IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
-        : base(name, (IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
+        : base(name, new InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>(), data) {
+    }
     public EntityRepository(string name, IEntityRepositoryStrategy<TItem, TKey, TKeyHandler> strategy, IEnumerable<TItem>? data = null)
         : base(name, strategy, data) {
     }
 }
 
-public abstract class EntityRepository<TStrategy, TItem, TKey, TKeyHandler>
-    : ValueObjectRepository<IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>, TItem>
+public class EntityRepository<TStrategy, TItem, TKey, TKeyHandler>
+    : Repository<IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>, TItem>
     , IEntityRepository<TItem, TKey, TKeyHandler>
     where TStrategy : class, IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>
     where TItem : IEntity<TKey>
     where TKeyHandler : class, IKeyHandler<TKey>, IHasDefault<TKeyHandler>
     where TKey : notnull {
 
-    protected EntityRepository(TStrategy strategy, IEnumerable<TItem>? data = null, TKeyHandler? keyHandler = null)
+    public EntityRepository(TStrategy strategy, IEnumerable<TItem>? data = null, TKeyHandler? keyHandler = null)
         : base(strategy, data) {
         Strategy.KeyHandler = keyHandler ?? TKeyHandler.Default;
     }
-    protected EntityRepository(string name, TStrategy strategy, IEnumerable<TItem>? data = null, TKeyHandler? keyHandler = null)
+    public EntityRepository(string name, TStrategy strategy, IEnumerable<TItem>? data = null, TKeyHandler? keyHandler = null)
         : base(name, strategy, data) {
         Strategy.KeyHandler = keyHandler ?? TKeyHandler.Default;
     }

@@ -2,13 +2,14 @@ using DotNetToolbox.Data.Strategies.Key;
 
 namespace DotNetToolbox.Data.Strategies.Entity;
 
-public abstract class EntityRepositoryStrategy<TItem, TKey, TKeyHandler>(string name)
-    : ValueObjectRepositoryStrategy<TItem>(name)
+public abstract class EntityRepositoryStrategy<TItem, TKey, TKeyHandler>
+    : RepositoryStrategy<TItem>
     , IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>
     where TItem : IEntity<TKey>
     where TKeyHandler : class, IKeyHandler<TKey>, IHasDefault<TKeyHandler>
     where TKey : notnull {
 
+    public IEntityRepository<TItem, TKey, TKeyHandler> Repository { get; set; } = default!;
     public TKeyHandler KeyHandler { get; set; } = TKeyHandler.Default;
 
     #region Blocking

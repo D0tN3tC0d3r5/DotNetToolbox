@@ -8,16 +8,14 @@ public class PagedEntityRepository<TItem, TKey, TKeyHandler>
     where TKeyHandler : class, IKeyHandler<TKey>, IHasDefault<TKeyHandler>
     where TKey : notnull {
     public PagedEntityRepository(IEnumerable<TItem>? data = null)
-        : base(new InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>(), data) { }
-    public PagedEntityRepository(IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
-        : base((IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
+        : base(new InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>(), data) {
+    }
     public PagedEntityRepository(IEntityRepositoryStrategy<TItem, TKey, TKeyHandler> strategy, IEnumerable<TItem>? data = null)
         : base(strategy, data) {
     }
     public PagedEntityRepository(string name, IEnumerable<TItem>? data = null)
-        : base(name, new InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>(), data) { }
-    public PagedEntityRepository(string name, IRepositoryStrategyProvider provider, IEnumerable<TItem>? data = null)
-        : base(name, (IEntityRepositoryStrategy<TItem, TKey, TKeyHandler>)IsNotNull(provider).GetStrategy<TItem>(), data) { }
+        : base(name, new InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>(), data) {
+    }
     public PagedEntityRepository(string name, IEntityRepositoryStrategy<TItem, TKey, TKeyHandler> strategy, IEnumerable<TItem>? data = null)
         : base(name, strategy, data) {
     }

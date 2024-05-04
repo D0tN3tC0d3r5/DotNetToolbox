@@ -2,8 +2,13 @@ namespace DotNetToolbox.Data.Strategies;
 
 public interface IRepositoryStrategy
     : IQueryableRepository
-    , IUpdatableRepository;
+    , IUpdatableRepository {
+    void SetRepository(IRepository repository);
+}
 
 public interface IRepositoryStrategy<TItem>
     : IRepositoryStrategy
-    , IRepository<TItem>;
+    , IPagedQueryableRepository<TItem>
+    , IChunkedQueryableRepository<TItem>
+    , IUpdatableRepository<TItem> {
+}

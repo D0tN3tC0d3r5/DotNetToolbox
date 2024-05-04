@@ -9,14 +9,20 @@ public class InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>
     where TKeyHandler : class, IKeyHandler<TKey>, IHasDefault<TKeyHandler>
     where TKey : notnull {
 
-    private readonly IValueObjectRepositoryStrategy<TItem> _keylessStrategy;
+    private readonly IRepositoryStrategy<TItem> _keylessStrategy;
 
-    public InMemoryEntityRepositoryStrategy(string name, IValueObjectRepositoryStrategy<TItem>? keylessStrategy = null) {
-        Name = name;
-        _keylessStrategy = keylessStrategy ?? new InMemoryValueObjectRepositoryStrategy<TItem>();
+    public InMemoryEntityRepositoryStrategy() {
+        _keylessStrategy = new InMemoryRepositoryStrategy<TItem>();
     }
 
-    #region Blocking
+    public InMemoryEntityRepositoryStrategy(IRepositoryStrategy<TItem> keylessStrategy) {
+        _keylessStrategy = IsNotNull(keylessStrategy);
+    }
+
+    public override void SetRepository(IRepository repository)
+        => _keylessStrategy.SetRepository(repository);
+
+#region Blocking
 
     public override void Seed(IEnumerable<TItem> seed)
         => _keylessStrategy.Seed(seed);
@@ -27,7 +33,7 @@ public class InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>
         => _keylessStrategy.GetAll();
     public override Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = 20)
         => _keylessStrategy.GetPage(pageIndex, pageSize);
-    public override Block<TItem> GetBlock(Expression<Func<TItem, bool>> isNotStart, uint blockSize = 20)
+    public override Chunk<TItem> GetBlock(Expression<Func<TItem, bool>> isNotStart, uint blockSize = 20)
         => _keylessStrategy.GetBlock(isNotStart, blockSize);
 
     public override TItem? Find(Expression<Func<TItem, bool>> predicate)
@@ -37,12 +43,12 @@ public class InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>
 
     public override TItem Create(Action<TItem> setItem) {
         var item = _keylessStrategy.Create(setItem);
-        item.Key = KeyHandler.GetNext(Name, item.Key);
+        item.Key = KeyHandler.GetNext(Repository.Name, item.Key);
         return item;
     }
 
     public override void Add(TItem newItem) {
-        newItem.Key = KeyHandler.GetNext(Name, newItem.Key);
+        newItem.Key = KeyHandler.GetNext(Repository.Name, newItem.Key);
         _keylessStrategy.Add(newItem);
     }
 
@@ -74,7 +80,7 @@ public class InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>
         => _keylessStrategy.GetAllAsync(ct);
     public override ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = 20, CancellationToken ct = default)
         => _keylessStrategy.GetPageAsync(pageIndex, pageSize, ct);
-    public override ValueTask<Block<TItem>> GetBlockAsync(Expression<Func<TItem, bool>> findStart, uint blockSize = 20, CancellationToken ct = default)
+    public override ValueTask<Chunk<TItem>> GetBlockAsync(Expression<Func<TItem, bool>> findStart, uint blockSize = 20, CancellationToken ct = default)
         => _keylessStrategy.GetBlockAsync(findStart, blockSize, ct);
 
     public override ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
@@ -84,12 +90,12 @@ public class InMemoryEntityRepositoryStrategy<TItem, TKey, TKeyHandler>
 
     public override async Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) {
         var item = await _keylessStrategy.CreateAsync(setItem, ct);
-        item.Key = await KeyHandler.GetNextAsync(Name, item.Key, ct);
+        item.Key = await KeyHandler.GetNextAsync(Repository.Name, item.Key, ct);
         return item;
     }
 
     public override async Task AddAsync(TItem newItem, CancellationToken ct = default) {
-        newItem.Key = await KeyHandler.GetNextAsync(Name, newItem.Key, ct);
+        newItem.Key = await KeyHandler.GetNextAsync(Repository.Name, newItem.Key, ct);
         await _keylessStrategy.AddAsync(newItem, ct);
     }
 

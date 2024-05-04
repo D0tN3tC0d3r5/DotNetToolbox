@@ -5,15 +5,15 @@ public class RepositoryFactoryTests {
 
     [Fact]
     public void CreateRepository_ReturnsRepository() {
-        var result = _factory.CreateRepository<ValueObjectRepository<int>, int>();
+        var result = _factory.CreateRepository<Repository<int>, int>();
 
-        result.Should().BeOfType<ValueObjectRepository<int>>();
+        result.Should().BeOfType<Repository<int>>();
     }
 
     [Fact]
     public void CreateRepository_WithStrategy_ReturnsRepository() {
-        var result = _factory.CreateRepository<ValueObjectRepository<int>, int>(new InMemoryValueObjectRepositoryStrategy<int>());
+        var result = _factory.CreateRepository<Repository<int>, int>(new InMemoryRepositoryStrategy<int>());
 
-        result.Should().BeOfType<ValueObjectRepository<int>>();
+        result.Should().BeOfType<Repository<int>>();
     }
 }

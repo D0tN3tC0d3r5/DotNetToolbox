@@ -1,37 +1,68 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public abstract class RepositoryStrategy<TItem>(string name)
-    : IRepositoryStrategy {
-    public string Name { get; } = name;
-
-    protected List<TItem> Data { get; set; } = [];
-    public Type ElementType => Query.ElementType;
-    public Expression Expression => Query.Expression;
+public abstract class RepositoryStrategy<TItem>
+    : IRepositoryStrategy<TItem> {
+    public virtual void SetRepository(IRepository repository) { }
 
     #region Blocking
-
-    protected IQueryable<TItem> Query => Data.AsQueryable();
-    public IQueryProvider Provider => Query.Provider;
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    public IEnumerator<TItem> GetEnumerator() => Query.GetEnumerator();
 
     public virtual void Seed(IEnumerable<TItem> seed)
         => throw new NotImplementedException();
     public virtual void Load()
         => throw new NotImplementedException();
 
+    public virtual TItem[] GetAll()
+        => throw new NotImplementedException();
+    public virtual Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize)
+        => throw new NotImplementedException();
+    public virtual Chunk<TItem> GetBlock(Expression<Func<TItem, bool>> isNotStart, uint blockSize = DefaultBlockSize)
+        => throw new NotImplementedException();
+
+    public virtual TItem? Find(Expression<Func<TItem, bool>> predicate)
+        => throw new NotImplementedException();
+
+    public virtual TItem Create(Action<TItem> setItem)
+        => throw new NotImplementedException();
+    public virtual void Add(TItem newItem)
+        => throw new NotImplementedException();
+    public virtual void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem)
+        => throw new NotImplementedException();
+    public virtual void Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem)
+        => throw new NotImplementedException();
+
+    public virtual void Remove(Expression<Func<TItem, bool>> predicate)
+        => throw new NotImplementedException();
+
     #endregion
 
     #region Async
 
-    protected IAsyncQueryable<TItem> AsyncQuery => Data.AsAsyncQueryable();
-    public IAsyncQueryProvider AsyncProvider => AsyncQuery.AsyncProvider;
-    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken ct = default)
-        => AsyncQuery.GetAsyncEnumerator(ct);
-
     public virtual Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default)
         => throw new NotImplementedException();
     public virtual Task LoadAsync(CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual ValueTask<Chunk<TItem>> GetBlockAsync(Expression<Func<TItem, bool>> findStart, uint blockSize = 20U, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual Task AddAsync(TItem newItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual Task PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task RemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     #endregion

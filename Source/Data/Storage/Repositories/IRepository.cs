@@ -1,26 +1,19 @@
 namespace DotNetToolbox.Data.Repositories;
 
 public interface IRepository
-    : IQueryableRepository
-    , IUpdatableRepository;
+    : IAsyncQueryable
+    , IQueryableRepository
+    , IUpdatableRepository {
+
+    string Name { get; }
+}
 
 public interface IRepository<TItem>
     : IRepository
-    , IQueryableRepository<TItem> {
+    , IAsyncQueryable<TItem>
+    , IQueryableRepository<TItem>
+    , IUpdatableRepository<TItem> {
 
-    string Name { get; }
-
-    #region Blocking
-
-    void Seed(IEnumerable<TItem> seed);
-    void Load();
-
-    #endregion
-
-    #region Async
-
-    Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default);
-    Task LoadAsync(CancellationToken ct = default);
-
-    #endregion
+    IPagedQueryableRepository<TItem>? AsPaged();
+    IChunkedQueryableRepository<TItem>? AsChunked();
 }

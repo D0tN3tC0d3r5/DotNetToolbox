@@ -6,6 +6,7 @@ namespace System;
 public static class InstanceFactory {
     private const BindingFlags _allConstructors = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance;
 
+    [return: NotNull]
     public static T Create<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>(params object?[] args)
         where T : class {
         try {
@@ -16,6 +17,7 @@ public static class InstanceFactory {
         }
     }
 
+    [return: NotNull]
     public static T Create<[DynamicallyAccessedMembers(PublicConstructors)] T>(IServiceProvider services, params object?[] args)
         where T : class {
         try {
