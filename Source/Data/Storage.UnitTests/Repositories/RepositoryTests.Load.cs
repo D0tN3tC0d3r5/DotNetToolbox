@@ -2,6 +2,18 @@ namespace DotNetToolbox.Data.Repositories;
 
 public partial class RepositoryTests {
     [Fact]
+    public void Load_BaseStrategy_ShouldThrow() {
+        var action = () => _dummyRepository.Load();
+        action.Should().Throw<NotImplementedException>();
+    }
+
+    [Fact]
+    public async Task LoadAsync_BaseStrategy_ShouldThrow() {
+        var action = () => _dummyRepository.LoadAsync();
+        await action.Should().ThrowAsync<NotImplementedException>();
+    }
+
+    [Fact]
     public void Load_ForEmptySet_ReturnsZero() {
         var action = () => _repo.Load();
         action.Should().NotThrow();

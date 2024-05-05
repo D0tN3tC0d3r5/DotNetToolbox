@@ -1,8 +1,43 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public abstract class RepositoryStrategy<TItem>
-    : IRepositoryStrategy<TItem> {
-    public virtual void SetRepository(IRepository repository) { }
+public class RepositoryStrategy<TStrategy, TItem, TKey>
+    : RepositoryStrategy<TStrategy, TItem>
+    , IRepositoryStrategy<TItem, TKey>
+    where TStrategy : RepositoryStrategy<TStrategy, TItem, TKey>, new()
+    where TItem : IEntity<TKey>
+    where TKey : notnull {
+
+    protected IKeyHandler<TKey> KeyHandler { get; private set; } = KeyHandler<TKey>.Default;
+    public void SetKeyHandler(IKeyHandler<TKey> keyHandler)
+        => KeyHandler = keyHandler;
+
+    #region Blocking
+
+    public virtual TItem? FindByKey(TKey key) => throw new NotImplementedException();
+
+    public virtual void Update(TItem updatedItem) => throw new NotImplementedException();
+    public virtual void Patch(TKey key, Action<TItem> setItem) => throw new NotImplementedException();
+    public virtual void Remove(TKey key) => throw new NotImplementedException();
+
+    #endregion
+
+    #region Async
+    public virtual ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
+
+    public virtual Task UpdateAsync(TItem updatedItem, CancellationToken ct = default) => throw new NotImplementedException();
+    public virtual Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) => throw new NotImplementedException();
+    public virtual Task RemoveAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
+
+    #endregion
+}
+
+public class RepositoryStrategy<TStrategy, TItem>
+    : IRepositoryStrategy<TItem>
+    where TStrategy : RepositoryStrategy<TStrategy, TItem>, new() {
+    protected RepositoryBase<TItem> Repository { get; private set; } = default!;
+
+    public virtual void SetRepository(IRepositoryBase repository)
+        => Repository = IsOfType<RepositoryBase<TItem>>(repository);
 
     #region Blocking
 
@@ -15,7 +50,9 @@ public abstract class RepositoryStrategy<TItem>
         => throw new NotImplementedException();
     public virtual Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize)
         => throw new NotImplementedException();
-    public virtual Chunk<TItem> GetBlock(Expression<Func<TItem, bool>> isNotStart, uint blockSize = DefaultBlockSize)
+    public virtual Chunk<TItem> GetFirstChunk(uint blockSize = DefaultBlockSize)
+        => throw new NotImplementedException();
+    public virtual Chunk<TItem> GetNextChunk(Expression<Func<TItem, bool>> isChunkStart, uint blockSize = DefaultBlockSize)
         => throw new NotImplementedException();
 
     public virtual TItem? Find(Expression<Func<TItem, bool>> predicate)
@@ -25,6 +62,7 @@ public abstract class RepositoryStrategy<TItem>
         => throw new NotImplementedException();
     public virtual void Add(TItem newItem)
         => throw new NotImplementedException();
+
     public virtual void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem)
         => throw new NotImplementedException();
     public virtual void Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem)
@@ -46,7 +84,9 @@ public abstract class RepositoryStrategy<TItem>
         => throw new NotImplementedException();
     public virtual ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default)
         => throw new NotImplementedException();
-    public virtual ValueTask<Chunk<TItem>> GetBlockAsync(Expression<Func<TItem, bool>> findStart, uint blockSize = 20U, CancellationToken ct = default)
+    public virtual ValueTask<Chunk<TItem>> GetFirstChunkAsync(uint blockSize = 20U, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual ValueTask<Chunk<TItem>> GetNextChunkAsync(Expression<Func<TItem, bool>> isChunkStart, uint blockSize = 20U, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)

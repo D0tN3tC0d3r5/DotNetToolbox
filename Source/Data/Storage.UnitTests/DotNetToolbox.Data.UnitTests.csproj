@@ -42,8 +42,4 @@
     <ProjectReference Include="..\Storage\DotNetToolbox.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
-
 </Project>

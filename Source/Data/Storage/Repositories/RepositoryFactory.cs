@@ -2,24 +2,17 @@ namespace DotNetToolbox.Data.Repositories;
 
 internal class RepositoryFactory
     : IRepositoryFactory {
-    public IRepository<TItem> CreateRepository<TRepository, TItem>(IEnumerable<TItem>? data = null)
-        where TRepository : IRepository<TItem> {
-        var resultRepositoryType = typeof(TRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TItem));
-        return (IRepository<TItem>)Activator.CreateInstance(resultRepositoryType, data)!;
-    }
-    public IRepository<TItem> CreateRepository<TRepository, TItem>(string name, IEnumerable<TItem>? data = null)
-        where TRepository : IRepository<TItem> {
-        var resultRepositoryType = typeof(TRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TItem));
-        return (IRepository<TItem>)Activator.CreateInstance(resultRepositoryType, name, data)!;
-    }
-    public IRepository<TItem> CreateRepository<TRepository, TItem>(IRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
-        where TRepository : IRepository<TItem> {
-        var resultRepositoryType = typeof(TRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TItem));
-        return (IRepository<TItem>)Activator.CreateInstance(resultRepositoryType, IsNotNull(strategy), data)!;
-    }
-    public IRepository<TItem> CreateRepository<TRepository, TItem>(string name, IRepositoryStrategy<TItem> strategy, IEnumerable<TItem>? data = null)
-        where TRepository : IRepository<TItem> {
-        var resultRepositoryType = typeof(TRepository).GetGenericTypeDefinition().MakeGenericType(typeof(TItem));
-        return (IRepository<TItem>)Activator.CreateInstance(resultRepositoryType, name, IsNotNull(strategy), data)!;
-    }
+    public IRepository<TItem> CreateRepository<TItem>(IEnumerable<TItem>? data = null)
+        => InstanceFactory.Create<Repository<TItem>>(data);
+
+    public IRepository<TItem> CreateRepository<TItem>(string name, IEnumerable<TItem>? data = null)
+        => InstanceFactory.Create<Repository<TItem>>(name, data);
+
+    public IRepository<TItem> CreateRepository<TItem, TStrategy>(IEnumerable<TItem>? data = null)
+        where TStrategy : class, IRepositoryStrategy<TItem>, new()
+        => InstanceFactory.Create<RepositoryBase<TStrategy, TItem>>(data);
+
+    public IRepository<TItem> CreateRepository<TItem, TStrategy>(string name, IEnumerable<TItem>? data = null)
+        where TStrategy : class, IRepositoryStrategy<TItem>, new()
+        => InstanceFactory.Create<RepositoryBase<TStrategy, TItem>>(name, data);
 }

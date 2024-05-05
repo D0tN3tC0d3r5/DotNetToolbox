@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public interface IPagedQueryableRepository<TItem>
+public interface IPagedRepository<TItem>
     : IQueryableRepository<TItem> {
 
     #region Blocking

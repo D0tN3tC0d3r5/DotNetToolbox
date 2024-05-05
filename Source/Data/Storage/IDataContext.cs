@@ -14,7 +14,7 @@ public interface IDataContext {
     #region Async
 
     Task EnsureExistsAsync();
-    Task SeedAsync(CancellationToken ct = default) => Task.CompletedTask;
+    Task SeedAsync(CancellationToken ct = default);
     Task EnsureIsUpToDateAsync(CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
 

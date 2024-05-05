@@ -1,19 +1,17 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public interface IRepository
-    : IAsyncQueryable
-    , IQueryableRepository
-    , IUpdatableRepository {
-
-    string Name { get; }
-}
-
 public interface IRepository<TItem>
-    : IRepository
-    , IAsyncQueryable<TItem>
+    : IRepositoryBase<TItem>
     , IQueryableRepository<TItem>
     , IUpdatableRepository<TItem> {
+}
 
-    IPagedQueryableRepository<TItem>? AsPaged();
-    IChunkedQueryableRepository<TItem>? AsChunked();
+public interface IRepository<TItem, TKey>
+    : IRepository<TItem>
+    , IQueryableRepository<TItem, TKey>
+    , IUpdatableRepository<TItem, TKey>
+    where TItem : IEntity<TKey>
+    where TKey : notnull {
+
+    void SetKeyHandler(IKeyHandler<TKey> keyHandler);
 }
