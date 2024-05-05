@@ -15,7 +15,7 @@ public partial class RepositoryTests {
     private static readonly Repository<TestEntity, int> _repo = new([new("A"), new("BB"), new("CCC")]);
     private static readonly ChunkedRepository<TestEntity, int> _chunkedRepo = new(Enumerable.Range(0, 90).ToArray(x => new TestEntity($"{x}")));
     private static readonly PagedRepository<TestEntity, int> _pagedRepo= new(Enumerable.Range(0, 90).ToArray(x => new TestEntity($"{x}")));
-    private readonly Repository<TestEntity, int> _updatableRepo = new([new("A"), new("BB"), new("CCC")]);
+    private readonly Repository<TestEntity, int> _updatableRepo = [new("A"), new("BB"), new("CCC")];
 
     private sealed class DummyRepositoryStrategy : RepositoryStrategy<DummyRepositoryStrategy, TestEntity>;
     private sealed class DummyRepository : RepositoryBase<DummyRepositoryStrategy, TestEntity>;

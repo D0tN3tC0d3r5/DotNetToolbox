@@ -124,8 +124,7 @@ public abstract class RepositoryBase<TItem>
     protected RepositoryBase(string name, IEnumerable<TItem>? data = null) {
         Name = IsNotNull(name);
         // ReSharper disable PossibleMultipleEnumeration
-        if (data?.Any() ?? false)
-            Data = data.ToList();
+        if (data?.Any() ?? false) Data = data.ToList();
         // ReSharper enable PossibleMultipleEnumeration
     }
 

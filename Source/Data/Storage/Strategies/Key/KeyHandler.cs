@@ -12,7 +12,14 @@ public class KeyHandler<TKey>
       IKeyHandler<TKey> {
 
     private readonly IEqualityComparer<TKey> _comparer;
-    public static KeyHandler<TKey> Default { get; } = new();
+    public static KeyHandler<TKey> Default => typeof(TKey) switch {
+                                                  { } t when t == typeof(Guid) => (KeyHandler<TKey>)(object)new GuidKeyHandler(),
+                                                  { } t when t == typeof(int) => (KeyHandler<TKey>)(object)new IntKeyHandler(),
+                                                  { } t when t == typeof(long) => (KeyHandler<TKey>)(object)new LongKeyHandler(),
+                                                  { } t when t == typeof(string) => (KeyHandler<TKey>)(object)new StringKeyHandler(),
+                                                  { } t when t == typeof(DateTimeOffset) => (KeyHandler<TKey>)(object)new DateTimeKeyHandler(),
+                                                  _ => new(),
+                                              };
 
     protected KeyHandler(IEqualityComparer<TKey>? comparer = null) {
         _comparer = comparer ?? EqualityComparer<TKey>.Default;

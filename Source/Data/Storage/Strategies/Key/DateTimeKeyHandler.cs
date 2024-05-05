@@ -2,7 +2,7 @@ using DotNetToolbox.Environment;
 
 namespace DotNetToolbox.Data.Strategies.Key;
 
-public sealed class DateTimeKeyHandler(IDateTimeProvider dateTime)
+public sealed class DateTimeKeyHandler(IDateTimeProvider? dateTime = null)
     : KeyHandler<DateTimeOffset>(EqualityComparer<DateTimeOffset>.Default) {
     private readonly IDateTimeProvider _dateTime = dateTime ?? DateTimeProvider.Default;
 
