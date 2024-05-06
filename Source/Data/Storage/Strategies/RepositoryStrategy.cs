@@ -7,7 +7,7 @@ public class RepositoryStrategy<TStrategy, TItem, TKey>
     where TItem : IEntity<TKey>
     where TKey : notnull {
 
-    protected IKeyHandler<TKey> KeyHandler { get; private set; } = KeyHandler<TKey>.Default;
+    protected IKeyHandler<TKey> KeyHandler { get; private set; } = NullKeyHandler<TKey>.Default;
     public void SetKeyHandler(IKeyHandler<TKey> keyHandler)
         => KeyHandler = keyHandler;
 
@@ -34,10 +34,10 @@ public class RepositoryStrategy<TStrategy, TItem, TKey>
 public class RepositoryStrategy<TStrategy, TItem>
     : IRepositoryStrategy<TItem>
     where TStrategy : RepositoryStrategy<TStrategy, TItem>, new() {
-    protected RepositoryBase<TItem> Repository { get; private set; } = default!;
+    protected QueryableRepository<TItem> Repository { get; private set; } = default!;
 
-    public virtual void SetRepository(IRepositoryBase repository)
-        => Repository = IsOfType<RepositoryBase<TItem>>(repository);
+    public virtual void SetRepository(IQueryableRepository repository)
+        => Repository = IsOfType<QueryableRepository<TItem>>(repository);
 
     #region Blocking
 
@@ -50,9 +50,7 @@ public class RepositoryStrategy<TStrategy, TItem>
         => throw new NotImplementedException();
     public virtual Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize)
         => throw new NotImplementedException();
-    public virtual Chunk<TItem> GetFirstChunk(uint blockSize = DefaultBlockSize)
-        => throw new NotImplementedException();
-    public virtual Chunk<TItem> GetNextChunk(Expression<Func<TItem, bool>> isChunkStart, uint blockSize = DefaultBlockSize)
+    public virtual Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize)
         => throw new NotImplementedException();
 
     public virtual TItem? Find(Expression<Func<TItem, bool>> predicate)
@@ -84,9 +82,7 @@ public class RepositoryStrategy<TStrategy, TItem>
         => throw new NotImplementedException();
     public virtual ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default)
         => throw new NotImplementedException();
-    public virtual ValueTask<Chunk<TItem>> GetFirstChunkAsync(uint blockSize = 20U, CancellationToken ct = default)
-        => throw new NotImplementedException();
-    public virtual ValueTask<Chunk<TItem>> GetNextChunkAsync(Expression<Func<TItem, bool>> isChunkStart, uint blockSize = 20U, CancellationToken ct = default)
+    public virtual ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20U, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)

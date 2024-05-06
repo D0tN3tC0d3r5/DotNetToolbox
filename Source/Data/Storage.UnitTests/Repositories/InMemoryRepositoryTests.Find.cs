@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public partial class RepositoryTests {
+public partial class InMemoryRepositoryTests {
     [Fact]
     public void Find_BaseStrategy_ShouldThrow() {
         var action = () => _dummyRepository.Find(_ => true);
@@ -8,8 +8,19 @@ public partial class RepositoryTests {
     }
 
     [Fact]
+    public void FindByKey_BaseStrategy_ShouldThrow() {
+        var action = () => _dummyRepository.FindByKey(0);
+        action.Should().Throw<NotImplementedException>();
+    }
+
+    [Fact]
     public async Task FindAsync_BaseStrategy_ShouldThrow() {
         var action = async () => await _dummyRepository.FindAsync(_ => true);
+        await action.Should().ThrowAsync<NotImplementedException>();
+    }
+    [Fact]
+    public async Task FindByKeyAsync_BaseStrategy_ShouldThrow() {
+        var action = async () => await _dummyRepository.FindByKeyAsync(0);
         await action.Should().ThrowAsync<NotImplementedException>();
     }
 

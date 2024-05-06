@@ -2,6 +2,8 @@ namespace DotNetToolbox.Data.Strategies.Key;
 
 public interface IKeyHandler<TKey>
     : IEqualityComparer<TKey> {
-    TKey GetNext(string contextKey, TKey proposedKey);
-    Task<TKey> GetNextAsync(string contextKey, TKey proposedKey, CancellationToken ct = default);
+    bool IsInUse(TKey key);
+    TKey GetNext(TKey candidate);
+    Task<bool> IsInUseAsync(TKey key, CancellationToken ct = default);
+    Task<TKey> GetNextAsync(TKey candidate, CancellationToken ct = default);
 }

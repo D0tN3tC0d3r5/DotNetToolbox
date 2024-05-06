@@ -7,29 +7,29 @@ public class RepositoryFactoryTests {
     public void CreateRepository_ReturnsRepository() {
         var result = _factory.CreateRepository<int>();
 
-        result.Should().BeOfType<Repository<int>>();
+        result.Should().BeOfType<InMemoryRepository<int>>();
     }
 
     [Fact]
-    public void CreateRepository_WithName_ReturnsRepository() {
-        var result = _factory.CreateRepository<int>("Name");
+    public void CreateRepository_WithData_ReturnsSeededRepository() {
+        var result = _factory.CreateRepository([1, 2, 3]);
 
-        result.Should().BeOfType<Repository<int>>();
-        result.Name.Should().Be("Name");
+        result.Should().BeOfType<InMemoryRepository<int>>();
+        result.Count().Should().Be(3);
     }
 
     [Fact]
     public void CreateRepository_WithStrategy_ReturnsRepository() {
         var result = _factory.CreateRepository<int, InMemoryRepositoryStrategy<int>>();
 
-        result.Should().BeOfType<RepositoryBase<InMemoryRepositoryStrategy<int>, int>>();
+        result.Should().BeOfType<Repository<InMemoryRepositoryStrategy<int>, int>>();
     }
 
     [Fact]
-    public void CreateRepository_WithNameAndStrategy_ReturnsRepository() {
-        var result = _factory.CreateRepository<int, InMemoryRepositoryStrategy<int>>("Name");
+    public void CreateRepository_WithStrategyAndData_ReturnsSeededRepository() {
+        var result = _factory.CreateRepository<int, InMemoryRepositoryStrategy<int>>([1, 2, 3]);
 
-        result.Should().BeOfType<RepositoryBase<InMemoryRepositoryStrategy<int>, int>>();
-        result.Name.Should().Be("Name");
+        result.Should().BeOfType<Repository<InMemoryRepositoryStrategy<int>, int>>();
+        result.Count().Should().Be(3);
     }
 }

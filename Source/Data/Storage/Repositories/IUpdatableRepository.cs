@@ -41,8 +41,8 @@ public interface IUpdatableRepository<TItem, in TKey>
 
     #region Blocking
 
-    void Patch(TKey key, Action<TItem> setItem);
     void Update(TItem updatedItem);
+    void Patch(TKey key, Action<TItem> setItem);
     void Remove(TKey key);
 
     #endregion

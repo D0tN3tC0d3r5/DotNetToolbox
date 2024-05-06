@@ -7,9 +7,10 @@ public class InMemoryRepositoryStrategy<TItem, TKey>
 
     private readonly IRepositoryStrategy<TItem> _keylessStrategy = new InMemoryRepositoryStrategy<TItem>();
 
-    public override void SetRepository(IRepositoryBase repository) {
+    public override void SetRepository(IQueryableRepository repository) {
         base.SetRepository(repository);
         _keylessStrategy.SetRepository(repository);
+        SetKeyHandler(InMemoryKeyHandlerFactory.CreateDefault<TKey>(Repository.Id));
     }
 
     #region Blocking
@@ -23,10 +24,8 @@ public class InMemoryRepositoryStrategy<TItem, TKey>
         => _keylessStrategy.GetAll();
     public override Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = 20)
         => _keylessStrategy.GetPage(pageIndex, pageSize);
-    public override Chunk<TItem> GetFirstChunk(uint blockSize = 20)
-        => _keylessStrategy.GetFirstChunk(blockSize);
-    public override Chunk<TItem> GetNextChunk(Expression<Func<TItem, bool>> isChunkStart, uint blockSize = 20)
-        => _keylessStrategy.GetNextChunk(isChunkStart, blockSize);
+    public override Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20)
+        => _keylessStrategy.GetChunk(isChunkStart, blockSize);
 
     public override TItem? Find(Expression<Func<TItem, bool>> predicate)
         => _keylessStrategy.Find(predicate);
@@ -35,12 +34,12 @@ public class InMemoryRepositoryStrategy<TItem, TKey>
 
     public override TItem Create(Action<TItem> setItem) {
         var item = _keylessStrategy.Create(setItem);
-        item.Key = KeyHandler.GetNext(Repository.Name, item.Key);
+        item.Key = KeyHandler.GetNext(item.Key);
         return item;
     }
 
     public override void Add(TItem newItem) {
-        newItem.Key = KeyHandler.GetNext(Repository.Name, newItem.Key);
+        newItem.Key = KeyHandler.GetNext(newItem.Key);
         _keylessStrategy.Add(newItem);
     }
 
@@ -72,10 +71,8 @@ public class InMemoryRepositoryStrategy<TItem, TKey>
         => _keylessStrategy.GetAllAsync(ct);
     public override ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = 20, CancellationToken ct = default)
         => _keylessStrategy.GetPageAsync(pageIndex, pageSize, ct);
-    public override ValueTask<Chunk<TItem>> GetFirstChunkAsync(uint blockSize = 20, CancellationToken ct = default)
-        => _keylessStrategy.GetFirstChunkAsync(blockSize, ct);
-    public override ValueTask<Chunk<TItem>> GetNextChunkAsync(Expression<Func<TItem, bool>> isChunkStart, uint blockSize = 20, CancellationToken ct = default)
-        => _keylessStrategy.GetNextChunkAsync(isChunkStart, blockSize, ct);
+    public override ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20, CancellationToken ct = default)
+        => _keylessStrategy.GetChunkAsync(isChunkStart, blockSize, ct);
 
     public override ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => _keylessStrategy.FindAsync(predicate, ct);
@@ -84,12 +81,12 @@ public class InMemoryRepositoryStrategy<TItem, TKey>
 
     public override async Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) {
         var item = await _keylessStrategy.CreateAsync(setItem, ct);
-        item.Key = await KeyHandler.GetNextAsync(Repository.Name, item.Key, ct);
+        item.Key = await KeyHandler.GetNextAsync(item.Key, ct);
         return item;
     }
 
     public override async Task AddAsync(TItem newItem, CancellationToken ct = default) {
-        newItem.Key = await KeyHandler.GetNextAsync(Repository.Name, newItem.Key, ct);
+        newItem.Key = await KeyHandler.GetNextAsync(newItem.Key, ct);
         await _keylessStrategy.AddAsync(newItem, ct);
     }
 
@@ -135,12 +132,13 @@ public class InMemoryRepositoryStrategy<TItem>
         };
     }
 
-    public override Chunk<TItem> GetFirstChunk(uint blockSize = DefaultBlockSize)
-        => GetNextChunk(_ => true, blockSize);
-
-    public override Chunk<TItem> GetNextChunk(Expression<Func<TItem, bool>> isChunkStart, uint blockSize = DefaultBlockSize) {
-        var isNotStart = (Expression<Func<TItem, bool>>)Expression.Lambda(Expression.Not(isChunkStart.Body), isChunkStart.Parameters);
-        var items = Repository.Query.SkipWhile(isNotStart)
+    public override Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize) {
+        var query = Repository.Query;
+        if (isChunkStart is not null) {
+            var isNotStart = (Expression<Func<TItem, bool>>)Expression.Lambda(Expression.Not(isChunkStart.Body), isChunkStart.Parameters);
+            query = query.SkipWhile(isNotStart);
+        }
+        var items = query
                    .Take((int)blockSize)
                    .ToArray();
         return new() {
@@ -215,12 +213,13 @@ public class InMemoryRepositoryStrategy<TItem>
         };
     }
 
-    public override ValueTask<Chunk<TItem>> GetFirstChunkAsync(uint blockSize = DefaultBlockSize, CancellationToken ct = default)
-        => GetNextChunkAsync(_ => true, blockSize, ct);
-
-    public override async ValueTask<Chunk<TItem>> GetNextChunkAsync(Expression<Func<TItem, bool>> isChunkStart, uint blockSize = DefaultBlockSize, CancellationToken ct = default) {
-        var isNotStart = (Expression<Func<TItem, bool>>)Expression.Lambda(Expression.Not(isChunkStart.Body), isChunkStart.Parameters);
-        var items = await Repository.AsyncQuery.SkipWhile(isNotStart)
+    public override async ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize, CancellationToken ct = default) {
+        var query = Repository.AsyncQuery;
+        if (isChunkStart is not null) {
+            var isNotStart = (Expression<Func<TItem, bool>>)Expression.Lambda(Expression.Not(isChunkStart.Body), isChunkStart.Parameters);
+            query = query.SkipWhile(isNotStart).AsAsyncQueryable();
+        }
+        var items = await query
                    .Take((int)blockSize)
                    .ToArrayAsync(ct);
         return new() {

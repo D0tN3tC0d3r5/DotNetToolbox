@@ -1,20 +1,19 @@
 namespace DotNetToolbox.Data.Strategies;
 
 public interface IRepositoryStrategy
-    : IQueryableRepository
+    : IReadOnlyRepository
     , IUpdatableRepository {
-    void SetRepository(IRepositoryBase repository);
+    void SetRepository(IQueryableRepository repository);
 }
 
 public interface IRepositoryStrategy<TItem>
     : IRepositoryStrategy
-    , IPagedRepository<TItem>
-    , IChunkedRepository<TItem>
+    , IReadOnlyRepository<TItem>
     , IUpdatableRepository<TItem>;
 
 public interface IRepositoryStrategy<TItem, TKey>
     : IRepositoryStrategy<TItem>
-    , IQueryableRepository<TItem, TKey>
+    , IReadOnlyRepository<TItem, TKey>
     , IUpdatableRepository<TItem, TKey>
     where TItem : IEntity<TKey>
     where TKey : notnull {

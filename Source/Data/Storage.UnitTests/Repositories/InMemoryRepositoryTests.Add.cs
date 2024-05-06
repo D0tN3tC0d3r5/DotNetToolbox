@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public partial class RepositoryTests {
+public partial class InMemoryRepositoryTests {
     [Fact]
     public void Add_BaseStrategy_ShouldThrow() {
         var action = () => _dummyRepository.Add(new("D"));
