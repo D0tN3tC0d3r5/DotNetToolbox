@@ -13,22 +13,60 @@ public class RepositoryStrategy<TStrategy, TItem, TKey>
 
     #region Blocking
 
-    public virtual TItem? FindByKey(TKey key) => throw new NotImplementedException();
+    public virtual TItem? FindByKey(TKey key)
+        => throw new NotImplementedException();
 
-    public virtual void Update(TItem updatedItem) => throw new NotImplementedException();
-    public virtual void Patch(TKey key, Action<TItem> setItem) => throw new NotImplementedException();
-    public virtual void Remove(TKey key) => throw new NotImplementedException();
+    public virtual void Update(TItem updatedItem)
+        => throw new NotImplementedException();
+    public virtual void UpdateMany(IEnumerable<TItem> updatedItems)
+        => throw new NotImplementedException();
 
-    #endregion
+    public virtual void AddOrUpdate(TItem updatedItem)
+        => throw new NotImplementedException();
+
+    public virtual void AddOrUpdateMany(IEnumerable<TItem> updatedItems)
+        => throw new NotImplementedException();
+
+    public virtual void Patch(TKey key, Action<TItem> setItem)
+        => throw new NotImplementedException();
+    public virtual void PatchMany(IEnumerable<TKey> keys, Action<TItem> setItem)
+        => throw new NotImplementedException();
+
+    public virtual void Remove(TKey key)
+        => throw new NotImplementedException();
+    public virtual void RemoveMany(IEnumerable<TKey> keys)
+        => throw new NotImplementedException();
+
+#endregion
 
     #region Async
-    public virtual ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
+    public virtual ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default)
+        => throw new NotImplementedException();
 
-    public virtual Task UpdateAsync(TItem updatedItem, CancellationToken ct = default) => throw new NotImplementedException();
-    public virtual Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) => throw new NotImplementedException();
-    public virtual Task RemoveAsync(TKey key, CancellationToken ct = default) => throw new NotImplementedException();
+    public virtual Task UpdateAsync(TItem updatedItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual Task UpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default)
+        => throw new NotImplementedException();
 
-    #endregion
+    public virtual Task AddOrUpdateAsync(TItem updatedItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual Task PatchManyAsync(IEnumerable<TKey> keys, Action<TItem> setItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual Task PatchManyAsync(IEnumerable<TKey> keys, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task RemoveAsync(TKey key, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual Task RemoveManyAsync(IEnumerable<TKey> keys, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+#endregion
 }
 
 public class RepositoryStrategy<TStrategy, TItem>
@@ -61,15 +99,37 @@ public class RepositoryStrategy<TStrategy, TItem>
     public virtual void Add(TItem newItem)
         => throw new NotImplementedException();
 
+    public virtual void AddMany(IEnumerable<TItem> newItems)
+        => throw new NotImplementedException();
+
     public virtual void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem)
         => throw new NotImplementedException();
+
+    public virtual void UpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems)
+        => throw new NotImplementedException();
+
+    public virtual void AddOrUpdate(Expression<Func<TItem, bool>> predicate, TItem updatedItem)
+        => throw new NotImplementedException();
+
+    public virtual void AddOrUpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> items)
+        => throw new NotImplementedException();
+
     public virtual void Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem)
+        => throw new NotImplementedException();
+
+    public virtual void PatchMany(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem)
         => throw new NotImplementedException();
 
     public virtual void Remove(Expression<Func<TItem, bool>> predicate)
         => throw new NotImplementedException();
 
-    #endregion
+    public virtual void RemoveMany(Expression<Func<TItem, bool>> predicate)
+        => throw new NotImplementedException();
+
+    public virtual void Clear()
+        => throw new NotImplementedException();
+
+#endregion
 
     #region Async
 
@@ -93,13 +153,38 @@ public class RepositoryStrategy<TStrategy, TItem>
     public virtual Task AddAsync(TItem newItem, CancellationToken ct = default)
         => throw new NotImplementedException();
 
+    public virtual Task AddManyAsync(IEnumerable<TItem> newItems, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
     public virtual Task UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default)
         => throw new NotImplementedException();
+
+    public virtual Task AddOrUpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task AddOrUpdateManyAsync(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task PatchAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
     public virtual Task PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task PatchManyAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task PatchManyAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual Task RemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    #endregion
+    public virtual Task RemoveManyAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public virtual Task ClearAsync(CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+#endregion
 }

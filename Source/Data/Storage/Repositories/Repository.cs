@@ -50,15 +50,17 @@ public class Repository<TStrategy, TItem, TKey>
     public Task UpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default)
          => Strategy.UpdateManyAsync(updatedItems, ct);
 
-    public void AddOrUpdateAsync(TItem updatedItem, CancellationToken ct = default)
+    public Task AddOrUpdateAsync(TItem updatedItem, CancellationToken ct = default)
          => Strategy.AddOrUpdateAsync(updatedItem, ct);
 
-    public void AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default)
+    public Task AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default)
          => Strategy.AddOrUpdateManyAsync(updatedItems, ct);
 
     public Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
         => Strategy.PatchAsync(key, setItem, ct);
 
+    public Task PatchManyAsync(IEnumerable<TKey> keys, Action<TItem> setItem, CancellationToken ct = default)
+         => Strategy.PatchManyAsync(keys, setItem, ct);
     public Task PatchManyAsync(IEnumerable<TKey> keys, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
          => Strategy.PatchManyAsync(keys, setItem, ct);
 
@@ -163,8 +165,6 @@ public class Repository<TStrategy, TItem>
 
     public Task UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default)
         => Strategy.UpdateAsync(predicate, updatedItem, ct);
-    public Task UpdateManyAsync(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, CancellationToken ct = default)
-         => Strategy.UpdateManyAsync(predicate, updatedItems, ct);
 
     public Task AddOrUpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default)
          => Strategy.AddOrUpdateAsync(predicate, updatedItem, ct);

@@ -39,7 +39,6 @@ public interface IUpdatableRepository<TItem>
     Task AddManyAsync(IEnumerable<TItem> newItems, CancellationToken ct = default);
 
     Task UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default);
-    Task UpdateManyAsync(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, CancellationToken ct = default);
 
     Task AddOrUpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default);
     Task AddOrUpdateManyAsync(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, CancellationToken ct = default);
@@ -83,10 +82,11 @@ public interface IUpdatableRepository<TItem, in TKey>
     Task UpdateAsync(TItem updatedItem, CancellationToken ct = default);
     Task UpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default);
 
-    void AddOrUpdateAsync(TItem updatedItem, CancellationToken ct = default);
-    void AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default);
+    Task AddOrUpdateAsync(TItem updatedItem, CancellationToken ct = default);
+    Task AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default);
 
     Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
+    Task PatchManyAsync(IEnumerable<TKey> keys, Action<TItem> setItem, CancellationToken ct = default);
     Task PatchManyAsync(IEnumerable<TKey> keys, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
 
     Task RemoveAsync(TKey key, CancellationToken ct = default);
