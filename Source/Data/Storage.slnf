@@ -1,0 +1,13 @@
+{
+  "solution": {
+    "path": "..\\DotNetToolbox.sln",
+    "projects": [
+      "Core\\Core\\DotNetToolbox.Core.csproj",
+      "Core\\Core.UnitTests\\DotNetToolbox.Core.UnitTests.csproj",
+      "Core\\Linq\\DotNetToolbox.Linq.csproj",
+      "Core\\Linq.UnitTests\\DotNetToolbox.Linq.UnitTests.csproj",
+      "Data\\Storage\\DotNetToolbox.Data.csproj",
+      "Data\\Storage.UnitTests\\DotNetToolbox.Data.UnitTests.csproj"
+    ]
+  }
+}

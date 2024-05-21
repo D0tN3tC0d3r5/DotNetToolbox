@@ -1,0 +1,11 @@
+{
+  "solution": {
+    "path": "..\\DotNetToolbox.sln",
+    "projects": [
+      "Cloud\\Azure.UnitTests\\DotNetToolbox.Azure.UnitTests.csproj",
+      "Cloud\\Azure\\DotNetToolbox.Azure.csproj",
+      "Cloud\\Http.UnitTests\\DotNetToolbox.Http.UnitTests.csproj",
+      "Cloud\\Http\\DotNetToolbox.Http.csproj",
+    ]
+  }
+}

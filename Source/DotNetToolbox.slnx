@@ -1,0 +1,64 @@
+<Solution>
+  <Folder Name="/3 AI/">
+    <Project Path="AI\Anthropic.UnitTests\DotNetToolbox.AI.Anthropic.UnitTests.csproj" />
+    <Project Path="AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
+    <Project Path="AI\Core.UnitTests\DotNetToolbox.AI.UnitTests.csproj" />
+    <Project Path="AI\Core\DotNetToolbox.AI.csproj" />
+    <Project Path="AI\OpenAI.UnitTests\DotNetToolbox.AI.OpenAI.UnitTests.csproj" />
+    <Project Path="AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
+  </Folder>
+  <Folder Name="/2 Data Storage/">
+    <Project Path="Data\Storage.UnitTests\DotNetToolbox.Data.UnitTests.csproj" />
+    <Project Path="Data\Storage\DotNetToolbox.Data.csproj" />
+  </Folder>
+  <Folder Name="/2 Console/">
+    <Project Path="Applications\Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj" />
+    <Project Path="Applications\Console\DotNetToolbox.Console.csproj" />
+    <Project Path="Applications\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj" />
+    <Project Path="Applications\Samples\Shell\DotNetToolbox.Console.SampleShell.csproj">
+      <Configuration Solution="Release|*" Project="*|*|NoBuild" />
+    </Project>
+  </Folder>
+  <Folder Name="/2 Cloud/">
+    <Project Path="Cloud\Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj" />
+    <Project Path="Cloud\Azure\DotNetToolbox.Azure.csproj" />
+    <Project Path="Cloud\Http.UnitTests\DotNetToolbox.Http.UnitTests.csproj" />
+    <Project Path="Cloud\Http\DotNetToolbox.Http.csproj" />
+  </Folder>
+  <Folder Name="/1 Utilities/">
+    <Project Path="Utilities\ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj" />
+    <Project Path="Utilities\ObjectDumper\DotNetToolbox.ObjectDumper.csproj" />
+    <Project Path="Utilities\Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj" />
+    <Project Path="Utilities\Security\DotNetToolbox.Security.csproj" />
+    <Project Path="Utilities\ValidationBuilder.UnitTests\DotNetToolbox.ValidationBuilder.UnitTests.csproj" />
+    <Project Path="Utilities\ValidationBuilder\DotNetToolbox.ValidationBuilder.csproj" />
+  </Folder>
+  <Folder Name="/1 Testing/">
+    <Project Path="Testing\FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj" />
+    <Project Path="Testing\FluentAssertions\DotNetToolbox.FluentAssertions.csproj" />
+    <Project Path="Testing\TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj" />
+    <Project Path="Testing\TestUtilities\DotNetToolbox.TestUtilities.csproj" />
+  </Folder>
+  <Folder Name="/1 Core/">
+    <Project Path="Core\Core.UnitTests\DotNetToolbox.Core.UnitTests.csproj" />
+    <Project Path="Core\Core\DotNetToolbox.Core.csproj" />
+    <Project Path="Core\Linq.UnitTests\DotNetToolbox.Linq.UnitTests.csproj" Type="Classic C#" />
+    <Project Path="Core\Linq\DotNetToolbox.Linq.csproj" />
+  </Folder>
+  <Folder Name="/0 Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".runsettings" />
+    <File Path="DotNetToolbox.PublicKey.snk" />
+    <File Path="DotNetToolbox.snk" />
+    <File Path="ExecuteCleanUp.cmd" />
+    <File Path="GenerateTestCoverageReport.cmd" />
+    <File Path="global.json" />
+    <File Path="icon.ico" />
+    <File Path="icon.png" />
+    <File Path="LICENSE" />
+    <File Path="Publish.cmd" />
+    <File Path="PublishAll.cmd" />
+    <File Path="PublishSome.cmd" />
+    <File Path="..\README.md" />
+  </Folder>
+</Solution>

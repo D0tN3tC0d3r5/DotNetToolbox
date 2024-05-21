@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
@@ -17,59 +16,53 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 Solution Items", "0 Solut
 		LICENSE = LICENSE
 		Publish.cmd = Publish.cmd
 		PublishAll.cmd = PublishAll.cmd
-		PublishRelease.cmd = PublishRelease.cmd
+		PublishSome.cmd = PublishSome.cmd
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "Core\DotNetToolbox.Core.csproj", "{C0308621-0189-4E32-A6FB-B0198D0B7A38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "Core\Core\DotNetToolbox.Core.csproj", "{C0308621-0189-4E32-A6FB-B0198D0B7A38}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.UnitTests", "Core.UnitTests\DotNetToolbox.Core.UnitTests.csproj", "{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.UnitTests", "Core\Core.UnitTests\DotNetToolbox.Core.UnitTests.csproj", "{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure", "Azure\DotNetToolbox.Azure.csproj", "{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure", "Cloud\Azure\DotNetToolbox.Azure.csproj", "{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure.UnitTests", "Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj", "{310680D3-C24B-4F79-A18A-944F9B6AC096}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Azure.UnitTests", "Cloud\Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj", "{310680D3-C24B-4F79-A18A-944F9B6AC096}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http", "Http\DotNetToolbox.Http.csproj", "{474DF468-8CB0-4DB5-A31A-28609A61FEA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http", "Cloud\Http\DotNetToolbox.Http.csproj", "{474DF468-8CB0-4DB5-A31A-28609A61FEA7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http.UnitTests", "Http.UnitTests\DotNetToolbox.Http.UnitTests.csproj", "{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Http.UnitTests", "Cloud\Http.UnitTests\DotNetToolbox.Http.UnitTests.csproj", "{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder", "ValidationBuilder\DotNetToolbox.ValidationBuilder.csproj", "{527E226A-DC59-406A-B525-387921A7EEB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder", "Utilities\ValidationBuilder\DotNetToolbox.ValidationBuilder.csproj", "{527E226A-DC59-406A-B525-387921A7EEB4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder.UnitTests", "ValidationBuilder.UnitTests\DotNetToolbox.ValidationBuilder.UnitTests.csproj", "{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ValidationBuilder.UnitTests", "Utilities\ValidationBuilder.UnitTests\DotNetToolbox.ValidationBuilder.UnitTests.csproj", "{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security", "Security\DotNetToolbox.Security.csproj", "{1C6644F0-167D-4E79-AC42-DA5669FE110F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security", "Utilities\Security\DotNetToolbox.Security.csproj", "{1C6644F0-167D-4E79-AC42-DA5669FE110F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security.UnitTests", "Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj", "{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Security.UnitTests", "Utilities\Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj", "{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities", "TestUtilities\DotNetToolbox.TestUtilities.csproj", "{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities", "Testing\TestUtilities\DotNetToolbox.TestUtilities.csproj", "{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetToolbox.ObjectDumper", "ObjectDumper\DotnetToolbox.ObjectDumper.csproj", "{7397C94F-80AD-44EC-8F9E-11C789DD5E9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper", "Utilities\ObjectDumper\DotNetToolbox.ObjectDumper.csproj", "{7397C94F-80AD-44EC-8F9E-11C789DD5E9C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper.UnitTests", "ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.ObjectDumper.UnitTests", "Utilities\ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj", "{836E8879-5054-41E7-86EC-7D8C10BD2A96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI", "OpenAI\DotNetToolbox.OpenAI.csproj", "{7F21AEAC-3285-474E-B19C-333856ACE888}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI", "AI\Core\DotNetToolbox.AI.csproj", "{7F21AEAC-3285-474E-B19C-333856ACE888}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.UnitTests", "OpenAI.UnitTests\DotNetToolbox.OpenAI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.UnitTests", "AI\Core.UnitTests\DotNetToolbox.AI.UnitTests.csproj", "{857AADEE-5A43-46A0-B598-82918D0B06A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.OpenAI.ShellApp", "OpenAI.Console\DotNetToolbox.OpenAI.ShellApp.csproj", "{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "Applications\Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console", "Console\DotNetToolbox.Console.csproj", "{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.UnitTests", "Applications\Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.UnitTests", "Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj", "{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleShell", "Applications\Samples\Shell\DotNetToolbox.Console.SampleShell.csproj", "{574B6C14-9D19-4283-AEB9-13754EE6437C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleShell", "Console.SampleShell\DotNetToolbox.Console.SampleShell.csproj", "{574B6C14-9D19-4283-AEB9-13754EE6437C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleCLI", "Console.SampleCLI\DotNetToolbox.Console.SampleCLI.csproj", "{88BA5A80-5353-4A03-BFF2-92F4A1951A70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Console.SampleCLI", "Applications\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj", "{88BA5A80-5353-4A03-BFF2-92F4A1951A70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Core", "1 Core", "{26704704-EAF1-48B3-825A-7471AA3B59ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Cloud", "2 Cloud", "{98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Validation", "2 Validation", "{ED8CA294-A97C-4E70-A17C-06F4BB16F5C5}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Utilities", "1 Utilities", "{E24F02A0-1C68-44DC-8065-15889FC56490}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Security", "2 Security", "{8950DE62-2B82-4271-95DB-8141CD2A3181}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Console", "2 Console", "{A1EFA213-B4DB-4DFD-B829-188C511C63B1}"
 EndProject
@@ -77,11 +70,31 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 AI", "3 AI", "{B21A0D66-A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Testing", "1 Testing", "{56746752-64B7-48C0-A8C2-3F3390F35E77}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions", "FluentAssertions\DotNetToolbox.FluentAssertions.csproj", "{7B5CE993-A346-4550-B2CD-6C18889DB7B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions", "Testing\FluentAssertions\DotNetToolbox.FluentAssertions.csproj", "{7B5CE993-A346-4550-B2CD-6C18889DB7B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.TestUtilities.UnitTests", "TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj", "{069556EA-B66F-4176-8F24-5092B1A1183A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.TestUtilities.UnitTests", "Testing\TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj", "{069556EA-B66F-4176-8F24-5092B1A1183A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.FluentAssertions.UnitTests", "FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj", "{CCD73170-0753-468E-A633-5BA56D44C634}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.FluentAssertions.UnitTests", "Testing\FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj", "{CCD73170-0753-468E-A633-5BA56D44C634}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Anthropic", "AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj", "{D35099E2-30D7-454F-B947-7D0FC27EF782}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.OpenAI", "AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj", "{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.OpenAI.UnitTests", "AI\OpenAI.UnitTests\DotNetToolbox.AI.OpenAI.UnitTests.csproj", "{B55944F2-9B31-4C01-8CFC-0529DDE05814}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Linq", "Core\Linq\DotNetToolbox.Linq.csproj", "{02EB8C8C-CC61-4DA9-A52A-8D246270805E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Data Storage", "2 Data Storage", "{4EB4A938-96E1-4690-8A51-18135AA362CC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data", "Data\Storage\DotNetToolbox.Data.csproj", "{B7BC9617-B5EE-491A-8CAE-728D8280E854}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.AI.Anthropic.UnitTests", "AI\Anthropic.UnitTests\DotNetToolbox.AI.Anthropic.UnitTests.csproj", "{8685397D-C8BF-4DC8-A62A-020C64A96A10}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Data.UnitTests", "Data\Storage.UnitTests\DotNetToolbox.Data.UnitTests.csproj", "{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{52A7B2E4-6E27-4C00-B4A8-6ABAFACC146A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Linq.UnitTests", "Core\Linq.UnitTests\DotNetToolbox.Linq.UnitTests.csproj", "{E1429FDF-E580-4C0F-9E07-A1C218042DD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,6 +120,10 @@ Global
 		{474DF468-8CB0-4DB5-A31A-28609A61FEA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{474DF468-8CB0-4DB5-A31A-28609A61FEA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{474DF468-8CB0-4DB5-A31A-28609A61FEA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1429FDF-E580-4C0F-9E07-A1C218042DD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1429FDF-E580-4C0F-9E07-A1C218042DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1429FDF-E580-4C0F-9E07-A1C218042DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1429FDF-E580-4C0F-9E07-A1C218042DD7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD992DD6-1DBE-4948-AA13-2DDAA71A4130}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -142,9 +159,6 @@ Global
 		{857AADEE-5A43-46A0-B598-82918D0B06A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{857AADEE-5A43-46A0-B598-82918D0B06A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{857AADEE-5A43-46A0-B598-82918D0B06A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -170,6 +184,34 @@ Global
 		{CCD73170-0753-468E-A633-5BA56D44C634}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCD73170-0753-468E-A633-5BA56D44C634}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCD73170-0753-468E-A633-5BA56D44C634}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D35099E2-30D7-454F-B947-7D0FC27EF782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D35099E2-30D7-454F-B947-7D0FC27EF782}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D35099E2-30D7-454F-B947-7D0FC27EF782}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D35099E2-30D7-454F-B947-7D0FC27EF782}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8685397D-C8BF-4DC8-A62A-020C64A96A10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8685397D-C8BF-4DC8-A62A-020C64A96A10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8685397D-C8BF-4DC8-A62A-020C64A96A10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8685397D-C8BF-4DC8-A62A-020C64A96A10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -180,17 +222,17 @@ Global
 		{22E5F4EC-DD9C-4F7E-9FE7-50978EC96577} = {98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}
 		{310680D3-C24B-4F79-A18A-944F9B6AC096} = {98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}
 		{474DF468-8CB0-4DB5-A31A-28609A61FEA7} = {98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}
+		{E1429FDF-E580-4C0F-9E07-A1C218042DD7} = {26704704-EAF1-48B3-825A-7471AA3B59ED}
 		{FD992DD6-1DBE-4948-AA13-2DDAA71A4130} = {98BC8EAD-6E9C-4FCA-A374-AAB96F047FC0}
-		{527E226A-DC59-406A-B525-387921A7EEB4} = {ED8CA294-A97C-4E70-A17C-06F4BB16F5C5}
-		{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9} = {ED8CA294-A97C-4E70-A17C-06F4BB16F5C5}
-		{1C6644F0-167D-4E79-AC42-DA5669FE110F} = {8950DE62-2B82-4271-95DB-8141CD2A3181}
-		{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE} = {8950DE62-2B82-4271-95DB-8141CD2A3181}
+		{527E226A-DC59-406A-B525-387921A7EEB4} = {E24F02A0-1C68-44DC-8065-15889FC56490}
+		{FFD327AE-94BE-4B1A-B817-A765FD5B0CE9} = {E24F02A0-1C68-44DC-8065-15889FC56490}
+		{1C6644F0-167D-4E79-AC42-DA5669FE110F} = {E24F02A0-1C68-44DC-8065-15889FC56490}
+		{AA95EE6D-BBC9-494A-BA69-B5C9A1C05DFE} = {E24F02A0-1C68-44DC-8065-15889FC56490}
 		{B62A435E-96F3-422F-B5A0-30A8C4BD8F2B} = {56746752-64B7-48C0-A8C2-3F3390F35E77}
 		{7397C94F-80AD-44EC-8F9E-11C789DD5E9C} = {E24F02A0-1C68-44DC-8065-15889FC56490}
 		{836E8879-5054-41E7-86EC-7D8C10BD2A96} = {E24F02A0-1C68-44DC-8065-15889FC56490}
 		{7F21AEAC-3285-474E-B19C-333856ACE888} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
 		{857AADEE-5A43-46A0-B598-82918D0B06A6} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
-		{546DC29A-CB9E-47AD-B02C-F80AEEBB46E6} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
 		{39079AA8-5ABC-4C32-B2CD-E8B8FC49BCD6} = {A1EFA213-B4DB-4DFD-B829-188C511C63B1}
 		{1B8BDD9A-19AE-4DCE-95FF-32813A6A2CC1} = {A1EFA213-B4DB-4DFD-B829-188C511C63B1}
 		{574B6C14-9D19-4283-AEB9-13754EE6437C} = {A1EFA213-B4DB-4DFD-B829-188C511C63B1}
@@ -198,6 +240,13 @@ Global
 		{7B5CE993-A346-4550-B2CD-6C18889DB7B3} = {56746752-64B7-48C0-A8C2-3F3390F35E77}
 		{069556EA-B66F-4176-8F24-5092B1A1183A} = {56746752-64B7-48C0-A8C2-3F3390F35E77}
 		{CCD73170-0753-468E-A633-5BA56D44C634} = {56746752-64B7-48C0-A8C2-3F3390F35E77}
+		{D35099E2-30D7-454F-B947-7D0FC27EF782} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
+		{FAC977E2-395E-4F83-A3F9-06CEE5009E5D} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
+		{B55944F2-9B31-4C01-8CFC-0529DDE05814} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
+		{02EB8C8C-CC61-4DA9-A52A-8D246270805E} = {26704704-EAF1-48B3-825A-7471AA3B59ED}
+		{B7BC9617-B5EE-491A-8CAE-728D8280E854} = {4EB4A938-96E1-4690-8A51-18135AA362CC}
+		{8685397D-C8BF-4DC8-A62A-020C64A96A10} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
+		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3} = {4EB4A938-96E1-4690-8A51-18135AA362CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}

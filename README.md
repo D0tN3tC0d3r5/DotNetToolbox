@@ -6,11 +6,11 @@ DotNetToolboxe is a comprehensive collections of packages that offers a wide ran
 
 | Package | Stable Version | Latest Version | Description |
 | --- | --- | --- | --- |
-| [DotNetToolbox.Core](Source/Core/README.md) | 8.0.4 | 8.0.4 | A C# library designed to enhance development by providing a variety of utilities and patterns.<br>It simplifies complex tasks and improves code testability. |
-| [DotNetToolbox.ObjectDumper](Source/ObjectDumper/README.md) | 8.0.4 | 8.0.4 | A C# library with extensions for converting objects into a human-readable string representations. |
-| [DotNetToolbox.Console](Source/Console/README.md) | 8.0.4 | 8.0.4 | A C# library with powerful tools to simplify the creation of CLI (Command-Line Interface) and Shell-like console applications. |
-| [DotNetToolbox.TestUtilities](Source/TestUtilities/README.md) | 8.0.4 | 8.0.4 | A C# library designed with tools to facilites creation of tests. |
-| [DotNetToolbox.FluentAsserions](Source/FluentAsserions/README.md) | 8.0.4 | 8.0.4 | An extension of FluentAssertions that provides specialized assertion capabilities for logging components.. |
+| [DotNetToolbox.Core](Source/Core/README.md) | 8.0.4 | 8.1.0 | A C# library designed to enhance development by providing a variety of utilities and patterns.<br>It simplifies complex tasks and improves code testability. |
+| [DotNetToolbox.ObjectDumper](Source/ObjectDumper/README.md) | 8.1.0 | 8.0.4 | A C# library with extensions for converting objects into a human-readable string representations. |
+| [DotNetToolbox.Console](Source/Console/README.md) | 8.0.4 | 8.1.0 | A C# library with powerful tools to simplify the creation of CLI (Command-Line Interface) and Shell-like console applications. |
+| [DotNetToolbox.TestUtilities](Source/TestUtilities/README.md) | 8.0.4 | 8.1.0 | A C# library designed with tools to facilites creation of tests. |
+| [DotNetToolbox.FluentAsserions](Source/FluentAsserions/README.md) | 8.0.4 | 8.1.0 | An extension of FluentAssertions that provides specialized assertion capabilities for logging components.. |
 
 
 #### Contributing

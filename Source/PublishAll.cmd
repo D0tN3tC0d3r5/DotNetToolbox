@@ -3,16 +3,20 @@
 if [%1]==[] goto USAGE
 set target=%1
 
-call Publish %target% Core 8.0.4
-call Publish %target% ObjectDumper 8.0.4
-call Publish %target% TestUtilities 8.0.4
-call Publish %target% FluentAssertions 8.0.4
-call Publish %target% Console 8.0.4
-call Publish %target% ValidationBuilder 8.0.4-rc1
-call Publish %target% Azure 8.0.4-rc1
-call Publish %target% Http 8.0.4-rc1
-call Publish %target% Security 8.0.4-rc1
-call Publish %target% OpenAI 8.0.4-rc1
+call Publish %target% Core\Core Core 8.1.0
+call Publish %target% Core\Linq Linq 8.1.0
+call Publish %target% Data\Storage Data 8.1.0
+call Publish %target% Utilities\ObjectDumper ObjectDumper 8.1.0
+call Publish %target% Testing\TestUtilities TestUtilities 8.1.0
+call Publish %target% Testing\FluentAssertions FluentAssertions 8.1.0
+call Publish %target% Applications\Console Console 8.1.0
+call Publish %target% Utilities\ValidationBuilder ValidationBuilder 8.1.0
+call Publish %target% Cloud\Azure Azure 8.1.0
+call Publish %target% Cloud\Http Http 8.1.0
+call Publish %target% Utilities\Security Security 8.1.0
+call Publish %target% AI\Core AI 8.1.0-rc1
+call Publish %target% AI\Anthropic AI.Anthropic 8.1.0-rc1
+call Publish %target% AI\OpenAI AI.OpenAI 8.1.0-rc1
 goto :eof
 
 :USAGE

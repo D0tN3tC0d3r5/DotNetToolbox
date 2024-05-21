@@ -1,0 +1,11 @@
+{
+  "solution": {
+    "path": "..\\DotNetToolbox.sln",
+    "projects": [
+      "Applications\\Console\\DotNetToolbox.Console.csproj",
+      "Applications\\Console.UnitTests\\DotNetToolbox.Console.UnitTests.csproj",
+      "Applications\\Samples\\CLI\\DotNetToolbox.Console.SampleCLI.csproj",
+      "Applications\\Samples\\Shell\\DotNetToolbox.Console.SampleShell.csproj",
+    ]
+  }
+}
