@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.ObjectDumper</PackageId>
     <Title>DotNetToolbox Object Dumper</Title>
-    <Version>8.1.0-rc1</Version>
+    <Version>8.1.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;ObjectDumper;Library;Serialization;Json;Dump</PackageTags>
@@ -19,12 +19,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.1.0-rc1
+      DotNetToolbox.ObjectDumper Version 8.1.0
 
       Stable release of DotNetToolbox.ObjectDumper, a .NET 8 library with a powerful extension for converting objects into a human-readable string representations.
-
-      What's new:
-      - Minor bug corrections.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.ObjectDumper</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>

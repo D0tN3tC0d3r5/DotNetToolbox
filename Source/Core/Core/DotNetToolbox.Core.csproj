@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.Core</PackageId>
     <Title>DotNetToolbox Core Library</Title>
-    <Version>8.1.0-rc1</Version>
+    <Version>8.1.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Common;Library;Pagination;DateTime;FileSystem;Results;Validation;Azure;GUID</PackageTags>
@@ -19,13 +19,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Core Version 8.1.0-rc1
+      DotNetToolbox.Core Version 8.1.0
 
       Stable release of the DotNetToolbox.Core library, a comprehensive suite of utilities and patterns designed to enhance .NET 8 development. This library provides developers with a robust set of tools to simplify complex tasks, improve testability, and streamline everyday coding activities.
-
-      What's new:
-      1. IEnumerable:
-      - Added `ToItems`;
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Core</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>

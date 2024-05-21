@@ -4,7 +4,7 @@ if [%1]==[] goto USAGE
 set target=%1
 
 cd ..\..
-call Publish %target% AI\OpenAI AI.OpenAI 8.1.0-rc1
+call Publish %target% AI\OpenAI AI.OpenAI 8.1.0
 goto :eof
 
 :USAGE

@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.ValidationBuilder</RootNamespace>
     <PackageId>DotNetToolbox.ValidationBuilder</PackageId>
     <Title>DotNetToolbox Validation Builder Library</Title>
-    <Version>8.1.0-rc1</Version>
+    <Version>8.1.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Validation;Library</PackageTags>
@@ -19,8 +19,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.1.0-rc1:
-      - Release candidate based on .Net 8.0
+      DotNetToolbox.ValidationBuilder Version 8.1.0:
+
+      Stable release of DotNetToolbox.ValidationBuilder, a .NET 8 comprehensive utility library for building object validation and more.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.ValidationBuilder</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
@@ -58,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0-rc1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0" />
   </ItemGroup>
 
   <ItemGroup>

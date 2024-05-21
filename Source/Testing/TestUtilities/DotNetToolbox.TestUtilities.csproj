@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.TestUtilities</RootNamespace>
     <PackageId>DotNetToolbox.TestUtilities</PackageId>
     <Title>DotNetToolbox TestUtilities Library</Title>
-    <Version>8.1.0-rc1</Version>
+    <Version>8.1.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;TestUtilities;Tests;UnitTests;Log;Logger;Logging;LoggerFactory;Tracking;</PackageTags>
@@ -19,18 +19,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.1.0-rc1:
+      DotNetToolbox.TestUtilities Version 8.1.0:
 
       Stable release of the DotNetToolbox.TestUtilities library, a comprehensive C# library for .NET 8, designed to enhance logging and tracking capabilities in testing environments.
-
-      Key Features:
-      - ITrackedLogger: Interface for loggers that track and store log entries.
-      - Log: Data structure for representing individual log entries.
-      - TrackedLogger: Extends basic logging to include tracking of log messages.
-      - TrackedNullLogger: An in-memory only logger for capturing and inspecting logs during tests.
-      - TrackedLoggerProvider: Provides `TrackedLogger` instances, integrating with existing logging systems.
-      - TrackedNullLoggerFactory: Factory for creating instances of `TrackedNullLogger`.
-      - TrackedLoggerFactory: Factory for creating instances of `TrackedLogger`.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.TestUtilities</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>

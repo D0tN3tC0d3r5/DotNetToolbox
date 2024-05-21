@@ -7,20 +7,21 @@
     <RootNamespace>DotNetToolbox.Security</RootNamespace>
     <PackageId>DotNetToolbox.Security</PackageId>
     <Title>DotNetToolbox Security Library</Title>
-    <Version>8.1.0-rc1</Version>
+    <Version>8.1.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Security;Library</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.Security: A comprehensive utility library for building object validation and more.</Description>
+    <Description>DotNetToolbox.Security: A comprehensive utility library for hashing, encryption and decryption.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.1.0-rc1:
-      - Release candidate based on .Net 8.0
+      DotNetToolbox.Security Version 8.1.0:
+
+      Stable release of DotNetToolbox.Security, a .NET 8 comprehensive utility library for hashing, encryption and decryption.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Security</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
@@ -58,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0-rc1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0" />
   </ItemGroup>
 
   <ItemGroup>

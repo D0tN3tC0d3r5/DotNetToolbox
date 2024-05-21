@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.Http</RootNamespace>
     <PackageId>DotNetToolbox.Http</PackageId>
     <Title>DotNetToolbox Http Library</Title>
-    <Version>8.1.0-rc1</Version>
+    <Version>8.1.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Http;Library</PackageTags>
@@ -19,8 +19,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.1.0-rc1:
-      - Release candidate based on .Net 8.0
+      DotNetToolbox.Http Version 8.1.0:
+
+      Stable release of DotNetToolbox.Http, a .NET 8 comprehensive utility library for for handling http connections and more.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Http</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
@@ -58,11 +59,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0-rc1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.60.3" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.61.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 

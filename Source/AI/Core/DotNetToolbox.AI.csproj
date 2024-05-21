@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>DotNetToolbox AI Library</Title>
-    <Version>8.1.0-rc1</Version>
+    <Version>8.1.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;AI;Library;LLM;</PackageTags>
@@ -17,8 +17,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.1.0-rc1:
-      - Release candidate based on .Net 8.0
+      DotNetToolbox.Data Version 8.1.0:
+
+      Stable release of DotNetToolbox.Data, a comprehensive utility .NET 8 library for interacting with AI chat models.
     </PackageReleaseNotes>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
     <IncludeSymbols>true</IncludeSymbols>
@@ -56,7 +57,7 @@
   </ItemGroup>
 
   <!--<ItemGroup>
-    <PackageReference Include="DotNetToolbox.Http" Version="8.1.0-rc1" />
+    <PackageReference Include="DotNetToolbox.Http" Version="8.1.0" />
   </ItemGroup>-->
 
   <ItemGroup>

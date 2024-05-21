@@ -7,7 +7,7 @@
     <RootNamespace>System.Linq</RootNamespace>
     <PackageId>DotNetToolbox.Linq</PackageId>
     <Title>DotNetToolbox Asynchronous Linq Library</Title>
-    <Version>8.1.0-rc1</Version>
+    <Version>8.1.0</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Async;Linq</PackageTags>
@@ -19,7 +19,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Linq Version 8.1.0-rc1
+      DotNetToolbox.Linq Version 8.1.0
 
       Stable release of the DotNetToolbox.Linq library.
     </PackageReleaseNotes>
@@ -65,14 +65,8 @@
     </None>
   </ItemGroup>
 
-<!--
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0-rc1" />
-  </ItemGroup>
--->
-
-  <ItemGroup>
-    <ProjectReference Include="..\Core\DotNetToolbox.Core.csproj" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0" />
   </ItemGroup>
 
   <ItemGroup>
