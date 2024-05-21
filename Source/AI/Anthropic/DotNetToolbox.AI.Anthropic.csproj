@@ -8,7 +8,7 @@
     <Product>DotNetToolbox.AI.Anthropic</Product>
     <PackageId>DotNetToolbox.AI.Anthropic</PackageId>
     <Title>DotNetToolbox AI Library</Title>
-    <Version>8.1.0</Version>
+    <Version>8.1.0-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;AI;Library;GPT;LLM;OpenAI;Anthopic</PackageTags>
@@ -20,7 +20,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      v8.1.0:
+      v8.1.0-rc1:
       - Release candidate based on .Net 8.0
     </PackageReleaseNotes>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.AI" Version="8.1.0" />
+    <PackageReference Include="DotNetToolbox.AI" Version="8.1.0-rc1" />
   </ItemGroup>
 
   <ItemGroup>
