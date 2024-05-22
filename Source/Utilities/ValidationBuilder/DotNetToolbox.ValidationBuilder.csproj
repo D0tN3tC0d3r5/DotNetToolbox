@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.ValidationBuilder</RootNamespace>
     <PackageId>DotNetToolbox.ValidationBuilder</PackageId>
     <Title>DotNetToolbox Validation Builder Library</Title>
-    <Version>8.1.0</Version>
+    <Version>8.1.1-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Validation;Library</PackageTags>
@@ -19,7 +19,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.ValidationBuilder Version 8.1.0:
+      DotNetToolbox.ValidationBuilder Version 8.1.1:
 
       Stable release of DotNetToolbox.ValidationBuilder, a .NET 8 comprehensive utility library for building object validation and more.
     </PackageReleaseNotes>
@@ -28,8 +28,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.ValidationBuilder</AssemblyName>
-    <AssemblyVersion>8.1.0.*</AssemblyVersion>
-    <FileVersion>8.1.0</FileVersion>
+    <AssemblyVersion>8.1.1.*</AssemblyVersion>
+    <FileVersion>8.1.1</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.0" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.1.1-rc1" />
   </ItemGroup>
 
   <ItemGroup>
