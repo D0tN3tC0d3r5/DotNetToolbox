@@ -1,44 +1,22 @@
 ﻿namespace DotNetToolbox.AI.Graph;
 
-public abstract class Runner(Node entry, IDisposable state)
-    : IEnumerator<Node> {
-    private bool _isValueDisposed;
+public abstract class Node(int id = 0, INode? caller = null)
+    : Node<object>(id, caller);
 
-    public IDisposable State { get; } = state;
+public abstract class Node<TData>(int id = 0, INode? caller = null)
+    : Node<TData, TData>(id, caller)
+    , INode<TData>;
 
-    public Node Current { get; } = entry;
-    object IEnumerator.Current => Current;
-
-    public bool MoveNext() => throw new NotImplementedException();
-    public void Reset() => throw new NotImplementedException();
-
-    protected virtual void Dispose(bool disposing) {
-        if (_isValueDisposed)
-            return;
-        if (disposing) {
-            State.Dispose();
-        }
-        _isValueDisposed = true;
+-public abstract class Node<TState, TInput, TOutput>(TState state, int id = 0, INode? caller = null)
+    : INode<TInput, TOutput> {
+    public int Id => id;
+    public INode? Caller => caller;
+    public virtual INodeResult<TOutput> Execute(TInput? input) {
+        var result = Process(input);
+        var next = SelectNext(result);
+        return new NodeResult<TOutput>(next, result);
     }
 
-    public void Dispose() {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-}
-
-public abstract record End(object? Value = null) : NodeResult(Value) {
-}
-
-public abstract record NodeResult(object? Value = null, Node? Next = null) {
-}
-
-public abstract class Node(string id, string name) {
-    public string Id { get; set; } = id;
-    public string Name { get; set; } = name;
-    public List<Node> Edges { get; set; } = [];
-
-    public abstract Task<NodeResult> Run(object input);
-
-    public override string ToString() => Name;
+    protected abstract TOutput? Process(TInput? input);
+    protected abstract INode? SelectNext(TOutput? output);
 }

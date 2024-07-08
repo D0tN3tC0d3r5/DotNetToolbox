@@ -2,11 +2,12 @@
   "solution": {
     "path": "..\\DotNetToolbox.sln",
     "projects": [
+      "AI\\Anthropic.UnitTests\\DotNetToolbox.AI.Anthropic.UnitTests.csproj",
       "AI\\Anthropic\\DotNetToolbox.AI.Anthropic.csproj",
       "AI\\Core.UnitTests\\DotNetToolbox.AI.UnitTests.csproj",
-      "AI\\Core\\DotNetToolbox.AI.Core.csproj",
+      "AI\\Core\\DotNetToolbox.AI.csproj",
       "AI\\OpenAI.UnitTests\\DotNetToolbox.AI.OpenAI.UnitTests.csproj",
-      "AI\\OpenAI\\DotNetToolbox.AI.OpenAI.csproj",
+      "AI\\OpenAI\\DotNetToolbox.AI.OpenAI.csproj"
     ]
   }
 }
