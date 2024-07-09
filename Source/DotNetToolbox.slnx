@@ -20,6 +20,7 @@
   <Folder Name="/1 Source/1 Core/">
     <Project Path="Core\Core\DotNetToolbox.Core.csproj" />
     <Project Path="Core\Linq\DotNetToolbox.Linq.csproj" />
+    <Project Path="Core\Graph\DotNetToolbox.Graph.csproj" />
   </Folder>
   <Folder Name="/1 Source/1 Testing/">
     <Project Path="Testing\FluentAssertions\DotNetToolbox.FluentAssertions.csproj" />
