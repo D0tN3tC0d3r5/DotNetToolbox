@@ -10,14 +10,14 @@
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;AI;Library;LLM;</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.Core: A comprehensive utility library for interacting with AI chat models.</Description>
+    <Description>DotNetToolbox.AI: A comprehensive utility library for interacting with AI chat models.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Data Version 8.1.1:
+      DotNetToolbox.AI Version 8.1.1:
 
       Stable release of DotNetToolbox.AI, a comprehensive utility .NET 8 library for interacting with AI chat models.
     </PackageReleaseNotes>

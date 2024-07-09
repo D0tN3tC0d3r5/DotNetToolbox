@@ -1,22 +1,10 @@
 <Solution>
-  <Folder Name="/1 Source/">
-  </Folder>
-  <Folder Name="/0 Solution Items/">
-    <File Path=".editorconfig" />
-    <File Path=".runsettings" />
-    <File Path="DotNetToolbox.PublicKey.snk" />
-    <File Path="DotNetToolbox.snk" />
-    <File Path="ExecuteCleanUp.cmd" />
-    <File Path="GenerateTestCoverageReport.cmd" />
-    <File Path="global.json" />
-    <File Path="icon.ico" />
-    <File Path="icon.png" />
-    <File Path="LICENSE" />
-    <File Path="Publish.cmd" />
-    <File Path="PublishAll.cmd" />
-    <File Path="PublishSome.cmd" />
-    <File Path="..\README.md" />
-  </Folder>
+  <Properties Name="Visual Studio">
+    <Property Name="OpenWith" Value="17" />
+  </Properties>
+  <Folder Name="/1 Source/" />
+  <Folder Name="/2 Tests/" />
+  <Folder Name="/3 Samples/" />
   <Folder Name="/1 Source/1 Core/">
     <Project Path="Core\Core\DotNetToolbox.Core.csproj" />
     <Project Path="Core\Linq\DotNetToolbox.Linq.csproj" />
@@ -46,19 +34,8 @@
     <Project Path="AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
     <Project Path="AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
   </Folder>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="17" />
-  </Properties>
-  <Folder Name="/2 Tests/" />
-  <Folder Name="/3 Samples/" />
-  <Folder Name="/3 Samples/2 Console/">
-    <Project Path="Applications\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj" />
-    <Project Path="Applications\Samples\Shell\DotNetToolbox.Console.SampleShell.csproj">
-      <Configuration Solution="Release|*" Project="*|*|NoBuild" />
-    </Project>
-  </Folder>
   <Folder Name="/2 Tests/1 Core/">
-    <Project Path="Core.Unit.UnitTests\Core\DotNetToolbox.Core.UnitTests.csproj" />
+    <Project Path="Core.Unit.UnitTests\DotNetToolbox.Core.UnitTests.csproj" />
     <Project Path="Core\Linq.UnitTests\DotNetToolbox.Linq.UnitTests.csproj" />
   </Folder>
   <Folder Name="/2 Tests/1 Testing/">
@@ -84,5 +61,11 @@
     <Project Path="AI\Core.UnitTests\DotNetToolbox.AI.UnitTests.csproj" />
     <Project Path="AI\Anthropic.UnitTests\DotNetToolbox.AI.Anthropic.UnitTests.csproj" />
     <Project Path="AI\OpenAI.UnitTests\DotNetToolbox.AI.OpenAI.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/3 Samples/2 Console/">
+    <Project Path="Applications\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj" />
+    <Project Path="Applications\Samples\Shell\DotNetToolbox.Console.SampleShell.csproj">
+      <Configuration Solution="Release|*" Project="*|*|NoBuild" />
+    </Project>
   </Folder>
 </Solution>

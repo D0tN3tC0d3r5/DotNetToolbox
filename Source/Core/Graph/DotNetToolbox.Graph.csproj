@@ -4,13 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Title>DotNetToolbox AI Library</Title>
+    <Title>DotNetToolbox Graph Library</Title>
     <Version>8.1.1-rc1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
-    <PackageTags>DotNet;Toolbox;AI;Library;LLM;</PackageTags>
+    <PackageTags>DotNet;Toolbox;Graph;Library;Workflow;</PackageTags>
     <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
-    <Description>DotNetToolbox.Core: A comprehensive utility library for interacting with AI chat models.</Description>
+    <Description>DotNetToolbox.Graph: A comprehensive utility library for building and running workflows defined as a graph.</Description>
     <Copyright>© Andre Vianna 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
@@ -19,13 +19,13 @@
     <PackageReleaseNotes>
       DotNetToolbox.Data Version 8.1.1:
 
-      Stable release of DotNetToolbox.Data, a comprehensive utility .NET 8 library for interacting with AI chat models.
+      Stable release of DotNetToolbox.Graph, a comprehensive utility library for building and running workflows defined as a graph.
     </PackageReleaseNotes>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
     <IncludeSymbols>true</IncludeSymbols>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
-    <AssemblyName>DotNetToolbox.AI</AssemblyName>
+    <AssemblyName>DotNetToolbox.Graph</AssemblyName>
     <AssemblyVersion>8.1.1.*</AssemblyVersion>
     <FileVersion>8.1.1</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
