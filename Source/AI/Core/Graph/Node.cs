@@ -1,22 +1,15 @@
 ﻿namespace DotNetToolbox.AI.Graph;
 
-public abstract class Node(int id = 0, INode? caller = null)
-    : Node<object>(id, caller);
-
-public abstract class Node<TData>(int id = 0, INode? caller = null)
-    : Node<TData, TData>(id, caller)
-    , INode<TData>;
-
--public abstract class Node<TState, TInput, TOutput>(TState state, int id = 0, INode? caller = null)
-    : INode<TInput, TOutput> {
-    public int Id => id;
-    public INode? Caller => caller;
-    public virtual INodeResult<TOutput> Execute(TInput? input) {
-        var result = Process(input);
-        var next = SelectNext(result);
-        return new NodeResult<TOutput>(next, result);
+public abstract class Node(uint id, INode? caller = null, IEnumerable<INode?>? branches = null)
+    : INode {
+    public INode? Caller { get; } = caller;
+    public HashSet<INode?>? Branches { get; } = branches?.ToHashSet() ?? [];
+    public uint Id => id;
+    public INode? Execute(Map state) {
+        UpdateState(state);
+        return SelectBranch(state);
     }
 
-    protected abstract TOutput? Process(TInput? input);
-    protected abstract INode? SelectNext(TOutput? output);
+    protected abstract void UpdateState(Map state);
+    protected abstract INode? SelectBranch(Map state);
 }

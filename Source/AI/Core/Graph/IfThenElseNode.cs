@@ -1,13 +1,9 @@
 ﻿namespace DotNetToolbox.AI.Graph;
 
-public class IfThenElseNode<TData>(int id = 0)
-    : Node<TData>(id) {
-    protected sealed override TData? Process(TData? input) => input;
+public abstract class IfThenElseNode(uint id, INode? caller = null, INode? trueBranch = null, INode? falseBranch = null)
+    : SwitchNode(id, caller, [trueBranch, falseBranch]) {
+    protected sealed override INode? SelectBranch(Map state)
+        => Predicate(state) ? trueBranch : falseBranch;
 
-    protected sealed override INode? Select(TData? input) => Predicate(input, TrueNode, FalseNode);
-
-    protected abstract INode? Predicate(TData? input, INode trueNode, INode falseNode);
+    protected abstract bool Predicate(Map state);
 }
-
-public class NullNode<TData>(INode? caller = null)
-    : Node<TData>(Guid.Empty.ToString(), caller, i => i, s => caller!);
