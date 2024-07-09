@@ -1,9 +1,9 @@
 ﻿namespace DotNetToolbox.AI.Graph;
 
-public abstract class IfThenElseNode(uint id, INode? caller = null, INode? trueBranch = null, INode? falseBranch = null)
-    : SwitchNode(id, caller, [trueBranch, falseBranch]) {
-    protected sealed override INode? SelectBranch(Map state)
-        => Predicate(state) ? trueBranch : falseBranch;
+public abstract class IfThenElseNode(string id, IEnumerable<INode?>? entries = null, INode? trueBranch = null, INode? falseBranch = null)
+    : SwitchNode(id, entries, [trueBranch, falseBranch]) {
+    protected sealed override INode? SelectExit(Map state, INode? caller = null)
+        => Predicate(state, caller) ? trueBranch : falseBranch;
 
-    protected abstract bool Predicate(Map state);
+    protected abstract bool Predicate(Map state, INode? caller = null);
 }

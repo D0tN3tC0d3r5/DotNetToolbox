@@ -1,9 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Graph;
 
-public interface IRunner : IDisposable {
+public interface IGraphRunner : IDisposable {
     INode? CurrentNode { get; }
     Map State { get; }
 
-    void Reset();
-    void Run();
+    void Run(Map? initialState = null);
 }
