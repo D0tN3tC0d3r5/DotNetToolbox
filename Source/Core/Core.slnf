@@ -4,6 +4,7 @@
     "projects": [
       "Core\\Core.UnitTests\\DotNetToolbox.Core.UnitTests.csproj",
       "Core\\Core\\DotNetToolbox.Core.csproj",
+      "Core\\Graph\\DotNetToolbox.Graph.csproj",
       "Core\\Linq.UnitTests\\DotNetToolbox.Linq.UnitTests.csproj",
       "Core\\Linq\\DotNetToolbox.Linq.csproj"
     ]
