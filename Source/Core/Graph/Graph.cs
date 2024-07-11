@@ -10,7 +10,7 @@ public sealed class Graph(INode startingNode) : IGraph {
         CurrentNode = _startingNode;
         State = initialState ?? [];
         while (CurrentNode is not null)
-            CurrentNode = CurrentNode.Execute(State);
+            CurrentNode = CurrentNode.Run(State);
     }
 
     private bool _isValueDisposed;

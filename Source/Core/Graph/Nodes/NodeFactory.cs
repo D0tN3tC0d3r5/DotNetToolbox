@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Graph;
+﻿namespace DotNetToolbox.Graph.Nodes;
 
 public class NodeFactory : INodeFactory {
     public INode CreateEnd(string id)

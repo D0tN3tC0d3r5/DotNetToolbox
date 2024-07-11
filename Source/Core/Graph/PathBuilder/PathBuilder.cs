@@ -1,14 +1,13 @@
-﻿namespace DotNetToolbox.Graph;
+﻿namespace DotNetToolbox.Graph.PathBuilder;
 
-public class GraphBuilder
-    : IGraphBuilder {
-    private readonly HashSet<INode> _nodes;
-    private readonly INode _startingNode;
-    private readonly INode _currentNode;
+public class PathBuilder
+    : IPathBuilder {
+    private readonly INode _caller;
+    private readonly string _id;
 
-    private GraphBuilder(INode startingNode) {
-        _currentNode = _startingNode = startingNode;
-        _nodes = [startingNode];
+    private PathBuilder(INode caller, string id) {
+        _caller = caller;
+        _id = id;
     }
 
     //public IGraphBuilder AddNode(INode node) {
@@ -16,24 +15,13 @@ public class GraphBuilder
     //    return this;
     //}
 
-    public static IGraphBuilder From(INode startingNode)
-        => new GraphBuilder(startingNode);
+    public static IPathBuilder From(INode caller, string? id = null)
+        => new PathBuilder(caller, id ?? Guid.NewGuid().ToString());
 
-    public IGraphBuilder IfThenElse(string id,
-                                    Func<Map, bool> predicate,
-                                    Action<IGraphBuilder> buildTruePath,
-                                    Action<IGraphBuilder> buildFalsePath) {
-        IsNotNullOrWhiteSpace(id);
+    public IIfBuilder If(Func<Map, bool> predicate) {
         IsNotNull(predicate);
-        IsNotNull(buildTruePath);
-        IsNotNull(buildFalsePath);
-        var node = new IfThenElseNode(id);
-        var truePathBuilder = new GraphBuilder(node);
-        buildTruePath(truePathBuilder);
-        node.SetTruePath(truePathBuilder.Build())
-        var falsePathBuilder = new GraphBuilder(_currentNode);
-        _currentNode.AddExit(node);
-        return this;
+        var node = new IfThenElseNode(_id, predicate: predicate);
+        return new IfBuilder(node);
     }
 
     //public IGraphBuilder AddEdgeTo(INode from, INode to) {
