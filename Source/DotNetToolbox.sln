@@ -1,26 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
+# 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 Solution Items", "0 Solution Items", "{DA2062CA-F056-4060-A831-D25B637580CE}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		.runsettings = .runsettings
-		DotNetToolbox.PublicKey.snk = DotNetToolbox.PublicKey.snk
-		DotNetToolbox.slnx = DotNetToolbox.slnx
-		DotNetToolbox.snk = DotNetToolbox.snk
-		ExecuteCleanUp.cmd = ExecuteCleanUp.cmd
-		GenerateTestCoverageReport.cmd = GenerateTestCoverageReport.cmd
-		global.json = global.json
-		icon.ico = icon.ico
-		icon.png = icon.png
-		LICENSE = LICENSE
-		Publish.cmd = Publish.cmd
-		PublishAll.cmd = PublishAll.cmd
-		PublishSome.cmd = PublishSome.cmd
-		..\README.md = ..\README.md
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core", "Core\Core\DotNetToolbox.Core.csproj", "{C0308621-0189-4E32-A6FB-B0198D0B7A38}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Core.UnitTests", "Core\Core.UnitTests\DotNetToolbox.Core.UnitTests.csproj", "{C116D92D-1D32-4F5F-91CC-28C7807FD2E8}"

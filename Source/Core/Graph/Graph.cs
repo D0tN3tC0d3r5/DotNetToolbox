@@ -1,6 +1,6 @@
-﻿namespace DotNetToolbox.AI.Graph;
+﻿namespace DotNetToolbox.Graph;
 
-public sealed class GraphRunner(INode startingNode) : IGraphRunner {
+public sealed class Graph(INode startingNode) : IGraph {
     private readonly INode _startingNode = IsNotNull(startingNode);
 
     public Map State { get; private set; } = [];

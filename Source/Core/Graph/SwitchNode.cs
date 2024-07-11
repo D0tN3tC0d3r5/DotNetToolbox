@@ -1,6 +1,8 @@
-﻿namespace DotNetToolbox.AI.Graph;
+﻿namespace DotNetToolbox.Graph;
 
-public abstract class SwitchNode(string id = 0, IEnumerable<INode?>? entries = null, IEnumerable<INode?>? exits = null)
-    : Node(id, entries, exits) {
-    protected sealed override void UpdateState(Map state, INode? caller = null) { }
+public class SwitchNode(string id, Func<INode?, Map, INode?>? selectExit = null)
+    : Node(id) {
+    protected sealed override void UpdateState(INode? caller = null, Map? state = null) { }
+    protected override INode? SelectExit(INode? caller = null, Map? state = null)
+        => IsNotNull(selectExit)(caller, state);
 }

@@ -1,6 +1,6 @@
-﻿namespace DotNetToolbox.AI.Graph;
+﻿namespace DotNetToolbox.Graph;
 
-public interface IGraphRunner : IDisposable {
+public interface IGraph : IDisposable {
     INode? CurrentNode { get; }
     Map State { get; }
 

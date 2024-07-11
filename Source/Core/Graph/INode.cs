@@ -1,8 +1,8 @@
-﻿namespace DotNetToolbox.AI.Graph;
+﻿namespace DotNetToolbox.Graph;
 
 public interface INode {
     string Id { get; }
-    HashSet<INode?> Entries { get; }
-    HashSet<INode?> Exits { get; }
-    INode? Execute(Map state, INode? caller = null);
+    Map State { get; set; }
+    void ConnectTo(INode node, object? metadata = null);
+    INode? Execute(INode caller);
 }

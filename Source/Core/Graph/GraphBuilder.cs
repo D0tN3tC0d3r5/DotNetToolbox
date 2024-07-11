@@ -1,36 +1,50 @@
-﻿namespace DotNetToolbox.AI.Graph;
-public class GraphBuilder(INode startingNode) : IGraphBuilder {
+﻿namespace DotNetToolbox.Graph;
+public class GraphBuilder(INode startingNode)
+    : IGraphBuilder {
     private readonly HashSet<INode> _nodes = [startingNode];
 
-    public IGraphBuilder AddEdge(INode from, INode to) {
-        if (from is EndNode || to is EndNode)
-            throw new InvalidOperationException("Use AddEnding to connect an ending node.");
-        _nodes.Add(from);
-        _nodes.Add(to);
-        from.Exits.Add(to);
-        to.Entries.Add(from);
+    public IGraphBuilder AddNode(INode node) {
+        _nodes.Add(node);
         return this;
     }
 
-    public IGraphBuilder AddEnding(INode from, string id) {
-        var node = _nodes.FirstOrDefault(n => n.Id == id);
-        if (node is not null && node is not EndNode)
-            throw new InvalidOperationException("There is already another node with same id.");
-        if (node is null)
-            node = new EndNode(id, [from]);
-        else
-            node.Entries.Add(from);
+    public IGraphBuilder AddEdgeTo(INode from, INode to) {
+        if (from is EndNode)
+            throw new InvalidOperationException("Cannot add an edge to an end node.");
+        RegisterEdge(from, to);
         return this;
     }
 
-    public IGraphRunner Build() => VerifyNodes() ? (IGraphRunner)new GraphRunner(startingNode) : throw new InvalidOperationException("Graph is not valid.");
+    public IGraphBuilder AddEndTo(INode from, string id = "-1") {
+        var end = _nodes.FirstOrDefault(n => n.Id == id);
+        if (end is not null && end is not EndNode)
+            throw new InvalidOperationException("There is already another non-end node with same id.");
+        end ??= new EndNode(id);
+        RegisterEdge(from, end);
+        return this;
+    }
+
+    public IGraph Build()
+        => VerifyNodes()
+            ? (IGraph)new Graph(startingNode)
+            : throw new InvalidOperationException("Graph is not valid.");
 
     private bool VerifyNode(ISet<INode> visited, INode? node = null) {
         node ??= startingNode;
-        if (!visited.Add(node))
-            return true;
-        return node is EndNode ? true : node.Exits.Count != 0 && node.Exits.All(e => VerifyNode(visited, e));
+        return !visited.Add(node)
+            || node is EndNode
+            || (node.Exits.Count != 0 && node.Exits.All(e => VerifyNode(visited, e)));
     }
+
+    private void RegisterEdge(INode from, INode to) {
+        RegisterNode(from);
+        RegisterNode(to);
+        from.Exits.Add(to);
+        to.Entries.Add(from);
+    }
+
+    private void RegisterNode(INode node)
+        => _nodes.Add(node);
 
     private bool VerifyNodes() {
         var visited = new HashSet<INode>();

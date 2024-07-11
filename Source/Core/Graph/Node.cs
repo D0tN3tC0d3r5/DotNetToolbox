@@ -1,17 +1,17 @@
-﻿namespace DotNetToolbox.AI.Graph;
+﻿namespace DotNetToolbox.Graph;
 
-public abstract class Node(string id, IEnumerable<INode?>? entries = null, IEnumerable<INode?>? exits = null)
+public abstract class Node(string id)
     : INode {
-    public HashSet<INode?> Entries { get; } = entries?.ToHashSet() ?? [];
-    public HashSet<INode?> Exits { get; } = exits?.ToHashSet() ?? [];
     public string Id => id;
-    public INode? Execute(Map state, INode? caller = null) {
-        UpdateState(state, caller);
-        return SelectExit(state, caller);
+    public Map State { get; set; } = [];
+    protected Dictionary<INode, object?> Exits { get; } = [];
+
+    public virtual void ConnectTo(INode node, object? metadata = null) {
+        if (!Exits.TryAdd(node, metadata))
+            throw new InvalidOperationException($"Node '{Id}' already has a connection to node '{node.Id}' registered.");
     }
 
-    protected abstract void UpdateState(Map state, INode? caller = null);
-    protected abstract INode? SelectExit(Map state, INode? caller = null);
+    public abstract INode? Execute(INode caller);
 
     public override int GetHashCode() => id.GetHashCode();
 }

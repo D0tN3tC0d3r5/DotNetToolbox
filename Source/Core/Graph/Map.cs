@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Graph;
+﻿namespace DotNetToolbox.Graph;
 
 public class Map
     : Dictionary<string, object>, IDisposable {

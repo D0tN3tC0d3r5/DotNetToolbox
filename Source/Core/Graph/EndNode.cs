@@ -1,7 +1,7 @@
-﻿namespace DotNetToolbox.AI.Graph;
+﻿namespace DotNetToolbox.Graph;
 
-public class EndNode(string id, IEnumerable<INode?>? entries = null)
-    : Node(id, entries) {
-    protected override void UpdateState(Map state, INode? caller = null) { }
-    protected sealed override INode? SelectExit(Map state, INode? caller = null) => null;
+public class EndNode(string id)
+    : Node(id) {
+    protected override void UpdateState(INode? caller = null, Map? state = null) { }
+    protected sealed override INode? SelectExit(INode? caller = null, Map? state = null) => null;
 }
