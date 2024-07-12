@@ -1,66 +1,69 @@
 ﻿namespace DotNetToolbox.Graph.PathBuilder;
 
-public class PathBuilder
-    : IPathBuilder {
-    private readonly INode _caller;
-    private readonly string _id;
+public static class NodeBuilder {
+    public static IIfBuilder If(Func<Map, bool> predicate)
+        => PathBuilder.From(IfNode.Create(predicate));
+}
 
-    private PathBuilder(INode caller, string id) {
-        _caller = caller;
-        _id = id;
+public class PathBuilder
+    : IPathBuilder, IIfBuilder, IThenBuilder, IEndBuilder {
+    private INode? _current;
+
+    private PathBuilder(INode? node = null) {
+        _current = node;
     }
 
-    //public IGraphBuilder AddNode(INode node) {
-    //    _nodes.Add(node);
-    //    return this;
-    //}
-
-    public static IPathBuilder From(INode caller, string? id = null)
-        => new PathBuilder(caller, id ?? Guid.NewGuid().ToString());
+    public static PathBuilder From(INode node) => new(node);
+    public static PathBuilder Create() => new();
 
     public IIfBuilder If(Func<Map, bool> predicate) {
-        IsNotNull(predicate);
-        var node = new IfThenElseNode(_id, predicate: predicate);
-        return new IfBuilder(node);
+        _current = new IfNode(Guid.NewGuid().ToString(), IsNotNull(predicate));
+        return this;
     }
 
-    //public IGraphBuilder AddEdgeTo(INode from, INode to) {
-    //    if (from is EndNode)
-    //        throw new InvalidOperationException("Cannot add an edge to an end node.");
-    //    RegisterEdge(from, to);
-    //    return this;
-    //}
+    public IPathBuilder Do(Action<Map> execute) => throw new NotImplementedException();
 
-    //public IGraphBuilder AddEndTo(INode from, string id = "-1") {
-    //    var end = _nodes.FirstOrDefault(n => n.Id == id);
-    //    if (end is not null && end is not EndNode)
-    //        throw new InvalidOperationException("There is already another non-end node with same id.");
-    //    end ??= new EndNode(id);
-    //    RegisterEdge(from, end);
-    //    return this;
-    //}
-
-    public IGraph Build() {
-        var validationResult = Validate();
-        if (validationResult.IsInvalid)
-            throw new ValidationException(validationResult.Errors);
-        return new Graph(_startingNode);
+    public IThenBuilder Then(INode node) {
+        if (_current is not IfNode ifNode)
+            throw new InvalidOperationException("Invalid node.");
+        ifNode.SetTruePath(node);
+        return this;
     }
 
-    private Result Validate() {
-        var validatedNodes = new HashSet<INode>();
-        var result = _startingNode.Validate(validatedNodes);
-        if (validatedNodes.Count != _nodes.Count)
-            result += Invalid("Graph has unreachable nodes.");
-        return result;
+    public IThenBuilder Then(Action<IPathBuilder> build) {
+        if (_current is not IfNode ifNode)
+            throw new InvalidOperationException("Invalid node.");
+        var builder = Create();
+        build(builder);
+        var node = builder.Build();
+        ifNode.SetTruePath(node);
+        return this;
     }
 
-    //private void RegisterEdge(INode from, INode to, object? metadata = null) {
-    //    RegisterNode(from);
-    //    RegisterNode(to);
-    //    from.AddExit(metadata, to);
-    //}
+    public IPathBuilder Else(INode node) {
+        if (_current is not IfNode ifNode)
+            throw new InvalidOperationException("Invalid node.");
+        ifNode.SetFalsePath(node);
+        return this;
+    }
 
-    private void RegisterNode(INode node)
-        => _nodes.Add(node);
+    public IPathBuilder Else(Action<IPathBuilder> build) {
+        if (_current is not IfNode ifNode)
+            throw new InvalidOperationException("Invalid node.");
+        var builder = Create();
+        build(builder);
+        var node = builder.Build();
+        ifNode.SetFalsePath(node);
+        return this;
+    }
+
+    public IIfBuilder ElseIf(Func<Map, bool> predicate) {
+        _current = new IfNode(Guid.NewGuid().ToString(), IsNotNull(predicate));
+        return this;
+    }
+
+    public ISwitchBuilder<TKey> Select<TKey>(Func<Map, TKey> select) => throw new NotImplementedException();
+
+    public IEndBuilder End() => throw new NotImplementedException();
+    public INode Build() => throw new NotImplementedException();
 }

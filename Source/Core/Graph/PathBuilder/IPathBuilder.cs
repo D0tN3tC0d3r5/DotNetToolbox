@@ -2,7 +2,7 @@
 
 public interface IPathBuilder {
     IIfBuilder If(Func<Map, bool> predicate);
-    ISwitchBuilder<TKey> Switch<TKey>(Func<Map, TKey> select);
+    ISwitchBuilder<TKey> Select<TKey>(Func<Map, TKey> select);
     IPathBuilder Do(Action<Map> execute);
-    void End();
+    IEndBuilder End();
 }

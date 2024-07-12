@@ -27,7 +27,7 @@ public class GraphBuilder
         IsNotNull(predicate);
         IsNotNull(buildTruePath);
         IsNotNull(buildFalsePath);
-        var node = new IfThenElseNode(id);
+        var node = new IfNode(id);
         var truePathBuilder = new GraphBuilder(node);
         buildTruePath(truePathBuilder);
         node.SetTruePath(truePathBuilder.Build())
