@@ -1,8 +1,8 @@
 ﻿namespace DotNetToolbox.Graph.PathBuilder;
 
-public interface IPathBuilder {
-    IIfBuilder If(Func<Map, bool> predicate);
-    ISwitchBuilder<TKey> Select<TKey>(Func<Map, TKey> select);
-    IPathBuilder Do(Action<Map> execute);
-    IEndBuilder End();
+public interface IPathBuilder
+    : IPathTerminator {
+    IThenBuilder If(Func<Map, bool> predicate);
+    IComparerBuilder<TKey> When<TKey>(Func<Map, TKey> select);
+    IPathBuilder Do(Func<Map, INode> execute);
 }

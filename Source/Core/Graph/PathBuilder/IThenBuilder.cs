@@ -1,8 +1,7 @@
 ﻿namespace DotNetToolbox.Graph.PathBuilder;
 
 public interface IThenBuilder
-    : IPathBuilder {
-    IPathBuilder Else(INode node);
-    IPathBuilder Else(Action<IPathBuilder> builder);
-    IIfBuilder ElseIf(Func<Map, bool> predicate);
+    : IPathTerminator {
+    IElseBuilder Then(INode node);
+    IElseBuilder Then(Func<IPathBuilder, INode> builder);
 }

@@ -78,6 +78,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Linq.UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Graph", "Core\Graph\DotNetToolbox.Graph.csproj", "{8D4AC671-00EB-4452-A36E-688991F693B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolbox.Graph.UnitTests", "Core\Graph.UnitTests\DotNetToolbox.Graph.UnitTests.csproj", "{872AA38F-52D5-4133-910D-24A34EB8F066}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -198,6 +200,10 @@ Global
 		{8D4AC671-00EB-4452-A36E-688991F693B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D4AC671-00EB-4452-A36E-688991F693B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D4AC671-00EB-4452-A36E-688991F693B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{872AA38F-52D5-4133-910D-24A34EB8F066}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{872AA38F-52D5-4133-910D-24A34EB8F066}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{872AA38F-52D5-4133-910D-24A34EB8F066}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{872AA38F-52D5-4133-910D-24A34EB8F066}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -234,6 +240,7 @@ Global
 		{FDA7DEA0-8FCA-4AFD-B588-06086AAF98F3} = {4EB4A938-96E1-4690-8A51-18135AA362CC}
 		{E1429FDF-E580-4C0F-9E07-A1C218042DD7} = {26704704-EAF1-48B3-825A-7471AA3B59ED}
 		{8D4AC671-00EB-4452-A36E-688991F693B4} = {26704704-EAF1-48B3-825A-7471AA3B59ED}
+		{872AA38F-52D5-4133-910D-24A34EB8F066} = {26704704-EAF1-48B3-825A-7471AA3B59ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}
