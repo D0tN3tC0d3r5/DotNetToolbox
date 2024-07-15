@@ -3,31 +3,20 @@
 public class ActionNode
     : Node {
     private readonly Action<Context> _execute;
-    private INode? _exit;
-    protected INode ExitNode {
-        get => _exit ?? throw new InvalidOperationException($"The exit node for node {Id} is not set.");
-        set => SetExit(value);
-    }
+    private readonly INode? _next;
+    public static ActionNode Create(string id, Action<Context> execute, INode? next = null)
+        => new(IsNotNullOrWhiteSpace(id), execute, next);
 
-    public ActionNode(string id, INode? exitNode = null, Action<Context>? execute = null)
-        : base(id) {
+    public static ActionNode Create(Action<Context> execute, INode? next = null, IGuidProvider? guid = null)
+        => new(null, execute, next, guid);
+
+    private ActionNode(string? id, Action<Context> execute, INode? next = null, IGuidProvider? guid = null)
+        : base(id, guid) {
         _execute = execute ?? Execute;
-        ExitNode = exitNode ?? ExitNode;
+        _next = next ?? Void;
     }
 
-    private void SetExit(INode node) {
-        _exit = IsNotNull(node);
-        Paths.Add(node);
-    }
-
-    protected override Result IsValid() {
-        var result = Success();
-        if (Paths.Count != 0)
-            result += Invalid($"Void node '{Id}' can not have any exits.");
-        return result;
-    }
-
-    protected sealed override INode GetNext(Context state) => ExitNode;
+    protected sealed override INode? GetNext(Context state) => _next;
     protected sealed override void UpdateState(Context state) => _execute(state);
 
     protected virtual void Execute(Context state)

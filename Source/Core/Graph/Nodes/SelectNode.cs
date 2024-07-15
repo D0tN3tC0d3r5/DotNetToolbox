@@ -1,37 +1,30 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class SelectNode
-    : SwitchNode<string> {
-    public static SelectNode Create(IReadOnlyDictionary<string, INode> paths, Func<Context, string> selectPath)
-        => new(Guid.NewGuid().ToString(), paths, selectPath);
+public static class SelectNode {
+    public static SelectNode<string> Create(IEnumerable<INode?> paths, Func<Context, string> selectPath, IGuidProvider? guid = null)
+        => new(null, paths.Distinct().ToDictionary(k => k?.Id ?? string.Empty, v => v), selectPath, guid);
 
-    public static SelectNode Create(IEnumerable<INode> paths, Func<Context, string> selectPath)
-        => new(Guid.NewGuid().ToString(), paths, selectPath);
+    public static SelectNode<TKey> Create<TKey>(IReadOnlyDictionary<TKey, INode?> paths, Func<Context, TKey> selectPath, IGuidProvider? guid = null)
+        where TKey : notnull
+        => new(null, paths, selectPath, guid);
 
-    public SelectNode(string id, IReadOnlyDictionary<string, INode> paths, Func<Context, string> selectPath)
-        : base(id, paths, selectPath) {
-    }
+    public static SelectNode<string> Create(string id, IEnumerable<INode?> paths, Func<Context, string> selectPath)
+        => new(IsNotNullOrWhiteSpace(id), paths.Distinct().ToDictionary(k => k?.Id ?? string.Empty, v => v), selectPath);
 
-    public SelectNode(string id, IEnumerable<INode> paths, Func<Context, string> selectPath)
-        : base(id, paths.ToDictionary(GetKey, static v => v).AsReadOnly(), selectPath) {
-    }
+    public static SelectNode<TKey> Create<TKey>(string id, IReadOnlyDictionary<TKey, INode?> paths, Func<Context, TKey> selectPath)
+    where TKey : notnull
+        => new(IsNotNullOrWhiteSpace(id), paths, selectPath);
 
-    private static string GetKey(INode node)
-        => $"{node.GetType().Name}_{node.Id}";
 }
 
-public class SwitchNode<TKey>
+public class SelectNode<TKey>
     : Node
     where TKey : notnull {
     private readonly Func<Context, TKey> _selectPath;
     private readonly IReadOnlyDictionary<TKey, INode?> _pathMap;
 
-    public static SwitchNode<T> Create<T>(IReadOnlyDictionary<T, INode?> paths, Func<Context, T> selectPath)
-        where T : notnull
-        => new(Guid.NewGuid().ToString(), paths, selectPath);
-
-    protected SwitchNode(string id, IReadOnlyDictionary<TKey, INode?> paths, Func<Context, TKey> selectPath)
-        : base(id) {
+    internal SelectNode(string? id, IReadOnlyDictionary<TKey, INode?> paths, Func<Context, TKey> selectPath, IGuidProvider? guid = null)
+        : base(id, guid) {
         _selectPath = IsNotNull(selectPath);
         _pathMap = IsNotNull(paths).ToDictionary();
         Paths = [.. _pathMap.Values];
@@ -40,7 +33,7 @@ public class SwitchNode<TKey>
     protected override Result IsValid() {
         var result = Success();
         if (Paths.Count == 0)
-            result += Invalid($"No path were registered for node '{Id}'.");
+            result += Invalid($"No path is registered for node '{Id}'.");
         return result;
     }
 
@@ -52,7 +45,4 @@ public class SwitchNode<TKey>
 
     protected sealed override void UpdateState(Context state)
         => base.UpdateState(state);
-
-    protected virtual TKey Select(Context state)
-        => throw new NotImplementedException($"The node selection is not defined for node '{Id}'.");
 }

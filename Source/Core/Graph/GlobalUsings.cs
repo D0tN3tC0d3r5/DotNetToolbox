@@ -1,5 +1,6 @@
 // Global using directives
 
+global using DotNetToolbox.Environment;
 global using DotNetToolbox.Graph.Nodes;
 global using DotNetToolbox.Results;
 

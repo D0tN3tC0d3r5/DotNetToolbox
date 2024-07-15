@@ -2,7 +2,7 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public sealed class VoidNode()
-    : Node(Guid.Empty.ToString()) {
+    : Node("{VOID}", null) {
     public override Result Validate(ICollection<INode> validatedNodes)
         => Success();
 

@@ -1,50 +1,51 @@
 namespace DotNetToolbox.Graph.PathBuilder;
 
-public class StartTests {
+public class NodeTests {
     [Fact]
     public void Void_ReturnsVoidNode() {
-        var path = Start.Void;
+        var path = Node.Void;
         path.Should().NotBeNull();
         path.Should().BeOfType<VoidNode>();
     }
 
     [Fact]
     public void If_ReturnsIfNode() {
-        var path = Start.If(_ => true, Start.Void);
+        var path = Node.If(_ => true, Node.Void);
         path.Should().NotBeNull();
         path.Should().BeOfType<IfNode>();
     }
 
     [Fact]
     public void If_WithElse_ReturnsIfNode() {
-        var path = Start.If(_ => false, Start.Void, Start.Void);
+        var path = Node.If(_ => false, Node.Void, Node.Void);
         path.Should().NotBeNull();
         path.Should().BeOfType<IfNode>();
     }
 
     [Fact]
     public void Select_ReturnsSelectNode() {
-        var path = Start.Select(_ => "First", new Dictionary<string, INode?> {
-            ["First"] = Start.Void,
-            ["Second"] = null,
+        var path = Node.Select(_ => 1, new Dictionary<int, INode?> {
+            [1] = Node.Void,
+            [2] = null,
         });
         path.Should().NotBeNull();
-        path.Should().BeAssignableTo<SelectNode>();
+        path.Should().BeAssignableTo<SelectNode<int>>();
     }
 
     [Fact]
     public void Select_WithoutKey_ReturnsSelectNode() {
-        var path = Start.Select(_ => nameof(Start.Void), [
-            Start.Void,
+        var path = Node.Select(_ => Node.Void.Id, [
+            Node.Do(_ => { }),
+            Node.Void,
             null,
         ]);
         path.Should().NotBeNull();
-        path.Should().BeAssignableTo<SelectNode>();
+        path.Should().BeAssignableTo<SelectNode<string>>();
     }
 
     [Fact]
     public void Do_ReturnsActionNode() {
-        var path = Start.Do(_ => { }, Start.Void);
+        var path = Node.Do(_ => { }, Node.Void);
         path.Should().NotBeNull();
         path.Should().BeAssignableTo<ActionNode>();
     }
