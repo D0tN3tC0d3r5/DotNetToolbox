@@ -2,35 +2,25 @@
 
 namespace DotNetToolbox.Pagination;
 
-public class Chunk<TItem>
+[method: SetsRequiredMembers]
+public class Chunk<TItem>(IReadOnlyList<TItem> items, uint size = DefaultBlockSize)
     : IChunk<TItem> {
     [SetsRequiredMembers]
     public Chunk() : this([]) {
     }
 
-    [SetsRequiredMembers]
-    public Chunk(IReadOnlyList<TItem> items, uint size = DefaultBlockSize) {
-        Items = IsNotNull(items);
-        Size = size;
-    }
-
-    public required IReadOnlyList<TItem> Items { get; init; }
-    public uint Size { get; init; }
+    public required IReadOnlyList<TItem> Items { get; init; } = IsNotNull(items);
+    public uint Size { get; init; } = size;
 }
 
-public class Chunk<TItem, TMarker>
-    : Chunk<TItem>
+[method: SetsRequiredMembers]
+public class Chunk<TItem, TMarker>(IReadOnlyList<TItem> items, TMarker? marker, uint size = DefaultBlockSize)
+    : Chunk<TItem>(items, size)
     , IChunk<TItem, TMarker> {
     [SetsRequiredMembers]
     public Chunk()
         : this([], default!) {
     }
 
-    [SetsRequiredMembers]
-    public Chunk(IReadOnlyList<TItem> items, TMarker? marker, uint size = DefaultBlockSize)
-        : base(items, size) {
-        Marker = marker;
-    }
-
-    public required TMarker? Marker { get; init; }
+    public required TMarker? Marker { get; init; } = marker;
 }

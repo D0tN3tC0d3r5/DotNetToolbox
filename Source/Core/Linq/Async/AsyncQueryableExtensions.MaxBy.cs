@@ -36,7 +36,6 @@ public static partial class AsyncQueryableExtensions {
             IComparer<TKey> keyComparer,
             Func<TItem, TResult> valueSelector,
             CancellationToken ct) {
-
         IsNotNull(keySelector);
         IsNotNull(valueSelector);
         object? key = null;

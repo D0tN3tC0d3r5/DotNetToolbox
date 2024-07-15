@@ -3,10 +3,10 @@
 public sealed class Graph(INode startingNode) : IGraph {
     private readonly INode _startingNode = IsNotNull(startingNode);
 
-    public Map State { get; private set; } = [];
+    public Context State { get; private set; } = [];
     public INode? CurrentNode { get; private set; }
 
-    public void Run(Map? initialState = null) {
+    public void Run(Context? initialState = null) {
         CurrentNode = _startingNode;
         State = initialState ?? [];
         while (CurrentNode is not null)

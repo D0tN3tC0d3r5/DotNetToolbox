@@ -6,7 +6,7 @@ public class ValidationErrors : IList<ValidationError>, IList, IReadOnlyList<Val
         _errors = [];
     }
     public ValidationErrors(IEnumerable<ValidationError> errors) {
-        _errors = [..errors.Distinct()];
+        _errors = [.. errors.Distinct()];
     }
 
     public static implicit operator ValidationErrors(string error) => (ValidationError)error;
@@ -14,9 +14,9 @@ public class ValidationErrors : IList<ValidationError>, IList, IReadOnlyList<Val
     public static implicit operator ValidationErrors(ValidationError[] errors) => new(errors);
     public static implicit operator ValidationErrors(List<ValidationError> errors) => new(errors);
     public static implicit operator ValidationErrors(HashSet<ValidationError> errors) => new(errors);
-    public static implicit operator ValidationError[](ValidationErrors errors) => [..errors];
-    public static implicit operator List<ValidationError>(ValidationErrors errors) => [..errors];
-    public static implicit operator HashSet<ValidationError>(ValidationErrors errors) => [..errors];
+    public static implicit operator ValidationError[](ValidationErrors errors) => [.. errors];
+    public static implicit operator List<ValidationError>(ValidationErrors errors) => [.. errors];
+    public static implicit operator HashSet<ValidationError>(ValidationErrors errors) => [.. errors];
 
     public static ValidationErrors operator +(ValidationErrors left, ValidationErrors right)
         => new(left.Union(right));
@@ -30,15 +30,18 @@ public class ValidationErrors : IList<ValidationError>, IList, IReadOnlyList<Val
     public bool Contains(string value) => Contains((ValidationError)value);
 
     public void Add(ValidationError item) {
-        if (Contains(item)) return;
+        if (Contains(item))
+            return;
         _errors.Add(item);
     }
     public void Add(string value) => Add((ValidationError)value);
 
     public void Insert(int index, ValidationError item) {
         var existingIndex = IndexOf(item);
-        if (existingIndex == index) return;
-        if (existingIndex != -1) throw new InvalidOperationException("Cannot insert duplicate error.");
+        if (existingIndex == index)
+            return;
+        if (existingIndex != -1)
+            throw new InvalidOperationException("Cannot insert duplicate error.");
         ((IList)_errors).Insert(index, item);
     }
     public void Insert(int index, string value) => Insert(index, (ValidationError)value);

@@ -2,7 +2,6 @@
 namespace System.Collections.Generic;
 
 public static class EnumerableExtensions {
-
     public static IAsyncEnumerable<TItem> ToAsyncEnumerable<TItem>(this IEnumerable<TItem> source)
         => new AsyncEnumerable<TItem>(source);
 

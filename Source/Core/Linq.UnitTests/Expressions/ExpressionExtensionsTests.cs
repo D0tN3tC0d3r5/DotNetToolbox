@@ -24,8 +24,8 @@ public class ExpressionExtensionsTests {
     [Fact]
     public void VisitConstant_WithoutMapper_ReturnsExpression() {
         // Arrange
-        Expression<Func<int, int>> expression = x => 3;
-        Expression<Func<int, int>> expectedExpression = x => 3;
+        Expression<Func<int, int>> expression = _ => 3;
+        Expression<Func<int, int>> expectedExpression = _ => 3;
 
         // Act
         var result = expression.ReplaceExpressionType();
@@ -34,13 +34,16 @@ public class ExpressionExtensionsTests {
         result.Should().BeEquivalentTo(expectedExpression);
     }
 
+    private static readonly string[] _secondStringArray = ["1", "2", "3"];
+    private static readonly int[] _secondNumberArray = [1, 2, 3];
+
     [Fact]
     public void VisitArray_ConvertsExpression() {
         // Arrange
         var arrayMapper = new TypeMapper<string[], int[]>();
         var elementMapper = new TypeMapper<string, int>(int.Parse);
-        Expression<Func<string[], bool>> expression = x => x.SequenceEqual(new[] { "1", "2", "3" });
-        Expression<Func<int[], bool>> expectedExpression = x => x.SequenceEqual(new[] { 1, 2, 3 });
+        Expression<Func<string[], bool>> expression = x => x.SequenceEqual(_secondStringArray);
+        Expression<Func<int[], bool>> expectedExpression = x => x.SequenceEqual(_secondNumberArray);
 
         // Act
         var result = expression.ReplaceExpressionType(arrayMapper, elementMapper);

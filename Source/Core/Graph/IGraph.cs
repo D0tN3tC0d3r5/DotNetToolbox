@@ -2,7 +2,7 @@
 
 public interface IGraph : IDisposable {
     INode? CurrentNode { get; }
-    Map State { get; }
+    Context State { get; }
 
-    void Run(Map? initialState = null);
+    void Run(Context? initialState = null);
 }

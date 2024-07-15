@@ -8,6 +8,7 @@ public class NamedOptions<TOptions>
     private static readonly string _typeName = typeof(TOptions).Name;
 
     // ReSharper disable once StaticMemberInGenericType
+    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "Unnecessary here.")]
     public static string SectionName { get; }
         = _typeName.EndsWith(_suffix)
               ? _typeName.Remove(_typeName.Length - _suffix.Length)

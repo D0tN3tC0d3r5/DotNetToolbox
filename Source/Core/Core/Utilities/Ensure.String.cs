@@ -12,11 +12,13 @@ public static partial class Ensure {
         return argument;
     }
 
+    [SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment", Justification = "Assignment is required.")]
     public static string DefaultIfNullOrEmpty([NotNull] string? argument, string defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
         argument = string.IsNullOrEmpty(argument) ? IsNotNullOrEmpty(defaultValue, paramName) : argument;
         return argument;
     }
 
+    [SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment", Justification = "Assignment is required.")]
     public static string DefaultIfNullOrWhiteSpace([NotNull] string? argument, string defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
         argument = string.IsNullOrWhiteSpace(argument) ? IsNotNullOrWhiteSpace(defaultValue, paramName) : argument;
         return argument;

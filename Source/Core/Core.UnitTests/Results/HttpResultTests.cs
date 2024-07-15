@@ -48,68 +48,83 @@ public class HttpResultTests {
         result.IsOk.Should().BeFalse();
     }
 
-    private sealed class TestDataForProperties : TheoryData<HttpResult, bool, bool, bool, bool, bool, bool> {
+    private static HttpResult? ToResult(string? result)
+        => result switch {
+            null => null,
+            nameof(_ok) => _ok,
+            nameof(_created) => _created,
+            nameof(_unauthorized) => _unauthorized,
+            nameof(_notFound) => _notFound,
+            nameof(_conflict) => _conflict,
+            nameof(_badRequest) => _badRequest,
+            nameof(_badRequestWithSameError) => _badRequestWithSameError,
+            nameof(_badRequestWithOtherError) => _badRequestWithOtherError,
+            nameof(_failure) => _failure,
+            _ => throw new ArgumentException($"Invalid field name: {result}"),
+        };
+
+    private sealed class TestDataForProperties : TheoryData<string, bool, bool, bool, bool, bool, bool> {
         public TestDataForProperties() {
-            Add(_badRequest, true, false, false, false, false, false);
-            Add(_failure, false, false, false, false, false, false);
-            Add(_ok, false, true, false, false, false, false);
-            Add(_notFound, false, false, true, false, false, false);
-            Add(_conflict, false, false, false, true, false, false);
-            Add(_created, false, false, false, false, true, false);
-            Add(_unauthorized, false, false, false, false, false, true);
-            Add(_badRequestWithValue, true, false, false, false, false, false);
-            Add(_failureWithValue, false, false, false, false, false, false);
-            Add(_okWithValue, false, true, false, false, false, false);
-            Add(_notFoundWithValue, false, false, true, false, false, false);
-            Add(_conflictWithValue, false, false, false, true, false, false);
-            Add(_createdWithValue, false, false, false, false, true, false);
-            Add(_unauthorizedWithValue, false, false, false, false, false, true);
+            Add(nameof(_badRequest), true, false, false, false, false, false);
+            Add(nameof(_failure), false, false, false, false, false, false);
+            Add(nameof(_ok), false, true, false, false, false, false);
+            Add(nameof(_notFound), false, false, true, false, false, false);
+            Add(nameof(_conflict), false, false, false, true, false, false);
+            Add(nameof(_created), false, false, false, false, true, false);
+            Add(nameof(_unauthorized), false, false, false, false, false, true);
+            Add(nameof(_badRequestWithValue), true, false, false, false, false, false);
+            Add(nameof(_failureWithValue), false, false, false, false, false, false);
+            Add(nameof(_okWithValue), false, true, false, false, false, false);
+            Add(nameof(_notFoundWithValue), false, false, true, false, false, false);
+            Add(nameof(_conflictWithValue), false, false, false, true, false, false);
+            Add(nameof(_createdWithValue), false, false, false, false, true, false);
+            Add(nameof(_unauthorizedWithValue), false, false, false, false, false, true);
         }
     }
     [Theory]
     [ClassData(typeof(TestDataForProperties))]
-    public void Properties_ShouldReturnAsExpected(HttpResult subject, bool isBadRequest, bool isOk, bool isNotFound, bool isConflict, bool isCreated, bool isUnauthorized) {
+    public void Properties_ShouldReturnAsExpected(string subject, bool isBadRequest, bool isOk, bool isNotFound, bool isConflict, bool isCreated, bool isUnauthorized) {
         // Assert
-        subject.IsBadRequest.Should().Be(isBadRequest);
-        subject.IsOk.Should().Be(isOk);
-        subject.WasNotFound.Should().Be(isNotFound);
-        subject.HasConflict.Should().Be(isConflict);
-        subject.WasCreated.Should().Be(isCreated);
-        subject.IsUnauthorized.Should().Be(isUnauthorized);
+        ToResult(subject)!.IsBadRequest.Should().Be(isBadRequest);
+        ToResult(subject)!.IsOk.Should().Be(isOk);
+        ToResult(subject)!.WasNotFound.Should().Be(isNotFound);
+        ToResult(subject)!.HasConflict.Should().Be(isConflict);
+        ToResult(subject)!.WasCreated.Should().Be(isCreated);
+        ToResult(subject)!.IsUnauthorized.Should().Be(isUnauthorized);
     }
 
-    private sealed class TestDataForEquality : TheoryData<HttpResult, HttpResult?, bool> {
+    private sealed class TestDataForEquality : TheoryData<string, string?, bool> {
         public TestDataForEquality() {
-            Add(_ok, null, false);
-            Add(_ok, _ok, true);
-            Add(_ok, _notFound, false);
-            Add(_ok, _conflict, false);
-            Add(_ok, _badRequest, false);
-            Add(_notFound, null, false);
-            Add(_notFound, _ok, false);
-            Add(_notFound, _notFound, true);
-            Add(_notFound, _conflict, false);
-            Add(_notFound, _badRequest, false);
-            Add(_conflict, null, false);
-            Add(_conflict, _ok, false);
-            Add(_conflict, _notFound, false);
-            Add(_conflict, _conflict, true);
-            Add(_conflict, _badRequest, false);
-            Add(_badRequest, null, false);
-            Add(_badRequest, _ok, false);
-            Add(_badRequest, _notFound, false);
-            Add(_badRequest, _conflict, false);
-            Add(_badRequest, _badRequest, true);
-            Add(_badRequest, _badRequestWithSameError, true);
-            Add(_badRequest, _badRequestWithOtherError, false);
+            Add(nameof(_ok), null, false);
+            Add(nameof(_ok), nameof(_ok), true);
+            Add(nameof(_ok), nameof(_notFound), false);
+            Add(nameof(_ok), nameof(_conflict), false);
+            Add(nameof(_ok), nameof(_badRequest), false);
+            Add(nameof(_notFound), null, false);
+            Add(nameof(_notFound), nameof(_ok), false);
+            Add(nameof(_notFound), nameof(_notFound), true);
+            Add(nameof(_notFound), nameof(_conflict), false);
+            Add(nameof(_notFound), nameof(_badRequest), false);
+            Add(nameof(_conflict), null, false);
+            Add(nameof(_conflict), nameof(_ok), false);
+            Add(nameof(_conflict), nameof(_notFound), false);
+            Add(nameof(_conflict), nameof(_conflict), true);
+            Add(nameof(_conflict), nameof(_badRequest), false);
+            Add(nameof(_badRequest), null, false);
+            Add(nameof(_badRequest), nameof(_ok), false);
+            Add(nameof(_badRequest), nameof(_notFound), false);
+            Add(nameof(_badRequest), nameof(_conflict), false);
+            Add(nameof(_badRequest), nameof(_badRequest), true);
+            Add(nameof(_badRequest), nameof(_badRequestWithSameError), true);
+            Add(nameof(_badRequest), nameof(_badRequestWithOtherError), false);
         }
     }
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(HttpResult subject, HttpResult? other, bool expectedResult) {
+    public void Equals_ReturnsAsExpected(string subject, string? other, bool expectedResult) {
         // Act
-        var result = subject == other;
+        var result = ToResult(subject) == ToResult(other);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -117,9 +132,9 @@ public class HttpResultTests {
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(HttpResult subject, HttpResult? other, bool expectedResult) {
+    public void NotEquals_ReturnsAsExpected(string subject, string? other, bool expectedResult) {
         // Act
-        var result = subject != other;
+        var result = ToResult(subject) != ToResult(other);
 
         // Assert
         result.Should().Be(!expectedResult);
@@ -591,7 +606,7 @@ public class HttpResultTests {
     public void MapTo_WithException_ReturnsHttpResultTNewValueWithSameException() {
         // Arrange
         var exception = new Exception("ErrorWriter message");
-        var subject =  InternalError<int>(exception);
+        var subject = InternalError<int>(exception);
 
         // Act
         var result = subject.MapTo(value => value * 2);
@@ -771,7 +786,7 @@ public class HttpResultTests {
         const string errorMessage = "ErrorWriter message";
 
         // Act
-        var result =  InternalError<int>(errorMessage);
+        var result = InternalError<int>(errorMessage);
 
         // Assert
         result.HasException.Should().BeTrue();

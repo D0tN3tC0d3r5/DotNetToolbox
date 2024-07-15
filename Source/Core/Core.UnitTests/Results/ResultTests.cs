@@ -40,7 +40,7 @@ public class ResultTests {
     [Fact]
     public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
         // Act
-        Result result = new [] { new ValidationError("Some error.", nameof(result)) };
+        Result result = new[] { new ValidationError("Some error.", nameof(result)) };
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -165,24 +165,35 @@ public class ResultTests {
         result.IsFaulty.Should().BeTrue();
     }
 
-    private sealed class TestDataForEquality : TheoryData<Result, Result?, bool> {
+    private static Result? ToResult(string? result)
+        => result switch {
+            null => null,
+            nameof(_success) => _success,
+            nameof(_invalid) => _invalid,
+            nameof(_invalidWithSameError) => _invalidWithSameError,
+            nameof(_invalidWithOtherError) => _invalidWithOtherError,
+            nameof(_failure) => _failure,
+            _ => throw new ArgumentException($"Invalid field name: {result}"),
+        };
+
+    private sealed class TestDataForEquality : TheoryData<string, string?, bool> {
         public TestDataForEquality() {
-            Add(_success, null, false);
-            Add(_success, _success, true);
-            Add(_success, _invalid, false);
-            Add(_invalid, null, false);
-            Add(_invalid, _success, false);
-            Add(_invalid, _invalid, true);
-            Add(_invalid, _invalidWithSameError, true);
-            Add(_invalid, _invalidWithOtherError, false);
+            Add(nameof(_success), null, false);
+            Add(nameof(_success), nameof(_success), true);
+            Add(nameof(_success), nameof(_invalid), false);
+            Add(nameof(_invalid), null, false);
+            Add(nameof(_invalid), nameof(_success), false);
+            Add(nameof(_invalid), nameof(_invalid), true);
+            Add(nameof(_invalid), nameof(_invalidWithSameError), true);
+            Add(nameof(_invalid), nameof(_invalidWithOtherError), false);
         }
     }
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(Result subject, Result? other, bool expectedResult) {
+    public void Equals_ReturnsAsExpected(string subject, string? other, bool expectedResult) {
         // Act
-        var result = subject == other;
+        var result = ToResult(subject) == ToResult(other);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -190,9 +201,9 @@ public class ResultTests {
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(Result subject, Result? other, bool expectedResult) {
+    public void NotEquals_ReturnsAsExpected(string subject, string? other, bool expectedResult) {
         // Act
-        var result = subject != other;
+        var result = ToResult(subject) != ToResult(other);
 
         // Assert
         result.Should().Be(!expectedResult);

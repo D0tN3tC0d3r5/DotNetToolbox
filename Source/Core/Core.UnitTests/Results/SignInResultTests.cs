@@ -240,28 +240,43 @@ public class SignInResultTests {
         result.IsInvalid.Should().BeTrue();
     }
 
-    private sealed class TestDataForProperties : TheoryData<SignInResult, bool, bool, bool, bool, bool, bool, bool> {
+    private static SignInResult? ToResult(string? result)
+        => result switch {
+            null => null,
+            nameof(_success) => _success,
+            nameof(_invalid) => _invalid,
+            nameof(_locked) => _locked,
+            nameof(_blocked) => _blocked,
+            nameof(_requiresConfirmation) => _requiresConfirmation,
+            nameof(_requires2Factor) => _requires2Factor,
+            nameof(_invalidWithSameError) => _invalidWithSameError,
+            nameof(_invalidWithOtherError) => _invalidWithOtherError,
+            nameof(_failure) => _failure,
+            _ => throw new ArgumentException($"Invalid field name: {result}"),
+        };
+
+    private sealed class TestDataForProperties : TheoryData<string, bool, bool, bool, bool, bool, bool, bool> {
         public TestDataForProperties() {
-            Add(_invalid, true, false, false, false, false, false, false);
-            Add(_blocked, false, true, false, false, false, false, false);
-            Add(_locked, false, false, true, false, false, false, false);
-            Add(_failure, false, false, false, true, false, false, false);
-            Add(_requiresConfirmation, false, false, false, false, true, false, false);
-            Add(_requires2Factor, false, false, false, false, false, true, false);
-            Add(_success, false, false, false, false, false, false, true);
+            Add(nameof(_invalid), true, false, false, false, false, false, false);
+            Add(nameof(_blocked), false, true, false, false, false, false, false);
+            Add(nameof(_locked), false, false, true, false, false, false, false);
+            Add(nameof(_failure), false, false, false, true, false, false, false);
+            Add(nameof(_requiresConfirmation), false, false, false, false, true, false, false);
+            Add(nameof(_requires2Factor), false, false, false, false, false, true, false);
+            Add(nameof(_success), false, false, false, false, false, false, true);
         }
     }
     [Theory]
     [ClassData(typeof(TestDataForProperties))]
-    public void Properties_ShouldReturnAsExpected(SignInResult subject, bool isInvalid, bool isBlocked, bool isLocked, bool isFailure, bool confirmationRequired, bool twoFactorRequired, bool isSuccess) {
+    public void Properties_ShouldReturnAsExpected(string subject, bool isInvalid, bool isBlocked, bool isLocked, bool isFailure, bool confirmationRequired, bool twoFactorRequired, bool isSuccess) {
         // Assert
-        subject.IsInvalid.Should().Be(isInvalid);
-        subject.IsLocked.Should().Be(isLocked);
-        subject.IsBlocked.Should().Be(isBlocked);
-        subject.IsFailure.Should().Be(isFailure);
-        subject.RequiresConfirmation.Should().Be(confirmationRequired);
-        subject.RequiresTwoFactor.Should().Be(twoFactorRequired);
-        subject.IsSuccess.Should().Be(isSuccess);
+        ToResult(subject)!.IsInvalid.Should().Be(isInvalid);
+        ToResult(subject)!.IsLocked.Should().Be(isLocked);
+        ToResult(subject)!.IsBlocked.Should().Be(isBlocked);
+        ToResult(subject)!.IsFailure.Should().Be(isFailure);
+        ToResult(subject)!.RequiresConfirmation.Should().Be(confirmationRequired);
+        ToResult(subject)!.RequiresTwoFactor.Should().Be(twoFactorRequired);
+        ToResult(subject)!.IsSuccess.Should().Be(isSuccess);
     }
 
     [Fact]

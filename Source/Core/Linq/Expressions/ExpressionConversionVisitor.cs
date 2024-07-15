@@ -53,7 +53,9 @@ public class ExpressionConversionVisitor(IEnumerable<ParameterExpression> parent
         }
 
         var caller = Visit(node.Object);
-        return Expression.Call(caller, method, arguments!);
+#pragma warning disable CS8620
+        return Expression.Call(caller, method, arguments);
+#pragma warning restore CS8620
     }
 
     protected override Expression VisitBinary(BinaryExpression node) {
@@ -86,7 +88,9 @@ public class ExpressionConversionVisitor(IEnumerable<ParameterExpression> parent
         var constructor = typeMapping.TargetType.GetConstructor(types)
                        ?? throw new InvalidOperationException($"No matching constructor for type '{typeMapping.TargetType.Name}'");
         var members = arguments.OfType<MemberExpression>().ToArray(m => m.Member);
-        return Expression.New(constructor, arguments!, members);
+#pragma warning disable CS8620
+        return Expression.New(constructor, arguments, members);
+#pragma warning restore CS8620
     }
 
     protected override Expression VisitMemberInit(MemberInitExpression node) {

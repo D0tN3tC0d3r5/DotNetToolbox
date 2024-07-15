@@ -2,13 +2,12 @@
 namespace System.Collections.Async.Generic;
 
 public static class AsyncEnumerator {
-    public static IAsyncEnumerator<TItem> Empty<TItem>() 
+    public static IAsyncEnumerator<TItem> Empty<TItem>()
         => new AsyncEnumerator<TItem>(Enumerable.Empty<TItem>().GetEnumerator());
 }
 
 public sealed class AsyncEnumerator<TItem>(IEnumerator<TItem> enumerator, CancellationToken cancellationToken = default)
     : IAsyncEnumerator<TItem> {
-
     //object IAsyncEnumerator.Current => Current!;
     public TItem Current => enumerator.Current;
 
@@ -23,5 +22,4 @@ public sealed class AsyncEnumerator<TItem>(IEnumerator<TItem> enumerator, Cancel
 
     ~AsyncEnumerator()
         => enumerator.Dispose();
-
 }

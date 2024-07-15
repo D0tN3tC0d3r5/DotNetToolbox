@@ -19,8 +19,8 @@
 //    public static IGraphBuilder From(INode startingNode)
 //        => new GraphBuilder(startingNode);
 
-//    public IGraphBuilder When(string id,
-//                            Func<Map, bool> predicate,
+//    public IGraphBuilder Switch(string id,
+//                            Func<Context, bool> predicate,
 //                            Action<IGraphBuilder> buildTruePath,
 //                            Action<IGraphBuilder> buildFalsePath) {
 //        IsNotNullOrWhiteSpace(id);

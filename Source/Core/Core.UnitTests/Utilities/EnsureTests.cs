@@ -529,7 +529,7 @@ public class EnsureTests {
         Action act = () => IsValid<string[]>(default, _ => true);
 
         // Assert
-        act.Should().Throw<ArgumentNullException>().WithMessage($"*default*");
+        act.Should().Throw<ArgumentNullException>().WithMessage("*default*");
     }
 
     [Fact]

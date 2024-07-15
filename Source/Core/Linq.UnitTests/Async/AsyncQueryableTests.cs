@@ -32,7 +32,7 @@ public partial class AsyncQueryableTests {
 
     private sealed class TestEntityComparer : IComparer<BaseTestEntity> {
         public int Compare(BaseTestEntity? x, BaseTestEntity? y)
-            => ReferenceEquals(x, y) ? 0 : x is null ? -1 : y is null ? 1 : string.Compare(x.Name, y.Name, StringComparison.Ordinal);
+            => ReferenceEquals(x, y) ? 0 : x is null ? -1 : y is null ? 1 : string.CompareOrdinal(x.Name, y.Name);
     }
     private static readonly TestEntityComparer _comparer = new();
 }

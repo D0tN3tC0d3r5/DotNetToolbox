@@ -48,14 +48,13 @@ public class ConsoleInput() : HasDefault<ConsoleInput>, IInput {
             return true;
         }
 
-        if (lines.Count <= 0) return true;
+        if (lines.Count == 0) return true;
 
         currentLine.Append(lines[^1][..^_output.NewLine.Length]);
         lines.RemoveAt(lines.Count - 1);
         Console.CursorTop--;
         Console.CursorLeft = currentLine.Length + (lines.Count == 0 ? promptLength : 0);
         return true;
-
     }
 
     private bool TryProcessLineBreak(ConsoleKeyInfo keyInfo, StringBuilder currentLine, List<string> lines) {
@@ -64,7 +63,6 @@ public class ConsoleInput() : HasDefault<ConsoleInput>, IInput {
         lines.Add(currentLine.ToString());
         currentLine.Clear();
         return true;
-
     }
 
     private static bool IsLineBreakKey(ConsoleKeyInfo keyInfo)

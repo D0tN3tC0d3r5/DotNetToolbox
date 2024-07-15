@@ -23,8 +23,10 @@ public abstract record ResultBase<TType>
     public bool HasException => Exception is not null;
 
     public void EnsureIsSuccess(string? message = null, string? source = null) {
-        if (Exception is not null) throw new ValidationException(message ?? ValidationException.DefaultMessage, source ?? string.Empty, Exception);
-        if (HasErrors) throw new ValidationException(message ?? ValidationException.DefaultMessage, source ?? string.Empty, [.. Errors]);
+        if (Exception is not null)
+            throw new ValidationException(message ?? ValidationException.DefaultMessage, source ?? string.Empty, Exception);
+        if (HasErrors)
+            throw new ValidationException(message ?? ValidationException.DefaultMessage, source ?? string.Empty, [.. Errors]);
     }
 
     public virtual bool Equals(ResultBase<TType>? other)

@@ -1,6 +1,5 @@
 ﻿namespace DotNetToolbox.Results;
 
-[Flags]
 public enum SignInResultType : byte {
     Pending = 0, // The sign in was not processed.
     Error = 1, // An internal error has occurred.

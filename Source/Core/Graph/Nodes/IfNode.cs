@@ -2,40 +2,42 @@
 
 public class IfNode
     : Node {
-    private readonly Func<Map, bool> _predicate;
+    private readonly Func<Context, bool> _predicate;
+    private INode? _truePath;
+    private INode? _falsePath;
 
-    public static IfNode Create(Func<Map, bool> predicate)
-        => new(Guid.NewGuid().ToString(), IsNotNull(predicate));
+    public static IfNode Create(Func<Context, bool> predicate, INode truePath, INode? falsePath = null)
+        => new(Guid.NewGuid().ToString(), predicate, truePath, falsePath);
 
-    public IfNode(string id, Func<Map, bool>? predicate = null)
+    private IfNode(string id, Func<Context, bool> predicate, INode trueNode, INode? falseNode = null)
         : base(id) {
-        _predicate = predicate ?? Predicate;
+        _predicate = IsNotNull(predicate);
+        _truePath = IsNotNull(trueNode);
+        _falsePath = falseNode ?? NodeBuilder.Start.Void;
     }
 
-    private INode? _truePath;
     protected INode TruePath {
         get => _truePath ?? throw new InvalidOperationException($"The true exit node for node {Id} is not set.");
         set => SetTruePath(value);
     }
 
-    private INode? _falsePath;
-    protected INode FalsePath {
-        get => _falsePath ?? throw new InvalidOperationException($"The false exit node for node {Id} is not set.");
+    protected INode? FalsePath {
+        get => _falsePath;
         set => SetFalsePath(value);
     }
 
-    internal void SetTruePath(INode node) {
+    private void SetTruePath(INode node) {
         IsNotNull(node);
-        Exits.Remove(node);
         _truePath = node;
-        Exits.Add(node);
+        Paths.Add(_truePath);
     }
 
-    internal void SetFalsePath(INode node) {
-        IsNotNull(node);
-        Exits.Remove(node);
+    private void SetFalsePath(INode? node) {
+        if (node is null)
+            return;
+
         _falsePath = node;
-        Exits.Add(node);
+        Paths.Add(_falsePath);
     }
 
     protected override Result IsValid() {
@@ -47,12 +49,10 @@ public class IfNode
         return result;
     }
 
-    protected sealed override INode GetNext(Map state)
+    protected sealed override INode? GetNext(Context state)
         => _predicate(state)
             ? TruePath
             : FalsePath;
-    protected sealed override void UpdateState(Map state) => base.UpdateState(state);
 
-    protected virtual bool Predicate(Map state)
-        => throw new NotImplementedException($"The predicate is not defined for node '{Id}'.");
+    protected sealed override void UpdateState(Context state) => base.UpdateState(state);
 }

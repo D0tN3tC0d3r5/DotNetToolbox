@@ -10,8 +10,7 @@ public static partial class AsyncQueryableExtensions {
         await using var secondEnumerator = IsNotNull(second).GetAsyncEnumerator(ct);
 
         while (await firstEnumerator.MoveNextAsync().ConfigureAwait(false)) {
-            if (!await secondEnumerator.MoveNextAsync().ConfigureAwait(false))
-                // second has fewer elements
+            if (!await secondEnumerator.MoveNextAsync().ConfigureAwait(false)) // second has fewer elements
                 return false;
             if (!comparer.Equals(firstEnumerator.Current, secondEnumerator.Current))
                 return false;

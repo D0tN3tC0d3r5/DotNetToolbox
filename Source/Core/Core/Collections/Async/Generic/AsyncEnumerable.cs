@@ -3,7 +3,7 @@ namespace System.Collections.Async.Generic;
 
 public static class AsyncEnumerable {
     public static IAsyncEnumerable<TItem> Empty<TItem>()
-        =>  new AsyncEnumerable<TItem>();
+        => new AsyncEnumerable<TItem>();
 }
 
 public class AsyncEnumerable<TItem>(IEnumerable<TItem>? data = null)

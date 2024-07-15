@@ -44,61 +44,79 @@ public class CrudResultTests {
         result.IsSuccess.Should().BeFalse();
     }
 
-    private sealed class TestDataForProperties : TheoryData<CrudResult, bool, bool, bool> {
+    private static CrudResult? ToResult(string? result)
+        => result switch {
+            null => null,
+            nameof(_success) => _success,
+            nameof(_notFound) => _notFound,
+            nameof(_conflict) => _conflict,
+            nameof(_invalid) => _invalid,
+            nameof(_invalidWithSameError) => _invalidWithSameError,
+            nameof(_invalidWithWithOtherError) => _invalidWithWithOtherError,
+            nameof(_failure) => _failure,
+            nameof(_successWithValue) => _successWithValue,
+            nameof(_notFoundWithValue) => _notFoundWithValue,
+            nameof(_conflictWithValue) => _conflictWithValue,
+            nameof(_invalidWithValue) => _invalidWithValue,
+            nameof(_failureWithValue) => _failureWithValue,
+            _ => throw new ArgumentException($"Invalid field name: {result}"),
+        };
+
+    private sealed class TestDataForProperties : TheoryData<string, bool, bool, bool> {
         public TestDataForProperties() {
-            Add(_invalid, false, false, false);
-            Add(_failure, false, false, false);
-            Add(_success, true, false, false);
-            Add(_notFound, false, true, false);
-            Add(_conflict, false, false, true);
-            Add(_invalidWithValue, false, false, false);
-            Add(_failureWithValue, false, false, false);
-            Add(_successWithValue, true, false, false);
-            Add(_notFoundWithValue, false, true, false);
-            Add(_conflictWithValue, false, false, true);
+            Add(nameof(_invalid), false, false, false);
+            Add(nameof(_failure), false, false, false);
+            Add(nameof(_success), true, false, false);
+            Add(nameof(_notFound), false, true, false);
+            Add(nameof(_conflict), false, false, true);
+            Add(nameof(_invalidWithValue), false, false, false);
+            Add(nameof(_failureWithValue), false, false, false);
+            Add(nameof(_successWithValue), true, false, false);
+            Add(nameof(_notFoundWithValue), false, true, false);
+            Add(nameof(_conflictWithValue), false, false, true);
         }
     }
     [Theory]
     [ClassData(typeof(TestDataForProperties))]
-    public void Properties_ShouldReturnAsExpected(CrudResult subject, bool isSuccess, bool isNotFound, bool isConflict) {
+    public void Properties_ShouldReturnAsExpected(string subject, bool isSuccess, bool isNotFound, bool isConflict) {
         // Assert
-        subject.IsSuccess.Should().Be(isSuccess);
-        subject.WasNotFound.Should().Be(isNotFound);
-        subject.HasConflict.Should().Be(isConflict);
+        ToResult(subject)!.IsSuccess.Should().Be(isSuccess);
+        ToResult(subject)!.WasNotFound.Should().Be(isNotFound);
+        ToResult(subject)!.HasConflict.Should().Be(isConflict);
     }
 
-    private sealed class TestDataForEquality : TheoryData<CrudResult, CrudResult?, bool> {
+    private sealed class TestDataForEquality : TheoryData<string, string?, bool> {
         public TestDataForEquality() {
-            Add(_success, null, false);
-            Add(_success, _success, true);
-            Add(_success, _notFound, false);
-            Add(_success, _conflict, false);
-            Add(_success, _invalid, false);
-            Add(_notFound, null, false);
-            Add(_notFound, _success, false);
-            Add(_notFound, _notFound, true);
-            Add(_notFound, _conflict, false);
-            Add(_notFound, _invalid, false);
-            Add(_conflict, null, false);
-            Add(_conflict, _success, false);
-            Add(_conflict, _notFound, false);
-            Add(_conflict, _conflict, true);
-            Add(_conflict, _invalid, false);
-            Add(_invalid, null, false);
-            Add(_invalid, _success, false);
-            Add(_invalid, _notFound, false);
-            Add(_invalid, _conflict, false);
-            Add(_invalid, _invalid, true);
-            Add(_invalid, _invalidWithSameError, true);
-            Add(_invalid, _invalidWithWithOtherError, false);
+            Add(nameof(_success), null, false);
+            Add(nameof(_success), nameof(_success), true);
+            Add(nameof(_success), nameof(_notFound), false);
+            Add(nameof(_success), nameof(_conflict), false);
+            Add(nameof(_success), nameof(_invalid), false);
+            Add(nameof(_notFound), null, false);
+            Add(nameof(_notFound), nameof(_success), false);
+            Add(nameof(_notFound), nameof(_notFound), true);
+            Add(nameof(_notFound), nameof(_conflict), false);
+            Add(nameof(_notFound), nameof(_invalid), false);
+            Add(nameof(_conflict), null, false);
+            Add(nameof(_conflict), nameof(_success), false);
+            Add(nameof(_conflict), nameof(_notFound), false);
+            Add(nameof(_conflict), nameof(_conflict), true);
+            Add(nameof(_conflict), nameof(_invalid), false);
+            Add(nameof(_invalid), null, false);
+            Add(nameof(_invalid), nameof(_success), false);
+            Add(nameof(_invalid), nameof(_notFound), false);
+            Add(nameof(_invalid), nameof(_conflict), false);
+            Add(nameof(_invalid), nameof(_invalid), true);
+            Add(nameof(_invalid), nameof(_invalidWithSameError), true);
+            Add(nameof(_invalid), nameof(_invalidWithWithOtherError), false);
         }
     }
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void Equals_ReturnsAsExpected(CrudResult subject, CrudResult? other, bool expectedResult) {
+    public void Equals_ReturnsAsExpected(string subject, string? other, bool expectedResult) {
         // Act
-        var result = subject == other;
+        var result = ToResult(subject) == ToResult(other);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -106,9 +124,9 @@ public class CrudResultTests {
 
     [Theory]
     [ClassData(typeof(TestDataForEquality))]
-    public void NotEquals_ReturnsAsExpected(CrudResult subject, CrudResult? other, bool expectedResult) {
+    public void NotEquals_ReturnsAsExpected(string subject, string? other, bool expectedResult) {
         // Act
-        var result = subject != other;
+        var result = ToResult(subject) != ToResult(other);
 
         // Assert
         result.Should().Be(!expectedResult);

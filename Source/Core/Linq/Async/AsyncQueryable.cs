@@ -1,8 +1,7 @@
 // ReSharper disable once CheckNamespace - Intended to be in this namespace
-
 namespace System.Linq.Async;
 
-public class AsyncQueryable {
+public abstract class AsyncQueryable {
     public static EmptyAsyncQueryable<TItem> Empty<TItem>() => new();
 }
 
@@ -21,7 +20,7 @@ public class AsyncQueryable<TItem>
     }
 
     public AsyncQueryable(Expression? expression = null)
-        : this(Array.Empty<TItem>(), expression) {
+        : this([], expression) {
     }
 
     IEnumerator IEnumerable.GetEnumerator()
