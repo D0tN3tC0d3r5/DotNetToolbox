@@ -24,13 +24,13 @@ public class SwitchNode<TKey>
     : Node
     where TKey : notnull {
     private readonly Func<Context, TKey> _selectPath;
-    private readonly IReadOnlyDictionary<TKey, INode> _pathMap;
+    private readonly IReadOnlyDictionary<TKey, INode?> _pathMap;
 
-    public static SwitchNode<T> Create<T>(IReadOnlyDictionary<T, INode> paths, Func<Context, T> selectPath)
+    public static SwitchNode<T> Create<T>(IReadOnlyDictionary<T, INode?> paths, Func<Context, T> selectPath)
         where T : notnull
         => new(Guid.NewGuid().ToString(), paths, selectPath);
 
-    protected SwitchNode(string id, IReadOnlyDictionary<TKey, INode> paths, Func<Context, TKey> selectPath)
+    protected SwitchNode(string id, IReadOnlyDictionary<TKey, INode?> paths, Func<Context, TKey> selectPath)
         : base(id) {
         _selectPath = IsNotNull(selectPath);
         _pathMap = IsNotNull(paths).ToDictionary();

@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-internal sealed class NodeBuilder
-    : INodeBuilder {
+internal sealed class NodeFactory
+    : INodeFactory {
     private static readonly INode _void = new VoidNode();
 
-    public static INodeBuilder Start => new NodeBuilder();
+    public static INodeFactory Start => new NodeFactory();
 
     public INode If(Func<Context, bool> predicate, INode truePath, INode? falsePath = null)
         => IfNode.Create(predicate, truePath, falsePath);

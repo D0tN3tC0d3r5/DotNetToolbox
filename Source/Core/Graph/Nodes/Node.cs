@@ -3,7 +3,7 @@
 public abstract class Node(string id)
     : INode {
     public string Id => IsNotNull(id);
-    protected HashSet<INode> Paths { get; init; } = [];
+    protected HashSet<INode?> Paths { get; init; } = [];
 
     public virtual Result Validate(ICollection<INode> validatedNodes) {
         if (validatedNodes.Contains(this))
@@ -14,7 +14,8 @@ public abstract class Node(string id)
             return result;
 
         validatedNodes.Add(this);
-        return Paths.Aggregate(result, (current, node) => current + node.Validate(validatedNodes));
+        return Paths.Where(node => node is not null)
+                    .Aggregate(result, (current, node) => current + node!.Validate(validatedNodes));
     }
 
     protected virtual Result IsValid() => Success();

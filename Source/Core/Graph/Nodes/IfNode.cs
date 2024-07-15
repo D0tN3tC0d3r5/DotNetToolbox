@@ -13,7 +13,7 @@ public class IfNode
         : base(id) {
         _predicate = IsNotNull(predicate);
         _truePath = IsNotNull(trueNode);
-        _falsePath = falseNode ?? NodeBuilder.Start.Void;
+        _falsePath = falseNode ?? NodeFactory.Start.Void;
     }
 
     protected INode TruePath {
