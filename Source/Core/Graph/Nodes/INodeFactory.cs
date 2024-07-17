@@ -1,14 +1,19 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public interface INodeFactory {
-    INode If(Func<Context, bool> predicate, INode truePath, INode? falsePath = null);
+    IIfNode If(Func<Context, bool> predicate, INode truePath, INode? falsePath = null, IGuidProvider? guid = null);
+    IIfNode If(string id, Func<Context, bool> predicate, INode truePath, INode? falsePath = null);
 
-    INode Select<TKey>(Func<Context, TKey> select, IReadOnlyDictionary<TKey, INode?> paths)
+    ISelectNode<TKey> Select<TKey>(Func<Context, TKey> select, IReadOnlyDictionary<TKey, INode?> paths, IGuidProvider? guid = null)
+        where TKey : notnull;
+    ISelectNode<TKey> Select<TKey>(string id, Func<Context, TKey> select, IReadOnlyDictionary<TKey, INode?> paths)
         where TKey : notnull;
 
-    INode Select(Func<Context, string> select, IEnumerable<INode?> paths);
+    ISelectNode Select(Func<Context, string> select, IEnumerable<INode?> paths, IGuidProvider? guid = null);
+    ISelectNode Select(string id, Func<Context, string> select, IEnumerable<INode?> paths);
 
-    INode Do(Action<Context> action, INode? node);
+    IActionNode Do(Action<Context> action, INode? node, IGuidProvider? guid = null);
+    IActionNode Do(string id, Action<Context> action, INode? node);
 
     INode Void { get; }
 }

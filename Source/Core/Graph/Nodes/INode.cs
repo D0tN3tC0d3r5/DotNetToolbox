@@ -2,6 +2,6 @@
 
 public interface INode {
     string Id { get; }
-    Result Validate(ICollection<INode> validatedNodes);
+    Result Validate(ICollection<INode>? validatedNodes = null);
     INode? Run(Context context);
 }
