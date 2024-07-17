@@ -90,15 +90,13 @@ public class NodeTests {
 
     private class ValidTestNode : Node {
         protected override void UpdateState(Context state) => throw new NotImplementedException();
-
-        protected override INode? GetNext(Context state) => throw new NotImplementedException();
+        protected override INode GetNext(Context state) => throw new NotImplementedException();
     }
 
     private class InvalidTestNode : Node {
         protected override Result IsValid() => Result.Invalid("Not valid.");
         protected override void UpdateState(Context state) => throw new NotImplementedException();
-
-        protected override INode? GetNext(Context state) => throw new NotImplementedException();
+        protected override INode GetNext(Context state) => throw new NotImplementedException();
     }
 
     [Fact]

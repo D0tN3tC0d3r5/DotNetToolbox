@@ -1,7 +1,9 @@
 ﻿namespace DotNetToolbox.Graph;
 
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - This class should allow the user to extend it.
 public class Context
-    : Dictionary<string, object>, IDisposable {
+    : Dictionary<string, object>
+    , IDisposable {
     private bool _isDisposed;
 
     protected virtual void Dispose(bool disposing) {
