@@ -31,7 +31,7 @@ public sealed class Runner(INode startingNode,
                 currentNode = currentNode.Run(context);
             return context;
         }
-        catch (RunnerException ex) {
+        catch (Exception ex) {
             _logger.LogError(ex, "An error occurred while running the workflow '{id}'.", Id);
             throw;
         }

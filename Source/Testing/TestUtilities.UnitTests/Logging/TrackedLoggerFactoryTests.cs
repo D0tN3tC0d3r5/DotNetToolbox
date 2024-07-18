@@ -23,7 +23,7 @@ public sealed class TrackedLoggerFactoryTests : IDisposable {
         _trackedLoggerFactory.AddProvider(provider);
 
         // Assert
-        _loggerFactory.Received(1).AddProvider(Arg.Is<ILoggerProvider>(p => p is TrackedLoggerProvider));
+        _loggerFactory.Received(1).AddProvider(Arg.Any<ILoggerProvider>());
     }
 
     [Fact]

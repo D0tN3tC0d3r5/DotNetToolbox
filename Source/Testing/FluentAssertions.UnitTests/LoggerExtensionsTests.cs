@@ -16,7 +16,8 @@ public class LoggerExtensionsTests {
     [Fact]
     public void Should_ForTrackedLogger_DoesNotThrows() {
         // Arrange
-        ILogger logger = new TrackedNullLogger();
+        var loggerFactory = new TrackedLoggerFactory(Substitute.For<ILoggerFactory>());
+        var logger = loggerFactory.CreateLogger("Test");
 
         // Act
         var action = () => logger.Should();

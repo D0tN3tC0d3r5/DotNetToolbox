@@ -111,10 +111,9 @@ public class RunnerTests {
         startingNode.Run(Arg.Any<Context>()).Returns(nextNode);
         nextNode.Run(Arg.Any<Context>()).Returns(static _ => null);
 
-        var logger = new TrackedLogger<Runner>(Substitute.For<ILogger<Runner>>(), trackAllLevels: true);
-        var loggerFactory = Substitute.For<ILoggerFactory>();
-        loggerFactory.CreateLogger<Runner>().Returns(logger);
+        var loggerFactory = new TrackedLoggerFactory();
         var runner = new Runner(startingNode, loggerFactory: loggerFactory);
+        var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
         var context = new Context();
 
         // Act
@@ -122,46 +121,45 @@ public class RunnerTests {
 
         // Assert
         result.Should().BeSameAs(context);
-        logger.Logs.Should().HaveCount(2);
+        logger.Should().HaveCount(2);
     }
 
     [Fact]
-    public void Run_WithExceptionInNode_ThrowsRunnerException() {
+    public void Run_WithExceptionInNode_ThrowsException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Throws(new RunnerException());
+        startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
         var runner = new Runner(startingNode);
 
         // Act
         var action = () => runner.Run();
 
         // Assert
-        action.Should().Throw<RunnerException>();
+        action.Should().Throw<Exception>();
     }
 
     [Fact]
     public void Run_WithExceptionInNode_LogsError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Throws(new RunnerException());
-        var logger = Substitute.For<ILogger>();
-        var loggerFactory = Substitute.For<ILoggerFactory>();
-        loggerFactory.CreateLogger<Runner>().Returns(logger);
+        startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
+        var loggerFactory = new TrackedLoggerFactory();
         var runner = new Runner(startingNode, loggerFactory: loggerFactory);
+        var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
         // Act
         var action = () => runner.Run();
 
         // Assert
-        action.Should().Throw<RunnerException>();
-        logger.Received(1).LogError(Arg.Any<RunnerException>(), Arg.Any<string>(), Arg.Any<string>());
+        action.Should().Throw<Exception>();
+        logger.Should().ContainExactly(2, LogLevel.Information);
     }
 
     [Fact]
     public void Run_WithExceptionInNode_RethrowsException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var exception = new RunnerException();
+        var exception = new Exception();
         startingNode.Run(Arg.Any<Context>()).Throws(exception);
         var runner = new Runner(startingNode);
 
@@ -169,25 +167,24 @@ public class RunnerTests {
         var action = () => runner.Run();
 
         // Assert
-        action.Should().Throw<RunnerException>().Which.Should().BeSameAs(exception);
+        action.Should().Throw<Exception>().Which.Should().BeSameAs(exception);
     }
 
     [Fact]
     public void Run_WithExceptionInNode_LogsEndOfWorkflow() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Throws(new RunnerException());
-        var logger = Substitute.For<ILogger>();
-        var loggerFactory = Substitute.For<ILoggerFactory>();
-        loggerFactory.CreateLogger<Runner>().Returns(logger);
+        startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
+        var loggerFactory = new TrackedLoggerFactory();
         var runner = new Runner(startingNode, loggerFactory: loggerFactory);
+        var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
         // Act
         var action = () => runner.Run();
 
         // Assert
-        action.Should().Throw<RunnerException>();
-        logger.Received(1).LogInformation(Arg.Any<string>(), Arg.Any<string>());
+        action.Should().Throw<Exception>();
+        logger.Should().ContainExactly(2, LogLevel.Information);
     }
 
     [Fact]

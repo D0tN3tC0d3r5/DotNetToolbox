@@ -8,6 +8,7 @@ public sealed class TrackedLoggerTests {
 
     public TrackedLoggerTests() {
         _logger = Substitute.For<ILogger<TrackedLoggerTests>>();
+        _logger.IsEnabled(Arg.Any<LogLevel>()).Returns(true);
         _trackedLogger = new(_logger);
     }
 
@@ -18,7 +19,6 @@ public sealed class TrackedLoggerTests {
         var eventId = new EventId(1, "TestEvent");
         const string state = "TestState";
         var exception = new Exception("TestException");
-        _logger.IsEnabled(Arg.Any<LogLevel>()).Returns(true);
 
         // Act
         _trackedLogger.Log(logLevel, eventId, state, exception, Formatter);
@@ -52,7 +52,7 @@ public sealed class TrackedLoggerTests {
     [Fact]
     public void Log_WhenDisabled_ButTrackingAll_DoesNotAddLogToList() {
         // Arrange
-        var trackedLogger = new TrackedLogger(_logger, true);
+        var trackedLogger = new TrackedLogger(_logger);
         const LogLevel logLevel = LogLevel.Information;
         var eventId = new EventId(1, "TestEvent");
         const string state = "TestState";
@@ -63,13 +63,53 @@ public sealed class TrackedLoggerTests {
         trackedLogger.Log(logLevel, eventId, state, exception, Formatter);
 
         // Assert
-        trackedLogger.Logs.Should().ContainSingle();
+        trackedLogger.Logs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void NullLogOfT_WhenPaused_DoesNotAddLogToList() {
+        // Arrange
+        var trackedLogger = new TrackedLogger<TrackedLoggerTests>(isEnable: false);
+
+        // Act
+        trackedLogger.LogInformation("Some log 1.");
+        trackedLogger.LogInformation("Some log 2.");
+        trackedLogger.StartTracking();
+        trackedLogger.LogInformation("Some log 3.");
+        trackedLogger.LogInformation("Some log 4.");
+        trackedLogger.StopTracking();
+        trackedLogger.LogInformation("Some log 5.");
+
+        // Assert
+        trackedLogger.Logs.Should().HaveCount(2);
+        trackedLogger.Logs[0].Message.Should().Be("Some log 3.");
+        trackedLogger.Logs[1].Message.Should().Be("Some log 4.");
+    }
+
+    [Fact]
+    public void NullLog_WhenPaused_DoesNotAddLogToList() {
+        // Arrange
+        var trackedLogger = new TrackedLogger(isEnable: false);
+
+        // Act
+        trackedLogger.LogInformation("Some log 1.");
+        trackedLogger.LogInformation("Some log 2.");
+        trackedLogger.StartTracking();
+        trackedLogger.LogInformation("Some log 3.");
+        trackedLogger.LogInformation("Some log 4.");
+        trackedLogger.StopTracking();
+        trackedLogger.LogInformation("Some log 5.");
+
+        // Assert
+        trackedLogger.Logs.Should().HaveCount(2);
+        trackedLogger.Logs[0].Message.Should().Be("Some log 3.");
+        trackedLogger.Logs[1].Message.Should().Be("Some log 4.");
     }
 
     [Fact]
     public void Log_WhenPaused_DoesNotAddLogToList() {
         // Arrange
-        var trackedLogger = new TrackedLogger(_logger, trackAllLevels: true, startsImmediately: false);
+        var trackedLogger = new TrackedLogger(_logger, isEnable: false);
 
         // Act
         trackedLogger.LogInformation("Some log 1.");
