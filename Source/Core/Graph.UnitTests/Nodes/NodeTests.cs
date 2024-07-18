@@ -1,4 +1,4 @@
-namespace DotNetToolbox.Graph.PathBuilder;
+namespace DotNetToolbox.Graph.Nodes;
 
 public class NodeTests {
     [Fact]

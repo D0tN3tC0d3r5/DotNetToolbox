@@ -1,3 +1,5 @@
+using DotNetToolbox.TestUtilities.Logging;
+
 namespace DotNetToolbox.Graph;
 
 public class RunnerTests {
@@ -20,7 +22,7 @@ public class RunnerTests {
     public void Run_WithValidNode_ExecutesWithoutError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(_ => null);
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(startingNode);
 
         // Act
@@ -34,7 +36,7 @@ public class RunnerTests {
     [Fact]
     public void Constructor_WithNullStartingNode_Throws() {
         // Act
-        var action = () => new Runner(null!);
+        var action = static () => new Runner(null!);
 
         // Assert
         action.Should().Throw<ArgumentNullException>().WithMessage("*startingNode*");
@@ -44,7 +46,7 @@ public class RunnerTests {
     public void Run_WithNullContext_ReturnsNonNullContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(_ => null);
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(startingNode);
 
         // Act
@@ -58,7 +60,7 @@ public class RunnerTests {
     public void Run_WithEmptyContext_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(_ => null);
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(startingNode);
         var context = new Context();
 
@@ -73,7 +75,7 @@ public class RunnerTests {
     public void Run_WithRunningRunner_ThrowsInvalidOperationException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(_ => null);
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(startingNode);
 
         // Set the Start property using reflection
@@ -91,7 +93,7 @@ public class RunnerTests {
     public void Run_WithSingleNode_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(_ => null);
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(startingNode);
         var context = new Context();
         // Act
@@ -107,9 +109,9 @@ public class RunnerTests {
         var startingNode = Substitute.For<INode>();
         var nextNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(nextNode);
-        nextNode.Run(Arg.Any<Context>()).Returns(_ => null);
+        nextNode.Run(Arg.Any<Context>()).Returns(static _ => null);
 
-        var logger = Substitute.For<ILogger>();
+        var logger = new TrackedLogger<Runner>(Substitute.For<ILogger<Runner>>(), trackAllLevels: true);
         var loggerFactory = Substitute.For<ILoggerFactory>();
         loggerFactory.CreateLogger<Runner>().Returns(logger);
         var runner = new Runner(startingNode, loggerFactory: loggerFactory);
@@ -120,7 +122,7 @@ public class RunnerTests {
 
         // Assert
         result.Should().BeSameAs(context);
-        logger.Received(2).Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<string>(), Arg.Any<Exception?>(), Arg.Any<Func<string, Exception, string>>());
+        logger.Logs.Should().HaveCount(2);
     }
 
     [Fact]
@@ -192,7 +194,7 @@ public class RunnerTests {
     public void GetHashCode_ReturnsIdHashCode() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(_ => null);
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(startingNode);
 
         // Act
