@@ -22,7 +22,11 @@ public class RunnerTests {
     public void Run_WithValidNode_ExecutesWithoutError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
+
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => {
+            Thread.Sleep(100);
+            return null;
+        });
         var runner = new Runner(startingNode);
 
         // Act
@@ -31,6 +35,7 @@ public class RunnerTests {
         // Assert
         action.Should().NotThrow();
         startingNode.Received(1).Run(Arg.Any<Context>());
+        runner.ElapsedTime.Should().BeCloseTo(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1));
     }
 
     [Fact]

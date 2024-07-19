@@ -9,7 +9,7 @@ public sealed class Runner(INode startingNode,
     private readonly IDateTimeProvider _dateTime = dateTime ?? DateTimeProvider.Default;
     private readonly ILogger _logger = loggerFactory?.CreateLogger<Runner>() ?? NullLogger<Runner>.Instance;
 
-    public string Id { get; } = (guid ?? GuidProvider.Default).Create().ToString();
+    public string Id { get; } = (guid ?? GuidProvider.Default).AsSortable.Create().ToString();
     public DateTimeOffset? Start { get; private set; }
     public DateTimeOffset? End { get; private set; }
     public TimeSpan? ElapsedTime => End is null || Start is null ? null : End - Start;

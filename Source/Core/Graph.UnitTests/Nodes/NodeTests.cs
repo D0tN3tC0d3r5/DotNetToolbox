@@ -131,4 +131,15 @@ public class NodeTests {
         result.Should().BeNull();
         context["Hello"].Should().Be("World!");
     }
+
+    [Fact]
+    public void Run_Chain_ReturnsResult() {
+        var node1 = Node.Do(c => c["Hello"] = "World!")
+                    .Then.Do;
+        var node2 = Node.Do(c => c["Hello"] = "World!").Next = node1;
+        var context = new Context();
+        var result = node.Run(context);
+        result.Should().BeNull();
+        context["Hello"].Should().Be("World!");
+    }
 }

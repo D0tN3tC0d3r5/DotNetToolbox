@@ -3,17 +3,18 @@
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for OS functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
 public class GuidProvider : HasDefault<GuidProvider>, IGuidProvider {
-    public virtual Guid Create() => Guid.NewGuid();
-    public virtual Guid Create(string text) => new(text);
-    public virtual Guid Create(byte[] bytes) => new(bytes);
-    public virtual Guid Create(ReadOnlySpan<byte> bytes) => new(bytes);
-    public virtual Guid Create(ReadOnlySpan<byte> bytes, bool bigEndian) => new(bytes, bigEndian);
-    public virtual Guid Create(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
-        => new(a, b, c, d, e, f, g, h, i, j, k);
-    public virtual Guid Create(int a, short b, short c, byte[] d)
-        => new(a, b, c, d);
-    public virtual Guid Create(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
-        => new(a, b, c, d, e, f, g, h, i, j, k);
+    private bool _isSortable;
+
+    public virtual IGuidProvider AsSortable {
+        get {
+            _isSortable = true;
+            return this;
+        }
+    }
+
+    public virtual Guid Create() => _isSortable ? Ulid.NewUlid().ToGuid() : Guid.NewGuid();
+    public virtual Guid Create(byte[] bytes) => _isSortable ? new Ulid(bytes).ToGuid() : new(bytes);
+    public virtual Guid Create(ReadOnlySpan<byte> bytes) => _isSortable ? new Ulid(bytes).ToGuid() : new(bytes);
 
     public virtual Guid Parse(string input) => Guid.Parse(input);
     public virtual Guid Parse(ReadOnlySpan<char> input) => Guid.Parse(input);

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace DotNetToolbox.Graph.Nodes;
+﻿namespace DotNetToolbox.Graph.Nodes;
 
 public class IfNode
     : Node

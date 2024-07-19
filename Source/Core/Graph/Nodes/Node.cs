@@ -1,10 +1,95 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
+public interface IMainBuilder
+    : INodeBuilder {
+    IfBuilder If(Func<Context, bool> predicate, IGuidProvider? guid = null);
+}
+
+public interface INodeBuilder {
+    INode Build();
+}
+
+public abstract class NodeBuilder
+    : INodeBuilder {
+
+    protected NodeBuilder(Stack<INode>? stack = null, INode? caller = null, INodeFactory? factory = null) {
+        NodeStack = stack ?? [];
+        CallerNode = caller;
+        Factory = factory ?? new NodeFactory();
+    }
+
+    protected INodeFactory Factory { get; }
+    protected Stack<INode> NodeStack { get; }
+    protected INode? CallerNode { get; }
+    protected INode? CurrentNode { get; set; }
+
+    public INode Build() {
+        if (CurrentNode is null)
+            return Node.Void;
+
+        while (NodeStack.Count > 0) {
+            var node = NodeStack.Pop();
+            if (node is IIfNode ifNode) {
+                ifNode.TruePath = ifNode.TruePath ?? Node.Void;
+                ifNode.FalsePath = ifNode.FalsePath ?? Node.Void;
+                ifNode.TruePath = IsNotNull(ifNode.TruePath);
+                ifNode.FalsePath = IsNotNull(ifNode.FalsePath);
+                NodeStack.Push(ifNode.TruePath);
+                NodeStack.Push(ifNode.FalsePath);
+            }
+            else if (node is ISelectNode selectNode) {
+                selectNode.Paths = selectNode.Paths.Select(IsNotNull).ToArray();
+                foreach (var path in selectNode.Paths)
+                    NodeStack.Push(path);
+            }
+        }
+
+        return CurrentNode;
+    }
+}
+
+public class MainBuilder(Stack<INode>? stack = null, INode? caller = null)
+    : NodeBuilder(stack, caller) {
+    public IfBuilder If(Func<Context, bool> predicate, IGuidProvider? guid = null) {
+        CurrentNode = Factory.If(predicate, Node.Void, Node.Void, guid);
+        NodeStack.Push(CurrentNode);
+        return new(NodeStack, CurrentNode);
+    }
+}
+
+public class IfBuilder(Stack<INode>? stack = null, INode? caller = null)
+    : NodeBuilder(stack, caller) {
+    public ThenBuilder Then(Action<MainBuilder> nodeBuilder) {
+        if (CallerNode is not IfNode ifNode) {
+            throw new InvalidOperationException("Then can only be called after an If");
+        }
+        var path = new MainBuilder();
+        nodeBuilder(path);
+        var falseNode = path.Build();
+        ifNode.TruePath = IsNotNull(falseNode);
+        return new(NodeStack, NodeStack.Pop());
+    }
+}
+
+public class ThenBuilder(Stack<INode>? stack = null, INode? caller = null)
+    : MainBuilder(stack, caller) {
+    public MainBuilder Else(Action<MainBuilder> nodeBuilder) {
+        if (CallerNode is not IfNode ifNode) {
+            throw new InvalidOperationException("Then can only be called after an If");
+        }
+        var path = new MainBuilder();
+        nodeBuilder(path);
+        var falseNode = path.Build();
+        ifNode.FalsePath = IsNotNull(falseNode);
+        return new(NodeStack, NodeStack.Pop());
+    }
+}
+
 public abstract class Node
     : INode {
     protected Node(string? id = null, IGuidProvider? guid = null) {
         guid ??= new GuidProvider();
-        Id = id ?? guid.Create().ToString();
+        Id = id ?? guid.AsSortable.Create().ToString();
     }
 
     #region Factory

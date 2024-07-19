@@ -1,14 +1,12 @@
 ﻿namespace DotNetToolbox.Environment;
 
 public interface IGuidProvider {
+    IGuidProvider AsSortable { get; }
+
     Guid Create();
     Guid Create(byte[] bytes);
-    Guid Create(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k);
-    Guid Create(int a, short b, short c, byte[] d);
     Guid Create(ReadOnlySpan<byte> bytes);
-    Guid Create(ReadOnlySpan<byte> bytes, bool bigEndian);
-    Guid Create(string text);
-    Guid Create(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k);
+
     Guid Parse(ReadOnlySpan<char> input);
     Guid Parse(ReadOnlySpan<char> s, IFormatProvider? provider);
     Guid Parse(string input);

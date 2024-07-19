@@ -21,6 +21,8 @@ global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.Abstractions;
 
+global using NUlid;
+
 global using static System.Ensure;
 global using static DotNetToolbox.Constants.Messages;
 
