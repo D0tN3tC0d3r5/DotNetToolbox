@@ -121,7 +121,7 @@ public class RunnerTests {
 
         // Assert
         result.Should().BeSameAs(context);
-        logger.Should().HaveCount(2);
+        logger.Should().Have(2).Logs();
     }
 
     [Fact]
@@ -152,7 +152,7 @@ public class RunnerTests {
 
         // Assert
         action.Should().Throw<Exception>();
-        logger.Should().ContainExactly(2, LogLevel.Information);
+        logger.Should().Have(2).LogsWith(LogLevel.Information);
     }
 
     [Fact]
@@ -184,7 +184,7 @@ public class RunnerTests {
 
         // Assert
         action.Should().Throw<Exception>();
-        logger.Should().ContainExactly(2, LogLevel.Information);
+        logger.Should().Have(2).LogsWith(LogLevel.Information);
     }
 
     [Fact]
