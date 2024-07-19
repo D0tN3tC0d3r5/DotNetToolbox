@@ -17,8 +17,8 @@ public class TrackedLoggerAssertionsTests {
         _trackedLogger.LogDebug("Test 1."); // Not added, because MinimumLevel is Information
 
         // Act & Assert
-        _trackedLoggerAssertions.Invoking(x => x.NotHave().Logs().WithLevel(LogLevel.Debug)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Have().Logs().WithLevel(LogLevel.Debug)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Debug)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Debug)).Should().Throw<Exception>();
         _trackedLoggerAssertions.Invoking(x => x.NotHaveBeenCalled()).Should().NotThrow();
         _trackedLoggerAssertions.Invoking(x => x.HaveBeenCalled()).Should().Throw<Exception>();
     }
@@ -31,9 +31,9 @@ public class TrackedLoggerAssertionsTests {
         _trackedLogger.LogError("Test 2.");
 
         // Act & Assert
-        _trackedLoggerAssertions.Invoking(x => x.Have(2).Logs).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Have(3).Logs).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Have(4).Logs).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have(2).Logs()).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have(3).Logs()).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(4).Logs()).Should().Throw<Exception>();
         _trackedLoggerAssertions.Invoking(x => x.NotHaveBeenCalled()).Should().Throw<Exception>();
         _trackedLoggerAssertions.Invoking(x => x.HaveBeenCalled()).Should().NotThrow();
     }
@@ -47,12 +47,13 @@ public class TrackedLoggerAssertionsTests {
         _trackedLogger.LogError("Test 2.");
 
         // Act & Assert
-        _trackedLoggerAssertions.Invoking(x => x.Have(2)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Have(3)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Have(4)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(0, LogLevel.Debug)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(1, LogLevel.Error)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(2, LogLevel.Information)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(2).Logs()).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have(3).Logs()).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(4).Logs()).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Debug)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.HaveSingle().LogWith(LogLevel.Error)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(1).LogsWith(LogLevel.Error)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(2).LogsWith(LogLevel.Information)).Should().NotThrow();
     }
 
     [Fact]
@@ -64,9 +65,9 @@ public class TrackedLoggerAssertionsTests {
         _trackedLogger.LogError("Test 2.");
 
         // Act & Assert
-        _trackedLoggerAssertions.Invoking(x => x.ContainAtLeast(2)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainAtLeast(3)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainAtLeast(4)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.HaveAtLeast(2).Logs()).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.HaveAtLeast(3).Logs()).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.HaveAtLeast(4).Logs()).Should().Throw<Exception>();
     }
 
     [Fact]
@@ -78,9 +79,9 @@ public class TrackedLoggerAssertionsTests {
         _trackedLogger.LogError("Test 2.");
 
         // Act & Assert
-        _trackedLoggerAssertions.Invoking(x => x.ContainAtMost(2)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.ContainAtMost(3)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainAtMost(4)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.HaveAtMost(2).Logs()).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.HaveAtMost(3).Logs()).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.HaveAtMost(4).Logs()).Should().NotThrow();
     }
 
     [Fact]
@@ -92,20 +93,20 @@ public class TrackedLoggerAssertionsTests {
         _trackedLogger.LogError("Test 2.");
 
         // Act & Assert
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Trace)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Debug)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Information)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Warning)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Error)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Critical)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(null!)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Contain("Test 1.")).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Contain("Test 2.")).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Contain("Test 3.")).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Debug, "Test 1.")).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Information, "Test 1.")).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Error, "Test 2.")).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.Contain(LogLevel.Error, "Test 1.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Trace)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Debug)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Information)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Warning)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Error)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Critical)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(null!)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith("Test 1.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith("Test 2.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith("Test 3.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Debug, "Test 1.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Information, "Test 1.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Error, "Test 2.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have().LogsWith(LogLevel.Error, "Test 1.")).Should().Throw<Exception>();
     }
 
     [Fact]
@@ -117,20 +118,19 @@ public class TrackedLoggerAssertionsTests {
         _trackedLogger.LogError("Test 2.");
 
         // Act & Assert
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Trace)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Debug)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Information)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Warning)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Error)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Critical)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(null)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain("Test 1.")).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain("Test 2.")).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain("Test 3.")).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Debug, "Test 1.")).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Information, "Test 1.")).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Error, "Test 2.")).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.NotContain(LogLevel.Error, "Test 1.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Trace)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Debug)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Information)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Warning)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Error)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Critical)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith("Test 1.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith("Test 2.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith("Test 3.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Debug, "Test 1.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Information, "Test 1.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Error, "Test 2.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.NotHave().LogsWith(LogLevel.Error, "Test 1.")).Should().NotThrow();
     }
 
     [Fact]
@@ -142,15 +142,15 @@ public class TrackedLoggerAssertionsTests {
         _trackedLogger.LogError("Test 2.");
 
         // Act & Assert
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(0, LogLevel.Trace)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(1, LogLevel.Debug)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(1, LogLevel.Information)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(2, LogLevel.Information)).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(3, LogLevel.Information)).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(0, "Test 4.")).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(1, "Test 2.")).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(2, "Test 2.")).Should().NotThrow();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(3, "Test 2.")).Should().Throw<Exception>();
-        _trackedLoggerAssertions.Invoking(x => x.ContainExactly(1, LogLevel.Information, "Test 1.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(0).LogsWith(LogLevel.Trace)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(1).LogsWith(LogLevel.Debug)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have(1).LogsWith(LogLevel.Information)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have(2).LogsWith(LogLevel.Information)).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(3).LogsWith(LogLevel.Information)).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have(0).LogsWith("Test 4.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(1).LogsWith("Test 2.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have(2).LogsWith("Test 2.")).Should().NotThrow();
+        _trackedLoggerAssertions.Invoking(x => x.Have(3).LogsWith("Test 2.")).Should().Throw<Exception>();
+        _trackedLoggerAssertions.Invoking(x => x.Have(1).LogsWith(LogLevel.Information, "Test 1.")).Should().NotThrow();
     }
 }

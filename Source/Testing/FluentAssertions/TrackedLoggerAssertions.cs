@@ -13,23 +13,19 @@ public class TrackedLoggerAssertions(ILogger logger) {
     }
 
     public LogsConstraint Have()
-        => new(string.Empty, 0, _logs);
+        => new(string.Empty, -1, _logs);
 
-    public LogsConstraint HaveASingleLog()
-        => new("Exactly", 1, _logs);
+    public LogConstraint HaveSingle()
+        => new("Exactly", _logs);
 
     public LogsConstraint Have(uint count)
-        => count switch {
-            0 => throw new ArgumentException("Use NotHave instead", nameof(count)),
-            1 => throw new ArgumentException("Use HaveASingleLog instead", nameof(count)),
-            _ => new("Exactly", count, _logs)
-        };
+        => new("Exactly", (int)count, _logs);
 
     public LogsConstraint HaveAtLeast(uint count)
-        => new("AtLeast", count, _logs);
+        => new("AtLeast", (int)count, _logs);
 
     public LogsConstraint HaveAtMost(uint count)
-        => new("AtMost", count, _logs);
+        => new("AtMost", (int)count, _logs);
 
     public LogsConstraint NotHave()
         => new("Not", 0, _logs);
