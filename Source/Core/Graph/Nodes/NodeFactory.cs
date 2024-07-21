@@ -10,25 +10,33 @@ internal sealed class NodeFactory
     public IIfNode If(string id, Func<Context, bool> predicate, INode truePath, INode? falsePath = null)
         => IfNode.Create(id, predicate, truePath, falsePath);
 
-    public ISelectNode<TKey> Select<TKey>(Func<Context, TKey> select, IReadOnlyDictionary<TKey, INode?> paths, IGuidProvider? guid = null)
+    public IMapNode<TKey> Select<TKey>(Func<Context, TKey> select, IReadOnlyDictionary<TKey, INode?> paths, IGuidProvider? guid = null)
         where TKey : notnull
-        => SelectNode.Create(paths, select, guid);
+        => MapNode.Create(select, paths, guid);
 
-    public ISelectNode<TKey> Select<TKey>(string id, Func<Context, TKey> select, IReadOnlyDictionary<TKey, INode?> paths)
+    public IMapNode<TKey> Select<TKey>(string id, Func<Context, TKey> select, IReadOnlyDictionary<TKey, INode?> paths)
         where TKey : notnull
-        => SelectNode.Create(id, paths, select);
+        => MapNode.Create(id, select, paths);
 
-    public ISelectNode Select(Func<Context, string> select, IEnumerable<INode?> paths, IGuidProvider? guid = null)
-        => SelectNode.Create(paths, select, guid);
+    public IMapNode Select(Func<Context, string> select, IEnumerable<INode?> paths, IGuidProvider? guid = null)
+        => MapNode.Create(select, paths, guid);
 
-    public ISelectNode Select(string id, Func<Context, string> select, IEnumerable<INode?> paths)
-        => SelectNode.Create(id, paths, select);
+    public IMapNode Select(string id, Func<Context, string> select, IEnumerable<INode?> paths)
+        => MapNode.Create(id, select, paths);
 
-    public IActionNode Do(Action<Context> action, INode? next = null, IGuidProvider? guid = null)
-        => ActionNode.Create(action, next, guid);
+    public IActionNode Do(Action<Context> action, INode? next = null, IPolicy? policy = null, IGuidProvider? guid = null)
+        => ActionNode.Create(action, next, policy, guid);
 
-    public IActionNode Do(string id, Action<Context> action, INode? next = null)
-        => ActionNode.Create(id, action, next);
+    public IActionNode Do(string id, Action<Context> action, INode? next = null, IPolicy? policy = null)
+        => ActionNode.Create(id, action, next, policy);
+
+    public IActionNode Do<TAction>(IGuidProvider? guid = null)
+        where TAction : ActionNode<TAction>
+        => ActionNode.Create<TAction>(guid);
+
+    public IActionNode Do<TAction>(string id)
+        where TAction : ActionNode<TAction>
+        => ActionNode.Create<TAction>(id);
 
     public INode Void => _void;
 }

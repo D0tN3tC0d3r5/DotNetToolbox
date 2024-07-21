@@ -8,7 +8,7 @@ public sealed class VoidNode()
         => Success();
 
     public override INode? Run(Context context) => null;
-    protected override void UpdateState(Context state) { }
+    protected override void UpdateState(Context context) { }
 
-    protected override INode? GetNext(Context state) => null;
+    protected override INode? GetNext(Context context) => null;
 }

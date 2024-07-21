@@ -2,5 +2,5 @@
 
 public interface IActionNode
     : INode {
-    INode? Next { get; set; }
+    INode? Next { get; }
 }

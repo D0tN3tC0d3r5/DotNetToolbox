@@ -32,44 +32,44 @@ public class NodeTests {
 
     [Fact]
     public void Select_ReturnsSelectNode() {
-        var node = Node.Select(_ => 1, new Dictionary<int, INode?> {
+        var node = Node.Map(_ => 1, new Dictionary<int, INode?> {
             [1] = Node.Void,
             [2] = null,
         });
         node.Should().NotBeNull();
-        node.Should().BeAssignableTo<SelectNode<int>>();
+        node.Should().BeAssignableTo<MapNode<int>>();
     }
 
     [Fact]
     public void Select_WithId_ReturnsSelectNode() {
-        var node = Node.Select("42", _ => "ThisOne", new Dictionary<string, INode?> {
+        var node = Node.Map("42", _ => "ThisOne", new Dictionary<string, INode?> {
             ["ThisOne"] = null,
         });
         node.Should().NotBeNull();
-        node.Should().BeAssignableTo<SelectNode<string>>();
+        node.Should().BeAssignableTo<MapNode<string>>();
         node.Id.Should().Be("42");
     }
 
     [Fact]
     public void Select_WithoutKey_ReturnsSelectNode() {
-        var node = Node.Select(_ => Node.Void.Id, [
+        var node = Node.Map(_ => Node.Void.Id, [
             Node.Do(_ => { }),
             Node.Void,
             null,
         ]);
         node.Should().NotBeNull();
-        node.Should().BeAssignableTo<SelectNode<string>>();
+        node.Should().BeAssignableTo<MapNode<string>>();
     }
 
     [Fact]
     public void Select_WithIdAndWithoutKey_ReturnsSelectNode() {
-        var node = Node.Select("42", _ => Node.Void.Id, [
+        var node = Node.Map("42", _ => Node.Void.Id, [
             Node.Do(_ => { }),
             Node.Void,
             null,
         ]);
         node.Should().NotBeNull();
-        node.Should().BeAssignableTo<SelectNode<string>>();
+        node.Should().BeAssignableTo<MapNode<string>>();
         node.Id.Should().Be("42");
     }
 
@@ -89,14 +89,14 @@ public class NodeTests {
     }
 
     private class ValidTestNode : Node {
-        protected override void UpdateState(Context state) => throw new NotImplementedException();
-        protected override INode GetNext(Context state) => throw new NotImplementedException();
+        protected override void UpdateState(Context context) => throw new NotImplementedException();
+        protected override INode GetNext(Context context) => throw new NotImplementedException();
     }
 
     private class InvalidTestNode : Node {
         protected override Result IsValid() => Result.Invalid("Not valid.");
-        protected override void UpdateState(Context state) => throw new NotImplementedException();
-        protected override INode GetNext(Context state) => throw new NotImplementedException();
+        protected override void UpdateState(Context context) => throw new NotImplementedException();
+        protected override INode GetNext(Context context) => throw new NotImplementedException();
     }
 
     [Fact]
