@@ -1,9 +1,9 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public interface IMapNode
-    : IMapNode<string>;
+public interface IMappingNode
+    : IMappingNode<string>;
 
-public interface IMapNode<in TKey>
+public interface IMappingNode<in TKey>
     : INode
     where TKey : notnull {
     void SetOption(TKey key, INode? path);

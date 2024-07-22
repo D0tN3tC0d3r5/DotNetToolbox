@@ -3,41 +3,41 @@ namespace DotNetToolbox.Graph.Nodes;
 public class NodeTests {
     [Fact]
     public void Void_ReturnsVoidNode() {
-        var node = Node.Void;
+        var node = Node.Empty;
         node.Should().NotBeNull();
         node.Should().BeOfType<VoidNode>();
     }
 
     [Fact]
     public void If_ReturnsIfNode() {
-        var node = Node.If(_ => true, Node.Void);
+        var node = Node.If(_ => true, Node.Empty);
         node.Should().NotBeNull();
-        node.Should().BeOfType<IfNode>();
+        node.Should().BeOfType<ConditionalNode>();
     }
 
     [Fact]
     public void If_WithId_ReturnsIfNode() {
-        var node = Node.If("42", _ => true, Node.Void);
+        var node = Node.If("42", _ => true, Node.Empty);
         node.Should().NotBeNull();
-        node.Should().BeOfType<IfNode>();
+        node.Should().BeOfType<ConditionalNode>();
         node.Id.Should().Be("42");
     }
 
     [Fact]
     public void If_WithElse_ReturnsIfNode() {
-        var node = Node.If(_ => false, Node.Void, Node.Void);
+        var node = Node.If(_ => false, Node.Empty, Node.Empty);
         node.Should().NotBeNull();
-        node.Should().BeOfType<IfNode>();
+        node.Should().BeOfType<ConditionalNode>();
     }
 
     [Fact]
     public void Select_ReturnsSelectNode() {
         var node = Node.Map(_ => 1, new Dictionary<int, INode?> {
-            [1] = Node.Void,
+            [1] = Node.Empty,
             [2] = null,
         });
         node.Should().NotBeNull();
-        node.Should().BeAssignableTo<MapNode<int>>();
+        node.Should().BeAssignableTo<BranchingNode<int>>();
     }
 
     [Fact]
@@ -46,43 +46,43 @@ public class NodeTests {
             ["ThisOne"] = null,
         });
         node.Should().NotBeNull();
-        node.Should().BeAssignableTo<MapNode<string>>();
+        node.Should().BeAssignableTo<BranchingNode<string>>();
         node.Id.Should().Be("42");
     }
 
     [Fact]
     public void Select_WithoutKey_ReturnsSelectNode() {
-        var node = Node.Map(_ => Node.Void.Id, [
+        var node = Node.Map(_ => Node.Empty.Id, [
             Node.Do(_ => { }),
-            Node.Void,
+            Node.Empty,
             null,
         ]);
         node.Should().NotBeNull();
-        node.Should().BeAssignableTo<MapNode<string>>();
+        node.Should().BeAssignableTo<BranchingNode<string>>();
     }
 
     [Fact]
     public void Select_WithIdAndWithoutKey_ReturnsSelectNode() {
-        var node = Node.Map("42", _ => Node.Void.Id, [
+        var node = Node.Map("42", _ => Node.Empty.Id, [
             Node.Do(_ => { }),
-            Node.Void,
+            Node.Empty,
             null,
         ]);
         node.Should().NotBeNull();
-        node.Should().BeAssignableTo<MapNode<string>>();
+        node.Should().BeAssignableTo<BranchingNode<string>>();
         node.Id.Should().Be("42");
     }
 
     [Fact]
     public void Do_ReturnsActionNode() {
-        var node = Node.Do(_ => { }, Node.Void);
+        var node = Node.Do(_ => { }, Node.Empty);
         node.Should().NotBeNull();
         node.Should().BeAssignableTo<ActionNode>();
     }
 
     [Fact]
     public void Do_WithId_ReturnsActionNode() {
-        var node = Node.Do("42", _ => { }, Node.Void);
+        var node = Node.Do("42", _ => { }, Node.Empty);
         node.Should().NotBeNull();
         node.Should().BeAssignableTo<ActionNode>();
         node.Id.Should().Be("42");

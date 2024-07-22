@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public interface IIfNode
+public interface IConditionalNode
     : INode {
     INode? True { get; set; }
     INode? False { get; set; }
