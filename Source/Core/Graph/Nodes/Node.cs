@@ -1,20 +1,22 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public abstract class Node
-    : INode {
-    protected static INodeFactory Factory { get; } = new NodeFactory();
+public abstract class Node(INodeFactory? factory = null)
+    : Node<int>(factory);
 
-    protected Node(string id) {
-        Id = IsNotNull(id);
-    }
-
-    protected Node(IGuidProvider? guid = null) {
-        guid ??= new GuidProvider();
-        Id = guid.AsSortable.Create().ToString();
+public abstract class Node<TKey>
+    : INode<TKey>
+    where TKey : notnull {
+    protected Node(INodeFactory? factory = null) {
+        Factory = factory ?? new NodeFactory();
+        Id = Factory.GenerateId();
     }
 
     public string Id { get; }
-    protected List<INode?> Paths { get; init; } = [];
+    public INode? Next { get; set; }
+
+    public Dictionary<TKey, INode?> Branches { get; } = [];
+
+    protected INodeFactory Factory { get; }
 
     public virtual Result Validate(ICollection<INode>? validatedNodes = null) {
         validatedNodes ??= new HashSet<INode>();
@@ -26,24 +28,19 @@ public abstract class Node
             return result;
 
         validatedNodes.Add(this);
-        return Paths.Where(node => node is not null)
+        return Branches.Values.Where(node => node is not null).Distinct()
                     .Aggregate(result, (current, node) => current + node!.Validate(validatedNodes));
     }
 
     protected virtual Result IsValid() => Success();
 
-    public virtual INode? Run(Context context) {
-        OnEntry(context);
+    public INode? Run(Context context) {
         UpdateState(context);
-        var exitPath = GetNext(context);
-        OnExit(context);
-        return exitPath;
+        return GetNext(context);
     }
 
-    protected virtual void OnEntry(Context state) { }
     protected abstract void UpdateState(Context context);
     protected abstract INode? GetNext(Context context);
-    protected virtual void OnExit(Context state) { }
 
     public override int GetHashCode() => Id.GetHashCode();
 }

@@ -1,6 +1,7 @@
 // Global using directives
 
 global using System.Diagnostics.CodeAnalysis;
+global using System.Text;
 
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Graph.Nodes;

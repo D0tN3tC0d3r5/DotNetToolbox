@@ -1,16 +1,17 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public interface INodeFactory {
-    IConditionalNode If(Func<Context, bool> predicate,
-                        INode truePath,
-                        INode? falsePath = null);
+    string GenerateId();
 
-    IMappingNode<TKey> Select<TKey>(Func<Context, TKey> select,
-                                    IReadOnlyDictionary<TKey, INode?> paths)
-        where TKey : notnull;
+    IConditionalNode If(Func<Context, bool> predicate,
+                        Action<WorkflowBuilder> setTrueBranch,
+                        Action<WorkflowBuilder>? setFalseBranch = null);
+
+    IBranchingNode Select(Func<Context, string> selectPath,
+                          Action<BranchesBuilder> setPaths);
 
     IActionNode Do(Action<Context> action,
-                   INode? next = null,
+                   Action<WorkflowBuilder>? buildNext = null,
                    IPolicy? policy = null);
 
     IActionNode Do<TAction>()
@@ -18,5 +19,5 @@ public interface INodeFactory {
 
     INode Start { get; }
 
-    INode Void { get; }
+    INode End { get; }
 }

@@ -3,10 +3,10 @@
 public class ConditionalNode
     : ConditionalNode<ConditionalNode> {
     private ConditionalNode(Func<Context, bool> predicate,
-                            INode trueNode,
-                            INode? falseNode,
-                            IGuidProvider? guid = null)
-        : base(guid) {
+                            INode? trueNode = null,
+                            INode? falseNode = null,
+                            INodeFactory? factory = null)
+        : base(factory) {
         Predicate = IsNotNull(predicate);
         True = trueNode;
         False = falseNode;
@@ -15,10 +15,22 @@ public class ConditionalNode
     protected sealed override Func<Context, bool> Predicate { get; }
 
     public static ConditionalNode Create(Func<Context, bool> predicate,
-                                         INode truePath,
-                                         INode? falsePath = null,
-                                         IGuidProvider? guid = null)
-        => new(predicate, truePath, falsePath, guid);
+                                         Action<WorkflowBuilder> setTrueBranch,
+                                         Action<WorkflowBuilder>? setFalseBranch = null,
+                                         INodeFactory? factory = null) {
+        var node = new ConditionalNode(predicate, null, null, factory);
+        var trueBuilder = new WorkflowBuilder(factory);
+        setTrueBranch(trueBuilder);
+        node.True = trueBuilder.Start;
+        if (setFalseBranch == null)
+            return node;
+
+        var falseBuilder = new WorkflowBuilder(factory);
+        setFalseBranch(falseBuilder);
+        node.False = falseBuilder.Start;
+
+        return node;
+    }
 
     public static TNode Create<TNode>(IGuidProvider? guid = null)
         where TNode : ConditionalNode<TNode>
@@ -26,25 +38,25 @@ public class ConditionalNode
 }
 
 public abstract class ConditionalNode<TNode>
-    : Node,
+    : Node<bool>,
       IConditionalNode
     where TNode : ConditionalNode<TNode> {
-    protected ConditionalNode(IGuidProvider? guid = null)
-        : base(guid) {
-        Paths.Add(Factory.Void);
-        Paths.Add(null);
+    protected ConditionalNode(INodeFactory? factory = null)
+        : base(factory) {
+        True = null;
+        False = null;
     }
 
     protected abstract Func<Context, bool> Predicate { get; }
 
     public INode? True {
-        get => Paths[0];
-        set => Paths[0] = value;
+        get => Branches[true];
+        set => Branches[true] = value;
     }
 
     public INode? False {
-        get => Paths[1];
-        set => Paths[1] = value;
+        get => Branches[false];
+        set => Branches[false] = value;
     }
 
     protected sealed override INode? GetNext(Context context)

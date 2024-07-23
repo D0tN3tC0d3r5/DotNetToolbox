@@ -7,22 +7,30 @@ public sealed class ActionNode
     private ActionNode(Action<Context>? execute,
                        INode? next = null,
                        IPolicy? policy = null,
-                       IGuidProvider? guid = null)
-        : base(guid) {
+                       INodeFactory? factory = null)
+        : base(factory) {
         Next = next;
         Policy = policy ?? Policy;
         _execute = IsNotNull(execute);
     }
 
-    public static ActionNode Create(Action<Context> execute,
-                                    INode? next = null,
+    internal static ActionNode Create(Action<Context> execute,
+                                    Action<WorkflowBuilder>? setTrueBranch = null,
                                     IPolicy? policy = null,
-                                    IGuidProvider? guid = null)
-        => new(execute, next, policy, guid);
+                                    INodeFactory? factory = null) {
+        var node = new ActionNode(execute, null, policy, factory);
+        if (setTrueBranch == null)
+            return node;
 
-    public static TNode Create<TNode>(IGuidProvider? guid = null)
+        var builder = new WorkflowBuilder(factory);
+        setTrueBranch(builder);
+        node.Next = builder.Start;
+        return node;
+    }
+
+    public static TNode Create<TNode>(INodeFactory? factory = null)
         where TNode : ActionNode<TNode>
-        => InstanceFactory.Create<TNode>(guid);
+        => InstanceFactory.Create<TNode>(factory);
 
     protected override void Execute(Context context)
         => _execute(context);
@@ -32,16 +40,16 @@ public abstract class ActionNode<TAction>
     : Node,
       IActionNode
     where TAction : ActionNode<TAction> {
-    protected ActionNode(IGuidProvider? guid = null)
-        : base(guid) {
-        Paths.Add(null);
+    protected ActionNode(INodeFactory? factory = null)
+        : base(factory) {
+        Next = null;
     }
 
     protected IPolicy Policy { get; init; } = Policies.Policy.Default;
 
     public INode? Next {
-        get => Paths[0];
-        set => Paths[0] = value;
+        get => Branches[0];
+        set => Branches[0] = value;
     }
 
     protected sealed override INode? GetNext(Context context)

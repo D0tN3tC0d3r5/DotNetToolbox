@@ -1,19 +1,24 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public sealed class EntryNode
-    : ActionNode<EntryNode> {
+    : Node,
+      IEntryNode {
     private EntryNode(INode? next = null,
-                      IGuidProvider? guid = null)
-        : base(guid) {
+                      INodeFactory? factory = null)
+        : base(factory) {
         Next = next;
     }
 
-    public static EntryNode Create(IGuidProvider? guid = null)
-        => new(next: null, guid);
+    public static EntryNode Create(INodeFactory? factory = null)
+        => new(next: null, factory);
 
-    public static EntryNode Create(INode next,
-                                   IGuidProvider? guid = null)
-        => new(IsNotNull(next), guid);
+    public INode? Next {
+        get => Branches[0];
+        set => Branches[0] = value;
+    }
 
-    protected override void Execute(Context context) { }
+    protected override INode? GetNext(Context context)
+        => Next;
+
+    protected override void UpdateState(Context context) { }
 }

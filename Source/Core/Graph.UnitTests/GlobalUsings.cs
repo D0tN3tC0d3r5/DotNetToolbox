@@ -1,6 +1,7 @@
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Graph.Nodes;
 global using DotNetToolbox.Results;
+global using DotNetToolbox.TestUtilities.Logging;
 
 global using FluentAssertions;
 

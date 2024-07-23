@@ -1,5 +1,3 @@
-using DotNetToolbox.TestUtilities.Logging;
-
 namespace DotNetToolbox.Graph;
 
 public class RunnerTests {

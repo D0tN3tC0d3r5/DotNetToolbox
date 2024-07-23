@@ -1,24 +1,27 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-internal sealed class NodeFactory(IGuidProvider? guid = null)
+internal sealed class NodeFactory(IKeyProvider<uint>? key = null)
     : INodeFactory {
-    public IConditionalNode If(Func<Context, bool> predicate, INode truePath, INode? falsePath = null)
-        => ConditionalNode.Create(predicate, truePath, falsePath, guid);
+    private readonly IKeyProvider<uint> _key = key ?? new SequentialKeyProvider();
 
-    public IMappingNode<TKey> Select<TKey>(Func<Context, TKey> select, IReadOnlyDictionary<TKey, INode?> paths)
-        where TKey : notnull
-        => BranchingNode.Create(select, paths, guid);
+    public string GenerateId() => _key.GetNext().ToString();
 
-    public IActionNode Do(Action<Context> action, INode? next = null, IPolicy? policy = null)
-        => ActionNode.Create(action, next, policy, guid);
+    public IConditionalNode If(Func<Context, bool> predicate, Action<WorkflowBuilder> setTruePath, Action<WorkflowBuilder>? setFalsePath = null)
+        => ConditionalNode.Create(predicate, setTruePath, setFalsePath, this);
+
+    public IBranchingNode Select(Func<Context, string> selectPath, Action<BranchesBuilder> setPaths)
+        => BranchingNode.Create(selectPath, setPaths, this);
+
+    public IActionNode Do(Action<Context> action, Action<WorkflowBuilder>? setNext = null, IPolicy? policy = null)
+        => ActionNode.Create(action, setNext, policy, this);
 
     public IActionNode Do<TAction>()
         where TAction : ActionNode<TAction>
-        => ActionNode.Create<TAction>(guid);
+        => ActionNode.Create<TAction>(this);
 
     public INode Start
-        => EntryNode.Create(guid);
+        => EntryNode.Create(this);
 
-    public INode Void
-        => VoidNode.Instance;
+    public INode End
+        => ExitNode.Create(this);
 }
