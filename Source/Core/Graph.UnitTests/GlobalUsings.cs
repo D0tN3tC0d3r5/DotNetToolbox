@@ -1,5 +1,6 @@
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Graph.Nodes;
+global using DotNetToolbox.Graph.Policies;
 global using DotNetToolbox.Results;
 global using DotNetToolbox.TestUtilities.Logging;
 

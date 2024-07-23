@@ -1,23 +1,40 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public interface INodeFactory {
-    string GenerateId();
+    IConditionalNode CreateFork(Func<Context, bool> predicate,
+                                Action<WorkflowBuilder> setTrueBranch,
+                                Action<WorkflowBuilder>? setFalseBranch = null,
+                                HashSet<INode?>? nodes = null);
+    IConditionalNode CreateFork(string label,
+                                Func<Context, bool> predicate,
+                                Action<WorkflowBuilder> setTrueBranch,
+                                Action<WorkflowBuilder>? setFalseBranch = null,
+                                HashSet<INode?>? nodes = null);
+    IConditionalNode CreateFork<TNode>(string? label = null)
+        where TNode : ConditionalNode<TNode>;
 
-    IConditionalNode If(Func<Context, bool> predicate,
-                        Action<WorkflowBuilder> setTrueBranch,
-                        Action<WorkflowBuilder>? setFalseBranch = null);
+    IBranchingNode CreateChoice(Func<Context, string> selectPath,
+                                Action<BranchesBuilder> setPaths,
+                                HashSet<INode?>? nodes = null);
+    IBranchingNode CreateChoice(string label,
+                                Func<Context, string> selectPath,
+                                Action<BranchesBuilder> setPaths,
+                                HashSet<INode?>? nodes = null);
+    IBranchingNode CreateChoice<TNode>(string? label = null)
+        where TNode : BranchingNode<TNode>;
 
-    IBranchingNode Select(Func<Context, string> selectPath,
-                          Action<BranchesBuilder> setPaths);
-
-    IActionNode Do(Action<Context> action,
-                   Action<WorkflowBuilder>? buildNext = null,
-                   IPolicy? policy = null);
-
-    IActionNode Do<TAction>()
+    IActionNode CreateAction(string label, Action<Context> action, IPolicy? policy = null);
+    IActionNode CreateAction(Action<Context> action, IPolicy? policy = null);
+    IActionNode CreateAction<TAction>(string label, IPolicy? policy = null)
+        where TAction : ActionNode<TAction>;
+    IActionNode CreateAction<TAction>(IPolicy? policy = null)
         where TAction : ActionNode<TAction>;
 
-    INode Start { get; }
+    IStartingNode CreateStart(string? label = null);
+    IStartingNode CreateStart<TNode>(string? label = null)
+        where TNode : StartingNode<TNode>;
 
-    INode End { get; }
+    ITerminationNode End(string? label = null);
+    ITerminationNode End<TNode>(string? label = null)
+        where TNode : TerminationNode<TNode>;
 }

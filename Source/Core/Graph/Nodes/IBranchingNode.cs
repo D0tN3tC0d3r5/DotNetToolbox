@@ -1,4 +1,6 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public interface IBranchingNode
-    : INode<string>;
+    : INode {
+    Dictionary<string, INode?> Choices { get; }
+}

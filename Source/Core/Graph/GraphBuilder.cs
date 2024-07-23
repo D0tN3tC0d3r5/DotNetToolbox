@@ -1,47 +1,54 @@
 ﻿namespace DotNetToolbox.Graph;
 
-public class GraphBuilder(StringBuilder stringBuilder, HashSet<INode> visited) {
-    internal void Build(INode? node, INode? previous = null, string? label = null) {
-        if (node is null) return;
-        if (!visited.Add(node)) return;
+public class GraphBuilder {
+    private readonly HashSet<INode> _visited = [];
+    private readonly StringBuilder _stringBuilder = new();
+
+    private GraphBuilder() { }
+
+    public static string GenerateFrom(INode node) {
+        var builder = new GraphBuilder();
+        return builder.Build(IsNotNull(node));
+    }
+
+    private string Build(INode? node, INode? previous = null, string? label = null) {
+        if (node is null)
+            return _stringBuilder.ToString();
         if (previous is not null)
             AddEdge(previous.Id, node.Id, label);
-        stringBuilder.AppendLine($"    {node.Id}[\"{GetNodeLabel(node)}\"]");
+        else
+            _stringBuilder.AppendLine("flowchart TD");
+        if (!_visited.Add(node))
+            return _stringBuilder.ToString();
+        _stringBuilder.AppendLine($"{node.Id}[\"{node.Label}\"]");
 
         switch (node) {
-            case IEntryNode entryNode:
+            case IStartingNode entryNode:
                 Build(entryNode.Next, entryNode);
-                return;
+                return _stringBuilder.ToString();
 
             case IActionNode actionNode:
                 Build(actionNode.Next, actionNode);
-                return;
+                return _stringBuilder.ToString();
 
             case IConditionalNode ifNode:
                 Build(ifNode.True, ifNode, "True");
                 Build(ifNode.False, ifNode, "False");
-                return;
+                Build(ifNode.Next, ifNode);
+                return _stringBuilder.ToString();
 
             case IBranchingNode mapNode:
-                foreach (var (name, branch) in mapNode.Branches) {
+                foreach (var (name, branch) in mapNode.Choices)
                     Build(branch, mapNode, name);
-                }
-                return;
+                Build(mapNode.Next, mapNode);
+                return _stringBuilder.ToString();
         }
+        return _stringBuilder.ToString();
     }
 
-    private void AddEdge(string from, string to, string? label = null) {
+    private void AddEdge(uint fromId, uint toId, string? label = null) {
         if (label is null)
-            stringBuilder.AppendLine($"    {from} --> {to}");
-        else stringBuilder.AppendLine($"    {from} --> |{label}| {to}");
+            _stringBuilder.AppendLine($"{fromId} --> {toId}");
+        else _stringBuilder.AppendLine($"{fromId} --> |{label}| {toId}");
     }
-
-    private static string GetNodeLabel(INode node)
-        => node switch {
-            IEntryNode => "Start",
-            IActionNode => "Action",
-            IConditionalNode => "If",
-            IBranchingNode => "Map",
-            _ => "Unknown"
-        };
 }

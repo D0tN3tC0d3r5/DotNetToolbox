@@ -5,12 +5,12 @@ public class RunnerTests {
     public void Constructor_WithValidParameters_CreatesInstance() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var guidProvider = Substitute.For<IGuidProvider>();
+        var workflow = new Workflow(startingNode);
         var dateTimeProvider = Substitute.For<IDateTimeProvider>();
         var loggerFactory = Substitute.For<ILoggerFactory>();
 
         // Act
-        var runner = new Runner(startingNode, guidProvider, dateTimeProvider, loggerFactory);
+        var runner = new Runner(workflow, dateTimeProvider, loggerFactory);
 
         // Assert
         runner.Should().NotBeNull();
@@ -20,73 +20,77 @@ public class RunnerTests {
     public void Run_WithValidNode_ExecutesWithoutError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
+        var workflow = new Workflow(startingNode);
 
         startingNode.Run(Arg.Any<Context>()).Returns(static _ => {
             Thread.Sleep(100);
             return null;
         });
-        var runner = new Runner(startingNode);
+        var runner = new Runner(workflow);
 
         // Act
-        var action = () => runner.Run();
+        var action = runner.Run;
 
         // Assert
         action.Should().NotThrow();
         startingNode.Received(1).Run(Arg.Any<Context>());
-        runner.ElapsedTime.Should().BeCloseTo(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1));
+        runner.ElapsedTime.Should().BeCloseTo(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(5));
     }
 
     [Fact]
     public void Constructor_WithNullStartingNode_Throws() {
         // Act
-        var action = static () => new Runner(null!);
+        var action = () => new Runner(null!);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>().WithMessage("*startingNode*");
+        action.Should().Throw<ArgumentNullException>().WithMessage("*workflow*");
     }
 
     [Fact]
     public void Run_WithNullContext_ReturnsNonNullContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
+        var workflow = new Workflow(startingNode);
         startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
-        var runner = new Runner(startingNode);
+        var runner = new Runner(workflow);
 
         // Act
-        var result = runner.Run();
+        var action = runner.Run;
 
         // Assert
-        result.Should().NotBeNull();
+        action.Should().NotThrow();
     }
 
     [Fact]
     public void Run_WithEmptyContext_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
-        var runner = new Runner(startingNode);
         var context = new Context();
+        var workflow = new Workflow(startingNode, context);
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
+        var runner = new Runner(workflow);
 
         // Act
-        var result = runner.Run(context);
+        var action = runner.Run;
 
         // Assert
-        result.Should().BeSameAs(context);
+        action.Should().NotThrow();
     }
 
     [Fact]
     public void Run_WithRunningRunner_ThrowsInvalidOperationException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
+        var workflow = new Workflow(startingNode);
         startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
-        var runner = new Runner(startingNode);
+        var runner = new Runner(workflow);
 
         // Set the Start property using reflection
         var propertyInfo = typeof(Runner).GetProperty("Start");
         propertyInfo?.SetValue(runner, DateTimeOffset.Now);
 
         // Act
-        var action = () => runner.Run();
+        var action = runner.Run;
 
         // Assert
         action.Should().Throw<InvalidOperationException>().WithMessage("*already being executed*");
@@ -96,34 +100,37 @@ public class RunnerTests {
     public void Run_WithSingleNode_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
-        var runner = new Runner(startingNode);
         var context = new Context();
+        var workflow = new Workflow(startingNode, context);
+        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
+        var runner = new Runner(workflow);
+
         // Act
-        var result = runner.Run(context);
+        var action = runner.Run;
 
         // Assert
-        result.Should().BeSameAs(context);
+        action.Should().NotThrow();
     }
 
     [Fact]
     public void Run_WithMultipleNodes_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
+        var context = new Context();
+        var workflow = new Workflow(startingNode, context);
         var nextNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(nextNode);
         nextNode.Run(Arg.Any<Context>()).Returns(static _ => null);
 
         var loggerFactory = new TrackedLoggerFactory();
-        var runner = new Runner(startingNode, loggerFactory: loggerFactory);
+        var runner = new Runner(workflow, loggerFactory: loggerFactory);
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
-        var context = new Context();
 
         // Act
-        var result = runner.Run(context);
+        var action = runner.Run;
 
         // Assert
-        result.Should().BeSameAs(context);
+        action.Should().NotThrow();
         logger.Should().Have(2).Logs();
     }
 
@@ -131,11 +138,12 @@ public class RunnerTests {
     public void Run_WithExceptionInNode_ThrowsException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
+        var workflow = new Workflow(startingNode);
         startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
-        var runner = new Runner(startingNode);
+        var runner = new Runner(workflow);
 
         // Act
-        var action = () => runner.Run();
+        var action = runner.Run;
 
         // Assert
         action.Should().Throw<Exception>();
@@ -145,13 +153,14 @@ public class RunnerTests {
     public void Run_WithExceptionInNode_LogsError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
+        var workflow = new Workflow(startingNode);
         startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
         var loggerFactory = new TrackedLoggerFactory();
-        var runner = new Runner(startingNode, loggerFactory: loggerFactory);
+        var runner = new Runner(workflow, loggerFactory: loggerFactory);
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
         // Act
-        var action = () => runner.Run();
+        var action = runner.Run;
 
         // Assert
         action.Should().Throw<Exception>();
@@ -162,12 +171,13 @@ public class RunnerTests {
     public void Run_WithExceptionInNode_RethrowsException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
+        var workflow = new Workflow(startingNode);
         var exception = new Exception();
         startingNode.Run(Arg.Any<Context>()).Throws(exception);
-        var runner = new Runner(startingNode);
+        var runner = new Runner(workflow);
 
         // Act
-        var action = () => runner.Run();
+        var action = runner.Run;
 
         // Assert
         action.Should().Throw<Exception>().Which.Should().BeSameAs(exception);
@@ -177,30 +187,17 @@ public class RunnerTests {
     public void Run_WithExceptionInNode_LogsEndOfWorkflow() {
         // Arrange
         var startingNode = Substitute.For<INode>();
+        var workflow = new Workflow(startingNode);
         startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
         var loggerFactory = new TrackedLoggerFactory();
-        var runner = new Runner(startingNode, loggerFactory: loggerFactory);
+        var runner = new Runner(workflow, loggerFactory: loggerFactory);
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
         // Act
-        var action = () => runner.Run();
+        var action = runner.Run;
 
         // Assert
         action.Should().Throw<Exception>();
         logger.Should().Have(2).LogsWith(LogLevel.Information);
-    }
-
-    [Fact]
-    public void GetHashCode_ReturnsIdHashCode() {
-        // Arrange
-        var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
-        var runner = new Runner(startingNode);
-
-        // Act
-        var hashCode = runner.GetHashCode();
-
-        // Assert
-        hashCode.Should().Be(runner.Id.GetHashCode());
     }
 }

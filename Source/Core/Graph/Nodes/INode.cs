@@ -1,14 +1,9 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public interface INode {
-    string Id { get; }
+    uint Id { get; }
+    string Label { get; }
     INode? Next { get; set; }
-    Result Validate(ICollection<INode>? validatedNodes = null);
+    Result Validate(ISet<INode>? visited = null);
     INode? Run(Context context);
-}
-
-public interface INode<TKey>
-    : INode
-    where TKey : notnull {
-    Dictionary<TKey, INode?> Branches { get; }
 }

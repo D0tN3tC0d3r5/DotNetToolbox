@@ -1,49 +1,49 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class BranchingNode
-    : BranchingNode<BranchingNode> {
-    private BranchingNode(Func<Context, string> selectPath,
-                          IReadOnlyDictionary<string, INode?>? branches = null,
-                          INodeFactory? factory = null)
-        : base(factory) {
-        SelectPath = IsNotNull(selectPath);
-        if (branches is null) return;
-        foreach (var branch in branches)
-            Branches[branch.Key] = branch.Value;
+public sealed class BranchingNode(string label, Func<Context, string> select)
+    : BranchingNode<BranchingNode>(IsNotNull(label)) {
+    private const string _defaultLabel = "case";
+
+    protected override string Select(Context context) => IsNotNull(select)(context);
+
+    public BranchingNode(Func<Context, string> select)
+        : this(_defaultLabel, select) {
     }
 
-    protected sealed override Func<Context, string> SelectPath { get; }
-
-    public static BranchingNode Create(Func<Context, string> selectPath,
-                                       Action<BranchesBuilder> setPaths,
-                                       INodeFactory? factory = null) {
-        var node = new BranchingNode(selectPath, null, factory);
-        var builder = new BranchesBuilder(node, factory);
+    internal static BranchingNode Create(string? label,
+                                         Func<Context, string> selectPath,
+                                         Action<BranchesBuilder> setPaths,
+                                         HashSet<INode?>? nodes = null) {
+        BranchingNode node = label is null
+            ? new(selectPath)
+            : new(label, selectPath);
+        nodes?.Add(node);
+        var builder = new BranchesBuilder(nodes, node);
         setPaths(builder);
         return node;
     }
 
-    public static TNode Create<TNode>(INodeFactory? factory = null)
+    public static TNode Create<TNode>(string? label = null)
         where TNode : BranchingNode<TNode>
-        => InstanceFactory.Create<TNode>(factory);
+        => InstanceFactory.Create<TNode>(label);
 }
 
-public abstract class BranchingNode<TNode>(INodeFactory? factory = null)
-    : Node<string>(factory),
+public abstract class BranchingNode<TNode>(string? label = null)
+    : Node<TNode>(label),
       IBranchingNode
     where TNode : BranchingNode<TNode> {
-    protected abstract Func<Context, string> SelectPath { get; }
+    protected abstract string Select(Context context);
 
-    protected override Result IsValid() {
-        var result = Success();
-        if (Branches.Count == 0)
-            result += Invalid($"No path is registered for node '{Id}'.");
+    public Dictionary<string, INode?> Choices { get; } = [];
 
-        return result;
+    protected override Result IsValid(ISet<INode> visited) {
+        var result = base.IsValid(visited);
+        return Choices.Values.Where(node => node is not null).Distinct()
+                    .Aggregate(result, (current, node) => current + node!.Validate(visited));
     }
 
     protected override INode GetNext(Context context)
-        => Branches.GetValueOrDefault(SelectPath(context))
+        => Choices.GetValueOrDefault(Select(context))
         ?? throw new InvalidOperationException("The selected path was not found.");
 
     protected sealed override void UpdateState(Context context) { }

@@ -1,7 +1,6 @@
 ﻿namespace DotNetToolbox.Graph;
 
 public interface IRunner {
-    public string Id { get; }
     public bool IsRunning { get; }
     public DateTimeOffset? Start { get; }
     public DateTimeOffset? End { get; }
@@ -9,5 +8,5 @@ public interface IRunner {
     public bool HasStarted { get; }
     public bool HasStopped { get; }
 
-    Context Run(Context? context = null);
+    void Run();
 }

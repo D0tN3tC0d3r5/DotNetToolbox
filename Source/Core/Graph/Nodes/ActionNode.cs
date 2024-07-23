@@ -1,62 +1,41 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ActionNode
-    : ActionNode<ActionNode> {
-    private readonly Action<Context> _execute;
+public sealed class ActionNode(string label, Action<Context> execute, IPolicy? policy = null)
+    : ActionNode<ActionNode>(label, policy) {
+    private const string _defaultLabel = "action";
 
-    private ActionNode(Action<Context>? execute,
-                       INode? next = null,
-                       IPolicy? policy = null,
-                       INodeFactory? factory = null)
-        : base(factory) {
-        Next = next;
-        Policy = policy ?? Policy;
-        _execute = IsNotNull(execute);
+    public ActionNode(Action<Context> execute, IPolicy? policy = null)
+        : this(_defaultLabel, execute, policy) {
     }
-
-    internal static ActionNode Create(Action<Context> execute,
-                                    Action<WorkflowBuilder>? setTrueBranch = null,
-                                    IPolicy? policy = null,
-                                    INodeFactory? factory = null) {
-        var node = new ActionNode(execute, null, policy, factory);
-        if (setTrueBranch == null)
-            return node;
-
-        var builder = new WorkflowBuilder(factory);
-        setTrueBranch(builder);
-        node.Next = builder.Start;
-        return node;
-    }
-
-    public static TNode Create<TNode>(INodeFactory? factory = null)
-        where TNode : ActionNode<TNode>
-        => InstanceFactory.Create<TNode>(factory);
 
     protected override void Execute(Context context)
-        => _execute(context);
+        => IsNotNull(execute)(context);
+
+    internal static ActionNode Create(string? label,
+                                      Action<Context> execute,
+                                      IPolicy? policy = null)
+        => label is null
+            ? new(execute, policy)
+            : new(label, execute, policy);
+
+    public static TNode Create<TNode>(string? label = null,
+                                      IPolicy? policy = null)
+        where TNode : ActionNode<TNode>
+        => InstanceFactory.Create<TNode>(label, policy);
 }
 
-public abstract class ActionNode<TAction>
-    : Node,
+public abstract class ActionNode<TAction>(string? label, IPolicy? policy)
+    : Node<TAction>(label),
       IActionNode
     where TAction : ActionNode<TAction> {
-    protected ActionNode(INodeFactory? factory = null)
-        : base(factory) {
-        Next = null;
-    }
 
-    protected IPolicy Policy { get; init; } = Policies.Policy.Default;
+    private readonly IPolicy _policy = policy ?? Policy.Default;
 
-    public INode? Next {
-        get => Branches[0];
-        set => Branches[0] = value;
-    }
+    protected abstract void Execute(Context context);
 
     protected sealed override INode? GetNext(Context context)
         => Next;
 
     protected sealed override void UpdateState(Context context)
-        => Policy.Execute(() => Execute(context));
-
-    protected abstract void Execute(Context context);
+        => _policy.Execute(() => Execute(context));
 }

@@ -1,32 +1,32 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class NodeFactoryTests {
-    private readonly NodeFactory _factory = new NodeFactory();
+    private readonly NodeFactory _factory = new();
 
     [Fact]
-    public void Start_ReturnsEntryNode() {
-        var node = _factory.Start;
+    public void CreateStart_ReturnsEntryNode() {
+        var node = _factory.CreateStart();
         node.Should().NotBeNull();
-        node.Should().BeOfType<EntryNode>();
+        node.Should().BeOfType<StartingNode>();
     }
 
     [Fact]
-    public void If_ReturnsIfNode() {
-        var node = _factory.If(_ => true, _ => { });
-        node.Should().NotBeNull();
-        node.Should().BeOfType<ConditionalNode>();
-    }
-
-    [Fact]
-    public void If_WithElse_ReturnsIfNode() {
-        var node = _factory.If(_ => false, _ => { }, _ => { });
+    public void CreateIf_ReturnsIfNode() {
+        var node = _factory.CreateFork(_ => true, _ => { });
         node.Should().NotBeNull();
         node.Should().BeOfType<ConditionalNode>();
     }
 
     [Fact]
-    public void Select_ReturnsSelectNode() {
-        var node = _factory.Select(_ => "1", b => {
+    public void CreateIf_WithElse_ReturnsIfNode() {
+        var node = _factory.CreateFork(_ => false, _ => { }, _ => { });
+        node.Should().NotBeNull();
+        node.Should().BeOfType<ConditionalNode>();
+    }
+
+    [Fact]
+    public void CreateSelect_ReturnsSelectNode() {
+        var node = _factory.CreateChoice(_ => "1", b => {
             b.Case("1", _ => { });
             b.Case("2", _ => { });
         });
@@ -35,32 +35,32 @@ public class NodeFactoryTests {
     }
 
     [Fact]
-    public void Do_ReturnsActionNode() {
-        var node = _factory.Do(_ => { }, _ => { });
+    public void CreateAction_ReturnsActionNode() {
+        var node = _factory.CreateAction(_ => { });
         node.Should().NotBeNull();
         node.Should().BeAssignableTo<ActionNode>();
     }
 
-    private class ValidTestNode : Node {
+    private class ValidTestNode : Node<ValidTestNode> {
         protected override void UpdateState(Context context) => throw new NotImplementedException();
         protected override INode GetNext(Context context) => throw new NotImplementedException();
     }
 
-    private class InvalidTestNode : Node {
-        protected override Result IsValid() => Result.Invalid("Not valid.");
+    private class InvalidTestNode : Node<InvalidTestNode> {
+        protected override Result IsValid(ISet<INode> visited) => Result.Invalid("Not valid.");
         protected override void UpdateState(Context context) => throw new NotImplementedException();
         protected override INode GetNext(Context context) => throw new NotImplementedException();
     }
 
     [Fact]
-    public void Validate_ForValidNode_ReturnsSuccess() {
+    public void CreateValidate_ForValidNode_ReturnsSuccess() {
         var node = new ValidTestNode();
         var result = node.Validate();
         result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public void Validate_ForInvalidNode_ReturnsInvalid() {
+    public void CreateValidate_ForInvalidNode_ReturnsInvalid() {
         var node = new InvalidTestNode();
         var result = node.Validate();
         result.IsSuccess.Should().BeFalse();
@@ -69,16 +69,16 @@ public class NodeFactoryTests {
     }
 
     [Fact]
-    public void Validate_ForCircularPath_ReturnsResult() {
-        var node1 = _factory.Do(_ => { });
-        node1.Next = _factory.Do(_ => { }, _ => { });
+    public void CreateValidate_ForCircularPath_ReturnsResult() {
+        var node1 = _factory.CreateAction(_ => { });
+        node1.Next = _factory.CreateAction(_ => { });
         var result = node1.Validate();
         result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public void Run_ReturnsResult() {
-        var node = _factory.Do(c => c["Hello"] = "World!");
+    public void CreateRun_ReturnsResult() {
+        var node = _factory.CreateAction(c => c["Hello"] = "World!");
         var context = new Context();
         var result = node.Run(context);
         result.Should().BeNull();
