@@ -1,31 +1,27 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ActionNode(string label, Action<Context> execute, IPolicy? policy = null)
-    : ActionNode<ActionNode>(label, policy) {
+public sealed class ActionNode(uint id, string label, Action<Context> execute, IPolicy? policy = null)
+    : ActionNode<ActionNode>(id, label, policy) {
     private const string _defaultLabel = "action";
-
-    public ActionNode(Action<Context> execute, IPolicy? policy = null)
-        : this(_defaultLabel, execute, policy) {
-    }
 
     protected override void Execute(Context context)
         => IsNotNull(execute)(context);
 
-    internal static ActionNode Create(string? label,
+    internal static ActionNode Create(uint id,
+                                      string? label,
                                       Action<Context> execute,
                                       IPolicy? policy = null)
-        => label is null
-            ? new(execute, policy)
-            : new(label, execute, policy);
+        => new(id, label ?? _defaultLabel, execute, policy);
 
-    public static TNode Create<TNode>(string? label = null,
+    public static TNode Create<TNode>(uint id,
+                                      string? label = null,
                                       IPolicy? policy = null)
         where TNode : ActionNode<TNode>
-        => InstanceFactory.Create<TNode>(label, policy);
+        => InstanceFactory.Create<TNode>(id, label, policy);
 }
 
-public abstract class ActionNode<TAction>(string? label, IPolicy? policy)
-    : Node<TAction>(label),
+public abstract class ActionNode<TAction>(uint id, string? label, IPolicy? policy)
+    : Node<TAction>(id, label),
       IActionNode
     where TAction : ActionNode<TAction> {
 

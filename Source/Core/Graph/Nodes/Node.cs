@@ -4,8 +4,8 @@ public abstract class Node<TNode>
     : INode
     where TNode : Node<TNode> {
 
-    protected Node(string? label = null) {
-        Id = NodeId.GetNext();
+    protected Node(uint id, string? label = null) {
+        Id = id;
         Label = label ?? Label;
     }
 

@@ -32,8 +32,8 @@ public class GraphBuilder {
                 return _stringBuilder.ToString();
 
             case IConditionalNode ifNode:
-                Build(ifNode.True, ifNode, "True");
-                Build(ifNode.False, ifNode, "False");
+                Build(ifNode.IsTrue, ifNode, "True");
+                Build(ifNode.IsFalse, ifNode, "False");
                 Build(ifNode.Next, ifNode);
                 return _stringBuilder.ToString();
 

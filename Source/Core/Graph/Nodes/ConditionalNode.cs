@@ -1,62 +1,57 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class ConditionalNode(string label, Func<Context, bool> predicate)
-    : ConditionalNode<ConditionalNode>(IsNotNull(label)) {
+public class ConditionalNode(uint id, string label, Func<Context, bool> predicate)
+    : ConditionalNode<ConditionalNode>(id, IsNotNull(label)) {
     private const string _defaultLabel = "if";
 
-    public ConditionalNode(Func<Context, bool> predicate)
-        : this(_defaultLabel, predicate) {
-    }
+    protected override bool When(Context context) => IsNotNull(predicate)(context);
 
-    protected override bool Check(Context context) => IsNotNull(predicate)(context);
-
-    internal static ConditionalNode Create(string? label,
+    internal static ConditionalNode Create(uint id,
+                                           string? label,
                                            Func<Context, bool> predicate,
+                                           WorkflowBuilder builder,
                                            Action<WorkflowBuilder> setTrueBranch,
-                                           Action<WorkflowBuilder>? setFalseBranch = null,
-                                           HashSet<INode?>? nodes = null) {
-        ConditionalNode node = label is null
-            ? new(predicate)
-            : new(label, predicate);
-        nodes?.Add(node);
-        var trueBuilder = new WorkflowBuilder(nodes);
+                                           Action<WorkflowBuilder>? setFalseBranch = null) {
+        var node = new ConditionalNode(id, label ?? _defaultLabel, predicate);
+        builder.Nodes.Add(node);
+        var trueBuilder = new WorkflowBuilder(builder.Id, builder.Nodes);
         setTrueBranch(trueBuilder);
-        node.True = trueBuilder.Start;
+        node.IsTrue = trueBuilder.Start;
         if (setFalseBranch == null)
             return node;
 
-        var falseBuilder = new WorkflowBuilder(nodes);
+        var falseBuilder = new WorkflowBuilder(builder.Id, builder.Nodes);
         setFalseBranch(falseBuilder);
-        node.False = falseBuilder.Start;
+        node.IsFalse = falseBuilder.Start;
 
         return node;
     }
 
-    public static TNode Create<TNode>(string? label = null)
+    public static TNode Create<TNode>(uint id, string? label = null)
         where TNode : ConditionalNode<TNode>
-        => InstanceFactory.Create<TNode>(label);
+        => InstanceFactory.Create<TNode>(id, label);
 }
 
-public abstract class ConditionalNode<TNode>(string? label = null)
-    : Node<TNode>(label),
+public abstract class ConditionalNode<TNode>(uint id, string? label = null)
+    : Node<TNode>(id, label),
       IConditionalNode
     where TNode : ConditionalNode<TNode> {
-    protected abstract bool Check(Context context);
+    protected abstract bool When(Context context);
 
-    public INode? True { get; set; }
-    public INode? False { get; set; }
+    public INode? IsTrue { get; protected set; }
+    public INode? IsFalse { get; protected set; }
 
     protected override Result IsValid(ISet<INode> visited) {
         var result = base.IsValid(visited);
-        result += True?.Validate(visited) ?? Success();
-        result += False?.Validate(visited) ?? Success();
+        result += IsTrue?.Validate(visited) ?? Success();
+        result += IsFalse?.Validate(visited) ?? Success();
         return result;
     }
 
     protected sealed override INode? GetNext(Context context)
-        => Check(context)
-            ? True
-            : False;
+        => When(context)
+            ? IsTrue?.Run(context)
+            : IsFalse?.Run(context);
 
     protected sealed override void UpdateState(Context context) { }
 }

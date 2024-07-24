@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Graph;
 
-public class WorkflowBuilderTests {
+public sealed class WorkflowBuilderTests {
     private readonly WorkflowBuilder _builder = new();
 
     [Fact]
@@ -68,10 +68,10 @@ public class WorkflowBuilderTests {
                                       4["action"]
 
                                       """;
-        _builder.Select(_ => "key1", k => k
-                    .Case("key1", b => b.Do(_ => { }))
-                    .Case("key2", b => b.Do(_ => { }))
-                    .Case("key3", b => b.Do(_ => { })));
+        _builder.When(_ => "key1", k => k
+                    .Is("key1", b => b.Do(_ => { }))
+                    .Is("key2", b => b.Do(_ => { }))
+                    .Is("key3", b => b.Do(_ => { })));
 
         var graph = _builder.BuildGraph();
 
@@ -101,9 +101,9 @@ public class WorkflowBuilderTests {
         _builder.Do(_ => { })
                 .If(_ => true,
                     t => t.Do(_ => { })
-                          .Select(_ => "key1", k => k
-                              .Case("key1", branch => branch.Do(_ => { }))
-                              .Case("key2", branch => branch.Do(_ => { }))),
+                          .When(_ => "key1", k => k
+                              .Is("key1", b => b.Do(_ => { }))
+                              .Is("key2", b => b.Do(_ => { }))),
                     f => f.Do(_ => { }));
 
         var graph = _builder.BuildGraph();
@@ -115,7 +115,7 @@ public class WorkflowBuilderTests {
     public void BuildGraph_WithLabels_IncludesLabelsInMermaidChart() {
         const string expectedResult = """
                                       flowchart TD
-                                      1["CreateStart"]
+                                      1["Start"]
                                       1 --> 2
                                       2["Decision"]
                                       2 --> |True| 3
@@ -124,10 +124,10 @@ public class WorkflowBuilderTests {
                                       4["Fail"]
 
                                       """;
-        _builder.Do("CreateStart", _ => { })
+        _builder.Do("Start", _ => { })
                 .If("Decision", _ => true,
-                    setTrueBranch: b => b.Do("Success", _ => { }),
-                    setFalseBranch: b => b.Do("Fail", _ => { }));
+                    t => t.Do("Success", _ => { }),
+                    f => f.Do("Fail", _ => { }));
 
         var graph = _builder.BuildGraph();
 
@@ -138,7 +138,7 @@ public class WorkflowBuilderTests {
     public void BuildGraph_WithLoop_HandlesLoopCorrectly() {
         const string expectedResult = """
                                       flowchart TD
-                                      1["CreateStart"]
+                                      1["Start"]
                                       1 --> 2
                                       2["LoopCondition"]
                                       2 --> |True| 3
@@ -149,7 +149,7 @@ public class WorkflowBuilderTests {
 
                                       """;
         var builder = new WorkflowBuilder()
-            .Do("CreateStart", _ => { })
+            .Do("Start", _ => { })
             .If("LoopCondition", _ => true,
                 t => t.Do("LoopAction", _ => { })
                       .JumpTo("LoopCondition"),
@@ -195,8 +195,8 @@ public class WorkflowBuilderTests {
         var builder = new WorkflowBuilder()
             .If(_ => true,
                 t1 => t1.If(_ => false,
-                          t2 => t2.Do(_ => { }),
-                          f2 => f2.Do(_ => { })),
+                    t2 => t2.Do(_ => { }),
+                    f2 => f2.Do(_ => { })),
                 f1 => f1.Do(_ => { }));
 
         var graph = builder.BuildGraph();
@@ -204,8 +204,8 @@ public class WorkflowBuilderTests {
         graph.Should().Be(expectedResult);
     }
 
-    private class CustomAction(string? label = null, IPolicy? policy = null)
-        : ActionNode<CustomAction>(label!, policy) {
+    private class CustomAction(uint id, string? label = null, IPolicy? policy = null)
+        : ActionNode<CustomAction>(id, label!, policy) {
         protected override void Execute(Context context) { }
     }
 }

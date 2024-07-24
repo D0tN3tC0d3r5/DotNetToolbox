@@ -1,28 +1,32 @@
 ﻿namespace DotNetToolbox.Graph;
 
-public class WorkflowBuilder {
-    private readonly HashSet<INode?> _nodes;
-    private readonly INodeFactory _nodeFactory = new NodeFactory();
+public sealed class WorkflowBuilder {
+    private readonly INodeFactory _nodeFactory;
     private INode? _currentNode;
+    private readonly SequentialNodeId _nodeId;
 
-    public WorkflowBuilder(HashSet<INode?>? nodes = null) {
-        if (nodes is null) NodeId.Reset();
-        _nodes = nodes ?? [];
+    public WorkflowBuilder(string? id = null, HashSet<INode?>? nodes = null) {
+        Id = id ?? GuidProvider.Default.AsSortable.Create().ToString();
+        _nodeId = NodeId.FromSequential(Id);
+        _nodeFactory = new NodeFactory();
+        Nodes = nodes ?? [];
     }
 
+    public string? Id { get; }
+    public HashSet<INode?> Nodes { get; }
     public INode? Start { get; private set; }
 
     [MemberNotNull(nameof(Start))]
     [MemberNotNull(nameof(_currentNode))]
     public WorkflowBuilder Do(string label, Action<Context> action, IPolicy? policy = null) {
-        ConnectNode(_nodeFactory.CreateAction(label, action, policy));
+        ConnectNode(_nodeFactory.CreateAction(_nodeId.Next, label, action, policy));
         return this;
     }
 
     [MemberNotNull(nameof(Start))]
     [MemberNotNull(nameof(_currentNode))]
     public WorkflowBuilder Do(Action<Context> action, IPolicy? policy = null) {
-        ConnectNode(_nodeFactory.CreateAction(action, policy));
+        ConnectNode(_nodeFactory.CreateAction(_nodeId.Next, action, policy));
         return this;
     }
 
@@ -30,7 +34,7 @@ public class WorkflowBuilder {
     [MemberNotNull(nameof(_currentNode))]
     public WorkflowBuilder Do<TAction>(string label)
         where TAction : ActionNode<TAction> {
-        ConnectNode(_nodeFactory.CreateAction<TAction>(label));
+        ConnectNode(_nodeFactory.CreateAction<TAction>(_nodeId.Next, label));
         return this;
     }
 
@@ -38,7 +42,7 @@ public class WorkflowBuilder {
     [MemberNotNull(nameof(_currentNode))]
     public WorkflowBuilder Do<TAction>()
         where TAction : ActionNode<TAction> {
-        ConnectNode(_nodeFactory.CreateAction<TAction>());
+        ConnectNode(_nodeFactory.CreateAction<TAction>(_nodeId.Next));
         return this;
     }
 
@@ -48,7 +52,7 @@ public class WorkflowBuilder {
                               Func<Context, bool> predicate,
                               Action<WorkflowBuilder> setTrueBranch,
                               Action<WorkflowBuilder>? setFalseBranch = null) {
-        ConnectNode(_nodeFactory.CreateFork(label, predicate, setTrueBranch, setFalseBranch, _nodes));
+        ConnectNode(_nodeFactory.CreateFork(_nodeId.Next, label, predicate, this, setTrueBranch, setFalseBranch));
         return this;
     }
 
@@ -57,29 +61,36 @@ public class WorkflowBuilder {
     public WorkflowBuilder If(Func<Context, bool> predicate,
                               Action<WorkflowBuilder> setTrueBranch,
                               Action<WorkflowBuilder>? setFalseBranch = null) {
-        ConnectNode(_nodeFactory.CreateFork(predicate, setTrueBranch, setFalseBranch, _nodes));
+        ConnectNode(_nodeFactory.CreateFork(_nodeId.Next, predicate, this, setTrueBranch, setFalseBranch));
         return this;
     }
 
     [MemberNotNull(nameof(Start))]
     [MemberNotNull(nameof(_currentNode))]
-    public WorkflowBuilder Select(string label,
-                                  Func<Context, string> select,
-                                  Action<BranchesBuilder> setChoices) {
-        ConnectNode(_nodeFactory.CreateChoice(label, select, setChoices, _nodes));
+    public WorkflowBuilder When(string label,
+                                Func<Context, string> select,
+                                Action<BranchesBuilder> setChoices) {
+        ConnectNode(_nodeFactory.CreateChoice(_nodeId.Next, label, select, this, setChoices));
         return this;
     }
 
     [MemberNotNull(nameof(Start))]
     [MemberNotNull(nameof(_currentNode))]
-    public WorkflowBuilder Select(Func<Context, string> selectPath,
-                                  Action<BranchesBuilder> setPaths) {
-        ConnectNode(_nodeFactory.CreateChoice(selectPath, setPaths, _nodes));
+    public WorkflowBuilder When(Func<Context, string> selectPath,
+                                Action<BranchesBuilder> setPaths) {
+        ConnectNode(_nodeFactory.CreateChoice(_nodeId.Next, selectPath, this, setPaths));
+        return this;
+    }
+
+    [MemberNotNull(nameof(Start))]
+    [MemberNotNull(nameof(_currentNode))]
+    public WorkflowBuilder End(string label) {
+        ConnectNode(_nodeFactory.CreateStop(_nodeId.Next, label));
         return this;
     }
 
     public WorkflowBuilder JumpTo(string label) {
-        var node = _nodes.FirstOrDefault(n => n?.Label == IsNotNull(label))
+        var node = Nodes.FirstOrDefault(n => n?.Label == IsNotNull(label))
             ?? throw new InvalidOperationException($"Label '{label}' not found.");
         _currentNode!.Next = node;
         _currentNode = node;
@@ -99,7 +110,7 @@ public class WorkflowBuilder {
                 break;
         }
         _currentNode = newNode;
-        _nodes.Add(_currentNode);
+        Nodes.Add(_currentNode);
     }
 
     public string BuildGraph()
