@@ -34,22 +34,36 @@ public class ExpressionExtensionsTests {
         result.Should().BeEquivalentTo(expectedExpression);
     }
 
-    private static readonly string[] _secondStringArray = ["1", "2", "3"];
-    private static readonly int[] _secondNumberArray = [1, 2, 3];
-
     [Fact]
     public void VisitArray_ConvertsExpression() {
         // Arrange
         var arrayMapper = new TypeMapper<string[], int[]>();
         var elementMapper = new TypeMapper<string, int>(int.Parse);
-        Expression<Func<string[], bool>> expression = x => x.SequenceEqual(_secondStringArray);
-        Expression<Func<int[], bool>> expectedExpression = x => x.SequenceEqual(_secondNumberArray);
+        Expression<Func<string[], bool>> expression = x => x.SequenceEqual(new[] { "1", "2", "3" });
+        Expression<Func<int[], bool>> expectedExpression = x => x.SequenceEqual(new[] { 1, 2, 3 });
 
         // Act
         var result = expression.ReplaceExpressionType(arrayMapper, elementMapper);
 
         // Assert
         result.Should().BeEquivalentTo(expectedExpression);
+    }
+
+    [Fact]
+    public void VisitArray_FromVariable_Throws() {
+        // Arrange
+        var source = new[] { "1", "2", "3" };
+        var target = new[] { 1, 2, 3 };
+        var arrayMapper = new TypeMapper<string[], int[]>();
+        var elementMapper = new TypeMapper<string, int>(int.Parse);
+        Expression<Func<string[], bool>> expression = x => x.SequenceEqual(source);
+        Expression<Func<int[], bool>> expectedExpression = x => x.SequenceEqual(target);
+
+        // Act
+        var action = () => expression.ReplaceExpressionType(arrayMapper, elementMapper);
+
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]

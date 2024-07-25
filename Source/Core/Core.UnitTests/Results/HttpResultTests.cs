@@ -60,6 +60,13 @@ public class HttpResultTests {
             nameof(_badRequestWithSameError) => _badRequestWithSameError,
             nameof(_badRequestWithOtherError) => _badRequestWithOtherError,
             nameof(_failure) => _failure,
+            nameof(_okWithValue) => _ok,
+            nameof(_createdWithValue) => _created,
+            nameof(_unauthorizedWithValue) => _unauthorized,
+            nameof(_notFoundWithValue) => _notFound,
+            nameof(_conflictWithValue) => _conflict,
+            nameof(_badRequestWithValue) => _badRequest,
+            nameof(_failureWithValue) => _failure,
             _ => throw new ArgumentException($"Invalid field name: {result}"),
         };
 

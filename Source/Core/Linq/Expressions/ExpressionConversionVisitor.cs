@@ -44,18 +44,23 @@ public class ExpressionConversionVisitor(IEnumerable<ParameterExpression> parent
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression node) {
-        var method = node.Method;
-        var arguments = node.Arguments.ToArray(Visit);
-        if (method.IsGenericMethod) {
-            var genericArguments = method.GetGenericArguments();
-            var transformedGenericArguments = genericArguments.ToArray(t => GetTypeMapper(t)?.TargetType ?? t);
-            method = method.GetGenericMethodDefinition().MakeGenericMethod(transformedGenericArguments);
-        }
+        try {
+            var method = node.Method;
+            var arguments = node.Arguments.ToArray(Visit);
+            if (method.IsGenericMethod) {
+                var genericArguments = method.GetGenericArguments();
+                var transformedGenericArguments = genericArguments.ToArray(t => GetTypeMapper(t)?.TargetType ?? t);
+                method = method.GetGenericMethodDefinition().MakeGenericMethod(transformedGenericArguments);
+            }
 
-        var caller = Visit(node.Object);
+            var caller = Visit(node.Object);
 #pragma warning disable CS8620
-        return Expression.Call(caller, method, arguments);
+            return Expression.Call(caller, method, arguments);
 #pragma warning restore CS8620
+        }
+        catch (Exception ex) {
+            throw new InvalidOperationException($"Failed to convert method call '{node.Method.Name}'.", ex);
+        }
     }
 
     protected override Expression VisitBinary(BinaryExpression node) {
