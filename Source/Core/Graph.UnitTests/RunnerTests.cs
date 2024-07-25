@@ -200,4 +200,148 @@ public class RunnerTests {
         action.Should().Throw<Exception>();
         logger.Should().Have(2).LogsWith(LogLevel.Information);
     }
+
+    [Fact]
+    public void Run_OnRunStartingEvent_IsRaised() {
+        var startingNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        var workflow = new Workflow(startingNode);
+        var runner = new Runner(workflow);
+        var eventRaised = false;
+
+        runner.OnRunStarting += (_, args) => {
+            eventRaised = true;
+            args.Workflow.Should().BeSameAs(workflow);
+        };
+
+        runner.Run();
+
+        eventRaised.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Run_OnNodeExecutingEvent_IsRaisedForEachNode() {
+        var startingNode = Substitute.For<INode>();
+        var secondNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        var workflow = new Workflow(startingNode);
+        var runner = new Runner(workflow);
+        var executingCount = 0;
+
+        runner.OnNodeExecuting += (_, _) => executingCount++;
+
+        runner.Run();
+
+        executingCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void Run_OnNodeExecutingEvent_CanCancelExecution() {
+        var startingNode = Substitute.For<INode>();
+        var secondNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        var context = new Context();
+        var workflow = new Workflow(startingNode, context);
+        var runner = new Runner(workflow);
+
+        runner.OnNodeExecuting += (_, args) => {
+            if (args.Node == secondNode) args.Cancel = true;
+            args.Context.Should().BeSameAs(context);
+        };
+
+        runner.Run();
+
+        startingNode.Received(1).Run(Arg.Any<Context>());
+        secondNode.DidNotReceive().Run(Arg.Any<Context>());
+    }
+
+    [Fact]
+    public void Run_OnNodeExecutedEvent_IsRaisedForEachExecutedNode() {
+        var startingNode = Substitute.For<INode>();
+        var secondNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        var workflow = new Workflow(startingNode);
+        var runner = new Runner(workflow);
+        var executedCount = 0;
+
+        runner.OnNodeExecuted += (_, _) => executedCount++;
+
+        runner.Run();
+
+        executedCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void Run_OnNodeExecutedEvent_CanCancelExecution() {
+        var startingNode = Substitute.For<INode>();
+        var secondNode = Substitute.For<INode>();
+        var thirdNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Context>()).Returns(thirdNode);
+        var context = new Context();
+        var workflow = new Workflow(startingNode, context);
+        var runner = new Runner(workflow);
+
+        runner.OnNodeExecuted += (_, args) => {
+            if (args.Node == secondNode) args.Cancel = true;
+            args.Context.Should().BeSameAs(context);
+        };
+
+        runner.Run();
+
+        startingNode.Received(1).Run(Arg.Any<Context>());
+        secondNode.Received(1).Run(Arg.Any<Context>());
+        thirdNode.DidNotReceive().Run(Arg.Any<Context>());
+    }
+
+    [Fact]
+    public void Run_OnRunEndedEvent_IsRaisedAfterExecution() {
+        var startingNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        var workflow = new Workflow(startingNode);
+        var runner = new Runner(workflow);
+        var eventRaised = false;
+
+        runner.OnRunEnded += (_, args) => {
+            eventRaised = true;
+            args.Workflow.Should().BeSameAs(workflow);
+        };
+
+        runner.Run();
+
+        eventRaised.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Run_AllEvents_AreRaisedInCorrectOrder() {
+        var startingNode = Substitute.For<INode>();
+        startingNode.Id.Returns(1u);
+        var secondNode = Substitute.For<INode>();
+        secondNode.Id.Returns(2u);
+        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        var workflow = new Workflow(startingNode);
+        var runner = new Runner(workflow);
+        var eventOrder = new List<string>();
+
+        runner.OnRunStarting += (_, _) => eventOrder.Add("RunStarting");
+        runner.OnNodeExecuting += (_, args) => eventOrder.Add($"NodeExecuting: {args.Node.Id}");
+        runner.OnNodeExecuted += (_, args) => eventOrder.Add($"NodeExecuted: {args.Node.Id}");
+        runner.OnRunEnded += (_, _) => eventOrder.Add("RunEnded");
+
+        runner.Run();
+
+        eventOrder.Should().Equal(new List<string>
+        {
+            "RunStarting",
+            "NodeExecuting: 1",
+            "NodeExecuted: 1",
+            "NodeExecuting: 2",
+            "NodeExecuted: 2",
+            "RunEnded"
+        });
+    }
 }

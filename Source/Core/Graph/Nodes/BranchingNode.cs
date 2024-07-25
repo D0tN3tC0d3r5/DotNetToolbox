@@ -46,7 +46,7 @@ public abstract class BranchingNode<TNode>(uint id, string? label = null)
     protected override INode? GetNext(Context context) {
         var key = Select(context);
         var choice = Choices.GetValueOrDefault(key)
-            ?? throw new InvalidOperationException("The selected path was not found.");
+            ?? throw new InvalidOperationException($"The path '{key}' was not found.");
         return choice.Run(context);
     }
 

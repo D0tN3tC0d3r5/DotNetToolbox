@@ -29,10 +29,13 @@ public sealed class Runner(Workflow workflow,
             StartingRun(new(_workflow));
             var currentNode = _workflow.StartingNode;
 
-            while (ExecutingNode(new(_workflow.Context, currentNode))) {
-                currentNode = currentNode!.Run(_workflow.Context);
+            while (currentNode is not null) {
+                if (!ExecutingNode(new(_workflow.Context, currentNode)))
+                    break;
+                var result = currentNode.Run(_workflow.Context);
                 if (!NodeExecuted(new(_workflow.Context, currentNode)))
                     break;
+                currentNode = result;
             }
         }
         catch (Exception ex) {
@@ -55,17 +58,17 @@ public sealed class Runner(Workflow workflow,
             return e.Node is not null;
         _logger.LogInformation(message: "Executing node '{id}'...", _workflow.Id);
 
-        OnNodeExecuting.Invoke(this, e);
-        return e.Continue;
+        OnNodeExecuting?.Invoke(this, e);
+        return !e.Cancel;
     }
 
     private bool NodeExecuted(NodeEventArgs e) {
         if (OnNodeExecuted is null)
             return e.Node is not null;
 
-        OnNodeExecuted.Invoke(this, e);
+        OnNodeExecuted?.Invoke(this, e);
         _logger.LogInformation(message: "Node '{id}' executed.", _workflow.Id);
-        return e.Continue;
+        return !e.Cancel;
     }
 
     private void RunEnded(WorkflowEventArgs e) {
