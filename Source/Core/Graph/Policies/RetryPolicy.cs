@@ -8,7 +8,7 @@ public abstract class RetryPolicy
 
     private static readonly Random _random = Random.Shared;
 
-    public RetryPolicy(byte? maxRetries = null, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null) {
+    protected RetryPolicy(byte? maxRetries = null, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null) {
         MaxRetries = maxRetries ?? DefaultMaximumRetries;
         delay ??= DefaultDelay;
         jiggleSizeInTicks ??= DefaultJiggleSizeInTicks;
@@ -54,8 +54,5 @@ public abstract class RetryPolicy
         }
     }
 
-    public virtual bool TryExecute(Action action) {
-        action();
-        return true;
-    }
+    protected abstract bool TryExecute(Action action);
 }

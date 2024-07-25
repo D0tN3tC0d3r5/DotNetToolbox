@@ -139,7 +139,7 @@ public class ActionNodeTests {
 
     private class TestPolicy(byte maxRetries = RetryPolicy.DefaultMaximumRetries, uint failedTries = 0)
         : RetryPolicy(maxRetries) {
-        public override bool TryExecute(Action action) {
+        protected override bool TryExecute(Action action) {
             TryCount++;
             action();
             return TryCount > failedTries;
