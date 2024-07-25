@@ -41,16 +41,82 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_RunWithPolicy_ExecutesPolicyAndAction() {
-        var policyExecuted = false;
         var actionExecuted = false;
-        var policy = new TestPolicy(() => policyExecuted = true);
+        var policy = new TestPolicy();
         var node = _factory.CreateAction(1, _ => actionExecuted = true, policy);
         var context = new Context();
 
         node.Run(context);
 
-        policyExecuted.Should().BeTrue();
+        policy.TryCount.Should().Be(1);
         actionExecuted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CreateAction_RunWithSuccessfulRetry_ExecutesPolicyAndAction() {
+        var actionExecuted = false;
+        var policy = new TestPolicy(failedTries: 2);
+        var node = _factory.CreateAction(1, _ => actionExecuted = true, policy);
+        var context = new Context();
+
+        node.Run(context);
+
+        policy.TryCount.Should().Be(3);
+        actionExecuted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CreateAction_RunWithTooManyRetries_ExecutesPolicyAndAction() {
+        var actionExecuted = false;
+        var policy = new TestPolicy(failedTries: RetryPolicy.DefaultMaximumRetries + 1);
+        var node = _factory.CreateAction(1, _ => actionExecuted = true, policy);
+        var context = new Context();
+
+        var action = () => node.Run(context);
+
+        action.Should().Throw<PolicyException>();
+        policy.TryCount.Should().Be(RetryPolicy.DefaultMaximumRetries);
+        actionExecuted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CreateAction_RunWithCustomRetries_ExecutesPolicyAndAction() {
+        var actionExecuted = false;
+        var policy = new TestPolicy(maxRetries: 10, failedTries: 11);
+        var node = _factory.CreateAction(1, _ => actionExecuted = true, policy);
+        var context = new Context();
+
+        var action = () => node.Run(context);
+
+        action.Should().Throw<PolicyException>();
+        policy.TryCount.Should().Be(10);
+        actionExecuted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CreateAction_RetryOnException_ExecutesPolicyAndAction() {
+        var policy = new TestPolicy(failedTries: RetryPolicy.DefaultMaximumRetries + 1);
+        var node = _factory.CreateAction(1, _ => throw new(), policy);
+        var context = new Context();
+
+        var action = () => node.Run(context);
+
+        action.Should().Throw<PolicyException>();
+        policy.TryCount.Should().Be(RetryPolicy.DefaultMaximumRetries);
+    }
+
+    [Fact]
+    public void CreateAction_WithRetryAsMax_IgnoresPolicyAndTryAsManyTimesAsNeeded() {
+        var policy = new TestPolicy(maxRetries: byte.MaxValue);
+        var node = _factory.CreateAction(1, _ => {
+            if (policy.TryCount < 10) throw new();
+        }, policy);
+        var context = new Context();
+
+        var action = () => node.Run(context);
+
+        action.Should().NotThrow<PolicyException>();
+        policy.TryCount.Should().Be(10);
     }
 
     [Fact]
@@ -71,12 +137,13 @@ public class ActionNodeTests {
         protected override void Execute(Context context) { }
     }
 
-    private class TestPolicy(Action? onExecute = null)
-        : IPolicy {
-
-        public void Execute(Action action) {
-            onExecute?.Invoke();
+    private class TestPolicy(byte maxRetries = RetryPolicy.DefaultMaximumRetries, uint failedTries = 0)
+        : RetryPolicy(maxRetries) {
+        public override bool TryExecute(Action action) {
+            TryCount++;
             action();
+            return TryCount > failedTries;
         }
+        public uint TryCount { get; private set; }
     }
 }

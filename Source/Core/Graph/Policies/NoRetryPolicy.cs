@@ -1,6 +1,9 @@
 ﻿namespace DotNetToolbox.Graph.Policies;
 
-public class NoRetryPolicy : Policy {
-    public override void Execute(Action action)
-        => action();
+public class NoRetryPolicy()
+    : RetryPolicy(byte.MinValue) {
+    public override bool TryExecute(Action action) {
+        action();
+        return true;
+    }
 }

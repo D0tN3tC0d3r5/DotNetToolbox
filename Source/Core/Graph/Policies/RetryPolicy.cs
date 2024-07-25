@@ -1,54 +1,61 @@
 ﻿namespace DotNetToolbox.Graph.Policies;
 
-public class RetryPolicy
+public abstract class RetryPolicy
     : Policy {
-    private readonly uint _maxRetries;
-    private readonly TimeSpan[] _delays;
+    public const byte DefaultMaximumRetries = 3;
+    public static readonly TimeSpan DefaultDelay = TimeSpan.FromMilliseconds(50);
+    public const ushort DefaultJiggleSizeInTicks = 100;
+
     private static readonly Random _random = Random.Shared;
-    private const int _jiggleSizeInTicks = 100;
-    private static readonly TimeSpan _jiggle = TimeSpan.FromTicks(_jiggleSizeInTicks);
 
-    public RetryPolicy(uint maxRetries, TimeSpan[] delays) {
-        if (delays.Length != maxRetries)
-            throw new ArgumentException("The number of delays must match the number of retries.");
-
-        _maxRetries = maxRetries;
-        _delays = delays;
+    public RetryPolicy(byte? maxRetries = null, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null) {
+        MaxRetries = maxRetries ?? DefaultMaximumRetries;
+        delay ??= DefaultDelay;
+        jiggleSizeInTicks ??= DefaultJiggleSizeInTicks;
+        if (delay.Value.Ticks < jiggleSizeInTicks)
+            throw new ArgumentOutOfRangeException(nameof(delay), $"The delay must be at least {DefaultJiggleSizeInTicks} ticks.");
+        Delays = FillDelays(MaxRetries, delay.Value, jiggleSizeInTicks.Value);
     }
 
-    private static TimeSpan[] FillDelays(uint maxRetries, TimeSpan delay) {
-        if (maxRetries == 0)
-            return [];
+    public byte MaxRetries { get; }
+    public IReadOnlyList<TimeSpan> Delays { get; }
 
-        if (delay < _jiggle)
-            throw new ArgumentOutOfRangeException(nameof(delay), $"The delay must be at least {_jiggleSizeInTicks} ticks.");
+    private static TimeSpan[] FillDelays(byte maxRetries, TimeSpan delay, ushort jiggle) {
+        if (maxRetries is byte.MinValue)
+            return [];
 
         var delays = new TimeSpan[maxRetries];
         for (var i = 0; i < maxRetries; i++) {
-            delay.Add(TimeSpan.FromTicks(_random.Next(-_jiggleSizeInTicks, _jiggleSizeInTicks)));
-            delays[i] = delay;
+            delays[i] = delay.Add(TimeSpan.FromTicks(_random.NextInt64(-jiggle, jiggle)));
         }
 
         return delays;
     }
 
-    public RetryPolicy(uint maxRetries, TimeSpan delay)
-        : this(maxRetries, FillDelays(maxRetries, delay)) {
-    }
-
-    public override void Execute(Action action) {
+    public sealed override void Execute(Action action) {
         var attempts = 0;
         while (true) {
+            attempts++;
             try {
-                action();
+                if (TryExecute(action))
+                    return;
+                HandleActionFailure();
             }
-            catch (Exception) {
-                attempts++;
-                if (attempts >= _maxRetries)
-                    throw;
-
-                Thread.Sleep(_delays[attempts - 1]);
+            catch (Exception ex) {
+                HandleActionFailure(ex);
             }
         }
+
+        void HandleActionFailure(Exception? ex = null) {
+            if (MaxRetries != byte.MaxValue && attempts >= MaxRetries)
+                throw new PolicyException($"The action failed to execute successfully. Maximum number of allowed retries: {MaxRetries}.", ex);
+
+            Thread.Sleep(Delays[attempts - 1]);
+        }
+    }
+
+    public virtual bool TryExecute(Action action) {
+        action();
+        return true;
     }
 }
