@@ -1,8 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
 public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
-                                                                  IHttpClientProviderFactory factory,
-                                                                  ILogger<TAgent> logger)
+                                                         IHttpClientProviderFactory factory,
+                                                         ILogger<TAgent> logger)
     : IAgent
     where TAgent : Agent<TAgent, TRequest, TResponse>
     where TRequest : class, IChatRequest

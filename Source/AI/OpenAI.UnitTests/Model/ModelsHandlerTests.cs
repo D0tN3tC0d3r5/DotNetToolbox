@@ -1,5 +1,3 @@
-using DotNetToolbox.AI.OpenAI.Utilities;
-
 namespace DotNetToolbox.AI.OpenAI.Model;
 
 public sealed class ModelsHandlerTests : IDisposable {
@@ -16,7 +14,7 @@ public sealed class ModelsHandlerTests : IDisposable {
             BaseAddress = new("https://somehost.com/"),
         };
         httpClientProvider.GetHttpClient().Returns(httpClient);
-        _logger = new TrackedNullLogger<ModelsHandler>();
+        _logger = new TrackedLogger<ModelsHandler>();
         _modelsHandler = new(httpClientProvider, _logger);
     }
 
@@ -48,8 +46,8 @@ public sealed class ModelsHandlerTests : IDisposable {
         result.Should().HaveCount(2);
         result[0].Should().Be("ft:model1");
         result[1].Should().Be("model2");
-        _logger.Should().Contain(LogLevel.Debug, "Getting list of models...");
-        _logger.Should().Contain(LogLevel.Debug, "A list of 2 models was found.");
+        _logger.Should().Have(1).LogsWith(LogLevel.Debug, "Getting list of models...");
+        _logger.Should().Have(1).LogsWith(LogLevel.Debug, "A list of 2 models was found.");
     }
 
     [Fact]
@@ -62,7 +60,7 @@ public sealed class ModelsHandlerTests : IDisposable {
 
         // Assert
         await result.Should().ThrowAsync<InvalidOperationException>();
-        _logger.Should().Contain(LogLevel.Debug, "Getting list of models...");
-        _logger.Should().Contain(LogLevel.Error, "Failed to get list of models.");
+        _logger.Should().Have(1).LogsWith(LogLevel.Debug, "Getting list of models...");
+        _logger.Should().Have(1).LogsWith(LogLevel.Error, "Failed to get list of models.");
     }
 }

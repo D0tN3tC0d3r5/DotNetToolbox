@@ -1,5 +1,6 @@
 global using System.Net;
 
+global using DotNetToolbox.AI.OpenAI.Utilities;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.TestUtilities.Logging;
 

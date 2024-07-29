@@ -2,6 +2,8 @@
 
 internal sealed class TestGuidProvider()
     : IGuidProvider {
+    public IGuidProvider AsSortable { get; set; }
+
     public Guid Create() => throw new NotImplementedException();
     public Guid Create(byte[] bytes) => throw new NotImplementedException();
     public Guid Create(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)

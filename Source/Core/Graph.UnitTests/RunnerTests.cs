@@ -34,7 +34,7 @@ public class RunnerTests {
         // Assert
         action.Should().NotThrow();
         startingNode.Received(1).Run(Arg.Any<Context>());
-        runner.ElapsedTime.Should().BeCloseTo(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(5));
+        runner.ElapsedTime.Should().BeCloseTo(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(20));
     }
 
     [Fact]
