@@ -46,6 +46,11 @@
       <Pack>true</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <AdditionalFiles Include="..\..\Dependencies\DotNetToolbox.layerdiagram" Link="DotNetToolbox.layerdiagram">
+      <Visible>False</Visible>
+    </AdditionalFiles>
+    <None Include="..\..\Dependencies\DotNetToolbox.layerdiagram.layout" Link="DotNetToolbox.layerdiagram.layout" />
+    <None Include="..\..\Dependencies\DotNetToolbox.layerdiagram.suppressions" Link="DotNetToolbox.layerdiagram.suppressions" />
     <None Include="README.md">
       <Pack>true</Pack>
       <PackagePath>\</PackagePath>
