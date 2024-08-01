@@ -2,21 +2,22 @@
 
 public class AgentModel
     : IAgentModel {
-    public const byte MaximumRetries = 10;
-    public const byte MaximumTemperature = 2;
-    public const byte MaximumTokenProbabilityCutOff = 1;
+    private const byte _maximumRetries = 10;
+    private const byte _maximumTemperature = 2;
+    private const byte _maximumTokenProbabilityCutOff = 1;
 
-    public const uint DefaultMaximumOutputTokens = 256;
-    public const byte DefaultNumberOfRetries = 0;
-    public const byte DefaultTemperature = 1;
-    public const decimal DefaultProbabilityCutOff = 0;
+    public const uint MinimumOutputTokens = 256;
+    private const uint _defaultMaximumOutputTokens = MinimumOutputTokens;
+    private const byte _defaultNumberOfRetries = 0;
+    private const byte _defaultTemperature = 1;
+    private const decimal _defaultProbabilityCutOff = 0;
 
-    public string ModelId { get; set; } = default!;
-    public byte NumberOfRetries { get; set; } = DefaultNumberOfRetries;
-    public uint MaximumOutputTokens { get; set; } = DefaultMaximumOutputTokens;
-    public decimal Temperature { get; set; } = DefaultTemperature;
-    public decimal TokenProbabilityCutOff { get; set; } = DefaultProbabilityCutOff;
-    public List<string> StopSequences { get; set; } = [];
+    public required IModel Model { get; init; } = default!;
+    public byte MaximumNumberOfRetries { get; init; } = _defaultNumberOfRetries;
+    public uint MaximumOutputTokens { get; init; } = _defaultMaximumOutputTokens;
+    public decimal Temperature { get; init; } = _defaultTemperature;
+    public decimal TokenProbabilityCutOff { get; init; } = _defaultProbabilityCutOff;
+    public List<string> StopSequences { get; init; } = [];
     public bool ResponseIsStream { get; set; }
     public bool RespondsAsJson { get; set; }
 
@@ -24,12 +25,12 @@ public class AgentModel
         var result = Result.Success();
         if (StopSequences.Count > 0 && StopSequences.Any(string.IsNullOrWhiteSpace))
             result += new ValidationError("StopWaiting signals cannot be null, empty, or contain only whitespace.", nameof(StopSequences));
-        if (NumberOfRetries > MaximumRetries)
-            result += new ValidationError($"The maximum number of retries is {MaximumRetries}. Found: {NumberOfRetries}", nameof(NumberOfRetries));
-        if (Temperature is < 0 or > MaximumTemperature)
-            result += new ValidationError($"Value must be between {0} and {MaximumTemperature}. Found: {Temperature}", nameof(Temperature));
-        if (TokenProbabilityCutOff is < 0 or > MaximumTokenProbabilityCutOff)
-            result += new ValidationError($"Value must be between {0} and {MaximumTokenProbabilityCutOff}. Found: {TokenProbabilityCutOff}", nameof(TokenProbabilityCutOff));
+        if (MaximumNumberOfRetries > _maximumRetries)
+            result += new ValidationError($"The maximum number of retries is {_maximumRetries}. Found: {MaximumNumberOfRetries}", nameof(MaximumNumberOfRetries));
+        if (Temperature is < 0 or > _maximumTemperature)
+            result += new ValidationError($"Value must be between {0} and {_maximumTemperature}. Found: {Temperature}", nameof(Temperature));
+        if (TokenProbabilityCutOff is < 0 or > _maximumTokenProbabilityCutOff)
+            result += new ValidationError($"Value must be between {0} and {_maximumTokenProbabilityCutOff}. Found: {TokenProbabilityCutOff}", nameof(TokenProbabilityCutOff));
 
         return result;
     }

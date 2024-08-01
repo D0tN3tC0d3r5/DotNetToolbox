@@ -121,7 +121,7 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_RunMethod_UpdatesContextAndReturnsNextNode() {
-        var context = new Context();
+        var context = new CustomContext();
         var nextNode = _factory.CreateAction(1, _ => { });
         var node = _factory.CreateAction(2, ctx => ctx["key"] = "value");
         node.Next = nextNode;
@@ -132,12 +132,16 @@ public class ActionNodeTests {
         context["key"].Should().Be("value");
     }
 
-    private class CustomActionNode(uint id, string? label = null, IPolicy? policy = null)
+    private sealed class CustomContext
+        : Context;
+
+    // ReSharper disable once ClassNeverInstantiated.Local - Test class
+    private sealed class CustomActionNode(uint id, string? label = null, IPolicy? policy = null)
         : ActionNode<CustomActionNode>(id, label, policy) {
         protected override void Execute(Context context) { }
     }
 
-    private class TestPolicy(byte maxRetries = RetryPolicy.DefaultMaximumRetries, uint failedTries = 0)
+    private sealed class TestPolicy(byte maxRetries = RetryPolicy.DefaultMaximumRetries, uint failedTries = 0)
         : RetryPolicy(maxRetries) {
         protected override bool TryExecute(Action action) {
             TryCount++;

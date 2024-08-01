@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Graph;
 
-public class GraphBuilder {
+public sealed class GraphBuilder {
     private readonly HashSet<INode> _visited = [];
     private readonly StringBuilder _stringBuilder = new();
 

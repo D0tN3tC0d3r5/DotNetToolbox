@@ -8,5 +8,4 @@ public class MessagePart(string type, object value) {
         => Type == "text"
                ? (string)Value
                : $"[{Type}]";
-
 }

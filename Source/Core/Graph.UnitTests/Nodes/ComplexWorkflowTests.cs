@@ -64,7 +64,7 @@ public class ComplexWorkflowTests {
         return builder.Start;
     }
 
-    private class CustomPolicy(Action onExecute) : IPolicy {
+    private sealed class CustomPolicy(Action onExecute) : IPolicy {
         public void Execute(Action action) {
             onExecute();
             action();

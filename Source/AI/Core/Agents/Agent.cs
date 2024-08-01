@@ -51,7 +51,7 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
 
     protected abstract TRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent);
 
-    protected string CreateSystemMessage(IChat chat, World world, UserProfile userProfile, IAgent agent) {
+    protected string GetSystemMessage(IChat chat, World world, UserProfile userProfile, IAgent agent) {
         var builder = new StringBuilder();
         builder.AppendLine(world.ToString());
         builder.AppendLine(userProfile.ToString());
@@ -66,10 +66,13 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
         var request = CreateRequest(chat, World, UserProfile, this);
         HttpResponseMessage httpResult = default!;
         try {
-            var content = JsonContent.Create(request, options: IAgentModel.SerializerOptions, mediaType: MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType));
+            var mediaType = MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType);
+            var content = JsonContent.Create(request, mediaType, options: IAgentModel.SerializerOptions);
             var httpClient = _httpClientProvider.GetHttpClient();
             var chatEndpoint = _httpClientProvider.Options.Endpoints["Chat"];
+
             httpResult = await httpClient.PostAsync(chatEndpoint, content, ct).ConfigureAwait(false);
+
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentModel.SerializerOptions)!;

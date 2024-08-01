@@ -227,6 +227,7 @@ dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 dotnet_diagnostic.RCS1194.severity = silent
+dotnet_diagnostic.DV2002.severity = silent
 
 # resharper properties
 resharper_alignment_tab_fill_style = use_spaces

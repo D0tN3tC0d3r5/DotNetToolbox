@@ -67,11 +67,12 @@ public class ConditionalNodeTests {
         context["branch"].Should().Be("true");
     }
 
-    private class CustomContext : Context;
+    private sealed class CustomContext
+        : Context;
 
     [Fact]
     public void CreateFork_RunMethodWithFalseCondition_ExecutesFalseBranch() {
-        var context = new CustomContext();
+        CustomContext context = [];
         context["Disposable"] = new CustomContext();
         var builder = new WorkflowBuilder();
         var node = _factory.CreateFork(1, _ => false, builder,
@@ -97,7 +98,8 @@ public class ConditionalNodeTests {
         result.IsSuccess.Should().BeTrue();
     }
 
-    private class CustomConditionalNode(uint id, string? label = null)
+    // ReSharper disable once ClassNeverInstantiated.Local - Test class
+    private sealed class CustomConditionalNode(uint id, string? label = null)
         : ConditionalNode<CustomConditionalNode>(id, label) {
         protected override bool When(Context context) => true;
     }

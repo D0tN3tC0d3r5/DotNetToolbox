@@ -89,7 +89,8 @@ public class BranchingNodeTests {
         result.IsSuccess.Should().BeTrue();
     }
 
-    private class CustomBranchingNode(uint id, string? label = null)
+    // ReSharper disable once ClassNeverInstantiated.Local - Test class
+    private sealed class CustomBranchingNode(uint id, string? label = null)
         : BranchingNode<CustomBranchingNode>(id, label) {
         protected override string Select(Context context) => "default";
     }

@@ -2,7 +2,6 @@
 
 public class Chat(IGuidProvider guid)
     : IChat {
-
     public Chat()
         : this(new GuidProvider()) {
     }

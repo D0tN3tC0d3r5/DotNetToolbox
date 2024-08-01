@@ -1,7 +1,5 @@
 // Global using directives
 
-global using System.Collections;
-global using System.Collections.ObjectModel;
 global using System.Net;
 global using System.Net.Http.Headers;
 global using System.Net.Http.Json;
@@ -15,6 +13,7 @@ global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Common;
 global using DotNetToolbox.AI.Consumers;
 global using DotNetToolbox.AI.Extensions;
+global using DotNetToolbox.AI.Models;
 global using DotNetToolbox.AI.Personas;
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Http;

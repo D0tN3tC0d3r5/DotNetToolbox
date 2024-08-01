@@ -4,7 +4,6 @@ public abstract class AsyncResponseConsumer<TConsumer>(int timeoutInMilliseconds
     : Awaiter<TConsumer>(timeoutInMilliseconds, delayInMilliseconds, logger),
       IAsyncResponseConsumer
     where TConsumer : AsyncResponseConsumer<TConsumer> {
-
     public Task ResponseApproved(Guid chatId, int? agentNumber, Message response, CancellationToken ct) {
         if (ct.IsCancellationRequested)
             return Task.CompletedTask;

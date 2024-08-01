@@ -204,7 +204,8 @@ public sealed class WorkflowBuilderTests {
         graph.Should().Be(expectedResult);
     }
 
-    private class CustomAction(uint id, string? label = null, IPolicy? policy = null)
+    // ReSharper disable once ClassNeverInstantiated.Local - Test class
+    private sealed class CustomAction(uint id, string? label = null, IPolicy? policy = null)
         : ActionNode<CustomAction>(id, label!, policy) {
         protected override void Execute(Context context) { }
     }

@@ -35,6 +35,7 @@ public class ExpressionExtensionsTests {
     }
 
     [Fact]
+    [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1861:Avoid constant arrays as arguments", Justification = "Testing expression")]
     public void VisitArray_ConvertsExpression() {
         // Arrange
         var arrayMapper = new TypeMapper<string[], int[]>();

@@ -39,7 +39,7 @@ public sealed class Runner(Workflow workflow,
             }
         }
         catch (Exception ex) {
-            _logger.LogError(ex, message: "An error occurred while running the workflow '{id}'.", _workflow.Id);
+            _logger.LogError(ex, message: "An error occurred while running the workflow '{Id}'.", _workflow.Id);
             throw;
         }
         finally {
@@ -49,14 +49,14 @@ public sealed class Runner(Workflow workflow,
     }
 
     private void StartingRun(WorkflowEventArgs e) {
-        _logger.LogInformation(message: "Starting run of workflow '{id}' at '{Start}'...", _workflow.Id, Start);
+        _logger.LogInformation(message: "Starting run of workflow '{Id}' at '{Start}'...", _workflow.Id, Start);
         OnRunStarting?.Invoke(this, e);
     }
 
     private bool ExecutingNode(NodeEventArgs e) {
         if (OnNodeExecuting is null)
             return e.Node is not null;
-        _logger.LogInformation(message: "Executing node '{id}'...", _workflow.Id);
+        _logger.LogInformation(message: "Executing node '{Id}'...", _workflow.Id);
 
         OnNodeExecuting?.Invoke(this, e);
         return !e.Cancel;
@@ -67,12 +67,12 @@ public sealed class Runner(Workflow workflow,
             return e.Node is not null;
 
         OnNodeExecuted?.Invoke(this, e);
-        _logger.LogInformation(message: "Node '{id}' executed.", _workflow.Id);
+        _logger.LogInformation(message: "Node '{Id}' executed.", _workflow.Id);
         return !e.Cancel;
     }
 
     private void RunEnded(WorkflowEventArgs e) {
         OnRunEnded?.Invoke(this, e);
-        _logger.LogInformation(message: "Run of workflow '{id}' ended at '{End}' after '{ElapsedTime}' minutes.", _workflow.Id, End, ElapsedTime!.Value.TotalMinutes);
+        _logger.LogInformation(message: "Run of workflow '{Id}' ended at '{End}' after '{ElapsedTime}' minutes.", _workflow.Id, End, ElapsedTime!.Value.TotalMinutes);
     }
 }

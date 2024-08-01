@@ -1,3 +1,5 @@
+using DotNetToolbox.AI.OpenAI.Models;
+
 namespace DotNetToolbox.AI.OpenAI.Model;
 
 public sealed class ModelsHandlerTests : IDisposable {

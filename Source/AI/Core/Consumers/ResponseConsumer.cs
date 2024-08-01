@@ -4,7 +4,6 @@ public abstract class ResponseConsumer<TConsumer>(int timeoutInMilliseconds = 50
     : Awaiter<TConsumer>(timeoutInMilliseconds, delayInMilliseconds, logger),
       IResponseConsumer
     where TConsumer : ResponseConsumer<TConsumer> {
-
     public void ResponseApproved(Guid chat, int? agent, Message response) {
         Logger.LogDebug("Approved response received...");
         StopWaiting();

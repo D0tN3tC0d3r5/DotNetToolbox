@@ -2,7 +2,6 @@
 
 [method: JsonConstructor]
 public class Persona() {
-
     public Persona(string name)
         : this() {
         Name = IsNotNull(name);

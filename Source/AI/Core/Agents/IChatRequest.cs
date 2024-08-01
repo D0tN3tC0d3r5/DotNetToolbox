@@ -1,3 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public interface IChatRequest;
+public interface IChatRequest {
+    string Model { get; }
+    string Context { get; }
+    IEnumerable<IChatRequestMessage> Messages { get; }
+}

@@ -1,17 +1,17 @@
-﻿namespace DotNetToolbox.AI.Anthropic;
+﻿using DotNetToolbox.AI.Anthropic.Chats;
 
-public class AnthropicAgent([FromKeyedServices("Anthropic")]IHttpClientProviderFactory factory, ILogger<AnthropicAgent> logger)
+namespace DotNetToolbox.AI.Anthropic;
+
+public class AnthropicAgent([FromKeyedServices("Anthropic")] IHttpClientProviderFactory factory, ILogger<AnthropicAgent> logger)
     : Agent<AnthropicAgent, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
     protected override ChatRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent)
-        => new() {
-            Model = agent.AgentModel.ModelId,
+        => new(chat, world, userProfile, agent) {
             Temperature = agent.AgentModel.Temperature,
-            MaximumOutputTokens = agent.AgentModel.MaximumOutputTokens,
             StopSequences = agent.AgentModel.StopSequences.Count == 0 ? null : [.. agent.AgentModel.StopSequences],
             MinimumTokenProbability = agent.AgentModel.TokenProbabilityCutOff,
             ResponseIsStream = agent.AgentModel.ResponseIsStream,
-            Messages = chat.Messages.ToArray(o => new RequestMessage(o)),
-            System = CreateSystemMessage(chat, world, userProfile, agent),
+            Messages = chat.Messages.ToArray(o => new ChatRequestMessage(o)),
+            MaximumTokenSamples = 0,
         };
 
     protected override Message GetResponseMessage(IChat chat, ChatResponse response) {

@@ -24,7 +24,6 @@ public abstract class ActionNode<TAction>(uint id, string? label, IPolicy? polic
     : Node<TAction>(id, label),
       IActionNode
     where TAction : ActionNode<TAction> {
-
     private readonly IPolicy _policy = policy ?? Policy.Default;
 
     protected abstract void Execute(Context context);

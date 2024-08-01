@@ -1,6 +1,8 @@
-﻿namespace DotNetToolbox.AI.OpenAI;
+﻿using DotNetToolbox.AI.OpenAI.Chats;
 
-public class OpenAIAgent([FromKeyedServices("OpenAI")]IHttpClientProviderFactory factory, ILogger<OpenAIAgent> logger)
+namespace DotNetToolbox.AI.OpenAI;
+
+public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactory factory, ILogger<OpenAIAgent> logger)
     : Agent<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
     protected override ChatRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent) {
         var system = new ChatRequestMessage(CreateSystemMessage(chat, world, userProfile, agent));

@@ -3,7 +3,6 @@
 public abstract class Node<TNode>
     : INode
     where TNode : Node<TNode> {
-
     protected Node(uint id, string? label = null) {
         Id = id;
         Label = label ?? Label;

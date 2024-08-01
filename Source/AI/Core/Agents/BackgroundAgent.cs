@@ -8,7 +8,6 @@ public abstract class BackgroundAgent<TAgent, TRequest, TResponse>(string provid
     where TAgent : BackgroundAgent<TAgent, TRequest, TResponse>
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
-
     // this should be a fire and forget method.
     // Use the cancellation token to stop the agent.
     public async void Run(CancellationToken ct) {
