@@ -11,10 +11,10 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
 
     protected ILogger<TAgent> Logger { get; } = logger;
 
+    public AgentModel AgentModel { get; set; } = default!;
     public World World { get; set; } = default!;
     public UserProfile UserProfile { get; set; } = default!;
     public Persona Persona { get; set; } = default!;
-    public AgentModel AgentModel { get; set; } = default!;
 
     public virtual async Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, int? number, CancellationToken ct) {
         try {
