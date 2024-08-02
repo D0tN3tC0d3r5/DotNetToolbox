@@ -1,20 +1,26 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
-public class ChatRequest : IChatRequest {
+[method: SetsRequiredMembers]
+public class ChatRequest(IChat chat, World world, UserProfile userProfile, IAgent agent)
+    : IChatRequest {
+    string IChatRequest.Context => (string?)Messages[0].Content ?? string.Empty;
+    IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.Skip(1).ToArray();
+
     [JsonPropertyName("model")]
-    public required string Model { get; init; }
-    public string Context => (string?)Messages.SingleOrDefault(m => m.Role == Roles.System)?.Content ?? string.Empty;
-    IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.Where(m => m.Role != Roles.System).ToArray<IChatRequestMessage>();
+    public required string Model { get; init; } = agent.AgentModel.Model.Id;
     [JsonPropertyName("messages")]
-    public ChatRequestMessage[] Messages { get; } = [];
+    public ChatRequestMessage[] Messages { get; } = SetMessages(chat, world, userProfile, agent);
+
+    [JsonPropertyName("max_tokens")]
+    public uint MaximumOutputTokens { get; set; } = SetMaximumOutputTokens(agent);
+
     [JsonPropertyName("frequency_penalty")]
     public decimal? FrequencyPenalty { get; set; }
     [JsonPropertyName("presence_penalty")]
     public decimal? PresencePenalty { get; set; }
     [JsonPropertyName("temperature")]
     public decimal? Temperature { get; set; }
-    [JsonPropertyName("max_tokens")]
-    public uint MaximumOutputTokens { get; set; }
+
     [JsonPropertyName("n")]
     public int? NumberOfChoices { get; set; }
     [JsonPropertyName("stop")]
@@ -30,7 +36,12 @@ public class ChatRequest : IChatRequest {
     [JsonPropertyName("response_format")]
     public ChatRequestResponseFormat? ResponseFormat { get; set; }
 
-    private string SetSystemMessage(IChat chat, World world, UserProfile userProfile, IAgent agent) {
+    private static ChatRequestMessage[] SetMessages(IChat chat, World world, UserProfile userProfile, IAgent agent) {
+        var systemMessage = SetSystemMessage(chat, world, userProfile, agent);
+        return [new(systemMessage), .. chat.Messages.Select(m => new ChatRequestMessage(m))];
+    }
+
+    private static string SetSystemMessage(IChat chat, World world, UserProfile userProfile, IAgent agent) {
         var builder = new StringBuilder();
         builder.AppendLine(world.ToString());
         builder.AppendLine(userProfile.ToString());
@@ -39,6 +50,9 @@ public class ChatRequest : IChatRequest {
         return builder.ToString();
     }
 
-    public RequestMessage[] SetMessageHistory(IChat chat)
-        => chat.Messages.Where(m => m.Role is Roles.User or Roles.Assistant).ToArray(m => new RequestMessage(m));
+    private static uint SetMaximumOutputTokens(IAgent agent)
+        => agent.AgentModel.MaximumOutputTokens > AgentModel.MinimumOutputTokens
+        && agent.AgentModel.MaximumOutputTokens < agent.AgentModel.Model.MaximumOutputTokens
+            ? agent.AgentModel.MaximumOutputTokens
+            : agent.AgentModel.Model.MaximumOutputTokens;
 }

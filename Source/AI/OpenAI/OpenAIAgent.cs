@@ -4,23 +4,20 @@ namespace DotNetToolbox.AI.OpenAI;
 
 public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactory factory, ILogger<OpenAIAgent> logger)
     : Agent<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
-    protected override ChatRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent) {
-        var system = new ChatRequestMessage(CreateSystemMessage(chat, world, userProfile, agent));
-        return new() {
-            Model = agent.AgentModel.ModelId,
+    protected override ChatRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent)
+        => new(chat, world, userProfile, agent) {
             Temperature = agent.AgentModel.Temperature,
-            MaximumOutputTokens = agent.AgentModel.MaximumOutputTokens,
             StopSequences = agent.AgentModel.StopSequences.Count == 0 ? null : [.. agent.AgentModel.StopSequences],
             MinimumTokenProbability = agent.AgentModel.TokenProbabilityCutOff,
             ResponseIsStream = agent.AgentModel.ResponseIsStream,
-            Messages = [system, .. chat.Messages.ToArray(o => new ChatRequestMessage(o))],
 
             NumberOfChoices = 1,
             FrequencyPenalty = 0,
             PresencePenalty = 0,
             Tools = agent.Persona.KnownTools.Count == 0 ? null : agent.Persona.KnownTools.ToArray(ToRequestToolCall),
+            ForceToolCall = null,
+            ResponseFormat = null,
         };
-    }
     protected override Message GetResponseMessage(IChat chat, ChatResponse response) {
         chat.TotalTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.TotalTokens);
         return response.Choices[0].Message.Content switch {

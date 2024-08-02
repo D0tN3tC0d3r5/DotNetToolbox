@@ -50,16 +50,6 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
     }
 
     protected abstract TRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent);
-
-    protected string GetSystemMessage(IChat chat, World world, UserProfile userProfile, IAgent agent) {
-        var builder = new StringBuilder();
-        builder.AppendLine(world.ToString());
-        builder.AppendLine(userProfile.ToString());
-        builder.AppendLine(agent.Persona.ToString());
-        builder.AppendLine(chat.Instructions.ToString());
-        return builder.ToString();
-    }
-
     protected abstract Message GetResponseMessage(IChat chat, TResponse response);
 
     private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
