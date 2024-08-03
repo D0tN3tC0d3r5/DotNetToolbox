@@ -1,16 +1,16 @@
 ﻿namespace DotNetToolbox.AI.Anthropic.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(IChat chat, World world, UserProfile userProfile, IAgent agent)
+public class ChatRequest(IChat chat, string prompt, World world, UserProfile userProfile, IAgent agent)
     : IChatRequest {
     string IChatRequest.Context => System;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.ToArray<IChatRequestMessage>();
 
     [JsonPropertyName("model")]
-    public string Model { get; } = agent.AgentModel.Model.Id;
+    public string Model { get; } = agent.Model.Model.Id;
 
     [JsonPropertyName("system")]
-    public string System { get; } = SetContext(chat, world, userProfile, agent);
+    public string System { get; } = SetContext(chat, prompt, world, userProfile, agent);
 
     [JsonPropertyName("messages")]
     public ChatRequestMessage[] Messages { get; } = SetMessages(chat);
@@ -32,12 +32,12 @@ public class ChatRequest(IChat chat, World world, UserProfile userProfile, IAgen
     [JsonPropertyName("top_k")]
     public decimal? MaximumTokenSamples { get; set; }
 
-    private static string SetContext(IChat chat, World world, UserProfile userProfile, IAgent agent) {
+    private static string SetContext(IChat chat, string prompt, World world, UserProfile userProfile, IAgent agent) {
         var builder = new StringBuilder();
         builder.AppendLine(world.ToString());
         builder.AppendLine(userProfile.ToString());
         builder.AppendLine(agent.Persona.ToString());
-        builder.AppendLine(chat.Instructions.ToString());
+        builder.AppendLine(prompt);
         return builder.ToString();
     }
 
@@ -45,8 +45,8 @@ public class ChatRequest(IChat chat, World world, UserProfile userProfile, IAgen
         => chat.Messages.ToArray(m => new ChatRequestMessage(m));
 
     private static uint SetMaximumOutputTokens(IAgent agent)
-        => agent.AgentModel.MaximumOutputTokens > AgentModel.MinimumOutputTokens
-        && agent.AgentModel.MaximumOutputTokens < agent.AgentModel.Model.MaximumOutputTokens
-               ? agent.AgentModel.MaximumOutputTokens
-               : agent.AgentModel.Model.MaximumOutputTokens;
+        => agent.Model.MaximumOutputTokens > AgentModel.MinimumOutputTokens
+        && agent.Model.MaximumOutputTokens < agent.Model.Model.MaximumOutputTokens
+               ? agent.Model.MaximumOutputTokens
+               : agent.Model.Model.MaximumOutputTokens;
 }

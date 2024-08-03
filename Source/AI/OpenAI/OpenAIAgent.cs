@@ -4,26 +4,38 @@ namespace DotNetToolbox.AI.OpenAI;
 
 public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactory factory, ILogger<OpenAIAgent> logger)
     : Agent<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
-    protected override ChatRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent)
-        => new(chat, world, userProfile, agent) {
-            Temperature = agent.AgentModel.Temperature,
-            StopSequences = agent.AgentModel.StopSequences.Count == 0 ? null : [.. agent.AgentModel.StopSequences],
-            MinimumTokenProbability = agent.AgentModel.TokenProbabilityCutOff,
-            ResponseIsStream = agent.AgentModel.ResponseIsStream,
+    protected override ChatRequest CreateRequest(IChat chat, string prompt, World world, UserProfile userProfile)
+        => new(chat, prompt, world, userProfile, this) {
+            Temperature = Model.Temperature,
+            StopSequences = Model.StopSequences.Count == 0 ? null : [.. Model.StopSequences],
+            MinimumTokenProbability = Model.TokenProbabilityCutOff,
+            ResponseIsStream = Model.ResponseIsStream,
 
             NumberOfChoices = 1,
             FrequencyPenalty = 0,
             PresencePenalty = 0,
-            Tools = agent.Persona.KnownTools.Count == 0 ? null : agent.Persona.KnownTools.ToArray(ToRequestToolCall),
+            Tools = Persona.KnownTools.Count == 0 ? null : Persona.KnownTools.ToArray(ToRequestToolCall),
             ForceToolCall = null,
             ResponseFormat = null,
         };
-    protected override Message GetResponseMessage(IChat chat, ChatResponse response) {
+    protected override bool UpdateChat(IChat chat, ChatResponse response) {
         chat.TotalTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.TotalTokens);
-        return response.Choices[0].Message.Content switch {
-            ChatResponseToolRequest[] tcs => new("assistant", new MessagePart("tool_calls", tcs)),
-            _ => new("assistant", $"{response.Choices[0].Message.Content}"),
+        var message = ToMessage(response.Choices[0]);
+        chat.Messages.Add(message);
+        return message.IsComplete;
+    }
+
+    private static Message ToMessage(ChatResponseChoice firstChoice) {
+        var content = firstChoice.Message.Content;
+        var message = content switch {
+            ChatResponseToolRequest[] tcs => new Message(MessageRole.Assistant, new MessagePart(MessagePartContentType.ToolCall, tcs)) {
+                IsComplete = true,
+            },
+            _ => new Message(MessageRole.Assistant, $"{content}") {
+                IsComplete = firstChoice.StopReason != "length",
+            },
         };
+        return message;
     }
 
     private static ChatRequestTool ToRequestToolCall(Tool tool)

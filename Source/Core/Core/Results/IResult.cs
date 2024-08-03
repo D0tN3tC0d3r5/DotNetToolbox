@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Results;
 
 public interface IResult {
-    IReadOnlyList<ValidationError> Errors { get; }
+    ValidationErrors Errors { get; }
     Exception? Exception { get; }
     bool HasErrors { get; }
     [MemberNotNullWhen(true, nameof(Exception))]

@@ -26,7 +26,7 @@ public record Result : ResultBase<ResultType> {
     public static Result Invalid(string message) => Invalid(message, string.Empty);
     public static Result Invalid(string message, string source) => Invalid(new ValidationError(message, source));
     public static Result Invalid(ValidationError error) => new([error]);
-    public static Result Invalid(Result result) => new(result.Errors);
+    public static Result Invalid(Result result) => new((IEnumerable<ValidationError>)result.Errors);
     public static Result Error(string message) => Error(new Exception(message));
     public static Result Error(Exception exception) => new(exception);
 

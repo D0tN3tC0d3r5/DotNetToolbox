@@ -13,11 +13,11 @@ public class ChatResponseMessage {
     [JsonPropertyName("tool_calls")]
     public ChatResponseToolRequest[]? ToolCalls { get; set; }
 
-    public object ToContent()
+    public object ToMessage()
         => Content switch {
             ChatResponseToolRequest[] => Content,
             Message => Content,
-            string txt => new Message("assistant", txt),
+            string txt => new Message(MessageRole.Assistant, txt),
             _ => throw new NotSupportedException(),
         };
 }

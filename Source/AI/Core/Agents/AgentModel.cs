@@ -28,9 +28,9 @@ public class AgentModel
         if (MaximumNumberOfRetries > _maximumRetries)
             result += new ValidationError($"The maximum number of retries is {_maximumRetries}. Found: {MaximumNumberOfRetries}", nameof(MaximumNumberOfRetries));
         if (Temperature is < 0 or > _maximumTemperature)
-            result += new ValidationError($"Value must be between {0} and {_maximumTemperature}. Found: {Temperature}", nameof(Temperature));
+            result += new ValidationError($"Content must be between {0} and {_maximumTemperature}. Found: {Temperature}", nameof(Temperature));
         if (TokenProbabilityCutOff is < 0 or > _maximumTokenProbabilityCutOff)
-            result += new ValidationError($"Value must be between {0} and {_maximumTokenProbabilityCutOff}. Found: {TokenProbabilityCutOff}", nameof(TokenProbabilityCutOff));
+            result += new ValidationError($"Content must be between {0} and {_maximumTokenProbabilityCutOff}. Found: {TokenProbabilityCutOff}", nameof(TokenProbabilityCutOff));
 
         return result;
     }

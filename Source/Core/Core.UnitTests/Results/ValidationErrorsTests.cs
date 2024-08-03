@@ -308,9 +308,9 @@ public class ValidationErrorsTests {
     [Fact]
     public void Add_WithString_ShouldCreateValidationErrorAndAddIfNotPresent() {
         // Arrange
-        #pragma warning disable IDE0028
+#pragma warning disable IDE0028
         var errors = new ValidationErrors();
-        #pragma warning restore IDE0028
+#pragma warning restore IDE0028
 
         // Act
         errors.Add("Error1");
@@ -446,10 +446,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void IList_SetterAtIndex_ShouldUpdateValidationError() {
         // Arrange
-        #pragma warning disable IDE0028
+#pragma warning disable IDE0028
         IList errors = new ValidationErrors();
         errors.Add(new ValidationError("Error1"));
-        #pragma warning restore IDE0028
+#pragma warning restore IDE0028
         var newError = new ValidationError("Error2");
 
         // Act
@@ -462,10 +462,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void IList_SetterAtIndex_WithString_ShouldUpdateValidationError() {
         // Arrange
-        #pragma warning disable IDE0028
+#pragma warning disable IDE0028
         IList errors = new ValidationErrors();
         errors.Add(new ValidationError("Error1"));
-        #pragma warning restore IDE0028
+#pragma warning restore IDE0028
 
         // Act
         errors[0] = "Error2";
@@ -489,16 +489,6 @@ public class ValidationErrorsTests {
     }
 
     [Fact]
-    public void IsReadOnly_ShouldReturnFalse() {
-        // Arrange
-        // ReSharper disable once CollectionNeverUpdated.Local
-        var errors = new ValidationErrors();
-
-        // Act & Assert
-        errors.IsReadOnly.Should().BeFalse();
-    }
-
-    [Fact]
     public void IList_IsFixedSize_ShouldReturnFalse() {
         // Arrange
         // ReSharper disable once CollectionNeverUpdated.Local
@@ -511,10 +501,10 @@ public class ValidationErrorsTests {
     [Fact]
     public void ICollectionOfValidationError_Clear_ShouldRemoveAllErrors() {
         // Arrange
-        #pragma warning disable IDE0028
+#pragma warning disable IDE0028
         ICollection<ValidationError> errors = new ValidationErrors();
         errors.Add(new("Error1"));
-        #pragma warning restore IDE0028
+#pragma warning restore IDE0028
 
         // Act
         errors.Clear();
@@ -526,11 +516,11 @@ public class ValidationErrorsTests {
     [Fact]
     public void IListOfValidationError_RemoveAt_ShouldRemoveErrorAtIndex() {
         // Arrange
-        #pragma warning disable IDE0028
+#pragma warning disable IDE0028
         IList<ValidationError> errors = new ValidationErrors();
         errors.Add(new("Error1"));
         errors.Add(new("Error2"));
-        #pragma warning restore IDE0028
+#pragma warning restore IDE0028
 
         // Act
         errors.RemoveAt(0);

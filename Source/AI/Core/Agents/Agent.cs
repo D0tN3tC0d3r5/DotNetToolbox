@@ -11,84 +11,59 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
 
     protected ILogger<TAgent> Logger { get; } = logger;
 
-    public AgentModel AgentModel { get; set; } = default!;
+    public AgentModel Model { get; set; } = default!;
     public World World { get; set; } = default!;
     public UserProfile UserProfile { get; set; } = default!;
     public Persona Persona { get; set; } = default!;
+    public string Prompt { get; set; } = default!;
 
-    public virtual async Task<HttpResult> SendRequest(IResponseAwaiter source, IChat chat, int? number, CancellationToken ct) {
+    public virtual async Task<HttpResult> SendRequest(IChat chat, CancellationToken ct) {
         try {
-            var isCompleted = false;
             var count = 1;
-            while (!isCompleted) {
+            var hasFinished = false;
+            while (!hasFinished) {
                 Logger.LogDebug("Sending request {RequestNumber} for {ChatId}...", count++, chat.Id);
-                var result = await Submit(chat, ct);
-                if (!result.IsOk)
-                    return result;
-                isCompleted = source switch {
-                    IResponseConsumer ac => ac.VerifyResponse(chat.Id, number, chat.Messages[^1]),
-                    IAsyncResponseConsumer ac => await ac.VerifyResponse(chat.Id, number, chat.Messages[^1], ct),
-                    _ => throw new NotSupportedException(nameof(source)),
-                };
-            }
-
-            switch (source) {
-                case IResponseConsumer ac:
-                    ac.ResponseApproved(chat.Id, number, chat.Messages[^1]);
-                    break;
-                case IAsyncResponseConsumer ac:
-                    await ac.ResponseApproved(chat.Id, number, chat.Messages[^1], ct);
-                    break;
+                var request = CreateRequest(chat, Prompt, World, UserProfile);
+                var mediaType = MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType);
+                var content = JsonContent.Create(request, mediaType, options: IAgentModel.SerializerOptions);
+                var httpClient = _httpClientProvider.GetHttpClient();
+                var chatEndpoint = _httpClientProvider.Options.Endpoints["Chat"];
+                var httpResult = await httpClient.PostAsync(chatEndpoint, content, ct).ConfigureAwait(false);
+                switch (httpResult.StatusCode) {
+                    case HttpStatusCode.BadRequest:
+                        Logger.LogDebug("Invalid request.");
+                        var input = JsonSerializer.Serialize(request, IAgentModel.SerializerOptions);
+                        var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                        var errorMessage = $"""
+                                            RequestPackage: {input}
+                                            ResponseContent: {response};
+                                            """;
+                        return HttpResult.BadRequest(errorMessage);
+                    case HttpStatusCode.Unauthorized:
+                    case HttpStatusCode.Forbidden:
+                        Logger.LogDebug("Authentication failed.");
+                        return HttpResult.Unauthorized();
+                    case HttpStatusCode.NotFound:
+                        Logger.LogDebug("Wrong agent endpoint.");
+                        return HttpResult.NotFound();
+                    default:
+                        Logger.LogDebug("Response received.");
+                        var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                        var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentModel.SerializerOptions)!;
+                        hasFinished = UpdateChat(chat, apiResponse);
+                        if (!hasFinished) Logger.LogDebug("Response is incomplete.");
+                        break;
+                }
             }
             Logger.LogDebug("Request completed.");
             return HttpResult.Ok();
         }
         catch (Exception ex) {
-            Logger.LogError(ex, "An error occurred while sending the request!");
+            Logger.LogWarning(ex, "Request failed!");
             return HttpResult.InternalError(ex);
         }
     }
 
-    protected abstract TRequest CreateRequest(IChat chat, World world, UserProfile userProfile, IAgent agent);
-    protected abstract Message GetResponseMessage(IChat chat, TResponse response);
-
-    private async Task<HttpResult> Submit(IChat chat, CancellationToken ct = default) {
-        var request = CreateRequest(chat, World, UserProfile, this);
-        HttpResponseMessage httpResult = default!;
-        try {
-            var mediaType = MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType);
-            var content = JsonContent.Create(request, mediaType, options: IAgentModel.SerializerOptions);
-            var httpClient = _httpClientProvider.GetHttpClient();
-            var chatEndpoint = _httpClientProvider.Options.Endpoints["Chat"];
-
-            httpResult = await httpClient.PostAsync(chatEndpoint, content, ct).ConfigureAwait(false);
-
-            httpResult.EnsureSuccessStatusCode();
-            var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentModel.SerializerOptions)!;
-            var responseMessage = GetResponseMessage(chat, apiResponse);
-            chat.Messages.Add(responseMessage);
-            return HttpResult.Ok();
-        }
-        catch (Exception ex) {
-            Logger.LogWarning(ex, "Request failed!");
-            switch (httpResult.StatusCode) {
-                case HttpStatusCode.BadRequest:
-                    var input = JsonSerializer.Serialize(request, IAgentModel.SerializerOptions);
-                    var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                    var errorMessage = $"""
-                                        RequestPackage: {input}
-                                        ResponseContent: {response};
-                                        """;
-                    return HttpResult.BadRequest(errorMessage);
-                case HttpStatusCode.Unauthorized:
-                case HttpStatusCode.Forbidden:
-                    return HttpResult.Unauthorized();
-                case HttpStatusCode.NotFound:
-                    return HttpResult.NotFound();
-                default:
-                    return HttpResult.InternalError(ex);
-            }
-        }
-    }
+    protected abstract TRequest CreateRequest(IChat chat, string prompt, World world, UserProfile userProfile);
+    protected abstract bool UpdateChat(IChat chat, TResponse response);
 }

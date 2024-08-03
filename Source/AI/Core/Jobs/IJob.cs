@@ -5,7 +5,7 @@ public interface IJob {
     string Id { get; }
 }
 
-public interface IJob<in TRequest, TResponse>
+public interface IJob<in TInput, TOutput>
     : IJob {
-    Task<TResponse> Execute(TRequest request, CancellationToken ct);
+    Task<Result<TOutput>> Execute(TInput input, CancellationToken ct);
 }

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Graph;
+﻿namespace DotNetToolbox;
 
 public class Context
     : Dictionary<string, object>

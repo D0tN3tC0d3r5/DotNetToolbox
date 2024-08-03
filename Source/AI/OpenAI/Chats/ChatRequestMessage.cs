@@ -5,22 +5,22 @@ public class ChatRequestMessage : IChatRequestMessage {
     public ChatRequestMessage(object content) {
         switch (content) {
             case string:
-                Role = Roles.System;
+                Role = RoleToString(MessageRole.System);
                 Content = content;
                 break;
             case Message c:
-                Role = c.Role;
-                Content = c.Parts.Length == 1
-                              ? (string)c.Parts[0].Value
-                              : c.Parts.ToArray(p => new MessageContent(p.Value));
+                Role = RoleToString(c.Role);
+                Content = c.Parts.Count == 1
+                              ? (string)c.Parts[0].Content
+                              : c.Parts.ToArray(p => new MessageContent(p.Content));
                 break;
             case ChatFunctionCallResult c:
-                Role = Roles.Tool;
+                Role = RoleToString(MessageRole.Tool);
                 Content = c.Value;
                 ToolCallId = c.CallId;
                 break;
             case ChatResponseToolRequest[] c:
-                Role = Roles.Assistant;
+                Role = RoleToString(MessageRole.Assistant);
                 ToolCalls = c;
                 break;
             default:
@@ -37,4 +37,11 @@ public class ChatRequestMessage : IChatRequestMessage {
     public ChatResponseToolRequest[]? ToolCalls { get; set; }
     [JsonPropertyName("tool_call_id")]
     public string? ToolCallId { get; set; }
+
+    private static string RoleToString(MessageRole role) => role switch {
+        MessageRole.User => "user",
+        MessageRole.Assistant => "assistant",
+        MessageRole.Tool => "tool",
+        _ => "system",
+    };
 }

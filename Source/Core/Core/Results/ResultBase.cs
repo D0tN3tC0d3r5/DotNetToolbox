@@ -16,7 +16,7 @@ public abstract record ResultBase<TType>
 
     public abstract TType Type { get; }
     public Exception? Exception { get; }
-    public IReadOnlyList<ValidationError> Errors => _errors;
+    public ValidationErrors Errors => _errors;
 
     public bool HasErrors => Errors.Count != 0;
     [MemberNotNullWhen(true, nameof(Exception))]
