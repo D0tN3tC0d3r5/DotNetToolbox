@@ -1,6 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Common;
 
-public class Argument {
+public class Argument
+    : IContextSection {
+    public string Title { get; } = string.Empty;
     public required int Index { get; set; }
     public required string Name { get; set; }
     public required ArgumentType Type { get; set; }
@@ -8,18 +10,14 @@ public class Argument {
     public string[]? Options { get; set; } = [];
     public bool IsRequired { get; set; }
 
-    public override string ToString() {
+    public string GetIndentedText(string indent) {
         var builder = new StringBuilder();
-        builder.Append($"{Index}: ");
-        if (!IsRequired)
-            builder.Append('[');
+        builder.Append($"{indent}{Index}: ");
+        if (!IsRequired) builder.Append('[');
         builder.Append($"{Name}: <{Type}>");
-        if (Options?.Length > 0)
-            builder.Append($" in {{{string.Join('|', Options)}}}");
-        if (!IsRequired)
-            builder.Append(']');
-        if (Description is not null)
-            builder.Append($" '{Description}'");
+        if (Options?.Length > 0) builder.Append($" in {{{string.Join('|', Options)}}}");
+        if (!IsRequired) builder.Append(']');
+        if (Description is not null) builder.Append($" '{Description}'");
         return builder.ToString();
     }
 }

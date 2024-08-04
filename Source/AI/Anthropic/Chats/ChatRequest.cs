@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Anthropic.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(IChat chat, string prompt, World world, UserProfile userProfile, IAgent agent)
+public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
     : IChatRequest {
     string IChatRequest.Context => System;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.ToArray<IChatRequestMessage>();
@@ -10,7 +10,7 @@ public class ChatRequest(IChat chat, string prompt, World world, UserProfile use
     public string Model { get; } = agent.Model.Model.Id;
 
     [JsonPropertyName("system")]
-    public string System { get; } = SetContext(chat, prompt, world, userProfile, agent);
+    public string System { get; } = SetContext(world, job, agent);
 
     [JsonPropertyName("messages")]
     public ChatRequestMessage[] Messages { get; } = SetMessages(chat);
@@ -32,12 +32,11 @@ public class ChatRequest(IChat chat, string prompt, World world, UserProfile use
     [JsonPropertyName("top_k")]
     public decimal? MaximumTokenSamples { get; set; }
 
-    private static string SetContext(IChat chat, string prompt, World world, UserProfile userProfile, IAgent agent) {
+    private static string SetContext(World world, IJob job, IAgent agent) {
         var builder = new StringBuilder();
-        builder.AppendLine(world.ToString());
-        builder.AppendLine(userProfile.ToString());
-        builder.AppendLine(agent.Persona.ToString());
-        builder.AppendLine(prompt);
+        builder.AppendLine(world.GetIndentedText(string.Empty));
+        builder.AppendLine(agent.Persona.GetIndentedText(string.Empty));
+        builder.AppendLine(job.Instructions);
         return builder.ToString();
     }
 

@@ -13,17 +13,15 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
 
     public AgentModel Model { get; set; } = default!;
     public World World { get; set; } = default!;
-    public UserProfile UserProfile { get; set; } = default!;
     public Persona Persona { get; set; } = default!;
-    public string Prompt { get; set; } = default!;
 
-    public virtual async Task<HttpResult> SendRequest(IChat chat, CancellationToken ct) {
+    public virtual async Task<HttpResult> SendRequest(IJob job, IChat chat, CancellationToken ct) {
         try {
             var count = 1;
             var hasFinished = false;
             while (!hasFinished) {
                 Logger.LogDebug("Sending request {RequestNumber} for {ChatId}...", count++, chat.Id);
-                var request = CreateRequest(chat, Prompt, World, UserProfile);
+                var request = CreateRequest(job, chat);
                 var mediaType = MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType);
                 var content = JsonContent.Create(request, mediaType, options: IAgentModel.SerializerOptions);
                 var httpClient = _httpClientProvider.GetHttpClient();
@@ -64,6 +62,6 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
         }
     }
 
-    protected abstract TRequest CreateRequest(IChat chat, string prompt, World world, UserProfile userProfile);
+    protected abstract TRequest CreateRequest(IJob job, IChat chat);
     protected abstract bool UpdateChat(IChat chat, TResponse response);
 }

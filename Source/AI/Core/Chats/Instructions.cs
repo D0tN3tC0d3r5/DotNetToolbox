@@ -1,6 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
-public class Instructions {
+public class Instructions
+    : IContextSection {
+    public string Title { get; } = string.Empty;
     public List<string> Goals { get; set; } = [];
     public List<string> Scope { get; set; } = [];
     public List<string> Requirements { get; set; } = [];
@@ -10,16 +12,16 @@ public class Instructions {
     public List<string> Strategy { get; set; } = [];
     public List<string> Validation { get; set; } = [];
 
-    public override string ToString() {
+    public string GetIndentedText(string indent) {
         var builder = new StringBuilder();
-        builder.AppendSection(Goals);
-        builder.AppendSection(Scope);
-        builder.AppendSection(Assumptions);
-        builder.AppendSection(Requirements);
-        builder.AppendSection(Constraints);
-        builder.AppendSection(Examples);
-        builder.AppendSection(Strategy);
-        builder.AppendSection(Validation);
+        builder.AppendSection(indent, Goals, nameof(Goals));
+        builder.AppendSection(indent, Scope, nameof(Scope));
+        builder.AppendSection(indent, Assumptions, nameof(Assumptions));
+        builder.AppendSection(indent, Requirements, nameof(Requirements));
+        builder.AppendSection(indent, Constraints, nameof(Constraints));
+        builder.AppendSection(indent, Examples, nameof(Examples));
+        builder.AppendSection(indent, Strategy, nameof(Strategy));
+        builder.AppendSection(indent, Validation, nameof(Validation));
         return builder.ToString();
     }
 }

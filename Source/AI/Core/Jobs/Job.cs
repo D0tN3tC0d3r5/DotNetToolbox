@@ -10,11 +10,12 @@ public abstract class Job<TInput, TOutput>(string id, IAgentFactory? agentFactor
 
     public string Id { get; } = id;
     public JobType Type { get; protected init; }
+    public abstract string Instructions { get; protected init; }
 
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
         var agent = _agentFactory.Create("provider");
         var chat = PrepareChat(input);
-        var result = await agent.SendRequest(chat, ct);
+        var result = await agent.SendRequest(this, chat, ct);
 
         if (result.HasException)
             throw new JobException($"An internal error occurred while executing the job.", result.Exception);

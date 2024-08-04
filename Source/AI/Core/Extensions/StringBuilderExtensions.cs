@@ -1,13 +1,26 @@
 ﻿namespace DotNetToolbox.AI.Extensions;
-internal static class StringBuilderExtensions {
-    public static void AppendSection<TItem>(this StringBuilder builder, ICollection<TItem> items, [CallerArgumentExpression(nameof(items))] string? paramName = null)
-        => builder.AppendSection(string.Empty, items, paramName);
 
-    public static void AppendSection<TItem>(this StringBuilder builder, string ident, ICollection<TItem> items, [CallerArgumentExpression(nameof(items))] string? paramName = null) {
+internal static class StringBuilderExtensions {
+    public static void AppendSection(this StringBuilder builder, IContextSection section)
+        => AppendSection(builder, string.Empty, section);
+
+    public static void AppendSection(this StringBuilder builder, string indentation, IContextSection section) {
+        var text = section.GetIndentedText(indentation);
+        if (string.IsNullOrWhiteSpace(text))
+            return;
+        builder.AppendIntoNewLine($"{indentation}{section.Title}");
+        builder.AppendIntoNewLine(text);
+    }
+
+    public static void AppendSection(this StringBuilder builder, IReadOnlyCollection<string> items, string? title = null)
+        => AppendSection(builder, string.Empty, items, title);
+
+    public static void AppendSection(this StringBuilder builder, string indentation, IReadOnlyCollection<string> items, string? title = null) {
         if (items.Count == 0)
             return;
-        builder.AppendIntoNewLine($"{ident}{paramName}");
+        if (!string.IsNullOrWhiteSpace(title))
+            builder.AppendIntoNewLine($"{indentation}{title}");
         foreach (var item in items)
-            builder.AppendIntoNewLine($"{ident}{item}");
+            builder.AppendIntoNewLine($"{indentation}{item}");
     }
 }

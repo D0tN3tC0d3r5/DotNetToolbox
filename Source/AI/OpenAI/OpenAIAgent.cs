@@ -4,8 +4,8 @@ namespace DotNetToolbox.AI.OpenAI;
 
 public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactory factory, ILogger<OpenAIAgent> logger)
     : Agent<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
-    protected override ChatRequest CreateRequest(IChat chat, string prompt, World world, UserProfile userProfile)
-        => new(chat, prompt, world, userProfile, this) {
+    protected override ChatRequest CreateRequest(IJob job, IChat chat)
+        => new(World, job, this, chat) {
             Temperature = Model.Temperature,
             StopSequences = Model.StopSequences.Count == 0 ? null : [.. Model.StopSequences],
             MinimumTokenProbability = Model.TokenProbabilityCutOff,

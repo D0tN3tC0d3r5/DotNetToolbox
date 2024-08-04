@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
 public enum JobType {
-    Query,
+    Chat,
     Analysis,
     Generation,
     Research,

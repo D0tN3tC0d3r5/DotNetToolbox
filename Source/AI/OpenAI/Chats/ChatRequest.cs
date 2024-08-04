@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(IChat chat, string prompt, World world, UserProfile userProfile, IAgent agent)
+public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
     : IChatRequest {
     string IChatRequest.Context => (string?)Messages[0].Content ?? string.Empty;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.Skip(1).ToArray();
@@ -9,7 +9,7 @@ public class ChatRequest(IChat chat, string prompt, World world, UserProfile use
     [JsonPropertyName("model")]
     public required string Model { get; init; } = agent.Model.Model.Id;
     [JsonPropertyName("messages")]
-    public ChatRequestMessage[] Messages { get; } = SetMessages(chat, prompt, world, userProfile, agent);
+    public ChatRequestMessage[] Messages { get; } = SetMessages(world, job, agent, chat);
 
     [JsonPropertyName("max_tokens")]
     public uint MaximumOutputTokens { get; set; } = SetMaximumOutputTokens(agent);
@@ -36,17 +36,16 @@ public class ChatRequest(IChat chat, string prompt, World world, UserProfile use
     [JsonPropertyName("response_format")]
     public ChatRequestResponseFormat? ResponseFormat { get; set; }
 
-    private static ChatRequestMessage[] SetMessages(IChat chat, string instructions, World world, UserProfile userProfile, IAgent agent) {
-        var systemMessage = SetSystemMessage(instructions, world, userProfile, agent);
+    private static ChatRequestMessage[] SetMessages(World world, IJob job, IAgent agent, IChat chat) {
+        var systemMessage = SetSystemMessage(world, job, agent);
         return [new(systemMessage), .. chat.Messages.Select(m => new ChatRequestMessage(m))];
     }
 
-    private static string SetSystemMessage(string instructions, World world, UserProfile userProfile, IAgent agent) {
+    private static string SetSystemMessage(World world, IJob job, IAgent agent) {
         var builder = new StringBuilder();
-        builder.AppendLine(world.ToString());
-        builder.AppendLine(userProfile.ToString());
-        builder.AppendLine(agent.Persona.ToString());
-        builder.AppendLine(instructions);
+        builder.AppendLine(world.GetIndentedText(string.Empty));
+        builder.AppendLine(agent.Persona.GetIndentedText(string.Empty));
+        builder.AppendLine(job.Instructions);
         return builder.ToString();
     }
 
