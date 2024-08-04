@@ -1,20 +1,18 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
-public abstract class Job<TInput, TOutput>(string id, IAgentFactory? agentFactory = null)
+public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strategy, string id, JobContext jobContext, IAgentFactory agentFactory)
     : IJob<TInput, TOutput> {
-    private readonly IAgentFactory _agentFactory = agentFactory ?? default!;
 
-    protected Job(IGuidProvider? guid = null, IAgentFactory? agentFactory = null)
-        : this((guid ?? GuidProvider.Default).AsSortable.Create().ToString(), agentFactory) {
+    protected Job(IJobStrategy<TInput, TOutput> strategy, JobContext jobContext, IAgentFactory agentFactory, IGuidProvider? guid = null)
+        : this(strategy, (guid ?? GuidProvider.Default).AsSortable.Create().ToString(), jobContext, agentFactory) {
     }
 
     public string Id { get; } = id;
     public JobType Type { get; protected init; }
-    public abstract string Instructions { get; protected init; }
 
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
-        var agent = _agentFactory.Create("provider");
-        var chat = PrepareChat(input);
+        var agent = agentFactory.Create("provider");
+        var chat = strategy.PrepareChat(jobContext, input);
         var result = await agent.SendRequest(this, chat, ct);
 
         if (result.HasException)
@@ -23,9 +21,6 @@ public abstract class Job<TInput, TOutput>(string id, IAgentFactory? agentFactor
             return result.Errors;
 
         // Process the chat result into the output
-        return GetFinalResult(chat);
+        return strategy.GetResult(chat);
     }
-
-    protected abstract IChat PrepareChat(TInput input);
-    protected abstract TOutput GetFinalResult(IChat chat);
 }

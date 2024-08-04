@@ -12,8 +12,8 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider,
     protected ILogger<TAgent> Logger { get; } = logger;
 
     public AgentModel Model { get; set; } = default!;
-    public World World { get; set; } = default!;
     public Persona Persona { get; set; } = default!;
+    public List<Tool> Tools { get; } = [];
 
     public virtual async Task<HttpResult> SendRequest(IJob job, IChat chat, CancellationToken ct) {
         try {

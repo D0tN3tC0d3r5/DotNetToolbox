@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.AI.OpenAI.Chats;
-
-namespace DotNetToolbox.AI.OpenAI;
+﻿namespace DotNetToolbox.AI.OpenAI;
 
 public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactory factory, ILogger<OpenAIAgent> logger)
     : Agent<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
@@ -48,7 +46,7 @@ public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactor
     }
 
     private static Dictionary<string, ChatRequestToolFunctionCallParameter>? GetParameters(Tool tool) {
-        var result = tool.Arguments.ToDictionary<Argument, string, ChatRequestToolFunctionCallParameter>(k => k.Name, ToParameter);
+        var result = tool.Arguments.ToDictionary<ToolArgument, string, ChatRequestToolFunctionCallParameter>(k => k.Name, ToParameter);
         return result.Count == 0 ? null : result;
     }
 
@@ -57,6 +55,6 @@ public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactor
         return result.Length == 0 ? null : result;
     }
 
-    private static ChatRequestToolFunctionCallParameter ToParameter(Argument argument)
+    private static ChatRequestToolFunctionCallParameter ToParameter(ToolArgument argument)
         => new(argument.Type.ToString(), argument.Options, argument.Description);
 }

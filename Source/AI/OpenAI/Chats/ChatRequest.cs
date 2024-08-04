@@ -43,7 +43,7 @@ public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
 
     private static string SetSystemMessage(World world, IJob job, IAgent agent) {
         var builder = new StringBuilder();
-        builder.AppendLine(world.GetIndentedText(string.Empty));
+        builder.AppendLine(world.ToText(string.Empty));
         builder.AppendLine(agent.Persona.GetIndentedText(string.Empty));
         builder.AppendLine(job.Instructions);
         return builder.ToString();

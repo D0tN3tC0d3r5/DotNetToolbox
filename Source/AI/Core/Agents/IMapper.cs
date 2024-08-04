@@ -1,5 +1,4 @@
-﻿
-namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Agents;
 
 public interface IMapper<TMapper, out TRequest, in TResponse>
     where TMapper : IMapper<TMapper, TRequest, TResponse>

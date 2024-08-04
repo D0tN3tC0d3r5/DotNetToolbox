@@ -1,6 +1,6 @@
-﻿namespace DotNetToolbox.AI.Common;
+﻿namespace DotNetToolbox.AI.Tools;
 
-public enum ArgumentType {
+public enum ToolArgumentType {
     Text = 0,
     Number = 1,
     Flag = 2,

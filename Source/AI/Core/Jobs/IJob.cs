@@ -3,7 +3,6 @@
 public interface IJob {
     JobType Type { get; }
     string Id { get; }
-    string Instructions { get; }
 }
 
 public interface IJob<in TInput, TOutput>
