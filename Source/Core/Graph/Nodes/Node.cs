@@ -1,16 +1,16 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public abstract class Node<TNode>
+public abstract class Node<TNode>(uint id, string label, IServiceProvider services)
     : INode
     where TNode : Node<TNode> {
-    protected Node(uint id, string? label = null) {
-        Id = id;
-        Label = label ?? Label;
+    protected Node(uint id, IServiceProvider services)
+        : this (id, typeof(TNode).Name, services) {
     }
 
-    public uint Id { get; }
-    public string Label { get; } = typeof(TNode).Name;
+    public uint Id { get; } = id;
+    public string Label { get; } = IsNotNull(label);
     public INode? Next { get; set; }
+    protected IServiceProvider Services { get; } = IsNotNull(services);
 
     public Result Validate(ISet<INode>? visited = null) {
         visited ??= new HashSet<INode>();

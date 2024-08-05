@@ -13,10 +13,13 @@ global using DotNetToolbox.AI.Jobs;
 global using DotNetToolbox.AI.Models;
 global using DotNetToolbox.AI.Tools;
 global using DotNetToolbox.Environment;
+global using DotNetToolbox.Graph.Nodes;
+global using DotNetToolbox.Graph.Policies;
 global using DotNetToolbox.Http;
 global using DotNetToolbox.Http.Extensions;
 global using DotNetToolbox.Results;
 
+global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;

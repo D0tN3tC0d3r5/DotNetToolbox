@@ -1,20 +1,18 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
-public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strategy, string id, JobContext jobContext, IAgentFactory agentFactory)
+public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strategy, string id, Context context, IAgent agent)
     : IJob<TInput, TOutput> {
-
-    protected Job(IJobStrategy<TInput, TOutput> strategy, JobContext jobContext, IAgentFactory agentFactory, IGuidProvider? guid = null)
-        : this(strategy, (guid ?? GuidProvider.Default).AsSortable.Create().ToString(), jobContext, agentFactory) {
+    protected Job(IJobStrategy<TInput, TOutput> strategy, Context context, IAgent agent, IGuidProvider? guid = null)
+        : this(strategy, (guid ?? GuidProvider.Default).AsSortable.Create().ToString(), context, agent) {
     }
 
     public string Id { get; } = id;
     public JobType Type { get; protected init; }
+    protected JobContext Context => (JobContext)context;
 
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
-        var agent = agentFactory.Create("provider");
-        jobContext.Job = this;
-        var chat = new Chat();
-        chat.Messages.Add(new(MessageRole.System, $"{jobContext}"));
+        Context.Job = this;
+        var chat = new Chat(Id, Context);
         strategy.AddPrompt(chat, input);
         var result = await agent.SendRequest(this, chat, ct);
 

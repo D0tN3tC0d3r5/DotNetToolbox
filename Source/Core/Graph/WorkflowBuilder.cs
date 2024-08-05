@@ -5,28 +5,44 @@ public sealed class WorkflowBuilder {
     private INode? _currentNode;
     private readonly SequentialNodeId _nodeId;
 
-    public WorkflowBuilder(string? id = null, HashSet<INode?>? nodes = null) {
-        Id = id ?? GuidProvider.Default.AsSortable.Create().ToString();
+    private WorkflowBuilder(string? id, HashSet<INode?>? nodes, IServiceProvider services, IGuidProvider? guid) {
+        Id = id ?? (guid ?? GuidProvider.Default).AsSortable.Create().ToString();
         _nodeId = NodeId.FromSequential(Id);
-        _nodeFactory = new NodeFactory();
+        _nodeFactory = new NodeFactory(services);
         Nodes = nodes ?? [];
     }
 
-    public string? Id { get; }
+    public WorkflowBuilder(IServiceProvider services, IGuidProvider? guid = null)
+        : this(null, null, services, guid) {
+    }
+
+    public WorkflowBuilder(string id, IServiceProvider services)
+        : this(IsNotNull(id), null, services, null) {
+    }
+
+    public WorkflowBuilder(HashSet<INode?> nodes, IServiceProvider services, IGuidProvider? guid = null)
+        : this(null, IsNotNull(nodes), services, guid) {
+    }
+
+    public WorkflowBuilder(string id, HashSet<INode?> nodes, IServiceProvider services)
+        : this(IsNotNull(id), IsNotNull(nodes), services, null) {
+    }
+
+    public string Id { get; }
     public HashSet<INode?> Nodes { get; }
     public INode? Start { get; private set; }
 
     [MemberNotNull(nameof(Start))]
     [MemberNotNull(nameof(_currentNode))]
-    public WorkflowBuilder Do(string label, Action<Context> action, IPolicy? policy = null) {
-        ConnectNode(_nodeFactory.CreateAction(_nodeId.Next, label, action, policy));
+    public WorkflowBuilder Do(string label, Action<Context> action) {
+        ConnectNode(_nodeFactory.CreateAction(_nodeId.Next, label, action));
         return this;
     }
 
     [MemberNotNull(nameof(Start))]
     [MemberNotNull(nameof(_currentNode))]
-    public WorkflowBuilder Do(Action<Context> action, IPolicy? policy = null) {
-        ConnectNode(_nodeFactory.CreateAction(_nodeId.Next, action, policy));
+    public WorkflowBuilder Do(Action<Context> action) {
+        ConnectNode(_nodeFactory.CreateAction(_nodeId.Next, action));
         return this;
     }
 

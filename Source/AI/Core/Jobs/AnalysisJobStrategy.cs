@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
-public class AnalysisJob
+public class AnalysisJobStrategy
     : IJobStrategy<string, string> {
     public string Instructions => "Analyze the given text and provide insights.";
 
@@ -15,3 +15,6 @@ public class AnalysisJob
         return message.Text;
     }
 }
+
+public class AnalysisJob(string id, Context context, IAgent agent)
+    : Job<string, string>(new AnalysisJobStrategy(), id, context, agent);
