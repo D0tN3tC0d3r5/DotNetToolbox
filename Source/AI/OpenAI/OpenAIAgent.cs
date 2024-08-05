@@ -3,7 +3,7 @@
 public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactory factory, ILogger<OpenAIAgent> logger)
     : Agent<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
     protected override ChatRequest CreateRequest(IJob job, IChat chat)
-        => new(World, job, this, chat) {
+        => new(this, chat) {
             Temperature = Model.Temperature,
             StopSequences = Model.StopSequences.Count == 0 ? null : [.. Model.StopSequences],
             MinimumTokenProbability = Model.TokenProbabilityCutOff,
@@ -12,7 +12,7 @@ public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactor
             NumberOfChoices = 1,
             FrequencyPenalty = 0,
             PresencePenalty = 0,
-            Tools = Persona.KnownTools.Count == 0 ? null : Persona.KnownTools.ToArray(ToRequestToolCall),
+            Tools = Tools.Count == 0 ? null : Tools.ToArray(ToRequestToolCall),
             ForceToolCall = null,
             ResponseFormat = null,
         };

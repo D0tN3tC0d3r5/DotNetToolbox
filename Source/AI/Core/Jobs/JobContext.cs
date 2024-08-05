@@ -35,13 +35,8 @@ public class JobContext
         init => this[nameof(Tools)] = value;
     }
 
-    public string? Instructions {
-        get => (string?)this[nameof(Instructions)];
-        init => this[nameof(Instructions)] = value;
-    }
-
     public required IJob Job {
         get => (IJob)this[nameof(Job)]!;
-        init => this[nameof(Job)] = value;
+        set => this[nameof(Job)] = value;
     }
 }

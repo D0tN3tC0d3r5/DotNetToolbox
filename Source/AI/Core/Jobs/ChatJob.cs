@@ -1,11 +1,19 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
-public abstract class ChatJob : Job<string[], string> {
-    protected ChatJob(string id, IAgentFactory agentFactory) : base(id, agentFactory) {
-        Type = JobType.Chat;
+public class ChatJob : IJobStrategy<string[], string> {
+    public string Instructions => "Engage in a conversation based on the provided messages.";
+
+    public void AddPrompt(IChat chat, string[] input) {
+        var isUser = true;
+        foreach (var message in input) {
+            var type = isUser ? MessageRole.User : MessageRole.Assistant;
+            chat.Messages.Add(new(type, message));
+            isUser = !isUser;
+        }
     }
 
-    protected ChatJob(IGuidProvider guid, IAgentFactory agentFactory) : base(guid, agentFactory) {
-        Type = JobType.Chat;
+    public string GetResult(IChat chat) {
+        var message = chat.Messages.Last(m => m.Role == MessageRole.Assistant);
+        return message.Text;
     }
 }

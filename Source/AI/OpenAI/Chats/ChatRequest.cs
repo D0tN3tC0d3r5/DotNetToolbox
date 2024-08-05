@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
+public class ChatRequest(IAgent agent, IChat chat)
     : IChatRequest {
     string IChatRequest.Context => (string?)Messages[0].Content ?? string.Empty;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.Skip(1).ToArray();
@@ -9,7 +9,7 @@ public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
     [JsonPropertyName("model")]
     public required string Model { get; init; } = agent.Model.Model.Id;
     [JsonPropertyName("messages")]
-    public ChatRequestMessage[] Messages { get; } = SetMessages(world, job, agent, chat);
+    public ChatRequestMessage[] Messages { get; } = SetMessages(chat);
 
     [JsonPropertyName("max_tokens")]
     public uint MaximumOutputTokens { get; set; } = SetMaximumOutputTokens(agent);
@@ -36,18 +36,8 @@ public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
     [JsonPropertyName("response_format")]
     public ChatRequestResponseFormat? ResponseFormat { get; set; }
 
-    private static ChatRequestMessage[] SetMessages(World world, IJob job, IAgent agent, IChat chat) {
-        var systemMessage = SetSystemMessage(world, job, agent);
-        return [new(systemMessage), .. chat.Messages.Select(m => new ChatRequestMessage(m))];
-    }
-
-    private static string SetSystemMessage(World world, IJob job, IAgent agent) {
-        var builder = new StringBuilder();
-        builder.AppendLine(world.ToText(string.Empty));
-        builder.AppendLine(agent.Persona.GetIndentedText(string.Empty));
-        builder.AppendLine(job.Instructions);
-        return builder.ToString();
-    }
+    private static ChatRequestMessage[] SetMessages(IChat chat)
+        => chat.Messages.ToArray(m => new ChatRequestMessage(m));
 
     private static uint SetMaximumOutputTokens(IAgent agent)
         => agent.Model.MaximumOutputTokens > AgentModel.MinimumOutputTokens

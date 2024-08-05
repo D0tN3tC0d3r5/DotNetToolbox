@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Anthropic.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
+public class ChatRequest(IAgent agent, IChat chat)
     : IChatRequest {
     string IChatRequest.Context => System;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.ToArray<IChatRequestMessage>();
@@ -10,7 +10,7 @@ public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
     public string Model { get; } = agent.Model.Model.Id;
 
     [JsonPropertyName("system")]
-    public string System { get; } = SetContext(world, job, agent);
+    public string System { get; } = SetContext(chat);
 
     [JsonPropertyName("messages")]
     public ChatRequestMessage[] Messages { get; } = SetMessages(chat);
@@ -18,8 +18,6 @@ public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
     [JsonPropertyName("max_tokens")]
     public uint MaximumOutputTokens { get; } = SetMaximumOutputTokens(agent);
 
-    [JsonPropertyName("metadata")]
-    public ChatMetadata? Metadata { get; set; }
     [JsonPropertyName("stop_sequences")]
     public string[]? StopSequences { get; set; }
     [JsonPropertyName("stream")]
@@ -32,16 +30,11 @@ public class ChatRequest(World world, IJob job, IAgent agent, IChat chat)
     [JsonPropertyName("top_k")]
     public decimal? MaximumTokenSamples { get; set; }
 
-    private static string SetContext(World world, IJob job, IAgent agent) {
-        var builder = new StringBuilder();
-        builder.AppendLine(world.ToText(string.Empty));
-        builder.AppendLine(agent.Persona.GetIndentedText(string.Empty));
-        builder.AppendLine(job.Instructions);
-        return builder.ToString();
-    }
+    private static string SetContext(IChat chat)
+        => chat.Messages.First(m => m.Role == MessageRole.System).Text;
 
     private static ChatRequestMessage[] SetMessages(IChat chat)
-        => chat.Messages.ToArray(m => new ChatRequestMessage(m));
+        => chat.Messages.Where(m => m.Role != MessageRole.System).ToArray(m => new ChatRequestMessage(m));
 
     private static uint SetMaximumOutputTokens(IAgent agent)
         => agent.Model.MaximumOutputTokens > AgentModel.MinimumOutputTokens

@@ -12,7 +12,10 @@ public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strateg
 
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
         var agent = agentFactory.Create("provider");
-        var chat = strategy.PrepareChat(jobContext, input);
+        jobContext.Job = this;
+        var chat = new Chat();
+        chat.Messages.Add(new(MessageRole.System, $"{jobContext}"));
+        strategy.AddPrompt(chat, input);
         var result = await agent.SendRequest(this, chat, ct);
 
         if (result.HasException)

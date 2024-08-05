@@ -2,6 +2,7 @@
 
 public interface IJobStrategy<in TInput, out TOutput> {
     string Instructions { get; }
-    IChat PrepareChat(JobContext context, TInput input);
+
+    void AddPrompt(IChat chat, TInput input);
     TOutput GetResult(IChat chat);
 }

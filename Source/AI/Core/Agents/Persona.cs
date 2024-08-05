@@ -1,35 +1,30 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-[method: JsonConstructor]
-public class Persona() {
-    public Persona(string name)
-        : this() {
-        Name = IsNotNull(name);
+public class Persona
+    : Context, IValidatable  {
+    public Persona(string? name = null, string? description = null)  {
+        this[nameof(Name)] = name ?? "Agent";
+        this[nameof(Description)] = description ?? "You are a helpful ASSISTANT.";
+        this[nameof(Cognition)] = new List<string>();
+        this[nameof(Disposition)] = new List<string>();
+        this[nameof(Interaction)] = new List<string>();
+        this[nameof(Attitude)] = new List<string>();
     }
 
-    public string Name { get; set; } = "Agent";
-    public string Description { get; set; } = "You are a helpful ASSISTANT.";
-    public List<string> Cognition { get; set; } = [];
-    public List<string> Disposition { get; set; } = [];
-    public List<string> Interaction { get; set; } = [];
-    public List<string> Attitude { get; set; } = [];
-    public List<string> Facts { get; set; } = [];
-    public List<Tool> KnownTools { get; set; } = [];
-
-    public string GetIndentedText(string indent) {
-        var builder = new StringBuilder();
-        builder.AppendLine($"{indent}Your name is {Name}.");
-        builder.AppendLine($"{indent}{Description}");
-        builder.Append(indent, Cognition);
-        builder.Append(indent, Disposition);
-        builder.Append(indent, Interaction);
-        builder.Append(indent, Attitude);
-        builder.Append(indent, Facts);
-        if (KnownTools.Count > 0) {
-            builder.AppendIntoNewLine($"{indent}Known Tools");
-            foreach (var tool in KnownTools)
-                builder.Append(indent, tool);
-        }
-        return builder.ToString();
+    public string Name {
+        get => (string)this[nameof(Name)]!;
+        init => this[nameof(Name)] = value;
     }
+
+    public string Description {
+        get => (string)this[nameof(Description)]!;
+        init => this[nameof(Description)] = value;
+    }
+
+    public List<string> Cognition => (List<string>)this[nameof(Cognition)]!;
+    public List<string> Disposition => (List<string>)this[nameof(Disposition)]!;
+    public List<string> Interaction => (List<string>)this[nameof(Interaction)]!;
+    public List<string> Attitude => (List<string>)this[nameof(Attitude)]!;
+
+    public Result Validate(IDictionary<string, object?>? context = null) => Result.Success();
 }

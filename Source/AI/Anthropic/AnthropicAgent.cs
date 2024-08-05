@@ -4,7 +4,7 @@ namespace DotNetToolbox.AI.Anthropic;
 public class AnthropicAgent([FromKeyedServices("Anthropic")] IHttpClientProviderFactory factory, ILogger<AnthropicAgent> logger)
     : Agent<AnthropicAgent, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
     protected override ChatRequest CreateRequest(IJob job, IChat chat)
-        => new(World, job, this, chat) {
+        => new(this, chat) {
             Temperature = Model.Temperature,
             StopSequences = Model.StopSequences.Count == 0 ? null : [.. Model.StopSequences],
             MinimumTokenProbability = Model.TokenProbabilityCutOff,
