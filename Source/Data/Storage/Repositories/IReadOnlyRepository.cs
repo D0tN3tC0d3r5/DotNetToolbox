@@ -4,7 +4,6 @@ public interface IReadOnlyRepository;
 
 public interface IReadOnlyRepository<TItem>
     : IReadOnlyRepository {
-
     #region Blocking
 
     void Load();
@@ -35,7 +34,6 @@ public interface IReadOnlyRepository<TItem, in TKey>
     : IReadOnlyRepository<TItem>
     where TItem : IEntity<TKey>
     where TKey : notnull {
-
     #region Blocking
 
     TItem? FindByKey(TKey key);

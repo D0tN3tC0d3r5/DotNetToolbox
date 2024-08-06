@@ -13,8 +13,8 @@ internal static class LogExtensions {
     private static bool MessageIsValid(Log log, string? pattern) {
         if (pattern is null) return true;
 
-        var matchKey = (pattern.StartsWith("*") ? 1 : 0)
-                     + (pattern.EndsWith("*") ? 2 : 0);
+        var matchKey = (pattern.StartsWith('*') ? 1 : 0)
+                     + (pattern.EndsWith('*') ? 2 : 0);
         var text = pattern.Trim('*');
         return matchKey switch {
             3 => log.Message.Contains(text),

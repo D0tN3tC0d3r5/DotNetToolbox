@@ -5,6 +5,7 @@ set target=%1
 
 call Publish %target% Core\Core Core 8.1.1-rc1
 call Publish %target% Core\Linq Linq 8.1.1-rc1
+call Publish %target% Core\Graph Graph 8.1.1-rc1
 call Publish %target% Data\Storage Data 8.1.1-rc1
 call Publish %target% Utilities\ObjectDumper ObjectDumper 8.1.1-rc1
 call Publish %target% Testing\TestUtilities TestUtilities 8.1.1-rc1

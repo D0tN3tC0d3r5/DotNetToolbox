@@ -17,6 +17,5 @@ public interface IRepositoryStrategy<TItem, TKey>
     , IUpdatableRepository<TItem, TKey>
     where TItem : IEntity<TKey>
     where TKey : notnull {
-
     void SetKeyHandler(IKeyHandler<TKey> keyHandler);
 };

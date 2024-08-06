@@ -6,7 +6,6 @@ public sealed class Option(IHasChildren parent, string name, params string[] ali
 public abstract class Option<TOption>(IHasChildren parent, string name, params string[] aliases)
     : Node<TOption>(parent, name, aliases), IOption
     where TOption : Option<TOption> {
-
     Task<Result> IOption.Read(string? value, NodeContext context, CancellationToken ct) {
         context[Name] = value switch {
             null or "null" or "default" => null,

@@ -3,7 +3,6 @@
 public abstract class Node<TNode>
     : IHasParent
     where TNode : Node<TNode> {
-
     protected Node(IHasChildren parent, string name, params string[] aliases) {
         Parent = parent;
         Application = FindRoot(this);
@@ -34,8 +33,7 @@ public abstract class Node<TNode>
     }
 
     private static bool IsValidName(string? name)
-        => name is not null
-        && name.Length > 1
+        => name?.Length > 1
         && char.IsLetter(name[0])
         && name[1..].All(c => char.IsLetterOrDigit(c) || "-_".Contains(c));
 

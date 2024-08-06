@@ -6,7 +6,6 @@ public class RepositoryStrategy<TStrategy, TItem, TKey>
     where TStrategy : RepositoryStrategy<TStrategy, TItem, TKey>, new()
     where TItem : IEntity<TKey>
     where TKey : notnull {
-
     protected IKeyHandler<TKey> KeyHandler { get; private set; } = NullKeyHandler<TKey>.Default;
     public void SetKeyHandler(IKeyHandler<TKey> keyHandler)
         => KeyHandler = keyHandler;

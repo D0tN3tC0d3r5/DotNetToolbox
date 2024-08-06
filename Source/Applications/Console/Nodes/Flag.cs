@@ -6,7 +6,6 @@ public sealed class Flag(IHasChildren parent, string name, string[] aliases, Fun
 public abstract class Flag<TFlag>(IHasChildren parent, string name, string[] aliases, Func<TFlag, CancellationToken, Task<Result>>? execute = null)
     : Node<TFlag>(parent, name, aliases), IFlag
     where TFlag : Flag<TFlag> {
-
     Task<Result> IFlag.Read(NodeContext context, CancellationToken ct) {
         context[Name] = bool.TrueString;
         return Execute(ct);

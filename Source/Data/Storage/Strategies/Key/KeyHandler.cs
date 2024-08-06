@@ -2,7 +2,6 @@ namespace DotNetToolbox.Data.Strategies.Key;
 
 public abstract class KeyHandler<TKey>(IEqualityComparer<TKey>? comparer = null)
     : IKeyHandler<TKey> {
-
     private readonly IEqualityComparer<TKey> _comparer = comparer ?? EqualityComparer<TKey>.Default;
 
     public abstract bool IsInUse(TKey key);

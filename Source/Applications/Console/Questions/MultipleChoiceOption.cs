@@ -2,7 +2,6 @@ namespace DotNetToolbox.ConsoleApplication.Questions;
 
 public class MultipleChoiceOption(int index, string value, string text, string? alias = null)
     : MultipleChoiceOption<string>(index, value, text, alias) {
-
     public MultipleChoiceOption(int index, string value, string text, bool displayOrder)
         : this(index, value, text, displayOrder ? index.ToString() : null!) {
     }

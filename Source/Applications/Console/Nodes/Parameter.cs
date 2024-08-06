@@ -6,7 +6,6 @@ public sealed class Parameter(IHasChildren parent, string name, string? defaultV
 public abstract class Parameter<TParameter>
     : Node<TParameter>, IParameter
     where TParameter : Parameter<TParameter> {
-
     protected Parameter(IHasChildren parent, string name, string? defaultValue = default)
         : base(parent, name) {
         DefaultValue = defaultValue;

@@ -42,7 +42,7 @@ public class Command<TCommand>(IHasChildren parent, string name, string[] aliase
     public IFlag AddFlag(string name, string alias, Delegate? action = null)
         => AddFlag(name, [alias], action);
     public IFlag AddFlag(string name, string[] aliases, Delegate? action = null)
-        => NodeFactory.Create<Flag>(this, name, aliases, action!);
+        => NodeFactory.Create<Flag>(this, name, aliases, action);
     public IFlag AddFlag<TFlag>()
         where TFlag : Flag<TFlag>, IFlag
         => NodeFactory.Create<TFlag>(this);

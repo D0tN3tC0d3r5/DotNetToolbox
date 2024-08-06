@@ -17,7 +17,7 @@ public partial class InMemoryRepositoryTests {
     public void GetFirstChunk_GetsAChunk() {
         var result = _readOnlyRepo.GetChunk();
         result.Should().BeOfType<Chunk<TestEntity>>();
-        result.Items.Count().Should().Be(20);
+        result.Items.Count.Should().Be(20);
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public partial class InMemoryRepositoryTests {
         var firstItem = new TestEntity("0") { Key = 1 };
         var result = await _readOnlyRepo.GetChunkAsync();
         result.Should().BeOfType<Chunk<TestEntity>>();
-        result.Items.Count().Should().Be(20);
+        result.Items.Count.Should().Be(20);
         result.Items[0].Should().BeEquivalentTo(firstItem);
     }
 
@@ -34,7 +34,7 @@ public partial class InMemoryRepositoryTests {
         var firstItem = new TestEntity("20") { Key = 21 };
         var result = _readOnlyRepo.GetChunk(s => s.Name == "20");
         result.Should().BeOfType<Chunk<TestEntity>>();
-        result.Items.Count().Should().Be(20);
+        result.Items.Count.Should().Be(20);
         result.Items[0].Should().BeEquivalentTo(firstItem);
     }
 
@@ -43,7 +43,7 @@ public partial class InMemoryRepositoryTests {
         var firstItem = new TestEntity("20") { Key = 21 };
         var result = await _readOnlyRepo.GetChunkAsync(s => s.Name == "20");
         result.Should().BeOfType<Chunk<TestEntity>>();
-        result.Items.Count().Should().Be(20);
+        result.Items.Count.Should().Be(20);
         result.Items[0].Should().BeEquivalentTo(firstItem);
     }
 
@@ -52,7 +52,7 @@ public partial class InMemoryRepositoryTests {
         var firstItem = new TestEntity("80") { Key = 81 };
         var result = _readOnlyRepo.GetChunk(s => s.Name == "80");
         result.Should().BeOfType<Chunk<TestEntity>>();
-        result.Items.Count().Should().Be(10);
+        result.Items.Count.Should().Be(10);
         result.Items[0].Should().BeEquivalentTo(firstItem);
     }
 
@@ -61,7 +61,7 @@ public partial class InMemoryRepositoryTests {
         var firstItem = new TestEntity("80") { Key = 81 };
         var result = await _readOnlyRepo.GetChunkAsync(s => s.Name == "80");
         result.Should().BeOfType<Chunk<TestEntity>>();
-        result.Items.Count().Should().Be(10);
+        result.Items.Count.Should().Be(10);
         result.Items[0].Should().BeEquivalentTo(firstItem);
     }
 }

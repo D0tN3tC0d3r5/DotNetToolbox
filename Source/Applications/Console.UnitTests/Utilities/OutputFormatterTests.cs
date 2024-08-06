@@ -6,7 +6,7 @@ public class OutputFormatterTests {
         var exception = new InvalidOperationException("Test exception");
 
         // Act
-        var result = OutputFormatter.FormatException(exception);
+        var result = exception.ToText();
 
         // Assert
         result.Should().Contain("InvalidOperationException");
@@ -25,7 +25,7 @@ public class OutputFormatterTests {
                                       """;
 
         // Act
-        var result = OutputFormatter.FormatException(outerException);
+        var result = outerException.ToText();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -37,7 +37,7 @@ public class OutputFormatterTests {
         var errors = Array.Empty<ValidationError>();
 
         // Act
-        var result = OutputFormatter.FormatValidationErrors(errors);
+        var result = errors.ToText();
 
         // Assert
         result.Should().BeEmpty();
@@ -57,7 +57,7 @@ public class OutputFormatterTests {
                                       """;
 
         // Act
-        var result = OutputFormatter.FormatValidationErrors(errors);
+        var result = errors.ToText();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -79,7 +79,7 @@ public class OutputFormatterTests {
                                       """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(node);
+        var result = node.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -101,7 +101,7 @@ public class OutputFormatterTests {
                                       """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(app);
+        var result = app.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -148,7 +148,7 @@ public class OutputFormatterTests {
                                   """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(node);
+        var result = node.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -174,7 +174,7 @@ public class OutputFormatterTests {
                                   """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(node);
+        var result = node.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -223,7 +223,7 @@ public class OutputFormatterTests {
                                       """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(node);
+        var result = node.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -239,7 +239,7 @@ public class OutputFormatterTests {
                                   """;
 
         // Act
-        var result = OutputFormatter.FormatException(exception);
+        var result = exception.ToText();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -264,7 +264,7 @@ public class OutputFormatterTests {
                                   """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(node);
+        var result = node.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -287,7 +287,7 @@ public class OutputFormatterTests {
                                   """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(app);
+        var result = app.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -308,7 +308,7 @@ public class OutputFormatterTests {
                                   """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(node);
+        var result = node.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -327,7 +327,7 @@ public class OutputFormatterTests {
                                   """;
 
         // Act
-        var result = OutputFormatter.FormatHelp(node);
+        var result = node.ToHelp();
 
         // Assert
         result.Should().Be(expectedResult);
@@ -336,7 +336,7 @@ public class OutputFormatterTests {
     [Fact]
     public void FormatHelp_WithNullNode_ThrowsArgumentNullException() {
         // Act
-        var act = () => OutputFormatter.FormatHelp(null!);
+        var act = () => ((IHasChildren)null!).ToHelp();
 
         // Assert
         act.Should().Throw<NullReferenceException>();

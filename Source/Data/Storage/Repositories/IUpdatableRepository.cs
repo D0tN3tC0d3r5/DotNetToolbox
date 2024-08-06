@@ -4,7 +4,6 @@ public interface IUpdatableRepository;
 
 public interface IUpdatableRepository<TItem>
     : IUpdatableRepository {
-
     #region Blocking
 
     TItem Create(Action<TItem> setItem);
@@ -60,7 +59,6 @@ public interface IUpdatableRepository<TItem, in TKey>
     : IUpdatableRepository<TItem>
     where TItem : IEntity<TKey>
     where TKey : notnull {
-
     #region Blocking
 
     void Update(TItem updatedItem);

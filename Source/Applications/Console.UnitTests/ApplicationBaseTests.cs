@@ -18,7 +18,7 @@ public class ApplicationBaseTests {
     public void Run_WithClearScreen_Runs() {
         // Arrange
         var option = new TestOutput();
-        var app = TestApplication.Create([ "-cls" ], b => b.SetOutputHandler(option));
+        var app = TestApplication.Create(["-cls"], b => b.SetOutputHandler(option));
 
         // Act
         var action = () => app.Run();
@@ -254,7 +254,7 @@ public class ApplicationBaseTests {
         var app = new TestApplication([], serviceProvider);
 
         // Act
-        var action = () => app.AddCommand(name!, [ alias! ], () => { });
+        var action = () => app.AddCommand(name!, [alias!], () => { });
 
         // Assert
         action.Should().Throw<InvalidOperationException>();
@@ -374,7 +374,7 @@ public class ApplicationBaseTests {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
         var app = new TestApplication([], serviceProvider);
-        var parameterName = "param1";
+        const string parameterName = "param1";
 
         // Act
         app.AddParameter(parameterName);
@@ -392,8 +392,8 @@ public class ApplicationBaseTests {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
         var app = new TestApplication([], serviceProvider);
-        var parameterName = "param1";
-        var defaultValue = "defaultValue";
+        const string parameterName = "param1";
+        const string defaultValue = "defaultValue";
 
         // Act
         app.AddParameter(parameterName, defaultValue);

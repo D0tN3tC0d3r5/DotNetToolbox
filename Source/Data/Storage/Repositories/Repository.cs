@@ -6,7 +6,6 @@ public class Repository<TStrategy, TItem, TKey>
     where TStrategy : class, IRepositoryStrategy<TItem, TKey>, new()
     where TItem : IEntity<TKey>
     where TKey : notnull {
-
     public void SetKeyHandler(IKeyHandler<TKey> keyHandler)
         => Strategy.SetKeyHandler(keyHandler);
 
@@ -77,7 +76,6 @@ public class Repository<TStrategy, TItem>
     : QueryableRepository<TItem>
     , IRepository<TItem>
     where TStrategy : class, IRepositoryStrategy<TItem>, new() {
-
     public Repository() {
         Strategy = new();
         Strategy.SetRepository(this);

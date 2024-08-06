@@ -46,17 +46,17 @@ public class HttpClientAuthentication() {
         switch (Type) {
             case ApiKey:
                 client.DefaultRequestHeaders.Add("x-api-key", Value);
-                break;
+                return;
             case BasicToken:
             case BearerToken:
             case Password:
             case OAuth2:
             case Jwt:
                 client.DefaultRequestHeaders.Authorization = this;
-                break;
+                return;
             case None:
             default:
-                break;
-        };
+                return;
+        }
     }
 }

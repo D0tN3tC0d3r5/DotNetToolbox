@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Jobs;
+﻿namespace DotNetToolbox.Graph.AI;
 
 public class AnalysisActionNode
     : ActionNode<AnalysisActionNode> {

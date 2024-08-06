@@ -1,10 +1,10 @@
 namespace DotNetToolbox.Data.Repositories;
 
+[SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = "Implemented below")]
 public interface IRepository
     : IQueryableRepository
     , IReadOnlyRepository
-    , IUpdatableRepository {
-}
+    , IUpdatableRepository;
 
 public interface IRepository<TItem>
     : IRepository
@@ -18,6 +18,5 @@ public interface IRepository<TItem, TKey>
     , IUpdatableRepository<TItem, TKey>
     where TItem : IEntity<TKey>
     where TKey : notnull {
-
     void SetKeyHandler(IKeyHandler<TKey> keyHandler);
 }

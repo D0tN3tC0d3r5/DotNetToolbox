@@ -80,8 +80,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Graph", "Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Graph.UnitTests", "Core\Graph.UnitTests\DotNetToolbox.Graph.UnitTests.csproj", "{872AA38F-52D5-4133-910D-24A34EB8F066}"
 EndProject
-Project("{F088123C-0E9E-452A-89E6-6BA2F21D5CAC}") = "DotNetTollbox.Dependencies", "Dependencies\DotNetTollbox.Dependencies.modelproj", "{95809F7E-E0BE-4A68-B008-AEA22E8F1388}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Tests", "2 Tests", "{C4DAA810-1945-4670-A7BF-403D7223B835}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Console", "2 Console", "{0236CED6-1120-4BF3-A704-8E2F1B73E3B4}"
@@ -103,6 +101,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Source", "1 Source", "{E5FE132D-BD1B-4C87-AF98-CB15869F8A16}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 Examples", "3 Examples", "{EF7EFC18-CD7F-4E82-A460-0D269C1FA668}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetToolbox.Graph.AI", "AI\Graph\DotNetToolbox.Graph.AI.csproj", "{420C5C1C-BC13-44F7-A682-F85F3A08A47F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -228,10 +228,10 @@ Global
 		{872AA38F-52D5-4133-910D-24A34EB8F066}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{872AA38F-52D5-4133-910D-24A34EB8F066}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{872AA38F-52D5-4133-910D-24A34EB8F066}.Release|Any CPU.Build.0 = Release|Any CPU
-		{95809F7E-E0BE-4A68-B008-AEA22E8F1388}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{95809F7E-E0BE-4A68-B008-AEA22E8F1388}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{95809F7E-E0BE-4A68-B008-AEA22E8F1388}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{95809F7E-E0BE-4A68-B008-AEA22E8F1388}.Release|Any CPU.Build.0 = Release|Any CPU
+		{420C5C1C-BC13-44F7-A682-F85F3A08A47F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{420C5C1C-BC13-44F7-A682-F85F3A08A47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{420C5C1C-BC13-44F7-A682-F85F3A08A47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{420C5C1C-BC13-44F7-A682-F85F3A08A47F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -284,6 +284,7 @@ Global
 		{DD6D2DEF-66B4-47C7-8D10-625770EE77F1} = {C4DAA810-1945-4670-A7BF-403D7223B835}
 		{470D8820-9CC4-42D0-9E17-998ECBA97B65} = {C4DAA810-1945-4670-A7BF-403D7223B835}
 		{23112977-C0D1-47BF-A822-A740C988A4A7} = {C4DAA810-1945-4670-A7BF-403D7223B835}
+		{420C5C1C-BC13-44F7-A682-F85F3A08A47F} = {B21A0D66-A2B8-45DC-B025-ECB7A10AC584}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E39C3928-B20B-434E-B41E-D56414582625}

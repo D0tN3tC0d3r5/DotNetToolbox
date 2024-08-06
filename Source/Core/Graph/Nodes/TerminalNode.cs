@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class TerminalNode
+public sealed class TerminalNode
     : Node<TerminalNode>,
       ITerminationNode {
     private const string _defaultLabel = "end";

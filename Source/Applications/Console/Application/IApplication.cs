@@ -21,7 +21,6 @@ public interface IApplication<TApplication, out TBuilder>
       IAsyncDisposable
     where TApplication : class, IApplication<TApplication, TBuilder>
     where TBuilder : class, IApplicationBuilder<TApplication, TBuilder> {
-
     int Run();
     Task<int> RunAsync();
 }

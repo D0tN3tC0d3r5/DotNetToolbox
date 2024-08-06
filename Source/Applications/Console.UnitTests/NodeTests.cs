@@ -262,7 +262,7 @@ public sealed class NodeTests {
         var serviceProvider = CreateFakeServiceProvider();
         app.Services.Returns(serviceProvider);
         var node = new TestNode(app, "node", ["n"]);
-        var parameterName = "param1";
+        const string parameterName = "param1";
 
         // Act
         node.AddParameter(parameterName);
@@ -282,8 +282,8 @@ public sealed class NodeTests {
         var serviceProvider = CreateFakeServiceProvider();
         app.Services.Returns(serviceProvider);
         var node = new TestNode(app, "node", ["n"]);
-        var parameterName = "param1";
-        var defaultValue = "defaultValue";
+        const string parameterName = "param1";
+        const string defaultValue = "defaultValue";
 
         // Act
         node.AddParameter(parameterName, defaultValue);

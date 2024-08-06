@@ -2,6 +2,10 @@
 
 public class RetryPolicy
     : RetryPolicy<RetryPolicy> {
+    public const byte DefaultMaximumRetries = 3;
+    public const ushort DefaultJiggleSizeInTicks = 100;
+    public static readonly TimeSpan DefaultDelay = TimeSpan.FromMilliseconds(50);
+
     public RetryPolicy() {
     }
 
@@ -10,34 +14,27 @@ public class RetryPolicy
     }
 }
 
-public class RetryPolicy<TPolicy>
-    : Policy<TPolicy>
-    where TPolicy : RetryPolicy<TPolicy>, new() {
-    public const byte DefaultMaximumRetries = 3;
-    public const ushort DefaultJiggleSizeInTicks = 100;
+public abstract class RetryPolicy<TPolicy>
+    : Policy<TPolicy>, IRetryPolicy where TPolicy : RetryPolicy<TPolicy>, new() {
+    private readonly Random _random = Random.Shared;
 
-    // ReSharper disable StaticMemberInGenericType
-    public static readonly TimeSpan DefaultDelay = TimeSpan.FromMilliseconds(50);
-    private static readonly Random _random = Random.Shared;
-    // ReSharper restore StaticMemberInGenericType
-
-    public RetryPolicy()
-        : this(DefaultMaximumRetries) {
+    protected RetryPolicy()
+        : this(RetryPolicy.DefaultMaximumRetries) {
     }
 
-    public RetryPolicy(byte maxRetries, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null) {
+    protected RetryPolicy(byte maxRetries, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null) {
         MaxRetries = maxRetries;
-        delay ??= DefaultDelay;
-        jiggleSizeInTicks ??= DefaultJiggleSizeInTicks;
+        delay ??= RetryPolicy.DefaultDelay;
+        jiggleSizeInTicks ??= RetryPolicy.DefaultJiggleSizeInTicks;
         if (delay.Value.Ticks < jiggleSizeInTicks)
-            throw new ArgumentOutOfRangeException(nameof(delay), $"The delay must be at least {DefaultJiggleSizeInTicks} ticks.");
+            throw new ArgumentOutOfRangeException(nameof(delay), $"The delay must be at least {RetryPolicy.DefaultJiggleSizeInTicks} ticks.");
         Delays = FillDelays(MaxRetries, delay.Value, jiggleSizeInTicks.Value);
     }
 
     public byte MaxRetries { get; }
     public IReadOnlyList<TimeSpan> Delays { get; }
 
-    private static TimeSpan[] FillDelays(byte maxRetries, TimeSpan delay, ushort jiggle) {
+    private TimeSpan[] FillDelays(byte maxRetries, TimeSpan delay, ushort jiggle) {
         if (maxRetries is byte.MinValue)
             return [];
 

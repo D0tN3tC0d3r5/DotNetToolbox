@@ -16,7 +16,6 @@ public abstract class ShellApplication<TApplication, TBuilder>
       IRunAsShell
     where TApplication : ShellApplication<TApplication, TBuilder>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder> {
-
     protected ShellApplication(string[] args, IServiceProvider services)
         : base(args, services) {
         AddCommand<ExitCommand>();

@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox;
+﻿namespace FluentAssertions;
 
 public class TrackedLoggerAssertionsTests {
     private readonly ILogger _trackedLogger;

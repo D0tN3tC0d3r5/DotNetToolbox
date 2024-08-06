@@ -1,7 +1,6 @@
 namespace DotNetToolbox.Data;
 
 public interface IDataContext {
-
     #region Blocking
 
     void EnsureExists();

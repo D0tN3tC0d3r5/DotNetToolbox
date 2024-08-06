@@ -44,4 +44,3 @@ public class ToolArgument
     public Result Validate(IDictionary<string, object?>? context = null)
         => Result.Success();
 }
-

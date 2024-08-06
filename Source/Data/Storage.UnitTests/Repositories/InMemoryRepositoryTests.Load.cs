@@ -3,7 +3,7 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class InMemoryRepositoryTests {
     [Fact]
     public void Load_BaseStrategy_ShouldThrow() {
-        var action = () => _dummyRepository.Load();
+        var action = _dummyRepository.Load;
         action.Should().Throw<NotImplementedException>();
     }
 
@@ -15,7 +15,7 @@ public partial class InMemoryRepositoryTests {
 
     [Fact]
     public void Load_ForEmptySet_ReturnsZero() {
-        var action = () => _readOnlyRepo.Load();
+        var action = _readOnlyRepo.Load;
         action.Should().NotThrow();
     }
 

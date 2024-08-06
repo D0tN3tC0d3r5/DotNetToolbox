@@ -48,7 +48,6 @@ public record HttpClientOptions
             return result;
         if (string.IsNullOrWhiteSpace(Authentication.Value))
             result += new ValidationError("The http client authentication value is missing.", GetConfigurationPath(providerPath, $"{nameof(Authentication)}:{nameof(HttpClientAuthentication.Value)}"));
-        ;
         return result;
     }
 

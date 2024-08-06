@@ -4,7 +4,6 @@ public class InMemoryRepositoryStrategy<TItem, TKey>
     : RepositoryStrategy<InMemoryRepositoryStrategy<TItem, TKey>, TItem, TKey>
     where TItem : IEntity<TKey>
     where TKey : notnull {
-
     private readonly IRepositoryStrategy<TItem> _keylessStrategy = new InMemoryRepositoryStrategy<TItem>();
 
     public override void SetRepository(IQueryableRepository repository) {
@@ -211,7 +210,7 @@ public class InMemoryRepositoryStrategy<TItem>
     public override void Load() { }
 
     public override TItem[] GetAll()
-        => Repository.Query.ToArray();
+        => [.. Repository.Query];
 
     public override Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize) {
         var count = Repository.Query.Count();
@@ -259,9 +258,9 @@ public class InMemoryRepositoryStrategy<TItem>
         if (!TryRemove(predicate)) return;
         Add(updatedItem);
     }
-    public override void AddOrUpdate(Expression<Func<TItem, bool>> predicate, TItem item) {
+    public override void AddOrUpdate(Expression<Func<TItem, bool>> predicate, TItem updatedItem) {
         Remove(predicate);
-        Add(item);
+        Add(updatedItem);
     }
     public override void AddOrUpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> items) {
         Remove(predicate);
@@ -297,7 +296,7 @@ public class InMemoryRepositoryStrategy<TItem>
         return true;
     }
 
-#endregion
+    #endregion
 
     #region Async
 

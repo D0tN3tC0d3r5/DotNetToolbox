@@ -226,9 +226,6 @@ dotnet_naming_style.begins_with_i.required_suffix =
 dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
-dotnet_diagnostic.RCS1194.severity = silent
-dotnet_diagnostic.DV2002.severity = silent
-
 # resharper properties
 resharper_alignment_tab_fill_style = use_spaces
 resharper_align_linq_query = true
@@ -380,13 +377,13 @@ resharper_csharp_wrap_arguments_style = chop_if_long
 resharper_csharp_wrap_before_binary_opsign = true
 resharper_csharp_wrap_before_first_type_parameter_constraint = true
 resharper_csharp_wrap_extends_list_style = chop_if_long
-resharper_csharp_wrap_lines = true
+resharper_csharp_wrap_lines = false
 resharper_csharp_wrap_multiple_declaration_style = chop_always
 resharper_csharp_wrap_multiple_type_parameter_constraints_style = chop_always
 resharper_csharp_wrap_parameters_style = chop_if_long
-resharper_csharp_wrap_ternary_expr_style = chop_always
+resharper_csharp_wrap_ternary_expr_style = chop_if_long
 resharper_cxxcli_property_declaration_braces = next_line
-resharper_default_exception_variable_name = e
+resharper_default_exception_variable_name = ex
 resharper_default_value_when_type_evident = default_literal
 resharper_default_value_when_type_not_evident = default_literal
 resharper_delete_quotes_from_solid_values = false
@@ -736,7 +733,7 @@ resharper_use_continuous_line_indent_in_expression_braces = false
 resharper_use_continuous_line_indent_in_method_pars = false
 resharper_use_indents_from_main_language_in_file = true
 resharper_use_indent_from_previous_element = true
-resharper_use_indent_from_vs = false
+resharper_use_indent_from_vs = true
 resharper_use_roslyn_logic_for_evident_types = true
 resharper_vb_allow_far_alignment = false
 resharper_vb_insert_final_newline = false
@@ -826,7 +823,8 @@ resharper_xml_wrap_lines = true
 resharper_xml_wrap_tags_and_pi = true
 resharper_xml_wrap_text = false
 
-# Microsoft .NET properties
+# Dignostics styles
+
 dotnet_diagnostic.bc40000.severity = warning
 dotnet_diagnostic.bc400005.severity = warning
 dotnet_diagnostic.bc40008.severity = warning
@@ -919,6 +917,7 @@ dotnet_diagnostic.cs4014.severity = warning
 dotnet_diagnostic.cs7022.severity = warning
 dotnet_diagnostic.cs7023.severity = warning
 dotnet_diagnostic.cs7095.severity = warning
+dotnet_diagnostic.cs8002.severity = silent
 dotnet_diagnostic.cs8073.severity = warning
 dotnet_diagnostic.cs8094.severity = warning
 dotnet_diagnostic.cs8123.severity = warning
@@ -1033,7 +1032,10 @@ dotnet_diagnostic.cs9181.severity = warning
 dotnet_diagnostic.cs9182.severity = warning
 dotnet_diagnostic.cs9183.severity = warning
 dotnet_diagnostic.cs9184.severity = warning
+dotnet_diagnostic.rcs1194.severity = none
 dotnet_diagnostic.wme006.severity = warning
+
+
 # dotnet_naming_rule.constants_rule.import_to_resharper = as_predefined
 dotnet_naming_rule.constants_rule.severity = suggestion
 dotnet_naming_rule.constants_rule.style = pascal_case
@@ -3774,6 +3776,10 @@ resharper_xaml_xaml_xamarin_forms_data_type_and_binding_context_type_mismatched_
 resharper_xaml_x_key_attribute_disallowed_highlighting = error
 resharper_xunit_xunit_test_with_console_output_highlighting = warning
 resharper_zero_index_from_end_highlighting = warning
+dotnet_diagnostic.DV0001.severity = warning
+dotnet_diagnostic.DV1001.severity = warning
+dotnet_diagnostic.DV1002.severity = warning
+dotnet_diagnostic.DV1003.severity = warning
 
 [*.{appxmanifest,asax,ascx,aspx,axaml,axml,build,cc,ccm,cginc,compute,config,cshtml,csproj,cu,cuh,cxx,cxxm,dbml,discomap,dtd,fx,fxh,hlsl,hlsli,hlslinc,hpp,htm,html,hxx,inc,inl,ino,ipp,ixx,jsproj,lsproj,master,mpp,mq4,mq5,mqh,mxx,njsproj,nuspec,paml,proj,props,razor,resw,resx,skin,StyleCop,targets,tasks,tpp,usf,ush,vbproj,xaml,xamlx,xml,xoml,xsd}]
 indent_size = 2
@@ -3881,11 +3887,23 @@ dotnet_diagnostic.ca1863.severity = suggestion
 dotnet_diagnostic.ca2215.severity = warning
 dotnet_diagnostic.ca2251.severity = suggestion
 dotnet_diagnostic.faa0001.severity = silent
+dotnet_diagnostic.DV0001.severity = warning
+dotnet_diagnostic.DV1001.severity = warning
+dotnet_diagnostic.DV1002.severity = warning
+dotnet_diagnostic.DV1003.severity = warning
+dotnet_diagnostic.DV2001.severity = none
+dotnet_diagnostic.DV2002.severity = none
 
-# IDE0130: Namespace does not match folder structure
-dotnet_diagnostic.ide0130.severity = none
+[*.vb]
+dotnet_diagnostic.DV1001.severity = warning
+dotnet_diagnostic.DV1002.severity = warning
+dotnet_diagnostic.DV1003.severity = warning
+dotnet_diagnostic.DV2001.severity = none
+dotnet_diagnostic.DV2002.severity = none
 
-[*]
-
-resharper properties
-resharper_use_indent_from_vs = true
+[*.*]
+dotnet_diagnostic.DV1001.severity = warning
+dotnet_diagnostic.DV1002.severity = warning
+dotnet_diagnostic.DV1003.severity = warning
+dotnet_diagnostic.DV2001.severity = none
+dotnet_diagnostic.DV2002.severity = none

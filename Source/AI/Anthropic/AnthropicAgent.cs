@@ -35,5 +35,4 @@ public class AnthropicAgent([FromKeyedServices("Anthropic")] IHttpClientProvider
         "tool_call" => MessagePartContentType.ToolCall,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown message part content type."),
     };
-
 };

@@ -35,6 +35,7 @@
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <NoWarn>$(NoWarn);DV2001;DV2002</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,11 +49,6 @@
       <Pack>true</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <AdditionalFiles Include="..\..\Dependencies\DotNetToolbox.layerdiagram" Link="DotNetToolbox.layerdiagram">
-      <Visible>False</Visible>
-    </AdditionalFiles>
-    <None Include="..\..\Dependencies\DotNetToolbox.layerdiagram.layout" Link="DotNetToolbox.layerdiagram.layout" />
-    <None Include="..\..\Dependencies\DotNetToolbox.layerdiagram.suppressions" Link="DotNetToolbox.layerdiagram.suppressions" />
     <None Include="README.md">
       <Pack>true</Pack>
       <PackagePath>\</PackagePath>
@@ -64,7 +60,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.DependencyValidation.Analyzers" Version="0.11.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
   </ItemGroup>
 

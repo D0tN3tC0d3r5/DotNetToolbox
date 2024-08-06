@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -11,15 +11,8 @@
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);DV2001;DV2002;xUnit1044;xUnit1045</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\Dependencies\DotNetToolbox.layerdiagram" Link="DotNetToolbox.layerdiagram">
-      <Visible>False</Visible>
-    </AdditionalFiles>
-    <None Include="..\..\Dependencies\DotNetToolbox.layerdiagram.layout" Link="DotNetToolbox.layerdiagram.layout" />
-    <None Include="..\..\Dependencies\DotNetToolbox.layerdiagram.suppressions" Link="DotNetToolbox.layerdiagram.suppressions" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
@@ -27,7 +20,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.DependencyValidation.Analyzers" Version="0.11.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17">

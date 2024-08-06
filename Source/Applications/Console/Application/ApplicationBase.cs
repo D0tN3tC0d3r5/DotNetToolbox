@@ -5,7 +5,6 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
       IApplication<TApplication, TBuilder>
     where TApplication : ApplicationBase<TApplication, TBuilder>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder> {
-
     protected virtual ValueTask Dispose()
         => ValueTask.CompletedTask;
 
@@ -59,11 +58,11 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             return ExitCode;
         }
         catch (ConsoleException ex) {
-            ConsoleOutput.WriteLine(FormatException(ex));
+            ConsoleOutput.WriteLine(ex.ToText());
             return ex.ExitCode;
         }
         catch (Exception ex) {
-            ConsoleOutput.WriteLine(FormatException(ex));
+            ConsoleOutput.WriteLine(ex.ToText());
             return IApplication.DefaultErrorCode;
         }
     }
@@ -71,7 +70,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     protected void ProcessResult(Result result) {
         if (result.HasException) throw result.Exception!;
         if (!result.HasErrors) return;
-        ConsoleOutput.WriteLine(FormatValidationErrors(result.Errors));
+        ConsoleOutput.WriteLine(result.Errors.ToText());
     }
 
     protected async Task<bool> TryParseArguments(CancellationToken ct) {

@@ -1,46 +1,46 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Utilities;
 
-internal class OutputFormatter {
+internal static class OutputFormatter {
     private const int _indentSize = 4;
 
-    public static string FormatException(Exception exception) {
+    public static string ToText(this Exception exception) {
         var builder = new StringBuilder();
-        ShowException(builder, exception);
+        AppendException(builder, exception);
         return builder.ToString();
     }
 
-    public static string FormatValidationErrors(IReadOnlyCollection<ValidationError> errors) {
+    public static string ToText(this IEnumerable<ValidationError> errors) {
         var builder = new StringBuilder();
         foreach (var error in errors)
             builder.AppendLine($"Validation error: {error.Message}");
         return builder.ToString();
     }
 
-    public static string FormatHelp(IHasChildren node) {
+    public static string ToHelp(this IHasChildren node) {
         var builder = new StringBuilder();
-        ShowNodeDescription(builder, node);
-        ShowUsage(builder, node);
-        ShowAliases(builder, node);
-        ShowItems(builder, "Options", node.Options);
-        ShowItems(builder, "Parameters", node.Parameters);
-        ShowItems(builder, "Commands", node.Commands);
+        AppendNodeDescription(builder, node);
+        AppendUsage(builder, node);
+        AppendAliases(builder, node);
+        AppendItems(builder, "Options", node.Options);
+        AppendItems(builder, "Parameters", node.Parameters);
+        AppendItems(builder, "Commands", node.Commands);
         return builder.ToString();
     }
 
-    private static void ShowNodeDescription(StringBuilder builder, INode node) {
+    private static void AppendNodeDescription(StringBuilder builder, INode node) {
         if (node is IApplication app) builder.AppendLine(app.FullName);
         if (string.IsNullOrWhiteSpace(node.Description)) return;
         builder.AppendLine(node.Description.Trim());
     }
 
-    private static void ShowUsage(StringBuilder builder, IHasChildren node) {
+    private static void AppendUsage(StringBuilder builder, IHasChildren node) {
         if (builder.Length != 0) builder.AppendLine();
         builder.AppendLine("Usage:");
-        ShowDefaultUsage(builder, node);
-        ShowUsageWithParameters(builder, node);
+        AppendDefaultUsage(builder, node);
+        AppendUsageWithParameters(builder, node);
     }
 
-    private static void ShowDefaultUsage(StringBuilder builder, IHasChildren node) {
+    private static void AppendDefaultUsage(StringBuilder builder, IHasChildren node) {
         if (node.Commands.Length == 0 && node.Parameters.Length != 0) return;
         builder.Append(' ', _indentSize).Append(node.Path);
         if (node.Options.Length != 0) builder.Append(" [Options]");
@@ -48,7 +48,7 @@ internal class OutputFormatter {
         builder.AppendLine();
     }
 
-    private static void ShowUsageWithParameters(StringBuilder builder, IHasChildren node) {
+    private static void AppendUsageWithParameters(StringBuilder builder, IHasChildren node) {
         if (node.Parameters.Length == 0) return;
         builder.Append(' ', _indentSize).Append(node.Path);
         if (node.Options.Length != 0) builder.Append(" [Options]");
@@ -59,23 +59,23 @@ internal class OutputFormatter {
         builder.AppendLine();
     }
 
-    private static void ShowAliases(StringBuilder builder, IHasChildren node) {
+    private static void AppendAliases(StringBuilder builder, IHasChildren node) {
         if (node.Aliases.Length == 0) return;
         builder.AppendLine();
         builder.Append("Aliases: ").AppendJoin(", ", node.Aliases).AppendLine();
     }
 
-    private static void ShowItems(StringBuilder builder, string section, IReadOnlyCollection<INode> items) {
+    private static void AppendItems(StringBuilder builder, string section, IReadOnlyCollection<INode> items) {
         if (items.Count == 0) return;
         builder.AppendLine();
         builder.AppendLine($"{section}:");
         foreach (var item in items)
-            ShowItem(builder, item);
+            AppendItem(builder, item);
     }
 
-    private static void ShowException(StringBuilder builder, Exception ex, bool isInner = false, byte indent = 0) {
+    private static void AppendException(StringBuilder builder, Exception ex, bool isInner = false, byte indent = 0) {
         while (true) {
-            ShowExceptionDescription(builder, ex, isInner, indent);
+            AppendExceptionDescription(builder, ex, isInner, indent);
             ShowStackTrace(builder, ex, (byte)(indent + 1));
             if (ex.InnerException is null) break;
             ex = ex.InnerException;
@@ -84,7 +84,7 @@ internal class OutputFormatter {
         }
     }
 
-    private static void ShowExceptionDescription(StringBuilder builder, Exception ex, bool isInner, int indent) {
+    private static void AppendExceptionDescription(StringBuilder builder, Exception ex, bool isInner, int indent) {
         builder.Append(' ', indent * _indentSize);
         if (isInner) builder.Append("Inner Exception => ");
         builder.Append(ex.GetType().Name);
@@ -96,33 +96,32 @@ internal class OutputFormatter {
         if (string.IsNullOrEmpty(ex.StackTrace)) return;
         builder.Append(' ', indent * _indentSize).AppendLine("Stack Trace:");
         var lines = ex.StackTrace.Split(System.Environment.NewLine);
-        _ = lines.Aggregate(builder, (s, l) => s.Append(' ', (indent + 1) * _indentSize).AppendLine(l));
+#pragma warning disable CA1806 // Do not ignore method results - contains side effects
+        lines.Aggregate(builder, (s, l) => s.Append(' ', (indent + 1) * _indentSize).AppendLine(l));
+#pragma warning restore CA1806 // Do not ignore method results
     }
 
-    public static void ShowItem(StringBuilder builder, INode node) {
-        var itemId = new StringBuilder();
-        itemId.Append(' ', _indentSize);
-        ShowIds();
-        var length = itemId.Length;
-        builder.Append(itemId);
-        ShowItemDescription();
-        return;
+    private static void AppendItem(StringBuilder builder, INode node) {
+        builder.Append(' ', _indentSize);
+        var ids = GetIds(node);
+        builder.Append(ids);
+        AppendNodeDescription(builder, node, ids.Length + _indentSize);
+    }
 
-        void ShowIds() {
-            string[] ids = node is IArgument _
-                               ? [$"--{node.Name.ToLowerInvariant()}", .. node.Aliases.Select(a => $"-{a}")]
-                               : [node.Name, .. node.Aliases];
-            itemId.AppendJoin(", ", ids);
-        }
+    private static string GetIds(INode node) {
+        string[] ids = node is IArgument _
+                           ? [$"--{node.Name.ToLowerInvariant()}", .. node.Aliases.Select(a => $"-{a}")]
+                           : [node.Name, .. node.Aliases];
+        return string.Join(", ", ids);
+    }
 
-        void ShowItemDescription() {
-            var lines = node.Description.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            if (lines.Length == 0) {
-                builder.AppendLine();
-                return;
-            }
-            builder.Append(' ', 30 - length).AppendLine(lines[0]);
-            foreach (var line in lines.Skip(1)) builder.Append(' ', 30).AppendLine(line);
+    private static void AppendNodeDescription(StringBuilder builder, INode node, int length) {
+        var lines = node.Description.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (lines.Length == 0) {
+            builder.AppendLine();
+            return;
         }
+        builder.Append(' ', 30 - length).AppendLine(lines[0]);
+        foreach (var line in lines.Skip(1)) builder.Append(' ', 30).AppendLine(line);
     }
 }

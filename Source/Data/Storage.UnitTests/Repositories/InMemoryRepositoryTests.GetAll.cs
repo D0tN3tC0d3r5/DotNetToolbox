@@ -3,7 +3,7 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class InMemoryRepositoryTests {
     [Fact]
     public void GetAll_BaseStrategy_ShouldThrow() {
-        var action = () => _dummyRepository.GetAll();
+        var action = _dummyRepository.GetAll;
         action.Should().Throw<NotImplementedException>();
     }
 
@@ -14,16 +14,16 @@ public partial class InMemoryRepositoryTests {
     }
 
     [Fact]
-    public void GetAll_GetAllsItem() {
+    public void GetAll_GetAllItems() {
         var result = _updatableRepo.GetAll();
         result.Should().BeOfType<TestEntity[]>();
-        result.Count().Should().Be(3);
+        result.Length.Should().Be(3);
     }
 
     [Fact]
-    public async Task GetAllAsync_GetAllsItem() {
+    public async Task GetAllAsync_GetAllItems() {
         var result = await _updatableRepo.GetAllAsync();
         result.Should().BeOfType<TestEntity[]>();
-        result.Count().Should().Be(3);
+        result.Length.Should().Be(3);
     }
 }

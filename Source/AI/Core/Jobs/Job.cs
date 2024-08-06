@@ -17,7 +17,7 @@ public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strateg
         var result = await agent.SendRequest(this, chat, ct);
 
         if (result.HasException)
-            throw new JobException($"An internal error occurred while executing the job.", result.Exception);
+            throw new JobException("An internal error occurred while executing the job.", result.Exception);
         if (result.HasErrors)
             return result.Errors;
 

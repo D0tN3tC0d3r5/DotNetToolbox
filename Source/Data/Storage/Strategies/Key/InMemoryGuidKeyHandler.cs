@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Data.Strategies.Key;
 
-public sealed class InMemoryGuidKeyHandler(string contextKey, IGuidProvider? guid = null) 
+public sealed class InMemoryGuidKeyHandler(string contextKey, IGuidProvider? guid = null)
     : InMemoryKeyHandler<Guid>(contextKey, EqualityComparer<Guid>.Default) {
     private readonly IGuidProvider _guid = guid ?? GuidProvider.Default;
 

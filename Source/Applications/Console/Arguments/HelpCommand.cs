@@ -6,7 +6,7 @@ internal sealed class HelpCommand
 
     public HelpCommand(IHasChildren parent)
         : base(parent, "Help", ["?"]) {
-        _parent = parent;
+        _parent = IsNotNull(parent);
         Description = "Display this help information.";
         AddParameter("Target", string.Empty);
     }
@@ -14,8 +14,8 @@ internal sealed class HelpCommand
     public override Task<Result> Execute(CancellationToken ct = default) {
         var target = (string?)Context.GetValueOrDefault("Target");
         var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
-        var help = FormatHelp(command ?? _parent);
-        Environment.ConsoleOutput.WriteLine(help);
+        var node = command ?? _parent;
+        Environment.ConsoleOutput.WriteLine(node.ToHelp());
         return SuccessTask();
     }
 }
