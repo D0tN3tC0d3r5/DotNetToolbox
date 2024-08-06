@@ -1,7 +1,14 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class TerminalNodeTests {
-    private readonly NodeFactory _factory = new();
+    private readonly NodeFactory _factory;
+
+    public TerminalNodeTests() {
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy, RetryPolicy>();
+        var provider = services.BuildServiceProvider();
+        _factory = new(provider);
+    }
 
     [Fact]
     public void CreateStop_WithoutLabel_ReturnsTerminalNodeWithDefaultLabel() {

@@ -1,7 +1,14 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class ActionNodeTests {
-    private readonly NodeFactory _factory = new();
+    private readonly NodeFactory _factory;
+
+    public ActionNodeTests() {
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy, RetryPolicy>();
+        var provider = services.BuildServiceProvider();
+        _factory = new(provider);
+    }
 
     [Fact]
     public void CreateAction_WithoutLabel_ReturnsActionNodeWithDefaultLabel() {
@@ -32,8 +39,12 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_WithPolicy_AppliesPolicyToNode() {
-        var policy = new TestPolicy();
-        var node = _factory.CreateAction(1, _ => { }, policy);
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy, TestPolicy>();
+        var provider = services.BuildServiceProvider();
+        var factory = new NodeFactory(provider);
+
+        var node = factory.CreateAction(1, _ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
@@ -42,13 +53,11 @@ public class ActionNodeTests {
     [Fact]
     public void CreateAction_RunWithPolicy_ExecutesPolicyAndAction() {
         var actionExecuted = false;
-        var policy = new TestPolicy();
-        var node = _factory.CreateAction(1, _ => actionExecuted = true, policy);
+        var node = _factory.CreateAction(1, _ => actionExecuted = true);
         var context = new Context();
 
         node.Run(context);
 
-        policy.TryCount.Should().Be(1);
         actionExecuted.Should().BeTrue();
     }
 
@@ -56,7 +65,11 @@ public class ActionNodeTests {
     public void CreateAction_RunWithSuccessfulRetry_ExecutesPolicyAndAction() {
         var actionExecuted = false;
         var policy = new TestPolicy(failedTries: 2);
-        var node = _factory.CreateAction(1, _ => actionExecuted = true, policy);
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy>(_ => policy);
+        var provider = services.BuildServiceProvider();
+        var factory = new NodeFactory(provider);
+        var node = factory.CreateAction(1, _ => actionExecuted = true);
         var context = new Context();
 
         node.Run(context);
@@ -68,8 +81,13 @@ public class ActionNodeTests {
     [Fact]
     public void CreateAction_RunWithTooManyRetries_ExecutesPolicyAndAction() {
         var actionExecuted = false;
+        var services = new ServiceCollection();
         var policy = new TestPolicy(failedTries: RetryPolicy.DefaultMaximumRetries + 1);
-        var node = _factory.CreateAction(1, _ => actionExecuted = true, policy);
+        services.AddTransient<IPolicy>(_ => policy);
+        var provider = services.BuildServiceProvider();
+        var factory = new NodeFactory(provider);
+
+        var node = factory.CreateAction(1, _ => actionExecuted = true);
         var context = new Context();
 
         var action = () => node.Run(context);
@@ -82,8 +100,12 @@ public class ActionNodeTests {
     [Fact]
     public void CreateAction_RunWithCustomRetries_ExecutesPolicyAndAction() {
         var actionExecuted = false;
+        var services = new ServiceCollection();
         var policy = new TestPolicy(maxRetries: 10, failedTries: 11);
-        var node = _factory.CreateAction(1, _ => actionExecuted = true, policy);
+        services.AddTransient<IPolicy>(_ => policy);
+        var provider = services.BuildServiceProvider();
+        var factory = new NodeFactory(provider);
+        var node = factory.CreateAction(1, _ => actionExecuted = true);
         var context = new Context();
 
         var action = () => node.Run(context);
@@ -95,8 +117,12 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_RetryOnException_ExecutesPolicyAndAction() {
+        var services = new ServiceCollection();
         var policy = new TestPolicy(failedTries: RetryPolicy.DefaultMaximumRetries + 1);
-        var node = _factory.CreateAction(1, _ => throw new(), policy);
+        services.AddTransient<IPolicy>(_ => policy);
+        var provider = services.BuildServiceProvider();
+        var factory = new NodeFactory(provider);
+        var node = factory.CreateAction(1, _ => throw new());
         var context = new Context();
 
         var action = () => node.Run(context);
@@ -107,10 +133,14 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_WithRetryAsMax_IgnoresPolicyAndTryAsManyTimesAsNeeded() {
+        var services = new ServiceCollection();
         var policy = new TestPolicy(maxRetries: byte.MaxValue);
-        var node = _factory.CreateAction(1, _ => {
+        services.AddTransient<IPolicy>(_ => policy);
+        var provider = services.BuildServiceProvider();
+        var factory = new NodeFactory(provider);
+        var node = factory.CreateAction(1, _ => {
             if (policy.TryCount < 10) throw new();
-        }, policy);
+        });
         var context = new Context();
 
         var action = () => node.Run(context);
@@ -136,8 +166,15 @@ public class ActionNodeTests {
         : Context;
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomActionNode(uint id, string? label = null, IPolicy? policy = null)
-        : ActionNode<CustomActionNode>(id, label, policy) {
+    private sealed class CustomActionNode
+        : ActionNode<CustomActionNode> {
+        public CustomActionNode(uint id, string label, IServiceProvider services)
+            : base(id, label, services) {
+        }
+
+        public CustomActionNode(uint id, IServiceProvider services)
+            : base(id, services) { }
+
         protected override void Execute(Context context) { }
     }
 

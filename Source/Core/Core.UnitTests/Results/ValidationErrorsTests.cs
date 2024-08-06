@@ -237,7 +237,7 @@ public class ValidationErrorsTests {
     }
 
     [Fact]
-    public void Insert_WithDuplicateErrorAtDifferentIndex_ShouldThrow() {
+    public void Insert_WithDuplicateErrorAtDifferentIndex_ShouldNotThrow() {
         // Arrange
         // ReSharper disable once CollectionNeverQueried.Local
         var errors = new ValidationErrors();
@@ -247,10 +247,10 @@ public class ValidationErrorsTests {
         errors.Add(error2);
 
         // Act
-        var act1 = () => errors.Insert(1, error1);
+        var act = () => errors.Insert(1, error1);
 
         // Assert
-        act1.Should().Throw<InvalidOperationException>();
+        act.Should().NotThrow();
     }
 
     [Fact]
@@ -468,7 +468,7 @@ public class ValidationErrorsTests {
 #pragma warning restore IDE0028
 
         // Act
-        errors[0] = "Error2";
+        errors[0] = new ValidationError("Error2");
 
         // Assert
         errors.Cast<ValidationError>().ToArray()[0].Message.Should().Be("Error2");

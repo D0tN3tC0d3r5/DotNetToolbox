@@ -3,20 +3,18 @@
 public abstract record ResultBase<TType>
     : IResult<TType>
     where TType : Enum {
-    private readonly ValidationErrors _errors;
-
     protected ResultBase(Exception exception)
         : this() {
         Exception = IsNotNull(exception);
     }
 
     protected ResultBase(IEnumerable<ValidationError>? errors = null) {
-        _errors = new(ItemsAreNotNull(errors ?? []));
+        Errors = new(errors ?? []);
     }
 
     public abstract TType Type { get; }
     public Exception? Exception { get; }
-    public ValidationErrors Errors => _errors;
+    public ValidationErrors Errors { get; }
 
     public bool HasErrors => Errors.Count != 0;
     [MemberNotNullWhen(true, nameof(Exception))]

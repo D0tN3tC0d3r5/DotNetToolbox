@@ -1,7 +1,14 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class ComplexWorkflowTests {
-    private readonly NodeFactory _factory = new();
+    private readonly NodeFactory _factory;
+
+    public ComplexWorkflowTests() {
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy, RetryPolicy>();
+        var provider = services.BuildServiceProvider();
+        _factory = new(provider);
+    }
 
     [Fact]
     public void ComplexWorkflow_WithMultipleNodeTypes_ExecutesCorrectly() {
@@ -39,10 +46,14 @@ public class ComplexWorkflowTests {
     public void ComplexWorkflow_WithCustomPolicy_AppliesPolicyCorrectly() {
         var policyExecutionCount = 0;
         var policy = new CustomPolicy(() => policyExecutionCount++);
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy>(_ => policy);
+        var provider = services.BuildServiceProvider();
+
         using var context = new Context();
 
-        var builder = new WorkflowBuilder();
-        builder.Do(_ => { }, policy);
+        var builder = new WorkflowBuilder(provider);
+        builder.Do(_ => { });
 
         var wf = builder.Start;
 
@@ -52,13 +63,17 @@ public class ComplexWorkflowTests {
     }
 
     private static INode CreateComplexWorkflow() {
-        var builder = new WorkflowBuilder();
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy, RetryPolicy>();
+        var provider = services.BuildServiceProvider();
+
+        var builder = new WorkflowBuilder(provider);
         builder.Do(ctx => ctx["count"] = 0)
                .If("LoopStart", ctx => ctx["count"].As<int>() < 2,
                    t1 => t1.Do(ctx => ctx["count"] = ctx["count"].As<int>() + 1)
                            .Do(ctx => ctx["result"] = "Action1")
                            .JumpTo("LoopStart"),
-                   f1 => f1.If(ctx => (int)ctx["count"] % 2 == 0,
+                   f1 => f1.If(ctx => ctx["count"].As<int>() % 2 == 0,
                                t2 => t2.Do(ctx => ctx["result"] = "Action2"),
                                f2 => f2.Do(ctx => ctx["result"] = "Action3")));
         return builder.Start;

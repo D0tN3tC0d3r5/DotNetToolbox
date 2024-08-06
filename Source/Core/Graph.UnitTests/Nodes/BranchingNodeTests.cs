@@ -1,12 +1,20 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class BranchingNodeTests {
-    private readonly NodeFactory _factory = new();
+    private readonly NodeFactory _factory;
+    private readonly WorkflowBuilder _builder;
+
+    public BranchingNodeTests() {
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy, RetryPolicy>();
+        var provider = services.BuildServiceProvider();
+        _factory = new(provider);
+        _builder = new(provider);
+    }
 
     [Fact]
     public void CreateChoice_WithoutLabel_ReturnsBranchingNodeWithDefaultLabel() {
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateChoice(1, _ => "default", builder, _ => { });
+        var node = _factory.CreateChoice(1, _ => "default", _builder, _ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<BranchingNode>();
@@ -16,8 +24,7 @@ public class BranchingNodeTests {
     [Fact]
     public void CreateChoice_WithCustomLabel_ReturnsBranchingNodeWithCustomLabel() {
         const string customLabel = "CustomChoice";
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateChoice(1, customLabel, _ => "default", builder, _ => { });
+        var node = _factory.CreateChoice(1, customLabel, _ => "default", _builder, _ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<BranchingNode>();
@@ -34,11 +41,12 @@ public class BranchingNodeTests {
 
     [Fact]
     public void CreateChoice_WithMultipleBranches_SetsAllBranches() {
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateChoice(1, _ => "key", builder, b => b
-                                                                     .Is("key1", _ => { })
-                                                                     .Is("key2", _ => { })
-                                                                     .Is("key3", _ => { }));
+        var node = _factory.CreateChoice(1,
+                                         _ => "key",
+                                         _builder,
+                                         b => b.Is("key1", _ => { })
+                                               .Is("key2", _ => { })
+                                               .Is("key3", _ => { }));
 
         node.Should().BeOfType<BranchingNode>();
         var branchingNode = (BranchingNode)node;
@@ -49,11 +57,12 @@ public class BranchingNodeTests {
     [Fact]
     public void CreateChoice_RunMethodWithExistingKey_ExecutesCorrectBranch() {
         using var context = new Context();
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateChoice(1, _ => "key2", builder, b => b
-                                                                      .Is("key1", br => br.Do(ctx => ctx["branch"] = "1"))
-                                                                      .Is("key2", br => br.Do(ctx => ctx["branch"] = "2"))
-                                                                      .Is("key3", br => br.Do(ctx => ctx["branch"] = "3")));
+        var node = _factory.CreateChoice(1,
+                                         _ => "key2",
+                                         _builder,
+                                         b => b.Is("key1", br => br.Do(ctx => ctx["branch"] = "1"))
+                                               .Is("key2", br => br.Do(ctx => ctx["branch"] = "2"))
+                                               .Is("key3", br => br.Do(ctx => ctx["branch"] = "3")));
 
         node.Run(context);
 
@@ -62,10 +71,11 @@ public class BranchingNodeTests {
 
     [Fact]
     public void CreateChoice_RunMethodWithNonExistingKey_ThrowsInvalidOperationException() {
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateChoice(1, _ => "nonexistent", builder, b => b
-                                                                             .Is("key1", _ => { })
-                                                                             .Is("key2", _ => { }));
+        var node = _factory.CreateChoice(1,
+                                         _ => "nonexistent",
+                                         _builder,
+                                         b => b.Is("key1", _ => { })
+                                               .Is("key2", _ => { }));
 
         var action = () => {
             using var context = new Context();
@@ -78,11 +88,12 @@ public class BranchingNodeTests {
 
     [Fact]
     public void CreateChoice_ValidateMethod_ValidatesAllBranches() {
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateChoice(1, _ => "key", builder, b => b
-                                                                     .Is("key1", br => br.Do(_ => { }))
-                                                                     .Is("key2", br => br.Do(_ => { }))
-                                                                     .Is("key3", _ => { }));
+        var node = _factory.CreateChoice(1,
+                                         _ => "key",
+                                         _builder,
+                                         b => b.Is("key1", br => br.Do(_ => { }))
+                                               .Is("key2", br => br.Do(_ => { }))
+                                               .Is("key3", _ => { }));
 
         var result = node.Validate();
 
@@ -90,8 +101,15 @@ public class BranchingNodeTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomBranchingNode(uint id, string? label = null)
-        : BranchingNode<CustomBranchingNode>(id, label) {
+    private sealed class CustomBranchingNode
+        : BranchingNode<CustomBranchingNode> {
+        public CustomBranchingNode(uint id, string label, IServiceProvider services)
+            : base(id, label, services) {
+        }
+
+        public CustomBranchingNode(uint id, IServiceProvider services)
+            : base(id, services) { }
+
         protected override string Select(Context context) => "default";
     }
 }

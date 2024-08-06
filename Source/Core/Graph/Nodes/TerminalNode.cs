@@ -9,16 +9,17 @@ public class TerminalNode
         : base(id, label, services) {
     }
 
-    private TerminalNode(uint id, IServiceProvider services)
-        : base(id, services) { }
-
-    internal static TerminalNode Create(uint id,
-                                        string? label,
-                                        IServiceProvider services)
-        => new(id, label ?? _defaultLabel, services);
-
     protected sealed override INode? GetNext(Context context)
         => null;
 
     protected override void UpdateState(Context context) { }
+
+    public static TerminalNode Create(uint id,
+                                      string label,
+                                      IServiceProvider services)
+        => new(id, IsNotNull(label), services);
+
+    public static TerminalNode Create(uint id,
+                                      IServiceProvider services)
+        => new(id, _defaultLabel, services);
 }

@@ -96,7 +96,7 @@ public record CrudResult<TValue> : CrudResult, IResult<CrudResultType, TValue> {
     public static implicit operator CrudResult<TValue>(ValidationError error) => (ValidationErrors)error;
     public static implicit operator CrudResult<TValue>(ValidationErrors errors) => new(CrudResultType.Success, default!, errors.AsEnumerable());
     public static implicit operator CrudResult<TValue>(ValidationError[] errors) => (ValidationErrors)errors;
-    public static implicit operator CrudResult<TValue>(List<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator CrudResult<TValue>(List<ValidationError> errors) => new ValidationErrors(errors);
     public static implicit operator CrudResult<TValue>(HashSet<ValidationError> errors) => (ValidationErrors)errors;
     public static implicit operator ValidationErrors(CrudResult<TValue> result) => result.HasException ? [] : [.. result.Errors];
     public static implicit operator ValidationError[](CrudResult<TValue> result) => result.HasException ? [] : [.. result.Errors];

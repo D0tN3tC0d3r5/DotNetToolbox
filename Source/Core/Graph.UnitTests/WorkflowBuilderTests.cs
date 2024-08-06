@@ -1,7 +1,14 @@
 namespace DotNetToolbox.Graph;
 
 public sealed class WorkflowBuilderTests {
-    private readonly WorkflowBuilder _builder = new();
+    private readonly WorkflowBuilder _builder;
+
+    public WorkflowBuilderTests() {
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy, RetryPolicy>();
+        var provider = services.BuildServiceProvider();
+        _builder = new(provider);
+    }
 
     [Fact]
     public void BuildGraph_SingleAction_ReturnsCorrectMermaidChart() {
@@ -148,7 +155,7 @@ public sealed class WorkflowBuilderTests {
                                       4["Exit"]
 
                                       """;
-        var builder = new WorkflowBuilder()
+        var builder = _builder
             .Do("Start", _ => { })
             .If("LoopCondition", _ => true,
                 t => t.Do("LoopAction", _ => { })
@@ -168,7 +175,7 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
 
-        var builder = new WorkflowBuilder()
+        var builder = _builder
             .Do<CustomAction>();
 
         var graph = builder.BuildGraph();
@@ -192,7 +199,7 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
 
-        var builder = new WorkflowBuilder()
+        var builder = _builder
             .If(_ => true,
                 t1 => t1.If(_ => false,
                     t2 => t2.Do(_ => { }),
@@ -205,8 +212,15 @@ public sealed class WorkflowBuilderTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomAction(uint id, string? label = null, IPolicy? policy = null)
-        : ActionNode<CustomAction>(id, label!, policy) {
+    private sealed class CustomAction
+        : ActionNode<CustomAction> {
+        public CustomAction(uint id, string label, IServiceProvider services)
+            : base(id, label, services) {
+        }
+
+        public CustomAction(uint id, IServiceProvider services)
+            : base(id, services) { }
+
         protected override void Execute(Context context) { }
     }
 }

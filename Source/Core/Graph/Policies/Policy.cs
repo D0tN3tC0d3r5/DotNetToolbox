@@ -1,9 +1,14 @@
 ﻿namespace DotNetToolbox.Graph.Policies;
 
-public abstract class Policy
-    : IPolicy,
-      IHasDefault<Policy> {
-    public abstract void Execute(Action action);
+public static class Policy {
+    public static RetryPolicy Default => new();
 
-    public static Policy Default => new NoRetryPolicy();
+}
+
+public abstract class Policy<TPolicy>
+    : IPolicy,
+      IHasDefault<TPolicy>
+    where TPolicy : Policy<TPolicy>, new() {
+    public abstract void Execute(Action action);
+    public static TPolicy Default => new();
 }

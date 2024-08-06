@@ -5,7 +5,7 @@ namespace DotNetToolbox.Graph.Nodes;
 public sealed class ActionNode
     : ActionNode<ActionNode> {
     private readonly Action<Context> _execute;
-    private const string _defaultLabel = "Action";
+    private const string _defaultLabel = "action";
 
     public ActionNode(uint id, string label, Action<Context> execute, IServiceProvider services)
         : base(id, label, services) {
@@ -35,7 +35,7 @@ public sealed class ActionNode
     public static TNode Create<TNode>(uint id,
                                       IServiceProvider services)
         where TNode : ActionNode<TNode>
-        => InstanceFactory.Create<TNode>(id, _defaultLabel, services);
+        => InstanceFactory.Create<TNode>(id, services);
 }
 
 public abstract class ActionNode<TAction>

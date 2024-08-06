@@ -254,8 +254,13 @@ public class EnsureTests {
     }
 
     private sealed class ValidatableObject(bool isValid) : IValidatable {
-        public Result Validate(IDictionary<string, object?>? context = null)
-            => isValid ? Result.Success() : Result.Invalid("Source", "Is not valid.");
+        public bool IsValid { get; } = isValid;
+
+        public Result Validate(IDictionary<string, object?>? context = null) {
+            if (IsValid)
+                return Result.Success();
+            return Result.Invalid("Is not valid.", "Source");
+        }
     }
 
     private sealed class ValidatableAsyncObject(bool isValid) : IValidatableAsync {

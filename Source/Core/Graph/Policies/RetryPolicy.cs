@@ -1,15 +1,32 @@
 ﻿namespace DotNetToolbox.Graph.Policies;
 
-public abstract class RetryPolicy
-    : Policy {
+public class RetryPolicy
+    : RetryPolicy<RetryPolicy> {
+    public RetryPolicy() {
+    }
+
+    public RetryPolicy(byte maxRetries, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null)
+        : base(maxRetries, delay, jiggleSizeInTicks) {
+    }
+}
+
+public class RetryPolicy<TPolicy>
+    : Policy<TPolicy>
+    where TPolicy : RetryPolicy<TPolicy>, new() {
     public const byte DefaultMaximumRetries = 3;
-    public static readonly TimeSpan DefaultDelay = TimeSpan.FromMilliseconds(50);
     public const ushort DefaultJiggleSizeInTicks = 100;
 
+    // ReSharper disable StaticMemberInGenericType
+    public static readonly TimeSpan DefaultDelay = TimeSpan.FromMilliseconds(50);
     private static readonly Random _random = Random.Shared;
+    // ReSharper restore StaticMemberInGenericType
 
-    protected RetryPolicy(byte? maxRetries = null, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null) {
-        MaxRetries = maxRetries ?? DefaultMaximumRetries;
+    public RetryPolicy()
+        : this(DefaultMaximumRetries) {
+    }
+
+    public RetryPolicy(byte maxRetries, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null) {
+        MaxRetries = maxRetries;
         delay ??= DefaultDelay;
         jiggleSizeInTicks ??= DefaultJiggleSizeInTicks;
         if (delay.Value.Ticks < jiggleSizeInTicks)
@@ -54,5 +71,8 @@ public abstract class RetryPolicy
         }
     }
 
-    protected abstract bool TryExecute(Action action);
+    protected virtual bool TryExecute(Action action) {
+        action();
+        return true;
+    }
 }

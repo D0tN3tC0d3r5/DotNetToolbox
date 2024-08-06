@@ -46,7 +46,7 @@ public class ConditionalNode
 
     public static TNode Create<TNode>(uint id, IServiceProvider services)
         where TNode : ConditionalNode<TNode>
-        => InstanceFactory.Create<TNode>(id, _defaultLabel, services);
+        => InstanceFactory.Create<TNode>(id, services);
 }
 
 public abstract class ConditionalNode<TNode>

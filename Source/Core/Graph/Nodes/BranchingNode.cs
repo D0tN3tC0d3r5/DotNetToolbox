@@ -37,7 +37,7 @@ public sealed class BranchingNode
 
     public static TNode Create<TNode>(uint id, IServiceProvider services)
         where TNode : BranchingNode<TNode>
-        => InstanceFactory.Create<TNode>(id, _defaultLabel, services);
+        => InstanceFactory.Create<TNode>(id, services);
 }
 
 public abstract class BranchingNode<TNode>

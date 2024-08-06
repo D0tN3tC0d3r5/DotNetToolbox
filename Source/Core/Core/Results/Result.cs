@@ -43,7 +43,7 @@ public record Result : ResultBase<ResultType> {
     public static implicit operator Result(ValidationError error) => (ValidationErrors)error;
     public static implicit operator Result(ValidationErrors errors) => new(errors.AsEnumerable());
     public static implicit operator Result(ValidationError[] errors) => (ValidationErrors)errors;
-    public static implicit operator Result(List<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator Result(List<ValidationError> errors) => new ValidationErrors(errors);
     public static implicit operator Result(HashSet<ValidationError> errors) => (ValidationErrors)errors;
     public static implicit operator ValidationErrors(Result result) => result.HasException ? [] : [.. result.Errors];
     public static implicit operator ValidationError[](Result result) => result.HasException ? [] : [.. result.Errors];
@@ -95,7 +95,7 @@ public record Result<TValue> : Result, IResult<ResultType, TValue> {
     public static implicit operator Result<TValue>(ValidationError error) => (ValidationErrors)error;
     public static implicit operator Result<TValue>(ValidationErrors errors) => new(default!, errors.AsEnumerable());
     public static implicit operator Result<TValue>(ValidationError[] errors) => (ValidationErrors)errors;
-    public static implicit operator Result<TValue>(List<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator Result<TValue>(List<ValidationError> errors) => new ValidationErrors(errors);
     public static implicit operator Result<TValue>(HashSet<ValidationError> errors) => (ValidationErrors)errors;
     public static implicit operator ValidationErrors(Result<TValue> result) => result.HasException ? [] : [.. result.Errors];
     public static implicit operator ValidationError[](Result<TValue> result) => result.HasException ? [] : [.. result.Errors];

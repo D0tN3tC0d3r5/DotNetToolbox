@@ -54,5 +54,5 @@ internal sealed class NodeFactory(IServiceProvider services)
     public ITerminationNode CreateStop(uint id, string label)
         => TerminalNode.Create(id, label, services);
     public ITerminationNode CreateStop(uint id)
-        => TerminalNode.Create(id, null, services);
+        => TerminalNode.Create(id, services);
 }

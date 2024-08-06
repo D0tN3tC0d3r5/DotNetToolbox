@@ -1,12 +1,20 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class ConditionalNodeTests {
-    private readonly NodeFactory _factory = new();
+    private readonly NodeFactory _factory;
+    private readonly WorkflowBuilder _builder;
+
+    public ConditionalNodeTests() {
+        var services = new ServiceCollection();
+        services.AddTransient<IPolicy, RetryPolicy>();
+        var provider = services.BuildServiceProvider();
+        _factory = new(provider);
+        _builder = new(provider);
+    }
 
     [Fact]
     public void CreateFork_WithoutLabel_ReturnsConditionalNodeWithDefaultLabel() {
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateFork(1, _ => true, builder, _ => { });
+        var node = _factory.CreateFork(1, _ => true, _builder, _ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ConditionalNode>();
@@ -16,8 +24,7 @@ public class ConditionalNodeTests {
     [Fact]
     public void CreateFork_WithCustomLabel_ReturnsConditionalNodeWithCustomLabel() {
         const string customLabel = "CustomFork";
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateFork(1, customLabel, _ => true, builder, _ => { });
+        var node = _factory.CreateFork(1, customLabel, _ => true, _builder, _ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ConditionalNode>();
@@ -34,8 +41,7 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_WithTrueBranchOnly_SetsOnlyTrueBranch() {
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateFork(1, _ => true, builder, t => t.Do(_ => { }));
+        var node = _factory.CreateFork(1, _ => true, _builder, t => t.Do(_ => { }));
 
         node.Should().BeOfType<ConditionalNode>();
         node.IsTrue.Should().NotBeNull();
@@ -44,8 +50,7 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_WithBothBranches_SetsBothBranches() {
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateFork(1, _ => true, builder,
+        var node = _factory.CreateFork(1, _ => true, _builder,
                                        t => t.Do(_ => { }),
                                        f => f.Do(_ => { }));
 
@@ -57,8 +62,8 @@ public class ConditionalNodeTests {
     [Fact]
     public void CreateFork_RunMethodWithTrueCondition_ExecutesTrueBranch() {
         using var context = new Context();
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateFork(1, _ => true, builder,
+        var node = _factory.CreateFork(1, _ => true,
+                                       _builder,
                                        t => t.Do(ctx => ctx["branch"] = "true"),
                                        f => f.Do(ctx => ctx["branch"] = "false"));
 
@@ -74,8 +79,8 @@ public class ConditionalNodeTests {
     public void CreateFork_RunMethodWithFalseCondition_ExecutesFalseBranch() {
         CustomContext context = [];
         context["Disposable"] = new CustomContext();
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateFork(1, _ => false, builder,
+        var node = _factory.CreateFork(1, _ => false,
+                                       _builder,
                                        t => t.Do(ctx => ctx["branch"] = "true"),
                                        f => f.Do(ctx => ctx["branch"] = "false"));
 
@@ -88,8 +93,8 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_ValidateMethod_ValidatesBothBranches() {
-        var builder = new WorkflowBuilder();
-        var node = _factory.CreateFork(1, _ => true, builder,
+        var node = _factory.CreateFork(1, _ => true,
+                                       _builder,
                                        t => t.Do(_ => { }),
                                        f => f.Do(_ => { }));
 
@@ -99,8 +104,15 @@ public class ConditionalNodeTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomConditionalNode(uint id, string? label = null)
-        : ConditionalNode<CustomConditionalNode>(id, label) {
+    private sealed class CustomConditionalNode
+        : ConditionalNode<CustomConditionalNode> {
+        public CustomConditionalNode(uint id, string label, IServiceProvider services)
+            : base(id, label, services) {
+        }
+
+        public CustomConditionalNode(uint id, IServiceProvider services)
+            : base(id, services) { }
+
         protected override bool When(Context context) => true;
     }
 }

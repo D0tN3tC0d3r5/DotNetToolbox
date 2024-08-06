@@ -111,7 +111,7 @@ public record HttpResult<TValue> : HttpResult, IResult<HttpResultType, TValue> {
     public static implicit operator HttpResult<TValue>(ValidationError error) => (ValidationErrors)error;
     public static implicit operator HttpResult<TValue>(ValidationErrors errors) => new(HttpResultType.Ok, default!, errors.AsEnumerable());
     public static implicit operator HttpResult<TValue>(ValidationError[] errors) => (ValidationErrors)errors;
-    public static implicit operator HttpResult<TValue>(List<ValidationError> errors) => (ValidationErrors)errors;
+    public static implicit operator HttpResult<TValue>(List<ValidationError> errors) => new ValidationErrors(errors);
     public static implicit operator HttpResult<TValue>(HashSet<ValidationError> errors) => (ValidationErrors)errors;
     public static implicit operator ValidationErrors(HttpResult<TValue> result) => result.HasException ? [] : [.. result.Errors];
     public static implicit operator ValidationError[](HttpResult<TValue> result) => result.HasException ? [] : [.. result.Errors];
