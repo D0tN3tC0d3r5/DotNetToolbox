@@ -12,7 +12,7 @@ REM call Publish %target% Utilities\ValidationBuilder ValidationBuilder 8.1.1-rc
 REM call Publish %target% Testing\TestUtilities TestUtilities 8.1.1-rc1
 REM call Publish %target% Testing\FluentAssertions FluentAssertions 8.1.1-rc1
 REM call Publish %target% Cloud\Azure Azure 8.1.1-rc1
-REM call Publish %target% Cloud\Http Http 8.1.1-rc1
+call Publish %target% Cloud\Http Http 8.1.1-rc1
 REM call Publish %target% Utilities\Security Security 8.1.1-rc1
 REM call Publish %target% Applications\Console Console 8.1.1-rc1
 call Publish %target% AI\Core AI 8.1.1-rc1
