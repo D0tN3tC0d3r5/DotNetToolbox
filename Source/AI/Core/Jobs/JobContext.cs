@@ -1,8 +1,14 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
-public class JobContext
+public class JobContext()
     : Context {
-    public JobContext(IDateTimeProvider? dateTime = null) {
+
+    public JobContext(IDateTimeProvider? dateTime = null)
+        : this([], dateTime) {
+    }
+
+    public JobContext(IContext source, IDateTimeProvider? dateTime = null)
+        : base(source) {
         this[nameof(World)] = new World(dateTime);
         this[nameof(Memory)] = new Context();
         this[nameof(Assets)] = new Context<Asset>();

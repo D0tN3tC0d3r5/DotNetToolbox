@@ -2,29 +2,16 @@
 
 namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ActionNode
-    : ActionNode<ActionNode> {
-    private readonly Action<Context> _execute;
+public sealed class ActionNode(uint id, string label, Action<Context> execute, IServiceProvider services)
+    : ActionNode<ActionNode>(id, label, services) {
     private const string _defaultLabel = "action";
 
-    public ActionNode(uint id, string label, Action<Context> execute, IServiceProvider services)
-        : base(id, label, services) {
-        _execute = execute;
-    }
-
     public ActionNode(uint id, Action<Context> execute, IServiceProvider services)
-        : base(id, _defaultLabel, services) {
-        _execute = execute;
+        : this(id, _defaultLabel, execute, services) {
     }
 
     protected override void Execute(Context context)
-        => IsNotNull(_execute)(context);
-
-    internal static ActionNode Create(uint id,
-                                      string? label,
-                                      Action<Context> execute,
-                                      IServiceProvider services)
-        => new(id, label ?? _defaultLabel, execute, services);
+        => IsNotNull(execute)(context);
 
     public static TNode Create<TNode>(uint id,
                                       string label,

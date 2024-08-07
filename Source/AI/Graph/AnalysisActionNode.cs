@@ -15,6 +15,7 @@ public class AnalysisActionNode
     }
 
     protected override void Execute(Context context) {
+        var jobContext = new JobContext(context);
         var job = new AnalysisJob($"{Id}", context, _agent);
         var input = context["AnalysisInput"] as string ?? throw new InvalidOperationException("Analysis input not found in context");
         var result = job.Execute(input, CancellationToken.None).GetAwaiter().GetResult();
