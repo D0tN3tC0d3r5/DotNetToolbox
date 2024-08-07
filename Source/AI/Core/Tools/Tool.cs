@@ -1,31 +1,31 @@
 ﻿namespace DotNetToolbox.AI.Tools;
 
 public class Tool
-    : Context, IValidatable {
+    : Map, IValidatable {
     public Tool(string id,
                 string name,
                 string returnType,
-                List<ToolArgument>? parameters = null,
+                List<ToolArgument>? arguments = null,
                 string? description = null) {
-        this[nameof(Id)] = id;
-        this[nameof(Name)] = name;
-        this[nameof(ReturnType)] = returnType;
-        this[nameof(Description)] = description;
-        this[nameof(Arguments)] = parameters ?? [];
+        Id = id;
+        Name = name;
+        ReturnType = returnType;
+        Description = description;
+        Arguments = arguments ?? [];
     }
 
-    public required string Id {
-        get => (string)this[nameof(Id)]!;
+    public string Id {
+        get => (string)this[nameof(Id)];
         init => this[nameof(Id)] = value;
     }
 
-    public required string Name {
-        get => (string)this[nameof(Name)]!;
+    public string Name {
+        get => (string)this[nameof(Name)];
         init => this[nameof(Name)] = value;
     }
 
-    public required string ReturnType {
-        get => (string)this[nameof(ReturnType)]!;
+    public string ReturnType {
+        get => (string)this[nameof(ReturnType)];
         init => this[nameof(ReturnType)] = value;
     }
 
@@ -34,7 +34,10 @@ public class Tool
         init => this[nameof(Description)] = value;
     }
 
-    public List<ToolArgument> Arguments => (List<ToolArgument>)this[nameof(Arguments)]!;
+    public List<ToolArgument> Arguments {
+        get => (List<ToolArgument>)this[nameof(Arguments)];
+        init => this[nameof(Arguments)] = value;
+    }
 
     public string Signature => $"{Name}({string.Join(",", Arguments.Select(p => p.Signature))}) -> {ReturnType}";
 

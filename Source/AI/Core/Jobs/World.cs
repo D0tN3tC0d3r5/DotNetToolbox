@@ -1,13 +1,12 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
-public class World
-    : Context, IValidatable {
-    public World(IDateTimeProvider? dateTime = null, IGuidProvider? guid = null) {
-        this[nameof(DateTimeProvider)] = dateTime ?? DateTimeProvider.Default;
-        this[nameof(GuidProvider)] = guid ?? GuidProvider.Default;
-    }
+public class World(IDateTimeProvider? dateTime = null)
+    : Map,
+      IValidatable,
+      IWorld {
+    private readonly IDateTimeProvider _dateTime = dateTime ?? DateTimeProvider.Default;
 
-    public DateTimeOffset DateTime => ((IDateTimeProvider)this[nameof(DateTimeProvider)]!).Now;
+    public DateTimeOffset DateTime => _dateTime.Now;
 
     public Result Validate(IDictionary<string, object?>? context = null)
         => Result.Success();

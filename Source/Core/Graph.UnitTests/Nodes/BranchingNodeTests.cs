@@ -56,7 +56,9 @@ public class BranchingNodeTests {
 
     [Fact]
     public void CreateChoice_RunMethodWithExistingKey_ExecutesCorrectBranch() {
-        using var context = new Context();
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
+        using var context = new Context(provider);
         var node = _factory.CreateChoice(1,
                                          _ => "key2",
                                          _builder,
@@ -77,8 +79,10 @@ public class BranchingNodeTests {
                                          b => b.Is("key1", _ => { })
                                                .Is("key2", _ => { }));
 
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
         var action = () => {
-            using var context = new Context();
+            using var context = new Context(provider);
             return node.Run(context);
         };
 

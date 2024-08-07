@@ -12,7 +12,9 @@ public class ComplexWorkflowTests {
 
     [Fact]
     public void ComplexWorkflow_WithMultipleNodeTypes_ExecutesCorrectly() {
-        using var context = new Context();
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
+        using var context = new Context(provider);
         var start = CreateComplexWorkflow();
         var workflow = new Workflow(start, context);
         workflow.Run();
@@ -50,7 +52,7 @@ public class ComplexWorkflowTests {
         services.AddTransient<IPolicy>(_ => policy);
         var provider = services.BuildServiceProvider();
 
-        using var context = new Context();
+        using var context = new Context(provider);
 
         var builder = new WorkflowBuilder(provider);
         builder.Do(_ => { });

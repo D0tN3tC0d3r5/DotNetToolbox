@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox;
 
-public abstract class ContextBase {
+public abstract class MapBase {
     protected abstract void ToText(StringBuilder builder, string? name = null, uint level = 0);
 
     protected void BuildItem(StringBuilder builder, string key, object? value, uint level) {
@@ -8,7 +8,7 @@ public abstract class ContextBase {
             case null:
                 builder.AppendLine($"{key}: null");
                 return;
-            case ContextBase contextBase:
+            case MapBase contextBase:
                 contextBase.ToText(builder, key, level + 1);
                 return;
             case string:

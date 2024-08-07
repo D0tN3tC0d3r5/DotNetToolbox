@@ -1,11 +1,20 @@
 namespace DotNetToolbox.Graph;
 
 public class RunnerTests {
+    private readonly Context _context;
+    private readonly ServiceProvider _provider;
+
+    public RunnerTests() {
+        var services = new ServiceCollection();
+        _provider = services.BuildServiceProvider();
+        _context = new(_provider);
+    }
+
     [Fact]
     public void Constructor_WithValidParameters_CreatesInstance() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         var dateTimeProvider = Substitute.For<IDateTimeProvider>();
         var loggerFactory = Substitute.For<ILoggerFactory>();
 
@@ -20,7 +29,7 @@ public class RunnerTests {
     public void Run_WithValidNode_ExecutesWithoutError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
 
         startingNode.Run(Arg.Any<Context>()).Returns(static _ => {
             Thread.Sleep(100);
@@ -50,7 +59,7 @@ public class RunnerTests {
     public void Run_WithNullContext_ReturnsNonNullContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(workflow);
 
@@ -65,7 +74,7 @@ public class RunnerTests {
     public void Run_WithEmptyContext_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var context = new Context();
+        var context = new Context(_provider);
         var workflow = new Workflow(startingNode, context);
         startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(workflow);
@@ -81,7 +90,7 @@ public class RunnerTests {
     public void Run_WithRunningRunner_ThrowsInvalidOperationException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(workflow);
 
@@ -100,7 +109,7 @@ public class RunnerTests {
     public void Run_WithSingleNode_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var context = new Context();
+        var context = new Context(_provider);
         var workflow = new Workflow(startingNode, context);
         startingNode.Run(Arg.Any<Context>()).Returns(static _ => null);
         var runner = new Runner(workflow);
@@ -116,7 +125,7 @@ public class RunnerTests {
     public void Run_WithMultipleNodes_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var context = new Context();
+        var context = new Context(_provider);
         var workflow = new Workflow(startingNode, context);
         var nextNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(nextNode);
@@ -138,7 +147,7 @@ public class RunnerTests {
     public void Run_WithExceptionInNode_ThrowsException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
         var runner = new Runner(workflow);
 
@@ -153,7 +162,7 @@ public class RunnerTests {
     public void Run_WithExceptionInNode_LogsError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
         var loggerFactory = new TrackedLoggerFactory();
         var runner = new Runner(workflow, loggerFactory: loggerFactory);
@@ -171,7 +180,7 @@ public class RunnerTests {
     public void Run_WithExceptionInNode_RethrowsException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         var exception = new Exception();
         startingNode.Run(Arg.Any<Context>()).Throws(exception);
         var runner = new Runner(workflow);
@@ -187,7 +196,7 @@ public class RunnerTests {
     public void Run_WithExceptionInNode_LogsEndOfWorkflow() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>()).Throws(new Exception());
         var loggerFactory = new TrackedLoggerFactory();
         var runner = new Runner(workflow, loggerFactory: loggerFactory);
@@ -205,7 +214,7 @@ public class RunnerTests {
     public void Run_OnRunStartingEvent_IsRaised() {
         var startingNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         var runner = new Runner(workflow);
         var eventRaised = false;
 
@@ -225,7 +234,7 @@ public class RunnerTests {
         var secondNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         var runner = new Runner(workflow);
         var executingCount = 0;
 
@@ -242,7 +251,7 @@ public class RunnerTests {
         var secondNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var context = new Context();
+        var context = new Context(_provider);
         var workflow = new Workflow(startingNode, context);
         var runner = new Runner(workflow);
 
@@ -263,7 +272,7 @@ public class RunnerTests {
         var secondNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         var runner = new Runner(workflow);
         var executedCount = 0;
 
@@ -281,7 +290,7 @@ public class RunnerTests {
         var thirdNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns(thirdNode);
-        var context = new Context();
+        var context = new Context(_provider);
         var workflow = new Workflow(startingNode, context);
         var runner = new Runner(workflow);
 
@@ -301,7 +310,7 @@ public class RunnerTests {
     public void Run_OnRunEndedEvent_IsRaisedAfterExecution() {
         var startingNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         var runner = new Runner(workflow);
         var eventRaised = false;
 
@@ -323,7 +332,7 @@ public class RunnerTests {
         secondNode.Id.Returns(2u);
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode);
+        var workflow = new Workflow(startingNode, _context);
         var runner = new Runner(workflow);
         var eventOrder = new List<string>();
 
@@ -341,7 +350,7 @@ public class RunnerTests {
             "NodeExecuted: 1",
             "NodeExecuting: 2",
             "NodeExecuted: 2",
-            "RunEnded"
+            "RunEnded",
         });
     }
 }

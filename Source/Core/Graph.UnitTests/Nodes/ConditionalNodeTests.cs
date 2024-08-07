@@ -61,7 +61,9 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_RunMethodWithTrueCondition_ExecutesTrueBranch() {
-        using var context = new Context();
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
+        using var context = new Context(provider);
         var node = _factory.CreateFork(1, _ => true,
                                        _builder,
                                        t => t.Do(ctx => ctx["branch"] = "true"),
@@ -72,13 +74,16 @@ public class ConditionalNodeTests {
         context["branch"].Should().Be("true");
     }
 
-    private sealed class CustomContext
-        : Context;
+    private sealed class CustomContext(IServiceProvider provider)
+        : Context(provider);
 
     [Fact]
     public void CreateFork_RunMethodWithFalseCondition_ExecutesFalseBranch() {
-        CustomContext context = [];
-        context["Disposable"] = new CustomContext();
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
+        var context = new CustomContext(provider) {
+            ["Disposable"] = new CustomContext(provider),
+        };
         var node = _factory.CreateFork(1, _ => false,
                                        _builder,
                                        t => t.Do(ctx => ctx["branch"] = "true"),

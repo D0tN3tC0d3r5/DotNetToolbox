@@ -54,7 +54,9 @@ public class ActionNodeTests {
     public void CreateAction_RunWithPolicy_ExecutesPolicyAndAction() {
         var actionExecuted = false;
         var node = _factory.CreateAction(1, _ => actionExecuted = true);
-        var context = new Context();
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
+        var context = new Context(provider);
 
         node.Run(context);
 
@@ -70,7 +72,7 @@ public class ActionNodeTests {
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
         var node = factory.CreateAction(1, _ => actionExecuted = true);
-        var context = new Context();
+        var context = new Context(provider);
 
         node.Run(context);
 
@@ -88,7 +90,7 @@ public class ActionNodeTests {
         var factory = new NodeFactory(provider);
 
         var node = factory.CreateAction(1, _ => actionExecuted = true);
-        var context = new Context();
+        var context = new Context(provider);
 
         var action = () => node.Run(context);
 
@@ -106,7 +108,7 @@ public class ActionNodeTests {
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
         var node = factory.CreateAction(1, _ => actionExecuted = true);
-        var context = new Context();
+        var context = new Context(provider);
 
         var action = () => node.Run(context);
 
@@ -123,7 +125,7 @@ public class ActionNodeTests {
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
         var node = factory.CreateAction(1, _ => throw new());
-        var context = new Context();
+        var context = new Context(provider);
 
         var action = () => node.Run(context);
 
@@ -141,7 +143,7 @@ public class ActionNodeTests {
         var node = factory.CreateAction(1, _ => {
             if (policy.TryCount < 10) throw new();
         });
-        var context = new Context();
+        var context = new Context(provider);
 
         var action = () => node.Run(context);
 
@@ -151,7 +153,9 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_RunMethod_UpdatesContextAndReturnsNextNode() {
-        var context = new CustomContext();
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
+        var context = new CustomContext(provider);
         var nextNode = _factory.CreateAction(1, _ => { });
         var node = _factory.CreateAction(2, ctx => ctx["key"] = "value");
         node.Next = nextNode;
@@ -162,8 +166,8 @@ public class ActionNodeTests {
         context["key"].Should().Be("value");
     }
 
-    private sealed class CustomContext
-        : Context;
+    private sealed class CustomContext(IServiceProvider provider)
+        : Context(provider);
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
     private sealed class CustomActionNode
