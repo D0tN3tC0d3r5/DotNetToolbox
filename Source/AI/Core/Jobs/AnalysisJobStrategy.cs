@@ -16,5 +16,5 @@ public class AnalysisJobStrategy
     }
 }
 
-public class AnalysisJob(string id, Context context, IAgent agent)
-    : Job<string, string>(new AnalysisJobStrategy(), id, context, agent);
+public class AnalysisJob(string id, JobContext context)
+    : Job<string, string>(new AnalysisJobStrategy(), id, context);
