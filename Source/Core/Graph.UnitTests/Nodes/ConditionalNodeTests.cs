@@ -118,6 +118,7 @@ public class ConditionalNodeTests {
         public CustomConditionalNode(uint id, IServiceProvider services)
             : base(id, services) { }
 
-        protected override bool When(Context context) => true;
+        protected override Task<bool> When(Context context, CancellationToken token)
+            => Task.FromResult(true);
     }
 }

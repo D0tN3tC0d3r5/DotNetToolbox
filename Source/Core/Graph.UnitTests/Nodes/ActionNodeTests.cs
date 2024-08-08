@@ -51,20 +51,20 @@ public class ActionNodeTests {
     }
 
     [Fact]
-    public void CreateAction_RunWithPolicy_ExecutesPolicyAndAction() {
+    public async Task Run_WithPolicy_ExecutesPolicyAndAction() {
         var actionExecuted = false;
         var node = _factory.CreateAction(1, _ => actionExecuted = true);
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         var context = new Context(provider);
 
-        node.Run(context);
+        await node.Run(context);
 
         actionExecuted.Should().BeTrue();
     }
 
     [Fact]
-    public void CreateAction_RunWithSuccessfulRetry_ExecutesPolicyAndAction() {
+    public async Task Run_WithSuccessfulRetry_ExecutesPolicyAndAction() {
         var actionExecuted = false;
         var policy = new TestPolicy(failedTries: 2);
         var services = new ServiceCollection();
@@ -74,14 +74,14 @@ public class ActionNodeTests {
         var node = factory.CreateAction(1, _ => actionExecuted = true);
         var context = new Context(provider);
 
-        node.Run(context);
+        await node.Run(context);
 
         policy.TryCount.Should().Be(3);
         actionExecuted.Should().BeTrue();
     }
 
     [Fact]
-    public void CreateAction_RunWithTooManyRetries_ExecutesPolicyAndAction() {
+    public async Task Run_WithTooManyRetries_ExecutesPolicyAndAction() {
         var actionExecuted = false;
         var services = new ServiceCollection();
         var policy = new TestPolicy(failedTries: RetryPolicy.DefaultMaximumRetries + 1);
@@ -94,13 +94,13 @@ public class ActionNodeTests {
 
         var action = () => node.Run(context);
 
-        action.Should().Throw<PolicyException>();
+        await action.Should().ThrowAsync<PolicyException>();
         policy.TryCount.Should().Be(RetryPolicy.DefaultMaximumRetries);
         actionExecuted.Should().BeTrue();
     }
 
     [Fact]
-    public void CreateAction_RunWithCustomRetries_ExecutesPolicyAndAction() {
+    public async Task Run_WithCustomRetries_ExecutesPolicyAndAction() {
         var actionExecuted = false;
         var services = new ServiceCollection();
         var policy = new TestPolicy(maxRetries: 10, failedTries: 11);
@@ -112,13 +112,13 @@ public class ActionNodeTests {
 
         var action = () => node.Run(context);
 
-        action.Should().Throw<PolicyException>();
+        await action.Should().ThrowAsync<PolicyException>();
         policy.TryCount.Should().Be(10);
         actionExecuted.Should().BeTrue();
     }
 
     [Fact]
-    public void CreateAction_RetryOnException_ExecutesPolicyAndAction() {
+    public async Task Run_RetryOnException_ExecutesPolicyAndAction() {
         var services = new ServiceCollection();
         var policy = new TestPolicy(failedTries: RetryPolicy.DefaultMaximumRetries + 1);
         services.AddTransient<IPolicy>(_ => policy);
@@ -129,12 +129,12 @@ public class ActionNodeTests {
 
         var action = () => node.Run(context);
 
-        action.Should().Throw<PolicyException>();
+        await action.Should().ThrowAsync<PolicyException>();
         policy.TryCount.Should().Be(RetryPolicy.DefaultMaximumRetries);
     }
 
     [Fact]
-    public void CreateAction_WithRetryAsMax_IgnoresPolicyAndTryAsManyTimesAsNeeded() {
+    public async Task Run_WithRetryAsMax_IgnoresPolicyAndTryAsManyTimesAsNeeded() {
         var services = new ServiceCollection();
         var policy = new TestPolicy(maxRetries: byte.MaxValue);
         services.AddTransient<IPolicy>(_ => policy);
@@ -147,12 +147,12 @@ public class ActionNodeTests {
 
         var action = () => node.Run(context);
 
-        action.Should().NotThrow<PolicyException>();
+        await action.Should().ThrowAsync<PolicyException>();
         policy.TryCount.Should().Be(10);
     }
 
     [Fact]
-    public void CreateAction_RunMethod_UpdatesContextAndReturnsNextNode() {
+    public async Task CRun_RunMethod_UpdatesContextAndReturnsNextNode() {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         var context = new CustomContext(provider);
@@ -160,7 +160,7 @@ public class ActionNodeTests {
         var node = _factory.CreateAction(2, ctx => ctx["key"] = "value");
         node.Next = nextNode;
 
-        var result = node.Run(context);
+        var result = await node.Run(context);
 
         result.Should().BeSameAs(nextNode);
         context["key"].Should().Be("value");
@@ -179,14 +179,14 @@ public class ActionNodeTests {
         public CustomActionNode(uint id, IServiceProvider services)
             : base(id, services) { }
 
-        protected override void Execute(Context context) { }
+        protected override Task Execute(Context context, CancellationToken ct) => Task.CompletedTask;
     }
 
     private sealed class TestPolicy(byte maxRetries = RetryPolicy.DefaultMaximumRetries, uint failedTries = 0)
         : RetryPolicy(maxRetries) {
-        protected override bool TryExecute(Action action) {
+        protected override async Task<bool> TryExecute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct) {
             TryCount++;
-            action();
+            await action(ctx, ct);
             return TryCount > failedTries;
         }
         public uint TryCount { get; private set; }

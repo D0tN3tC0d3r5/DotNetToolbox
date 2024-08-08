@@ -11,13 +11,14 @@ public class ComplexWorkflowTests {
     }
 
     [Fact]
-    public void ComplexWorkflow_WithMultipleNodeTypes_ExecutesCorrectly() {
+    public async Task ComplexWorkflow_WithMultipleNodeTypes_ExecutesCorrectly() {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         using var context = new Context(provider);
         var start = CreateComplexWorkflow();
         var workflow = new Workflow(start, context);
-        workflow.Run();
+
+        await workflow.Run();
 
         context["count"].Should().Be(2);
         context["result"].Should().Be("Action2");
@@ -82,9 +83,9 @@ public class ComplexWorkflowTests {
     }
 
     private sealed class CustomPolicy(Action onExecute) : IPolicy {
-        public void Execute(Action action) {
+        public Task Execute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct = default) {
             onExecute();
-            action();
+            return action(ctx, ct);
         }
     }
 }

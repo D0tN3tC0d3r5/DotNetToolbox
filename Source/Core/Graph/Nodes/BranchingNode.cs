@@ -1,14 +1,22 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class BranchingNode(uint id, string label, Func<Context, string> select, IServiceProvider services)
+public sealed class BranchingNode(uint id, string label, Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
     : BranchingNode<BranchingNode>(id, label, services) {
+    private const string _defaultLabel = "case";
+
+    private readonly Func<Context, CancellationToken, Task<string>> _select = IsNotNull(select);
+
+    public BranchingNode(uint id, Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
+        : this(id, _defaultLabel, select, services) {
+    }
+    public BranchingNode(uint id, string label, Func<Context, string> select, IServiceProvider services)
+        : this(id, label, (ctx, ct) => Task.Run(() => select(ctx), ct), services) {
+    }
     public BranchingNode(uint id, Func<Context, string> select, IServiceProvider services)
         : this(id, _defaultLabel, select, services) {
     }
 
-    private const string _defaultLabel = "case";
-
-    protected override string Select(Context context) => IsNotNull(select)(context);
+    protected override Task<string> Select(Context context, CancellationToken ct) => _select(context, ct);
 
     public static TNode Create<TNode>(uint id, string label, IServiceProvider services)
         where TNode : BranchingNode<TNode>
@@ -30,8 +38,6 @@ public abstract class BranchingNode<TNode>
         : base(id, services) {
     }
 
-    protected abstract string Select(Context context);
-
     public Dictionary<string, INode?> Choices { get; } = [];
 
     protected override Result IsValid(ISet<INode> visited) {
@@ -46,12 +52,16 @@ public abstract class BranchingNode<TNode>
             => current + choice.Validate(visited);
     }
 
-    protected override INode? GetNext(Context context) {
-        var key = Select(context);
+    protected override async Task<INode?> GetNext(Context context, CancellationToken ct) {
+        ct.ThrowIfCancellationRequested();
+        var key = await Select(context, ct);
         var choice = Choices.GetValueOrDefault(key)
             ?? throw new InvalidOperationException($"The path '{key}' was not found.");
-        return choice.Run(context);
+        return await choice.Run(context, ct);
     }
 
-    protected sealed override void UpdateState(Context context) { }
+    protected abstract Task<string> Select(Context context, CancellationToken ct);
+
+    protected sealed override Task UpdateState(Context context, CancellationToken ct)
+        => Task.CompletedTask;
 }

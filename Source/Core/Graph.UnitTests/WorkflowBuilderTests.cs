@@ -221,6 +221,7 @@ public sealed class WorkflowBuilderTests {
         public CustomAction(uint id, IServiceProvider services)
             : base(id, services) { }
 
-        protected override void Execute(Context context) { }
+        protected override Task Execute(Context context, CancellationToken ct)
+            => Task.CompletedTask;
     }
 }

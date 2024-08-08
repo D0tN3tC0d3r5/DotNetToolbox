@@ -23,25 +23,19 @@ public sealed class GraphBuilder {
         _stringBuilder.AppendLine($"{node.Id}[\"{node.Label}\"]");
 
         switch (node) {
-            case IStartingNode entryNode:
-                Build(entryNode.Next, entryNode);
-                return _stringBuilder.ToString();
-
             case IActionNode actionNode:
                 Build(actionNode.Next, actionNode);
-                return _stringBuilder.ToString();
+                break;
 
             case IConditionalNode ifNode:
                 Build(ifNode.IsTrue, ifNode, "True");
                 Build(ifNode.IsFalse, ifNode, "False");
-                Build(ifNode.Next, ifNode);
-                return _stringBuilder.ToString();
+                break;
 
             case IBranchingNode mapNode:
-                foreach (var (name, branch) in mapNode.Choices)
+                foreach ((var name, var branch) in mapNode.Choices)
                     Build(branch, mapNode, name);
-                Build(mapNode.Next, mapNode);
-                return _stringBuilder.ToString();
+                break;
         }
         return _stringBuilder.ToString();
     }

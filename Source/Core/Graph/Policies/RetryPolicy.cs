@@ -15,7 +15,9 @@ public class RetryPolicy
 }
 
 public abstract class RetryPolicy<TPolicy>
-    : Policy<TPolicy>, IRetryPolicy where TPolicy : RetryPolicy<TPolicy>, new() {
+    : Policy<TPolicy>,
+      IRetryPolicy
+    where TPolicy : RetryPolicy<TPolicy>, new() {
     private readonly Random _random = Random.Shared;
 
     protected RetryPolicy()
@@ -39,21 +41,24 @@ public abstract class RetryPolicy<TPolicy>
             return [];
 
         var delays = new TimeSpan[maxRetries];
-        for (var i = 0; i < maxRetries; i++) {
+        for (var i = 0; i < maxRetries; i++)
             delays[i] = delay.Add(TimeSpan.FromTicks(_random.NextInt64(-jiggle, jiggle)));
-        }
 
         return delays;
     }
 
-    public sealed override void Execute(Action action) {
+    public sealed override async Task Execute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct = default) {
         var attempts = 0;
         while (true) {
             attempts++;
             try {
-                if (TryExecute(action))
+                ct.ThrowIfCancellationRequested();
+                if (await TryExecute(action, ctx, ct))
                     return;
                 HandleActionFailure();
+            }
+            catch (OperationCanceledException) {
+                throw;
             }
             catch (Exception ex) {
                 HandleActionFailure(ex);
@@ -68,8 +73,8 @@ public abstract class RetryPolicy<TPolicy>
         }
     }
 
-    protected virtual bool TryExecute(Action action) {
-        action();
+    protected virtual async Task<bool> TryExecute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct) {
+        await action(ctx, ct);
         return true;
     }
 }

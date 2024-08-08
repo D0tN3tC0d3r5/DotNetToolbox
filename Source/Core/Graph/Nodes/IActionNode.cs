@@ -1,4 +1,6 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public interface IActionNode
-    : INode;
+    : INode {
+    INode? Next { get; set; }
+}

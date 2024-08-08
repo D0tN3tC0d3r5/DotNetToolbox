@@ -59,7 +59,11 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+    <ProjectReference Include="..\..\Core\Core\DotNetToolbox.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release'">
     <PackageReference Include="DotNetToolbox.Core" Version="8.1.1-rc1" />
   </ItemGroup>
 

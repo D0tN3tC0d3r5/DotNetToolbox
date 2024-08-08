@@ -55,7 +55,7 @@ public class BranchingNodeTests {
     }
 
     [Fact]
-    public void CreateChoice_RunMethodWithExistingKey_ExecutesCorrectBranch() {
+    public async Task Run_MethodWithExistingKey_ExecutesCorrectBranch() {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         using var context = new Context(provider);
@@ -66,13 +66,13 @@ public class BranchingNodeTests {
                                                .Is("key2", br => br.Do(ctx => ctx["branch"] = "2"))
                                                .Is("key3", br => br.Do(ctx => ctx["branch"] = "3")));
 
-        node.Run(context);
+        await node.Run(context);
 
         context["branch"].Should().Be("2");
     }
 
     [Fact]
-    public void CreateChoice_RunMethodWithNonExistingKey_ThrowsInvalidOperationException() {
+    public async Task Run_MethodWithNonExistingKey_ThrowsInvalidOperationException() {
         var node = _factory.CreateChoice(1,
                                          _ => "nonexistent",
                                          _builder,
@@ -81,12 +81,13 @@ public class BranchingNodeTests {
 
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
-        var action = () => {
+
+        var action = async () => {
             using var context = new Context(provider);
-            return node.Run(context);
+            return await node.Run(context);
         };
 
-        action.Should().Throw<InvalidOperationException>()
+        await action.Should().ThrowAsync<InvalidOperationException>()
               .WithMessage("The path 'nonexistent' was not found.");
     }
 
@@ -114,6 +115,7 @@ public class BranchingNodeTests {
         public CustomBranchingNode(uint id, IServiceProvider services)
             : base(id, services) { }
 
-        protected override string Select(Context context) => "default";
+        protected override Task<string> Select(Context context, CancellationToken ct)
+            => Task.FromResult("default");
     }
 }

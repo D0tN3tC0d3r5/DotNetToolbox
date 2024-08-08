@@ -8,6 +8,6 @@ public abstract class Policy<TPolicy>
     : IPolicy,
       IHasDefault<TPolicy>
     where TPolicy : Policy<TPolicy>, new() {
-    public abstract void Execute(Action action);
+    public abstract Task Execute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct = default);
     public static TPolicy Default => new();
 }

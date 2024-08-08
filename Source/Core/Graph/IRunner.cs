@@ -1,6 +1,7 @@
 ﻿namespace DotNetToolbox.Graph;
 
 public interface IRunner {
+    public string Id { get; }
     public bool IsRunning { get; }
     public DateTimeOffset? Start { get; }
     public DateTimeOffset? End { get; }
@@ -10,8 +11,8 @@ public interface IRunner {
 
     Task Run(CancellationToken ct = default);
 
-    Func<Context, INode, bool>? OnExecutingExecuting { get; }
-    Func<Context, INode, bool>? OnNodeExecuted { get; }
-    Action<Workflow>? OnStartingWorkflow { get; }
-    Action<Workflow>? OnWorkflowEnded { get; }
+    Func<IRunner, IWorkflow, CancellationToken, Task>? OnStartingWorkflow { get; }
+    Func<IRunner, IWorkflow, INode, CancellationToken, Task<bool>>? OnExecutingNode { get; }
+    Func<IRunner, IWorkflow, INode, INode?, CancellationToken, Task<bool>>? OnNodeExecuted { get; }
+    Func<IRunner, IWorkflow, CancellationToken, Task>? OnWorkflowEnded { get; }
 }

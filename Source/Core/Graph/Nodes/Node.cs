@@ -4,12 +4,11 @@ public abstract class Node<TNode>(uint id, string label, IServiceProvider servic
     : INode
     where TNode : Node<TNode> {
     protected Node(uint id, IServiceProvider services)
-        : this (id, typeof(TNode).Name, services) {
+        : this(id, typeof(TNode).Name, services) {
     }
 
     public uint Id { get; } = id;
     public string Label { get; } = IsNotNull(label);
-    public INode? Next { get; set; }
     protected IServiceProvider Services { get; } = IsNotNull(services);
 
     public Result Validate(ISet<INode>? visited = null) {
@@ -21,13 +20,13 @@ public abstract class Node<TNode>(uint id, string label, IServiceProvider servic
 
     protected virtual Result IsValid(ISet<INode> visited) => Success();
 
-    public INode? Run(Context context) {
-        UpdateState(context);
-        return GetNext(context);
+    public async Task<INode?> Run(Context context, CancellationToken ct) {
+        await UpdateState(context, ct);
+        return await GetNext(context, ct);
     }
 
-    protected abstract void UpdateState(Context context);
-    protected abstract INode? GetNext(Context context);
+    protected abstract Task UpdateState(Context context, CancellationToken ct);
+    protected abstract Task<INode?> GetNext(Context context, CancellationToken ct);
 
     public override int GetHashCode() => Id.GetHashCode();
 }

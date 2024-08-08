@@ -108,7 +108,14 @@ public sealed class WorkflowBuilder {
     public WorkflowBuilder JumpTo(string label) {
         var node = Nodes.FirstOrDefault(n => n?.Label == IsNotNull(label))
             ?? throw new InvalidOperationException($"Label '{label}' not found.");
-        _currentNode!.Next = node;
+        switch (_currentNode) {
+            case null:
+                Start = node;
+                break;
+            case IActionNode action:
+                action.Next = node;
+                break;
+        }
         _currentNode = node;
         return this;
     }
@@ -120,9 +127,6 @@ public sealed class WorkflowBuilder {
         switch (_currentNode) {
             case IActionNode actionNode:
                 actionNode.Next = newNode;
-                break;
-            case IStartingNode entryNode:
-                entryNode.Next = newNode;
                 break;
         }
         _currentNode = newNode;

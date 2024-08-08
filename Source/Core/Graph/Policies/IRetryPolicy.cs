@@ -1,8 +1,7 @@
 ﻿namespace DotNetToolbox.Graph.Policies;
 
-public interface IRetryPolicy {
+public interface IRetryPolicy
+    : IPolicy {
     IReadOnlyList<TimeSpan> Delays { get; }
     byte MaxRetries { get; }
-
-    void Execute(Action action);
 }

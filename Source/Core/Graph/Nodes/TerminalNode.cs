@@ -9,10 +9,11 @@ public sealed class TerminalNode
         : base(id, label, services) {
     }
 
-    protected sealed override INode? GetNext(Context context)
-        => null;
+    protected override Task<INode?> GetNext(Context context, CancellationToken ct)
+        => Task.FromResult<INode?>(null);
 
-    protected override void UpdateState(Context context) { }
+    protected override Task UpdateState(Context context, CancellationToken ct)
+        => Task.CompletedTask;
 
     public static TerminalNode Create(uint id,
                                       string label,
