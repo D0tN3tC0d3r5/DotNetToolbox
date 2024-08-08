@@ -8,5 +8,10 @@ public interface IRunner {
     public bool HasStarted { get; }
     public bool HasStopped { get; }
 
-    void Run();
+    Task Run(CancellationToken ct = default);
+
+    Func<Context, INode, bool>? OnExecutingExecuting { get; }
+    Func<Context, INode, bool>? OnNodeExecuted { get; }
+    Action<Workflow>? OnStartingWorkflow { get; }
+    Action<Workflow>? OnWorkflowEnded { get; }
 }

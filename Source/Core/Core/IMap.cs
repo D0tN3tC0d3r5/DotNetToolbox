@@ -9,5 +9,4 @@ public interface IMap : IMap<object> {
 // ReSharper disable once PossibleInterfaceMemberAmbiguity - Does not apply
 public interface IMap<TValue>
     : IDictionary<string, TValue>,
-      IReadOnlyDictionary<string, TValue>,
-      IDisposable;
+      IReadOnlyDictionary<string, TValue>;

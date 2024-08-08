@@ -2,7 +2,6 @@
 
 public class JobContext
     : Context {
-
     public JobContext(IServiceProvider services, IDateTimeProvider? dateTime = null)
         : this(services, new Context(services), dateTime) {
     }
@@ -40,13 +39,13 @@ public class JobContext
         init => this[nameof(Tools)] = value;
     }
 
+    public IAgent Agent {
+        get => (IAgent)this[nameof(Agent)];
+        init => this[nameof(Agent)] = value;
+    }
+
     public IJob Job {
         get => (IJob)this[nameof(Job)];
         set => this[nameof(Job)] = value;
-    }
-
-    public IAgent Agent {
-        get => (IAgent)this[nameof(Agent)];
-        set => this[nameof(Agent)] = value;
     }
 }

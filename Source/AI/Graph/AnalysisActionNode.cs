@@ -2,7 +2,6 @@
 
 public class AnalysisActionNode(uint id, string label, string provider, IServiceProvider services)
     : ActionNode<AnalysisActionNode>(id, label, services) {
-
     public AnalysisActionNode(uint id, string label, IServiceProvider services)
         : this(id, label, null!, services) {
     }
@@ -11,11 +10,10 @@ public class AnalysisActionNode(uint id, string label, string provider, IService
         var input = context["AnalysisInput"] as string
                  ?? throw new InvalidOperationException("Analysis input not found in context");
 
-        var agentFactory = Services.GetRequiredService<IAgentFactory>();
-        var contextBulder = Services.GetRequiredService<IJobContextBuilder>();
-        var jobContext = new JobContext(Services, context) {
-            Agent = agentFactory.Create(provider),
-        };
+        var factory = Services.GetRequiredService<IJobContextBuilderFactory>();
+        using var jobContext = factory.CreateFrom(context)
+                                      .WithAgentFrom(provider)
+                                      .Build();
         var job = new AnalysisJob($"{Id}", jobContext);
         var result = job.Execute(input, CancellationToken.None).GetAwaiter().GetResult();
 

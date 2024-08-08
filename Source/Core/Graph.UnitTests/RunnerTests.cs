@@ -1,6 +1,6 @@
 namespace DotNetToolbox.Graph;
 
-public class RunnerTests {
+public sealed class RunnerTests : IDisposable {
     private readonly Context _context;
     private readonly ServiceProvider _provider;
 
@@ -9,6 +9,9 @@ public class RunnerTests {
         _provider = services.BuildServiceProvider();
         _context = new(_provider);
     }
+
+    public void Dispose()
+        => _context.Dispose();
 
     [Fact]
     public void Constructor_WithValidParameters_CreatesInstance() {
@@ -218,7 +221,7 @@ public class RunnerTests {
         var runner = new Runner(workflow);
         var eventRaised = false;
 
-        runner.OnRunStarting += (_, args) => {
+        runner.OnStartingWorkflow += (_, args) => {
             eventRaised = true;
             args.Workflow.Should().BeSameAs(workflow);
         };
@@ -238,7 +241,7 @@ public class RunnerTests {
         var runner = new Runner(workflow);
         var executingCount = 0;
 
-        runner.OnNodeExecuting += (_, _) => executingCount++;
+        runner.OnExecutingExecuting += (_, _) => executingCount++;
 
         runner.Run();
 
@@ -255,7 +258,7 @@ public class RunnerTests {
         var workflow = new Workflow(startingNode, context);
         var runner = new Runner(workflow);
 
-        runner.OnNodeExecuting += (_, args) => {
+        runner.OnExecutingExecuting += (_, args) => {
             if (args.Node == secondNode) args.Cancel = true;
             args.Context.Should().BeSameAs(context);
         };
@@ -314,7 +317,7 @@ public class RunnerTests {
         var runner = new Runner(workflow);
         var eventRaised = false;
 
-        runner.OnRunEnded += (_, args) => {
+        runner.OnWorkflowEnded += (_, args) => {
             eventRaised = true;
             args.Workflow.Should().BeSameAs(workflow);
         };
@@ -336,10 +339,10 @@ public class RunnerTests {
         var runner = new Runner(workflow);
         var eventOrder = new List<string>();
 
-        runner.OnRunStarting += (_, _) => eventOrder.Add("RunStarting");
-        runner.OnNodeExecuting += (_, args) => eventOrder.Add($"NodeExecuting: {args.Node.Id}");
+        runner.OnStartingWorkflow += (_, _) => eventOrder.Add("RunStarting");
+        runner.OnExecutingExecuting += (_, args) => eventOrder.Add($"NodeExecuting: {args.Node.Id}");
         runner.OnNodeExecuted += (_, args) => eventOrder.Add($"NodeExecuted: {args.Node.Id}");
-        runner.OnRunEnded += (_, _) => eventOrder.Add("RunEnded");
+        runner.OnWorkflowEnded += (_, _) => eventOrder.Add("RunEnded");
 
         runner.Run();
 

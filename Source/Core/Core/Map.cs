@@ -33,33 +33,21 @@ public class Map(IDictionary<string, object>? source = null)
 public class Map<TValue>
     : MapBase,
       IMap<TValue> {
-    private bool _isDisposed;
-    private readonly bool _isImported;
-    private readonly ConcurrentDictionary<string, TValue> _data;
+    private readonly ConcurrentDictionary<string, TValue> _data = [];
 
     public Map(IDictionary<string, TValue>? source = null) {
-        if (source is Map<TValue> map) {
-            _data = map._data;
-            _isImported = true;
-            return;
+        switch (source) {
+            case Map<TValue> map:
+                _data = map._data;
+                break;
+            case not null:
+                _data = new(source);
+                MyKeys.AddRange(source.Keys);
+                break;
         }
-
-        _data = source is not null ? new(source) : [];
     }
 
-    public void Dispose() {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing) {
-        if (_isDisposed || _isImported) return;
-        if (disposing) {
-            foreach (var disposable in _data.Values.OfType<IDisposable>()) disposable.Dispose();
-        }
-
-        _isDisposed = true;
-    }
+    protected HashSet<string> MyKeys { get; } = [];
 
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
     public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator() => _data.GetEnumerator();
@@ -71,21 +59,37 @@ public class Map<TValue>
     public TValue this[string key] {
         get => _data[key];
         set {
-            if (value is null) Remove(key);
-            else _data[key] = value;
+            lock (_data) {
+                if (value is null) Remove(key);
+                else _data[key] = value;
+            }
         }
     }
 
     public ICollection<string> Keys => _data.Keys;
     public ICollection<TValue> Values => _data.Values;
-    public void Clear()
-        => _data.Clear();
+    public void Clear() {
+        foreach (var myKey in MyKeys) Remove(myKey);
+    }
+
     public void Add(string key, TValue value)
         => _data.AddOrUpdate(key,
-                             k => this[k] = IsNotNull(value),
+                             k => {
+                                 if (!ContainsKey(k)) MyKeys.Add(k);
+                                 return this[k] = IsNotNull(value);
+                             },
                              (k, _) => this[k] = IsNotNull(value));
-    public bool Remove(string key)
-        => _data.TryRemove(key, out _);
+
+    public bool Remove(string key) {
+        lock (_data) {
+            var removed = _data.TryRemove(key, out var value);
+            if (!removed || !MyKeys.Contains(key)) return removed;
+            MyKeys.Remove(key);
+            if (this is IContext && value is IDisposable disposable) disposable.Dispose();
+            return removed;
+        }
+    }
+
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
         => _data.TryGetValue(key, out value);
     public bool ContainsKey(string key)
@@ -109,7 +113,8 @@ public class Map<TValue>
         if (Keys.Count == 0) builder.AppendLine(" [Empty]");
         builder.AppendLine();
         foreach (var key in Keys) {
-            builder.Append($"{indent}- ");
+            var myKeyMarker = MyKeys.Contains(key) ? "*" : string.Empty;
+            builder.Append($"{indent}- {myKeyMarker}");
             BuildItem(builder, key, this[key], level);
         }
     }

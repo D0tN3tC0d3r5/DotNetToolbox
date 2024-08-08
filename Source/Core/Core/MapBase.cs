@@ -3,7 +3,7 @@
 public abstract class MapBase {
     protected abstract void ToText(StringBuilder builder, string? name = null, uint level = 0);
 
-    protected void BuildItem(StringBuilder builder, string key, object? value, uint level) {
+    protected static void BuildItem(StringBuilder builder, string key, object? value, uint level) {
         switch (value) {
             case null:
                 builder.AppendLine($"{key}: null");

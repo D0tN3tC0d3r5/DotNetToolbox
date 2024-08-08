@@ -8,10 +8,10 @@ public sealed class Runner(Workflow workflow,
     private readonly IDateTimeProvider _dateTime = dateTime ?? DateTimeProvider.Default;
     private readonly ILogger _logger = loggerFactory?.CreateLogger<Runner>() ?? NullLogger<Runner>.Instance;
 
-    public event EventHandler<NodeEventArgs>? OnNodeExecuting;
-    public event EventHandler<NodeEventArgs>? OnNodeExecuted;
-    public event EventHandler<WorkflowEventArgs>? OnRunStarting;
-    public event EventHandler<WorkflowEventArgs>? OnRunEnded;
+    public Func<Context, INode?, bool>? OnExecutingExecuting { get; }
+    public Func<Context, INode?, bool>? OnNodeExecuted { get; }
+    public Action<Workflow>? OnStartingWorkflow { get; }
+    public Action<Workflow>? OnWorkflowEnded { get; }
 
     public DateTimeOffset? Start { get; private set; }
     public DateTimeOffset? End { get; private set; }
@@ -21,19 +21,19 @@ public sealed class Runner(Workflow workflow,
     public bool HasStopped => End is not null;
     public bool IsRunning => HasStarted && !HasStopped;
 
-    public void Run() {
+    public Task Run(CancellationToken ct = default) {
         try {
             if (IsRunning)
                 throw new InvalidOperationException("This runner is already being executed.");
             Start = _dateTime.UtcNow;
-            StartingRun(new(_workflow));
+            StartingRun(_workflow);
             var currentNode = _workflow.StartingNode;
 
             while (currentNode is not null) {
-                if (!ExecutingNode(new(_workflow.Context, currentNode)))
+                if (!ExecutingNode(_workflow.Context, currentNode))
                     break;
                 var result = currentNode.Run(_workflow.Context);
-                if (!NodeExecuted(new(_workflow.Context, currentNode)))
+                if (!NodeExecuted(_workflow.Context, currentNode))
                     break;
                 currentNode = result;
             }
@@ -44,35 +44,28 @@ public sealed class Runner(Workflow workflow,
         }
         finally {
             End = _dateTime.UtcNow;
-            RunEnded(new(_workflow));
+            RunEnded(_workflow);
         }
     }
 
-    private void StartingRun(WorkflowEventArgs e) {
+    private void StartingRun(Workflow wf) {
         _logger.LogInformation(message: "Starting run of workflow '{Id}' at '{Start}'...", _workflow.Id, Start);
-        OnRunStarting?.Invoke(this, e);
+        OnStartingWorkflow?.Invoke(wf);
     }
 
-    private bool ExecutingNode(NodeEventArgs e) {
-        if (OnNodeExecuting is null)
-            return e.Node is not null;
+    private bool ExecutingNode(Context ctx, INode? node) {
         _logger.LogInformation(message: "Executing node '{Id}'...", _workflow.Id);
-
-        OnNodeExecuting?.Invoke(this, e);
-        return !e.Cancel;
+        return OnExecutingExecuting?.Invoke(ctx, node) ?? node is not null;
     }
 
-    private bool NodeExecuted(NodeEventArgs e) {
-        if (OnNodeExecuted is null)
-            return e.Node is not null;
-
-        OnNodeExecuted?.Invoke(this, e);
+    private bool NodeExecuted(Context ctx, INode? node) {
+        var cancel = OnNodeExecuted?.Invoke(ctx, node) ?? node is not null;
         _logger.LogInformation(message: "Node '{Id}' executed.", _workflow.Id);
-        return !e.Cancel;
+        return !cancel;
     }
 
-    private void RunEnded(WorkflowEventArgs e) {
-        OnRunEnded?.Invoke(this, e);
+    private void RunEnded(Workflow wf) {
+        OnWorkflowEnded?.Invoke(wf);
         _logger.LogInformation(message: "Run of workflow '{Id}' ended at '{End}' after '{ElapsedTime}' minutes.", _workflow.Id, End, ElapsedTime!.Value.TotalMinutes);
     }
 }

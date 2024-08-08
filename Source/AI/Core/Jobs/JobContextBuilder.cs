@@ -1,66 +1,64 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
-public class JobContextBuilder
-    : IJobContextBuilder {
-    private readonly IServiceProvider _services;
-    private readonly IDictionary<string, object> _source;
+public class JobContextBuilder(IServiceProvider services)
+    : IJobContextBuilder, IJobContextBuilderFactory {
     private string? _provider;
 
+    private IDictionary<string, object>? _source;
+    private IDateTimeProvider _dateTime = DateTimeProvider.Default;
+    private UserProfile? _userProfile;
     private readonly Map _memory = [];
     private readonly Map<Asset> _assets = [];
     private readonly Map<Tool> _tools = [];
 
-    private IDateTimeProvider _dateTime = DateTimeProvider.Default;
-    private UserProfile? _userProfile;
-
     private IJob? _job;
 
-    private JobContextBuilder(IServiceProvider services, IDictionary<string, object>? source) {
-        _services = services;
-        _source = source ?? new Map();
-    }
+    public IJobContextBuilder Create() => this;
 
-    public static JobContextBuilder From(IServiceProvider services, IDictionary<string, object>? source = null)
-        => new(services, source);
-
-    public JobContextBuilder WithDateTimeFrom(IDateTimeProvider dateTime) {
-        _dateTime = dateTime;
+    public IJobContextBuilder CreateFrom(IDictionary<string, object> source) {
+        _source = IsNotNull(source);
         return this;
     }
 
-    public JobContextBuilder WithUser(UserProfile profile) {
-        _userProfile = profile;
-        return this;
-    }
-
-    public JobContextBuilder WithFact(string key, object value) {
-        _memory[key] = value;
-        return this;
-    }
-
-    public JobContextBuilder WithAsset(Asset asset) {
-        _assets[asset.Id] = asset;
-        return this;
-    }
-
-    public JobContextBuilder WithTool(Tool tool) {
-        _tools[tool.Id] = tool;
-        return this;
-    }
-
-    public JobContextBuilder UsingAgentFrom(string provider) {
+    public IJobContextBuilder WithAgentFrom(string provider) {
         _provider = provider;
         return this;
     }
 
-    public JobContextBuilder ForJob(IJob job) {
+    public IJobContextBuilder ForJob(IJob job) {
         _job = job;
         return this;
     }
 
+    public IJobContextBuilder WithDateTimeFrom(IDateTimeProvider dateTime) {
+        _dateTime = dateTime;
+        return this;
+    }
+
+    public IJobContextBuilder WithUser(UserProfile profile) {
+        _userProfile = profile;
+        return this;
+    }
+
+    public IJobContextBuilder WithFact(string key, object value) {
+        _memory[key] = value;
+        return this;
+    }
+
+    public IJobContextBuilder WithAsset(Asset asset) {
+        _assets[asset.Id] = asset;
+        return this;
+    }
+
+    public IJobContextBuilder WithTool(Tool tool) {
+        _tools[tool.Id] = tool;
+        return this;
+    }
+
     public JobContext Build() {
-        var agentFactory = _services.GetRequiredKeyedService<IAgentFactory>(_provider);
-        return new(_services, _dateTime) {
+        var agentFactory = services.GetRequiredKeyedService<IAgentFactory>(_provider);
+        var source = _source as IContext ?? new Context(services, _source);
+        return new(services, source, _dateTime) {
             Job = _job ?? throw new InvalidOperationException("The Job is required"),
             Agent = agentFactory.Create(_provider),
             Memory = _memory,
