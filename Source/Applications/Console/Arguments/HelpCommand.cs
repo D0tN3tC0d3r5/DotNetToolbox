@@ -15,7 +15,7 @@ internal sealed class HelpCommand
         var target = (string?)Context.GetValueOrDefault("Target");
         var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? _parent;
-        Environment.ConsoleOutput.WriteLine(node.ToHelp());
+        Environment.OperatingSystem.Output.WriteLine(node.ToHelp());
         return SuccessTask();
     }
 }

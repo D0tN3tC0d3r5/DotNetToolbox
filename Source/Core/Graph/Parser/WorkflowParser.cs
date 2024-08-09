@@ -12,7 +12,7 @@ public class WorkflowParser {
     }
 
     public WorkflowBuilder Parse() {
-        while (_currentToken.Type != TokenType.End) {
+        while (_currentToken.Type != TokenType.Exit) {
             ParseStatement();
         }
         return _builder;
@@ -20,9 +20,6 @@ public class WorkflowParser {
 
     private void ParseStatement() {
         switch (_currentToken.Type) {
-            case TokenType.Start:
-                ParseStart();
-                break;
             case TokenType.Action:
                 ParseAction();
                 break;
@@ -32,41 +29,30 @@ public class WorkflowParser {
             case TokenType.When:
                 ParseWhen();
                 break;
-            case TokenType.End:
-                ParseEnd();
+            case TokenType.Exit:
+                ParseExit();
                 break;
             default:
                 throw new InvalidOperationException($"Unexpected token: {_currentToken.Type}");
         }
     }
 
-    private void ParseStart() {
-        Expect(TokenType.Start);
-        Expect(TokenType.Colon);
-        var label = Expect(TokenType.Identifier).Value;
-        _builder.Do(label, _ => { });
-        Expect(TokenType.EOL);
-    }
-
     private void ParseAction() {
         Expect(TokenType.Action);
-        Expect(TokenType.Colon);
-        var label = Expect(TokenType.Identifier).Value;
-        _builder.Do(label, _ => { });
+        var name = Expect(TokenType.Identifier).Value.ToString()!;
+        _builder.Do(name, _ => { });
         Expect(TokenType.EOL);
     }
 
     private void ParseIf() {
         Expect(TokenType.If);
-        Expect(TokenType.Colon);
-        var condition = Expect(TokenType.Identifier).Value;
+        var condition = Expect(TokenType.Identifier).Value.ToString()!;
         Expect(TokenType.EOL);
         Expect(TokenType.Indent);
 
         _builder.If(ctx => EvaluateCondition(ctx, condition),
                     trueBranch => {
-                        Expect(TokenType.True);
-                        Expect(TokenType.Colon);
+                        Expect(TokenType.Then);
                         Expect(TokenType.EOL);
                         Expect(TokenType.Indent);
                         while (_currentToken.Type != TokenType.Dedent) {
@@ -75,9 +61,8 @@ public class WorkflowParser {
                         Expect(TokenType.Dedent);
                     },
                     falseBranch => {
-                        if (_currentToken.Type == TokenType.False) {
-                            Expect(TokenType.False);
-                            Expect(TokenType.Colon);
+                        if (_currentToken.Type == TokenType.Else) {
+                            Expect(TokenType.Else);
                             Expect(TokenType.EOL);
                             Expect(TokenType.Indent);
                             while (_currentToken.Type != TokenType.Dedent) {
@@ -92,17 +77,15 @@ public class WorkflowParser {
 
     private void ParseWhen() {
         Expect(TokenType.When);
-        Expect(TokenType.Colon);
-        var selector = Expect(TokenType.Identifier).Value;
+        var selector = Expect(TokenType.Identifier).Value.ToString()!;
         Expect(TokenType.EOL);
         Expect(TokenType.Indent);
 
         _builder.When(ctx => EvaluateSelector(ctx, selector),
                       branches => {
-                          while (_currentToken.Type == TokenType.Case) {
-                              Expect(TokenType.Case);
-                              Expect(TokenType.Colon);
-                              var caseValue = Expect(TokenType.Identifier).Value;
+                          while (_currentToken.Type == TokenType.Is) {
+                              Expect(TokenType.Is);
+                              var caseValue = Expect(TokenType.Identifier).Value.ToString()!;
                               Expect(TokenType.EOL);
                               Expect(TokenType.Indent);
 
@@ -119,30 +102,25 @@ public class WorkflowParser {
         Expect(TokenType.Dedent);
     }
 
-    private void ParseEnd() {
-        Expect(TokenType.End);
-        Expect(TokenType.Colon);
-        var label = Expect(TokenType.Identifier).Value;
+    private void ParseExit() {
+        Expect(TokenType.Exit);
+        var label = Expect(TokenType.Identifier).Value.ToString()!;
         _builder.End(label);
         Expect(TokenType.EOL);
     }
 
     private Token Expect(TokenType type) {
-        if (_currentToken.Type != type) {
+        if (_currentToken.Type != type)
             throw new InvalidOperationException($"Expected {type}, but got {_currentToken.Type}");
-        }
         var token = _currentToken;
         NextToken();
         return token;
     }
 
     private void NextToken() {
-        if (_tokens.MoveNext()) {
-            _currentToken = _tokens.Current;
-        }
-        else {
-            _currentToken = new Token(TokenType.End, "", -1);
-        }
+        _currentToken = _tokens.MoveNext()
+            ? _tokens.Current
+            : new Token(TokenType.Exit, "", 0, 0);
     }
 
     private bool EvaluateCondition(Context ctx, string condition) {

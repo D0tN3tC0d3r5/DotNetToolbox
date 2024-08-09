@@ -7,7 +7,7 @@ internal class ClearScreenCommand : Command<ClearScreenCommand> {
     }
 
     public override Task<Result> Execute(CancellationToken ct = default) {
-        Environment.ConsoleOutput.ClearScreen();
+        Environment.OperatingSystem.Output.ClearScreen();
         return SuccessTask();
     }
 }

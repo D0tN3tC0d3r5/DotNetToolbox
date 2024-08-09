@@ -15,7 +15,7 @@ public abstract class Node<TNode>
     }
 
     public IApplication Application { get; }
-    public ISystemEnvironment Environment { get; }
+    public IApplicationEnvironment Environment { get; }
     public IPromptFactory PromptFactory { get; }
     public IHasChildren Parent { get; }
     public string Name { get; }

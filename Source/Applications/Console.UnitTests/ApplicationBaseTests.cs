@@ -579,7 +579,7 @@ public class ApplicationBaseTests {
     private IServiceProvider CreateFakeServiceProvider() {
         var output = new TestOutput();
         var input = new TestInput(output);
-        var environment = Substitute.For<ISystemEnvironment>();
+        var environment = Substitute.For<IApplicationEnvironment>();
         var assembly = Substitute.For<IAssemblyDescriptor>();
         environment.Assembly.Returns(assembly);
         assembly.Name.Returns("TestApp");
@@ -593,7 +593,7 @@ public class ApplicationBaseTests {
         serviceProvider.GetRequiredKeyedService(typeof(IFileSystemAccessor), Arg.Any<string>()).Returns(Substitute.For<IFileSystemAccessor>());
         serviceProvider.GetRequiredKeyedService(typeof(IOutput), Arg.Any<string>()).Returns(output);
         serviceProvider.GetRequiredKeyedService(typeof(IInput), Arg.Any<string>()).Returns(input);
-        serviceProvider.GetService(typeof(ISystemEnvironment)).Returns(environment);
+        serviceProvider.GetService(typeof(IApplicationEnvironment)).Returns(environment);
         _assemblyDescriptor.Name.Returns("TestApp");
         _assemblyDescriptor.Version.Returns(new Version(1, 0));
         serviceProvider.GetService(typeof(ILoggerFactory)).Returns(Substitute.For<ILoggerFactory>());

@@ -8,14 +8,14 @@ public class ServiceCollectionExtensionsTests {
         var services = new ServiceCollection();
         var result = services.SetEnvironment();
         using var provider = result.BuildServiceProvider();
-        var environment = provider.GetRequiredService<ISystemEnvironment>();
+        var environment = provider.GetRequiredService<IApplicationEnvironment>();
 
         environment.Name.Should().BeEmpty();
         environment.Assembly.Should().NotBeNull();
-        environment.DateTime.Should().NotBeNull();
-        environment.ConsoleOutput.Should().NotBeNull();
-        environment.ConsoleInput.Should().NotBeNull();
-        environment.FileSystemAccessor.Should().NotBeNull();
+        environment.OperatingSystem.DateTime.Should().NotBeNull();
+        environment.OperatingSystem.Output.Should().NotBeNull();
+        environment.OperatingSystem.Input.Should().NotBeNull();
+        environment.OperatingSystem.FileSystem.Should().NotBeNull();
 
         result.Should().BeSameAs(services);
     }
@@ -25,56 +25,46 @@ public class ServiceCollectionExtensionsTests {
         var services = new ServiceCollection();
         var result = services.SetEnvironment("Development");
         var provider = services.BuildServiceProvider();
-        var environment = provider.GetRequiredService<ISystemEnvironment>();
+        var environment = provider.GetRequiredService<IApplicationEnvironment>();
 
         environment.Name.Should().Be("Development");
         environment.Assembly.Should().NotBeNull();
-        environment.DateTime.Should().NotBeNull();
-        environment.ConsoleOutput.Should().NotBeNull();
-        environment.ConsoleInput.Should().NotBeNull();
-        environment.FileSystemAccessor.Should().NotBeNull();
+        environment.OperatingSystem.DateTime.Should().NotBeNull();
+        environment.OperatingSystem.Output.Should().NotBeNull();
+        environment.OperatingSystem.Input.Should().NotBeNull();
+        environment.OperatingSystem.FileSystem.Should().NotBeNull();
 
         result.Should().BeSameAs(services);
     }
 
     [Fact]
-    public void AddEnvironment_WithFakeEnvironment_RegisterHandlers() {
+    public void SetEnvironment_WithFakeServices_RegisterHandlers() {
         var services = new ServiceCollection();
-        var environment = Substitute.For<ISystemEnvironment>();
-        environment.Name.Returns("Development");
-        services.SetEnvironment(environment);
+        var assembly = Substitute.For<IAssemblyDescriptor>();
+        var dateTime = Substitute.For<IDateTimeProvider>();
+        var guid = Substitute.For<IGuidProvider>();
+        var fileSystem = Substitute.For<IFileSystemAccessor>();
+        var input = Substitute.For<IInput>();
+        var output = Substitute.For<IOutput>();
+        services.SetEnvironment("Development",
+                                assembly,
+                                dateTime,
+                                guid,
+                                fileSystem,
+                                input,
+                                output);
         var provider = services.BuildServiceProvider();
 
-        var env = provider.GetRequiredService<ISystemEnvironment>();
+        var env = provider.GetRequiredService<IApplicationEnvironment>();
 
         env.Name.Should().Be("Development");
         env.Assembly.Should().NotBeNull();
-        env.DateTime.Should().NotBeNull();
-        env.ConsoleOutput.Should().NotBeNull();
-        env.ConsoleInput.Should().NotBeNull();
-        env.FileSystemAccessor.Should().NotBeNull();
-    }
-
-    [Fact]
-    public void AddEnvironment_WithDefaultEnvironment_RegisterHandlers() {
-        var services = new ServiceCollection();
-        services.AddAssemblyDescriptor();
-        services.SetDateTimeProvider();
-        services.SetGuidProvider();
-        services.SetFileSystemAccessor();
-        services.SetConsoleInput();
-        services.SetConsoleOutput();
-        var environment = new SystemEnvironment(services.BuildServiceProvider());
-        services.SetEnvironment(environment);
-        var provider = services.BuildServiceProvider();
-
-        var env = provider.GetRequiredService<ISystemEnvironment>();
-
-        env.Name.Should().BeEmpty();
-        env.Assembly.Should().NotBeNull();
-        env.DateTime.Should().NotBeNull();
-        env.ConsoleOutput.Should().NotBeNull();
-        env.ConsoleInput.Should().NotBeNull();
-        env.FileSystemAccessor.Should().NotBeNull();
+        env.OperatingSystem.Should().NotBeNull();
+        env.OperatingSystem.Name.Should().NotBeNull();
+        env.OperatingSystem.DateTime.Should().NotBeNull();
+        env.OperatingSystem.Guid.Should().NotBeNull();
+        env.OperatingSystem.Output.Should().NotBeNull();
+        env.OperatingSystem.Input.Should().NotBeNull();
+        env.OperatingSystem.FileSystem.Should().NotBeNull();
     }
 }

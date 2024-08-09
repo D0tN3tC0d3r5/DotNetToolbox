@@ -1,16 +1,20 @@
 ﻿namespace DotNetToolbox.Graph.Parser;
 
 public enum TokenType {
-    Start,
     Action,
     If,
     When,
-    True,
-    False,
-    Case,
-    End,
+    Then,
+    Else,
+    Is,
+    Otherwise,
+    Exit,
+    Goto,
     Identifier,
-    Colon,
+    Number,
+    Label,
+    Description,
+    String,
     Indent,
     Dedent,
     EOL

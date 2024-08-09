@@ -51,14 +51,10 @@ public abstract class ConditionalNode<TNode>
     protected sealed override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
 
-    protected sealed override async Task<INode?> GetNext(Context context, CancellationToken ct) {
-        if (await When(context, ct)) {
-            return await TryRunTrueNode(context, ct);
-        }
-        else {
-            return await TryRunFalseNode(context, ct);
-        }
-    }
+    protected sealed override async Task<INode?> GetNext(Context context, CancellationToken ct)
+        => await When(context, ct)
+               ? await TryRunTrueNode(context, ct)
+               : await TryRunFalseNode(context, ct);
 
     protected abstract Task<bool> When(Context context, CancellationToken ct);
 

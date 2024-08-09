@@ -11,25 +11,14 @@ public static class ServiceCollectionExtensions {
             IFileSystemAccessor? fileSystem = null,
             IInput? input = null,
             IOutput? output = null) {
-        services.SetEnvironmentFrom(assemblyDescriptor,
-                                    dateTimeProvider,
-                                    guidProvider,
-                                    fileSystem,
-                                    input,
-                                    output);
-        services.TryAddSingleton<ISystemEnvironment>(prv => new SystemEnvironment(prv, name));
-        return services;
-    }
-
-    public static IServiceCollection SetEnvironment(this IServiceCollection services,
-            ISystemEnvironment env) {
-        services.SetEnvironmentFrom(env.Assembly,
-                                    env.DateTime,
-                                    env.Guid,
-                                    env.FileSystemAccessor,
-                                    env.ConsoleInput,
-                                    env.ConsoleOutput);
-        services.TryAddSingleton(IsNotNull(env));
+        SetEnvironmentServices(services,
+                               assemblyDescriptor,
+                               dateTimeProvider,
+                               guidProvider,
+                               fileSystem,
+                               input,
+                               output);
+        services.TryAddSingleton((Func<IServiceProvider, IApplicationEnvironment>)(prv => new ApplicationEnvironment(prv, name)));
         return services;
     }
 
@@ -63,13 +52,13 @@ public static class ServiceCollectionExtensions {
         return services;
     }
 
-    private static void SetEnvironmentFrom(this IServiceCollection services,
-                                           IAssemblyDescriptor? assemblyDescriptor = null,
-                                           IDateTimeProvider? dateTimeProvider = null,
-                                           IGuidProvider? guidProvider = null,
-                                           IFileSystemAccessor? fileSystem = null,
-                                           IInput? input = null,
-                                           IOutput? output = null) {
+    private static void SetEnvironmentServices(this IServiceCollection services,
+                                               IAssemblyDescriptor? assemblyDescriptor = null,
+                                               IDateTimeProvider? dateTimeProvider = null,
+                                               IGuidProvider? guidProvider = null,
+                                               IFileSystemAccessor? fileSystem = null,
+                                               IInput? input = null,
+                                               IOutput? output = null) {
         services.AddAssemblyDescriptor(assemblyDescriptor);
         services.SetDateTimeProvider(dateTimeProvider);
         services.SetGuidProvider(guidProvider);

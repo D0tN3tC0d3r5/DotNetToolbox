@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public class PromptFactory(ISystemEnvironment environment)
+public class PromptFactory(IApplicationEnvironment environment)
     : IPromptFactory {
     public FreeTextPrompt CreateFreeTextQuestion(string question, Action<FreeTextOptions>? configure = null) {
         var options = new FreeTextOptions();

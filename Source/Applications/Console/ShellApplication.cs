@@ -25,7 +25,7 @@ public abstract class ShellApplication<TApplication, TBuilder>
     protected bool AllowMultiLine { get; set; }
 
     internal sealed override async Task Run(CancellationToken ct = default) {
-        ConsoleOutput.WriteLine(FullName);
+        Output.WriteLine(FullName);
         var result = await OnStart(ct).ConfigureAwait(false);
         ProcessResult(result);
         if (!result.IsSuccess) {
@@ -42,7 +42,7 @@ public abstract class ShellApplication<TApplication, TBuilder>
     protected virtual string GetPrePromptText() => string.Empty;
 
     private async Task<Result> ProcessInput(string input, CancellationToken ct) {
-        var lines = input.Split(ConsoleOutput.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var lines = input.Split(Output.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (AllowMultiLine && lines.Length > 1)
             return await ProcessFreeText(lines, ct).ConfigureAwait(false);
         var tokens = UserInputParser.Parse(input);
@@ -55,11 +55,11 @@ public abstract class ShellApplication<TApplication, TBuilder>
         => SuccessTask();
 
     protected virtual Task<Result> ExecuteDefault(CancellationToken ct = default) {
-        ConsoleOutput.Write(GetPrePromptText());
-        ConsoleOutput.WritePrompt();
+        Output.Write(GetPrePromptText());
+        Output.WritePrompt();
         var input = AllowMultiLine
-                        ? ConsoleInput.ReadMultiLine(Enter, Control)
-                        : ConsoleInput.ReadLine() ?? string.Empty;
+                        ? Input.ReadMultiLine(Enter, Control)
+                        : Input.ReadLine() ?? string.Empty;
         return ProcessInput(input, ct);
     }
 

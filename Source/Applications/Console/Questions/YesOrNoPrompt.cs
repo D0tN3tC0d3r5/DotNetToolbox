@@ -1,6 +1,6 @@
 namespace DotNetToolbox.ConsoleApplication.Questions;
 
-public class YesOrNoPrompt(string question, ISystemEnvironment environment, YesOrNoOptions options)
+public class YesOrNoPrompt(string question, IApplicationEnvironment environment, YesOrNoOptions options)
     : QuestionPrompt<bool>(question, environment) {
     protected override void ShowPrompt() {
         Output.Write($"Please select {options.Yes.Display} or {options.No.Display} ");

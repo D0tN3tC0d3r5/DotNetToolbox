@@ -50,7 +50,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             IsRunning = true;
             var taskRun = new CancellationTokenSource();
             if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen is true)
-                ConsoleOutput.ClearScreen();
+                Output.ClearScreen();
             if (await TryParseArguments(taskRun.Token).ConfigureAwait(false))
                 return IApplication.DefaultErrorCode;
             if (!IsRunning) return ExitCode;
@@ -58,11 +58,11 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             return ExitCode;
         }
         catch (ConsoleException ex) {
-            ConsoleOutput.WriteLine(ex.ToText());
+            Output.WriteLine(ex.ToText());
             return ex.ExitCode;
         }
         catch (Exception ex) {
-            ConsoleOutput.WriteLine(ex.ToText());
+            Output.WriteLine(ex.ToText());
             return IApplication.DefaultErrorCode;
         }
     }
@@ -70,7 +70,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     protected void ProcessResult(Result result) {
         if (result.HasException) throw result.Exception!;
         if (!result.HasErrors) return;
-        ConsoleOutput.WriteLine(result.Errors.ToText());
+        Output.WriteLine(result.Errors.ToText());
     }
 
     protected async Task<bool> TryParseArguments(CancellationToken ct) {
@@ -106,7 +106,7 @@ public abstract class ApplicationBase : IApplication {
         Services = services;
         Arguments = args;
         Logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
-        Environment = services.GetRequiredService<ISystemEnvironment>();
+        Environment = services.GetRequiredService<IApplicationEnvironment>();
         Configuration = services.GetRequiredService<IConfigurationRoot>();
         PromptFactory = services.GetRequiredService<IPromptFactory>();
 
@@ -132,13 +132,13 @@ public abstract class ApplicationBase : IApplication {
 
     public IServiceProvider Services { get; }
     public IConfigurationRoot Configuration { get; }
-    public ISystemEnvironment Environment { get; }
-    protected IOutput ConsoleOutput => Environment.ConsoleOutput;
-    protected IInput ConsoleInput => Environment.ConsoleInput;
-    protected IFileSystemAccessor FileSystem => Environment.FileSystemAccessor;
+    public IApplicationEnvironment Environment { get; }
+    protected IOutput Output => Environment.OperatingSystem.Output;
+    protected IInput Input => Environment.OperatingSystem.Input;
+    protected IFileSystemAccessor FileSystem => Environment.OperatingSystem.FileSystem;
     protected IAssemblyDescriptor Assembly => Environment.Assembly;
-    protected IDateTimeProvider DateTime => Environment.DateTime;
-    protected IGuidProvider Guid => Environment.Guid;
+    protected IDateTimeProvider DateTime => Environment.OperatingSystem.DateTime;
+    protected IGuidProvider Guid => Environment.OperatingSystem.Guid;
     public IPromptFactory PromptFactory { get; }
 
     public NodeContext Context { get; } = [];
