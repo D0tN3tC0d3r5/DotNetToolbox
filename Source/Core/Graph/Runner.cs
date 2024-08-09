@@ -21,10 +21,10 @@ public sealed class Runner(string id,
 
     public string Id { get; } = id;
 
-    public Func<IRunner, IWorkflow, CancellationToken, Task>? OnStartingWorkflow { get; set; }
-    public Func<IRunner, IWorkflow, INode, CancellationToken, Task<bool>>? OnExecutingNode { get; set; }
-    public Func<IRunner, IWorkflow, INode, INode?, CancellationToken, Task<bool>>? OnNodeExecuted { get; set; }
-    public Func<IRunner, IWorkflow, CancellationToken, Task>? OnWorkflowEnded { get; set; }
+    public Func<IWorkflow, CancellationToken, Task>? OnStartingWorkflow { private get; set; }
+    public Func<IWorkflow, INode, CancellationToken, Task<bool>>? OnExecutingNode { private get; set; }
+    public Func<IWorkflow, INode, INode?, CancellationToken, Task<bool>>? OnNodeExecuted { private get; set; }
+    public Func<IWorkflow, CancellationToken, Task>? OnWorkflowEnded { private get; set; }
 
     public DateTimeOffset? Start { get; private set; }
     public DateTimeOffset? End { get; private set; }
@@ -36,8 +36,8 @@ public sealed class Runner(string id,
 
     public async Task Run(CancellationToken ct = default) {
         try {
-            Start = _dateTime.UtcNow;
             if (IsRunning) throw new InvalidOperationException("This runner is already being executed.");
+            Start = _dateTime.UtcNow;
             await StartingRun(_workflow, ct);
             var currentNode = _workflow.StartNode;
 
@@ -57,36 +57,36 @@ public sealed class Runner(string id,
             throw;
         }
         finally {
-            await RunEnded(_workflow, ct);
             End = _dateTime.UtcNow;
+            await RunEnded(_workflow, ct);
         }
     }
 
     private Task StartingRun(IWorkflow workflow, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Starting run {RunId} of workflow '{WorkFlowId}' at '{Start}'...", Id, _workflow.Id, Start);
+        _logger.LogInformation(message: "Starting workflow '{WorkFlowId}' at '{Start}'...", Id, Start);
         return OnStartingWorkflow is null
                    ? Task.CompletedTask
-                   : OnStartingWorkflow(this, workflow, ct);
+                   : OnStartingWorkflow(workflow, ct);
     }
 
     private Task<bool> ExecutingNode(IWorkflow workflow, INode currentNode, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Executing node '{Id}' during the run '{RunId}' of the workflow '{WorkFlowId}'...", currentNode.Id, Id, _workflow.Id);
+        _logger.LogInformation(message: "Executing node '{Id}' during the workflow '{WorkFlowId}'...", currentNode.Id, Id);
         return OnExecutingNode is null
                    ? Task.FromResult(true)
-                   : OnExecutingNode(this, workflow, currentNode, ct);
+                   : OnExecutingNode(workflow, currentNode, ct);
     }
 
     private Task<bool> NodeExecuted(IWorkflow workflow, INode currentNode, INode? nextNode, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Node '{NodeId}' executed during the run '{RunId}' of the workflow '{WorkFlowId}'.", currentNode.Id, Id, _workflow.Id);
+        _logger.LogInformation(message: "Node '{NodeId}' executed during the workflow '{WorkFlowId}'.", currentNode.Id, Id);
         return OnNodeExecuted is null
                    ? Task.FromResult(true)
-                   : OnNodeExecuted(this, workflow, currentNode, nextNode, ct);
+                   : OnNodeExecuted(workflow, currentNode, nextNode, ct);
     }
 
     private Task RunEnded(IWorkflow workflow, CancellationToken ct = default) {
-        _logger.LogInformation(message: "The run '{RunId}' of the workflow '{WorkFlowId}' ended at '{End}' after '{ElapsedTimeInMilliseconds}' milliseconds.", Id, _workflow.Id, End, ElapsedTime!.Value.TotalMilliseconds);
+        _logger.LogInformation(message: "Thhe workflow '{WorkFlowId}' ended at '{End}' after '{ElapsedTimeInMilliseconds}' milliseconds.", Id, End, ElapsedTime!.Value.TotalMilliseconds);
         return OnWorkflowEnded is null
             ? Task.CompletedTask
-            : OnWorkflowEnded(this, workflow, ct);
+            : OnWorkflowEnded(workflow, ct);
     }
 }

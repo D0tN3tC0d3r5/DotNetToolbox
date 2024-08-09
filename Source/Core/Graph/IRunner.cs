@@ -11,8 +11,8 @@ public interface IRunner {
 
     Task Run(CancellationToken ct = default);
 
-    Func<IRunner, IWorkflow, CancellationToken, Task>? OnStartingWorkflow { get; }
-    Func<IRunner, IWorkflow, INode, CancellationToken, Task<bool>>? OnExecutingNode { get; }
-    Func<IRunner, IWorkflow, INode, INode?, CancellationToken, Task<bool>>? OnNodeExecuted { get; }
-    Func<IRunner, IWorkflow, CancellationToken, Task>? OnWorkflowEnded { get; }
+    Func<IWorkflow, CancellationToken, Task>? OnStartingWorkflow { set; }
+    Func<IWorkflow, INode, CancellationToken, Task<bool>>? OnExecutingNode { set; }
+    Func<IWorkflow, INode, INode?, CancellationToken, Task<bool>>? OnNodeExecuted { set; }
+    Func<IWorkflow, CancellationToken, Task>? OnWorkflowEnded { set; }
 }

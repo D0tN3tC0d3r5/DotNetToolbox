@@ -60,7 +60,7 @@ public class ConditionalNodeTests {
     }
 
     [Fact]
-    public void CreateFork_RunMethodWithTrueCondition_ExecutesTrueBranch() {
+    public async Task CreateFork_RunMethodWithTrueCondition_ExecutesTrueBranch() {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         using var context = new Context(provider);
@@ -69,7 +69,7 @@ public class ConditionalNodeTests {
                                        t => t.Do(ctx => ctx["branch"] = "true"),
                                        f => f.Do(ctx => ctx["branch"] = "false"));
 
-        node.Run(context);
+        await node.Run(context);
 
         context["branch"].Should().Be("true");
     }
@@ -78,7 +78,7 @@ public class ConditionalNodeTests {
         : Context(provider);
 
     [Fact]
-    public void CreateFork_RunMethodWithFalseCondition_ExecutesFalseBranch() {
+    public async Task CreateFork_RunMethodWithFalseCondition_ExecutesFalseBranch() {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         var context = new CustomContext(provider) {
@@ -89,7 +89,7 @@ public class ConditionalNodeTests {
                                        t => t.Do(ctx => ctx["branch"] = "true"),
                                        f => f.Do(ctx => ctx["branch"] = "false"));
 
-        node.Run(context);
+        await node.Run(context);
 
         context["branch"].Should().Be("false");
         context.Dispose();

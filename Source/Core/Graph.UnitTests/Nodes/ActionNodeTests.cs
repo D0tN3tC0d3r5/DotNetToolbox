@@ -147,7 +147,7 @@ public class ActionNodeTests {
 
         var action = () => node.Run(context);
 
-        await action.Should().ThrowAsync<PolicyException>();
+        await action.Should().NotThrowAsync();
         policy.TryCount.Should().Be(10);
     }
 

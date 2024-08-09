@@ -125,6 +125,6 @@ public class Map<TValue>
         return builder.ToString();
     }
 
-    void ICollection<KeyValuePair<string, TValue>>.CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
-        => throw new NotSupportedException();
+    void ICollection<KeyValuePair<string, TValue>>.CopyTo(KeyValuePair<string, TValue>[] array, int index)
+        => _data.ToArray().CopyTo(array, index);
 }

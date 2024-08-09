@@ -16,10 +16,12 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public void Constructor_WithValidParameters_CreatesInstance() {
         // Arrange
-        var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode, _context);
         var dateTimeProvider = Substitute.For<IDateTimeProvider>();
         var loggerFactory = Substitute.For<ILoggerFactory>();
+
+        var startingNode = Substitute.For<INode>();
+
+        var workflow = new Workflow(startingNode, _context);
 
         // Act
         var runner = new Runner("42", workflow, dateTimeProvider, loggerFactory);
@@ -41,13 +43,14 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithValidNode_ExecutesWithoutError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode, _context);
-
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>())
                     .Returns(Task.Run(() => {
                         Thread.Sleep(100);
                         return default(INode?);
                     }));
+
+        var workflow = new Workflow(startingNode, _context);
+
         var runner = new Runner(workflow);
 
         // Act
@@ -62,8 +65,10 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithNullContext_ReturnsNonNullContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
+
+        var workflow = new Workflow(startingNode, _context);
+
         var runner = new Runner(workflow);
 
         // Act
@@ -93,8 +98,10 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithRunningRunner_ThrowsInvalidOperationException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
+
+        var workflow = new Workflow(startingNode, _context);
+
         var runner = new Runner(workflow);
 
         // Set the Start property using reflection
@@ -111,10 +118,13 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public async Task Run_WithSingleNode_ReturnsSameContext() {
         // Arrange
-        var startingNode = Substitute.For<INode>();
         var context = new Context(_provider);
-        var workflow = new Workflow(startingNode, context);
+
+        var startingNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
+
+        var workflow = new Workflow(startingNode, context);
+
         var runner = new Runner(workflow);
 
         // Act
@@ -127,15 +137,21 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public async Task Run_WithMultipleNodes_ReturnsSameContext() {
         // Arrange
-        var startingNode = Substitute.For<INode>();
+        var loggerFactory = new TrackedLoggerFactory();
+
         var context = new Context(_provider);
-        var workflow = new Workflow(startingNode, context);
+
+        var startingNode = Substitute.For<INode>();
+        startingNode.Id.Returns(1u);
         var nextNode = Substitute.For<INode>();
+        nextNode.Id.Returns(2u);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(nextNode);
         nextNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
 
-        var loggerFactory = new TrackedLoggerFactory();
+        var workflow = new Workflow(startingNode, context);
+
         var runner = new Runner(workflow, loggerFactory: loggerFactory);
+
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
         // Act
@@ -143,15 +159,17 @@ public sealed class RunnerTests : IDisposable {
 
         // Assert
         await action.Should().NotThrowAsync();
-        logger.Should().Have(2).Logs();
+        logger.Should().Have(6).Logs();
     }
 
     [Fact]
     public async Task Run_WithExceptionInNode_ThrowsException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
+
+        var workflow = new Workflow(startingNode, _context);
+
         var runner = new Runner(workflow);
 
         // Act
@@ -164,11 +182,15 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public async Task Run_WithExceptionInNode_LogsError() {
         // Arrange
-        var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode, _context);
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
         var loggerFactory = new TrackedLoggerFactory();
+
+        var startingNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
+
+        var workflow = new Workflow(startingNode, _context);
+
         var runner = new Runner(workflow, loggerFactory: loggerFactory);
+
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
         // Act
@@ -176,16 +198,18 @@ public sealed class RunnerTests : IDisposable {
 
         // Assert
         await action.Should().ThrowAsync<Exception>();
-        logger.Should().Have(2).LogsWith(LogLevel.Information);
+        logger.Should().Have(3).LogsWith(LogLevel.Information);
     }
 
     [Fact]
     public async Task Run_WithExceptionInNode_RethrowsException() {
         // Arrange
-        var startingNode = Substitute.For<INode>();
-        var workflow = new Workflow(startingNode, _context);
         var exception = new Exception();
+        var startingNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(exception);
+
+        var workflow = new Workflow(startingNode, _context);
+
         var runner = new Runner(workflow);
 
         // Act
@@ -199,11 +223,14 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public async Task Run_WithExceptionInNode_LogsEndOfWorkflow() {
         // Arrange
+        var loggerFactory = new TrackedLoggerFactory();
+
         var startingNode = Substitute.For<INode>();
         var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
-        var loggerFactory = new TrackedLoggerFactory();
+
         var runner = new Runner(workflow, loggerFactory: loggerFactory);
+
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
         // Act
@@ -211,21 +238,24 @@ public sealed class RunnerTests : IDisposable {
 
         // Assert
         await action.Should().ThrowAsync<Exception>();
-        logger.Should().Have(2).LogsWith(LogLevel.Information);
+        logger.Should().Have(3).LogsWith(LogLevel.Information);
     }
 
     [Fact]
     public async Task Run_OnRunStartingEvent_IsRaised() {
-        var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode, _context);
-        var runner = new Runner(workflow);
         var eventRaised = false;
 
-        runner.OnStartingWorkflow = (_, wf, _) => {
-            eventRaised = true;
-            wf.Should().BeSameAs(workflow);
-            return Task.CompletedTask;
+        var startingNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns((INode?)null);
+
+        var workflow = new Workflow(startingNode, _context);
+
+        var runner = new Runner(workflow) {
+            OnStartingWorkflow = (wf, _) => {
+                eventRaised = true;
+                wf.Should().BeSameAs(workflow);
+                return Task.CompletedTask;
+            },
         };
 
         await runner.Run();
@@ -235,17 +265,20 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnNodeExecutingEvent_IsRaisedForEachNode() {
+        var executingCount = 0;
+
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode, _context);
-        var runner = new Runner(workflow);
-        var executingCount = 0;
 
-        runner.OnExecutingNode += (_, _, _, _) => {
-            executingCount++;
-            return Task.FromResult(true);
+        var workflow = new Workflow(startingNode, _context);
+
+        var runner = new Runner(workflow) {
+            OnExecutingNode = (_, _, _) => {
+                executingCount++;
+                return Task.FromResult(true);
+            },
         };
 
         await runner.Run();
@@ -255,17 +288,20 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnNodeExecutingEvent_CanCancelExecution() {
+        var context = new Context(_provider);
+
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var context = new Context(_provider);
-        var workflow = new Workflow(startingNode, context);
-        var runner = new Runner(workflow);
 
-        runner.OnExecutingNode += (_, wf, node, _) => {
-            wf.Context.Should().BeSameAs(context);
-            return Task.FromResult(node == secondNode);
+        var workflow = new Workflow(startingNode, context);
+
+        var runner = new Runner(workflow) {
+            OnExecutingNode = (wf, node, _) => {
+                wf.Context.Should().BeSameAs(context);
+                return Task.FromResult(node != secondNode);
+            },
         };
 
         await runner.Run();
@@ -278,17 +314,20 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnNodeExecutedEvent_IsRaisedForEachExecutedNode() {
+        var executedCount = 0;
+
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode, _context);
-        var runner = new Runner(workflow);
-        var executedCount = 0;
 
-        runner.OnNodeExecuted += (_, _, _, _, _) => {
-            executedCount++;
-            return Task.FromResult(true);
+        var workflow = new Workflow(startingNode, _context);
+
+        var runner = new Runner(workflow) {
+            OnNodeExecuted = (_, _, _, _) => {
+                executedCount++;
+                return Task.FromResult(true);
+            },
         };
 
         await runner.Run();
@@ -298,18 +337,21 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnNodeExecutedEvent_CanCancelExecution() {
+        var context = new Context(_provider);
+
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
         var thirdNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns(thirdNode);
-        var context = new Context(_provider);
-        var workflow = new Workflow(startingNode, context);
-        var runner = new Runner(workflow);
 
-        runner.OnNodeExecuted += (_, wf, node, _, _) => {
-            wf.Context.Should().BeSameAs(context);
-            return Task.FromResult(node == secondNode);
+        var workflow = new Workflow(startingNode, context);
+
+        var runner = new Runner(workflow) {
+            OnNodeExecuted = (wf, node, _, _) => {
+                wf.Context.Should().BeSameAs(context);
+                return Task.FromResult(node != secondNode);
+            },
         };
 
         await runner.Run();
@@ -323,16 +365,19 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnRunEndedEvent_IsRaisedAfterExecution() {
-        var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode, _context);
-        var runner = new Runner(workflow);
         var eventRaised = false;
 
-        runner.OnWorkflowEnded += (_, wf, _) => {
-            eventRaised = true;
-            wf.Should().BeSameAs(workflow);
-            return Task.CompletedTask;
+        var startingNode = Substitute.For<INode>();
+        startingNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+
+        var workflow = new Workflow(startingNode, _context);
+
+        var runner = new Runner(workflow) {
+            OnWorkflowEnded = (wf, _) => {
+                eventRaised = true;
+                wf.Should().BeSameAs(workflow);
+                return Task.CompletedTask;
+            },
         };
 
         await runner.Run();
@@ -342,37 +387,39 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_AllEvents_AreRaisedInCorrectOrder() {
+        var eventOrder = new List<string>();
+
         var startingNode = Substitute.For<INode>();
         startingNode.Id.Returns(1u);
         var secondNode = Substitute.For<INode>();
         secondNode.Id.Returns(2u);
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
-        var workflow = new Workflow(startingNode, _context);
-        var runner = new Runner(workflow);
-        var eventOrder = new List<string>();
 
-        runner.OnStartingWorkflow = (_, _, _) => {
-            eventOrder.Add("RunStarting");
-            return Task.CompletedTask;
-        };
-        runner.OnExecutingNode = (_, _, node, _) => {
-            eventOrder.Add($"NodeExecuting: {node.Id}");
-            return Task.FromResult(true);
-        };
-        runner.OnNodeExecuted = (_, _, node, _, _) => {
-            eventOrder.Add($"NodeExecuted: {node.Id}");
-            return Task.FromResult(true);
-        };
-        runner.OnWorkflowEnded = (_, _, _) => {
-            eventOrder.Add("RunEnded");
-            return Task.CompletedTask;
+        var workflow = new Workflow(startingNode, _context);
+
+        var runner = new Runner(workflow) {
+            OnStartingWorkflow = (_, _) => {
+                eventOrder.Add("RunStarting");
+                return Task.CompletedTask;
+            },
+            OnExecutingNode = (_, node, _) => {
+                eventOrder.Add($"NodeExecuting: {node.Id}");
+                return Task.FromResult(true);
+            },
+            OnNodeExecuted = (_, node, _, _) => {
+                eventOrder.Add($"NodeExecuted: {node.Id}");
+                return Task.FromResult(true);
+            },
+            OnWorkflowEnded = (_, _) => {
+                eventOrder.Add("RunEnded");
+                return Task.CompletedTask;
+            }
         };
 
         await runner.Run();
 
-        eventOrder.Should().Equal(new List<string>
-        {
+        eventOrder.Should().Equal(new List<string> {
             "RunStarting",
             "NodeExecuting: 1",
             "NodeExecuted: 1",
