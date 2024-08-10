@@ -187,13 +187,12 @@ public class WorkflowLexerTests {
         tokens[3].Should().BeEquivalentTo(new Token(TokenType.Identifier, "Action2", 2, 3));
         tokens[4].Should().BeEquivalentTo(new Token(TokenType.EOL, "\n", 2, 10));
         tokens[5].Should().BeEquivalentTo(new Token(TokenType.Indent, 2, 3, 1));
-        tokens[6].Should().BeEquivalentTo(new Token(TokenType.Identifier, "Action3", 3, 5));
-        tokens[7].Should().BeEquivalentTo(new Token(TokenType.EOL, "\n", 3, 8));
+        tokens[6].Should().BeEquivalentTo(new Token(TokenType.Identifier, "Action3", 3, 3));
+        tokens[7].Should().BeEquivalentTo(new Token(TokenType.EOL, "\n", 3, 10));
         tokens[8].Should().BeEquivalentTo(new Token(TokenType.Indent, 1, 4, 1));
         tokens[9].Should().BeEquivalentTo(new Token(TokenType.Identifier, "Action4", 4, 3));
-        tokens[10].Should().BeEquivalentTo(new Token(TokenType.EOL, "\n", 4, 8));
-        tokens[11].Should().BeEquivalentTo(new Token(TokenType.Indent, "", 5, 1));
-        tokens[12].Should().BeEquivalentTo(new Token(TokenType.Identifier, "Action5", 5, 1));
-        tokens[13].Should().BeEquivalentTo(new Token(TokenType.EOL, "\n", 5, 8));
+        tokens[10].Should().BeEquivalentTo(new Token(TokenType.EOL, "\n", 4, 10));
+        tokens[11].Should().BeEquivalentTo(new Token(TokenType.Identifier, "Action5", 5, 1));
+        tokens[12].Should().BeEquivalentTo(new Token(TokenType.EOL, "\n", 5, 8));
     }
 }

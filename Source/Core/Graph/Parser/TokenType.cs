@@ -1,7 +1,13 @@
 ﻿namespace DotNetToolbox.Graph.Parser;
 
 public enum TokenType {
-    Action,
+    Identifier,
+    Number,
+    String,
+    DateTime,
+    Boolean,
+    Label,
+    Description,
     If,
     When,
     Then,
@@ -10,12 +16,23 @@ public enum TokenType {
     Otherwise,
     Exit,
     Goto,
-    Identifier,
-    Number,
-    Label,
-    Description,
-    String,
+    EOL, // End of Line
     Indent,
-    Dedent,
-    EOL
+    Equal,
+    NotEqual,
+    GreaterThan,
+    GreaterOrEqual,
+    LessThan,
+    LessOrEqual,
+    Within,
+    In,
+    OpenParen,
+    CloseParen,
+    OpenBrace,
+    CloseBrace,
+    OpenBracket,
+    CloseBracket,
+    Pipe,
+    Comma,
+    EOS,  // End of Statement
 }

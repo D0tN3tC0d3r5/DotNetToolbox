@@ -20,7 +20,7 @@ public class WorkflowParser {
 
     private void ParseStatement() {
         switch (_currentToken.Type) {
-            case TokenType.Action:
+            case TokenType.Identifier:
                 ParseAction();
                 break;
             case TokenType.If:
@@ -38,7 +38,7 @@ public class WorkflowParser {
     }
 
     private void ParseAction() {
-        Expect(TokenType.Action);
+        Expect(TokenType.Identifier);
         var name = Expect(TokenType.Identifier).Value.ToString()!;
         _builder.Do(name, _ => { });
         Expect(TokenType.EOL);
@@ -55,24 +55,24 @@ public class WorkflowParser {
                         Expect(TokenType.Then);
                         Expect(TokenType.EOL);
                         Expect(TokenType.Indent);
-                        while (_currentToken.Type != TokenType.Dedent) {
+                        while (_currentToken.Type != TokenType.EOS) {
                             ParseStatement();
                         }
-                        Expect(TokenType.Dedent);
+                        Expect(TokenType.EOS);
                     },
                     falseBranch => {
                         if (_currentToken.Type == TokenType.Else) {
                             Expect(TokenType.Else);
                             Expect(TokenType.EOL);
                             Expect(TokenType.Indent);
-                            while (_currentToken.Type != TokenType.Dedent) {
+                            while (_currentToken.Type != TokenType.EOS) {
                                 ParseStatement();
                             }
-                            Expect(TokenType.Dedent);
+                            Expect(TokenType.EOS);
                         }
                     });
 
-        Expect(TokenType.Dedent);
+        Expect(TokenType.EOS);
     }
 
     private void ParseWhen() {
@@ -90,16 +90,16 @@ public class WorkflowParser {
                               Expect(TokenType.Indent);
 
                               branches.Is(caseValue, branch => {
-                                  while (_currentToken.Type != TokenType.Dedent) {
+                                  while (_currentToken.Type != TokenType.EOS) {
                                       ParseStatement();
                                   }
                               });
 
-                              Expect(TokenType.Dedent);
+                              Expect(TokenType.EOS);
                           }
                       });
 
-        Expect(TokenType.Dedent);
+        Expect(TokenType.EOS);
     }
 
     private void ParseExit() {
@@ -117,11 +117,10 @@ public class WorkflowParser {
         return token;
     }
 
-    private void NextToken() {
-        _currentToken = _tokens.MoveNext()
+    private void NextToken()
+        => _currentToken = _tokens.MoveNext()
             ? _tokens.Current
             : new Token(TokenType.Exit, "", 0, 0);
-    }
 
     private bool EvaluateCondition(Context ctx, string condition) {
         // This is a simplified implementation. In a real-world scenario,
