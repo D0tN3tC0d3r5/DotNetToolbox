@@ -60,14 +60,14 @@ public class WorkflowParser {
 
     private void ParseIf(WorkflowBuilder builder) {
         Expect(TokenType.If);
-        var condition = ParseCondition(builder);
+        var predicate = ParsePredicate();
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
         Expect(TokenType.EOL);
         Expect(TokenType.Indent);
 
         builder.If(tag!,
-                   ctx => EvaluateCondition(ctx, condition),
+                   ctx => EvaluatePredicate(ctx, predicate),
                    b => b.IsTrue(trueBranch => {
                        Expect(TokenType.Then);
                        Expect(TokenType.EOL);
@@ -92,7 +92,7 @@ public class WorkflowParser {
         Expect(TokenType.Dedent);
     }
 
-    private string ParseCondition(WorkflowBuilder builder) {
+    private string ParsePredicate() {
         var condition = new StringBuilder();
         while (_currentToken.Type != TokenType.EOL && _currentToken.Type != TokenType.Label) {
             condition.Append(_currentToken.Value);
@@ -210,7 +210,7 @@ public class WorkflowParser {
 
     // This is a simplified implementation.
     // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
-    private static bool EvaluateCondition(Context ctx, string condition)
+    private static bool EvaluatePredicate(Context ctx, string condition)
         => ctx.TryGetValue(condition, out var value)
             && value is bool boolValue
             && boolValue;
