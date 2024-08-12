@@ -21,11 +21,15 @@ public class TerminalNodeTests {
 
     [Fact]
     public void CreateStop_WithCustomLabel_ReturnsTerminalNodeWithCustomLabel() {
-        const string customLabel = "CustomEnd";
-        var node = _factory.CreateStop(1, customLabel);
+        const int customCode = -2;
+        const string customTag = "CustomEnd";
+        const string customLabel = "Custom End";
+        var node = _factory.CreateStop(1, customCode, customTag, customLabel);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<TerminalNode>();
+        node.ExitCode.Should().Be(customCode);
+        node.Tag.Should().Be(customTag);
         node.Label.Should().Be(customLabel);
     }
 }

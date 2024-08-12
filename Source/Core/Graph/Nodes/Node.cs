@@ -1,14 +1,25 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public abstract class Node<TNode>(uint id, string label, IServiceProvider services)
+public static class Node {
+    public static TNode Create<TNode>(uint id,
+                                      IServiceProvider services,
+                                      string? tag = null,
+                                      string? label = null)
+        where TNode : Node<TNode>
+        => InstanceFactory.Create<TNode>(id, services, tag, label);
+}
+
+public abstract class Node<TNode>(uint id, IServiceProvider services, string? tag, string? label)
     : INode
     where TNode : Node<TNode> {
-    protected Node(uint id, IServiceProvider services)
-        : this(id, typeof(TNode).Name, services) {
-    }
+    private readonly string? _tag = tag;
+    private readonly string? _label = label;
+
+    protected virtual string DefaultLabel { get; } = typeof(TNode).Name;
 
     public uint Id { get; } = id;
-    public string Label { get; } = IsNotNull(label);
+    public string Tag => _tag ?? $"{Id}";
+    public string Label => _label ?? _tag ?? DefaultLabel;
     protected IServiceProvider Services { get; } = IsNotNull(services);
 
     public Result Validate(ISet<INode>? visited = null) {

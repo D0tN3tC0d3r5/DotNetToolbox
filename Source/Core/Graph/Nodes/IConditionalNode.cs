@@ -2,6 +2,6 @@
 
 public interface IConditionalNode
     : INode {
-    INode? IsTrue { get; }
-    INode? IsFalse { get; }
+    INode? IsTrue { get; set; }
+    INode? IsFalse { get; set; }
 }

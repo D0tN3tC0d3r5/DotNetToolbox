@@ -21,20 +21,14 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_WithCustomLabel_ReturnsActionNodeWithCustomLabel() {
-        const string customLabel = "CustomAction";
-        var node = _factory.CreateAction(1, customLabel, _ => { });
+        const string customLabel = "Custom Action";
+        const string customTag = "Action1";
+        var node = _factory.CreateAction(1, _ => { }, customTag, customLabel);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
         node.Label.Should().Be(customLabel);
-    }
-
-    [Fact]
-    public void CreateAction_WithGenericType_ReturnsCustomActionNode() {
-        var node = _factory.CreateAction<CustomActionNode>(1);
-
-        node.Should().NotBeNull();
-        node.Should().BeOfType<CustomActionNode>();
+        node.Tag.Should().Be(customTag);
     }
 
     [Fact]
@@ -168,19 +162,6 @@ public class ActionNodeTests {
 
     private sealed class CustomContext(IServiceProvider provider)
         : Context(provider);
-
-    // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomActionNode
-        : ActionNode<CustomActionNode> {
-        public CustomActionNode(uint id, string label, IServiceProvider services)
-            : base(id, label, services) {
-        }
-
-        public CustomActionNode(uint id, IServiceProvider services)
-            : base(id, services) { }
-
-        protected override Task Execute(Context context, CancellationToken ct) => Task.CompletedTask;
-    }
 
     private sealed class TestPolicy(byte maxRetries = RetryPolicy.DefaultMaximumRetries, uint failedTries = 0)
         : RetryPolicy(maxRetries) {

@@ -6,17 +6,18 @@ public enum TokenType {
     String,
     DateTime,
     Boolean,
+    Range,
+    Array,
     Label,
-    Description,
     If,
-    When,
+    Case,
     Then,
     Else,
     Is,
     Otherwise,
     Exit,
-    Goto,
-    EOL, // End of Line
+    JumpTo,
+    Tag,
     Indent,
     Equal,
     NotEqual,
@@ -24,6 +25,9 @@ public enum TokenType {
     GreaterOrEqual,
     LessThan,
     LessOrEqual,
+    And,
+    Or,
+    Not,
     Within,
     In,
     OpenParen,
@@ -34,5 +38,7 @@ public enum TokenType {
     CloseBracket,
     Pipe,
     Comma,
-    EOS,  // End of Statement
+    EOL, // End of Line
+    Dedent,  // End of Statement
+    EOF,  // End of File
 }

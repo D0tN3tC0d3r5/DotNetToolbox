@@ -23,20 +23,13 @@ public class BranchingNodeTests {
 
     [Fact]
     public void CreateChoice_WithCustomLabel_ReturnsBranchingNodeWithCustomLabel() {
-        const string customLabel = "CustomChoice";
-        var node = _factory.CreateChoice(1, customLabel, _ => "default", _builder, _ => { });
+        const string customLabel = "Custom Choice";
+        const string customTag = "Action1";
+        var node = _factory.CreateChoice(1, _ => "default", _builder, _ => { }, customTag, customLabel);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<BranchingNode>();
         node.Label.Should().Be(customLabel);
-    }
-
-    [Fact]
-    public void CreateChoice_WithGenericType_ReturnsCustomBranchingNode() {
-        var node = _factory.CreateChoice<CustomBranchingNode>(1);
-
-        node.Should().NotBeNull();
-        node.Should().BeOfType<CustomBranchingNode>();
     }
 
     [Fact]
@@ -103,19 +96,5 @@ public class BranchingNodeTests {
         var result = node.Validate();
 
         result.IsSuccess.Should().BeTrue();
-    }
-
-    // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomBranchingNode
-        : BranchingNode<CustomBranchingNode> {
-        public CustomBranchingNode(uint id, string label, IServiceProvider services)
-            : base(id, label, services) {
-        }
-
-        public CustomBranchingNode(uint id, IServiceProvider services)
-            : base(id, services) { }
-
-        protected override Task<string> Select(Context context, CancellationToken ct)
-            => Task.FromResult("default");
     }
 }

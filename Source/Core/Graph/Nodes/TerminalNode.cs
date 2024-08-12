@@ -1,26 +1,21 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class TerminalNode
-    : Node<TerminalNode>,
-      ITerminationNode {
-    private const string _defaultLabel = "end";
+public sealed class TerminalNode(uint id, IServiceProvider services, int exitCode = 0, string? tag = null, string? label = null)
+    : TerminalNode<TerminalNode>(id, services, tag, label) {
+    protected override string DefaultLabel { get; } = "end";
 
-    private TerminalNode(uint id, string label, IServiceProvider services)
-        : base(id, label, services) {
-    }
+    public override int ExitCode { get; } = exitCode;
+}
 
+public abstract class TerminalNode<TNode>(uint id, IServiceProvider services, string? tag = null, string? label = null)
+    : Node<TerminalNode>(id, services, tag, label),
+      ITerminationNode
+    where TNode : TerminalNode<TNode> {
     protected override Task<INode?> GetNext(Context context, CancellationToken ct)
         => Task.FromResult<INode?>(null);
 
     protected override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
 
-    public static TerminalNode Create(uint id,
-                                      string label,
-                                      IServiceProvider services)
-        => new(id, IsNotNull(label), services);
-
-    public static TerminalNode Create(uint id,
-                                      IServiceProvider services)
-        => new(id, _defaultLabel, services);
+    public abstract int ExitCode { get; }
 }

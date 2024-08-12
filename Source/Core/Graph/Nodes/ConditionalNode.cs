@@ -1,45 +1,31 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class ConditionalNode(uint id, string label, Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
-    : ConditionalNode<ConditionalNode>(id, label, services) {
+public class ConditionalNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task<bool>> predicate, string? tag = null, string? label = null)
+    : ConditionalNode<ConditionalNode>(id, services, tag, label) {
     private readonly Func<Context, CancellationToken, Task<bool>> _predicate = IsNotNull(predicate);
 
-    private const string _defaultLabel = "if";
+    public ConditionalNode(uint id, IServiceProvider services, Func<Context, bool> predicate, string? tag = null, string? label = null)
+        : this(id, services, (ctx, ct) => Task.Run(() => predicate(ctx), ct), tag, label) {
+    }
 
-    public ConditionalNode(uint id, Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
-        : this(id, _defaultLabel, predicate, services) {
-    }
-    public ConditionalNode(uint id, string label, Func<Context, bool> predicate, IServiceProvider services)
-        : this(id, label, (ctx, ct) => Task.Run(() => predicate(ctx), ct), services) {
-    }
-    public ConditionalNode(uint id, Func<Context, bool> predicate, IServiceProvider services)
-        : this(id, _defaultLabel, predicate, services) {
-    }
+    protected override string DefaultLabel { get; } = "if";
+
+    protected override Task<bool> When(Context context, CancellationToken ct) => _predicate(context, ct);
 
     public static TNode Create<TNode>(uint id, string label, IServiceProvider services)
         where TNode : ConditionalNode<TNode>
         => InstanceFactory.Create<TNode>(id, label, services);
-
     public static TNode Create<TNode>(uint id, IServiceProvider services)
         where TNode : ConditionalNode<TNode>
         => InstanceFactory.Create<TNode>(id, services);
-
-    protected override Task<bool> When(Context context, CancellationToken ct) => _predicate(context, ct);
 }
 
-public abstract class ConditionalNode<TNode>
-    : Node<TNode>,
+public abstract class ConditionalNode<TNode>(uint id, IServiceProvider services, string? tag = null, string? label = null)
+    : Node<TNode>(id, services, tag, label),
       IConditionalNode
     where TNode : ConditionalNode<TNode> {
-    protected ConditionalNode(uint id, string label, IServiceProvider services)
-        : base(id, label, services) {
-    }
-
-    protected ConditionalNode(uint id, IServiceProvider services)
-        : base(id, services) { }
-
-    public INode? IsTrue { get; internal set; }
-    public INode? IsFalse { get; internal set; }
+    public INode? IsTrue { get; set; }
+    public INode? IsFalse { get; set; }
 
     protected override Result IsValid(ISet<INode> visited) {
         var result = base.IsValid(visited);

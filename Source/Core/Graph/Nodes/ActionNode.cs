@@ -2,32 +2,15 @@
 
 namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ActionNode(uint id, string label, Func<Context, CancellationToken, Task> execute, IServiceProvider services)
-    : ActionNode<ActionNode>(id, label, services) {
-    private const string _defaultLabel = "action";
-
+public sealed class ActionNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task> execute, string? tag = null, string? label = null)
+    : ActionNode<ActionNode>(id, services, tag, label) {
     private readonly Func<Context, CancellationToken, Task> _execute = IsNotNull(execute);
 
-    public ActionNode(uint id, Func<Context, CancellationToken, Task> execute, IServiceProvider services)
-        : this(id, _defaultLabel, execute, services) {
-    }
-    public ActionNode(uint id, string label, Action<Context> execute, IServiceProvider services)
-        : this(id, label, (ctx, ct) => Task.Run(() => execute(ctx), ct), services) {
-    }
-    public ActionNode(uint id, Action<Context> execute, IServiceProvider services)
-        : this(id, _defaultLabel, execute, services) {
+    public ActionNode(uint id, IServiceProvider services, Action<Context> execute, string? tag = null, string? label = null)
+        : this(id, services, (ctx, ct) => Task.Run(() => execute(ctx), ct), tag, label) {
     }
 
-    public static TNode Create<TNode>(uint id,
-                                      string label,
-                                      IServiceProvider services)
-        where TNode : ActionNode<TNode>
-        => InstanceFactory.Create<TNode>(id, label, services);
-
-    public static TNode Create<TNode>(uint id,
-                                      IServiceProvider services)
-        where TNode : ActionNode<TNode>
-        => InstanceFactory.Create<TNode>(id, services);
+    protected override string DefaultLabel { get; } = "action";
 
     protected override Task Execute(Context context, CancellationToken ct)
         => _execute(context, ct);
@@ -39,13 +22,8 @@ public abstract class ActionNode<TAction>
     where TAction : ActionNode<TAction> {
     private readonly IPolicy _policy;
 
-    protected ActionNode(uint id, string label, IServiceProvider services)
-        : base(id, label, services) {
-        _policy = Services.GetService<IPolicy>() ?? Policy.Default;
-    }
-
-    protected ActionNode(uint id, IServiceProvider services)
-        : base(id, services) {
+    protected ActionNode(uint id, IServiceProvider services, string? tag = null, string? label = null)
+        : base(id, services, tag, label) {
         _policy = Services.GetService<IPolicy>() ?? Policy.Default;
     }
     public INode? Next { get; set; }

@@ -54,8 +54,8 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
         _builder.If(_ => true,
-                    t => t.Do(_ => { }),
-                    f => f.Do(_ => { }));
+            b => b.IsTrue(t => t.Do(_ => { }))
+                  .IsFalse(f => f.Do(_ => { })));
 
         var graph = _builder.BuildGraph();
 
@@ -75,7 +75,7 @@ public sealed class WorkflowBuilderTests {
                                       4["action"]
 
                                       """;
-        _builder.When(_ => "key1", k => k
+        _builder.Case(_ => "key1", k => k
                     .Is("key1", b => b.Do(_ => { }))
                     .Is("key2", b => b.Do(_ => { }))
                     .Is("key3", b => b.Do(_ => { })));
@@ -106,12 +106,14 @@ public sealed class WorkflowBuilderTests {
                                       """;
 
         _builder.Do(_ => { })
-                .If(_ => true,
-                    t => t.Do(_ => { })
-                          .When(_ => "key1", k => k
-                              .Is("key1", b => b.Do(_ => { }))
-                              .Is("key2", b => b.Do(_ => { }))),
-                    f => f.Do(_ => { }));
+                .If(_ => true, b => b
+                    .IsTrue(t => t
+                        .Do(_ => { })
+                        .Case(_ => "key1", k => k
+                            .Is("key1", b => b.Do(_ => { }))
+                            .Is("key2", b => b.Do(_ => { }))))
+                    .IsFalse(f => f
+                        .Do(_ => { })));
 
         var graph = _builder.BuildGraph();
 
@@ -132,9 +134,9 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
         _builder.Do("Start", _ => { })
-                .If("Decision", _ => true,
-                    t => t.Do("Success", _ => { }),
-                    f => f.Do("Fail", _ => { }));
+                .If("Decision", _ => true, b => b
+                    .IsTrue(t => t.Do("Success", _ => { }))
+                    .IsFalse(f => f.Do("Fail", _ => { })));
 
         var graph = _builder.BuildGraph();
 
@@ -158,9 +160,9 @@ public sealed class WorkflowBuilderTests {
         var builder = _builder
             .Do("Start", _ => { })
             .If("LoopCondition", _ => true,
-                t => t.Do("LoopAction", _ => { })
-                      .JumpTo("LoopCondition"),
-                f => f.Do("Exit", _ => { }));
+                b => b.IsTrue(t => t.Do("LoopAction", _ => { })
+                                    .JumpTo("LoopCondition"))
+                      .IsFalse(f => f.Do("Exit", _ => { })));
 
         var graph = builder.BuildGraph();
 
@@ -175,8 +177,7 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
 
-        var builder = _builder
-            .Do<CustomAction>();
+        var builder = _builder.Do<CustomAction>();
 
         var graph = builder.BuildGraph();
 
@@ -201,10 +202,10 @@ public sealed class WorkflowBuilderTests {
 
         var builder = _builder
             .If(_ => true,
-                t1 => t1.If(_ => false,
-                    t2 => t2.Do(_ => { }),
-                    f2 => f2.Do(_ => { })),
-                f1 => f1.Do(_ => { }));
+            b1 => b1.IsTrue(t1 => t1.If(_ => false,
+                b2 => b2.IsTrue(t2 => t2.Do(_ => { }))
+                        .IsFalse(f2 => f2.Do(_ => { }))))
+                  .IsFalse(f1 => f1.Do(_ => { })));
 
         var graph = builder.BuildGraph();
 
@@ -212,15 +213,8 @@ public sealed class WorkflowBuilderTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomAction
-        : ActionNode<CustomAction> {
-        public CustomAction(uint id, string label, IServiceProvider services)
-            : base(id, label, services) {
-        }
-
-        public CustomAction(uint id, IServiceProvider services)
-            : base(id, services) { }
-
+    private sealed class CustomAction(uint id, IServiceProvider services, string? tag = null, string? label = null)
+                : ActionNode<CustomAction>(id, services, tag, label) {
         protected override Task Execute(Context context, CancellationToken ct)
             => Task.CompletedTask;
     }

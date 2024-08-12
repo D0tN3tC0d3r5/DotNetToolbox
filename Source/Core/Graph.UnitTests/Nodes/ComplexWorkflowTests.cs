@@ -72,13 +72,19 @@ public class ComplexWorkflowTests {
 
         var builder = new WorkflowBuilder(provider);
         builder.Do(ctx => ctx["count"] = 0)
-               .If("LoopStart", ctx => ctx["count"].As<int>() < 2,
-                   t1 => t1.Do(ctx => ctx["count"] = ctx["count"].As<int>() + 1)
-                           .Do(ctx => ctx["result"] = "Action1")
-                           .JumpTo("LoopStart"),
-                   f1 => f1.If(ctx => ctx["count"].As<int>() % 2 == 0,
-                               t2 => t2.Do(ctx => ctx["result"] = "Action2"),
-                               f2 => f2.Do(ctx => ctx["result"] = "Action3")));
+               .If("LoopStart",
+                   ctx => ctx["count"].As<int>() < 2,
+                   if1 => if1.IsTrue(t1 => t1
+                            .Do(ctx => ctx["count"] = ctx["count"].As<int>() + 1)
+                            .Do(ctx => ctx["result"] = "Action1")
+                            .JumpTo("LoopStart"))
+                          .IsFalse(f1 => f1
+                            .If(ctx => ctx["count"].As<int>() % 2 == 0,
+                                if2 => if2
+                                .IsTrue(t2 => t2
+                                    .Do(ctx => ctx["result"] = "Action2"))
+                                .IsFalse(f2 => f2
+                                    .Do(ctx => ctx["result"] = "Action3")))));
         return builder.Start;
     }
 
