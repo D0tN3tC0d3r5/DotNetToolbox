@@ -19,5 +19,7 @@ public interface INodeFactory {
 
     IActionNode CreateAction(uint id, Action<Context> action, string? tag = null, string? label = null);
 
+    IJumpNode CreateJump(uint id, string targetTag, string? label = null);
+
     ITerminationNode CreateStop(uint id, int exitCode = 0, string? tag = null, string? label = null);
 }

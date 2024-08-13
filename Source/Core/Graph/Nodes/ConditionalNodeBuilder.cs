@@ -1,19 +1,19 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class ConditionalNodeBuilder(WorkflowBuilder builder, IServiceProvider services)
+public class ConditionalNodeBuilder(IServiceProvider services)
     : IConditionalNodeTruePathBuilder, IConditionalNodeFalsePathBuilder {
     private INode? _trueNode;
     private INode? _falseNode;
 
     public IConditionalNodeFalsePathBuilder IsTrue(Action<WorkflowBuilder> setPath) {
-        var trueBuilder = new WorkflowBuilder(services, builder.Id, builder.Nodes);
+        var trueBuilder = new WorkflowBuilder(services);
         setPath(trueBuilder);
         _trueNode = trueBuilder.First;
         return this;
     }
 
     public void IsFalse(Action<WorkflowBuilder> setPath) {
-        var falseBuilder = new WorkflowBuilder(services, builder.Id, builder.Nodes);
+        var falseBuilder = new WorkflowBuilder(services);
         setPath(falseBuilder);
         _falseNode = falseBuilder.First;
     }

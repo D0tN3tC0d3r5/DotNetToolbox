@@ -2,20 +2,20 @@
 
 public sealed class WorkflowBuilder {
     private readonly INodeFactory _nodeFactory;
-    private Stack<INode> _nodeStack = [];
     private readonly SequentialNodeId _nodeId;
 
-    public WorkflowBuilder(IServiceProvider services, string? id = null, HashSet<INode>? nodes = null, IGuidProvider? guid = null) {
+    public WorkflowBuilder(IServiceProvider services, string? id = null, IGuidProvider? guid = null) {
         Id = id ?? (guid ?? GuidProvider.Default).AsSortable.Create().ToString();
         _nodeId = NodeId.FromSequential(Id);
         _nodeFactory = new NodeFactory(services);
-        Nodes = nodes ?? [];
     }
 
     public string Id { get; }
-    public HashSet<INode> Nodes { get; }
     public INode? First { get; private set; }
-    public INode? End { get; private set; }
+    public INode? Last { get; private set; }
+
+    public string BuildGraph()
+        => GraphBuilder.GenerateFrom(First!);
 
     [MemberNotNull(nameof(First))]
     public WorkflowBuilder Do(string tag, Action<Context> action, string? label = null) {
@@ -76,16 +76,22 @@ public sealed class WorkflowBuilder {
         return this;
     }
 
-    public WorkflowBuilder JumpTo(string target) {
-        ConnectNode(Nodes.First(n => n.Tag == IsNotNull(target)));
+    public WorkflowBuilder JumpTo(string targetTag, string? label = null) {
+        ConnectNode(_nodeFactory.CreateJump(_nodeId.Next, targetTag, label));
         return this;
     }
 
     [MemberNotNull(nameof(First))]
     private void ConnectNode(INode newNode) {
-        newNode.Next = End;
-        End = newNode;
         First ??= newNode;
+        if (Last is IActionNode) {
+            newNode.Next = Last;
+            Last = newNode;
+        }
+        if (Last is IConditionalNode ifNode) return;
+        if (Last is IBranchingNode caseNode) return;
+        if (Last is IJumpNode jumpNode) return;
+        if (Last is ITerminationNode endNode) return;
     }
 
     //[MemberNotNull(nameof(First))]
@@ -127,7 +133,4 @@ public sealed class WorkflowBuilder {
     //    _nodeStack.Push(newNode);
     //    Nodes.Add(newNode);
     //}
-
-    public string BuildGraph()
-        => GraphBuilder.GenerateFrom(First!);
 }

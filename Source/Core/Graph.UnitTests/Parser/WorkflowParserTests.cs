@@ -111,30 +111,36 @@ public class WorkflowParserTests {
             start.Label.Should().Be("Action Label");
             start.Next.Should().BeNull();
         }
+    }
 
+    public class ControlStructureTests : WorkflowParserTests {
         [Fact]
-        public void Parse_Literal_ReturnsWorkflowWithLabeledAndTaggedAction() {
+        public void Parse_IfThen_ReturnsWorkflowWithIfStructure() {
             // Arrange
             const string script = """
-                                  35
-                                  """;
+                              IF Condition THEN
+                                ActionTrue
+                              """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var start = result.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be(1);
-            start.Tag.Should().Be("Tag");
-            start.Label.Should().Be("Action Label");
-            start.Next.Should().BeNull();
-        }
-    }
+            var ifNode = result.Should().BeOfType<ConditionalNode>().Subject;
+            ifNode.Id.Should().Be(1);
+            ifNode.Tag.Should().Be("1");
+            ifNode.Label.Should().Be("if");
+            ifNode.Next.Should().BeNull();
 
-    public class ControlStructureTests : WorkflowParserTests {
+            var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
+            trueAction.Id.Should().Be(2);
+            trueAction.Tag.Should().Be("2");
+            trueAction.Label.Should().Be("ActionTrue");
+        }
+
         [Fact]
-        public void Parse_IfThen_ReturnsWorkflowWithIfStructure() {
+        public void Parse_IfThenWithExit_ReturnsWorkflowWithIfStructure() {
             // Arrange
             const string script = """
                               IF Condition THEN
@@ -162,6 +168,9 @@ public class WorkflowParserTests {
             end.Tag.Should().Be("3");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
+
+            trueAction.Next.Should().Be(end);
+            ifNode.IsFalse.Should().Be(end);
         }
 
         [Fact]

@@ -8,7 +8,7 @@ public sealed class TerminalNode(uint id, IServiceProvider services, int exitCod
 }
 
 public abstract class TerminalNode<TNode>(uint id, IServiceProvider services, string? tag = null, string? label = null)
-    : Node<TerminalNode>(id, services, tag, label),
+    : Node<TNode>(id, services, tag, label),
       ITerminationNode
     where TNode : TerminalNode<TNode> {
     protected override Task<INode?> GetNext(Context context, CancellationToken ct)
