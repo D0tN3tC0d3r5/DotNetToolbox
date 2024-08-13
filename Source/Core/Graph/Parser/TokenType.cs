@@ -1,6 +1,7 @@
 ﻿namespace DotNetToolbox.Graph.Parser;
 
 public enum TokenType {
+    Indent,
     Identifier,
     Number,
     String,
@@ -18,7 +19,6 @@ public enum TokenType {
     Exit,
     JumpTo,
     Tag,
-    Indent,
     Equal,
     NotEqual,
     GreaterThan,
@@ -39,6 +39,6 @@ public enum TokenType {
     Pipe,
     Comma,
     EOL, // End of Line
-    Dedent,  // End of Statement
     EOF,  // End of File
+    Error,  // Error token
 }

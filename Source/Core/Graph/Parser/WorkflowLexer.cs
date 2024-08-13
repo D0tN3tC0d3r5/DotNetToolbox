@@ -26,7 +26,7 @@
 // EXIT
 
 public sealed class WorkflowLexer {
-    private const int _indentSize = 2;
+    private const uint _indentSize = 2;
     private int _currentLine;
     private int _currentColumn;
     private int _currentIndent;
@@ -39,44 +39,6 @@ public sealed class WorkflowLexer {
         return lexer.Process(input);
     }
 
-    private IEnumerable<Token> Process(string input) {
-        input = input.Replace("\r\n", "\n") // windows EOL
-                     .Replace("\r", "\n");  // Mac OS EOL
-        var lines = input.Split('\n').Select(l => l.TrimEnd()).ToArray();
-        _currentLine = 1;
-        _currentColumn = 1;
-        _currentIndent = 0;
-
-        var length = 0;
-        foreach (var line in lines) {
-            var code = StripComments(line);
-            length += code.Length;
-            foreach (var token in ProcessLine(code))
-                yield return token;
-            _currentLine++;
-        }
-
-        while (_currentIndent > 0) {
-            _currentIndent--;
-            yield return new Token(TokenType.Dedent, _currentLine - 1, _currentIndent * 2);
-        }
-        yield return new Token(TokenType.EOF, _currentLine - 1, length);
-    }
-
-    private static string StripComments(string line) {
-        var commentIndex = line.IndexOf('#');
-        return commentIndex > -1 ? line[..commentIndex] : line;
-    }
-
-    private IEnumerable<Token> ProcessLine(string line) {
-        ProcessIndent(line);
-        foreach (var token in SplitLine(line)) {
-            yield return TokenizeWord(token);
-        }
-
-        yield return new Token(TokenType.EOL, _currentLine, line.Length);
-    }
-
     private enum LineSectionType {
         None,
         Tag,
@@ -87,18 +49,59 @@ public sealed class WorkflowLexer {
         Range,
     }
 
+    private IEnumerable<Token> Process(string input) {
+        input = input.Replace("\r\n", "\n") // windows EOL
+                     .Replace("\r", "\n");  // Mac OS EOL
+        var lines = input.Split('\n').Select(l => l.TrimEnd()).ToArray();
+        _currentLine = 1;
+        _currentIndent = 0;
+
+        var length = 0;
+        foreach (var line in lines) {
+            _currentColumn = 1;
+            var code = StripComments(line);
+            length += code.Length;
+            foreach (var token in ProcessLine(code))
+                yield return token;
+            _currentLine++;
+        }
+
+        yield return new Token(TokenType.EOF, _currentLine - 1, length);
+    }
+
+    private static string StripComments(string line) {
+        var commentIndex = line.IndexOf('#');
+        return commentIndex > -1 ? line[..commentIndex].TrimEnd() : line.TrimEnd();
+    }
+
+    private IEnumerable<Token> ProcessLine(string line) {
+        foreach (var indent in ProcessIndent(line)) {
+            yield return indent;
+        }
+        foreach (var token in SplitLine(line)) {
+            yield return TokenizeWord(token);
+        }
+
+        if (line.Length > 0) { // remove empty lines
+            yield return new Token(TokenType.EOL, _currentLine, line.Length);
+        }
+        else {
+            _currentLine--;
+        }
+    }
+
     private IEnumerable<Word> SplitLine(string line) {
         var type = LineSectionType.None;
         var wordBuilder = new StringBuilder();
-        var wordStart = _currentColumn;
-        var exit = false;
+        var nextWordStart = _currentColumn;
 
         var nextChar = Pop(line);
-        while (!exit) {
+        while (true) {
             switch (nextChar) {
                 case '\0':
-                    exit = true;
-                    break;
+                    _currentColumn--;
+                    if (GetWord() is { } w) yield return w;
+                    yield break;
                 case '(' when type is LineSectionType.None:
                 case ':' when type is LineSectionType.None:
                 case '"' when type is LineSectionType.None:
@@ -108,6 +111,7 @@ public sealed class WorkflowLexer {
                 case '|' when type is LineSectionType.None:
                     if (GetWord() is { } w1) yield return w1;
                     wordBuilder.Append(nextChar);
+                    nextWordStart--;
                     type = nextChar switch {
                         '(' => LineSectionType.DateTime,
                         ':' => LineSectionType.Tag,
@@ -137,91 +141,63 @@ public sealed class WorkflowLexer {
             }
             nextChar = Pop(line);
         }
-        if (wordBuilder.Length > 0) {
-            yield return new(wordBuilder.ToString(), wordStart);
-            wordBuilder.Clear();
-        }
 
         Word? GetWord() {
+            var wordStart = nextWordStart;
+            nextWordStart = _currentColumn;
             if (wordBuilder.Length == 0) return null;
             var result = new Word(wordBuilder.ToString(), wordStart);
             wordBuilder.Clear();
-            wordStart = _currentColumn;
             return result;
         }
     }
 
     private Token TokenizeWord(Word word) {
-        var tokenStart = word.Column;
-        _currentColumn = word.Column + word.Text.Length;
-
-        return word.Text switch {
-            var w when w.StartsWith('`') && w.EndsWith('`')
-                => new Token(TokenType.Label, _currentLine, tokenStart, w.Trim('`', '`')),
-            var w when w.StartsWith(':') && w.EndsWith(':')
-                => new Token(TokenType.Tag, _currentLine, tokenStart, w.Trim(':')),
-            var w when w.StartsWith('"') && w.EndsWith('"')
-                => new Token(TokenType.String, _currentLine, tokenStart, w.Trim('"')),
-            var w when w.StartsWith('(') && w.EndsWith(')') && DateTime.TryParse(w.Trim('(', ')'), out var dt)
-                => new Token(TokenType.DateTime, _currentLine, tokenStart, w.Trim('(', ')')),
-            var w when (w.StartsWith('[') || w.StartsWith('|')) && (w.EndsWith(']') || w.EndsWith('|'))
-                => new Token(TokenType.Range, _currentLine, tokenStart, w),
-            var w when w.StartsWith('{') && w.EndsWith('}')
-                => new Token(TokenType.Array, _currentLine, tokenStart, w.Trim('{', '}')),
-            var w when int.TryParse(w, out var i)
-                => new Token(TokenType.Number, _currentLine, tokenStart, $"{i}"),
-            var w when decimal.TryParse(w, out var d)
-                => new Token(TokenType.Number, _currentLine, tokenStart, $"{d}"),
-            var w when bool.TryParse(w, out var b)
-                => new Token(TokenType.Boolean, _currentLine, tokenStart, $"{b}"),
-            "==" => new Token(TokenType.Equal, _currentLine, tokenStart, word.Text),
-            "!=" => new Token(TokenType.NotEqual, _currentLine, tokenStart, word.Text),
-            ">" => new Token(TokenType.GreaterThan, _currentLine, tokenStart, word.Text),
-            ">=" => new Token(TokenType.GreaterOrEqual, _currentLine, tokenStart, word.Text),
-            "<" => new Token(TokenType.LessThan, _currentLine, tokenStart, word.Text),
-            "<=" => new Token(TokenType.LessOrEqual, _currentLine, tokenStart, word.Text),
-            "AND" => new Token(TokenType.And, _currentLine, tokenStart, word.Text),
-            "OR" => new Token(TokenType.Or, _currentLine, tokenStart, word.Text),
-            "NOT" => new Token(TokenType.Not, _currentLine, tokenStart, word.Text),
-            "WITHIN" => new Token(TokenType.Within, _currentLine, tokenStart, word.Text),
-            "IN" => new Token(TokenType.In, _currentLine, tokenStart, word.Text),
-            "TRUE" => new Token(TokenType.Boolean, _currentLine, tokenStart, word.Text),
-            "FALSE" => new Token(TokenType.Boolean, _currentLine, tokenStart, word.Text),
-            "IF" => new Token(TokenType.If, _currentLine, tokenStart, word.Text),
-            "CASE" => new Token(TokenType.Case, _currentLine, tokenStart, word.Text),
-            "THEN" => new Token(TokenType.Then, _currentLine, tokenStart, word.Text),
-            "ELSE" => new Token(TokenType.Else, _currentLine, tokenStart, word.Text),
-            "IS" => new Token(TokenType.Is, _currentLine, tokenStart, word.Text),
-            "OTHERWISE" => new Token(TokenType.Otherwise, _currentLine, tokenStart, word.Text),
-            "EXIT" => new Token(TokenType.Exit, _currentLine, tokenStart, word.Text),
-            "GOTO" => new Token(TokenType.JumpTo, _currentLine, tokenStart, word.Text),
-            _ => new Token(TokenType.Identifier, _currentLine, tokenStart, word.Text),
+        var (type, value) = word.Text switch {
+            "==" => (TokenType.Equal, word.Text),
+            "!=" => (TokenType.NotEqual, word.Text),
+            ">" => (TokenType.GreaterThan, word.Text),
+            ">=" => (TokenType.GreaterOrEqual, word.Text),
+            "<" => (TokenType.LessThan, word.Text),
+            "<=" => (TokenType.LessOrEqual, word.Text),
+            "AND" => (TokenType.And, word.Text),
+            "OR" => (TokenType.Or, word.Text),
+            "NOT" => (TokenType.Not, word.Text),
+            "WITHIN" => (TokenType.Within, word.Text),
+            "IN" => (TokenType.In, word.Text),
+            "IF" => (TokenType.If, word.Text),
+            "CASE" => (TokenType.Case, word.Text),
+            "THEN" => (TokenType.Then, word.Text),
+            "ELSE" => (TokenType.Else, word.Text),
+            "IS" => (TokenType.Is, word.Text),
+            "OTHERWISE" => (TokenType.Otherwise, word.Text),
+            "EXIT" => (TokenType.Exit, word.Text),
+            "GOTO" => (TokenType.JumpTo, word.Text),
+            var w when w.StartsWith('`') && w.EndsWith('`') => (TokenType.Label, w.Trim('`', '`')),
+            var w when w.StartsWith(':') && w.EndsWith(':') => (TokenType.Tag, w.Trim(':')),
+            var w when w.StartsWith('"') && w.EndsWith('"') => (TokenType.String, w.Trim('"')),
+            var w when w.StartsWith('(') && w.EndsWith(')') && DateTime.TryParse(w.Trim('(', ')'), out var dt) => (TokenType.DateTime, $"{dt:s}.{dt:fffffff}"),
+            var w when (w.StartsWith('[') || w.StartsWith('|')) && (w.EndsWith(']') || w.EndsWith('|')) => (TokenType.Range, w),
+            var w when w.StartsWith('{') && w.EndsWith('}') => (TokenType.Array, w.Trim('{', '}')),
+            var w when int.TryParse(w, out var i) => (TokenType.Number, $"{i}"),
+            var w when decimal.TryParse(w, out var d) => (TokenType.Number, $"{d}"),
+            var w when bool.TryParse(w, out var b) => (TokenType.Boolean, $"{b}"),
+            _ => (TokenType.Identifier, word.Text),
         };
+        return new Token(type, _currentLine, word.Column, value);
     }
 
     private IEnumerable<Token> ProcessIndent(string line) {
+        var nextChar = Peek(line);
         var count = 0;
-        var indentLevel = 0;
-        var nextChar = Pop(line);
-        while (char.IsWhiteSpace(Pop(line))) {
-            if (nextChar is not ' ')
-                throw new Exception("Only spaces are allowed for indentation");
+        while (char.IsWhiteSpace(nextChar)) {
             count++;
-            if (count >= _indentSize) {
-                indentLevel++;
+            _currentColumn++;
+            if (nextChar is '\t' || count >= _indentSize) {
+                yield return new Token(TokenType.Indent, _currentLine);
                 count = 0;
             }
-            nextChar = Pop(line);
-        }
-        while (indentLevel < _currentIndent) {
-            _currentIndent--;
-            yield return new Token(TokenType.Dedent, _currentLine - 1, _currentIndent * 2);
-        }
-
-        _currentIndent = 0;
-        while (_currentIndent < indentLevel) {
-            _currentIndent++;
-            yield return new Token(TokenType.Indent, _currentLine, _currentIndent * 2);
+            nextChar = Peek(line);
         }
     }
 

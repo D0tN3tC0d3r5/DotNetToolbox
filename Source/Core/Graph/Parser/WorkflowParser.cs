@@ -55,46 +55,28 @@ public sealed class WorkflowParser {
         builder.Do(tag!,
                    ctx => EvaluateAction(ctx, name),
                    label);
-        Expect(TokenType.EOL);
+        GetRequired(TokenType.EOL);
     }
 
     private void ParseIf(WorkflowBuilder builder) {
-        Expect(TokenType.If);
+        Ensure(TokenType.If);
         var predicate = ParsePredicate();
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
-        Expect(TokenType.EOL);
-        Expect(TokenType.Indent);
+        Allow(TokenType.Then);
+        Ensure(TokenType.EOL);
+        Ensure(TokenType.Indent);
 
         builder.If(tag!,
                    ctx => EvaluatePredicate(ctx, predicate),
-                   b => b.IsTrue(trueBranch => {
-                       Expect(TokenType.Then);
-                       Expect(TokenType.EOL);
-                       Expect(TokenType.Indent);
-                       while (_currentToken.Type != TokenType.Dedent) {
-                           ParseStatement(trueBranch);
-                       }
-                       Expect(TokenType.Dedent);
-                   })
-                         .IsFalse(falseBranch => {
-                             if (_currentToken.Type == TokenType.Else) {
-                                 Expect(TokenType.Else);
-                                 Expect(TokenType.EOL);
-                                 Expect(TokenType.Indent);
-                                 while (_currentToken.Type != TokenType.Dedent) {
-                                     ParseStatement(falseBranch);
-                                 }
-                                 Expect(TokenType.Dedent);
-                             }
-                         }),
+                   b => b.IsTrue(ParseThen)
+                         .IsFalse(ParseElse),
                    label);
-        Expect(TokenType.Dedent);
     }
 
     private string ParsePredicate() {
         var condition = new StringBuilder();
-        while (_currentToken.Type != TokenType.EOL && _currentToken.Type != TokenType.Label) {
+        while (_currentToken.Type is not TokenType.EOL and not TokenType.Label) {
             condition.Append(_currentToken.Value);
             condition.Append(' ');
             NextToken();
@@ -102,80 +84,118 @@ public sealed class WorkflowParser {
         return condition.ToString().Trim();
     }
 
+    private void ParseThen(WorkflowBuilder builder) {
+        var indentColumn = _currentToken.Column;
+        Allow(TokenType.Else);
+        Ensure(TokenType.EOL);
+        Ensure(TokenType.Indent);
+        while (_currentToken.Column > indentColumn) {
+            ParseStatement(builder);
+        }
+    }
+
+    private void ParseElse(WorkflowBuilder builder) {
+        var indentColumn = _currentToken.Column;
+        if (!Has(TokenType.Else))
+            return;
+
+        Ensure(TokenType.EOL);
+        Ensure(TokenType.Indent);
+        while (_currentToken.Column > indentColumn) {
+            ParseStatement(builder);
+        }
+    }
+
     private void ParseCase(WorkflowBuilder builder) {
-        Expect(TokenType.Case);
+        GetRequired(TokenType.Case);
         var selector = GetValueFrom(TokenType.Identifier);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
-        Expect(TokenType.EOL);
-        Expect(TokenType.Indent);
+        GetRequired(TokenType.EOL);
+        GetRequired(TokenType.Indent);
 
         builder.Case(tag!,
                      ctx => EvaluateSelector(ctx, selector),
-                     branches => {
-                         while (_currentToken.Type is TokenType.Is or TokenType.Otherwise) {
-                             if (_currentToken.Type is TokenType.Is) {
-                                 ParseCaseOption(branches);
-                                 continue;
-                             }
-                             ParseOtherwise(branches);
-                         }
-                     },
+                     ParseCaseOptions,
                      label);
-
-        Expect(TokenType.Dedent);
     }
 
-    private void ParseCaseOption(BranchingNodeBuilder branches) {
-        Expect(TokenType.Is);
-        var caseValue = GetValueFrom(TokenType.String);
-        Expect(TokenType.EOL);
-        Expect(TokenType.Indent);
+    private void ParseCaseOptions(BranchingNodeBuilder branches) {
+        var count = 0;
+        while (TryParseCaseOption(branches)) count++;
+        if (count == 0) Forbid(TokenType.Otherwise);
+        ParseOtherwise(branches);
+    }
 
+    private bool TryParseCaseOption(BranchingNodeBuilder branches) {
+        var indentColumn = _currentToken.Column;
+        if (!Has(TokenType.Is)) return false;
+        var caseValue = GetValueFrom(TokenType.String);
+        GetRequired(TokenType.EOL);
+        GetRequired(TokenType.Indent);
         branches.Is(caseValue, builder => {
-            while (_currentToken.Type != TokenType.Dedent) {
+            while (_currentToken.Column > indentColumn) {
                 ParseStatement(builder);
             }
         });
-
-        Expect(TokenType.Dedent);
+        return true;
     }
 
     private void ParseOtherwise(BranchingNodeBuilder branches) {
-        Expect(TokenType.Otherwise);
-        Expect(TokenType.EOL);
-        Expect(TokenType.Indent);
+        var indentColumn = _currentToken.Column;
+        if (!Has(TokenType.Otherwise)) return;
+        GetRequired(TokenType.EOL);
+        GetRequired(TokenType.Indent);
 
         branches.Otherwise(builder => {
-            while (_currentToken.Type != TokenType.Dedent) {
+            while (_currentToken.Type != TokenType.Indent || _currentToken.Column > indentColumn) {
                 ParseStatement(builder);
             }
         });
-
-        Expect(TokenType.Dedent);
+        Forbid(TokenType.Otherwise);
     }
 
     private void ParseExit(WorkflowBuilder builder) {
-        Expect(TokenType.Exit);
+        GetRequired(TokenType.Exit);
         var exitCode = int.Parse(GetValueOrDefaultFrom(TokenType.Number) ?? "0");
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
         builder.End(tag, exitCode, label);
-        Expect(TokenType.EOL);
+        GetRequired(TokenType.EOL);
     }
 
     private void ParseJumpTo(WorkflowBuilder builder) {
-        Expect(TokenType.JumpTo);
+        GetRequired(TokenType.JumpTo);
         var target = GetValueFrom(TokenType.Identifier);
         builder.JumpTo(target);
-        Expect(TokenType.EOL);
+        GetRequired(TokenType.EOL);
     }
 
-    private Token Expect(TokenType type) {
+    private bool Has(TokenType type) {
+        if (_currentToken.Type != type) return false;
+        NextToken();
+        return true;
+    }
+
+    private void Allow(TokenType type) {
+        if (_currentToken.Type != type) return;
+        NextToken();
+    }
+
+    private void Ensure(TokenType type) {
         if (_currentToken.Type != type)
             throw new InvalidOperationException($"Expected {type}, but got {_currentToken.Type}");
-        var token = _currentToken;
         NextToken();
+    }
+
+    private void Forbid(TokenType type) {
+        if (_currentToken.Type == type)
+            throw new InvalidOperationException($"{_currentToken.Type} is not allowed.");
+    }
+
+    private Token GetRequired(TokenType type) {
+        var token = _currentToken;
+        Ensure(type);
         return token;
     }
 
