@@ -7,14 +7,14 @@ public class BranchingNodeBuilder(WorkflowBuilder builder, IServiceProvider serv
     public IBranchingNodeBuilder Is(string key, Action<WorkflowBuilder> setPath) {
         var branchBuilder = new WorkflowBuilder(services, builder.Id, builder.Nodes);
         setPath(branchBuilder);
-        _choices[IsNotNullOrWhiteSpace(key)] = branchBuilder.Start;
+        _choices[IsNotNullOrWhiteSpace(key)] = branchBuilder.First;
         return this;
     }
 
     public void Otherwise(Action<WorkflowBuilder> setPath) {
         var branchBuilder = new WorkflowBuilder(services, builder.Id, builder.Nodes);
         setPath(branchBuilder);
-        _choices[string.Empty] = branchBuilder.Start;
+        _choices[string.Empty] = branchBuilder.First;
     }
 
     public void Configure(IBranchingNode owner) {

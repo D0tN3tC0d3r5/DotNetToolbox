@@ -133,7 +133,7 @@ public sealed class WorkflowBuilderTests {
                                       4["Fail"]
 
                                       """;
-        _builder.Do("Start", _ => { })
+        _builder.Do("First", _ => { })
                 .If("Decision", _ => true, b => b
                     .IsTrue(t => t.Do("Success", _ => { }))
                     .IsFalse(f => f.Do("Fail", _ => { })));
@@ -158,7 +158,7 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
         var builder = _builder
-            .Do("Start", _ => { })
+            .Do("First", _ => { })
             .If("LoopCondition", _ => true,
                 b => b.IsTrue(t => t.Do("LoopAction", _ => { })
                                     .JumpTo("LoopCondition"))

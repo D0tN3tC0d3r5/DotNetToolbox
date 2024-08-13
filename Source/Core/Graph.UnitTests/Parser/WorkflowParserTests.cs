@@ -26,6 +26,25 @@ public class WorkflowParserTests {
             // Arrange
             const string script = """
                                   DoSomething
+                                  """;
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            var start = result.Should().BeOfType<ActionNode>().Subject;
+            start.Id.Should().Be(1);
+            start.Tag.Should().Be("1");
+            start.Label.Should().Be("DoSomething");
+            start.Next.Should().BeNull();
+        }
+
+        [Fact]
+        public void Parse_SingleActionWithExit_ReturnsWorkflowWithOneAction() {
+            // Arrange
+            const string script = """
+                                  DoSomething
                                   EXIT
                                   """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
@@ -52,7 +71,6 @@ public class WorkflowParserTests {
                                   Action1
                                   Action2
                                   Action3
-                                  EXIT
                                   """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
@@ -72,11 +90,7 @@ public class WorkflowParserTests {
             next2.Id.Should().Be(3);
             next2.Tag.Should().Be("3");
             next2.Label.Should().Be("Action3");
-            var end = next2.Next.Should().BeOfType<TerminalNode>().Subject;
-            end.Id.Should().Be(4);
-            end.Tag.Should().Be("4");
-            end.Label.Should().Be("end");
-            end.ExitCode.Should().Be(0);
+            next2.Next.Should().BeNull();
         }
 
         [Fact]
@@ -84,7 +98,6 @@ public class WorkflowParserTests {
             // Arrange
             const string script = """
                                   DoSomething :Tag: `Action Label`
-                                  EXIT
                                   """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
@@ -96,11 +109,26 @@ public class WorkflowParserTests {
             start.Id.Should().Be(1);
             start.Tag.Should().Be("Tag");
             start.Label.Should().Be("Action Label");
-            var end = start.Next.Should().BeOfType<TerminalNode>().Subject;
-            end.Id.Should().Be(2);
-            end.Tag.Should().Be("2");
-            end.Label.Should().Be("end");
-            end.ExitCode.Should().Be(0);
+            start.Next.Should().BeNull();
+        }
+
+        [Fact]
+        public void Parse_Literal_ReturnsWorkflowWithLabeledAndTaggedAction() {
+            // Arrange
+            const string script = """
+                                  35
+                                  """;
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            var start = result.Should().BeOfType<ActionNode>().Subject;
+            start.Id.Should().Be(1);
+            start.Tag.Should().Be("Tag");
+            start.Label.Should().Be("Action Label");
+            start.Next.Should().BeNull();
         }
     }
 

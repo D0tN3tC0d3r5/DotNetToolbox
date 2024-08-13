@@ -29,7 +29,6 @@ public sealed class WorkflowLexer {
     private const uint _indentSize = 2;
     private int _currentLine;
     private int _currentColumn;
-    private int _currentIndent;
 
     private WorkflowLexer() {
     }
@@ -54,8 +53,6 @@ public sealed class WorkflowLexer {
                      .Replace("\r", "\n");  // Mac OS EOL
         var lines = input.Split('\n').Select(l => l.TrimEnd()).ToArray();
         _currentLine = 1;
-        _currentIndent = 0;
-
         var length = 0;
         foreach (var line in lines) {
             _currentColumn = 1;

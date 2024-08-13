@@ -20,6 +20,7 @@ public abstract class Node<TNode>(uint id, IServiceProvider services, string? ta
     public uint Id { get; } = id;
     public string Tag => _tag ?? $"{Id}";
     public string Label => _label ?? _tag ?? DefaultLabel;
+    public INode? Next { get; set; }
     protected IServiceProvider Services { get; } = IsNotNull(services);
 
     public Result Validate(ISet<INode>? visited = null) {

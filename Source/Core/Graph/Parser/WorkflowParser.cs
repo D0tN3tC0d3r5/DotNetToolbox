@@ -20,7 +20,7 @@ public sealed class WorkflowParser {
         while (_currentToken.Type is not TokenType.EOF) {
             ParseStatement(_builder);
         }
-        return _builder.Start;
+        return _builder.First;
     }
 
     private void ParseStatement(WorkflowBuilder builder) {
@@ -218,12 +218,6 @@ public sealed class WorkflowParser {
     private void Forbid(TokenType type) {
         if (_currentToken.Type == type)
             throw new InvalidOperationException($"{_currentToken.Type} is not allowed.");
-    }
-
-    private Token GetRequired(TokenType type) {
-        var token = _currentToken;
-        Ensure(type);
-        return token;
     }
 
     private string GetValueFrom(TokenType type) {

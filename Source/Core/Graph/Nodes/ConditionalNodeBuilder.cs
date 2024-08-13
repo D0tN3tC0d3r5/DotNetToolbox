@@ -8,14 +8,14 @@ public class ConditionalNodeBuilder(WorkflowBuilder builder, IServiceProvider se
     public IConditionalNodeFalsePathBuilder IsTrue(Action<WorkflowBuilder> setPath) {
         var trueBuilder = new WorkflowBuilder(services, builder.Id, builder.Nodes);
         setPath(trueBuilder);
-        _trueNode = trueBuilder.Start;
+        _trueNode = trueBuilder.First;
         return this;
     }
 
     public void IsFalse(Action<WorkflowBuilder> setPath) {
         var falseBuilder = new WorkflowBuilder(services, builder.Id, builder.Nodes);
         setPath(falseBuilder);
-        _falseNode = falseBuilder.Start;
+        _falseNode = falseBuilder.First;
     }
 
     public void Configure(IConditionalNode owner) {

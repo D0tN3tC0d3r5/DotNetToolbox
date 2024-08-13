@@ -63,7 +63,7 @@ public sealed class Runner(string id,
     }
 
     private Task StartingRun(IWorkflow workflow, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Starting workflow '{WorkFlowId}' at '{Start}'...", Id, Start);
+        _logger.LogInformation(message: "Starting workflow '{WorkFlowId}' at '{First}'...", Id, Start);
         return OnStartingWorkflow is null
                    ? Task.CompletedTask
                    : OnStartingWorkflow(workflow, ct);

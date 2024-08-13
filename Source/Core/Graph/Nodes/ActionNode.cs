@@ -26,7 +26,6 @@ public abstract class ActionNode<TAction>
         : base(id, services, tag, label) {
         _policy = Services.GetService<IPolicy>() ?? Policy.Default;
     }
-    public INode? Next { get; set; }
 
     protected sealed override Task<INode?> GetNext(Context context, CancellationToken ct)
         => Task.FromResult(Next);
