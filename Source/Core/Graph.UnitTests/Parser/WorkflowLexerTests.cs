@@ -7,8 +7,8 @@ public class WorkflowLexerTests {
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
         tokens.Should().HaveCount(2);
-        tokens[0].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 1, "0"));
-        tokens[1].Should().BeEquivalentTo(new Token(TokenType.EOF, 1, 1, "0"));
+        tokens[0].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 0));
+        tokens[1].Should().BeEquivalentTo(new Token(TokenType.EOF, 1, 0));
     }
 
     [Fact]
@@ -18,32 +18,32 @@ public class WorkflowLexerTests {
 
         tokens.Should().HaveCount(3);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "DoSomething"));
-        tokens[1].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 12, "11"));
-        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOF, 1, 12, "11"));
+        tokens[1].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 11));
+        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOF, 1, 11));
     }
 
     [Fact]
     public void Tokenize_ActionWithDescription_ReturnsCorrectTokens() {
-        const string script = "DoSomething `This is a description`";
+        const string script = "DoSomething `This is a label`";
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
         tokens.Should().HaveCount(4);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "DoSomething"));
-        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Label, 1, 13, "This is a description"));
-        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 36, "35"));
-        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EOF, 1, 36, "35"));
+        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Label, 1, 13, "This is a label"));
+        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 29));
+        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EOF, 1, 29));
     }
 
     [Fact]
     public void Tokenize_ActionWithDescriptionWithoutSpaces_ReturnsCorrectTokens() {
-        const string script = "DoSomething`This is a description`";
+        const string script = "DoSomething`This is a label`";
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
         tokens.Should().HaveCount(4);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "DoSomething"));
-        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Label, 1, 12, "This is a description"));
-        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 35, "34"));
-        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EOF, 1, 35, "34"));
+        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Label, 1, 12, "This is a label"));
+        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 28));
+        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EOF, 1, 28));
     }
 
     [Fact]
@@ -63,33 +63,29 @@ public class WorkflowLexerTests {
     [Fact]
     public void Tokenize_IfThenElse_ReturnsCorrectTokens() {
         const string script = """
-                              IF Condition
-                                THEN
-                                  Action1
-                                ELSE
-                                  Action2
+                              IF Condition THEN
+                                Action1
+                              ELSE
+                                Action2
                               """;
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
-        tokens.Should().HaveCount(18);
+        tokens.Should().HaveCount(15);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.If, 1, 1, "IF"));
         tokens[1].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 4, "Condition"));
-        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 13, "12"));
-        tokens[3].Should().BeEquivalentTo(new Token(TokenType.Indent, 2, 1, "1"));
-        tokens[4].Should().BeEquivalentTo(new Token(TokenType.Then, 2, 3, "THEN"));
-        tokens[5].Should().BeEquivalentTo(new Token(TokenType.EOL, 2, 7, "6"));
-        tokens[6].Should().BeEquivalentTo(new Token(TokenType.Indent, 3, 1, "2"));
-        tokens[7].Should().BeEquivalentTo(new Token(TokenType.Identifier, 3, 5, "Action1"));
-        tokens[8].Should().BeEquivalentTo(new Token(TokenType.EOL, 3, 12, "11"));
-        tokens[9].Should().BeEquivalentTo(new Token(TokenType.Dedent, 3, 12, "1"));
+        tokens[2].Should().BeEquivalentTo(new Token(TokenType.Then, 1, 14, "THEN"));
+        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 18, "17"));
+        tokens[4].Should().BeEquivalentTo(new Token(TokenType.Indent, 2, 1, "1"));
+        tokens[5].Should().BeEquivalentTo(new Token(TokenType.Identifier, 2, 3, "Action1"));
+        tokens[6].Should().BeEquivalentTo(new Token(TokenType.EOL, 2, 10, "9"));
+        tokens[7].Should().BeEquivalentTo(new Token(TokenType.Dedent, 2, 10, "1"));
+        tokens[8].Should().BeEquivalentTo(new Token(TokenType.Else, 3, 1, "ELSE"));
+        tokens[9].Should().BeEquivalentTo(new Token(TokenType.EOL, 3, 5, "4"));
         tokens[10].Should().BeEquivalentTo(new Token(TokenType.Indent, 4, 1, "1"));
-        tokens[11].Should().BeEquivalentTo(new Token(TokenType.Else, 4, 3, "ELSE"));
-        tokens[12].Should().BeEquivalentTo(new Token(TokenType.EOL, 4, 7, "6"));
-        tokens[13].Should().BeEquivalentTo(new Token(TokenType.Indent, 5, 1, "2"));
-        tokens[14].Should().BeEquivalentTo(new Token(TokenType.Identifier, 5, 5, "Action2"));
-        tokens[15].Should().BeEquivalentTo(new Token(TokenType.EOL, 5, 12, "11"));
-        tokens[16].Should().BeEquivalentTo(new Token(TokenType.Dedent, 5, 12, "2"));
-        tokens[17].Should().BeEquivalentTo(new Token(TokenType.EOF, 5, 12, "46"));
+        tokens[11].Should().BeEquivalentTo(new Token(TokenType.Identifier, 4, 3, "Action2"));
+        tokens[12].Should().BeEquivalentTo(new Token(TokenType.EOL, 4, 10, "9"));
+        tokens[13].Should().BeEquivalentTo(new Token(TokenType.Dedent, 4, 10, "1"));
+        tokens[14].Should().BeEquivalentTo(new Token(TokenType.EOF, 4, 10, "39"));
     }
 
     [Fact]

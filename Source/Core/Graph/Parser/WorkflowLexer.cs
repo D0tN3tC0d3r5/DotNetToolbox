@@ -3,34 +3,30 @@
 // # this is the line 1 of a comment
 // # this is the line 2 of a comment
 // Initialize
-// :Label1
-// DoSomething `This is a node description` # this is a comment
-//   :Label2
-//   IF CheckCondition `Condiftion description`
-//     THEN
-//       TrueAction1 `Update X`
-//       TrueAction2
-//       EXIT 1 `Alternative Exit`
-//     ELSE
-//       FalseAction # this is another comment
-// CASE SelectPath  `Path1 description`
+// DoSomething :Label1: `This is a node description` # this is a comment
+//   IF CheckCondition :Label2: `Condiftion description`
+//     TrueAction1 `Update X`
+//     TrueAction2
+//     EXIT 1 `Alternative Exit`
+//   ELSE
+//     FalseAction # this is another comment
+// CASE SelectPath `Path1 description`
 //   IS "Path 1"
 //     Path1Action
 //     GOTO 0
 //   IS "Path 2" `Path2 description`
-//     :Label3
-//     Path2Action1
+//     Path2Action1 :Label3:
 //     Path2Action2
 //     IF CheckAnotherCondition
-//       THEN
-//         Path2Action2TrueAction `Update X`
+//       Path2Action2TrueAction `Update X`
 //   OTHERWISE
 //     GOTO Label2
 // DoSomethingElse
 // DoSomething
 // EXIT
 
-public class WorkflowLexer {
+public sealed class WorkflowLexer {
+    private const int _indentSize = 2;
     private int _currentLine;
     private int _currentColumn;
     private int _currentIndent;
@@ -51,45 +47,34 @@ public class WorkflowLexer {
         _currentColumn = 1;
         _currentIndent = 0;
 
-        var length = lines.Sum(l => l.Length);
-        var tokens = new List<Token>();
+        var length = 0;
         foreach (var line in lines) {
-            tokens.AddRange(ProcessLine(line));
+            var code = StripComments(line);
+            length += code.Length;
+            foreach (var token in ProcessLine(code))
+                yield return token;
             _currentLine++;
         }
-        var dedentCount = 0;
+
         while (_currentIndent > 0) {
-            dedentCount++;
             _currentIndent--;
+            yield return new Token(TokenType.Dedent, _currentLine - 1, _currentIndent * 2);
         }
-        if (dedentCount > 0)
-            tokens.Add(new Token(TokenType.Dedent, _currentLine - 1, _currentColumn, $"{dedentCount}"));
-        tokens.Add(new Token(TokenType.EOF, _currentLine - 1, _currentColumn, $"{length}"));
-        return tokens;
+        yield return new Token(TokenType.EOF, _currentLine - 1, length);
+    }
+
+    private static string StripComments(string line) {
+        var commentIndex = line.IndexOf('#');
+        return commentIndex > -1 ? line[..commentIndex] : line;
     }
 
     private IEnumerable<Token> ProcessLine(string line) {
-        (var indentLevel, var startColumn) = GetIndent(line);
-        var dedentCount = 0;
-        while (indentLevel < _currentIndent) {
-            dedentCount++;
-            _currentIndent--;
-        }
-        if (dedentCount > 0)
-            yield return new Token(TokenType.Dedent, _currentLine - 1, _currentColumn, $"{dedentCount}");
-        _currentColumn = startColumn;
-        var lineLength = line.Length;
-        if (indentLevel != 0) {
-            yield return new Token(TokenType.Indent, _currentLine, 1, $"{indentLevel}");
-            _currentIndent = indentLevel;
-            line = line[(_currentColumn - 1)..];
-        }
-
+        ProcessIndent(line);
         foreach (var token in SplitLine(line)) {
             yield return TokenizeWord(token);
         }
 
-        yield return new Token(TokenType.EOL, _currentLine, lineLength + 1, $"{lineLength}");
+        yield return new Token(TokenType.EOL, _currentLine, line.Length);
     }
 
     private enum LineSectionType {
@@ -103,19 +88,16 @@ public class WorkflowLexer {
     }
 
     private IEnumerable<Word> SplitLine(string line) {
-        var tokens = new List<Word>();
-        var currentToken = new StringBuilder();
         var type = LineSectionType.None;
-        var tokenStart = _currentColumn;
+        var wordBuilder = new StringBuilder();
+        var wordStart = _currentColumn;
+        var exit = false;
 
-        for (var i = 0; i < line.Length; i++) {
-            switch (line[i]) {
-                case '#' when type is LineSectionType.None:
-                    if (currentToken.Length > 0) {
-                        tokens.Add(new(currentToken.ToString(), tokenStart));
-                        currentToken.Clear();
-                    }
-                    i = line.Length;
+        var nextChar = Pop(line);
+        while (!exit) {
+            switch (nextChar) {
+                case '\0':
+                    exit = true;
                     break;
                 case '(' when type is LineSectionType.None:
                 case ':' when type is LineSectionType.None:
@@ -124,13 +106,9 @@ public class WorkflowLexer {
                 case '{' when type is LineSectionType.None:
                 case '[' when type is LineSectionType.None:
                 case '|' when type is LineSectionType.None:
-                    if (currentToken.Length > 0) {
-                        tokens.Add(new(currentToken.ToString(), tokenStart));
-                        tokenStart += currentToken.Length;
-                        currentToken.Clear();
-                    }
-                    currentToken.Append(line[i]);
-                    type = line[i] switch {
+                    if (GetWord() is { } w1) yield return w1;
+                    wordBuilder.Append(nextChar);
+                    type = nextChar switch {
                         '(' => LineSectionType.DateTime,
                         ':' => LineSectionType.Tag,
                         '"' => LineSectionType.String,
@@ -146,33 +124,31 @@ public class WorkflowLexer {
                 case '}' when type is LineSectionType.Array:
                 case ']' when type is LineSectionType.Range:
                 case '|' when type is LineSectionType.Range:
-                    currentToken.Append(line[i]);
-                    tokens.Add(new(currentToken.ToString(), tokenStart));
-                    tokenStart += currentToken.Length;
+                    wordBuilder.Append(nextChar);
+                    if (GetWord() is { } w2) yield return w2;
                     type = LineSectionType.None;
-                    currentToken.Clear();
+                    break;
+                case var _ when char.IsWhiteSpace(nextChar) && type is LineSectionType.None:
+                    if (GetWord() is { } w3) yield return w3;
                     break;
                 default:
-                    if (char.IsWhiteSpace(line[i]) && type is LineSectionType.None) {
-                        if (currentToken.Length > 0) {
-                            tokens.Add(new(currentToken.ToString(), tokenStart));
-                            tokenStart += currentToken.Length;
-                            currentToken.Clear();
-                        }
-                        tokenStart++;
-                    }
-                    else {
-                        currentToken.Append(line[i]);
-                    }
+                    wordBuilder.Append(nextChar);
                     break;
             }
+            nextChar = Pop(line);
+        }
+        if (wordBuilder.Length > 0) {
+            yield return new(wordBuilder.ToString(), wordStart);
+            wordBuilder.Clear();
         }
 
-        if (currentToken.Length > 0) {
-            tokens.Add(new(currentToken.ToString(), tokenStart));
+        Word? GetWord() {
+            if (wordBuilder.Length == 0) return null;
+            var result = new Word(wordBuilder.ToString(), wordStart);
+            wordBuilder.Clear();
+            wordStart = _currentColumn;
+            return result;
         }
-
-        return tokens;
     }
 
     private Token TokenizeWord(Word word) {
@@ -223,28 +199,38 @@ public class WorkflowLexer {
         };
     }
 
-    private static (int, int) GetIndent(string line) {
-        var offset = 0;
-        var position = 1;
-        var exit = false;
-        if (line.Length == 0) return (0, 1);
-        foreach (var c in line) {
-            switch (c) {
-                case '\t':
-                    position++;
-                    offset += 2;
-                    break;
-                case ' ':
-                    position++;
-                    offset++;
-                    break;
-                default:
-                    exit = true;
-                    break;
+    private IEnumerable<Token> ProcessIndent(string line) {
+        var count = 0;
+        var indentLevel = 0;
+        var nextChar = Pop(line);
+        while (char.IsWhiteSpace(Pop(line))) {
+            if (nextChar is not ' ')
+                throw new Exception("Only spaces are allowed for indentation");
+            count++;
+            if (count >= _indentSize) {
+                indentLevel++;
+                count = 0;
             }
-            if (exit) break;
+            nextChar = Pop(line);
         }
-        if (line[position - 1] == ' ') position++;
-        return (offset / 2, position);
+        while (indentLevel < _currentIndent) {
+            _currentIndent--;
+            yield return new Token(TokenType.Dedent, _currentLine - 1, _currentIndent * 2);
+        }
+
+        _currentIndent = 0;
+        while (_currentIndent < indentLevel) {
+            _currentIndent++;
+            yield return new Token(TokenType.Indent, _currentLine, _currentIndent * 2);
+        }
+    }
+
+    private char Peek(string line)
+        => _currentColumn <= line.Length ? line[_currentColumn - 1] : '\0';
+
+    private char Pop(string line) {
+        var c = Peek(line);
+        _currentColumn++;
+        return c;
     }
 }

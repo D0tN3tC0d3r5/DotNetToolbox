@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Graph.Parser;
 
-public class WorkflowParser {
+public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
     private readonly WorkflowBuilder _builder;
     private Token _currentToken;
