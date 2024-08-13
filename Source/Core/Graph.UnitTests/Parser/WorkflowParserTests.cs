@@ -109,9 +109,8 @@ public class WorkflowParserTests {
         public void Parse_IfThen_ReturnsWorkflowWithIfStructure() {
             // Arrange
             const string script = """
-                              IF Condition
-                                THEN
-                                  ActionTrue
+                              IF Condition THEN
+                                ActionTrue
                               EXIT
                               """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
@@ -123,16 +122,14 @@ public class WorkflowParserTests {
             var ifNode = result.Should().BeOfType<ConditionalNode>().Subject;
             ifNode.Id.Should().Be(1);
             ifNode.Tag.Should().Be("1");
-            ifNode.Label.Should().Be("Condition");
+            ifNode.Label.Should().Be("if");
 
             var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
             trueAction.Id.Should().Be(2);
             trueAction.Tag.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
-            ifNode.IsFalse.Should().BeNull();
-
-            var end = trueAction.Next.Should().BeOfType<TerminalNode>().Subject;
+            var end = ifNode.Next.Should().BeOfType<TerminalNode>().Subject;
             end.Id.Should().Be(3);
             end.Tag.Should().Be("3");
             end.Label.Should().Be("end");

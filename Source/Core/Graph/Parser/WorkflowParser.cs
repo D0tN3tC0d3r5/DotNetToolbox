@@ -53,9 +53,9 @@ public sealed class WorkflowParser {
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label) ?? name;
         builder.Do(tag!,
-                   ctx => EvaluateAction(ctx, name),
+                   ctx => BuildAction(ctx, name),
                    label);
-        GetRequired(TokenType.EOL);
+        Ensure(TokenType.EOL);
     }
 
     private void ParseIf(WorkflowBuilder builder) {
@@ -63,12 +63,8 @@ public sealed class WorkflowParser {
         var predicate = ParsePredicate();
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
-        Allow(TokenType.Then);
-        Ensure(TokenType.EOL);
-        Ensure(TokenType.Indent);
-
         builder.If(tag!,
-                   ctx => EvaluatePredicate(ctx, predicate),
+                   ctx => BuildPredicate(ctx, predicate),
                    b => b.IsTrue(ParseThen)
                          .IsFalse(ParseElse),
                    label);
@@ -76,7 +72,7 @@ public sealed class WorkflowParser {
 
     private string ParsePredicate() {
         var condition = new StringBuilder();
-        while (_currentToken.Type is not TokenType.EOL and not TokenType.Label) {
+        while (_currentToken.Type is not TokenType.Tag and not TokenType.Label and not TokenType.EOL and not TokenType.Then) {
             condition.Append(_currentToken.Value);
             condition.Append(' ');
             NextToken();
@@ -85,37 +81,37 @@ public sealed class WorkflowParser {
     }
 
     private void ParseThen(WorkflowBuilder builder) {
-        var indentColumn = _currentToken.Column;
-        Allow(TokenType.Else);
+        Allow(TokenType.Then);
         Ensure(TokenType.EOL);
         Ensure(TokenType.Indent);
-        while (_currentToken.Column > indentColumn) {
+        var indentColumn = _currentToken.Column;
+        while (_currentToken.Column >= indentColumn) {
             ParseStatement(builder);
         }
     }
 
     private void ParseElse(WorkflowBuilder builder) {
-        var indentColumn = _currentToken.Column;
         if (!Has(TokenType.Else))
             return;
 
         Ensure(TokenType.EOL);
         Ensure(TokenType.Indent);
-        while (_currentToken.Column > indentColumn) {
+        var indentColumn = _currentToken.Column;
+        while (_currentToken.Column >= indentColumn) {
             ParseStatement(builder);
         }
     }
 
     private void ParseCase(WorkflowBuilder builder) {
-        GetRequired(TokenType.Case);
+        Ensure(TokenType.Case);
         var selector = GetValueFrom(TokenType.Identifier);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
-        GetRequired(TokenType.EOL);
-        GetRequired(TokenType.Indent);
+        Ensure(TokenType.EOL);
+        Ensure(TokenType.Indent);
 
         builder.Case(tag!,
-                     ctx => EvaluateSelector(ctx, selector),
+                     ctx => BuildSelector(ctx, selector),
                      ParseCaseOptions,
                      label);
     }
@@ -131,8 +127,8 @@ public sealed class WorkflowParser {
         var indentColumn = _currentToken.Column;
         if (!Has(TokenType.Is)) return false;
         var caseValue = GetValueFrom(TokenType.String);
-        GetRequired(TokenType.EOL);
-        GetRequired(TokenType.Indent);
+        Ensure(TokenType.EOL);
+        Ensure(TokenType.Indent);
         branches.Is(caseValue, builder => {
             while (_currentToken.Column > indentColumn) {
                 ParseStatement(builder);
@@ -144,8 +140,8 @@ public sealed class WorkflowParser {
     private void ParseOtherwise(BranchingNodeBuilder branches) {
         var indentColumn = _currentToken.Column;
         if (!Has(TokenType.Otherwise)) return;
-        GetRequired(TokenType.EOL);
-        GetRequired(TokenType.Indent);
+        Ensure(TokenType.EOL);
+        Ensure(TokenType.Indent);
 
         branches.Otherwise(builder => {
             while (_currentToken.Type != TokenType.Indent || _currentToken.Column > indentColumn) {
@@ -156,19 +152,50 @@ public sealed class WorkflowParser {
     }
 
     private void ParseExit(WorkflowBuilder builder) {
-        GetRequired(TokenType.Exit);
+        Ensure(TokenType.Exit);
         var exitCode = int.Parse(GetValueOrDefaultFrom(TokenType.Number) ?? "0");
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
         builder.End(tag, exitCode, label);
-        GetRequired(TokenType.EOL);
+        Ensure(TokenType.EOL);
     }
 
     private void ParseJumpTo(WorkflowBuilder builder) {
-        GetRequired(TokenType.JumpTo);
+        Ensure(TokenType.JumpTo);
         var target = GetValueFrom(TokenType.Identifier);
         builder.JumpTo(target);
-        GetRequired(TokenType.EOL);
+        Ensure(TokenType.EOL);
+    }
+
+    // This is a simplified implementation.
+    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
+    private Action<Context> BuildAction(Context ctx, string action) {
+        var result = ctx.TryGetValue(action, out var value)
+                   && value is Action<Context> execute
+                        ? execute
+                        : _ => { };
+        NextToken();
+        return result;
+    }
+
+    // This is a simplified implementation.
+    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
+    private bool BuildPredicate(Context ctx, string condition) {
+        var result = ctx.TryGetValue(condition, out var value)
+                    && value is bool boolValue
+                    && boolValue;
+        NextToken();
+        return result;
+    }
+
+    // This is a simplified implementation.
+    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
+    private string BuildSelector(Context ctx, string selector) {
+        var result = ctx.TryGetValue(selector, out var value)
+            ? value?.ToString() ?? string.Empty
+            : string.Empty;
+        NextToken();
+        return result;
     }
 
     private bool Has(TokenType type) {
@@ -220,25 +247,4 @@ public sealed class WorkflowParser {
         => _currentToken = _tokens.MoveNext()
             ? _tokens.Current
             : new Token(TokenType.Exit, 0, 0, string.Empty);
-
-    // This is a simplified implementation.
-    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
-    private static Action<Context> EvaluateAction(Context ctx, string action)
-        => ctx.TryGetValue(action, out var value) && value is Action<Context> execute
-            ? execute
-            : _ => { };
-
-    // This is a simplified implementation.
-    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
-    private static bool EvaluatePredicate(Context ctx, string condition)
-        => ctx.TryGetValue(condition, out var value)
-            && value is bool boolValue
-            && boolValue;
-
-    // This is a simplified implementation.
-    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
-    private static string EvaluateSelector(Context ctx, string selector)
-        => ctx.TryGetValue(selector, out var value)
-            ? value?.ToString() ?? string.Empty
-            : string.Empty;
 }
