@@ -14,7 +14,7 @@ public class BranchingNodeTests {
 
     [Fact]
     public void CreateChoice_WithoutLabel_ReturnsBranchingNodeWithDefaultLabel() {
-        var node = _factory.CreateChoice(1, _ => "default", _builder, _ => { });
+        var node = _factory.CreateChoice(1, _ => "default", (_, _) => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<BranchingNode>();
@@ -25,7 +25,7 @@ public class BranchingNodeTests {
     public void CreateChoice_WithCustomLabel_ReturnsBranchingNodeWithCustomLabel() {
         const string customLabel = "Custom Choice";
         const string customTag = "Action1";
-        var node = _factory.CreateChoice(1, _ => "default", _builder, _ => { }, customTag, customLabel);
+        var node = _factory.CreateChoice(1, _ => "default", (_, _) => { }, customTag, customLabel);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<BranchingNode>();
@@ -36,10 +36,9 @@ public class BranchingNodeTests {
     public void CreateChoice_WithMultipleBranches_SetsAllBranches() {
         var node = _factory.CreateChoice(1,
                                          _ => "key",
-                                         _builder,
-                                         b => b.Is("key1", _ => { })
-                                               .Is("key2", _ => { })
-                                               .Is("key3", _ => { }));
+                                         (_, b) => b.Is("key1", _ => { })
+                                                    .Is("key2", _ => { })
+                                                    .Is("key3", _ => { }));
 
         node.Should().BeOfType<BranchingNode>();
         var branchingNode = (BranchingNode)node;
@@ -54,10 +53,9 @@ public class BranchingNodeTests {
         using var context = new Context(provider);
         var node = _factory.CreateChoice(1,
                                          _ => "key2",
-                                         _builder,
-                                         b => b.Is("key1", br => br.Do(ctx => ctx["branch"] = "1"))
-                                               .Is("key2", br => br.Do(ctx => ctx["branch"] = "2"))
-                                               .Is("key3", br => br.Do(ctx => ctx["branch"] = "3")));
+                                         (_, b) => b.Is("key1", br => br.Do(ctx => ctx["branch"] = "1"))
+                                                    .Is("key2", br => br.Do(ctx => ctx["branch"] = "2"))
+                                                    .Is("key3", br => br.Do(ctx => ctx["branch"] = "3")));
 
         await node.Run(context);
 
@@ -68,9 +66,8 @@ public class BranchingNodeTests {
     public async Task Run_MethodWithNonExistingKey_ThrowsInvalidOperationException() {
         var node = _factory.CreateChoice(1,
                                          _ => "nonexistent",
-                                         _builder,
-                                         b => b.Is("key1", _ => { })
-                                               .Is("key2", _ => { }));
+                                         (_, b) => b.Is("key1", _ => { })
+                                                    .Is("key2", _ => { }));
 
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
@@ -88,10 +85,9 @@ public class BranchingNodeTests {
     public void CreateChoice_ValidateMethod_ValidatesAllBranches() {
         var node = _factory.CreateChoice(1,
                                          _ => "key",
-                                         _builder,
-                                         b => b.Is("key1", br => br.Do(_ => { }))
-                                               .Is("key2", br => br.Do(_ => { }))
-                                               .Is("key3", _ => { }));
+                                         (_, b) => b.Is("key1", br => br.Do(_ => { }))
+                                                    .Is("key2", br => br.Do(_ => { }))
+                                                    .Is("key3", _ => { }));
 
         var result = node.Validate();
 

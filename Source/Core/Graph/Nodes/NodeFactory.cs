@@ -8,28 +8,24 @@ internal sealed class NodeFactory(IServiceProvider services)
 
     public IConditionalNode CreateFork(uint id,
                                        Func<Context, bool> predicate,
-                                       WorkflowBuilder builder,
-                                       Action<ConditionalNodeBuilder> setPaths,
+                                       Action<IConditionalNode, ConditionalNodeBuilder> setPaths,
                                        string? tag = null,
                                        string? label = null) {
         var node = new ConditionalNode(id, services, predicate, tag, label);
-        //builder.Nodes.Add(node);
         var conditionsBuilder = new ConditionalNodeBuilder(services);
-        setPaths(conditionsBuilder);
+        setPaths(node, conditionsBuilder);
         conditionsBuilder.Configure(node);
         return node;
     }
 
     public IBranchingNode CreateChoice(uint id,
                                        Func<Context, string> selectPath,
-                                       WorkflowBuilder builder,
-                                       Action<BranchingNodeBuilder> setPaths,
+                                       Action<IBranchingNode, BranchingNodeBuilder> setPaths,
                                        string? tag = null,
                                        string? label = null) {
         var node = new BranchingNode(id, services, selectPath, tag, label);
-        //builder.Nodes.Add(node);
         var branchesBuilder = new BranchingNodeBuilder(services);
-        setPaths(branchesBuilder);
+        setPaths(node, branchesBuilder);
         branchesBuilder.Configure(node);
         return node;
     }

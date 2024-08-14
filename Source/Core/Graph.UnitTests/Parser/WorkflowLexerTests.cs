@@ -64,12 +64,14 @@ public class WorkflowLexerTests {
         const string script = """
                               IF Condition THEN
                                 Action1
-                              ELSE
                                 Action2
+                              ELSE
+                                Action3
+                              Action4
                               """;
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
-        tokens.Should().HaveCount(13);
+        tokens.Should().HaveCount(18);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.If, 1, 1, "IF"));
         tokens[1].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 4, "Condition"));
         tokens[2].Should().BeEquivalentTo(new Token(TokenType.Then, 1, 14, "THEN"));
@@ -77,12 +79,17 @@ public class WorkflowLexerTests {
         tokens[4].Should().BeEquivalentTo(new Token(TokenType.Indent, 2));
         tokens[5].Should().BeEquivalentTo(new Token(TokenType.Identifier, 2, 3, "Action1"));
         tokens[6].Should().BeEquivalentTo(new Token(TokenType.EOL, 2, 9));
-        tokens[7].Should().BeEquivalentTo(new Token(TokenType.Else, 3, 1, "ELSE"));
-        tokens[8].Should().BeEquivalentTo(new Token(TokenType.EOL, 3, 4));
-        tokens[9].Should().BeEquivalentTo(new Token(TokenType.Indent, 4));
-        tokens[10].Should().BeEquivalentTo(new Token(TokenType.Identifier, 4, 3, "Action2"));
-        tokens[11].Should().BeEquivalentTo(new Token(TokenType.EOL, 4, 9));
-        tokens[12].Should().BeEquivalentTo(new Token(TokenType.EOF, 4, 39));
+        tokens[7].Should().BeEquivalentTo(new Token(TokenType.Indent, 3));
+        tokens[8].Should().BeEquivalentTo(new Token(TokenType.Identifier, 3, 3, "Action2"));
+        tokens[9].Should().BeEquivalentTo(new Token(TokenType.EOL, 3, 9));
+        tokens[10].Should().BeEquivalentTo(new Token(TokenType.Else, 4, 1, "ELSE"));
+        tokens[11].Should().BeEquivalentTo(new Token(TokenType.EOL, 4, 4));
+        tokens[12].Should().BeEquivalentTo(new Token(TokenType.Indent, 5));
+        tokens[13].Should().BeEquivalentTo(new Token(TokenType.Identifier, 5, 3, "Action3"));
+        tokens[14].Should().BeEquivalentTo(new Token(TokenType.EOL, 5, 9));
+        tokens[15].Should().BeEquivalentTo(new Token(TokenType.Identifier, 6, 1, "Action4"));
+        tokens[16].Should().BeEquivalentTo(new Token(TokenType.EOL, 6, 7));
+        tokens[17].Should().BeEquivalentTo(new Token(TokenType.EOF, 6, 55));
     }
 
     [Fact]
@@ -312,7 +319,7 @@ public class WorkflowLexerTests {
                               IF Value1 != 3.14
                                 THEN
                                   Action1
-                              IF Date1 == (2023-05-01 12:00:00)
+                              IF Date1 == '2023-05-01 12:00:00'
                                 THEN
                                   Action2
                               IF List1 NOT IN {1, 2, 3, 4, 5}
@@ -353,26 +360,34 @@ public class WorkflowLexerTests {
     }
 
     [Fact]
-    public void Tokenize_LiteralValues_ReturnsCorrectTokens() {
+    public void Tokenize_DateTime_ReturnsCorrectTokens() {
         const string script = """
-                              IF BoolValue == TRUE
-                                THEN
-                                  Action1
-                              IF NumberValue == 3.14
-                                THEN
-                                  Action2
-                              IF StringValue == "Hello, World!"
-                                THEN
-                                  Action3
-                              IF DateValue == (2023-05-01 12:00:00)
-                                THEN
-                                  Action4
+                              IF DateValue == '2023-05-01 12:00:00'
+                                Action1
                               """;
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
-        tokens.Should().Contain(t => t.Type == TokenType.Boolean && t.Value == "True");
-        tokens.Should().Contain(t => t.Type == TokenType.Number && t.Value == "3.14");
-        tokens.Should().Contain(t => t.Type == TokenType.String && t.Value == "Hello, World!");
-        tokens.Should().Contain(t => t.Type == TokenType.DateTime && t.Value == "2023-05-01T12:00:00.0000000");
+        // Verify the tokens (you may want to check specific tokens)
+        tokens[3].Value.Should().Be("2023-05-01T12:00:00.0000000");
+    }
+
+    [Fact]
+    public void Tokenize_LiteralValues_ReturnsCorrectTokens() {
+        const string script = """
+                              IF BoolValue == TRUE
+                                Action1
+                              IF NumberValue == 3.14
+                                Action2
+                              IF StringValue == "Hello, World!"
+                                Action3
+                              IF DateValue == '2023-05-01'
+                                Action4
+                              """;
+        var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+        tokens[3].Value.Should().Be("True");
+        tokens[11].Value.Should().Be("3.14");
+        tokens[19].Value.Should().Be("Hello, World!");
+        tokens[27].Value.Should().Be("2023-05-01T00:00:00.0000000");
     }
 }

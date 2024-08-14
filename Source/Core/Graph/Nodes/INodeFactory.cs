@@ -6,14 +6,12 @@ public interface INodeFactory {
 
     IConditionalNode CreateFork(uint id,
                                 Func<Context, bool> predicate,
-                                WorkflowBuilder builder,
-                                Action<ConditionalNodeBuilder> setPaths,
+                                Action<IConditionalNode, ConditionalNodeBuilder> setPaths,
                                 string? tag = null,
                                 string? label = null);
     IBranchingNode CreateChoice(uint id,
                                 Func<Context, string> selectPath,
-                                WorkflowBuilder builder,
-                                Action<BranchingNodeBuilder> setPaths,
+                                Action<IBranchingNode, BranchingNodeBuilder> setPaths,
                                 string? tag = null,
                                 string? label = null);
 

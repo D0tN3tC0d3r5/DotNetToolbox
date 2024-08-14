@@ -99,7 +99,7 @@ public sealed class WorkflowLexer {
                     _currentColumn--;
                     if (GetWord() is { } w) yield return w;
                     yield break;
-                case '(' when type is LineSectionType.None:
+                case '\'' when type is LineSectionType.None:
                 case ':' when type is LineSectionType.None:
                 case '"' when type is LineSectionType.None:
                 case '`' when type is LineSectionType.None:
@@ -110,7 +110,7 @@ public sealed class WorkflowLexer {
                     wordBuilder.Append(nextChar);
                     nextWordStart--;
                     type = nextChar switch {
-                        '(' => LineSectionType.DateTime,
+                        '\'' => LineSectionType.DateTime,
                         ':' => LineSectionType.Tag,
                         '"' => LineSectionType.String,
                         '`' => LineSectionType.Description,
@@ -118,7 +118,7 @@ public sealed class WorkflowLexer {
                         _ => LineSectionType.Range,
                     };
                     break;
-                case ')' when type is LineSectionType.DateTime:
+                case '\'' when type is LineSectionType.DateTime:
                 case ':' when type is LineSectionType.Tag:
                 case '"' when type is LineSectionType.String:
                 case '`' when type is LineSectionType.Description:
@@ -163,19 +163,19 @@ public sealed class WorkflowLexer {
             "WITHIN" => (TokenType.Within, word.Text),
             "IN" => (TokenType.In, word.Text),
             "IF" => (TokenType.If, word.Text),
-            "CASE" => (TokenType.Case, word.Text),
             "THEN" => (TokenType.Then, word.Text),
             "ELSE" => (TokenType.Else, word.Text),
+            "CASE" => (TokenType.Case, word.Text),
             "IS" => (TokenType.Is, word.Text),
             "OTHERWISE" => (TokenType.Otherwise, word.Text),
             "EXIT" => (TokenType.Exit, word.Text),
             "GOTO" => (TokenType.JumpTo, word.Text),
-            var w when w.StartsWith('`') && w.EndsWith('`') => (TokenType.Label, w.Trim('`', '`')),
-            var w when w.StartsWith(':') && w.EndsWith(':') => (TokenType.Tag, w.Trim(':')),
-            var w when w.StartsWith('"') && w.EndsWith('"') => (TokenType.String, w.Trim('"')),
-            var w when w.StartsWith('(') && w.EndsWith(')') && DateTime.TryParse(w.Trim('(', ')'), out var dt) => (TokenType.DateTime, $"{dt:s}.{dt:fffffff}"),
-            var w when (w.StartsWith('[') || w.StartsWith('|')) && (w.EndsWith(']') || w.EndsWith('|')) => (TokenType.Range, w),
-            var w when w.StartsWith('{') && w.EndsWith('}') => (TokenType.Array, w.Trim('{', '}')),
+            ['`', .. var w, '`'] => (TokenType.Label, w),
+            [':', .. var w, ':'] => (TokenType.Tag, w),
+            ['"', .. var w, '"'] => (TokenType.String, w),
+            ['[' or '|', .., '|' or ']'] => (TokenType.Range, word.Text),
+            ['{', .. var w, '}'] => (TokenType.Array, w),
+            ['\'', .. var w, '\''] when DateTime.TryParse(w, out var dt) => (TokenType.DateTime, $"{dt:s}.{dt:fffffff}"),
             var w when int.TryParse(w, out var i) => (TokenType.Number, $"{i}"),
             var w when decimal.TryParse(w, out var d) => (TokenType.Number, $"{d}"),
             var w when bool.TryParse(w, out var b) => (TokenType.Boolean, $"{b}"),

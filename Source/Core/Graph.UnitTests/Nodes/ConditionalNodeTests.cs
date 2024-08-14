@@ -16,8 +16,7 @@ public class ConditionalNodeTests {
     public void CreateFork_WithoutLabel_ReturnsConditionalNodeWithDefaultLabel() {
         var node = _factory.CreateFork(1,
                                        _ => true,
-                                       _builder,
-                                       b => b.IsTrue(t => t.Do(_ => { })));
+                                       (_, b) => b.IsTrue(t => t.Do(_ => { })));
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ConditionalNode>();
@@ -30,8 +29,7 @@ public class ConditionalNodeTests {
         const string customTag = "Action1";
         var node = _factory.CreateFork(1,
                                        _ => true,
-                                       _builder,
-                                       b => b.IsTrue(t => t.Do(_ => { })),
+                                       (_, b) => b.IsTrue(t => t.Do(_ => { })),
                                        customTag,
                                        customLabel);
 
@@ -44,8 +42,7 @@ public class ConditionalNodeTests {
     public void CreateFork_WithTrueBranchOnly_SetsOnlyTrueBranch() {
         var node = _factory.CreateFork(1,
                                        _ => true,
-                                       _builder,
-                                       b => b.IsTrue(t => t.Do(_ => { })));
+                                       (_, b) => b.IsTrue(t => t.Do(_ => { })));
 
         node.Should().BeOfType<ConditionalNode>();
         node.IsTrue.Should().NotBeNull();
@@ -54,8 +51,8 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_WithBothBranches_SetsBothBranches() {
-        var node = _factory.CreateFork(1, _ => true, _builder,
-                                       b => b
+        var node = _factory.CreateFork(1, _ => true,
+                                       (_, b) => b
                                         .IsTrue(t => t.Do(_ => { }))
                                         .IsFalse(f => f.Do(_ => { })));
 
@@ -70,10 +67,8 @@ public class ConditionalNodeTests {
         var provider = services.BuildServiceProvider();
         using var context = new Context(provider);
         var node = _factory.CreateFork(1, _ => true,
-                                       _builder,
-                                       b => b
-                                        .IsTrue(t => t.Do(ctx => ctx["branch"] = "true"))
-                                        .IsFalse(f => f.Do(ctx => ctx["branch"] = "false")));
+                                       (_, b) => b.IsTrue(t => t.Do(ctx => ctx["branch"] = "true"))
+                                                  .IsFalse(f => f.Do(ctx => ctx["branch"] = "false")));
 
         await node.Run(context);
 
@@ -91,10 +86,8 @@ public class ConditionalNodeTests {
             ["Disposable"] = new CustomContext(provider),
         };
         var node = _factory.CreateFork(1, _ => false,
-                                       _builder,
-                                       b => b
-                                        .IsTrue(t => t.Do(ctx => ctx["branch"] = "true"))
-                                        .IsFalse(f => f.Do(ctx => ctx["branch"] = "false")));
+                                       (_, b) => b.IsTrue(t => t.Do(ctx => ctx["branch"] = "true"))
+                                                  .IsFalse(f => f.Do(ctx => ctx["branch"] = "false")));
 
         await node.Run(context);
 
@@ -106,10 +99,8 @@ public class ConditionalNodeTests {
     [Fact]
     public void CreateFork_ValidateMethod_ValidatesBothBranches() {
         var node = _factory.CreateFork(1, _ => true,
-                                       _builder,
-                                       b => b
-                                        .IsTrue(t => t.Do(_ => { }))
-                                        .IsFalse(f => f.Do(_ => { })));
+                                       (_, b) => b.IsTrue(t => t.Do(_ => { }))
+                                                  .IsFalse(f => f.Do(_ => { })));
 
         var result = node.Validate();
 
