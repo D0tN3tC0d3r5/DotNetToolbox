@@ -57,7 +57,7 @@ public class WorkflowParserTests {
             start.Id.Should().Be(1);
             start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
-            var end = start.Next.Should().BeOfType<TerminalNode>().Subject;
+            var end = start.Next.Should().BeOfType<EndNode>().Subject;
             end.Id.Should().Be(2);
             end.Tag.Should().Be("2");
             end.Label.Should().Be("end");
@@ -163,7 +163,7 @@ public class WorkflowParserTests {
             trueAction.Tag.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
-            var end = ifNode.Next.Should().BeOfType<TerminalNode>().Subject;
+            var end = ifNode.Next.Should().BeOfType<EndNode>().Subject;
             end.Id.Should().Be(3);
             end.Tag.Should().Be("3");
             end.Label.Should().Be("end");
@@ -205,13 +205,13 @@ public class WorkflowParserTests {
             falseAction.Tag.Should().Be("3");
             falseAction.Label.Should().Be("ActionFalse");
 
-            var endTrue = trueAction.Next.Should().BeOfType<TerminalNode>().Subject;
+            var endTrue = trueAction.Next.Should().BeOfType<EndNode>().Subject;
             endTrue.Id.Should().Be(4);
             endTrue.Tag.Should().Be("4");
             endTrue.Label.Should().Be("end");
             endTrue.ExitCode.Should().Be(0);
 
-            var endFalse = falseAction.Next.Should().BeOfType<TerminalNode>().Subject;
+            var endFalse = falseAction.Next.Should().BeOfType<EndNode>().Subject;
             endFalse.Id.Should().Be(4);
             endFalse.Tag.Should().Be("4");
             endFalse.Label.Should().Be("end");
@@ -259,7 +259,7 @@ public class WorkflowParserTests {
             otherwise.Tag.Should().Be("4");
             otherwise.Label.Should().Be("ActionDefault");
 
-            var end = option1.Next.Should().BeOfType<TerminalNode>().Subject;
+            var end = option1.Next.Should().BeOfType<EndNode>().Subject;
             end.Id.Should().Be(5);
             end.Tag.Should().Be("5");
             end.Label.Should().Be("end");
@@ -289,7 +289,7 @@ public class WorkflowParserTests {
             start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
 
-            var end = start.Next.Should().BeOfType<TerminalNode>().Subject;
+            var end = start.Next.Should().BeOfType<EndNode>().Subject;
             end.Id.Should().Be(2);
             end.Tag.Should().Be("2");
             end.Label.Should().Be("end");
@@ -324,7 +324,7 @@ public class WorkflowParserTests {
             var jump = action2.Next;
             jump.Should().Be(action1);
 
-            var end = action2.Next.Should().BeOfType<TerminalNode>().Subject;
+            var end = action2.Next.Should().BeOfType<EndNode>().Subject;
             end.Id.Should().Be(4);
             end.Tag.Should().Be("4");
             end.Label.Should().Be("end");

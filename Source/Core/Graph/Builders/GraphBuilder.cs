@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Graph;
+﻿namespace DotNetToolbox.Graph.Builders;
 
 public sealed class GraphBuilder {
     private readonly HashSet<INode> _visited = [];
@@ -6,7 +6,7 @@ public sealed class GraphBuilder {
 
     private GraphBuilder() { }
 
-    public static string GenerateFrom(INode node) {
+    public static string BuildFrom(INode node) {
         var builder = new GraphBuilder();
         return builder.Build(IsNotNull(node));
     }
@@ -27,12 +27,12 @@ public sealed class GraphBuilder {
                 Build(actionNode.Next, actionNode);
                 break;
 
-            case IConditionalNode ifNode:
+            case IIfNode ifNode:
                 Build(ifNode.IsTrue, ifNode, "True");
                 Build(ifNode.IsFalse, ifNode, "False");
                 break;
 
-            case IBranchingNode mapNode:
+            case ICaseNode mapNode:
                 foreach ((var name, var branch) in mapNode.Choices)
                     Build(branch, mapNode, name);
                 break;

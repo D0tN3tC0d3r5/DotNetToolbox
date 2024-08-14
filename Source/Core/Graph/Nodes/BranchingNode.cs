@@ -22,7 +22,7 @@ public sealed class BranchingNode(uint id, IServiceProvider services, Func<Conte
 
 public abstract class BranchingNode<TNode>(uint id, IServiceProvider services, string? tag = null, string? label = null)
     : Node<TNode>(id, services, tag, label),
-      IBranchingNode
+      ICaseNode
     where TNode : BranchingNode<TNode> {
     public Dictionary<string, INode?> Choices { get; } = [];
 
@@ -38,7 +38,7 @@ public abstract class BranchingNode<TNode>(uint id, IServiceProvider services, s
             => current + choice.Validate(visited);
     }
 
-    protected override async Task<INode?> GetNext(Context context, CancellationToken ct) {
+    protected override async Task<INode?> SelectPath(Context context, CancellationToken ct) {
         ct.ThrowIfCancellationRequested();
         var key = await Select(context, ct);
         var choice = Choices.GetValueOrDefault(key)
@@ -50,4 +50,11 @@ public abstract class BranchingNode<TNode>(uint id, IServiceProvider services, s
 
     protected sealed override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
+
+    public sealed override void ConnectTo(INode? next) {
+        foreach (var choice in Choices) {
+            if (choice.Value is null) Choices[choice.Key] = next;
+            else choice.Value?.ConnectTo(next);
+        }
+    }
 }

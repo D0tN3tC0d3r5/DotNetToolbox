@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Graph.Parser;
+﻿using DotNetToolbox.Graph.Builders;
+
+namespace DotNetToolbox.Graph.Parser;
 
 public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
@@ -20,10 +22,10 @@ public sealed class WorkflowParser {
         while (_currentToken.Type is not TokenType.EOF) {
             ParseStatement(_builder);
         }
-        return _builder.First;
+        return _builder.Build();
     }
 
-    private void ParseStatement(WorkflowBuilder builder) {
+    private void ParseStatement(IWorkflowBuilder builder) {
         switch (_currentToken.Type) {
             case TokenType.Identifier:
                 ParseAction(builder);
@@ -48,7 +50,7 @@ public sealed class WorkflowParser {
         }
     }
 
-    private void ParseAction(WorkflowBuilder builder) {
+    private void ParseAction(IWorkflowBuilder builder) {
         var name = GetValueFrom(TokenType.Identifier);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label) ?? name;
@@ -58,7 +60,7 @@ public sealed class WorkflowParser {
         Ensure(TokenType.EOL);
     }
 
-    private void ParseIf(WorkflowBuilder builder) {
+    private void ParseIf(IWorkflowBuilder builder) {
         Ensure(TokenType.If);
         var predicate = ParsePredicate();
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
@@ -80,7 +82,7 @@ public sealed class WorkflowParser {
         return condition.ToString().Trim();
     }
 
-    private void ParseThen(WorkflowBuilder builder) {
+    private void ParseThen(IWorkflowBuilder builder) {
         Allow(TokenType.Then);
         Ensure(TokenType.EOL);
         Ensure(TokenType.Indent);
@@ -90,7 +92,7 @@ public sealed class WorkflowParser {
         }
     }
 
-    private void ParseElse(WorkflowBuilder builder) {
+    private void ParseElse(IWorkflowBuilder builder) {
         if (!Has(TokenType.Else))
             return;
 
@@ -102,7 +104,7 @@ public sealed class WorkflowParser {
         }
     }
 
-    private void ParseCase(WorkflowBuilder builder) {
+    private void ParseCase(IWorkflowBuilder builder) {
         Ensure(TokenType.Case);
         var selector = GetValueFrom(TokenType.Identifier);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
@@ -116,14 +118,14 @@ public sealed class WorkflowParser {
                      label);
     }
 
-    private void ParseCaseOptions(BranchingNodeBuilder branches) {
+    private void ParseCaseOptions(CaseNodeBuilder branches) {
         var count = 0;
         while (TryParseCaseOption(branches)) count++;
         if (count == 0) Forbid(TokenType.Otherwise);
         ParseOtherwise(branches);
     }
 
-    private bool TryParseCaseOption(BranchingNodeBuilder branches) {
+    private bool TryParseCaseOption(CaseNodeBuilder branches) {
         var indentColumn = _currentToken.Column;
         if (!Has(TokenType.Is)) return false;
         var caseValue = GetValueFrom(TokenType.String);
@@ -137,7 +139,7 @@ public sealed class WorkflowParser {
         return true;
     }
 
-    private void ParseOtherwise(BranchingNodeBuilder branches) {
+    private void ParseOtherwise(CaseNodeBuilder branches) {
         var indentColumn = _currentToken.Column;
         if (!Has(TokenType.Otherwise)) return;
         Ensure(TokenType.EOL);
@@ -151,7 +153,7 @@ public sealed class WorkflowParser {
         Forbid(TokenType.Otherwise);
     }
 
-    private void ParseExit(WorkflowBuilder builder) {
+    private void ParseExit(IWorkflowBuilder builder) {
         Ensure(TokenType.Exit);
         var exitCode = int.Parse(GetValueOrDefaultFrom(TokenType.Number) ?? "0");
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
@@ -160,7 +162,7 @@ public sealed class WorkflowParser {
         Ensure(TokenType.EOL);
     }
 
-    private void ParseJumpTo(WorkflowBuilder builder) {
+    private void ParseJumpTo(IWorkflowBuilder builder) {
         Ensure(TokenType.JumpTo);
         var target = GetValueFrom(TokenType.Identifier);
         builder.JumpTo(target);

@@ -1,9 +1,9 @@
 namespace DotNetToolbox.Graph.Nodes;
 
-public class TerminalNodeTests {
+public class EndNodeTests {
     private readonly NodeFactory _factory;
 
-    public TerminalNodeTests() {
+    public EndNodeTests() {
         var services = new ServiceCollection();
         services.AddTransient<IPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
@@ -15,7 +15,7 @@ public class TerminalNodeTests {
         var node = _factory.CreateStop(1);
 
         node.Should().NotBeNull();
-        node.Should().BeOfType<TerminalNode>();
+        node.Should().BeOfType<EndNode>();
         node.Label.Should().Be("end");
     }
 
@@ -27,7 +27,7 @@ public class TerminalNodeTests {
         var node = _factory.CreateStop(1, customCode, customTag, customLabel);
 
         node.Should().NotBeNull();
-        node.Should().BeOfType<TerminalNode>();
+        node.Should().BeOfType<EndNode>();
         node.ExitCode.Should().Be(customCode);
         node.Tag.Should().Be(customTag);
         node.Label.Should().Be(customLabel);

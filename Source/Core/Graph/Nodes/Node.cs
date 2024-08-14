@@ -30,15 +30,17 @@ public abstract class Node<TNode>(uint id, IServiceProvider services, string? ta
             : IsValid(visited);
     }
 
+    public abstract void ConnectTo(INode? next);
+
     protected virtual Result IsValid(ISet<INode> visited) => Success();
 
     public async Task<INode?> Run(Context context, CancellationToken ct) {
         await UpdateState(context, ct);
-        return await GetNext(context, ct);
+        return await SelectPath(context, ct);
     }
 
     protected abstract Task UpdateState(Context context, CancellationToken ct);
-    protected abstract Task<INode?> GetNext(Context context, CancellationToken ct);
+    protected abstract Task<INode?> SelectPath(Context context, CancellationToken ct);
 
     public override int GetHashCode() => Id.GetHashCode();
 }

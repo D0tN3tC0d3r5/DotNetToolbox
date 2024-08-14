@@ -1,17 +1,19 @@
-﻿namespace DotNetToolbox.Graph.Nodes;
+﻿using DotNetToolbox.Graph.Builders;
+
+namespace DotNetToolbox.Graph.Factories;
 
 public interface INodeFactory {
     TNode Create<TNode>(uint id, string? tag = null, string? label = null)
         where TNode : Node<TNode>;
 
-    IConditionalNode CreateFork(uint id,
+    IIfNode CreateFork(uint id,
                                 Func<Context, bool> predicate,
-                                Action<IConditionalNode, ConditionalNodeBuilder> setPaths,
+                                Action<IfNodeBuilder> setPaths,
                                 string? tag = null,
                                 string? label = null);
-    IBranchingNode CreateChoice(uint id,
+    ICaseNode CreateChoice(uint id,
                                 Func<Context, string> selectPath,
-                                Action<IBranchingNode, BranchingNodeBuilder> setPaths,
+                                Action<CaseNodeBuilder> setPaths,
                                 string? tag = null,
                                 string? label = null);
 
@@ -19,5 +21,5 @@ public interface INodeFactory {
 
     IJumpNode CreateJump(uint id, string targetTag, string? label = null);
 
-    ITerminationNode CreateStop(uint id, int exitCode = 0, string? tag = null, string? label = null);
+    IEndNode CreateStop(uint id, int exitCode = 0, string? tag = null, string? label = null);
 }

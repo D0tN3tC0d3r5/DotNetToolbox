@@ -58,7 +58,7 @@ public class ComplexWorkflowTests {
         var builder = new WorkflowBuilder(provider);
         builder.Do(_ => { });
 
-        var wf = builder.First;
+        var wf = builder.Build();
 
         wf.Run(context);
 
@@ -85,7 +85,7 @@ public class ComplexWorkflowTests {
                                     .Do(ctx => ctx["result"] = "Action2"))
                                 .IsFalse(f2 => f2
                                     .Do(ctx => ctx["result"] = "Action3")))));
-        return builder.First;
+        return builder.Build();
     }
 
     private sealed class CustomPolicy(Action onExecute) : IPolicy {

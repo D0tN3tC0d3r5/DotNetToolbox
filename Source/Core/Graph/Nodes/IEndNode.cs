@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public interface ITerminationNode
+public interface IEndNode
     : INode {
     int ExitCode { get; }
 }

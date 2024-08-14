@@ -104,8 +104,8 @@ public sealed class RunnerTests : IDisposable {
 
         var runner = new Runner(workflow);
 
-        // Set the First property using reflection
-        var propertyInfo = typeof(Runner).GetProperty("First");
+        // Set the Start property using reflection
+        var propertyInfo = typeof(Runner).GetProperty("Start");
         propertyInfo?.SetValue(runner, DateTimeOffset.Now);
 
         // Act

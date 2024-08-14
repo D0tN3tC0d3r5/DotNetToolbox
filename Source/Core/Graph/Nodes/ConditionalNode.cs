@@ -22,7 +22,7 @@ public class ConditionalNode(uint id, IServiceProvider services, Func<Context, C
 
 public abstract class ConditionalNode<TNode>(uint id, IServiceProvider services, string? tag = null, string? label = null)
     : Node<TNode>(id, services, tag, label),
-      IConditionalNode
+      IIfNode
     where TNode : ConditionalNode<TNode> {
     public INode? IsTrue { get; set; }
     public INode? IsFalse { get; set; }
@@ -37,7 +37,7 @@ public abstract class ConditionalNode<TNode>(uint id, IServiceProvider services,
     protected sealed override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
 
-    protected sealed override async Task<INode?> GetNext(Context context, CancellationToken ct)
+    protected sealed override async Task<INode?> SelectPath(Context context, CancellationToken ct)
         => await When(context, ct)
                ? await TryRunTrueNode(context, ct)
                : await TryRunFalseNode(context, ct);
@@ -49,4 +49,11 @@ public abstract class ConditionalNode<TNode>(uint id, IServiceProvider services,
 
     private Task<INode?> TryRunFalseNode(Context context, CancellationToken ct)
         => IsFalse is not null ? IsFalse.Run(context, ct) : Task.FromResult<INode?>(null);
+
+    public sealed override void ConnectTo(INode? next) {
+        if (IsTrue is null) IsTrue = next;
+        else IsTrue.ConnectTo(next);
+        if (IsFalse is null) IsFalse = next;
+        else IsFalse.ConnectTo(next);
+    }
 }

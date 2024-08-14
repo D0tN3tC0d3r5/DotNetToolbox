@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public interface IBranchingNode
+public interface ICaseNode
     : INode {
     Dictionary<string, INode?> Choices { get; }
 }
