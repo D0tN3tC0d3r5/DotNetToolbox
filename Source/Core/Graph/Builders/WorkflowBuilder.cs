@@ -23,15 +23,13 @@ public sealed class WorkflowBuilder
     : IWorkflowBuilder {
     private readonly INodeFactory _nodeFactory;
     private readonly SequentialNodeId _nodeId;
-    private readonly INode _start;
-    private INode _finish;
+    private INode _start = default!;
+    private INode _finish = default!;
 
-    public WorkflowBuilder(IServiceProvider services) {
-        var key = GuidProvider.Default.Create().ToString();
-        _nodeFactory = new NodeFactory(services);
-        _nodeId = NodeId.FromSequential(key);
-        _start = _nodeFactory.CreateStop(_nodeId.Next);
-        _finish = _start;
+    public WorkflowBuilder(IServiceProvider services, string? nodeSequenceKey = null) {
+        nodeSequenceKey ??= GuidProvider.Default.Create().ToString();
+        _nodeId = NodeId.FromSequential(nodeSequenceKey);
+        _nodeFactory = new NodeFactory(services, nodeSequenceKey);
     }
 
     public INode Build() => _start;
@@ -100,7 +98,8 @@ public sealed class WorkflowBuilder
     }
 
     private void ConnectNode(INode newNode) {
-        _finish.ConnectTo(newNode);
+        _start ??= newNode;
+        _finish?.ConnectTo(newNode);
         _finish = newNode;
     }
 }

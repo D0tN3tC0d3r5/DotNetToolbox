@@ -2,8 +2,10 @@
 
 namespace DotNetToolbox.Graph.Factories;
 
-internal sealed class NodeFactory(IServiceProvider services)
+internal sealed class NodeFactory(IServiceProvider services, string? nodeSequenceKey = null)
         : INodeFactory {
+    private readonly string _nodeSequenceKey = nodeSequenceKey ?? nameof(NodeFactory);
+
     public TNode Create<TNode>(uint id, string? tag = null, string? label = null)
         where TNode : Node<TNode>
         => Node.Create<TNode>(id, services, tag, label);
@@ -14,7 +16,7 @@ internal sealed class NodeFactory(IServiceProvider services)
                                        string? tag = null,
                                        string? label = null) {
         var node = new ConditionalNode(id, services, predicate, tag, label);
-        var conditionsBuilder = new IfNodeBuilder(services, node);
+        var conditionsBuilder = new IfNodeBuilder(services, node, _nodeSequenceKey);
         setPaths(conditionsBuilder);
         return conditionsBuilder.Build();
     }
@@ -25,7 +27,7 @@ internal sealed class NodeFactory(IServiceProvider services)
                                        string? tag = null,
                                        string? label = null) {
         var node = new BranchingNode(id, services, selectPath, tag, label);
-        var branchesBuilder = new CaseNodeBuilder(services, node);
+        var branchesBuilder = new CaseNodeBuilder(services, node, _nodeSequenceKey);
         setPaths(branchesBuilder);
         return branchesBuilder.Build();
     }

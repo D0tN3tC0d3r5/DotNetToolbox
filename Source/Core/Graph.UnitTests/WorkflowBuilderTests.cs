@@ -54,9 +54,11 @@ public sealed class WorkflowBuilderTests {
                                       3["action"]
 
                                       """;
-        var start = _builder.If(_ => true,
-                                b => b.IsTrue(t => t.Do(_ => { }))
-                                      .IsFalse(f => f.Do(_ => { })))
+        var start = _builder.If(_ => true, b => b
+                                .IsTrue(t => t
+                                    .Do(_ => { }))
+                                .IsFalse(f => f
+                                    .Do(_ => { })))
                             .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -159,9 +161,10 @@ public sealed class WorkflowBuilderTests {
                                       2["LoopCondition"]
                                       2 --> |True| 3
                                       3["LoopAction"]
-                                      3 --> 2
-                                      2 --> |False| 4
-                                      4["Exit"]
+                                      3 --> 4
+                                      4["goto"]
+                                      2 --> |False| 5
+                                      5["Exit"]
 
                                       """;
         var start = _builder.Do("Start", _ => { })

@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Graph.Builders;
 
-public class IfNodeBuilder(IServiceProvider services, IIfNode parent)
+public class IfNodeBuilder(IServiceProvider services, IIfNode parent, string nodeSequenceKey)
     : IIfNodeBuilder,
       IElseNodeBuilder {
     private INode? _trueNode;
@@ -8,14 +8,14 @@ public class IfNodeBuilder(IServiceProvider services, IIfNode parent)
     private readonly IIfNode _parent = IsNotNull(parent);
 
     public IElseNodeBuilder IsTrue(Action<IWorkflowBuilder> setPath) {
-        var trueBuilder = new WorkflowBuilder(services);
+        var trueBuilder = new WorkflowBuilder(services, nodeSequenceKey);
         setPath(trueBuilder);
         _trueNode = trueBuilder.Build();
         return this;
     }
 
     public INodeBuilder<IIfNode> IsFalse(Action<IWorkflowBuilder> setPath) {
-        var falseBuilder = new WorkflowBuilder(services);
+        var falseBuilder = new WorkflowBuilder(services, nodeSequenceKey);
         setPath(falseBuilder);
         _falseNode = falseBuilder.Build();
         return this;
