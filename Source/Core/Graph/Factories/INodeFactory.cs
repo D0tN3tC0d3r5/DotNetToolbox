@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Graph.Builders;
-
-namespace DotNetToolbox.Graph.Factories;
+﻿namespace DotNetToolbox.Graph.Factories;
 
 public interface INodeFactory {
     TNode Create<TNode>(uint id, string? tag = null, string? label = null)

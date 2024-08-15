@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace DotNetToolbox.Graph.Nodes;
+﻿namespace DotNetToolbox.Graph.Nodes;
 
 public sealed class ActionNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task> execute, string? tag = null, string? label = null)
     : ActionNode<ActionNode>(id, services, tag, label) {

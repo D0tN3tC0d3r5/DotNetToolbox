@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Graph.Builders;
-
-namespace DotNetToolbox.Graph.Parser;
+﻿namespace DotNetToolbox.Graph.Parser;
 
 public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;

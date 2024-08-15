@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Graph.Builders;
-
-namespace DotNetToolbox.Graph.Factories;
+﻿namespace DotNetToolbox.Graph.Factories;
 
 internal sealed class NodeFactory(IServiceProvider services, string? nodeSequenceKey = null, Dictionary<string, INode>? tagMap = null)
         : INodeFactory {

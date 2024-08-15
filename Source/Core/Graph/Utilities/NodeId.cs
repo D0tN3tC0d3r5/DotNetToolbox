@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Graph.Nodes;
+﻿namespace DotNetToolbox.Graph.Utilities;
 
 public abstract class NodeId<TKey>
     : NodeId {
