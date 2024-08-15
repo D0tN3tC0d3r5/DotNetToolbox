@@ -25,7 +25,7 @@ internal sealed class NodeFactory(IServiceProvider services, string? nodeSequenc
                                        Action<CaseNodeBuilder> setPaths,
                                        string? tag = null,
                                        string? label = null) {
-        var node = new BranchingNode(id, services, selectPath, tag, label);
+        var node = new CaseNode(id, services, selectPath, tag, label);
         var branchesBuilder = new CaseNodeBuilder(services, node, _nodeSequenceKey, _tagMap);
         setPaths(branchesBuilder);
         return branchesBuilder.Build();

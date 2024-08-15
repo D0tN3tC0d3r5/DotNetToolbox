@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class BranchingNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task<string>> select, string? tag = null, string? label = null)
-    : BranchingNode<BranchingNode>(id, services, tag, label) {
+public sealed class CaseNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task<string>> select, string? tag = null, string? label = null)
+    : CaseNode<CaseNode>(id, services, tag, label) {
     private readonly Func<Context, CancellationToken, Task<string>> _select = IsNotNull(select);
 
-    public BranchingNode(uint id, IServiceProvider services, Func<Context, string> selector, string? tag = null, string? label = null)
+    public CaseNode(uint id, IServiceProvider services, Func<Context, string> selector, string? tag = null, string? label = null)
         : this(id, services, (ctx, ct) => Task.Run(() => selector(ctx), ct), tag, label) {
     }
 
@@ -13,17 +13,17 @@ public sealed class BranchingNode(uint id, IServiceProvider services, Func<Conte
     protected override Task<string> Select(Context context, CancellationToken ct) => _select(context, ct);
 
     public static TNode Create<TNode>(uint id, string label, IServiceProvider services)
-        where TNode : BranchingNode<TNode>
+        where TNode : CaseNode<TNode>
         => InstanceFactory.Create<TNode>(id, label, services);
     public static TNode Create<TNode>(uint id, IServiceProvider services)
-        where TNode : BranchingNode<TNode>
+        where TNode : CaseNode<TNode>
         => InstanceFactory.Create<TNode>(id, services);
 }
 
-public abstract class BranchingNode<TNode>(uint id, IServiceProvider services, string? tag = null, string? label = null)
+public abstract class CaseNode<TNode>(uint id, IServiceProvider services, string? tag = null, string? label = null)
     : Node<TNode>(id, services, tag, label),
       ICaseNode
-    where TNode : BranchingNode<TNode> {
+    where TNode : CaseNode<TNode> {
     public Dictionary<string, INode?> Choices { get; } = [];
 
     protected override Result IsValid(ISet<INode> visited) {

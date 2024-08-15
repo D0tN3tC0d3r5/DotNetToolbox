@@ -233,7 +233,7 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var caseNode = result.Should().BeOfType<BranchingNode>().Subject;
+            var caseNode = result.Should().BeOfType<CaseNode>().Subject;
             caseNode.Id.Should().Be(1);
             caseNode.Tag.Should().Be("1");
             caseNode.Label.Should().Be("case");

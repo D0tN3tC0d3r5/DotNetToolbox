@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.Graph.Nodes;
+﻿namespace DotNetToolbox.Graph.Utilities;
 
 public class SequentialNodeId(uint first = 1)
     : NodeId<uint> {

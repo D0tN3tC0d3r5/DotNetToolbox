@@ -1,9 +1,9 @@
 namespace DotNetToolbox.Graph.Nodes;
 
-public class BranchingNodeTests {
+public class CaseNodeTests {
     private readonly NodeFactory _factory;
 
-    public BranchingNodeTests() {
+    public CaseNodeTests() {
         var services = new ServiceCollection();
         services.AddTransient<IPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
@@ -15,7 +15,7 @@ public class BranchingNodeTests {
         var node = _factory.CreateChoice(1, _ => "default", _ => { });
 
         node.Should().NotBeNull();
-        node.Should().BeOfType<BranchingNode>();
+        node.Should().BeOfType<CaseNode>();
         node.Label.Should().Be("case");
     }
 
@@ -26,7 +26,7 @@ public class BranchingNodeTests {
         var node = _factory.CreateChoice(1, _ => "default", _ => { }, customTag, customLabel);
 
         node.Should().NotBeNull();
-        node.Should().BeOfType<BranchingNode>();
+        node.Should().BeOfType<CaseNode>();
         node.Label.Should().Be(customLabel);
     }
 
@@ -38,8 +38,8 @@ public class BranchingNodeTests {
                                                .Is("key2", _ => { })
                                                .Is("key3", _ => { }));
 
-        node.Should().BeOfType<BranchingNode>();
-        var branchingNode = (BranchingNode)node;
+        node.Should().BeOfType<CaseNode>();
+        var branchingNode = (CaseNode)node;
         branchingNode.Choices.Should().HaveCount(3);
         branchingNode.Choices.Should().ContainKeys("key1", "key2", "key3");
     }

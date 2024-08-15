@@ -10,14 +10,14 @@ public class IfNodeBuilder(IServiceProvider services, IIfNode parent, string nod
     public IElseNodeBuilder IsTrue(Action<IWorkflowBuilder> setPath) {
         var trueBuilder = new WorkflowBuilder(services, nodeSequenceKey, tagMap);
         setPath(trueBuilder);
-        _trueNode = trueBuilder.BuildBlock();
+        _trueNode = trueBuilder.BuildBranch();
         return this;
     }
 
     public INodeBuilder<IIfNode> IsFalse(Action<IWorkflowBuilder> setPath) {
         var falseBuilder = new WorkflowBuilder(services, nodeSequenceKey, tagMap);
         setPath(falseBuilder);
-        _falseNode = falseBuilder.BuildBlock();
+        _falseNode = falseBuilder.BuildBranch();
         return this;
     }
 

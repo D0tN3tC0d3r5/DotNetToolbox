@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Graph.Builders;
+﻿using DotNetToolbox.Graph.Utilities;
+
+namespace DotNetToolbox.Graph.Builders;
 
 public sealed class WorkflowBuilder
     : IWorkflowBuilder {
@@ -15,11 +17,11 @@ public sealed class WorkflowBuilder
         _nodeFactory = new NodeFactory(services, nodeSequenceKey, _tagMap);
     }
 
-    internal INode? BuildBlock() => _start;
+    internal INode? BuildBranch() => _start;
 
     public INode? Build() {
         SetJumps();
-        return BuildBlock();
+        return BuildBranch();
     }
 
     private void SetJumps() {

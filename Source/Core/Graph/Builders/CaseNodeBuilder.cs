@@ -9,14 +9,14 @@ public class CaseNodeBuilder(IServiceProvider services, ICaseNode parent, string
     public ICaseOptionNodeBuilder Is(string key, Action<IWorkflowBuilder> setPath) {
         var branchBuilder = new WorkflowBuilder(services, nodeSequenceKey, tagMap);
         setPath(branchBuilder);
-        _choices[IsNotNullOrWhiteSpace(key)] = branchBuilder.BuildBlock();
+        _choices[IsNotNullOrWhiteSpace(key)] = branchBuilder.BuildBranch();
         return this;
     }
 
     public INodeBuilder<ICaseNode> Otherwise(Action<IWorkflowBuilder> setPath) {
         var branchBuilder = new WorkflowBuilder(services, nodeSequenceKey, tagMap);
         setPath(branchBuilder);
-        _choices[string.Empty] = branchBuilder.BuildBlock();
+        _choices[string.Empty] = branchBuilder.BuildBranch();
         return this;
     }
 
