@@ -47,7 +47,7 @@ public sealed class WorkflowParser {
             case TokenType.JumpTo:
                 ParseJumpTo(builder);
                 break;
-            case TokenType.Error:
+            case TokenType.Error: // acts as an identifier.
                 AddError(_currentToken.Value);
                 NextToken();
                 break;
