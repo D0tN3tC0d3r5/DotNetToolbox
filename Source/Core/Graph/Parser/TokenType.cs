@@ -30,15 +30,7 @@ public enum TokenType {
     Not,
     Within,
     In,
-    OpenParen,
-    CloseParen,
-    OpenBrace,
-    CloseBrace,
-    OpenBracket,
-    CloseBracket,
-    Pipe,
-    Comma,
-    EOL, // Exit of Line
-    EOF,  // Exit of File
+    EndOfLine, // End of Line
+    EndOfFile,  // End of File
     Error,  // Error token
 }

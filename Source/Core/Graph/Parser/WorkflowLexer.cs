@@ -4,7 +4,7 @@
 // # this is the line 2 of a comment
 // Initialize
 // DoSomething :Label1: `This is a node description` # this is a comment
-//   IF CheckCondition :Label2: `Condiftion description`
+//   IF CheckCondition :Label2: `Condition description`
 //     TrueAction1 `Update X`
 //     TrueAction2
 //     EXIT 1 `Alternative Exit`
@@ -63,7 +63,7 @@ public sealed class WorkflowLexer {
             _currentLine++;
         }
 
-        yield return new Token(TokenType.EOF, _currentLine - 1, length);
+        yield return new(TokenType.EndOfFile, _currentLine - 1, length);
     }
 
     private static string StripComments(string line) {
@@ -72,19 +72,18 @@ public sealed class WorkflowLexer {
     }
 
     private IEnumerable<Token> ProcessLine(string line) {
-        foreach (var indent in ProcessIndent(line)) {
+        foreach (var indent in ProcessIndent(line))
             yield return indent;
-        }
-        foreach (var token in SplitLine(line)) {
+
+        foreach (var token in SplitLine(line))
             yield return TokenizeWord(token);
+
+        if (line.Length == 0) {
+            _currentLine--;
+            yield break;
         }
 
-        if (line.Length > 0) { // remove empty lines
-            yield return new Token(TokenType.EOL, _currentLine, line.Length);
-        }
-        else {
-            _currentLine--;
-        }
+        yield return new(TokenType.EndOfLine, _currentLine, line.Length);
     }
 
     private IEnumerable<Word> SplitLine(string line) {
@@ -150,39 +149,56 @@ public sealed class WorkflowLexer {
     }
 
     private Token TokenizeWord(Word word) {
-        var (type, value) = word.Text switch {
-            "==" => (TokenType.Equal, word.Text),
-            "!=" => (TokenType.NotEqual, word.Text),
-            ">" => (TokenType.GreaterThan, word.Text),
-            ">=" => (TokenType.GreaterOrEqual, word.Text),
-            "<" => (TokenType.LessThan, word.Text),
-            "<=" => (TokenType.LessOrEqual, word.Text),
-            "AND" => (TokenType.And, word.Text),
-            "OR" => (TokenType.Or, word.Text),
-            "NOT" => (TokenType.Not, word.Text),
-            "WITHIN" => (TokenType.Within, word.Text),
-            "IN" => (TokenType.In, word.Text),
-            "IF" => (TokenType.If, word.Text),
-            "THEN" => (TokenType.Then, word.Text),
-            "ELSE" => (TokenType.Else, word.Text),
-            "CASE" => (TokenType.Case, word.Text),
-            "IS" => (TokenType.Is, word.Text),
-            "OTHERWISE" => (TokenType.Otherwise, word.Text),
-            "EXIT" => (TokenType.Exit, word.Text),
-            "GOTO" => (TokenType.JumpTo, word.Text),
+        (var type, var value) = word.Text switch {
+            "==" => (TokenType.Equal, null),
+            "!=" => (TokenType.NotEqual, null),
+            ">" => (TokenType.GreaterThan, null),
+            ">=" => (TokenType.GreaterOrEqual, null),
+            "<" => (TokenType.LessThan, null),
+            "<=" => (TokenType.LessOrEqual, null),
+            "AND" => (TokenType.And, null),
+            "OR" => (TokenType.Or, null),
+            "NOT" => (TokenType.Not, null),
+            "IN" => (TokenType.In, null),
+            "WITHIN" => (TokenType.Within, null),
+            "IF" => (TokenType.If, null),
+            "THEN" => (TokenType.Then, null),
+            "ELSE" => (TokenType.Else, null),
+            "CASE" => (TokenType.Case, null),
+            "IS" => (TokenType.Is, null),
+            "OTHERWISE" => (TokenType.Otherwise, null),
+            "EXIT" => (TokenType.Exit, null),
+            "GOTO" => (TokenType.JumpTo, null),
             ['`', .. var w, '`'] => (TokenType.Label, w),
             [':', .. var w, ':'] => (TokenType.Tag, w),
             ['"', .. var w, '"'] => (TokenType.String, w),
             ['[' or '|', .., '|' or ']'] => (TokenType.Range, word.Text),
-            ['{', .. var w, '}'] => (TokenType.Array, w),
+            ['{', .. var w, '}'] => (TokenType.Array, string.Join(",", w.Trim().Split(',').Select(a => a.Trim()))),
             ['\'', .. var w, '\''] when DateTime.TryParse(w, out var dt) => (TokenType.DateTime, $"{dt:s}.{dt:fffffff}"),
             var w when int.TryParse(w, out var i) => (TokenType.Number, $"{i}"),
             var w when decimal.TryParse(w, out var d) => (TokenType.Number, $"{d}"),
             var w when bool.TryParse(w, out var b) => (TokenType.Boolean, $"{b}"),
-            _ => (TokenType.Identifier, word.Text),
+            var w when IsValidIdentifier(w) => (TokenType.Identifier, w),
+            _ => (TokenType.Error, GetIdentifierError(word.Text)),
         };
-        return new Token(type, _currentLine, word.Column, value);
+        return new(type, _currentLine, word.Column, value);
     }
+
+    private static bool IsValidIdentifier(string token)
+        => !string.IsNullOrEmpty(token)
+        && token.Length <= 64
+        && char.IsLetter(token[0])
+        && token.All(c => char.IsLetterOrDigit(c) || c == '_');
+
+    private static string GetIdentifierError(string token)
+        => token switch {
+            _ when string.IsNullOrEmpty(token) => "Identifier cannot be empty.",
+            _ when token.Length > 64 => "Identifier must not exceed 64 characters.",
+            _ when char.IsNumber(token[0]) => "Identifier must start with a letter.",
+            _ when token[0] == '_' => "Identifier must start with a letter.",
+            _ when char.IsLetter(token[0]) && !token.All(c => char.IsLetterOrDigit(c) || c == '_') => "Identifier can only contain letters, numbers, and underscores.",
+            _ => "Invalid token.",
+        };
 
     private IEnumerable<Token> ProcessIndent(string line) {
         var nextChar = Peek(line);
@@ -191,7 +207,7 @@ public sealed class WorkflowLexer {
             count++;
             _currentColumn++;
             if (nextChar is '\t' || count >= _indentSize) {
-                yield return new Token(TokenType.Indent, _currentLine);
+                yield return new(TokenType.Indent, _currentLine);
                 count = 0;
             }
             nextChar = Peek(line);
@@ -206,4 +222,7 @@ public sealed class WorkflowLexer {
         _currentColumn++;
         return c;
     }
+
+    private Token CreateErrorToken(string errorMessage)
+        => new(TokenType.Error, _currentLine, _currentColumn, errorMessage);
 }

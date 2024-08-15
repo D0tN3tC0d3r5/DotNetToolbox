@@ -18,7 +18,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            result.Should().BeNull();
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeNull();
         }
 
         [Fact]
@@ -33,7 +34,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var start = result.Should().BeOfType<ActionNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var start = result.Value.Should().BeOfType<ActionNode>().Subject;
             start.Id.Should().Be(1);
             start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
@@ -53,7 +55,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var start = result.Should().BeOfType<ActionNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var start = result.Value.Should().BeOfType<ActionNode>().Subject;
             start.Id.Should().Be(1);
             start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
@@ -78,7 +81,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var start = result.Should().BeOfType<ActionNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var start = result.Value.Should().BeOfType<ActionNode>().Subject;
             start.Id.Should().Be(1);
             start.Tag.Should().Be("1");
             start.Label.Should().Be("Action1");
@@ -105,7 +109,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var start = result.Should().BeOfType<ActionNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var start = result.Value.Should().BeOfType<ActionNode>().Subject;
             start.Id.Should().Be(1);
             start.Tag.Should().Be("Tag");
             start.Label.Should().Be("Action Label");
@@ -127,7 +132,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var ifNode = result.Should().BeOfType<IfNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
             ifNode.Tag.Should().Be("1");
             ifNode.Label.Should().Be("if");
@@ -156,7 +162,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var ifNode = result.Should().BeOfType<IfNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
             ifNode.Tag.Should().Be("1");
             ifNode.Label.Should().Be("if");
@@ -191,7 +198,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var ifNode = result.Should().BeOfType<IfNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
             ifNode.Tag.Should().Be("1");
             ifNode.Label.Should().Be("if");
@@ -233,7 +241,9 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var caseNode = result.Should().BeOfType<CaseNode>().Subject;
+            result.Errors.Should().BeEmpty();
+            result.IsSuccess.Should().BeTrue();
+            var caseNode = result.Value.Should().BeOfType<CaseNode>().Subject;
             caseNode.Id.Should().Be(1);
             caseNode.Tag.Should().Be("1");
             caseNode.Label.Should().Be("case");
@@ -280,7 +290,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var start = result.Should().BeOfType<ActionNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var start = result.Value.Should().BeOfType<ActionNode>().Subject;
             start.Id.Should().Be(1);
             start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
@@ -309,28 +320,8 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            tokens.Should().HaveCount(19);
-            tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "Action1"));
-            tokens[1].Should().BeEquivalentTo(new Token(TokenType.Tag, 1, 9, "Label1"));
-            tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 16));
-            tokens[3].Should().BeEquivalentTo(new Token(TokenType.Identifier, 2, 1, "Action2"));
-            tokens[4].Should().BeEquivalentTo(new Token(TokenType.EOL, 2, 7));
-            tokens[5].Should().BeEquivalentTo(new Token(TokenType.If, 3, 1, "IF"));
-            tokens[6].Should().BeEquivalentTo(new Token(TokenType.Identifier, 3, 4, "Condition"));
-            tokens[7].Should().BeEquivalentTo(new Token(TokenType.EOL, 3, 12));
-            tokens[8].Should().BeEquivalentTo(new Token(TokenType.Indent, 4));
-            tokens[9].Should().BeEquivalentTo(new Token(TokenType.JumpTo, 4, 3, "GOTO"));
-            tokens[10].Should().BeEquivalentTo(new Token(TokenType.Identifier, 4, 8, "end"));
-            tokens[11].Should().BeEquivalentTo(new Token(TokenType.EOL, 4, 10));
-            tokens[12].Should().BeEquivalentTo(new Token(TokenType.JumpTo, 5, 1, "GOTO"));
-            tokens[13].Should().BeEquivalentTo(new Token(TokenType.Identifier, 5, 6, "Label1"));
-            tokens[14].Should().BeEquivalentTo(new Token(TokenType.EOL, 5, 11));
-            tokens[15].Should().BeEquivalentTo(new Token(TokenType.Exit, 6, 1, "EXIT"));
-            tokens[16].Should().BeEquivalentTo(new Token(TokenType.Tag, 6, 6, "end"));
-            tokens[17].Should().BeEquivalentTo(new Token(TokenType.EOL, 6, 10));
-            tokens[18].Should().BeEquivalentTo(new Token(TokenType.EOF, 6, 66));
-
-            var action1 = result.Should().BeOfType<ActionNode>().Subject;
+            result.IsSuccess.Should().BeTrue();
+            var action1 = result.Value.Should().BeOfType<ActionNode>().Subject;
             action1.Id.Should().Be(1);
             action1.Tag.Should().Be("Label1");
             action1.Label.Should().Be("Action1");
@@ -363,6 +354,208 @@ public class WorkflowParserTests {
             end.Tag.Should().Be("end");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
+        }
+    }
+
+    public class ParsingErrorTests : WorkflowParserTests {
+        [Fact]
+        public void Parse_InvalidToken_ReturnsErrorResult() {
+            // Arrange
+            const string script = "Invalid$Token";
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("Error @ (1, 1): Invalid token");
+        }
+
+        [Fact]
+        public void Parse_MissingEndOfLine_ReturnsErrorResult() {
+            // Arrange
+            const string script = "Action1 Action2";
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("Identifier @ (1, 9): Expected token: 'EndOfLine'.");
+        }
+
+        [Fact]
+        public void Parse_IncompleteIf_ReturnsErrorResult() {
+            // Arrange
+            const string script = "IF Condition";
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("EndOfFile @ (1, 13): Expected token: 'EndOfLine'.");
+        }
+
+        [Fact]
+        public void Parse_MissingThenInIf_ReturnsErrorResult() {
+            // Arrange
+            const string script = """
+                                  IF Condition
+                                    Action1
+                                  """;
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("EndOfLine @ (1, 13): Expected token: 'Then'.");
+        }
+
+        [Fact]
+        public void Parse_InvalidCaseStructure_ReturnsErrorResult() {
+            // Arrange
+            const string script = """
+                                  CASE Selection
+                                    IS "Option1"
+                                      Action1
+                                    IS "Option2"
+                                      Action2
+                                    ELSE
+                                      ActionDefault
+                                  """;
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("Identifier @ (7, 1): Expected token: 'EndOfLine'.");
+        }
+
+        [Fact]
+        public void Parse_MissingExitCode_ReturnsErrorResult() {
+            // Arrange
+            const string script = "EXIT InvalidCode";
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("Identifier @ (1, 6): Expected token: 'EndOfLine'.");
+        }
+
+        [Fact]
+        public void Parse_InvalidJumpTarget_ReturnsErrorResult() {
+            // Arrange
+            const string script = "GOTO 123";
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("Number @ (1, 6): Expected token: 'Identifier'.");
+        }
+
+        [Fact]
+        public void Parse_MultipleErrors_ReturnsAllErrors() {
+            // Arrange
+            const string script = """
+                                  InvalidToken
+                                  IF Condition
+                                    Action1
+                                  CASE Selection
+                                    IS "Option1"
+                                      Action2
+                                    ELSE
+                                      ActionDefault
+                                  """;
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().HaveCount(3);
+            result.Errors.Should().Contain("Identifier @ (1, 1): Unexpected token.");
+            result.Errors.Should().Contain("EndOfLine @ (2, 13): Expected token: 'Then'.");
+            result.Errors.Should().Contain("Identifier @ (8, 1): Expected token: 'EndOfLine'.");
+        }
+
+        [Fact]
+        public void Parse_EmptyCase_ReturnsErrorResult() {
+            // Arrange
+            const string script = """
+                                  CASE Selection
+                                  """;
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("EndOfFile @ (2, 1): Token not allowed.");
+        }
+
+        [Fact]
+        public void Parse_DuplicateOtherwise_ReturnsErrorResult() {
+            // Arrange
+            const string script = """
+                                  CASE Selection
+                                    IS "Option1"
+                                      Action1
+                                    OTHERWISE
+                                      ActionDefault1
+                                    OTHERWISE
+                                      ActionDefault2
+                                  """;
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("Otherwise @ (7, 1): Token not allowed.");
+        }
+
+        [Fact]
+        public void Parse_InvalidIndentation_ReturnsErrorResult() {
+            // Arrange
+            const string script = """
+                                  IF Condition THEN
+                                  Action1
+                                  """;
+            var tokens = WorkflowLexer.Tokenize(script).ToList();
+
+            // Act
+            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.Should().Be("Identifier @ (2, 1): Error creating conditional node: Invalid indentation.");
         }
     }
 }

@@ -4,16 +4,19 @@ public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
     private readonly WorkflowBuilder _builder;
     private Token _currentToken;
+    private readonly List<string> _errors = [];
 
     private WorkflowParser(IEnumerable<Token> tokens, IServiceProvider services) {
         _tokens = tokens.GetEnumerator();
-        _builder = new WorkflowBuilder(services);
+        _builder = new(services);
         NextToken();
     }
 
-    public static INode? Parse(IEnumerable<Token> tokens, IServiceProvider services) {
+    public static Result<INode?> Parse(IEnumerable<Token> tokens, IServiceProvider services) {
         var parser = new WorkflowParser(tokens, services);
-        return parser.Process();
+        var node = parser.Process();
+        var result = Success<INode?>(node);
+        return parser._errors.Aggregate(result, (current, error) => current + error);
     }
 
     private INode? Process() {
@@ -23,7 +26,7 @@ public sealed class WorkflowParser {
 
     private void ParseStatements(IWorkflowBuilder builder) {
         var indentColumn = _currentToken.Column;
-        while (_currentToken.Type is not TokenType.EOF && _currentToken.Column >= indentColumn)
+        while (_currentToken.Type is not TokenType.EndOfFile && _currentToken.Column >= indentColumn)
             ParseStatement(builder);
     }
 
@@ -44,11 +47,14 @@ public sealed class WorkflowParser {
             case TokenType.JumpTo:
                 ParseJumpTo(builder);
                 break;
-            case TokenType.EOL: // Empty line
+            case TokenType.Error:
+                AddError(_currentToken.Value);
                 NextToken();
                 break;
             default:
-                throw new InvalidOperationException($"Unexpected token: {_currentToken.Type}");
+                AddError("Unexpected token.");
+                NextToken();
+                break;
         }
     }
 
@@ -56,10 +62,15 @@ public sealed class WorkflowParser {
         var name = GetValueFrom(TokenType.Identifier);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label) ?? name;
-        builder.Do(tag!,
-                   ctx => BuildAction(ctx, name),
-                   label);
-        Ensure(TokenType.EOL);
+
+        try {
+            builder.Do(tag!, ctx => BuildAction(ctx, name), label);
+        }
+        catch (Exception ex) {
+            AddError($"Error creating action node: {ex.Message}");
+        }
+
+        Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
     }
 
@@ -68,16 +79,22 @@ public sealed class WorkflowParser {
         var predicate = ParsePredicate();
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
-        builder.If(tag!,
-                   ctx => BuildPredicate(ctx, predicate),
-                   b => b.IsTrue(ParseThen)
-                         .IsFalse(ParseElse),
-                   label);
+
+        try {
+            builder.If(tag!,
+                       ctx => BuildPredicate(ctx, predicate),
+                       b => b.IsTrue(ParseThen)
+                             .IsFalse(ParseElse),
+                       label);
+        }
+        catch (Exception ex) {
+            AddError($"Error creating conditional node: {ex.Message}");
+        }
     }
 
     private string ParsePredicate() {
         var condition = new StringBuilder();
-        while (_currentToken.Type is not TokenType.Tag and not TokenType.Label and not TokenType.EOL and not TokenType.Then) {
+        while (_currentToken.Type is not TokenType.Tag and not TokenType.Label and not TokenType.EndOfLine and not TokenType.Then) {
             condition.Append(_currentToken.Value);
             condition.Append(' ');
             NextToken();
@@ -87,7 +104,7 @@ public sealed class WorkflowParser {
 
     private void ParseThen(IWorkflowBuilder builder) {
         Allow(TokenType.Then);
-        Ensure(TokenType.EOL);
+        Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
         ParseStatements(builder);
     }
@@ -96,7 +113,7 @@ public sealed class WorkflowParser {
         if (!Has(TokenType.Else))
             return;
         Ensure(TokenType.Else);
-        Ensure(TokenType.EOL);
+        Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
         ParseStatements(builder);
     }
@@ -106,13 +123,18 @@ public sealed class WorkflowParser {
         var selector = GetValueFrom(TokenType.Identifier);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
-        Ensure(TokenType.EOL);
+        Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
 
-        builder.Case(tag!,
-                     ctx => BuildSelector(ctx, selector),
-                     ParseCaseOptions,
-                     label);
+        try {
+            builder.Case(tag!,
+                         ctx => BuildSelector(ctx, selector),
+                         ParseCaseOptions,
+                         label);
+        }
+        catch (Exception ex) {
+            AddError($"Error creating branching node: {ex.Message}");
+        }
     }
 
     private void ParseCaseOptions(CaseNodeBuilder branches) {
@@ -126,17 +148,16 @@ public sealed class WorkflowParser {
         if (!Has(TokenType.Is)) return false;
         Ensure(TokenType.Is);
         var caseValue = GetValueFrom(TokenType.String);
-        Ensure(TokenType.EOL);
+        Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
         branches.Is(caseValue, ParseStatements);
         return true;
     }
 
     private void ParseOtherwise(CaseNodeBuilder branches) {
-        var indentColumn = _currentToken.Column;
         if (!Has(TokenType.Otherwise)) return;
         Ensure(TokenType.Otherwise);
-        Ensure(TokenType.EOL);
+        Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
         branches.Otherwise(ParseStatements);
         Forbid(TokenType.Otherwise);
@@ -149,7 +170,7 @@ public sealed class WorkflowParser {
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
         builder.Exit(tag, exitCode, label);
-        Ensure(TokenType.EOL);
+        Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
     }
 
@@ -157,7 +178,7 @@ public sealed class WorkflowParser {
         Ensure(TokenType.JumpTo);
         var target = GetValueFrom(TokenType.Identifier);
         builder.JumpTo(target);
-        Ensure(TokenType.EOL);
+        Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
     }
 
@@ -175,9 +196,7 @@ public sealed class WorkflowParser {
     // This is a simplified implementation.
     // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
     private bool BuildPredicate(Context ctx, string condition) {
-        var result = ctx.TryGetValue(condition, out var value)
-                    && value is bool boolValue
-                    && boolValue;
+        var result = ctx.TryGetValue(condition, out var value) && value is true;
         NextToken();
         return result;
     }
@@ -186,16 +205,17 @@ public sealed class WorkflowParser {
     // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
     private string BuildSelector(Context ctx, string selector) {
         var result = ctx.TryGetValue(selector, out var value)
-            ? value?.ToString() ?? string.Empty
+            ? value.ToString() ?? string.Empty
             : string.Empty;
         NextToken();
         return result;
     }
 
-    private bool Has(TokenType type) {
-        if (_currentToken.Type != type) return false;
-        return true;
-    }
+    private void AddError(string? message)
+        => _errors.Add($"{_currentToken.Type} @ ({_currentToken.Line}, {_currentToken.Column}): {message ?? "Unknown error."}");
+
+    private bool Has(TokenType type)
+        => _currentToken.Type == type;
 
     private void Allow(TokenType type) {
         if (_currentToken.Type != type) return;
@@ -209,21 +229,23 @@ public sealed class WorkflowParser {
 
     private void Ensure(TokenType type) {
         if (_currentToken.Type != type)
-            throw new InvalidOperationException($"Expected {type}, but got {_currentToken.Type}");
+            AddError($"Expected token: '{type}'.");
         NextToken();
     }
 
     private void Forbid(TokenType type) {
-        if (_currentToken.Type == type)
-            throw new InvalidOperationException($"{_currentToken.Type} is not allowed.");
+        if (_currentToken.Type != type) return;
+        AddError("Token not allowed.");
+        NextToken();
     }
 
     private string GetValueFrom(TokenType type) {
         if (_currentToken.Type != type)
-            throw new InvalidOperationException($"Expected token of type '{type}', but found '{_currentToken.Type}'");
+            AddError($"Expected token: '{type}'.");
         var token = _currentToken;
         NextToken();
-        return token.Value ?? throw new InvalidOperationException($"The value for '{type}' token is not set.");
+        if (token.Value is null) AddError("Token value not set.");
+        return token.Value!;
     }
 
     private string? GetValueOrDefaultFrom(TokenType type) {
@@ -238,5 +260,5 @@ public sealed class WorkflowParser {
     private void NextToken()
         => _currentToken = _tokens.MoveNext()
             ? _tokens.Current
-            : new Token(TokenType.Exit, 0, 0, string.Empty);
+            : new(TokenType.Exit, 0, 0, string.Empty);
 }

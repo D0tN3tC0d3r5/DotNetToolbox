@@ -8,6 +8,9 @@ public class ValidationErrors : List<ValidationError> {
     }
 
     public static implicit operator ValidationErrors(string error) => (ValidationError)error;
+    public static implicit operator ValidationErrors(List<string> errors) => errors.ToArray(e => (ValidationError)e);
+    public static implicit operator ValidationErrors(string[] errors) => errors.ToArray(e => (ValidationError)e);
+    public static implicit operator ValidationErrors(HashSet<string> errors) => errors.ToArray(e => (ValidationError)e);
     public static implicit operator ValidationErrors(ValidationError error) => [error];
     public static implicit operator ValidationErrors(ValidationError[] errors) => new(errors);
     public static implicit operator ValidationErrors(HashSet<ValidationError> errors) => new(errors);

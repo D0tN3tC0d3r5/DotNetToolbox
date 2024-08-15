@@ -33,6 +33,7 @@ public record Result : ResultBase<ResultType> {
     public static Task<Result> SuccessTask() => Task.FromResult(Success());
     public static Task<Result> InvalidTask(string message) => InvalidTask(message, string.Empty);
     public static Task<Result> InvalidTask(string message, string source) => InvalidTask(new ValidationError(message, source));
+    public static Task<Result> InvalidTask(ValidationError result) => Task.FromResult(Invalid(result));
     public static Task<Result> InvalidTask(Result result) => Task.FromResult(Invalid(result));
     public static Task<Result> ErrorTask(string message) => ErrorTask(new Exception(message));
     public static Task<Result> ErrorTask(Exception exception)
