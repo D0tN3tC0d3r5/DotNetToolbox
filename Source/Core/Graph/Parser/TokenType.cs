@@ -38,7 +38,7 @@ public enum TokenType {
     CloseBracket,
     Pipe,
     Comma,
-    EOL, // End of Line
-    EOF,  // End of File
+    EOL, // Exit of Line
+    EOF,  // Exit of File
     Error,  // Error token
 }

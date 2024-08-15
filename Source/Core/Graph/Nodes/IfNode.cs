@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class ConditionalNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task<bool>> predicate, string? tag = null, string? label = null)
-    : ConditionalNode<ConditionalNode>(id, services, tag, label) {
+public class IfNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task<bool>> predicate, string? tag = null, string? label = null)
+    : ConditionalNode<IfNode>(id, services, tag, label) {
     private readonly Func<Context, CancellationToken, Task<bool>> _predicate = IsNotNull(predicate);
 
-    public ConditionalNode(uint id, IServiceProvider services, Func<Context, bool> predicate, string? tag = null, string? label = null)
+    public IfNode(uint id, IServiceProvider services, Func<Context, bool> predicate, string? tag = null, string? label = null)
         : this(id, services, (ctx, ct) => Task.Run(() => predicate(ctx), ct), tag, label) {
     }
 

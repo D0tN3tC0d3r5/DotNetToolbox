@@ -1,22 +1,22 @@
 ﻿namespace DotNetToolbox.Graph.Builders;
 
-public class CaseNodeBuilder(IServiceProvider services, ICaseNode parent, string nodeSequenceKey)
+public class CaseNodeBuilder(IServiceProvider services, ICaseNode parent, string nodeSequenceKey, Dictionary<string, INode> tagMap)
     : ICaseNodeBuilder,
       ICaseOptionNodeBuilder {
     private readonly Dictionary<string, INode?> _choices = [];
     private readonly ICaseNode _parent = IsNotNull(parent);
 
     public ICaseOptionNodeBuilder Is(string key, Action<IWorkflowBuilder> setPath) {
-        var branchBuilder = new WorkflowBuilder(services, nodeSequenceKey);
+        var branchBuilder = new WorkflowBuilder(services, nodeSequenceKey, tagMap);
         setPath(branchBuilder);
-        _choices[IsNotNullOrWhiteSpace(key)] = branchBuilder.Build();
+        _choices[IsNotNullOrWhiteSpace(key)] = branchBuilder.BuildBlock();
         return this;
     }
 
     public INodeBuilder<ICaseNode> Otherwise(Action<IWorkflowBuilder> setPath) {
-        var branchBuilder = new WorkflowBuilder(services, nodeSequenceKey);
+        var branchBuilder = new WorkflowBuilder(services, nodeSequenceKey, tagMap);
         setPath(branchBuilder);
-        _choices[string.Empty] = branchBuilder.Build();
+        _choices[string.Empty] = branchBuilder.BuildBlock();
         return this;
     }
 

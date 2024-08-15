@@ -57,7 +57,7 @@ public class WorkflowParserTests {
             start.Id.Should().Be(1);
             start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
-            var end = start.Next.Should().BeOfType<EndNode>().Subject;
+            var end = start.Next.Should().BeOfType<ExitNode>().Subject;
             end.Id.Should().Be(2);
             end.Tag.Should().Be("2");
             end.Label.Should().Be("end");
@@ -127,7 +127,7 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var ifNode = result.Should().BeOfType<ConditionalNode>().Subject;
+            var ifNode = result.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
             ifNode.Tag.Should().Be("1");
             ifNode.Label.Should().Be("if");
@@ -137,6 +137,9 @@ public class WorkflowParserTests {
             trueAction.Id.Should().Be(2);
             trueAction.Tag.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
+
+            trueAction.Next.Should().BeNull();
+            ifNode.IsFalse.Should().BeNull();
         }
 
         [Fact]
@@ -153,7 +156,7 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var ifNode = result.Should().BeOfType<ConditionalNode>().Subject;
+            var ifNode = result.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
             ifNode.Tag.Should().Be("1");
             ifNode.Label.Should().Be("if");
@@ -163,13 +166,12 @@ public class WorkflowParserTests {
             trueAction.Tag.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
-            var end = ifNode.Next.Should().BeOfType<EndNode>().Subject;
+            var end = trueAction.Next.Should().BeOfType<ExitNode>().Subject;
             end.Id.Should().Be(3);
             end.Tag.Should().Be("3");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
 
-            trueAction.Next.Should().Be(end);
             ifNode.IsFalse.Should().Be(end);
         }
 
@@ -177,12 +179,11 @@ public class WorkflowParserTests {
         public void Parse_IfThenElse_ReturnsWorkflowWithIfElseStructure() {
             // Arrange
             const string script = """
-                              IF Condition
-                                THEN
-                                  ActionTrue
-                                ELSE
-                                  ActionFalse
-                              EXIT
+                              IF Condition THEN
+                                ActionTrue
+                              ELSE
+                                ActionFalse
+                              Action1
                               """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
@@ -190,10 +191,10 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
-            var ifNode = result.Should().BeOfType<ConditionalNode>().Subject;
+            var ifNode = result.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
             ifNode.Tag.Should().Be("1");
-            ifNode.Label.Should().Be("Condition");
+            ifNode.Label.Should().Be("if");
 
             var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
             trueAction.Id.Should().Be(2);
@@ -205,17 +206,12 @@ public class WorkflowParserTests {
             falseAction.Tag.Should().Be("3");
             falseAction.Label.Should().Be("ActionFalse");
 
-            var endTrue = trueAction.Next.Should().BeOfType<EndNode>().Subject;
+            var endTrue = trueAction.Next.Should().BeOfType<ActionNode>().Subject;
             endTrue.Id.Should().Be(4);
             endTrue.Tag.Should().Be("4");
-            endTrue.Label.Should().Be("end");
-            endTrue.ExitCode.Should().Be(0);
+            endTrue.Label.Should().Be("Action1");
 
-            var endFalse = falseAction.Next.Should().BeOfType<EndNode>().Subject;
-            endFalse.Id.Should().Be(4);
-            endFalse.Tag.Should().Be("4");
-            endFalse.Label.Should().Be("end");
-            endFalse.ExitCode.Should().Be(0);
+            falseAction.Next.Should().Be(endTrue);
         }
 
         [Fact]
@@ -240,7 +236,7 @@ public class WorkflowParserTests {
             var caseNode = result.Should().BeOfType<BranchingNode>().Subject;
             caseNode.Id.Should().Be(1);
             caseNode.Tag.Should().Be("1");
-            caseNode.Label.Should().Be("Selection");
+            caseNode.Label.Should().Be("case");
 
             caseNode.Choices.Should().HaveCount(3);
 
@@ -254,12 +250,12 @@ public class WorkflowParserTests {
             option2.Tag.Should().Be("3");
             option2.Label.Should().Be("Action2");
 
-            var otherwise = caseNode.Choices["OTHERWISE"].Should().BeOfType<ActionNode>().Subject;
+            var otherwise = caseNode.Choices[string.Empty].Should().BeOfType<ActionNode>().Subject;
             otherwise.Id.Should().Be(4);
             otherwise.Tag.Should().Be("4");
             otherwise.Label.Should().Be("ActionDefault");
 
-            var end = option1.Next.Should().BeOfType<EndNode>().Subject;
+            var end = option1.Next.Should().BeOfType<ExitNode>().Subject;
             end.Id.Should().Be(5);
             end.Tag.Should().Be("5");
             end.Label.Should().Be("end");
@@ -276,7 +272,7 @@ public class WorkflowParserTests {
             // Arrange
             const string script = """
                               DoSomething
-                              EXIT 42
+                              EXIT 13
                               """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
@@ -289,11 +285,11 @@ public class WorkflowParserTests {
             start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
 
-            var end = start.Next.Should().BeOfType<EndNode>().Subject;
+            var end = start.Next.Should().BeOfType<ExitNode>().Subject;
             end.Id.Should().Be(2);
             end.Tag.Should().Be("2");
             end.Label.Should().Be("end");
-            end.ExitCode.Should().Be(42);
+            end.ExitCode.Should().Be(13);
         }
 
         [Fact]
@@ -302,8 +298,10 @@ public class WorkflowParserTests {
             const string script = """
                               Action1 :Label1:
                               Action2
+                              IF Condition
+                                GOTO end
                               GOTO Label1
-                              EXIT
+                              EXIT :end:
                               """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
@@ -311,6 +309,27 @@ public class WorkflowParserTests {
             var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
 
             // Assert
+            tokens.Should().HaveCount(19);
+            tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "Action1"));
+            tokens[1].Should().BeEquivalentTo(new Token(TokenType.Tag, 1, 9, "Label1"));
+            tokens[2].Should().BeEquivalentTo(new Token(TokenType.EOL, 1, 16));
+            tokens[3].Should().BeEquivalentTo(new Token(TokenType.Identifier, 2, 1, "Action2"));
+            tokens[4].Should().BeEquivalentTo(new Token(TokenType.EOL, 2, 7));
+            tokens[5].Should().BeEquivalentTo(new Token(TokenType.If, 3, 1, "IF"));
+            tokens[6].Should().BeEquivalentTo(new Token(TokenType.Identifier, 3, 4, "Condition"));
+            tokens[7].Should().BeEquivalentTo(new Token(TokenType.EOL, 3, 12));
+            tokens[8].Should().BeEquivalentTo(new Token(TokenType.Indent, 4));
+            tokens[9].Should().BeEquivalentTo(new Token(TokenType.JumpTo, 4, 3, "GOTO"));
+            tokens[10].Should().BeEquivalentTo(new Token(TokenType.Identifier, 4, 8, "end"));
+            tokens[11].Should().BeEquivalentTo(new Token(TokenType.EOL, 4, 10));
+            tokens[12].Should().BeEquivalentTo(new Token(TokenType.JumpTo, 5, 1, "GOTO"));
+            tokens[13].Should().BeEquivalentTo(new Token(TokenType.Identifier, 5, 6, "Label1"));
+            tokens[14].Should().BeEquivalentTo(new Token(TokenType.EOL, 5, 11));
+            tokens[15].Should().BeEquivalentTo(new Token(TokenType.Exit, 6, 1, "EXIT"));
+            tokens[16].Should().BeEquivalentTo(new Token(TokenType.Tag, 6, 6, "end"));
+            tokens[17].Should().BeEquivalentTo(new Token(TokenType.EOL, 6, 10));
+            tokens[18].Should().BeEquivalentTo(new Token(TokenType.EOF, 6, 66));
+
             var action1 = result.Should().BeOfType<ActionNode>().Subject;
             action1.Id.Should().Be(1);
             action1.Tag.Should().Be("Label1");
@@ -321,12 +340,27 @@ public class WorkflowParserTests {
             action2.Tag.Should().Be("2");
             action2.Label.Should().Be("Action2");
 
-            var jump = action2.Next;
-            jump.Should().Be(action1);
+            var ifNode = action2.Next.Should().BeOfType<IfNode>().Subject;
+            ifNode.Id.Should().Be(3);
+            ifNode.Tag.Should().Be("3");
+            ifNode.Label.Should().Be("if");
 
-            var end = action2.Next.Should().BeOfType<EndNode>().Subject;
-            end.Id.Should().Be(4);
-            end.Tag.Should().Be("4");
+            var exitJump = ifNode.IsTrue.Should().BeOfType<JumpNode>().Subject;
+            exitJump.Id.Should().Be(4);
+            exitJump.Tag.Should().Be("4");
+            exitJump.Label.Should().Be("goto");
+            exitJump.TargetTag.Should().Be("end");
+
+            var jumpBack = ifNode.IsFalse.Should().BeOfType<JumpNode>().Subject;
+            jumpBack.Id.Should().Be(5);
+            jumpBack.Tag.Should().Be("5");
+            jumpBack.Label.Should().Be("goto");
+            jumpBack.TargetTag.Should().Be("Label1");
+            jumpBack.Next.Should().Be(action1);
+
+            var end = exitJump.Next.Should().BeOfType<ExitNode>().Subject;
+            end.Id.Should().Be(6);
+            end.Tag.Should().Be("end");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
         }

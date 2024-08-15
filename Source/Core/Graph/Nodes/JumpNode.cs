@@ -12,7 +12,7 @@ public abstract class JumpNode<TNode>(uint id, IServiceProvider services, string
       IJumpNode
     where TNode : JumpNode<TNode> {
     protected override Task<INode?> SelectPath(Context context, CancellationToken ct)
-        => Task.FromResult<INode?>(null);
+        => Task.FromResult(Next);
 
     protected override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;

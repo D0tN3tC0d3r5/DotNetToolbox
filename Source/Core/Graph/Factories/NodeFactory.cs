@@ -2,21 +2,22 @@
 
 namespace DotNetToolbox.Graph.Factories;
 
-internal sealed class NodeFactory(IServiceProvider services, string? nodeSequenceKey = null)
+internal sealed class NodeFactory(IServiceProvider services, string? nodeSequenceKey = null, Dictionary<string, INode>? tagMap = null)
         : INodeFactory {
     private readonly string _nodeSequenceKey = nodeSequenceKey ?? nameof(NodeFactory);
+    private readonly Dictionary<string, INode> _tagMap = tagMap ?? [];
 
     public TNode Create<TNode>(uint id, string? tag = null, string? label = null)
         where TNode : Node<TNode>
         => Node.Create<TNode>(id, services, tag, label);
 
     public IIfNode CreateFork(uint id,
-                                       Func<Context, bool> predicate,
-                                       Action<IfNodeBuilder> setPaths,
-                                       string? tag = null,
-                                       string? label = null) {
-        var node = new ConditionalNode(id, services, predicate, tag, label);
-        var conditionsBuilder = new IfNodeBuilder(services, node, _nodeSequenceKey);
+                              Func<Context, bool> predicate,
+                              Action<IfNodeBuilder> setPaths,
+                              string? tag = null,
+                              string? label = null) {
+        var node = new IfNode(id, services, predicate, tag, label);
+        var conditionsBuilder = new IfNodeBuilder(services, node, _nodeSequenceKey, _tagMap);
         setPaths(conditionsBuilder);
         return conditionsBuilder.Build();
     }
@@ -27,7 +28,7 @@ internal sealed class NodeFactory(IServiceProvider services, string? nodeSequenc
                                        string? tag = null,
                                        string? label = null) {
         var node = new BranchingNode(id, services, selectPath, tag, label);
-        var branchesBuilder = new CaseNodeBuilder(services, node, _nodeSequenceKey);
+        var branchesBuilder = new CaseNodeBuilder(services, node, _nodeSequenceKey, _tagMap);
         setPaths(branchesBuilder);
         return branchesBuilder.Build();
     }
@@ -38,6 +39,6 @@ internal sealed class NodeFactory(IServiceProvider services, string? nodeSequenc
     public IJumpNode CreateJump(uint id, string targetTag, string? label = null)
         => new JumpNode(id, services, targetTag, label);
 
-    public IEndNode CreateStop(uint id, int exitCode = 0, string? tag = null, string? label = null)
-        => new EndNode(id, services, exitCode, tag, label);
+    public IEndNode CreateExit(uint id, int exitCode = 0, string? tag = null, string? label = null)
+        => new ExitNode(id, services, exitCode, tag, label);
 }

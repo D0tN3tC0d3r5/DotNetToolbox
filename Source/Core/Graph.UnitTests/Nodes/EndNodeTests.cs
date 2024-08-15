@@ -12,10 +12,10 @@ public class EndNodeTests {
 
     [Fact]
     public void CreateStop_WithoutLabel_ReturnsTerminalNodeWithDefaultLabel() {
-        var node = _factory.CreateStop(1);
+        var node = _factory.CreateExit(1);
 
         node.Should().NotBeNull();
-        node.Should().BeOfType<EndNode>();
+        node.Should().BeOfType<ExitNode>();
         node.Label.Should().Be("end");
     }
 
@@ -23,11 +23,11 @@ public class EndNodeTests {
     public void CreateStop_WithCustomLabel_ReturnsTerminalNodeWithCustomLabel() {
         const int customCode = -2;
         const string customTag = "CustomEnd";
-        const string customLabel = "Custom End";
-        var node = _factory.CreateStop(1, customCode, customTag, customLabel);
+        const string customLabel = "Custom Exit";
+        var node = _factory.CreateExit(1, customCode, customTag, customLabel);
 
         node.Should().NotBeNull();
-        node.Should().BeOfType<EndNode>();
+        node.Should().BeOfType<ExitNode>();
         node.ExitCode.Should().Be(customCode);
         node.Tag.Should().Be(customTag);
         node.Label.Should().Be(customLabel);

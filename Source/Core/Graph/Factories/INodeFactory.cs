@@ -21,5 +21,5 @@ public interface INodeFactory {
 
     IJumpNode CreateJump(uint id, string targetTag, string? label = null);
 
-    IEndNode CreateStop(uint id, int exitCode = 0, string? tag = null, string? label = null);
+    IEndNode CreateExit(uint id, int exitCode = 0, string? tag = null, string? label = null);
 }

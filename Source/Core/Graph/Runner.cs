@@ -84,7 +84,7 @@ public sealed class Runner(string id,
     }
 
     private Task RunEnded(IWorkflow workflow, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Thhe workflow '{WorkFlowId}' ended at '{End}' after '{ElapsedTimeInMilliseconds}' milliseconds.", Id, End, ElapsedTime!.Value.TotalMilliseconds);
+        _logger.LogInformation(message: "Thhe workflow '{WorkFlowId}' ended at '{Exit}' after '{ElapsedTimeInMilliseconds}' milliseconds.", Id, End, ElapsedTime!.Value.TotalMilliseconds);
         return OnWorkflowEnded is null
             ? Task.CompletedTask
             : OnWorkflowEnded(workflow, ct);

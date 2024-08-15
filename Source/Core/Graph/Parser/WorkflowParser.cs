@@ -18,11 +18,15 @@ public sealed class WorkflowParser {
         return parser.Process();
     }
 
-    public INode? Process() {
-        while (_currentToken.Type is not TokenType.EOF) {
-            ParseStatement(_builder);
-        }
+    private INode? Process() {
+        ParseStatements(_builder);
         return _builder.Build();
+    }
+
+    private void ParseStatements(IWorkflowBuilder builder) {
+        var indentColumn = _currentToken.Column;
+        while (_currentToken.Type is not TokenType.EOF && _currentToken.Column >= indentColumn)
+            ParseStatement(builder);
     }
 
     private void ParseStatement(IWorkflowBuilder builder) {
@@ -58,6 +62,7 @@ public sealed class WorkflowParser {
                    ctx => BuildAction(ctx, name),
                    label);
         Ensure(TokenType.EOL);
+        AllowMany(TokenType.Indent);
     }
 
     private void ParseIf(IWorkflowBuilder builder) {
@@ -85,23 +90,17 @@ public sealed class WorkflowParser {
     private void ParseThen(IWorkflowBuilder builder) {
         Allow(TokenType.Then);
         Ensure(TokenType.EOL);
-        Ensure(TokenType.Indent);
-        var indentColumn = _currentToken.Column;
-        while (_currentToken.Column >= indentColumn) {
-            ParseStatement(builder);
-        }
+        AllowMany(TokenType.Indent);
+        ParseStatements(builder);
     }
 
     private void ParseElse(IWorkflowBuilder builder) {
         if (!Has(TokenType.Else))
             return;
-
+        Ensure(TokenType.Else);
         Ensure(TokenType.EOL);
-        Ensure(TokenType.Indent);
-        var indentColumn = _currentToken.Column;
-        while (_currentToken.Column >= indentColumn) {
-            ParseStatement(builder);
-        }
+        AllowMany(TokenType.Indent);
+        ParseStatements(builder);
     }
 
     private void ParseCase(IWorkflowBuilder builder) {
@@ -110,7 +109,7 @@ public sealed class WorkflowParser {
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
         Ensure(TokenType.EOL);
-        Ensure(TokenType.Indent);
+        AllowMany(TokenType.Indent);
 
         builder.Case(tag!,
                      ctx => BuildSelector(ctx, selector),
@@ -126,40 +125,34 @@ public sealed class WorkflowParser {
     }
 
     private bool TryParseCaseOption(CaseNodeBuilder branches) {
-        var indentColumn = _currentToken.Column;
         if (!Has(TokenType.Is)) return false;
+        Ensure(TokenType.Is);
         var caseValue = GetValueFrom(TokenType.String);
         Ensure(TokenType.EOL);
-        Ensure(TokenType.Indent);
-        branches.Is(caseValue, builder => {
-            while (_currentToken.Column > indentColumn) {
-                ParseStatement(builder);
-            }
-        });
+        AllowMany(TokenType.Indent);
+        branches.Is(caseValue, ParseStatements);
         return true;
     }
 
     private void ParseOtherwise(CaseNodeBuilder branches) {
         var indentColumn = _currentToken.Column;
         if (!Has(TokenType.Otherwise)) return;
+        Ensure(TokenType.Otherwise);
         Ensure(TokenType.EOL);
-        Ensure(TokenType.Indent);
-
-        branches.Otherwise(builder => {
-            while (_currentToken.Type != TokenType.Indent || _currentToken.Column > indentColumn) {
-                ParseStatement(builder);
-            }
-        });
+        AllowMany(TokenType.Indent);
+        branches.Otherwise(ParseStatements);
         Forbid(TokenType.Otherwise);
     }
 
     private void ParseExit(IWorkflowBuilder builder) {
         Ensure(TokenType.Exit);
-        var exitCode = int.Parse(GetValueOrDefaultFrom(TokenType.Number) ?? "0");
+        var number = GetValueOrDefaultFrom(TokenType.Number) ?? "0"; // if number not found default to 0
+        var exitCode = int.Parse(number);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label);
-        builder.End(tag, exitCode, label);
+        builder.Exit(tag, exitCode, label);
         Ensure(TokenType.EOL);
+        AllowMany(TokenType.Indent);
     }
 
     private void ParseJumpTo(IWorkflowBuilder builder) {
@@ -167,6 +160,7 @@ public sealed class WorkflowParser {
         var target = GetValueFrom(TokenType.Identifier);
         builder.JumpTo(target);
         Ensure(TokenType.EOL);
+        AllowMany(TokenType.Indent);
     }
 
     // This is a simplified implementation.
@@ -202,13 +196,17 @@ public sealed class WorkflowParser {
 
     private bool Has(TokenType type) {
         if (_currentToken.Type != type) return false;
-        NextToken();
         return true;
     }
 
     private void Allow(TokenType type) {
         if (_currentToken.Type != type) return;
         NextToken();
+    }
+
+    private void AllowMany(TokenType type) {
+        while (_currentToken.Type == type)
+            NextToken();
     }
 
     private void Ensure(TokenType type) {
