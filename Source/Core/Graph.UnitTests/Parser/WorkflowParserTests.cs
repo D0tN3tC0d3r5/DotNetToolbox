@@ -369,8 +369,9 @@ public class WorkflowParserTests {
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().ContainSingle()
-                .Which.Should().Be("Error @ (1, 1): Invalid token");
+            var error = result.Errors.Should().ContainSingle().Subject;
+            error.Message.Should().Be("Identifier can only contain letters, numbers, and underscores.");
+            error.Source.Should().Be("[1, 1]: Error");
         }
 
         [Fact]
@@ -384,8 +385,9 @@ public class WorkflowParserTests {
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().ContainSingle()
-                .Which.Should().Be("Identifier @ (1, 9): Expected token: 'EndOfLine'.");
+            var error = result.Errors.Should().ContainSingle().Subject;
+            error.Message.Should().Be("Expected token: 'EndOfLine'.");
+            error.Source.Should().Be("[1, 9]: Identifier");
         }
 
         [Fact]
@@ -399,26 +401,9 @@ public class WorkflowParserTests {
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().ContainSingle()
-                .Which.Should().Be("EndOfFile @ (1, 13): Expected token: 'EndOfLine'.");
-        }
-
-        [Fact]
-        public void Parse_MissingThenInIf_ReturnsErrorResult() {
-            // Arrange
-            const string script = """
-                                  IF Condition
-                                    Action1
-                                  """;
-            var tokens = WorkflowLexer.Tokenize(script).ToList();
-
-            // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
-
-            // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().ContainSingle()
-                .Which.Should().Be("EndOfLine @ (1, 13): Expected token: 'Then'.");
+            var error = result.Errors.Should().ContainSingle().Subject;
+            error.Message.Should().Be("Missing true condition branch.");
+            error.Source.Should().Be("[1, 12]: EndOfFile");
         }
 
         [Fact]
@@ -440,8 +425,9 @@ public class WorkflowParserTests {
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().ContainSingle()
-                .Which.Should().Be("Identifier @ (7, 1): Expected token: 'EndOfLine'.");
+            var error = result.Errors.Should().ContainSingle().Subject;
+            error.Message.Should().Be("Unexpected token.");
+            error.Source.Should().Be("[6, 3]: Else");
         }
 
         [Fact]
@@ -455,8 +441,9 @@ public class WorkflowParserTests {
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().ContainSingle()
-                .Which.Should().Be("Identifier @ (1, 6): Expected token: 'EndOfLine'.");
+            var error = result.Errors.Should().ContainSingle().Subject;
+            error.Message.Should().Be("Expected token: 'EndOfLine'.");
+            error.Source.Should().Be("[1, 6]: Identifier");
         }
 
         [Fact]
@@ -470,6 +457,10 @@ public class WorkflowParserTests {
 
             // Assert
             result.IsSuccess.Should().BeFalse();
+            var error = result.Errors.Should().ContainSingle().Subject;
+            error.Message.Should().Be("Expected token: 'EndOfLine'.");
+            error.Source.Should().Be("[1, 6]: Identifier");
+
             result.Errors.Should().ContainSingle()
                 .Which.Should().Be("Number @ (1, 6): Expected token: 'Identifier'.");
         }

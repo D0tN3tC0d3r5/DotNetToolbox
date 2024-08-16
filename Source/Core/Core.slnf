@@ -7,7 +7,7 @@
       "Core\\Graph.UnitTests\\DotNetToolbox.Graph.UnitTests.csproj",
       "Core\\Graph\\DotNetToolbox.Graph.csproj",
       "Core\\Linq.UnitTests\\DotNetToolbox.Linq.UnitTests.csproj",
-      "Core\\Linq\\DotNetToolbox.Linq.csproj"
+      "Core\\Linq\\DotNetToolbox.Linq.csproj",
     ]
   }
 }

@@ -162,7 +162,6 @@ public sealed class WorkflowLexer {
             "IN" => (TokenType.In, null),
             "WITHIN" => (TokenType.Within, null),
             "IF" => (TokenType.If, null),
-            "THEN" => (TokenType.Then, null),
             "ELSE" => (TokenType.Else, null),
             "CASE" => (TokenType.Case, null),
             "IS" => (TokenType.Is, null),

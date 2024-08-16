@@ -1,10 +1,13 @@
-﻿namespace DotNetToolbox.Graph.Parser;
+﻿using NodeMapEntry = (DotNetToolbox.Graph.Nodes.INode node, DotNetToolbox.Graph.Parser.Token token);
+
+namespace DotNetToolbox.Graph.Parser;
 
 public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
     private readonly WorkflowBuilder _builder;
     private Token _currentToken;
-    private readonly List<string> _errors = [];
+    private readonly List<ValidationError> _errors = [];
+    private readonly List<NodeMapEntry > _nodeMap = [];
 
     private WorkflowParser(IEnumerable<Token> tokens, IServiceProvider services) {
         _tokens = tokens.GetEnumerator();
@@ -17,6 +20,15 @@ public sealed class WorkflowParser {
         var node = parser.Process();
         var result = Success<INode?>(node);
         return parser._errors.Aggregate(result, (current, error) => current + error);
+    }
+
+    private void SetJumps() {
+        foreach (var entry in _nodeMap.Where(n => n.node is IJumpNode)) {
+            var jumpNode = (IJumpNode)entry.node;
+            if (!_nodeMap.TryGetValue(jumpNode.TargetTag, out var targetNode))
+                throw new InvalidOperationException($"Jump target '{jumpNode.TargetTag}' not found.");
+            jumpNode.Next = targetNode;
+        }
     }
 
     private INode? Process() {
@@ -32,9 +44,6 @@ public sealed class WorkflowParser {
 
     private void ParseStatement(IWorkflowBuilder builder) {
         switch (_currentToken.Type) {
-            case TokenType.Identifier:
-                ParseAction(builder);
-                break;
             case TokenType.If:
                 ParseIf(builder);
                 break;
@@ -47,8 +56,14 @@ public sealed class WorkflowParser {
             case TokenType.JumpTo:
                 ParseJumpTo(builder);
                 break;
+            case TokenType.Identifier:
+                ParseIdentifier(builder);
+                break;
             case TokenType.Error: // acts as an identifier.
                 AddError(_currentToken.Value);
+                NextToken();
+                break;
+            case TokenType.EndOfLine: // acts as an identifier.
                 NextToken();
                 break;
             default:
@@ -58,13 +73,13 @@ public sealed class WorkflowParser {
         }
     }
 
-    private void ParseAction(IWorkflowBuilder builder) {
+    private void ParseIdentifier(IWorkflowBuilder builder) {
         var name = GetValueFrom(TokenType.Identifier);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
         var label = GetValueOrDefaultFrom(TokenType.Label) ?? name;
 
         try {
-            builder.Do(tag!, ctx => BuildAction(ctx, name), label);
+            builder.Do(tag!, BuildAction(name), label);
         }
         catch (Exception ex) {
             AddError($"Error creating action node: {ex.Message}");
@@ -82,19 +97,19 @@ public sealed class WorkflowParser {
 
         try {
             builder.If(tag!,
-                       ctx => BuildPredicate(ctx, predicate),
+                       BuildPredicate(predicate),
                        b => b.IsTrue(ParseThen)
                              .IsFalse(ParseElse),
                        label);
         }
         catch (Exception ex) {
-            AddError($"Error creating conditional node: {ex.Message}");
+            AddError(ex.Message);
         }
     }
 
     private string ParsePredicate() {
         var condition = new StringBuilder();
-        while (_currentToken.Type is not TokenType.Tag and not TokenType.Label and not TokenType.EndOfLine and not TokenType.Then) {
+        while (_currentToken.Type is not TokenType.Tag and not TokenType.Label and not TokenType.EndOfLine) {
             condition.Append(_currentToken.Value);
             condition.Append(' ');
             NextToken();
@@ -103,7 +118,6 @@ public sealed class WorkflowParser {
     }
 
     private void ParseThen(IWorkflowBuilder builder) {
-        Allow(TokenType.Then);
         Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
         ParseStatements(builder);
@@ -128,7 +142,7 @@ public sealed class WorkflowParser {
 
         try {
             builder.Case(tag!,
-                         ctx => BuildSelector(ctx, selector),
+                         BuildSelector(selector),
                          ParseCaseOptions,
                          label);
         }
@@ -182,37 +196,30 @@ public sealed class WorkflowParser {
         AllowMany(TokenType.Indent);
     }
 
-    // This is a simplified implementation.
-    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
-    private Action<Context> BuildAction(Context ctx, string action) {
-        var result = ctx.TryGetValue(action, out var value)
-                   && value is Action<Context> execute
-                        ? execute
-                        : _ => { };
-        NextToken();
-        return result;
+    private Action<Context> BuildAction(string action) {
+        // fetch or build the action expression;
+        return Result;
+
+        static void Result(Context _) { }
+    }
+    private Func<Context, bool> BuildPredicate(string condition) {
+        // fetch or build the predicate expression;
+        return Result;
+
+        static bool Result(Context _) => true;
     }
 
-    // This is a simplified implementation.
-    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
-    private bool BuildPredicate(Context ctx, string condition) {
-        var result = ctx.TryGetValue(condition, out var value) && value is true;
-        NextToken();
-        return result;
+    private Func<Context, string> BuildSelector(string selector) {
+        // fetch or build the selector expression;
+        return Result;
+
+        static string Result(Context _) => string.Empty;
     }
 
-    // This is a simplified implementation.
-    // In a real-world scenario, you might want to use a more sophisticated expression evaluator.
-    private string BuildSelector(Context ctx, string selector) {
-        var result = ctx.TryGetValue(selector, out var value)
-            ? value.ToString() ?? string.Empty
-            : string.Empty;
-        NextToken();
-        return result;
+    private void AddError(string? message) {
+        var error = new ValidationError(message ?? "Unknown error.", $"[{_currentToken.Line}, {_currentToken.Column}]: {_currentToken.Type}");
+        _errors.Add(error);
     }
-
-    private void AddError(string? message)
-        => _errors.Add($"{_currentToken.Type} @ ({_currentToken.Line}, {_currentToken.Column}): {message ?? "Unknown error."}");
 
     private bool Has(TokenType type)
         => _currentToken.Type == type;

@@ -60,7 +60,7 @@ public class WorkflowLexerTests {
     [Fact]
     public void Tokenize_IfThenElse_ReturnsCorrectTokens() {
         const string script = """
-                              IF Condition THEN
+                              IF Condition
                                 Action1
                                 Action2
                               ELSE
@@ -69,25 +69,24 @@ public class WorkflowLexerTests {
                               """;
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
-        tokens.Should().HaveCount(18);
+        tokens.Should().HaveCount(17);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.If, 1, 1));
         tokens[1].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 4, "Condition"));
-        tokens[2].Should().BeEquivalentTo(new Token(TokenType.Then, 1, 14));
-        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 17));
-        tokens[4].Should().BeEquivalentTo(new Token(TokenType.Indent, 2));
-        tokens[5].Should().BeEquivalentTo(new Token(TokenType.Identifier, 2, 3, "Action1"));
-        tokens[6].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 2, 9));
-        tokens[7].Should().BeEquivalentTo(new Token(TokenType.Indent, 3));
-        tokens[8].Should().BeEquivalentTo(new Token(TokenType.Identifier, 3, 3, "Action2"));
-        tokens[9].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 3, 9));
-        tokens[10].Should().BeEquivalentTo(new Token(TokenType.Else, 4, 1));
-        tokens[11].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 4, 4));
-        tokens[12].Should().BeEquivalentTo(new Token(TokenType.Indent, 5));
-        tokens[13].Should().BeEquivalentTo(new Token(TokenType.Identifier, 5, 3, "Action3"));
-        tokens[14].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 5, 9));
-        tokens[15].Should().BeEquivalentTo(new Token(TokenType.Identifier, 6, 1, "Action4"));
-        tokens[16].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 6, 7));
-        tokens[17].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 6, 55));
+        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 12));
+        tokens[3].Should().BeEquivalentTo(new Token(TokenType.Indent, 2));
+        tokens[4].Should().BeEquivalentTo(new Token(TokenType.Identifier, 2, 3, "Action1"));
+        tokens[5].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 2, 9));
+        tokens[6].Should().BeEquivalentTo(new Token(TokenType.Indent, 3));
+        tokens[7].Should().BeEquivalentTo(new Token(TokenType.Identifier, 3, 3, "Action2"));
+        tokens[8].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 3, 9));
+        tokens[9].Should().BeEquivalentTo(new Token(TokenType.Else, 4, 1));
+        tokens[10].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 4, 4));
+        tokens[11].Should().BeEquivalentTo(new Token(TokenType.Indent, 5));
+        tokens[12].Should().BeEquivalentTo(new Token(TokenType.Identifier, 5, 3, "Action3"));
+        tokens[13].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 5, 9));
+        tokens[14].Should().BeEquivalentTo(new Token(TokenType.Identifier, 6, 1, "Action4"));
+        tokens[15].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 6, 7));
+        tokens[16].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 6, 50));
     }
 
     [Fact]
@@ -228,21 +227,20 @@ public class WorkflowLexerTests {
     public void Tokenize_MultiLevelBranching_ReturnsCorrectTokens() {
         const string script = """
                               IF Condition1 == TRUE
-                                THEN
-                                  Action1
-                                  CASE Path
-                                    IS "Option1"
-                                      SubAction1
-                                    IS "Option2"
-                                      SubAction2
-                                    OTHERWISE
-                                      SubAction3
-                                ELSE
-                                  Action2
+                                Action1
+                                CASE Path
+                                  IS "Option1"
+                                    SubAction1
+                                  IS "Option2"
+                                    SubAction2
+                                  OTHERWISE
+                                    SubAction3
+                              ELSE
+                                Action2
                               """;
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
-        tokens.Should().HaveCount(60);
+        tokens.Should().HaveCount(47);
         // Verify the tokens (you may want to check specific tokens)
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.If, 1, 1));
         tokens[1].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 4, "Condition1"));
@@ -250,60 +248,47 @@ public class WorkflowLexerTests {
         tokens[3].Should().BeEquivalentTo(new Token(TokenType.Boolean, 1, 18, "True"));
         tokens[4].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 21));
         tokens[5].Should().BeEquivalentTo(new Token(TokenType.Indent, 2));
-        tokens[6].Should().BeEquivalentTo(new Token(TokenType.Then, 2, 3));
-        tokens[7].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 2, 6));
+        tokens[6].Should().BeEquivalentTo(new Token(TokenType.Identifier, 2, 3, "Action1"));
+        tokens[7].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 2, 9));
         tokens[8].Should().BeEquivalentTo(new Token(TokenType.Indent, 3));
-        tokens[9].Should().BeEquivalentTo(new Token(TokenType.Indent, 3));
-        tokens[10].Should().BeEquivalentTo(new Token(TokenType.Identifier, 3, 5, "Action1"));
+        tokens[9].Should().BeEquivalentTo(new Token(TokenType.Case, 3, 3));
+        tokens[10].Should().BeEquivalentTo(new Token(TokenType.Identifier, 3, 8, "Path"));
         tokens[11].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 3, 11));
         tokens[12].Should().BeEquivalentTo(new Token(TokenType.Indent, 4));
         tokens[13].Should().BeEquivalentTo(new Token(TokenType.Indent, 4));
-        tokens[14].Should().BeEquivalentTo(new Token(TokenType.Case, 4, 5));
-        tokens[15].Should().BeEquivalentTo(new Token(TokenType.Identifier, 4, 10, "Path"));
-        tokens[16].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 4, 13));
+        tokens[14].Should().BeEquivalentTo(new Token(TokenType.Is, 4, 5));
+        tokens[15].Should().BeEquivalentTo(new Token(TokenType.String, 4, 8, "Option1"));
+        tokens[16].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 4, 16));
         tokens[17].Should().BeEquivalentTo(new Token(TokenType.Indent, 5));
         tokens[18].Should().BeEquivalentTo(new Token(TokenType.Indent, 5));
         tokens[19].Should().BeEquivalentTo(new Token(TokenType.Indent, 5));
-        tokens[20].Should().BeEquivalentTo(new Token(TokenType.Is, 5, 7));
-        tokens[21].Should().BeEquivalentTo(new Token(TokenType.String, 5, 10, "Option1"));
-        tokens[22].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 5, 18));
+        tokens[20].Should().BeEquivalentTo(new Token(TokenType.Identifier, 5, 7, "SubAction1"));
+        tokens[21].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 5, 16));
+        tokens[22].Should().BeEquivalentTo(new Token(TokenType.Indent, 6));
         tokens[23].Should().BeEquivalentTo(new Token(TokenType.Indent, 6));
-        tokens[24].Should().BeEquivalentTo(new Token(TokenType.Indent, 6));
-        tokens[25].Should().BeEquivalentTo(new Token(TokenType.Indent, 6));
-        tokens[26].Should().BeEquivalentTo(new Token(TokenType.Indent, 6));
-        tokens[27].Should().BeEquivalentTo(new Token(TokenType.Identifier, 6, 9, "SubAction1"));
-        tokens[28].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 6, 18));
+        tokens[24].Should().BeEquivalentTo(new Token(TokenType.Is, 6, 5));
+        tokens[25].Should().BeEquivalentTo(new Token(TokenType.String, 6, 8, "Option2"));
+        tokens[26].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 6, 16));
+        tokens[27].Should().BeEquivalentTo(new Token(TokenType.Indent, 7));
+        tokens[28].Should().BeEquivalentTo(new Token(TokenType.Indent, 7));
         tokens[29].Should().BeEquivalentTo(new Token(TokenType.Indent, 7));
-        tokens[30].Should().BeEquivalentTo(new Token(TokenType.Indent, 7));
-        tokens[31].Should().BeEquivalentTo(new Token(TokenType.Indent, 7));
-        tokens[32].Should().BeEquivalentTo(new Token(TokenType.Is, 7, 7));
-        tokens[33].Should().BeEquivalentTo(new Token(TokenType.String, 7, 10, "Option2"));
-        tokens[34].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 7, 18));
-        tokens[35].Should().BeEquivalentTo(new Token(TokenType.Indent, 8));
-        tokens[36].Should().BeEquivalentTo(new Token(TokenType.Indent, 8));
-        tokens[37].Should().BeEquivalentTo(new Token(TokenType.Indent, 8));
-        tokens[38].Should().BeEquivalentTo(new Token(TokenType.Indent, 8));
-        tokens[39].Should().BeEquivalentTo(new Token(TokenType.Identifier, 8, 9, "SubAction2"));
-        tokens[40].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 8, 18));
-        tokens[41].Should().BeEquivalentTo(new Token(TokenType.Indent, 9));
-        tokens[42].Should().BeEquivalentTo(new Token(TokenType.Indent, 9));
-        tokens[43].Should().BeEquivalentTo(new Token(TokenType.Indent, 9));
-        tokens[44].Should().BeEquivalentTo(new Token(TokenType.Otherwise, 9, 7));
-        tokens[45].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 9, 15));
-        tokens[46].Should().BeEquivalentTo(new Token(TokenType.Indent, 10));
-        tokens[47].Should().BeEquivalentTo(new Token(TokenType.Indent, 10));
-        tokens[48].Should().BeEquivalentTo(new Token(TokenType.Indent, 10));
-        tokens[49].Should().BeEquivalentTo(new Token(TokenType.Indent, 10));
-        tokens[50].Should().BeEquivalentTo(new Token(TokenType.Identifier, 10, 9, "SubAction3"));
-        tokens[51].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 10, 18));
-        tokens[52].Should().BeEquivalentTo(new Token(TokenType.Indent, 11));
-        tokens[53].Should().BeEquivalentTo(new Token(TokenType.Else, 11, 3));
-        tokens[54].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 11, 6));
-        tokens[55].Should().BeEquivalentTo(new Token(TokenType.Indent, 12));
-        tokens[56].Should().BeEquivalentTo(new Token(TokenType.Indent, 12));
-        tokens[57].Should().BeEquivalentTo(new Token(TokenType.Identifier, 12, 5, "Action2"));
-        tokens[58].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 12, 11));
-        tokens[59].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 12, 173));
+        tokens[30].Should().BeEquivalentTo(new Token(TokenType.Identifier, 7, 7, "SubAction2"));
+        tokens[31].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 7, 16));
+        tokens[32].Should().BeEquivalentTo(new Token(TokenType.Indent, 8));
+        tokens[33].Should().BeEquivalentTo(new Token(TokenType.Indent, 8));
+        tokens[34].Should().BeEquivalentTo(new Token(TokenType.Otherwise, 8, 5));
+        tokens[35].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 8, 13));
+        tokens[36].Should().BeEquivalentTo(new Token(TokenType.Indent, 9));
+        tokens[37].Should().BeEquivalentTo(new Token(TokenType.Indent, 9));
+        tokens[38].Should().BeEquivalentTo(new Token(TokenType.Indent, 9));
+        tokens[39].Should().BeEquivalentTo(new Token(TokenType.Identifier, 9, 7, "SubAction3"));
+        tokens[40].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 9, 16));
+        tokens[41].Should().BeEquivalentTo(new Token(TokenType.Else, 10, 1));
+        tokens[42].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 10, 4));
+        tokens[43].Should().BeEquivalentTo(new Token(TokenType.Indent, 11));
+        tokens[44].Should().BeEquivalentTo(new Token(TokenType.Identifier, 11, 3, "Action2"));
+        tokens[45].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 11, 9));
+        tokens[46].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 11, 147));
     }
 
     [Fact]

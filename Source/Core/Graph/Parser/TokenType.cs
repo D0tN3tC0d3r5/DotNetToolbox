@@ -12,7 +12,6 @@ public enum TokenType {
     Label,
     If,
     Case,
-    Then,
     Else,
     Is,
     Otherwise,

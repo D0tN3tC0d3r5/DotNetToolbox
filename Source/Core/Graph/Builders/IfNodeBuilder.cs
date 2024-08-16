@@ -23,7 +23,7 @@ public class IfNodeBuilder(IServiceProvider services, IIfNode parent, string nod
 
     public IIfNode Build() {
         if (_trueNode == null)
-            throw new InvalidOperationException("True branch is required.");
+            throw new InvalidOperationException("Missing true condition branch.");
         _parent.IsTrue = _trueNode;
         _parent.IsFalse = _falseNode;
         return _parent;
