@@ -44,9 +44,9 @@ public class ConditionalNodeTests {
                                        _ => true,
                                        b => b.IsTrue(t => t.Do(_ => { })));
 
-        node.Should().BeOfType<IfNode>();
-        node.IsTrue.Should().NotBeNull();
-        node.IsFalse.Should().BeNull();
+        var ifNode = node.Should().BeOfType<IfNode>().Subject;
+        ifNode.IsTrue.Should().NotBeNull();
+        ifNode.IsFalse.Should().BeNull();
     }
 
     [Fact]
@@ -55,9 +55,9 @@ public class ConditionalNodeTests {
                                        b => b.IsTrue(t => t.Do(_ => { }))
                                              .IsFalse(f => f.Do(_ => { })));
 
-        node.Should().BeOfType<IfNode>();
-        node.IsTrue.Should().NotBeNull();
-        node.IsFalse.Should().NotBeNull();
+        var ifNode = node.Should().BeOfType<IfNode>().Subject;
+        ifNode.IsTrue.Should().NotBeNull();
+        ifNode.IsFalse.Should().NotBeNull();
     }
 
     [Fact]

@@ -18,8 +18,8 @@ public class GenericNodeTests {
         node.Should().BeOfType<GenericNode>();
     }
 
-    private sealed class GenericNode(uint id, IServiceProvider services, string? tag = null, string? label = null)
-        : ActionNode<GenericNode>(id, services, tag, label) {
+    private sealed class GenericNode(IServiceProvider services, uint id, string? tag = null, string? label = null)
+        : ActionNode<GenericNode>(services, id, tag, label) {
         protected override Task Execute(Context context, CancellationToken ct) => Task.CompletedTask;
     }
 }

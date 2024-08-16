@@ -58,7 +58,7 @@ public class ComplexWorkflowTests {
         var builder = new WorkflowBuilder(provider);
         builder.Do(_ => { });
 
-        var wf = builder.Build()!;
+        var wf = builder.Build().Value!;
 
         wf.Run(context);
 
@@ -85,7 +85,7 @@ public class ComplexWorkflowTests {
                                     .Do(ctx => ctx["result"] = "Action2", "[Even] SetNext result to Action2"))
                                 .IsFalse(f2 => f2
                                     .Do(ctx => ctx["result"] = "Action3", "[Odd] SetNext result to Action3")), "[No] Is even?")), "Is less than 2?");
-        return builder.Build()!;
+        return builder.Build().Value!;
     }
 
     private sealed class CustomPolicy(Action onExecute) : IPolicy {

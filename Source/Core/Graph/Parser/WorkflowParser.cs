@@ -37,10 +37,13 @@ public sealed class WorkflowParser {
         return result;
     }
 
-    private INode? Process() {
-        var builder = new WorkflowBuilder(_services);
+    private INode? Process(string? id = null) {
+        var builder = new WorkflowBuilder(_services, id, null);
         ParseStatements(builder);
-        return builder.Build<INode>();
+        var result = builder.Build();
+        if (result.IsSuccess)
+            return result.Value;
+        throw new ValidationException(result.Errors);
     }
 
     private void ParseStatements(WorkflowBuilder builder) {

@@ -1,11 +1,11 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class IfNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task<bool>> predicate, string? tag = null, string? label = null)
-    : ConditionalNode<IfNode>(id, services, tag, label) {
+public class IfNode(IServiceProvider services, uint id, Func<Context, CancellationToken, Task<bool>> predicate, string? tag = null, string? label = null)
+    : IfNode<IfNode>(services, id, tag, label) {
     private readonly Func<Context, CancellationToken, Task<bool>> _predicate = IsNotNull(predicate);
 
-    public IfNode(uint id, IServiceProvider services, Func<Context, bool> predicate, string? tag = null, string? label = null)
-        : this(id, services, (ctx, ct) => Task.Run(() => predicate(ctx), ct), tag, label) {
+    public IfNode(IServiceProvider services, uint id, Func<Context, bool> predicate, string? tag = null, string? label = null)
+        : this(services, id, (ctx, ct) => Task.Run(() => predicate(ctx), ct), tag, label) {
     }
 
     protected override string DefaultLabel { get; } = "if";
@@ -13,23 +13,23 @@ public class IfNode(uint id, IServiceProvider services, Func<Context, Cancellati
     protected override Task<bool> When(Context context, CancellationToken ct) => _predicate(context, ct);
 
     public static TNode Create<TNode>(uint id, string label, IServiceProvider services)
-        where TNode : ConditionalNode<TNode>
+        where TNode : IfNode<TNode>
         => InstanceFactory.Create<TNode>(id, label, services);
     public static TNode Create<TNode>(uint id, IServiceProvider services)
-        where TNode : ConditionalNode<TNode>
+        where TNode : IfNode<TNode>
         => InstanceFactory.Create<TNode>(id, services);
 }
 
-public abstract class ConditionalNode<TNode>(uint id, IServiceProvider services, string? tag = null, string? label = null)
-    : Node<TNode>(id, services, tag, label),
+public abstract class IfNode<TNode>(IServiceProvider services, uint id, string? tag = null, string? label = null)
+    : Node<TNode>(services, id, tag, label),
       IIfNode
-    where TNode : ConditionalNode<TNode> {
+    where TNode : IfNode<TNode> {
     public INode? IsTrue { get; set; }
     public INode? IsFalse { get; set; }
 
     protected override Result IsValid(ISet<INode> visited) {
         var result = base.IsValid(visited);
-        result += IsTrue?.Validate(visited) ?? Success();
+        result += IsTrue?.Validate(visited) ?? new ValidationError("The true node is not set.", Token?.ToSource());
         result += IsFalse?.Validate(visited) ?? Success();
         return result;
     }
@@ -50,10 +50,13 @@ public abstract class ConditionalNode<TNode>(uint id, IServiceProvider services,
     private Task<INode?> TryRunFalseNode(Context context, CancellationToken ct)
         => IsFalse is not null ? IsFalse.Run(context, ct) : Task.FromResult<INode?>(null);
 
-    public sealed override void ConnectTo(INode? next) {
+    public sealed override Result ConnectTo(INode? next) {
+        var result = Success();
+        var token = next?.Token;
         if (IsTrue is null) IsTrue = next;
         else IsTrue.ConnectTo(next);
         if (IsFalse is null) IsFalse = next;
         else IsFalse.ConnectTo(next);
+        return result;
     }
 }

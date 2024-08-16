@@ -1,51 +1,72 @@
 ﻿namespace DotNetToolbox.Graph.Factories;
 
-internal sealed class NodeFactory(IServiceProvider services, string? id = null, Dictionary<INode, Token>? nodeMap = null)
+internal sealed class NodeFactory(IServiceProvider services, string? id = null)
     : INodeFactory {
-    private readonly string _idScope = id ?? GuidProvider.Default.ToString()!;
-    private readonly Dictionary<INode, Token> _nodeMap = nodeMap ?? [];
+    private readonly string _builderId = id ?? GuidProvider.Default.ToString()!;
 
     public TNode Create<TNode>(uint id, string? tag = null, string? label = null)
         where TNode : Node<TNode>
-        => Node.Create<TNode>(id, services, tag, label);
+        => Node.Create<TNode>(services, id, tag, label);
 
-    public IIfNode CreateFork(uint id,
-                              Func<Context, bool> predicate,
-                              Action<IIfNodeBuilder> setPaths,
+    internal Result<INode> GetCreateForkResult(uint id,
+                                               Func<Context, bool> predicate,
+                                               Action<IIfNodeBuilder> setPaths,
+                                               string? tag = null,
+                                               string? label = null) {
+        var node = new IfNode(services, id, predicate, tag, label);
+        var conditionsBuilder = new WorkflowBuilder(services, _builderId, node);
+        setPaths(conditionsBuilder);
+        return conditionsBuilder.Build()!;
+    }
+
+    internal Result<INode> GetCreateChoiceResult(uint id,
+                                                 Func<Context, string> selectPath,
+                                                 Action<ICaseNodeBuilder> setPaths,
+                                                 string? tag = null,
+                                                 string? label = null) {
+        var node = new CaseNode(services, id, selectPath, tag, label);
+        var branchesBuilder = new WorkflowBuilder(services, _builderId, node);
+        setPaths(branchesBuilder);
+        return branchesBuilder.Build()!;
+    }
+
+    public INode CreateFork(uint id,
+                            Func<Context, bool> predicate,
+                            Action<IIfNodeBuilder> setPaths,
+                            string? tag = null,
+                            string? label = null) {
+        var result = GetCreateForkResult(id, predicate, setPaths, tag, label);
+        return result.IsSuccess
+            ? result.Value!
+            : throw new ValidationException(result.Errors);
+    }
+
+    public INode CreateChoice(uint id,
+                              Func<Context, string> selectPath,
+                              Action<ICaseNodeBuilder> setPaths,
                               string? tag = null,
                               string? label = null) {
-        var node = new IfNode(id, services, predicate, tag, label);
-        var conditionsBuilder = new WorkflowBuilder(services, _idScope, node, _nodeMap);
-        setPaths(conditionsBuilder);
-        return conditionsBuilder.Build<IIfNode>()!;
+        var result = GetCreateChoiceResult(id, selectPath, setPaths, tag, label);
+        return result.IsSuccess
+            ? result.Value!
+            : throw new ValidationException(result.Errors);
     }
 
-    public ICaseNode CreateChoice(uint id,
-                                  Func<Context, string> selectPath,
-                                  Action<ICaseNodeBuilder> setPaths,
-                                  string? tag = null,
-                                  string? label = null) {
-        var node = new CaseNode(id, services, selectPath, tag, label);
-        var branchesBuilder = new WorkflowBuilder(services, _idScope, node, _nodeMap);
-        setPaths(branchesBuilder);
-        return branchesBuilder.Build<ICaseNode>()!;
-    }
+    public INode CreateAction(uint id,
+                              Action<Context> action,
+                              string? tag = null,
+                              string? label = null)
+        => new ActionNode(services, id, action, tag, label);
 
-    public IActionNode CreateAction(uint id,
-                                    Action<Context> action,
-                                    string? tag = null,
-                                    string? label = null)
-        => new ActionNode(id, services, action, tag, label);
+    public INode CreateJump(uint id,
+                            string targetTag,
+                            string? tag = null,
+                            string? label = null)
+        => new JumpNode(services, id, targetTag, label);
 
-    public IJumpNode CreateJump(uint id,
-                                string targetTag,
-                                string? tag = null,
-                                string? label = null)
-        => new JumpNode(id, services, targetTag, label);
-
-    public IExitNode CreateExit(uint id,
-                               int exitCode = 0,
-                               string? tag = null,
-                               string? label = null)
-        => new ExitNode(id, services, exitCode, tag, label);
+    public INode CreateExit(uint id,
+                            int exitCode = 0,
+                            string? tag = null,
+                            string? label = null)
+        => new ExitNode(services, id, exitCode, tag, label);
 }

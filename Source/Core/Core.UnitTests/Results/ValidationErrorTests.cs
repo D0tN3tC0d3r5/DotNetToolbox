@@ -13,7 +13,7 @@ public class ValidationErrorTests {
         error2.Should().NotBeSameAs(error1);
         error1.Message.Should().Be(ValidationError.DefaultErrorMessage);
         error1.Source.Should().BeEmpty();
-        error1.Describe().Should().Be("The value is invalid.");
+        error1.ToString().Should().Be("The value is invalid.");
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class ValidationErrorTests {
         error2.Should().NotBeSameAs(error1);
         error1.Message.Should().Be("Some message.");
         error1.Source.Should().Be("Field");
-        error1.Describe().Should().Be("Field: Some message.");
+        error1.ToString().Should().Be("Field: Some message.");
     }
 
     [Theory]

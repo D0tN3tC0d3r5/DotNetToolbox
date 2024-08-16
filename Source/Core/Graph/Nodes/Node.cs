@@ -1,15 +1,15 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public static class Node {
-    public static TNode Create<TNode>(uint id,
-                                      IServiceProvider services,
+    public static TNode Create<TNode>(IServiceProvider services,
+                                      uint id,
                                       string? tag = null,
                                       string? label = null)
         where TNode : Node<TNode>
-        => InstanceFactory.Create<TNode>(id, services, tag, label);
+        => InstanceFactory.Create<TNode>(services, id, tag, label);
 }
 
-public abstract class Node<TNode>(uint id, IServiceProvider services, string? tag, string? label)
+public abstract class Node<TNode>(IServiceProvider services, uint id, string? tag, string? label)
     : INode
     where TNode : Node<TNode> {
     private readonly string? _tag = tag;
@@ -20,6 +20,7 @@ public abstract class Node<TNode>(uint id, IServiceProvider services, string? ta
     public uint Id { get; } = id;
     public virtual string Tag => _tag ?? $"{Id}";
     public string Label => _label ?? _tag ?? DefaultLabel;
+    public Token? Token { get; set; }
     public INode? Next { get; set; }
     protected IServiceProvider Services { get; } = IsNotNull(services);
 
@@ -30,17 +31,17 @@ public abstract class Node<TNode>(uint id, IServiceProvider services, string? ta
             : IsValid(visited);
     }
 
-    public abstract Result ConnectTo(INode? next, Token? token);
+    public abstract Result ConnectTo(INode? next);
 
     protected virtual Result IsValid(ISet<INode> visited) => Success();
 
-    public async Task<INode?> Run(Context context, CancellationToken ct) {
+    public async Task<INode?> Run(Context context, CancellationToken ct = default) {
         await UpdateState(context, ct);
         return await SelectPath(context, ct);
     }
 
-    protected abstract Task UpdateState(Context context, CancellationToken ct);
-    protected abstract Task<INode?> SelectPath(Context context, CancellationToken ct);
+    protected abstract Task UpdateState(Context context, CancellationToken ct = default);
+    protected abstract Task<INode?> SelectPath(Context context, CancellationToken ct = default);
 
     public override int GetHashCode() => Id.GetHashCode();
 

@@ -30,6 +30,6 @@ public sealed record ValidationError {
     public override int GetHashCode()
         => _formattedMessage.GetHashCode();
 
-    public override string Describe()
+    public override string ToString()
         => _formattedMessage;
 }

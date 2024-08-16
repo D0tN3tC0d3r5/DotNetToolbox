@@ -146,7 +146,7 @@ public class ActionNodeTests {
     }
 
     [Fact]
-    public async Task CRun_RunMethod_UpdatesContextAndReturnsNextNode() {
+    public async Task Run_RunMethod_UpdatesContextAndReturnsNextNode() {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         var context = new CustomContext(provider);

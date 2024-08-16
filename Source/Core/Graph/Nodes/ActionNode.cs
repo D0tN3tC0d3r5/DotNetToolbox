@@ -1,11 +1,11 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ActionNode(uint id, IServiceProvider services, Func<Context, CancellationToken, Task> execute, string? tag = null, string? label = null)
-    : ActionNode<ActionNode>(id, services, tag, label) {
+public sealed class ActionNode(IServiceProvider services, uint id, Func<Context, CancellationToken, Task> execute, string? tag = null, string? label = null)
+    : ActionNode<ActionNode>(services, id, tag, label) {
     private readonly Func<Context, CancellationToken, Task> _execute = IsNotNull(execute);
 
-    public ActionNode(uint id, IServiceProvider services, Action<Context> execute, string? tag = null, string? label = null)
-        : this(id, services, (ctx, ct) => Task.Run(() => execute(ctx), ct), tag, label) {
+    public ActionNode(IServiceProvider services, uint id, Action<Context> execute, string? tag = null, string? label = null)
+        : this(services, id, (ctx, ct) => Task.Run(() => execute(ctx), ct), tag, label) {
     }
 
     protected override string DefaultLabel { get; } = "action";
@@ -20,15 +20,15 @@ public abstract class ActionNode<TAction>
     where TAction : ActionNode<TAction> {
     private readonly IPolicy _policy;
 
-    protected ActionNode(uint id, IServiceProvider services, string? tag = null, string? label = null)
-        : base(id, services, tag, label) {
+    protected ActionNode(IServiceProvider services, uint id, string? tag = null, string? label = null)
+        : base(services, id, tag, label) {
         _policy = Services.GetService<IPolicy>() ?? Policy.Default;
     }
 
-    public sealed override Result ConnectTo(INode? next, Token? token) {
+    public sealed override Result ConnectTo(INode? next) {
         var result = Success();
         if (Next is null) Next = next;
-        else result += Next.ConnectTo(next, token);
+        else result += Next.ConnectTo(next);
         return result;
     }
 

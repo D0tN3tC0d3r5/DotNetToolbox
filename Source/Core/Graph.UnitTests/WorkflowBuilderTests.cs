@@ -17,7 +17,7 @@ public sealed class WorkflowBuilderTests {
                                       1["action"]
 
                                       """;
-        var start = _builder.Do(_ => { }).Build();
+        var start = _builder.Do(_ => { }).Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -36,7 +36,7 @@ public sealed class WorkflowBuilderTests {
 
         var start = _builder.Do(_ => { })
                             .Do(_ => { })
-                            .Build();
+                            .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -59,7 +59,7 @@ public sealed class WorkflowBuilderTests {
                                     .Do(_ => { }))
                                 .IsFalse(f => f
                                     .Do(_ => { })))
-                            .Build();
+                            .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -83,7 +83,7 @@ public sealed class WorkflowBuilderTests {
                                                    .Is("key1", b => b.Do(_ => { }))
                                                    .Is("key2", b => b.Do(_ => { }))
                                                    .Is("key3", b => b.Do(_ => { })))
-                            .Build();
+                            .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -121,7 +121,7 @@ public sealed class WorkflowBuilderTests {
                                             .Do(_ => { }))))
                                 .IsFalse(f => f
                                     .Do(_ => { })))
-                            .Build();
+                            .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -145,7 +145,7 @@ public sealed class WorkflowBuilderTests {
                             .If("Decision", _ => true, b => b
                                 .IsTrue(t => t.Do("Success", _ => { }))
                                 .IsFalse(f => f.Do("Fail", _ => { })))
-                            .Build();
+                            .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -174,7 +174,7 @@ public sealed class WorkflowBuilderTests {
                                     .JumpTo("LoopCondition"))
                                 .IsFalse(f => f
                                     .Do("Exit", _ => { })))
-                            .Build();
+                            .Build().Value!;
         var graph = GraphBuilder.BuildFrom(start);
 
         graph.Should().Be(expectedResult);
@@ -187,7 +187,7 @@ public sealed class WorkflowBuilderTests {
                                       1["CustomAction"]
 
                                       """;
-        var start = _builder.Do<CustomAction>().Build();
+        var start = _builder.Do<CustomAction>().Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -218,7 +218,7 @@ public sealed class WorkflowBuilderTests {
                                             .Do(_ => { }))))
                                 .IsFalse(f1 => f1
                                     .Do(_ => { })))
-                            .Build();
+                            .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -226,8 +226,8 @@ public sealed class WorkflowBuilderTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomAction(uint id, IServiceProvider services, string? tag = null, string? label = null)
-                : ActionNode<CustomAction>(id, services, tag, label) {
+    private sealed class CustomAction(IServiceProvider services, uint id, string? tag = null, string? label = null)
+                : ActionNode<CustomAction>(services, id, tag, label) {
         protected override Task Execute(Context context, CancellationToken ct)
             => Task.CompletedTask;
     }

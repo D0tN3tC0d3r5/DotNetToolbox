@@ -27,9 +27,9 @@ public class EndNodeTests {
         var node = _factory.CreateExit(1, customCode, customTag, customLabel);
 
         node.Should().NotBeNull();
-        node.Should().BeOfType<ExitNode>();
-        node.ExitCode.Should().Be(customCode);
-        node.Tag.Should().Be(customTag);
-        node.Label.Should().Be(customLabel);
+        var exitNode = node.Should().BeOfType<ExitNode>().Subject;
+        exitNode.ExitCode.Should().Be(customCode);
+        exitNode.Tag.Should().Be(customTag);
+        exitNode.Label.Should().Be(customLabel);
     }
 }
