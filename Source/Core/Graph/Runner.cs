@@ -63,7 +63,7 @@ public sealed class Runner(string id,
     }
 
     private Task StartingRun(IWorkflow workflow, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Starting workflow '{WorkFlowId}' at '{_start}'...", Id, Start);
+        _logger.LogInformation(message: "Starting workflow '{WorkFlowId}' at '{_first}'...", Id, Start);
         return OnStartingWorkflow is null
                    ? Task.CompletedTask
                    : OnStartingWorkflow(workflow, ct);
@@ -77,7 +77,7 @@ public sealed class Runner(string id,
     }
 
     private Task<bool> NodeExecuted(IWorkflow workflow, INode currentNode, INode? nextNode, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Node '{NodeId}' executed during the workflow '{WorkFlowId}'.", currentNode.Id, Id);
+        _logger.LogInformation(message: "Node '{NodeIdGenerator}' executed during the workflow '{WorkFlowId}'.", currentNode.Id, Id);
         return OnNodeExecuted is null
                    ? Task.FromResult(true)
                    : OnNodeExecuted(workflow, currentNode, nextNode, ct);

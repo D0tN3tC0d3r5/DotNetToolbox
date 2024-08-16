@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Graph.Parser;
+﻿using Word = (string Text, int Column);
+
+namespace DotNetToolbox.Graph.Parser;
 
 // # this is the line 1 of a comment
 // # this is the line 2 of a comment

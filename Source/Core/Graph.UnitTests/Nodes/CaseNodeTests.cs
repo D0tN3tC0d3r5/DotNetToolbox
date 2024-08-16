@@ -1,13 +1,15 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class CaseNodeTests {
+    private readonly ServiceProvider _provider;
     private readonly NodeFactory _factory;
 
     public CaseNodeTests() {
         var services = new ServiceCollection();
         services.AddTransient<IPolicy, RetryPolicy>();
-        var provider = services.BuildServiceProvider();
-        _factory = new(provider);
+        services.AddTransient<INodeFactory>(p => new NodeFactory(p));
+        _provider = services.BuildServiceProvider();
+        _factory = new NodeFactory(_provider);
     }
 
     [Fact]
@@ -83,8 +85,8 @@ public class CaseNodeTests {
     public void CreateChoice_ValidateMethod_ValidatesAllBranches() {
         var node = _factory.CreateChoice(1,
                                          _ => "key",
-                                         b => b.Is("key1", br => br.Do(_ => { }))
-                                               .Is("key2", br => br.Do(_ => { }))
+                                         b => b.Is("key1", c => c.Do(_ => { }))
+                                               .Is("key2", c => c.Do(_ => { }))
                                                .Is("key3", _ => { }));
 
         var result = node.Validate();

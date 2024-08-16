@@ -76,15 +76,15 @@ public class ComplexWorkflowTests {
                    ctx => ctx["count"].As<int>() < 2,
                    if1 => if1.IsTrue(t1 => t1
                             .Do(ctx => ctx["count"] = ctx["count"].As<int>() + 1, "[Yes1] Add one")
-                            .Do(ctx => ctx["result"] = "Action1", "[Yes2] Set result to Action1")
+                            .Do(ctx => ctx["result"] = "Action1", "[Yes2] SetNext result to Action1")
                             .JumpTo("LoopStart", "[Yes3] Loop back"))
                           .IsFalse(f1 => f1
                             .If(ctx => ctx["count"].As<int>() % 2 == 0,
                                 if2 => if2
                                 .IsTrue(t2 => t2
-                                    .Do(ctx => ctx["result"] = "Action2", "[Even] Set result to Action2"))
+                                    .Do(ctx => ctx["result"] = "Action2", "[Even] SetNext result to Action2"))
                                 .IsFalse(f2 => f2
-                                    .Do(ctx => ctx["result"] = "Action3", "[Odd] Set result to Action3")), "[No] Is even?")), "Is less than 2?");
+                                    .Do(ctx => ctx["result"] = "Action3", "[Odd] SetNext result to Action3")), "[No] Is even?")), "Is less than 2?");
         return builder.Build()!;
     }
 

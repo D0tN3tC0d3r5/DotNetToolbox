@@ -1,48 +1,55 @@
-﻿using NodeMapEntry = (DotNetToolbox.Graph.Nodes.INode node, DotNetToolbox.Graph.Parser.Token token);
-
-namespace DotNetToolbox.Graph.Parser;
+﻿namespace DotNetToolbox.Graph.Parser;
 
 public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
-    private readonly WorkflowBuilder _builder;
     private Token _currentToken;
     private readonly List<ValidationError> _errors = [];
-    private readonly List<NodeMapEntry > _nodeMap = [];
+    private readonly Dictionary<INode, Token> _nodeMap = [];
+    private readonly IServiceProvider _services;
 
     private WorkflowParser(IEnumerable<Token> tokens, IServiceProvider services) {
         _tokens = tokens.GetEnumerator();
-        _builder = new(services);
         NextToken();
+        _services = services;
     }
 
     public static Result<INode?> Parse(IEnumerable<Token> tokens, IServiceProvider services) {
         var parser = new WorkflowParser(tokens, services);
         var node = parser.Process();
         var result = Success<INode?>(node);
+        result += parser.SetJumps();
         return parser._errors.Aggregate(result, (current, error) => current + error);
     }
 
-    private void SetJumps() {
-        foreach (var entry in _nodeMap.Where(n => n.node is IJumpNode)) {
-            var jumpNode = (IJumpNode)entry.node;
-            if (!_nodeMap.TryGetValue(jumpNode.TargetTag, out var targetNode))
-                throw new InvalidOperationException($"Jump target '{jumpNode.TargetTag}' not found.");
-            jumpNode.Next = targetNode;
+    private Result SetJumps() {
+        var result = Success();
+        foreach (var (node, token) in _nodeMap) {
+            if (node is JumpNode jumpNode) {
+                var targetNode = _nodeMap.Keys.FirstOrDefault(n => n.Tag == jumpNode.TargetTag);
+                if (targetNode == null) {
+                    result += new ValidationError($"Jump target '{jumpNode.TargetTag}' not found.", $"[{token.Line}, {token.Column}]: {token.Type}.");
+                }
+                else {
+                    jumpNode.Next = targetNode;
+                }
+            }
         }
+        return result;
     }
 
     private INode? Process() {
-        ParseStatements(_builder);
-        return _builder.Build();
+        var builder = new WorkflowBuilder(_services);
+        ParseStatements(builder);
+        return builder.Build<INode>();
     }
 
-    private void ParseStatements(IWorkflowBuilder builder) {
+    private void ParseStatements(WorkflowBuilder builder) {
         var indentColumn = _currentToken.Column;
         while (_currentToken.Type is not TokenType.EndOfFile && _currentToken.Column >= indentColumn)
             ParseStatement(builder);
     }
 
-    private void ParseStatement(IWorkflowBuilder builder) {
+    private void ParseStatement(WorkflowBuilder builder) {
         switch (_currentToken.Type) {
             case TokenType.If:
                 ParseIf(builder);
@@ -89,7 +96,7 @@ public sealed class WorkflowParser {
         AllowMany(TokenType.Indent);
     }
 
-    private void ParseIf(IWorkflowBuilder builder) {
+    private void ParseIf(WorkflowBuilder builder) {
         Ensure(TokenType.If);
         var predicate = ParsePredicate();
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
@@ -98,8 +105,8 @@ public sealed class WorkflowParser {
         try {
             builder.If(tag!,
                        BuildPredicate(predicate),
-                       b => b.IsTrue(ParseThen)
-                             .IsFalse(ParseElse),
+                       b => b.IsTrue(t => ParseThen((WorkflowBuilder)t))
+                             .IsFalse(f => ParseElse((WorkflowBuilder)f)),
                        label);
         }
         catch (Exception ex) {
@@ -117,13 +124,13 @@ public sealed class WorkflowParser {
         return condition.ToString().Trim();
     }
 
-    private void ParseThen(IWorkflowBuilder builder) {
+    private void ParseThen(WorkflowBuilder builder) {
         Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
         ParseStatements(builder);
     }
 
-    private void ParseElse(IWorkflowBuilder builder) {
+    private void ParseElse(WorkflowBuilder builder) {
         if (!Has(TokenType.Else))
             return;
         Ensure(TokenType.Else);
@@ -132,7 +139,7 @@ public sealed class WorkflowParser {
         ParseStatements(builder);
     }
 
-    private void ParseCase(IWorkflowBuilder builder) {
+    private void ParseCase(WorkflowBuilder builder) {
         Ensure(TokenType.Case);
         var selector = GetValueFrom(TokenType.Identifier);
         var tag = GetValueOrDefaultFrom(TokenType.Tag);
@@ -143,7 +150,7 @@ public sealed class WorkflowParser {
         try {
             builder.Case(tag!,
                          BuildSelector(selector),
-                         ParseCaseOptions,
+                         b => ParseCaseOptions((WorkflowBuilder)b),
                          label);
         }
         catch (Exception ex) {
@@ -151,29 +158,29 @@ public sealed class WorkflowParser {
         }
     }
 
-    private void ParseCaseOptions(CaseNodeBuilder branches) {
+    private void ParseCaseOptions(WorkflowBuilder builder) {
         var count = 0;
-        while (TryParseCaseOption(branches)) count++;
+        while (TryParseCaseOption(builder)) count++;
         if (count == 0) Forbid(TokenType.Otherwise);
-        ParseOtherwise(branches);
+        ParseOtherwise(builder);
     }
 
-    private bool TryParseCaseOption(CaseNodeBuilder branches) {
+    private bool TryParseCaseOption(WorkflowBuilder builder) {
         if (!Has(TokenType.Is)) return false;
         Ensure(TokenType.Is);
         var caseValue = GetValueFrom(TokenType.String);
         Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
-        branches.Is(caseValue, ParseStatements);
+        builder.Is(caseValue, b => ParseStatements((WorkflowBuilder)b));
         return true;
     }
 
-    private void ParseOtherwise(CaseNodeBuilder branches) {
+    private void ParseOtherwise(WorkflowBuilder branches) {
         if (!Has(TokenType.Otherwise)) return;
         Ensure(TokenType.Otherwise);
         Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
-        branches.Otherwise(ParseStatements);
+        branches.Otherwise(b => ParseStatements((WorkflowBuilder)b));
         Forbid(TokenType.Otherwise);
     }
 

@@ -1,6 +1,5 @@
 ﻿namespace DotNetToolbox.Graph.Builders;
 
-public interface IIfNodeBuilder
-    : INodeBuilder<IIfNode> {
+public interface IIfNodeBuilder {
     IElseNodeBuilder IsTrue(Action<IWorkflowBuilder> setPath);
 }

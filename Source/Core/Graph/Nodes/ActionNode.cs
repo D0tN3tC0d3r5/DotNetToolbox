@@ -25,9 +25,11 @@ public abstract class ActionNode<TAction>
         _policy = Services.GetService<IPolicy>() ?? Policy.Default;
     }
 
-    public sealed override void ConnectTo(INode? next) {
+    public sealed override Result ConnectTo(INode? next, Token? token) {
+        var result = Success();
         if (Next is null) Next = next;
-        else Next?.ConnectTo(next);
+        else result += Next.ConnectTo(next, token);
+        return result;
     }
 
     protected sealed override Task<INode?> SelectPath(Context context, CancellationToken ct)

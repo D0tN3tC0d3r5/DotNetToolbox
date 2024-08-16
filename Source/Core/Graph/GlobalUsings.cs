@@ -8,7 +8,9 @@ global using DotNetToolbox.Environment;
 global using DotNetToolbox.Graph.Builders;
 global using DotNetToolbox.Graph.Factories;
 global using DotNetToolbox.Graph.Nodes;
+global using DotNetToolbox.Graph.Parser;
 global using DotNetToolbox.Graph.Policies;
+global using DotNetToolbox.Graph.Utilities;
 global using DotNetToolbox.Results;
 global using DotNetToolbox.Singleton;
 

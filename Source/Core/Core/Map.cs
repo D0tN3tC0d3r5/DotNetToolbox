@@ -119,7 +119,7 @@ public class Map<TValue>
         }
     }
 
-    public override string ToString() {
+    public override string Describe() {
         var builder = new StringBuilder();
         ToText(builder);
         return builder.ToString();

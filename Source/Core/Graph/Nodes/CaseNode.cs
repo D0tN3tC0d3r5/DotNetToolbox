@@ -51,10 +51,12 @@ public abstract class CaseNode<TNode>(uint id, IServiceProvider services, string
     protected sealed override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
 
-    public sealed override void ConnectTo(INode? next) {
+    public sealed override Result ConnectTo(INode? next, Token? token) {
+        var result = Success();
         foreach (var choice in Choices) {
             if (choice.Value is null) Choices[choice.Key] = next;
-            else choice.Value?.ConnectTo(next);
+            else result += choice.Value.ConnectTo(next, token);
         }
+        return result;
     }
 }

@@ -30,7 +30,7 @@ public abstract class Node<TNode>(uint id, IServiceProvider services, string? ta
             : IsValid(visited);
     }
 
-    public abstract void ConnectTo(INode? next);
+    public abstract Result ConnectTo(INode? next, Token? token);
 
     protected virtual Result IsValid(ISet<INode> visited) => Success();
 
@@ -43,4 +43,7 @@ public abstract class Node<TNode>(uint id, IServiceProvider services, string? ta
     protected abstract Task<INode?> SelectPath(Context context, CancellationToken ct);
 
     public override int GetHashCode() => Id.GetHashCode();
+
+    internal void MapTo(Token token, Dictionary<INode, Token> nodeMap)
+        => nodeMap[this] = token;
 }
