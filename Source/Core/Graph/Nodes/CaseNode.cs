@@ -60,8 +60,8 @@ public abstract class CaseNode<TNode>(string? id, INodeSequence? sequence)
     protected sealed override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
 
-    public sealed override Result ConnectTo(INode? next) {
-        var result = Success();
+    public sealed override Result<INode> ConnectTo(INode? next) {
+        var result = Success(next);
         var token = next?.Token;
         if (token?.Type is TokenType.Is) {
             var key = token.Value;

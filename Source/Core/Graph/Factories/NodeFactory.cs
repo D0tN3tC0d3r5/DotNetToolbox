@@ -28,7 +28,7 @@ internal sealed class NodeFactory(IServiceProvider services)
                             string? label = null)
         => new IfNode(id, predicate, _sequence) {
             Label = label ?? string.Empty,
-            IsTrue = IsNotNull(truePath),
+            IsTrue = truePath,
             IsFalse = falsePath,
         };
 

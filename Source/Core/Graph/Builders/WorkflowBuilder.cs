@@ -42,7 +42,7 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
                                string? label = null)
         => Do(null, tag, action, label);
 
-    public IWorkflowBuilder Do(Action<Context> action, 
+    public IWorkflowBuilder Do(Action<Context> action,
                                string? label = null)
         => Do(null, string.Empty, action, label);
 
@@ -86,7 +86,7 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
         var node = _nodeFactory.CreateCase(tag, select, null!, null, label);
         node.Token = token;
         var builder = new WorkflowBuilder(_services, _id, node);
-        buildBranches(builder);
+        buildChoices(builder);
         _result += ConnectNode(node);
         _nodes.AddRange(builder._nodes);
         return this;
@@ -95,21 +95,15 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
     public IWorkflowBuilder Case(string tag,
                                  Func<Context, string> select,
                                  Action<ICaseNodeBuilder> buildChoices,
-                                 string? label = null) {
-        var node = new CaseNode(tag, select);
-        var builder = new WorkflowBuilder(_services, _id, node);
-        buildChoices(builder);
-        _result += ConnectNode(node);
-        _nodes.AddRange(builder._nodes);
-        return this;
-    }
+                                 string? label = null)
+        => Case(null, tag, select, buildChoices, label);
 
     public IWorkflowBuilder Case(Func<Context, string> select,
                                  Action<ICaseNodeBuilder> buildChoices,
                                  string? label = null)
-        => Case(null!, select, buildChoices, label);
+        => Case(null, string.Empty, select, buildChoices, label);
 
-    internal IWorkflowBuilder Exit(Token token,
+    internal IWorkflowBuilder Exit(Token? token,
                                    string tag,
                                    int exitCode = 0,
                                    string? label = null) {
@@ -119,14 +113,17 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
         return this;
     }
 
-    public IWorkflowBuilder Exit(string? tag = null, int exitCode = 0, string? label = null)
-        => Exit(null!, exitCode, tag, label);
+    public IWorkflowBuilder Exit(string tag, int exitCode = 0, string? label = null)
+        => Exit(null, tag, exitCode, label);
 
-    internal IWorkflowBuilder JumpTo(Token token,
-                                     string targetTag,
-                                     string? tag,
+    public IWorkflowBuilder Exit(int exitCode = 0, string? label = null)
+        => Exit(null, string.Empty, exitCode, label);
+
+    internal IWorkflowBuilder JumpTo(Token? token,
+                                     string tag,
+                                     string targetNode,
                                      string? label) {
-        var node = _nodeFactory.CreateJump(_sequence.Next.ToString(), IsNotNullOrWhiteSpace(targetTag), tag, label);
+        var node = _nodeFactory.CreateJump(tag, targetNode, label);
         node.Token = token;
         _result += ConnectNode(node);
         return this;
@@ -135,11 +132,11 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
     public IWorkflowBuilder JumpTo(string tag,
                                    string targetNode,
                                    string? label = null)
-        => JumpTo(null!, targetNode, IsNotNullOrWhiteSpace(tag), label);
+        => JumpTo(null, tag, targetNode, label);
 
     public IWorkflowBuilder JumpTo(string targetNode,
                                    string? label = null)
-        => JumpTo(null!, targetNode, null, label);
+        => JumpTo(null, string.Empty, targetNode, label);
 
     private Result ConnectNode(INode node) {
         _first ??= node;
