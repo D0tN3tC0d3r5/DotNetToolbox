@@ -25,7 +25,7 @@ public sealed class WorkflowParser {
         var result = Success();
         foreach (var (node, token) in _nodeMap) {
             if (node is JumpNode jumpNode) {
-                var targetNode = _nodeMap.Keys.FirstOrDefault(n => n.Tag == jumpNode.TargetTag);
+                var targetNode = _nodeMap.Keys.FirstOrDefault(n => n.Id == jumpNode.TargetTag);
                 if (targetNode == null) {
                     result += new ValidationError($"Jump target '{jumpNode.TargetTag}' not found.", $"[{token.Line}, {token.Column}]: {token.Type}.");
                 }
@@ -89,7 +89,7 @@ public sealed class WorkflowParser {
         var label = GetValueOrDefaultFrom(TokenType.Label) ?? name;
 
         try {
-            builder.Do(tag!, BuildAction(name), label);
+            builder.Do(_currentToken, BuildAction(name), tag!, label);
         }
         catch (Exception ex) {
             AddError($"Error creating action node: {ex.Message}");
@@ -106,10 +106,11 @@ public sealed class WorkflowParser {
         var label = GetValueOrDefaultFrom(TokenType.Label);
 
         try {
-            builder.If(tag!,
+            builder.If(_currentToken,
                        BuildPredicate(predicate),
                        b => b.IsTrue(t => ParseThen((WorkflowBuilder)t))
                              .IsFalse(f => ParseElse((WorkflowBuilder)f)),
+                       tag!,
                        label);
         }
         catch (Exception ex) {
@@ -151,9 +152,10 @@ public sealed class WorkflowParser {
         AllowMany(TokenType.Indent);
 
         try {
-            builder.Case(tag!,
+            builder.Case(_currentToken,
                          BuildSelector(selector),
                          b => ParseCaseOptions((WorkflowBuilder)b),
+                         tag!,
                          label);
         }
         catch (Exception ex) {

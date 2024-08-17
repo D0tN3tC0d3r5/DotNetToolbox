@@ -1,34 +1,30 @@
 ﻿namespace DotNetToolbox.Graph.Factories;
 
 public interface INodeFactory {
-    TNode Create<TNode>(uint id,
-                        string? tag = null,
+    TNode Create<TNode>(string id,
                         string? label = null)
         where TNode : Node<TNode>;
 
-    INode CreateFork(uint id,
-                     Func<Context, bool> predicate,
-                     Action<IIfNodeBuilder> setPaths,
-                     string? tag = null,
+    INode CreateIf(string id,
+                   Func<Context, bool> predicate,
+                   INode truePath,
+                   INode? falsePath = null,
+                   string? label = null);
+    INode CreateCase(string id,
+                     Func<Context, string> selectPath,
+                     IDictionary<string, INode?> choices,
+                     INode? otherwise = null,
                      string? label = null);
-    INode CreateChoice(uint id,
-                       Func<Context, string> selectPath,
-                       Action<ICaseNodeBuilder> setPaths,
-                       string? tag = null,
-                       string? label = null);
 
-    INode CreateAction(uint id,
+    INode CreateAction(string id,
                        Action<Context> action,
-                       string? tag = null,
                        string? label = null);
 
-    INode CreateJump(uint id,
+    INode CreateJump(string id,
                      string targetTag,
-                     string? tag = null,
                      string? label = null);
 
-    INode CreateExit(uint id,
+    INode CreateExit(string id,
                      int exitCode = 0,
-                     string? tag = null,
                      string? label = null);
 }

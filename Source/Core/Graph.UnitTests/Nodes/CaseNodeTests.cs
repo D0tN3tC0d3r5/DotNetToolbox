@@ -13,7 +13,7 @@ public class CaseNodeTests {
 
     [Fact]
     public void CreateChoice_WithoutLabel_ReturnsBranchingNodeWithDefaultLabel() {
-        var node = _factory.CreateChoice(1, _ => "default", _ => { });
+        var node = _factory.CreateCase(1, _ => "default", _ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<CaseNode>();
@@ -24,7 +24,7 @@ public class CaseNodeTests {
     public void CreateChoice_WithCustomLabel_ReturnsBranchingNodeWithCustomLabel() {
         const string customLabel = "Custom Choice";
         const string customTag = "Action1";
-        var node = _factory.CreateChoice(1, _ => "default", _ => { }, customTag, customLabel);
+        var node = _factory.CreateCase(1, _ => "default", _ => { }, customTag, customLabel);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<CaseNode>();
@@ -33,7 +33,7 @@ public class CaseNodeTests {
 
     [Fact]
     public void CreateChoice_WithMultipleBranches_SetsAllBranches() {
-        var node = _factory.CreateChoice(1,
+        var node = _factory.CreateCase(1,
                                          _ => "key",
                                          b => b.Is("key1", _ => { })
                                                .Is("key2", _ => { })
@@ -50,7 +50,7 @@ public class CaseNodeTests {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         using var context = new Context(provider);
-        var node = _factory.CreateChoice(1,
+        var node = _factory.CreateCase(1,
                                          _ => "key2",
                                          b => b.Is("key1", br => br.Do(ctx => ctx["branch"] = "1"))
                                                .Is("key2", br => br.Do(ctx => ctx["branch"] = "2"))
@@ -63,7 +63,7 @@ public class CaseNodeTests {
 
     [Fact]
     public async Task Run_MethodWithNonExistingKey_ThrowsInvalidOperationException() {
-        var node = _factory.CreateChoice(1,
+        var node = _factory.CreateCase(1,
                                          _ => "nonexistent",
                                          b => b.Is("key1", _ => { })
                                                .Is("key2", _ => { }));
@@ -82,7 +82,7 @@ public class CaseNodeTests {
 
     [Fact]
     public void CreateChoice_ValidateMethod_ValidatesAllBranches() {
-        var node = _factory.CreateChoice(1,
+        var node = _factory.CreateCase(1,
                                          _ => "key",
                                          b => b.Is("key1", c => c.Do(_ => { }))
                                                .Is("key2", c => c.Do(_ => { }))

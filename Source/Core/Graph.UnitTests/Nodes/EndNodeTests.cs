@@ -29,7 +29,7 @@ public class EndNodeTests {
         node.Should().NotBeNull();
         var exitNode = node.Should().BeOfType<ExitNode>().Subject;
         exitNode.ExitCode.Should().Be(customCode);
-        exitNode.Tag.Should().Be(customTag);
+        exitNode.Id.Should().Be(customTag);
         exitNode.Label.Should().Be(customLabel);
     }
 }

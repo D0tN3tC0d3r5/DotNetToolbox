@@ -1,21 +1,35 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ActionNode(uint id, Func<Context, CancellationToken, Task> execute, string? tag = null, string? label = null, IPolicy? policy = null)
-    : ActionNode<ActionNode>(id, tag, label, policy) {
-    private readonly Func<Context, CancellationToken, Task> _execute = IsNotNull(execute);
-
-    public ActionNode(uint id, Action<Context> execute, string? tag = null, string? label = null, IPolicy? policy = null)
-        : this(id, (ctx, ct) => Task.Run(() => execute(ctx), ct), tag, label, policy) {
+public sealed class ActionNode(string id, Func<Context, CancellationToken, Task> execute, INodeSequence? sequence = null, IPolicy? policy = null)
+    : ActionNode<ActionNode>(id, sequence, policy) {
+    public ActionNode(string id, Action<Context> execute, INodeSequence? sequence = null, IPolicy? policy = null)
+        : this(id, (ctx, ct) => Task.Run(() => execute(ctx), ct), sequence, policy) {
     }
+    public ActionNode(Func<Context, CancellationToken, Task> execute, INodeSequence? sequence = null, IPolicy? policy = null)
+        : this(null!, execute, sequence, policy) {
+    }
+    public ActionNode(Action<Context> execute, INodeSequence? sequence = null, IPolicy? policy = null)
+        : this(null!, (ctx, ct) => Task.Run(() => execute(ctx), ct), sequence, policy) {
+    }
+
+    private readonly Func<Context, CancellationToken, Task> _execute = IsNotNull(execute);
 
     protected override string DefaultLabel { get; } = "action";
 
     protected override Task Execute(Context context, CancellationToken ct)
         => _execute(context, ct);
+
+    public static TNode Create<TNode>(IServiceProvider services, string? id = null)
+        where TNode : ActionNode<TNode>
+        => Node.Create<TNode>(services, id);
+
+    public static TNode Create<TNode>(string? id = null, INodeSequence? sequence = null, IPolicy? policy = null)
+        where TNode : ActionNode<TNode>
+        => Node.Create<TNode>(id, sequence, policy);
 }
 
-public abstract class ActionNode<TAction>(uint id, string? tag, string? label, IPolicy? policy = null)
-    : Node<TAction>(id, tag, label),
+public abstract class ActionNode<TAction>(string? id, INodeSequence? sequence, IPolicy? policy)
+    : Node<TAction>(id, sequence),
       IActionNode
     where TAction : ActionNode<TAction> {
     private readonly IPolicy _policy = policy ?? Policy.Default;

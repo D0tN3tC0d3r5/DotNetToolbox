@@ -15,12 +15,12 @@ public sealed class GraphBuilder {
         if (node is null)
             return _stringBuilder.ToString();
         if (previous is not null)
-            AddEdge(previous.Id, node.Id, label);
+            AddEdge(previous.Number, node.Number, label);
         else
             _stringBuilder.AppendLine("flowchart TD");
         if (!_visited.Add(node))
             return _stringBuilder.ToString();
-        _stringBuilder.AppendLine($"{node.Id}[\"{node.Label}\"]");
+        _stringBuilder.AppendLine($"{node.Number}[\"{node.Label}\"]");
 
         switch (node) {
             case IActionNode actionNode:

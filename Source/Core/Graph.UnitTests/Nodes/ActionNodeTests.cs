@@ -29,7 +29,7 @@ public class ActionNodeTests {
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
         node.Label.Should().Be(customLabel);
-        node.Tag.Should().Be(customTag);
+        node.Id.Should().Be(customTag);
     }
 
     [Fact]

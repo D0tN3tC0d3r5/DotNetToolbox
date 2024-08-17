@@ -2,22 +2,30 @@
 
 public static class Node {
     [return: NotNull]
-    public static TNode Create<TNode>(IServiceProvider services, uint id, string? tag = null, string? label = null)
+    public static TNode Create<TNode>(IServiceProvider services, string? id = null)
         where TNode : Node<TNode>
-        => InstanceFactory.Create<TNode>(services, id, tag ?? string.Empty, label ?? string.Empty);
+        => InstanceFactory.Create<TNode>(services, id);
+
+    public static TNode Create<TNode>(string? id = null, INodeSequence? sequence = null, params object?[] args)
+        where TNode : Node<TNode>
+        => InstanceFactory.Create<TNode>([id, sequence, .. args]);
 }
 
-public abstract class Node<TNode>(uint id, string? tag = null, string? label = null)
-    : INode
+public abstract class Node<TNode> : INode
     where TNode : Node<TNode> {
-    private readonly string? _tag = tag;
-    private readonly string? _label = label;
+    private readonly uint _number;
+
+    protected Node(string? id, INodeSequence? sequence) {
+        Number = (sequence ?? NodeSequence.Shared).Next;
+        Id = string.IsNullOrWhiteSpace(id) ? $"{_number}" : id;
+        Label = string.IsNullOrWhiteSpace(id) ? DefaultLabel : Id;
+    }
 
     protected virtual string DefaultLabel { get; } = typeof(TNode).Name;
 
-    public uint Id { get; } = id;
-    public virtual string Tag => string.IsNullOrWhiteSpace(_tag) ? $"{Id}" : _tag;
-    public string Label => string.IsNullOrWhiteSpace(_label) ? string.IsNullOrWhiteSpace(_tag) ? DefaultLabel : _tag : _label;
+    public string Id { get; }
+    public uint Number { get; }
+    public string Label { get; set; }
     public Token? Token { get; set; }
     public INode? Next { get; set; }
 

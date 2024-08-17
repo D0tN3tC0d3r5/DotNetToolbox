@@ -1,12 +1,18 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class IfNode(uint id, Func<Context, CancellationToken, Task<bool>> predicate, string? tag = null, string? label = null)
-    : IfNode<IfNode>(id, tag, label) {
-    private readonly Func<Context, CancellationToken, Task<bool>> _predicate = IsNotNull(predicate);
-
-    public IfNode(uint id, Func<Context, bool> predicate, string? tag = null, string? label = null)
-        : this(id, (ctx, ct) => Task.Run(() => predicate(ctx), ct), tag, label) {
+public class IfNode(string id, Func<Context, CancellationToken, Task<bool>> predicate, INodeSequence? sequence = null)
+    : IfNode<IfNode>(id, sequence) {
+    public IfNode(string id, Func<Context, bool> predicate, INodeSequence? sequence = null)
+        : this(id, (ctx, ct) => Task.Run(() => predicate(ctx), ct), sequence) {
     }
+    public IfNode(Func<Context, CancellationToken, Task<bool>> predicate, INodeSequence? sequence = null)
+        : this(null!, predicate, sequence) {
+    }
+    public IfNode(Func<Context, bool> predicate, INodeSequence? sequence = null)
+        : this(null!, (ctx, ct) => Task.Run(() => predicate(ctx), ct), sequence) {
+    }
+
+    private readonly Func<Context, CancellationToken, Task<bool>> _predicate = IsNotNull(predicate);
 
     protected override string DefaultLabel { get; } = "if";
 
@@ -20,8 +26,8 @@ public class IfNode(uint id, Func<Context, CancellationToken, Task<bool>> predic
         => InstanceFactory.Create<TNode>(id, services);
 }
 
-public abstract class IfNode<TNode>(uint id, string? tag, string? label)
-    : Node<TNode>(id, tag, label),
+public abstract class IfNode<TNode>(string id, INodeSequence? sequence = null)
+    : Node<TNode>(id, sequence),
       IIfNode
     where TNode : IfNode<TNode> {
     public INode? IsTrue { get; set; }

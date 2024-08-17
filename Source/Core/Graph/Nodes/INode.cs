@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public interface INode {
-    uint Id { get; }
-    string Tag { get; }
-    string Label { get; }
+    uint Number { get; }
+    string Id { get; }
 
+    string Label { get; set; }
     Token? Token { get; set; }
     INode? Next { get; set; }
 

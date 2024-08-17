@@ -1,27 +1,34 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class CaseNode(uint id, Func<Context, CancellationToken, Task<string>> select, string? tag = null, string? label = null)
-    : CaseNode<CaseNode>(id, tag, label) {
-    private readonly Func<Context, CancellationToken, Task<string>> _select = IsNotNull(select);
-
-    public CaseNode(uint id, Func<Context, string> selector, string? tag = null, string? label = null)
-        : this(id, (ctx, ct) => Task.Run(() => selector(ctx), ct), tag, label) {
+public sealed class CaseNode(string id, Func<Context, CancellationToken, Task<string>> select, INodeSequence? sequence = null)
+    : CaseNode<CaseNode>(id, sequence) {
+    public CaseNode(string id, Func<Context, string> select, INodeSequence? sequence = null)
+        : this(id, (ctx, ct) => Task.Run(() => select(ctx), ct), sequence) {
     }
+    public CaseNode(Func<Context, CancellationToken, Task<string>> select, INodeSequence? sequence = null)
+        : this(null!, select, sequence) {
+    }
+    public CaseNode(Func<Context, string> select, INodeSequence? sequence = null)
+        : this(null!, (ctx, ct) => Task.Run(() => select(ctx), ct), sequence) {
+    }
+
+    private readonly Func<Context, CancellationToken, Task<string>> _select = IsNotNull(select);
 
     protected override string DefaultLabel { get; } = "case";
 
     protected override Task<string> Select(Context context, CancellationToken ct) => _select(context, ct);
 
-    public static TNode Create<TNode>(uint id, string label, IServiceProvider services)
+    public static TNode Create<TNode>(IServiceProvider services, string? id = null)
         where TNode : CaseNode<TNode>
-        => InstanceFactory.Create<TNode>(id, label, services);
-    public static TNode Create<TNode>(uint id, IServiceProvider services)
+        => Node.Create<TNode>(services, id);
+
+    public static TNode Create<TNode>(string? id = null, INodeSequence? sequence = null, params object?[] args)
         where TNode : CaseNode<TNode>
-        => InstanceFactory.Create<TNode>(id, services);
+        => Node.Create<TNode>(id ?? string.Empty, sequence, args);
 }
 
-public abstract class CaseNode<TNode>(uint id, string? tag, string? label)
-    : Node<TNode>(id, tag, label),
+public abstract class CaseNode<TNode>(string? id, INodeSequence? sequence)
+    : Node<TNode>(id, sequence),
       ICaseNode
     where TNode : CaseNode<TNode> {
     public Dictionary<string, INode?> Choices { get; } = [];
