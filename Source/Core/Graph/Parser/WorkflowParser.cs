@@ -15,10 +15,7 @@ public sealed class WorkflowParser {
 
     public static Result<INode?> Parse(IEnumerable<Token> tokens, IServiceProvider services) {
         var parser = new WorkflowParser(tokens, services);
-        var node = parser.Process();
-        var result = Success<INode?>(node);
-        result += parser.SetJumps();
-        return parser._errors.Aggregate(result, (current, error) => current + error);
+        return parser.ParseBlock() + parser.SetJumps();
     }
 
     private Result SetJumps() {
@@ -37,13 +34,10 @@ public sealed class WorkflowParser {
         return result;
     }
 
-    private INode? Process(string? id = null) {
+    private Result<INode?> ParseBlock(string? id = null) {
         var builder = new WorkflowBuilder(_services, id, null);
         ParseStatements(builder);
-        var result = builder.Build();
-        if (result.IsSuccess)
-            return result.Value;
-        throw new ValidationException(result.Errors);
+        return builder.Build();
     }
 
     private void ParseStatements(WorkflowBuilder builder) {
@@ -54,6 +48,9 @@ public sealed class WorkflowParser {
 
     private void ParseStatement(WorkflowBuilder builder) {
         switch (_currentToken.Type) {
+            case TokenType.Identifier:
+                ParseAction(builder);
+                break;
             case TokenType.If:
                 ParseIf(builder);
                 break;
@@ -65,9 +62,6 @@ public sealed class WorkflowParser {
                 break;
             case TokenType.JumpTo:
                 ParseJumpTo(builder);
-                break;
-            case TokenType.Identifier:
-                ParseIdentifier(builder);
                 break;
             case TokenType.Error: // acts as an identifier.
                 AddError(_currentToken.Value);
@@ -83,13 +77,13 @@ public sealed class WorkflowParser {
         }
     }
 
-    private void ParseIdentifier(IWorkflowBuilder builder) {
+    private void ParseAction(WorkflowBuilder builder) {
         var name = GetValueFrom(TokenType.Identifier);
-        var tag = GetValueOrDefaultFrom(TokenType.Tag);
+        var tag = GetValueOrDefaultFrom(TokenType.Tag, string.Empty);
         var label = GetValueOrDefaultFrom(TokenType.Label) ?? name;
 
         try {
-            builder.Do(_currentToken, BuildAction(name), tag!, label);
+            builder.Do(_currentToken, tag, BuildAction(name), label);
         }
         catch (Exception ex) {
             AddError($"Error creating action node: {ex.Message}");
@@ -102,15 +96,15 @@ public sealed class WorkflowParser {
     private void ParseIf(WorkflowBuilder builder) {
         Ensure(TokenType.If);
         var predicate = ParsePredicate();
-        var tag = GetValueOrDefaultFrom(TokenType.Tag);
+        var tag = GetValueOrDefaultFrom(TokenType.Tag, string.Empty);
         var label = GetValueOrDefaultFrom(TokenType.Label);
 
         try {
             builder.If(_currentToken,
+                       tag,
                        BuildPredicate(predicate),
                        b => b.IsTrue(t => ParseThen((WorkflowBuilder)t))
                              .IsFalse(f => ParseElse((WorkflowBuilder)f)),
-                       tag!,
                        label);
         }
         catch (Exception ex) {
@@ -146,16 +140,16 @@ public sealed class WorkflowParser {
     private void ParseCase(WorkflowBuilder builder) {
         Ensure(TokenType.Case);
         var selector = GetValueFrom(TokenType.Identifier);
-        var tag = GetValueOrDefaultFrom(TokenType.Tag);
+        var tag = GetValueOrDefaultFrom(TokenType.Tag, string.Empty);
         var label = GetValueOrDefaultFrom(TokenType.Label);
         Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
 
         try {
             builder.Case(_currentToken,
+                         tag,
                          BuildSelector(selector),
                          b => ParseCaseOptions((WorkflowBuilder)b),
-                         tag!,
                          label);
         }
         catch (Exception ex) {
@@ -189,21 +183,23 @@ public sealed class WorkflowParser {
         Forbid(TokenType.Otherwise);
     }
 
-    private void ParseExit(IWorkflowBuilder builder) {
+    private void ParseExit(WorkflowBuilder builder) {
         Ensure(TokenType.Exit);
         var number = GetValueOrDefaultFrom(TokenType.Number) ?? "0"; // if number not found default to 0
         var exitCode = int.Parse(number);
-        var tag = GetValueOrDefaultFrom(TokenType.Tag);
+        var tag = GetValueOrDefaultFrom(TokenType.Tag, string.Empty);
         var label = GetValueOrDefaultFrom(TokenType.Label);
-        builder.Exit(tag, exitCode, label);
+        builder.Exit(_currentToken, tag, exitCode, label);
         Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
     }
 
-    private void ParseJumpTo(IWorkflowBuilder builder) {
+    private void ParseJumpTo(WorkflowBuilder builder) {
         Ensure(TokenType.JumpTo);
         var target = GetValueFrom(TokenType.Identifier);
-        builder.JumpTo(target);
+        var tag = GetValueOrDefaultFrom(TokenType.Tag, string.Empty);
+        var label = GetValueOrDefaultFrom(TokenType.Label);
+        builder.JumpTo(_currentToken, tag, target, label);
         Ensure(TokenType.EndOfLine);
         AllowMany(TokenType.Indent);
     }
@@ -236,11 +232,6 @@ public sealed class WorkflowParser {
     private bool Has(TokenType type)
         => _currentToken.Type == type;
 
-    private void Allow(TokenType type) {
-        if (_currentToken.Type != type) return;
-        NextToken();
-    }
-
     private void AllowMany(TokenType type) {
         while (_currentToken.Type == type)
             NextToken();
@@ -267,9 +258,10 @@ public sealed class WorkflowParser {
         return token.Value!;
     }
 
-    private string? GetValueOrDefaultFrom(TokenType type) {
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    private string? GetValueOrDefaultFrom(TokenType type, string? defaultValue = null) {
         if (_currentToken.Type != type)
-            return null;
+            return defaultValue;
         var token = _currentToken;
         NextToken();
         return token.Value;

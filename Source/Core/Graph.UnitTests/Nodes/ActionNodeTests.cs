@@ -13,7 +13,7 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_WithoutLabel_ReturnsActionNodeWithDefaultLabel() {
-        var node = _factory.CreateAction(1, _ => { });
+        var node = _factory.CreateAction("1", _ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
@@ -24,7 +24,7 @@ public class ActionNodeTests {
     public void CreateAction_WithCustomLabel_ReturnsActionNodeWithCustomLabel() {
         const string customLabel = "Custom Action";
         const string customTag = "Action1";
-        var node = _factory.CreateAction(1, _ => { }, customTag, customLabel);
+        var node = _factory.CreateAction(customTag, _ => { }, customLabel);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
@@ -39,7 +39,7 @@ public class ActionNodeTests {
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
 
-        var node = factory.CreateAction(1, _ => { });
+        var node = factory.CreateAction(_ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
@@ -48,7 +48,7 @@ public class ActionNodeTests {
     [Fact]
     public async Task Run_WithPolicy_ExecutesPolicyAndAction() {
         var actionExecuted = false;
-        var node = _factory.CreateAction(1, _ => actionExecuted = true);
+        var node = _factory.CreateAction(_ => actionExecuted = true);
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         var context = new Context(provider);
@@ -66,7 +66,7 @@ public class ActionNodeTests {
         services.AddTransient<IPolicy>(_ => policy);
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
-        var node = factory.CreateAction(1, _ => actionExecuted = true);
+        var node = factory.CreateAction("1", _ => actionExecuted = true);
         var context = new Context(provider);
 
         await node.Run(context);
@@ -84,7 +84,7 @@ public class ActionNodeTests {
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
 
-        var node = factory.CreateAction(1, _ => actionExecuted = true);
+        var node = factory.CreateAction("1", _ => actionExecuted = true);
         var context = new Context(provider);
 
         var action = () => node.Run(context);
@@ -102,7 +102,7 @@ public class ActionNodeTests {
         services.AddTransient<IPolicy>(_ => policy);
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
-        var node = factory.CreateAction(1, _ => actionExecuted = true);
+        var node = factory.CreateAction("1", _ => actionExecuted = true);
         var context = new Context(provider);
 
         var action = () => node.Run(context);
@@ -119,7 +119,7 @@ public class ActionNodeTests {
         services.AddTransient<IPolicy>(_ => policy);
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
-        var node = factory.CreateAction(1, _ => throw new());
+        var node = factory.CreateAction("1", _ => throw new());
         var context = new Context(provider);
 
         var action = () => node.Run(context);
@@ -135,7 +135,7 @@ public class ActionNodeTests {
         services.AddTransient<IPolicy>(_ => policy);
         var provider = services.BuildServiceProvider();
         var factory = new NodeFactory(provider);
-        var node = factory.CreateAction(1, _ => {
+        var node = factory.CreateAction("1", _ => {
             if (policy.TryCount < 10) throw new();
         });
         var context = new Context(provider);
@@ -151,8 +151,8 @@ public class ActionNodeTests {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         var context = new CustomContext(provider);
-        var nextNode = _factory.CreateAction(1, _ => { });
-        var node = _factory.CreateAction(2, ctx => ctx["key"] = "value");
+        var nextNode = _factory.CreateAction("1", _ => { });
+        var node = _factory.CreateAction("2", ctx => ctx["key"] = "value");
         node.Next = nextNode;
 
         var result = await node.Run(context);

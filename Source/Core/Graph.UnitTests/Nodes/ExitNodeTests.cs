@@ -1,9 +1,9 @@
 namespace DotNetToolbox.Graph.Nodes;
 
-public class EndNodeTests {
+public class ExitNodeTests {
     private readonly INodeFactory _factory;
 
-    public EndNodeTests() {
+    public ExitNodeTests() {
         var services = new ServiceCollection();
         services.AddTransient<INodeFactory>(p => new NodeFactory(p));
         var provider = services.BuildServiceProvider();
@@ -12,7 +12,7 @@ public class EndNodeTests {
 
     [Fact]
     public void CreateStop_WithoutLabel_ReturnsTerminalNodeWithDefaultLabel() {
-        var node = _factory.CreateExit(1);
+        var node = _factory.CreateExit("1");
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ExitNode>();
@@ -24,7 +24,7 @@ public class EndNodeTests {
         const int customCode = -2;
         const string customTag = "CustomEnd";
         const string customLabel = "Custom Exit";
-        var node = _factory.CreateExit(1, customCode, customTag, customLabel);
+        var node = _factory.CreateExit(customTag, customCode, customLabel);
 
         node.Should().NotBeNull();
         var exitNode = node.Should().BeOfType<ExitNode>().Subject;

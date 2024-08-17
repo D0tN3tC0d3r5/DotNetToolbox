@@ -226,8 +226,8 @@ public sealed class WorkflowBuilderTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomAction(uint id, string? tag = null, string? label = null)
-                : ActionNode<CustomAction>(id, tag, label) {
+    private sealed class CustomAction(string? tag = null, INodeSequence? sequence = null, IPolicy? policy = null)
+                : ActionNode<CustomAction>(tag, sequence, policy) {
         protected override Task Execute(Context context, CancellationToken ct)
             => Task.CompletedTask;
     }

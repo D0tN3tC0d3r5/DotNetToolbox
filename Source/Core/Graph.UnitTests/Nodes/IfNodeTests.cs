@@ -1,10 +1,10 @@
 namespace DotNetToolbox.Graph.Nodes;
 
-public class ConditionalNodeTests {
+public class IfNodeTests {
     private readonly ServiceProvider _provider;
     private readonly NodeFactory _factory;
 
-    public ConditionalNodeTests() {
+    public IfNodeTests() {
         var services = new ServiceCollection();
         services.AddTransient<IPolicy, RetryPolicy>();
         services.AddTransient<INodeFactory>(p => new NodeFactory(p));
@@ -14,9 +14,9 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_WithoutLabel_ReturnsConditionalNodeWithDefaultLabel() {
-        var node = _factory.CreateFork(1,
+        var node = _factory.CreateIf("1",
                                        _ => true,
-                                       b => b.IsTrue(t => t.Do(_ => { })));
+                                       _factory.CreateAction("t", _ => { }));
 
         node.Should().NotBeNull();
         node.Should().BeOfType<IfNode>();
@@ -27,11 +27,10 @@ public class ConditionalNodeTests {
     public void CreateFork_WithCustomLabel_ReturnsConditionalNodeWithCustomLabel() {
         const string customLabel = "Custom Fork";
         const string customTag = "Action1";
-        var node = _factory.CreateFork(1,
+        var node = _factory.CreateIf(customTag,
                                        _ => true,
-                                       b => b.IsTrue(t => t.Do(_ => { })),
-                                       customTag,
-                                       customLabel);
+                                       _factory.CreateAction("t", _ => { }),
+                                       label: customLabel);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<IfNode>();
@@ -40,9 +39,9 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_WithTrueBranchOnly_SetsOnlyTrueBranch() {
-        var node = _factory.CreateFork(1,
+        var node = _factory.CreateIf("1",
                                        _ => true,
-                                       b => b.IsTrue(t => t.Do(_ => { })));
+                                       _factory.CreateAction("t", _ => { }));
 
         var ifNode = node.Should().BeOfType<IfNode>().Subject;
         ifNode.IsTrue.Should().NotBeNull();
@@ -51,9 +50,10 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_WithBothBranches_SetsBothBranches() {
-        var node = _factory.CreateFork(1, _ => true,
-                                       b => b.IsTrue(t => t.Do(_ => { }))
-                                             .IsFalse(f => f.Do(_ => { })));
+        var node = _factory.CreateIf("1",
+                                     _ => true,
+                                     _factory.CreateAction("t", _ => { }),
+                                     _factory.CreateAction("f", _ => { }));
 
         var ifNode = node.Should().BeOfType<IfNode>().Subject;
         ifNode.IsTrue.Should().NotBeNull();
@@ -65,9 +65,10 @@ public class ConditionalNodeTests {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         using var context = new Context(provider);
-        var node = _factory.CreateFork(1, _ => true,
-                                       b => b.IsTrue(t => t.Do(ctx => ctx["branch"] = "true"))
-                                             .IsFalse(f => f.Do(ctx => ctx["branch"] = "false")));
+        var node = _factory.CreateIf("1",
+                                     _ => true,
+                                     _factory.CreateAction("t", ctx => ctx["branch"] = "true"),
+                                     _factory.CreateAction("f", ctx => ctx["branch"] = "false"));
 
         await node.Run(context);
 
@@ -84,9 +85,9 @@ public class ConditionalNodeTests {
         var context = new CustomContext(provider) {
             ["Disposable"] = new CustomContext(provider),
         };
-        var node = _factory.CreateFork(1, _ => false,
-                                       b => b.IsTrue(t => t.Do(ctx => ctx["branch"] = "true"))
-                                             .IsFalse(f => f.Do(ctx => ctx["branch"] = "false")));
+        var node = _factory.CreateIf("1", _ => false,
+                                     _factory.CreateAction("t", ctx => ctx["branch"] = "true"),
+                                     _factory.CreateAction("f", ctx => ctx["branch"] = "false"));
 
         await node.Run(context);
 
@@ -97,9 +98,9 @@ public class ConditionalNodeTests {
 
     [Fact]
     public void CreateFork_ValidateMethod_ValidatesBothBranches() {
-        var node = _factory.CreateFork(1, _ => true,
-                                       b => b.IsTrue(t => t.Do(_ => { }))
-                                             .IsFalse(f => f.Do(_ => { })));
+        var node = _factory.CreateIf("1", _ => true,
+                                     _factory.CreateAction("t", ctx => ctx["branch"] = "true"),
+                                     _factory.CreateAction("f", ctx => ctx["branch"] = "false"));
 
         var result = node.Validate();
 

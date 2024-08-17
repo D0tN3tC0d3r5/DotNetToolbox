@@ -12,14 +12,14 @@ public class GenericNodeTests {
 
     [Fact]
     public void CreateNode_WithGenericType_ReturnsCustomActionNode() {
-        var node = _factory.Create<GenericNode>(1);
+        var node = _factory.Create<GenericNode>("1");
 
         node.Should().NotBeNull();
         node.Should().BeOfType<GenericNode>();
     }
 
-    public sealed class GenericNode(uint id, string? tag = null, string? label = null)
-        : ActionNode<GenericNode>(id, tag, label) {
+    public sealed class GenericNode(string tag)
+        : ActionNode<GenericNode>(tag, null, null) {
         protected override Task Execute(Context context, CancellationToken ct) => Task.CompletedTask;
     }
 }

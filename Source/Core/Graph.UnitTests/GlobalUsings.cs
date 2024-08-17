@@ -3,6 +3,7 @@ global using DotNetToolbox.Graph.Builders;
 global using DotNetToolbox.Graph.Factories;
 global using DotNetToolbox.Graph.Nodes;
 global using DotNetToolbox.Graph.Policies;
+global using DotNetToolbox.Graph.Utilities;
 global using DotNetToolbox.TestUtilities.Logging;
 
 global using FluentAssertions;

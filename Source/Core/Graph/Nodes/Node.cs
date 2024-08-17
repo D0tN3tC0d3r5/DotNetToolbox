@@ -6,7 +6,7 @@ public static class Node {
         where TNode : Node<TNode>
         => InstanceFactory.Create<TNode>(services, id);
 
-    public static TNode Create<TNode>(string? id = null, INodeSequence? sequence = null, params object?[] args)
+    public static TNode Create<TNode>(string id, INodeSequence? sequence = null, params object?[] args)
         where TNode : Node<TNode>
         => InstanceFactory.Create<TNode>([id, sequence, .. args]);
 }

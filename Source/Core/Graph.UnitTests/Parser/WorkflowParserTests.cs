@@ -36,7 +36,6 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be(1);
             start.Id.Should().Be("1");
             start.Label.Should().Be("DoSomething");
             start.Next.Should().BeNull();
@@ -57,11 +56,9 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be(1);
             start.Id.Should().Be("1");
             start.Label.Should().Be("DoSomething");
             var end = start.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Id.Should().Be(2);
             end.Id.Should().Be("2");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
@@ -83,15 +80,12 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be(1);
             start.Id.Should().Be("1");
             start.Label.Should().Be("Action1");
             var next1 = start.Next.Should().BeOfType<ActionNode>().Subject;
-            next1.Id.Should().Be(2);
             next1.Id.Should().Be("2");
             next1.Label.Should().Be("Action2");
             var next2 = next1.Next.Should().BeOfType<ActionNode>().Subject;
-            next2.Id.Should().Be(3);
             next2.Id.Should().Be("3");
             next2.Label.Should().Be("Action3");
             next2.Next.Should().BeNull();
@@ -111,8 +105,7 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be(1);
-            start.Id.Should().Be("Id");
+            start.Id.Should().Be("Tag");
             start.Label.Should().Be("Action Label");
             start.Next.Should().BeNull();
         }
@@ -134,13 +127,11 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
-            ifNode.Id.Should().Be(1);
             ifNode.Id.Should().Be("1");
             ifNode.Label.Should().Be("if");
             ifNode.Next.Should().BeNull();
 
             var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
-            trueAction.Id.Should().Be(2);
             trueAction.Id.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
@@ -164,17 +155,14 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
-            ifNode.Id.Should().Be(1);
             ifNode.Id.Should().Be("1");
             ifNode.Label.Should().Be("if");
 
             var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
-            trueAction.Id.Should().Be(2);
             trueAction.Id.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
             var end = trueAction.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Id.Should().Be(3);
             end.Id.Should().Be("3");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
@@ -200,22 +188,18 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
-            ifNode.Id.Should().Be(1);
             ifNode.Id.Should().Be("1");
             ifNode.Label.Should().Be("if");
 
             var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
-            trueAction.Id.Should().Be(2);
             trueAction.Id.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
             var falseAction = ifNode.IsFalse.Should().BeOfType<ActionNode>().Subject;
-            falseAction.Id.Should().Be(3);
             falseAction.Id.Should().Be("3");
             falseAction.Label.Should().Be("ActionFalse");
 
             var endTrue = trueAction.Next.Should().BeOfType<ActionNode>().Subject;
-            endTrue.Id.Should().Be(4);
             endTrue.Id.Should().Be("4");
             endTrue.Label.Should().Be("Action1");
 
@@ -244,29 +228,24 @@ public class WorkflowParserTests {
             result.Errors.Should().BeEmpty();
             result.IsSuccess.Should().BeTrue();
             var caseNode = result.Value.Should().BeOfType<CaseNode>().Subject;
-            caseNode.Id.Should().Be(1);
             caseNode.Id.Should().Be("1");
             caseNode.Label.Should().Be("case");
 
             caseNode.Choices.Should().HaveCount(3);
 
             var option1 = caseNode.Choices["Option1"].Should().BeOfType<ActionNode>().Subject;
-            option1.Id.Should().Be(2);
             option1.Id.Should().Be("2");
             option1.Label.Should().Be("Action1");
 
             var option2 = caseNode.Choices["Option2"].Should().BeOfType<ActionNode>().Subject;
-            option2.Id.Should().Be(3);
             option2.Id.Should().Be("3");
             option2.Label.Should().Be("Action2");
 
             var otherwise = caseNode.Choices[string.Empty].Should().BeOfType<ActionNode>().Subject;
-            otherwise.Id.Should().Be(4);
             otherwise.Id.Should().Be("4");
             otherwise.Label.Should().Be("ActionDefault");
 
             var end = option1.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Id.Should().Be(5);
             end.Id.Should().Be("5");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
@@ -292,12 +271,10 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be(1);
             start.Id.Should().Be("1");
             start.Label.Should().Be("DoSomething");
 
             var end = start.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Id.Should().Be(2);
             end.Id.Should().Be("2");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(13);
@@ -322,35 +299,29 @@ public class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var action1 = result.Value.Should().BeOfType<ActionNode>().Subject;
-            action1.Id.Should().Be(1);
             action1.Id.Should().Be("Label1");
             action1.Label.Should().Be("Action1");
 
             var action2 = action1.Next.Should().BeOfType<ActionNode>().Subject;
-            action2.Id.Should().Be(2);
             action2.Id.Should().Be("2");
             action2.Label.Should().Be("Action2");
 
             var ifNode = action2.Next.Should().BeOfType<IfNode>().Subject;
-            ifNode.Id.Should().Be(3);
             ifNode.Id.Should().Be("3");
             ifNode.Label.Should().Be("if");
 
             var exitJump = ifNode.IsTrue.Should().BeOfType<JumpNode>().Subject;
-            exitJump.Id.Should().Be(4);
             exitJump.Id.Should().Be("4");
             exitJump.Label.Should().Be("goto");
             exitJump.TargetTag.Should().Be("end");
 
             var jumpBack = ifNode.IsFalse.Should().BeOfType<JumpNode>().Subject;
-            jumpBack.Id.Should().Be(5);
             jumpBack.Id.Should().Be("5");
             jumpBack.Label.Should().Be("goto");
             jumpBack.TargetTag.Should().Be("Label1");
             jumpBack.Next.Should().Be(action1);
 
             var end = exitJump.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Id.Should().Be(6);
             end.Id.Should().Be("end");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);

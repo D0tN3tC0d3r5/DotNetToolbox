@@ -36,8 +36,8 @@ public class ComplexWorkflowTests {
 
     [Fact]
     public void ComplexWorkflow_WithCircularReference_DetectedDuringValidation() {
-        var startNode = _factory.CreateAction(1, _ => { });
-        var actionNode = _factory.CreateAction(2, _ => { });
+        var startNode = _factory.CreateAction(_ => { });
+        var actionNode = _factory.CreateAction(_ => { });
         startNode.Next = actionNode;
         actionNode.Next = startNode; // Creating a circular reference
 

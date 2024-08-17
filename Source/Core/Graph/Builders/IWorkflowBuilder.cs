@@ -13,6 +13,9 @@ public interface IWorkflowBuilder
     IWorkflowBuilder Case(string tag, Func<Context, string> select, Action<ICaseNodeBuilder> buildChoices, string? label = null);
     IWorkflowBuilder Case(Func<Context, string> select, Action<ICaseNodeBuilder> buildChoices, string? label = null);
 
+    IWorkflowBuilder JumpTo(string tag, string targetTag, string? label = null);
     IWorkflowBuilder JumpTo(string targetTag, string? label = null);
-    IWorkflowBuilder Exit(string? tag = null, int exitCode = 0, string? label = null);
+
+    IWorkflowBuilder Exit(string tag, int exitCode = 0, string? label = null);
+    IWorkflowBuilder Exit(int exitCode = 0, string? label = null);
 }

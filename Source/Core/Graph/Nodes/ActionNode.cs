@@ -28,7 +28,7 @@ public sealed class ActionNode(string id, Func<Context, CancellationToken, Task>
         => Node.Create<TNode>(id, sequence, policy);
 }
 
-public abstract class ActionNode<TAction>(string? id, INodeSequence? sequence, IPolicy? policy)
+public abstract class ActionNode<TAction>(string? id, INodeSequence? sequence = null, IPolicy? policy = null)
     : Node<TAction>(id, sequence),
       IActionNode
     where TAction : ActionNode<TAction> {
