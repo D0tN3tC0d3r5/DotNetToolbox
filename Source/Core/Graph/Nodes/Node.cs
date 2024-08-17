@@ -1,15 +1,13 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public static class Node {
-    public static TNode Create<TNode>(IServiceProvider services,
-                                      uint id,
-                                      string? tag = null,
-                                      string? label = null)
+    [return: NotNull]
+    public static TNode Create<TNode>(IServiceProvider services, uint id, string? tag = null, string? label = null)
         where TNode : Node<TNode>
-        => InstanceFactory.Create<TNode>(services, id, tag, label);
+        => InstanceFactory.Create<TNode>(services, id, tag ?? string.Empty, label ?? string.Empty);
 }
 
-public abstract class Node<TNode>(IServiceProvider services, uint id, string? tag, string? label)
+public abstract class Node<TNode>(uint id, string? tag = null, string? label = null)
     : INode
     where TNode : Node<TNode> {
     private readonly string? _tag = tag;
@@ -18,11 +16,10 @@ public abstract class Node<TNode>(IServiceProvider services, uint id, string? ta
     protected virtual string DefaultLabel { get; } = typeof(TNode).Name;
 
     public uint Id { get; } = id;
-    public virtual string Tag => _tag ?? $"{Id}";
-    public string Label => _label ?? _tag ?? DefaultLabel;
+    public virtual string Tag => string.IsNullOrWhiteSpace(_tag) ? $"{Id}" : _tag;
+    public string Label => string.IsNullOrWhiteSpace(_label) ? string.IsNullOrWhiteSpace(_tag) ? DefaultLabel : _tag : _label;
     public Token? Token { get; set; }
     public INode? Next { get; set; }
-    protected IServiceProvider Services { get; } = IsNotNull(services);
 
     public Result Validate(ISet<INode>? visited = null) {
         visited ??= new HashSet<INode>();

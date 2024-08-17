@@ -1,15 +1,14 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class CaseNodeTests {
-    private readonly ServiceProvider _provider;
-    private readonly NodeFactory _factory;
+    private readonly INodeFactory _factory;
 
     public CaseNodeTests() {
         var services = new ServiceCollection();
         services.AddTransient<IPolicy, RetryPolicy>();
         services.AddTransient<INodeFactory>(p => new NodeFactory(p));
-        _provider = services.BuildServiceProvider();
-        _factory = new NodeFactory(_provider);
+        var provider = services.BuildServiceProvider();
+        _factory = provider.GetRequiredService<INodeFactory>();
     }
 
     [Fact]

@@ -6,6 +6,18 @@ namespace System;
 public static class InstanceFactory {
     private const BindingFlags _allConstructors = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance;
 
+    public static bool TryCreate<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>([MaybeNullWhen(false)] out T instance, params object?[] args)
+        where T : class {
+        try {
+            instance = (T)IsNotNull(Activator.CreateInstance(typeof(T), _allConstructors, null, args, null, null), typeof(T).Name);
+            return true;
+        }
+        catch {
+            instance = default;
+            return false;
+        }
+    }
+
     [return: NotNull]
     public static T Create<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>(params object?[] args)
         where T : class {
@@ -14,6 +26,18 @@ public static class InstanceFactory {
         }
         catch (Exception ex) {
             throw new InvalidOperationException($"Failed to create instance of type {typeof(T).Name}", ex);
+        }
+    }
+
+    public static bool TryCreate<[DynamicallyAccessedMembers(PublicConstructors)] T>(IServiceProvider services, [MaybeNullWhen(false)] out T instance, params object?[] args)
+        where T : class {
+        try {
+            instance = ActivatorUtilities.CreateInstance<T>(services, args!);
+            return true;
+        }
+        catch {
+            instance = default;
+            return false;
         }
     }
 

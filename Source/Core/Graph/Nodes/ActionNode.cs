@@ -1,11 +1,11 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ActionNode(IServiceProvider services, uint id, Func<Context, CancellationToken, Task> execute, string? tag = null, string? label = null)
-    : ActionNode<ActionNode>(services, id, tag, label) {
+public sealed class ActionNode(uint id, Func<Context, CancellationToken, Task> execute, string? tag = null, string? label = null, IPolicy? policy = null)
+    : ActionNode<ActionNode>(id, tag, label, policy) {
     private readonly Func<Context, CancellationToken, Task> _execute = IsNotNull(execute);
 
-    public ActionNode(IServiceProvider services, uint id, Action<Context> execute, string? tag = null, string? label = null)
-        : this(services, id, (ctx, ct) => Task.Run(() => execute(ctx), ct), tag, label) {
+    public ActionNode(uint id, Action<Context> execute, string? tag = null, string? label = null, IPolicy? policy = null)
+        : this(id, (ctx, ct) => Task.Run(() => execute(ctx), ct), tag, label, policy) {
     }
 
     protected override string DefaultLabel { get; } = "action";
@@ -14,16 +14,11 @@ public sealed class ActionNode(IServiceProvider services, uint id, Func<Context,
         => _execute(context, ct);
 }
 
-public abstract class ActionNode<TAction>
-    : Node<TAction>,
+public abstract class ActionNode<TAction>(uint id, string? tag, string? label, IPolicy? policy = null)
+    : Node<TAction>(id, tag, label),
       IActionNode
     where TAction : ActionNode<TAction> {
-    private readonly IPolicy _policy;
-
-    protected ActionNode(IServiceProvider services, uint id, string? tag = null, string? label = null)
-        : base(services, id, tag, label) {
-        _policy = Services.GetService<IPolicy>() ?? Policy.Default;
-    }
+    private readonly IPolicy _policy = policy ?? Policy.Default;
 
     public sealed override Result ConnectTo(INode? next) {
         var result = Success();

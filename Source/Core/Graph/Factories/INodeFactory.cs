@@ -7,15 +7,15 @@ public interface INodeFactory {
         where TNode : Node<TNode>;
 
     INode CreateFork(uint id,
-                             Func<Context, bool> predicate,
-                             Action<IIfNodeBuilder> setPaths,
-                             string? tag = null,
-                             string? label = null);
+                     Func<Context, bool> predicate,
+                     Action<IIfNodeBuilder> setPaths,
+                     string? tag = null,
+                     string? label = null);
     INode CreateChoice(uint id,
-                               Func<Context, string> selectPath,
-                               Action<ICaseNodeBuilder> setPaths,
-                               string? tag = null,
-                               string? label = null);
+                       Func<Context, string> selectPath,
+                       Action<ICaseNodeBuilder> setPaths,
+                       string? tag = null,
+                       string? label = null);
 
     INode CreateAction(uint id,
                        Action<Context> action,

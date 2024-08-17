@@ -5,6 +5,8 @@
 public class GuidProvider : HasDefault<GuidProvider>, IGuidProvider {
     private bool _isSortable;
 
+    public static IGuidProvider Sortable => Default.AsSortable;
+
     public virtual IGuidProvider AsSortable {
         get {
             _isSortable = true;

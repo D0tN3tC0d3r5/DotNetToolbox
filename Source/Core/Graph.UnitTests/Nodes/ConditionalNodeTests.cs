@@ -1,15 +1,15 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class ConditionalNodeTests {
+    private readonly ServiceProvider _provider;
     private readonly NodeFactory _factory;
-    private readonly WorkflowBuilder _builder;
 
     public ConditionalNodeTests() {
         var services = new ServiceCollection();
         services.AddTransient<IPolicy, RetryPolicy>();
-        var provider = services.BuildServiceProvider();
-        _factory = new(provider);
-        _builder = new(provider);
+        services.AddTransient<INodeFactory>(p => new NodeFactory(p));
+        _provider = services.BuildServiceProvider();
+        _factory = new NodeFactory(_provider);
     }
 
     [Fact]

@@ -2,7 +2,7 @@
 
 internal sealed class NodeFactory(IServiceProvider services, string? id = null)
     : INodeFactory {
-    private readonly string _builderId = id ?? GuidProvider.Default.ToString()!;
+    private readonly string _builderId = id ?? GuidProvider.Default.Create().ToString()!;
 
     public TNode Create<TNode>(uint id, string? tag = null, string? label = null)
         where TNode : Node<TNode>
@@ -13,7 +13,7 @@ internal sealed class NodeFactory(IServiceProvider services, string? id = null)
                                                Action<IIfNodeBuilder> setPaths,
                                                string? tag = null,
                                                string? label = null) {
-        var node = new IfNode(services, id, predicate, tag, label);
+        var node = new IfNode(id, predicate, tag, label);
         var conditionsBuilder = new WorkflowBuilder(services, _builderId, node);
         setPaths(conditionsBuilder);
         return conditionsBuilder.Build()!;
@@ -24,7 +24,7 @@ internal sealed class NodeFactory(IServiceProvider services, string? id = null)
                                                  Action<ICaseNodeBuilder> setPaths,
                                                  string? tag = null,
                                                  string? label = null) {
-        var node = new CaseNode(services, id, selectPath, tag, label);
+        var node = new CaseNode(id, selectPath, tag, label);
         var branchesBuilder = new WorkflowBuilder(services, _builderId, node);
         setPaths(branchesBuilder);
         return branchesBuilder.Build()!;
@@ -55,18 +55,20 @@ internal sealed class NodeFactory(IServiceProvider services, string? id = null)
     public INode CreateAction(uint id,
                               Action<Context> action,
                               string? tag = null,
-                              string? label = null)
-        => new ActionNode(services, id, action, tag, label);
+                              string? label = null) {
+        var policy = services.GetService<IPolicy>() ?? Policy.Default;
+        return new ActionNode(id, action, tag, label, policy);
+    }
 
     public INode CreateJump(uint id,
                             string targetTag,
                             string? tag = null,
                             string? label = null)
-        => new JumpNode(services, id, targetTag, label);
+        => new JumpNode(id, targetTag, label);
 
     public INode CreateExit(uint id,
                             int exitCode = 0,
                             string? tag = null,
                             string? label = null)
-        => new ExitNode(services, id, exitCode, tag, label);
+        => new ExitNode(id, exitCode, tag, label);
 }

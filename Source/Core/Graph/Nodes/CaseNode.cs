@@ -1,11 +1,11 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class CaseNode(IServiceProvider services, uint id, Func<Context, CancellationToken, Task<string>> select, string? tag = null, string? label = null)
-    : CaseNode<CaseNode>(services, id, tag, label) {
+public sealed class CaseNode(uint id, Func<Context, CancellationToken, Task<string>> select, string? tag = null, string? label = null)
+    : CaseNode<CaseNode>(id, tag, label) {
     private readonly Func<Context, CancellationToken, Task<string>> _select = IsNotNull(select);
 
-    public CaseNode(IServiceProvider services, uint id, Func<Context, string> selector, string? tag = null, string? label = null)
-        : this(services, id, (ctx, ct) => Task.Run(() => selector(ctx), ct), tag, label) {
+    public CaseNode(uint id, Func<Context, string> selector, string? tag = null, string? label = null)
+        : this(id, (ctx, ct) => Task.Run(() => selector(ctx), ct), tag, label) {
     }
 
     protected override string DefaultLabel { get; } = "case";
@@ -20,8 +20,8 @@ public sealed class CaseNode(IServiceProvider services, uint id, Func<Context, C
         => InstanceFactory.Create<TNode>(id, services);
 }
 
-public abstract class CaseNode<TNode>(IServiceProvider services, uint id, string? tag = null, string? label = null)
-    : Node<TNode>(services, id, tag, label),
+public abstract class CaseNode<TNode>(uint id, string? tag, string? label)
+    : Node<TNode>(id, tag, label),
       ICaseNode
     where TNode : CaseNode<TNode> {
     public Dictionary<string, INode?> Choices { get; } = [];

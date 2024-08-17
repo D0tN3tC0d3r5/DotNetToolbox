@@ -1,11 +1,11 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class IfNode(IServiceProvider services, uint id, Func<Context, CancellationToken, Task<bool>> predicate, string? tag = null, string? label = null)
-    : IfNode<IfNode>(services, id, tag, label) {
+public class IfNode(uint id, Func<Context, CancellationToken, Task<bool>> predicate, string? tag = null, string? label = null)
+    : IfNode<IfNode>(id, tag, label) {
     private readonly Func<Context, CancellationToken, Task<bool>> _predicate = IsNotNull(predicate);
 
-    public IfNode(IServiceProvider services, uint id, Func<Context, bool> predicate, string? tag = null, string? label = null)
-        : this(services, id, (ctx, ct) => Task.Run(() => predicate(ctx), ct), tag, label) {
+    public IfNode(uint id, Func<Context, bool> predicate, string? tag = null, string? label = null)
+        : this(id, (ctx, ct) => Task.Run(() => predicate(ctx), ct), tag, label) {
     }
 
     protected override string DefaultLabel { get; } = "if";
@@ -20,8 +20,8 @@ public class IfNode(IServiceProvider services, uint id, Func<Context, Cancellati
         => InstanceFactory.Create<TNode>(id, services);
 }
 
-public abstract class IfNode<TNode>(IServiceProvider services, uint id, string? tag = null, string? label = null)
-    : Node<TNode>(services, id, tag, label),
+public abstract class IfNode<TNode>(uint id, string? tag, string? label)
+    : Node<TNode>(id, tag, label),
       IIfNode
     where TNode : IfNode<TNode> {
     public INode? IsTrue { get; set; }

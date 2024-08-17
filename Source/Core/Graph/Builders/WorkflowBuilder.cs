@@ -17,11 +17,10 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
 
     public WorkflowBuilder(IServiceProvider services, string? id = null, INode? parent = null) {
         _services = services;
-        _id = id ?? GuidProvider.Default.ToString()!;
+        _id = id ?? GuidProvider.Default.Create().ToString()!;
         _nodeFactory = (NodeFactory)services.GetRequiredService<INodeFactory>();
         _idGenerator = services.GetKeyedService<IIdGenerator<uint>>(_id) ?? NodeIdGenerator.Keyed(_id);
-        _first = parent;
-        _current = parent;
+        _current = _first = parent;
     }
 
     public Result<INode?> Build() {
@@ -34,7 +33,7 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
                                  Action<Context> action,
                                  string? tag,
                                  string? label) {
-        var node = _nodeFactory.CreateAction(_idGenerator.Next, action, tag, label);
+        var node = _nodeFactory.CreateAction(_idGenerator.Consume(), action, tag, label);
         _result += ConnectNode(node);
         return this;
     }
@@ -51,7 +50,7 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
     public IWorkflowBuilder Do<TAction>(string? tag = null,
                                         string? label = null)
         where TAction : ActionNode<TAction> {
-        var node = _nodeFactory.Create<TAction>(_idGenerator.Next, tag, label);
+        var node = _nodeFactory.Create<TAction>(_idGenerator.Consume(), tag, label);
         _result += ConnectNode(node);
         return this;
     }
@@ -61,7 +60,7 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
                                  Action<IIfNodeBuilder> buildBranches,
                                  string? tag,
                                  string? label) {
-        var result = _nodeFactory.GetCreateForkResult(_idGenerator.Next, predicate, buildBranches, tag, label);
+        var result = _nodeFactory.GetCreateForkResult(_idGenerator.Consume(), predicate, buildBranches, tag, label);
         var node = result.Value!;
         node.Token = token;
         _result += result + ConnectNode(node);
@@ -84,7 +83,7 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
                                    Action<ICaseNodeBuilder> buildChoices,
                                    string? tag,
                                    string? label) {
-        var result = _nodeFactory.GetCreateChoiceResult(_idGenerator.Next, select, buildChoices, tag, label);
+        var result = _nodeFactory.GetCreateChoiceResult(_idGenerator.Consume(), select, buildChoices, tag, label);
         var node = result.Value!;
         node.Token = token;
         _result += result + ConnectNode(node);
@@ -106,7 +105,7 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
                                    int exitCode = 0,
                                    string? tag = null,
                                    string? label = null) {
-        var node = _nodeFactory.CreateExit(_idGenerator.Next, exitCode, tag, label);
+        var node = _nodeFactory.CreateExit(_idGenerator.Consume(), exitCode, tag, label);
         node.Token = token;
         _result += ConnectNode(node);
         return this;
@@ -119,7 +118,7 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
                                      string targetTag,
                                      string? tag,
                                      string? label) {
-        var node = _nodeFactory.CreateJump(_idGenerator.Next, IsNotNullOrWhiteSpace(targetTag), tag, label);
+        var node = _nodeFactory.CreateJump(_idGenerator.Consume(), IsNotNullOrWhiteSpace(targetTag), tag, label);
         node.Token = token;
         _result += ConnectNode(node);
         return this;
@@ -156,38 +155,31 @@ public sealed class WorkflowBuilder : IWorkflowBuilder,
     }
 
     public IElseNodeBuilder IsTrue(Action<IWorkflowBuilder> setPath) {
-        var thenBuilder = new WorkflowBuilder(_services, _id, _current);
-        setPath(thenBuilder);
-        var thenBuilderResult = thenBuilder.Build();
-        _result += thenBuilderResult;
-        ((IfNode)_current!).IsTrue = thenBuilderResult.Value;
+        ((IfNode)_current!).IsTrue = buildBlock(setPath);
         return this;
     }
 
     public INodeBuilder IsFalse(Action<IWorkflowBuilder> setPath) {
-        var elseBuilder = new WorkflowBuilder(_services, _id, _current);
-        setPath(elseBuilder);
-        var elseBuilderResult = elseBuilder.Build();
-        _result += elseBuilderResult;
-        ((IfNode)_current!).IsFalse = elseBuilderResult.Value;
+        ((IfNode)_current!).IsFalse = buildBlock(setPath);
         return this;
     }
 
     public ICaseIsNodeBuilder Is(string key, Action<IWorkflowBuilder> setPath) {
-        var optionBuilder = new WorkflowBuilder(_services, _id, _current);
-        setPath(optionBuilder);
-        var optionsBuilderResult = optionBuilder.Build();
-        _result += optionsBuilderResult;
-        ((CaseNode)_current!).Choices[IsNotNullOrWhiteSpace(key)] = optionsBuilderResult.Value;
+        ((CaseNode)_current!).Choices[IsNotNullOrWhiteSpace(key)] = buildBlock(setPath);
         return this;
     }
 
     public INodeBuilder Otherwise(Action<IWorkflowBuilder> setPath) {
-        var otherwiseBuilder = new WorkflowBuilder(_services, _id, _current);
-        setPath(otherwiseBuilder);
-        var otherwiseBuilderResult = otherwiseBuilder.Build();
-        _result += otherwiseBuilderResult;
-        ((CaseNode)_current!).Choices[string.Empty] = otherwiseBuilderResult.Value;
+        ((CaseNode)_current!).Choices[string.Empty] = buildBlock(setPath);
         return this;
+    }
+
+    private INode? buildBlock(Action<IWorkflowBuilder> setPath) {
+        var builder = new WorkflowBuilder(_services, _id);
+        setPath(builder);
+        var result = builder.Build();
+        _result += result;
+        _nodes.AddRange(builder._nodes);
+        return result.Value;
     }
 }

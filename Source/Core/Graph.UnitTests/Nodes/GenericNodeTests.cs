@@ -1,13 +1,13 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public class GenericNodeTests {
-    private readonly NodeFactory _factory;
+    private readonly INodeFactory _factory;
 
     public GenericNodeTests() {
         var services = new ServiceCollection();
-        services.AddTransient<IPolicy, RetryPolicy>();
+        services.AddTransient<INodeFactory>(p => new NodeFactory(p));
         var provider = services.BuildServiceProvider();
-        _factory = new(provider);
+        _factory = provider.GetRequiredService<INodeFactory>();
     }
 
     [Fact]
@@ -18,8 +18,8 @@ public class GenericNodeTests {
         node.Should().BeOfType<GenericNode>();
     }
 
-    private sealed class GenericNode(IServiceProvider services, uint id, string? tag = null, string? label = null)
-        : ActionNode<GenericNode>(services, id, tag, label) {
+    public sealed class GenericNode(uint id, string? tag = null, string? label = null)
+        : ActionNode<GenericNode>(id, tag, label) {
         protected override Task Execute(Context context, CancellationToken ct) => Task.CompletedTask;
     }
 }

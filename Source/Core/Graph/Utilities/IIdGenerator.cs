@@ -2,9 +2,8 @@
 
 public interface IIdGenerator<TKey> {
     TKey First { get; }
-    TKey Next { get; }
-    TKey PeekNext();
-    TKey ConsumeNext();
-    void SetNext(TKey next);
+    TKey Peek();
+    TKey Consume();
+    void Set(TKey next);
     void Reset(TKey first);
 }

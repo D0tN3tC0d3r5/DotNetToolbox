@@ -1,14 +1,14 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ExitNode(IServiceProvider services, uint id, int exitCode = 0, string? tag = null, string? label = null)
-    : ExitNode<ExitNode>(services, id, tag, label) {
+public sealed class ExitNode(uint id, int exitCode = 0, string? tag = null, string? label = null)
+    : ExitNode<ExitNode>(id, tag, label) {
     protected override string DefaultLabel { get; } = "end";
 
     public override int ExitCode { get; } = exitCode;
 }
 
-public abstract class ExitNode<TNode>(IServiceProvider services, uint id, string? tag = null, string? label = null)
-    : Node<TNode>(services, id, tag, label),
+public abstract class ExitNode<TNode>(uint id, string? tag, string? label)
+    : Node<TNode>(id, tag, label),
       IExitNode
     where TNode : ExitNode<TNode> {
     protected override Task<INode?> SelectPath(Context context, CancellationToken ct)

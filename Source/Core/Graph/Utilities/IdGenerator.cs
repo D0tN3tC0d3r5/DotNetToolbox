@@ -12,9 +12,8 @@ public abstract class IdGenerator<TGenerator, TKey>
         => _providers.GetOrAdd(IsNotNullOrWhiteSpace(key), _ => InstanceFactory.Create<TGenerator>());
 
     public abstract TKey First { get; }
-    public virtual TKey Next => ConsumeNext();
-    public abstract TKey PeekNext();
-    public abstract TKey ConsumeNext();
-    public abstract void SetNext(TKey next);
+    public abstract TKey Peek();
+    public abstract TKey Consume();
+    public abstract void Set(TKey next);
     public abstract void Reset(TKey? first = default);
 }
