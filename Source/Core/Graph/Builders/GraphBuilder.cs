@@ -28,8 +28,8 @@ public sealed class GraphBuilder {
                 break;
 
             case IIfNode ifNode:
-                Build(ifNode.IsTrue, ifNode, "True");
-                Build(ifNode.IsFalse, ifNode, "False");
+                Build(ifNode.Then, ifNode, "True");
+                Build(ifNode.Else, ifNode, "False");
                 break;
 
             case ICaseNode mapNode:

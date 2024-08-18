@@ -1,188 +1,180 @@
 ﻿namespace DotNetToolbox.Graph.Builders;
 
-public sealed class WorkflowBuilder : IWorkflowBuilder,
-      IIfNodeBuilder,
-      IElseNodeBuilder,
-      ICaseNodeBuilder,
-      ICaseIsNodeBuilder {
-    private readonly IServiceProvider _services;
-    private readonly string _id;
-    private readonly NodeFactory _nodeFactory;
-    private readonly List<INode> _nodes = [];
+public sealed class WorkflowBuilder(IServiceProvider services, string? id = null)
+    : IWorkflowBuilder {
+    private readonly IServiceProvider _services = services;
+    private readonly string _id = id ?? GuidProvider.Default.Create().ToString()!;
+    private readonly INodeFactory _nodeFactory = services.GetRequiredService<INodeFactory>();
 
-    private INode? _first;
-    private INode? _current;
-    private Result _result = Success();
-
-    public WorkflowBuilder(IServiceProvider services, string? id = null, INode? parent = null) {
-        _services = services;
-        _id = id ?? GuidProvider.Default.Create().ToString()!;
-        _nodeFactory = (NodeFactory)services.GetRequiredService<INodeFactory>();
-        _current = _first = parent;
-    }
+    internal List<INode> Nodes { get; } = [];
 
     public Result<INode?> Build()
-        => BuildBlock();
+        => ConnectNodes();
 
-    private Result<INode?> BuildBlock()
-        => Success<INode?>(_first) + _result;
+    public IWorkflowBuilder AddNode(INode node, Token? token = null) {
+        Nodes.Add(IsNotNull(node));
+        return this;
+    }
 
-    public IWorkflowBuilder Do<TAction>(string? tag = null,
-                                        string? label = null)
+    public IWorkflowBuilder Do<TAction>(string? ìd = null,
+                                        string? label = null,
+                                        Token? token = null)
         where TAction : ActionNode<TAction> {
-        var node = _nodeFactory.Create<TAction>(tag ?? string.Empty, label);
-        //_result += ConnectNode(node);
-        _nodes.Add(node);
+        var node = _nodeFactory.Create<TAction>(ìd ?? string.Empty);
+        node.Label = label ?? node.Label;
+        Nodes.Add(node);
         return this;
     }
 
-    internal IWorkflowBuilder Do(Token? token,
-                                 string tag,
-                                 Action<Context> action,
-                                 string? label) {
-        var node = _nodeFactory.CreateAction(tag, action, label);
-        node.Token = token;
-        //_result += ConnectNode(node);
-        _nodes.Add(node);
-        return this;
-    }
-    public IWorkflowBuilder Do(string tag,
+    public IWorkflowBuilder Do(string ìd,
                                Action<Context> action,
-                               string? label = null)
-        => Do(null, tag, action, label);
+                               string? label = null,
+                               Token? token = null) {
+        var node = _nodeFactory.CreateAction(ìd, action);
+        node.Label = label ?? node.Label;
+        node.Token = token;
+        Nodes.Add(node);
+        return this;
+    }
     public IWorkflowBuilder Do(Action<Context> action,
-                               string? label = null)
-        => Do(null, string.Empty, action, label);
+                               string? label = null,
+                               Token? token = null)
+        => Do(string.Empty, action, label, token);
 
-    internal IWorkflowBuilder If(Token? token,
-                                 string tag,
-                                 Func<Context, bool> predicate,
-                                 Action<IIfNodeBuilder> buildBranches,
-                                 string? label = null) {
-        var node = _nodeFactory.CreateIf(tag, predicate, null!, null, label);
-        node.Token = token;
-        _nodes.Add(node);
-        //var builder = new WorkflowBuilder(_services, _id, node);
-        buildBranches(this);
-        //_result += ConnectNode(node);
-        //_nodes.AddRange(builder._nodes);
-        return this;
-    }
-    public IWorkflowBuilder If(string tag,
+    public IWorkflowBuilder If(string id,
                                Func<Context, bool> predicate,
-                               Action<IIfNodeBuilder> buildBranches,
-                               string? label = null)
-        => If(null, tag, predicate, buildBranches, label);
+                               string? label = null,
+                               Token? token = null) {
+        var node = _nodeFactory.CreateIf(id, predicate);
+        node.Label = label ?? node.Label;
+        node.Token = token;
+        Nodes.Add(node);
+        return this;
+    }
+    public IWorkflowBuilder If(string id,
+                               Func<Context, bool> predicate,
+                               Action<IWorkflowBuilder> setThen,
+                               Action<IWorkflowBuilder>? setElse = null,
+                               string? label = null,
+                               Token? token = null) {
+        If(id, predicate, label, token);
+        setThen(this);
+        setElse?.Invoke(this);
+        return this;
+    }
     public IWorkflowBuilder If(Func<Context, bool> predicate,
-                               Action<IIfNodeBuilder> buildBranches,
-                               string? label = null)
-        => If(null, string.Empty, predicate, buildBranches, label);
+                               Action<IWorkflowBuilder> setThen,
+                               Action<IWorkflowBuilder>? setElse = null,
+                               string? label = null,
+                               Token? token = null)
+        => If(string.Empty, predicate, setThen, setElse, label, token);
 
-    internal IWorkflowBuilder Case(Token? token,
-                                   string tag,
-                                   Func<Context, string> select,
-                                   Action<ICaseNodeBuilder> buildChoices,
-                                   string? label = null) {
-        var node = _nodeFactory.CreateCase(tag, select, null!, null, label);
-        node.Token = token;
-        _nodes.Add(node);
-        //var builder = new WorkflowBuilder(_services, _id, node);
-        buildChoices(this);
-        //_result += ConnectNode(node);
-        //_nodes.AddRange(builder._nodes);
-        return this;
-    }
-    public IWorkflowBuilder Case(string tag,
+    public IWorkflowBuilder Case(string id,
                                  Func<Context, string> select,
-                                 Action<ICaseNodeBuilder> buildChoices,
-                                 string? label = null)
-        => Case(null, tag, select, buildChoices, label);
+                                 string? label = null,
+                                 Token? token = null) {
+        var node = _nodeFactory.CreateCase(id, select);
+        node.Label = label ?? node.Label;
+        node.Token = token;
+        Nodes.Add(node);
+        return this;
+    }
+    public IWorkflowBuilder Case(string id,
+                                 Func<Context, string> select,
+                                 Dictionary<string, Action<IWorkflowBuilder>> setCases,
+                                 Action<IWorkflowBuilder>? setDefault = null,
+                                 string? label = null,
+                                 Token? token = null) {
+        Case(id, select, label, token);
+        foreach (var (key, buildChoice) in setCases)
+            buildChoice(this);
+        setDefault?.Invoke(this);
+        return this;
+    }
     public IWorkflowBuilder Case(Func<Context, string> select,
-                                 Action<ICaseNodeBuilder> buildChoices,
-                                 string? label = null)
-        => Case(null, string.Empty, select, buildChoices, label);
+                                 Dictionary<string, Action<IWorkflowBuilder>> setCases,
+                                 Action<IWorkflowBuilder>? setDefault = null,
+                                 string? label = null,
+                                 Token? token = null)
+        => Case(string.Empty, select, setCases, setDefault, label, token);
 
-    internal IWorkflowBuilder Exit(Token? token,
-                                   string tag,
-                                   int exitCode = 0,
-                                   string? label = null) {
-        var node = _nodeFactory.CreateExit(tag, exitCode, label);
+    public IWorkflowBuilder JumpTo(string id,
+                                   string targetNodeId,
+                                   string? label = null,
+                                   Token? token = null) {
+        var node = _nodeFactory.CreateJump(id, targetNodeId);
+        node.Label = label ?? node.Label;
         node.Token = token;
-        _nodes.Add(node);
-        //_result += ConnectNode(node);
+        Nodes.Add(node);
         return this;
     }
-    public IWorkflowBuilder Exit(string tag, int exitCode = 0, string? label = null)
-        => Exit(null, tag, exitCode, label);
-    public IWorkflowBuilder Exit(int exitCode = 0, string? label = null)
-        => Exit(null, string.Empty, exitCode, label);
+    public IWorkflowBuilder JumpTo(string targetNodeId,
+                                   string? label = null,
+                                   Token? token = null)
+        => JumpTo(string.Empty, targetNodeId, label, token);
 
-    internal IWorkflowBuilder JumpTo(Token? token,
-                                     string tag,
-                                     string targetNode,
-                                     string? label) {
-        var node = _nodeFactory.CreateJump(tag, targetNode, label);
+    public IWorkflowBuilder Exit(string id,
+                                 int exitCode = 0,
+                                 string? label = null,
+                                 Token? token = null) {
+        var node = _nodeFactory.CreateExit(id, exitCode);
+        node.Label = label ?? node.Label;
         node.Token = token;
-        _nodes.Add(node);
-        //_result += ConnectNode(node);
+        Nodes.Add(node);
         return this;
     }
-    public IWorkflowBuilder JumpTo(string tag,
-                                   string targetTag,
-                                   string? label = null)
-        => JumpTo(null, tag, targetTag, label);
+    public IWorkflowBuilder Exit(int exitCode = 0,
+                                 string? label = null,
+                                 Token? token = null)
+        => Exit(string.Empty, exitCode, label, token);
 
-    public IWorkflowBuilder JumpTo(string targetTag,
-                                   string? label = null)
-        => JumpTo(null, string.Empty, targetTag, label);
+    private Result<INode?> ConnectNodes() {
+        var current = Nodes.FirstOrDefault();
+        var result = Success<INode?>(current);
+        foreach (var node in Nodes.Skip(1)) {
+            result += current?.ConnectTo(node) ?? Success();
+            current = node;
+        }
 
-    //private Result ConnectNode(INode node) {
-    //    _first ??= node;
-    //    var result = _current is not null and not IJumpNode
-    //        ? _current.ConnectTo(node)
-    //        : Success();
-    //    _current = node;
-    //    _nodes.Add(node);
-    //    return result;
-    //}
+        //return ConnectJumps(result);
+        return result;
+    }
 
     //private Result ConnectJumps() {
     //    var result = Success();
-    //    foreach (var jumpNode in _nodes.OfType<IJumpNode>()) {
-    //        var targetTag = _nodes.Find(n => n.Id == jumpNode.TargetTag);
-    //        if (targetTag is null)
+    //    foreach (var jumpNode in Nodes.OfType<IJumpNode>()) {
+    //        var targetNodeTag = Nodes.Find(n => n.Id == jumpNode.TargetTag);
+    //        if (targetNodeTag is null)
     //            result += new ValidationError($"Jump target '{jumpNode.TargetTag}' not found.", jumpNode.Token?.ToSource());
-    //        else jumpNode.ConnectTo(targetTag);
+    //        else jumpNode.ConnectTo(targetNodeTag);
     //    }
     //    return result;
     //}
 
-    public IElseNodeBuilder IsTrue(Action<IWorkflowBuilder> setPath) {
-        ((IfNode)_current!).IsTrue = BuildBlock(setPath);
-        return this;
-    }
+    //public IElseNodeBuilder Then(Action<IWorkflowBuilder> setPath) {
+    //    ((IfNode)_current!).Then = BuildBlock(setPath);
+    //    return this;
+    //}
 
-    public INodeBuilder IsFalse(Action<IWorkflowBuilder> setPath) {
-        ((IfNode)_current!).IsFalse = BuildBlock(setPath);
-        return this;
-    }
+    //public INodeBuilder Else(Action<IWorkflowBuilder> setPath) {
+    //    ((IfNode)_current!).Else = BuildBlock(setPath);
+    //    return this;
+    //}
 
-    public ICaseIsNodeBuilder Is(string key, Action<IWorkflowBuilder> setPath) {
-        ((CaseNode)_current!).Choices[IsNotNullOrWhiteSpace(key)] = BuildBlock(setPath);
-        return this;
-    }
+    //public ICaseIsNodeBuilder Is(string key, Action<IWorkflowBuilder> setPath) {
+    //    ((CaseNode)_current!).Choices[IsNotNullOrWhiteSpace(key)] = BuildBlock(setPath);
+    //    return this;
+    //}
 
-    public INodeBuilder Otherwise(Action<IWorkflowBuilder> setPath) {
-        ((CaseNode)_current!).Choices[string.Empty] = BuildBlock(setPath);
-        return this;
-    }
+    //public INodeBuilder Otherwise(Action<IWorkflowBuilder> setPath) {
+    //    ((CaseNode)_current!).Choices[string.Empty] = BuildBlock(setPath);
+    //    return this;
+    //}
 
-    private INode? BuildBlock(Action<IWorkflowBuilder> setPath) {
-        var builder = new WorkflowBuilder(_services, _id);
-        setPath(builder);
-        var result = builder.BuildBlock();
-        _result += result;
-        _nodes.AddRange(builder._nodes);
-        return result.Value;
-    }
+    //private INode? BuildBlock(Action<IWorkflowBuilder> setPath) {
+    //    var builder = new WorkflowBuilder(_services, _id);
+    //    setPath(builder);
+    //    Nodes.AddRange(builder.Nodes);
+    //    return builder.Nodes.FirstOrDefault();
+    //}
 }

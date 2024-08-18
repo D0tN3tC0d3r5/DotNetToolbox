@@ -24,7 +24,7 @@ public class CaseNodeTests {
     public void CreateChoice_WithCustomLabel_ReturnsBranchingNodeWithCustomLabel() {
         const string customLabel = "Custom Choice";
         const string customTag = "Action1";
-        var node = _factory.CreateCase(customTag, _ => "default", [], label: customLabel);
+        var node = _factory.CreateCase(customTag, _ => "default", []);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<CaseNode>();
@@ -35,7 +35,7 @@ public class CaseNodeTests {
     public void CreateChoice_WithMultipleBranches_SetsAllBranches() {
         var node = _factory.CreateCase("1",
                                          _ => "key",
-                                         new Dictionary<string, INode?> {
+                                         new() {
                                              ["key1"] = null,
                                              ["key2"] = null,
                                              ["key3"] = null,
@@ -55,7 +55,7 @@ public class CaseNodeTests {
         using var context = new Context(provider);
         var node = _factory.CreateCase("1",
                                          _ => "key2",
-                                         new Dictionary<string, INode?> {
+                                         new() {
                                              ["key1"] = _factory.CreateAction("k1", ctx => ctx["branch"] = "1"),
                                              ["key2"] = _factory.CreateAction("k2", ctx => ctx["branch"] = "2"),
                                              ["key3"] = _factory.CreateAction("k3", ctx => ctx["branch"] = "3"),
@@ -70,7 +70,7 @@ public class CaseNodeTests {
     public async Task Run_MethodWithNonExistingKey_ThrowsInvalidOperationException() {
         var node = _factory.CreateCase("1",
                                          _ => "nonexistent",
-                                         new Dictionary<string, INode?> {
+                                         new() {
                                              ["key1"] = _factory.CreateAction("k1", ctx => ctx["branch"] = "1"),
                                              ["key2"] = _factory.CreateAction("k2", ctx => ctx["branch"] = "2"),
                                          });

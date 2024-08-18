@@ -22,13 +22,11 @@ public class ActionNodeTests {
 
     [Fact]
     public void CreateAction_WithCustomLabel_ReturnsActionNodeWithCustomLabel() {
-        const string customLabel = "Custom Action";
         const string customTag = "Action1";
-        var node = _factory.CreateAction(customTag, _ => { }, customLabel);
+        var node = _factory.CreateAction(customTag, _ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
-        node.Label.Should().Be(customLabel);
         node.Id.Should().Be(customTag);
     }
 

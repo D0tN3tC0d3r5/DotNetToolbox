@@ -37,8 +37,8 @@ public class Workflow(string id,
                 result += ValidateNode(n.Next, visited);
                 break;
             case IIfNode n:
-                result += ValidateNode(n.IsTrue, visited);
-                result += ValidateNode(n.IsFalse, visited);
+                result += ValidateNode(n.Then, visited);
+                result += ValidateNode(n.Else, visited);
                 break;
             case ICaseNode n:
                 foreach ((_, var branch) in n.Choices)

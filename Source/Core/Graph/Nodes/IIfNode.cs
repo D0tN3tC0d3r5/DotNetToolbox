@@ -2,6 +2,6 @@
 
 public interface IIfNode
     : INode {
-    INode? IsTrue { get; set; }
-    INode? IsFalse { get; set; }
+    INode? Then { get; set; }
+    INode? Else { get; set; }
 }

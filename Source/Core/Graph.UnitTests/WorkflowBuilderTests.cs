@@ -5,6 +5,7 @@ public sealed class WorkflowBuilderTests {
 
     public WorkflowBuilderTests() {
         var services = new ServiceCollection();
+        services.AddTransient<INodeFactory>(p => new NodeFactory(p));
         services.AddTransient<IPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
         _builder = new(provider);
@@ -54,11 +55,9 @@ public sealed class WorkflowBuilderTests {
                                       3["action"]
 
                                       """;
-        var start = _builder.If(_ => true, b => b
-                                .IsTrue(t => t
-                                    .Do(_ => { }))
-                                .IsFalse(f => f
-                                    .Do(_ => { })))
+        var start = _builder.If(_ => true,
+                                t => t.Do(_ => { }),
+                                f => f.Do(_ => { }))
                             .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -79,10 +78,12 @@ public sealed class WorkflowBuilderTests {
                                       4["action"]
 
                                       """;
-        var start = _builder.Case(_ => "key1", k => k
-                                                   .Is("key1", b => b.Do(_ => { }))
-                                                   .Is("key2", b => b.Do(_ => { }))
-                                                   .Is("key3", b => b.Do(_ => { })))
+        var start = _builder.Case(_ => "key1",
+                                  new() {
+                                      ["key1"] = b => b.Do(_ => { }),
+                                      ["key2"] = b => b.Do(_ => { }),
+                                      ["key3"] = b => b.Do(_ => { })
+                                  })
                             .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -111,16 +112,13 @@ public sealed class WorkflowBuilderTests {
                                       """;
 
         var start = _builder.Do(_ => { })
-                            .If(_ => true, b => b
-                                .IsTrue(t => t
-                                    .Do(_ => { })
-                                    .Case(_ => "key1", k => k
-                                        .Is("key1", c => c
-                                            .Do(_ => { }))
-                                        .Is("key2", c => c
-                                            .Do(_ => { }))))
-                                .IsFalse(f => f
-                                    .Do(_ => { })))
+                            .If(_ => true,
+                                t => t.Do(_ => { })
+                                      .Case(_ => "key1", new() {
+                                          ["key1"] = b => b.Do(_ => { }),
+                                          ["key2"] = b => b.Do(_ => { })
+                                      }),
+                                f => f.Do(_ => { }))
                             .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -142,9 +140,9 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
         var start = _builder.Do("Start", _ => { })
-                            .If("Decision", _ => true, b => b
-                                .IsTrue(t => t.Do("Success", _ => { }))
-                                .IsFalse(f => f.Do("Fail", _ => { })))
+                            .If("Decision", _ => true,
+                                t => t.Do("Success", _ => { }),
+                                f => f.Do("Fail", _ => { }))
                             .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -168,12 +166,11 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
         var start = _builder.Do("Start", _ => { })
-                            .If("LoopCondition", _ => true, b => b
-                                .IsTrue(t => t
-                                    .Do("LoopAction", _ => { })
-                                    .JumpTo("LoopCondition"))
-                                .IsFalse(f => f
-                                    .Do("Exit", _ => { })))
+                            .If("LoopCondition",
+                                _ => true,
+                                t => t.Do("LoopAction", _ => { })
+                                      .JumpTo("LoopCondition"),
+                                f => f.Do("Exit", _ => { }))
                             .Build().Value!;
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -209,15 +206,11 @@ public sealed class WorkflowBuilderTests {
                                       5["action"]
 
                                       """;
-        var start = _builder.If(_ => true, b1 => b1
-                                .IsTrue(t1 => t1
-                                    .If(_ => false, b2 => b2
-                                        .IsTrue(t2 => t2
-                                            .Do(_ => { }))
-                                        .IsFalse(f2 => f2
-                                            .Do(_ => { }))))
-                                .IsFalse(f1 => f1
-                                    .Do(_ => { })))
+        var start = _builder.If(_ => true,
+                                t1 => t1.If(_ => false,
+                                            t2 => t2.Do(_ => { }),
+                                            f2 => f2.Do(_ => { })),
+                                f1 => f1.Do(_ => { }))
                             .Build().Value!;
 
         var graph = GraphBuilder.BuildFrom(start);

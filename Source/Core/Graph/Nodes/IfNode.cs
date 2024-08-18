@@ -30,13 +30,13 @@ public abstract class IfNode<TNode>(string id, INodeSequence? sequence = null)
     : Node<TNode>(id, sequence),
       IIfNode
     where TNode : IfNode<TNode> {
-    public INode? IsTrue { get; set; }
-    public INode? IsFalse { get; set; }
+    public INode? Then { get; set; }
+    public INode? Else { get; set; }
 
     protected override Result IsValid(ISet<INode> visited) {
         var result = base.IsValid(visited);
-        result += IsTrue?.Validate(visited) ?? new ValidationError("The true node is not set.", Token?.ToSource());
-        result += IsFalse?.Validate(visited) ?? Success();
+        result += Then?.Validate(visited) ?? new ValidationError("The true node is not set.", Token?.ToSource());
+        result += Else?.Validate(visited) ?? Success();
         return result;
     }
 
@@ -51,18 +51,18 @@ public abstract class IfNode<TNode>(string id, INodeSequence? sequence = null)
     protected abstract Task<bool> When(Context context, CancellationToken ct);
 
     private Task<INode?> TryRunTrueNode(Context context, CancellationToken ct)
-        => IsTrue is not null ? IsTrue.Run(context, ct) : Task.FromResult<INode?>(null);
+        => Then is not null ? Then.Run(context, ct) : Task.FromResult<INode?>(null);
 
     private Task<INode?> TryRunFalseNode(Context context, CancellationToken ct)
-        => IsFalse is not null ? IsFalse.Run(context, ct) : Task.FromResult<INode?>(null);
+        => Else is not null ? Else.Run(context, ct) : Task.FromResult<INode?>(null);
 
     public sealed override Result ConnectTo(INode? next) {
         var result = Success();
         var token = next?.Token;
-        if (IsTrue is null) IsTrue = next;
-        else IsTrue.ConnectTo(next);
-        if (IsFalse is null) IsFalse = next;
-        else IsFalse.ConnectTo(next);
+        if (Then is null) Then = next;
+        else Then.ConnectTo(next);
+        if (Else is null) Else = next;
+        else Else.ConnectTo(next);
         return result;
     }
 }

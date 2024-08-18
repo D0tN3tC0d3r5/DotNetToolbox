@@ -52,7 +52,7 @@ public class WorkflowLexerTests {
 
         tokens.Should().HaveCount(4);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "DoSomething"));
-        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Tag, 1, 13, "Label1"));
+        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Id, 1, 13, "Label1"));
         tokens[2].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 20));
         tokens[3].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 1, 20));
     }

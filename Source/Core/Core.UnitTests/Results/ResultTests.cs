@@ -578,6 +578,38 @@ public class ResultTests {
     }
 
     [Fact]
+    public async Task InvalidTask_FromResult_ReturnsTaskWithInvalidResult() {
+        // Arrange
+        var original = Result.Invalid("Test error");
+
+        // Act
+        var task = Result.InvalidTask(original);
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should()
+              .BeTrue();
+        result.Errors.Should()
+              .ContainSingle(e => e.Message == "Test error");
+    }
+
+    [Fact]
+    public async Task InvalidTask_FromErrors_ReturnsTaskWithInvalidResult() {
+        // Arrange
+        var original = Result.Invalid("Test error");
+
+        // Act
+        var task = Result.InvalidTask(original.Errors);
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should()
+              .BeTrue();
+        result.Errors.Should()
+              .ContainSingle(e => e.Message == "Test error");
+    }
+
+    [Fact]
     public async Task ErrorTask_ReturnsTaskWithErrorResult() {
         // Act
         var task = Result.ErrorTask("Test exception");

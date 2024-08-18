@@ -131,12 +131,12 @@ public class WorkflowParserTests {
             ifNode.Label.Should().Be("if");
             ifNode.Next.Should().BeNull();
 
-            var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
+            var trueAction = ifNode.Then.Should().BeOfType<ActionNode>().Subject;
             trueAction.Id.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
             trueAction.Next.Should().BeNull();
-            ifNode.IsFalse.Should().BeNull();
+            ifNode.Else.Should().BeNull();
         }
 
         [Fact]
@@ -158,7 +158,7 @@ public class WorkflowParserTests {
             ifNode.Id.Should().Be("1");
             ifNode.Label.Should().Be("if");
 
-            var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
+            var trueAction = ifNode.Then.Should().BeOfType<ActionNode>().Subject;
             trueAction.Id.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
@@ -167,7 +167,7 @@ public class WorkflowParserTests {
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
 
-            ifNode.IsFalse.Should().Be(end);
+            ifNode.Else.Should().Be(end);
         }
 
         [Fact]
@@ -191,11 +191,11 @@ public class WorkflowParserTests {
             ifNode.Id.Should().Be("1");
             ifNode.Label.Should().Be("if");
 
-            var trueAction = ifNode.IsTrue.Should().BeOfType<ActionNode>().Subject;
+            var trueAction = ifNode.Then.Should().BeOfType<ActionNode>().Subject;
             trueAction.Id.Should().Be("2");
             trueAction.Label.Should().Be("ActionTrue");
 
-            var falseAction = ifNode.IsFalse.Should().BeOfType<ActionNode>().Subject;
+            var falseAction = ifNode.Else.Should().BeOfType<ActionNode>().Subject;
             falseAction.Id.Should().Be("3");
             falseAction.Label.Should().Be("ActionFalse");
 
@@ -310,12 +310,12 @@ public class WorkflowParserTests {
             ifNode.Id.Should().Be("3");
             ifNode.Label.Should().Be("if");
 
-            var exitJump = ifNode.IsTrue.Should().BeOfType<JumpNode>().Subject;
+            var exitJump = ifNode.Then.Should().BeOfType<JumpNode>().Subject;
             exitJump.Id.Should().Be("4");
             exitJump.Label.Should().Be("goto");
             exitJump.TargetTag.Should().Be("end");
 
-            var jumpBack = ifNode.IsFalse.Should().BeOfType<JumpNode>().Subject;
+            var jumpBack = ifNode.Else.Should().BeOfType<JumpNode>().Subject;
             jumpBack.Id.Should().Be("5");
             jumpBack.Label.Should().Be("goto");
             jumpBack.TargetTag.Should().Be("Label1");

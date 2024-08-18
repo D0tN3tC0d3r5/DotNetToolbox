@@ -23,13 +23,11 @@ public class ExitNodeTests {
     public void CreateStop_WithCustomLabel_ReturnsTerminalNodeWithCustomLabel() {
         const int customCode = -2;
         const string customTag = "CustomEnd";
-        const string customLabel = "Custom Exit";
-        var node = _factory.CreateExit(customTag, customCode, customLabel);
+        var node = _factory.CreateExit(customTag, customCode);
 
         node.Should().NotBeNull();
         var exitNode = node.Should().BeOfType<ExitNode>().Subject;
         exitNode.ExitCode.Should().Be(customCode);
         exitNode.Id.Should().Be(customTag);
-        exitNode.Label.Should().Be(customLabel);
     }
 }

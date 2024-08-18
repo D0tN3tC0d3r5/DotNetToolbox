@@ -25,16 +25,13 @@ public class IfNodeTests {
 
     [Fact]
     public void CreateFork_WithCustomLabel_ReturnsConditionalNodeWithCustomLabel() {
-        const string customLabel = "Custom Fork";
         const string customTag = "Action1";
         var node = _factory.CreateIf(customTag,
                                        _ => true,
-                                       _factory.CreateAction("t", _ => { }),
-                                       label: customLabel);
+                                       _factory.CreateAction("t", _ => { }));
 
         node.Should().NotBeNull();
         node.Should().BeOfType<IfNode>();
-        node.Label.Should().Be(customLabel);
     }
 
     [Fact]
@@ -44,8 +41,8 @@ public class IfNodeTests {
                                        _factory.CreateAction("t", _ => { }));
 
         var ifNode = node.Should().BeOfType<IfNode>().Subject;
-        ifNode.IsTrue.Should().NotBeNull();
-        ifNode.IsFalse.Should().BeNull();
+        ifNode.Then.Should().NotBeNull();
+        ifNode.Else.Should().BeNull();
     }
 
     [Fact]
@@ -56,8 +53,8 @@ public class IfNodeTests {
                                      _factory.CreateAction("f", _ => { }));
 
         var ifNode = node.Should().BeOfType<IfNode>().Subject;
-        ifNode.IsTrue.Should().NotBeNull();
-        ifNode.IsFalse.Should().NotBeNull();
+        ifNode.Then.Should().NotBeNull();
+        ifNode.Else.Should().NotBeNull();
     }
 
     [Fact]

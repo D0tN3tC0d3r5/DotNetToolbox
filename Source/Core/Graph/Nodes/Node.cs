@@ -11,7 +11,8 @@ public static class Node {
         => InstanceFactory.Create<TNode>([id, sequence, .. args]);
 }
 
-public abstract class Node<TNode> : INode
+public abstract class Node<TNode>
+    : INode
     where TNode : Node<TNode> {
     private readonly uint _number;
 

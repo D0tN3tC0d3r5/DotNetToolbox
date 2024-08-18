@@ -1,46 +1,35 @@
 ﻿namespace DotNetToolbox.Graph.Factories;
 
 public interface INodeFactory {
-    TNode Create<TNode>(string id,
-                        string? label = null)
-        where TNode : Node<TNode>;
-    TNode Create<TNode>(string? label = null)
+    TNode Create<TNode>(string? id = null)
         where TNode : Node<TNode>;
 
-    INode CreateAction(string id,
-                       Action<Context> action,
-                       string? label = null);
-    INode CreateAction(Action<Context> action,
-                       string? label = null);
+    IActionNode CreateAction(Action<Context> action);
+    IActionNode CreateAction(string id, Action<Context> action);
 
-    INode CreateIf(string id,
-                   Func<Context, bool> predicate,
+    IIfNode CreateIf(Func<Context, bool> predicate);
+    IIfNode CreateIf(string id, Func<Context, bool> predicate);
+    IIfNode CreateIf(string id,
+                     Func<Context, bool> predicate,
+                     INode truePath,
+                     INode? falsePath = null);
+    IIfNode CreateIf(Func<Context, bool> predicate,
                    INode truePath,
-                   INode? falsePath = null,
-                   string? label = null);
-    INode CreateIf(Func<Context, bool> predicate,
-                   INode truePath,
-                   INode? falsePath = null,
-                   string? label = null);
-    INode CreateCase(string id,
-                     Func<Context, string> selectPath,
-                     Dictionary<string, INode?> choices,
-                     INode? otherwise = null,
-                     string? label = null);
-    INode CreateCase(Func<Context, string> selectPath,
-                     Dictionary<string, INode?> choices,
-                     INode? otherwise = null,
-                     string? label = null);
+                   INode? falsePath = null);
 
-    INode CreateJump(string id,
-                     string targetTag,
-                     string? label = null);
-    INode CreateJump(string targetTag,
-                     string? label = null);
+    ICaseNode CreateCase(Func<Context, string> selectPath);
+    ICaseNode CreateCase(string id, Func<Context, string> selectPath);
+    ICaseNode CreateCase(string id,
+                         Func<Context, string> selectPath,
+                         Dictionary<string, INode?> choices,
+                         INode? otherwise = null);
+    ICaseNode CreateCase(Func<Context, string> selectPath,
+                         Dictionary<string, INode?> choices,
+                         INode? otherwise = null);
 
-    INode CreateExit(int exitCode = 0,
-                     string? label = null);
-    INode CreateExit(string id,
-                     int exitCode = 0,
-                     string? label = null);
+    IJumpNode CreateJump(string targetTag);
+    IJumpNode CreateJump(string id, string targetTag);
+
+    IExitNode CreateExit(int exitCode = 0);
+    IExitNode CreateExit(string id, int exitCode = 0);
 }

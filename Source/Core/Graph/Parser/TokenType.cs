@@ -17,7 +17,7 @@ public enum TokenType {
     Otherwise,
     Exit,
     JumpTo,
-    Tag,
+    Id,
     Equal,
     NotEqual,
     GreaterThan,
