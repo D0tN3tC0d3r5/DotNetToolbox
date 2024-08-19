@@ -4,12 +4,12 @@ public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
     private readonly INodeSequence? _sequence;
 
-    private Token _currentToken;
+    private int _indentLevel = -1;
 
     private WorkflowParser(IEnumerable<Token> tokens, IServiceProvider services) {
-        _sequence = services.GetService<INodeSequence>() ?? NodeSequence.Singleton;
+        _sequence = services.GetService<INodeSequence>() ?? NodeSequence.Transient;
         _tokens = tokens.GetEnumerator();
-        NextToken();
+        _tokens.MoveNext();
     }
 
     internal ValidationErrors Errors { get; } = [];
@@ -20,16 +20,40 @@ public sealed class WorkflowParser {
     }
 
     private INode? ParseBlock() {
+        EnsureIndent();
         var nodes = new List<INode>();
-        var indentColumn = _currentToken.Column;
-        while (_currentToken.Type is not TokenType.EndOfFile && _currentToken.Column >= indentColumn)
-            nodes.Add(ParseStatement());
+        var lastNode = default(INode);
+        var finishBlock = IsEndOfFile();
+        while (!finishBlock) {
+            var newNode = ParseStatement();
+            lastNode?.ConnectTo(newNode);
+            lastNode = newNode;
+            nodes.Add(newNode);
+            finishBlock = IsEndOfFile() || IsDedented();
+        }
         return nodes.FirstOrDefault();
     }
 
-    private INode ParseStatement() {
-        AllowMany(TokenType.Indent);
-        return _currentToken.Type switch {
+    private bool IsEndOfFile()
+        => _tokens.Current.Type is TokenType.EndOfFile;
+
+    private void EnsureIndent() {
+        var count = CountToken(TokenType.Indent);
+        var isIndented = _indentLevel < count;
+        if (_indentLevel > count) AddError($"Wrong indentation level. Expected '{_indentLevel}' but found {count}.");
+        if (isIndented) _indentLevel = count;
+    }
+
+    private bool IsDedented() {
+        var count = CountToken(TokenType.Indent);
+        var isDedented = _indentLevel > count;
+        if (_indentLevel < count) AddError($"Wrong indentation level. Expected '{_indentLevel}' but found {count}.");
+        if (isDedented) _indentLevel = count;
+        return isDedented;
+    }
+
+    private INode ParseStatement()
+        => _tokens.Current.Type switch {
             TokenType.Identifier => ParseAction(),
             TokenType.If => ParseIf(),
             TokenType.Case => ParseCase(),
@@ -39,46 +63,46 @@ public sealed class WorkflowParser {
             TokenType.Error => ParseError(),
             _ => ParseUnknownToken(),
         };
-    }
 
     private INode ParseUnknownToken() {
         AddError("Unexpected token.");
-        NextToken();
+        _tokens.MoveNext();
         return null!;
     }
 
     private INode ParseError() {
-        AddError(_currentToken.Value);
-        NextToken();
+        AddError(_tokens.Current.Value);
+        _tokens.MoveNext();
         return null!;
     }
 
     private INode ParseEndOfLine() {
-        NextToken();
+        _tokens.MoveNext();
         return null!;
     }
 
     private INode ParseAction() {
-        var name = GetRequiredValueFrom(TokenType.Identifier);
-        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        var label = GetValueOrDefaultFrom(TokenType.Label);
+        var token = _tokens.Current;
+        var name = GetValue(TokenType.Identifier);
+        var id = GetValueOrDefault(TokenType.Id, string.Empty);
+        var label = GetValueOrDefault(TokenType.Label);
         Ensure(TokenType.EndOfLine);
         var command = BuildCommand(name);
         return new ActionNode(id, command, _sequence) {
-            Token = _currentToken,
+            Token = token,
             Label = label ?? name,
         };
     }
 
     private INode ParseIf() {
+        var token = _tokens.Current;
         Ensure(TokenType.If);
-        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        var label = GetValueOrDefaultFrom(TokenType.Label);
+        var id = GetValueOrDefault(TokenType.Id, string.Empty);
+        var label = GetValueOrDefault(TokenType.Label);
         var predicate = ParsePredicate();
         Ensure(TokenType.EndOfLine);
-
         var node = new IfNode(id, predicate, _sequence) {
-            Token = _currentToken,
+            Token = token,
             Then = ParseBlock(),
             Else = ParseElse(),
         };
@@ -88,10 +112,10 @@ public sealed class WorkflowParser {
 
     private Func<Context, bool> ParsePredicate() {
         var condition = new StringBuilder();
-        while (_currentToken.Type is not TokenType.Id and not TokenType.Label and not TokenType.EndOfLine) {
-            condition.Append(_currentToken.Value);
+        while (_tokens.Current.Type is not TokenType.Id and not TokenType.Label and not TokenType.EndOfLine) {
+            condition.Append(_tokens.Current.Value);
             condition.Append(' ');
-            NextToken();
+            _tokens.MoveNext();
         }
 
         var expression = condition.ToString().Trim();
@@ -107,14 +131,15 @@ public sealed class WorkflowParser {
     }
 
     private INode ParseCase() {
+        var token = _tokens.Current;
         Ensure(TokenType.Case);
-        var identifier = GetRequiredValueFrom(TokenType.Identifier);
-        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        var label = GetValueOrDefaultFrom(TokenType.Label);
+        var identifier = GetValue(TokenType.Identifier);
+        var id = GetValueOrDefault(TokenType.Id, string.Empty);
+        var label = GetValueOrDefault(TokenType.Label);
         Ensure(TokenType.EndOfLine);
 
         var selector = BuildSelector(identifier);
-        var node = new CaseNode(id, selector, _sequence) { Token = _currentToken, };
+        var node = new CaseNode(id, selector, _sequence) { Token = token };
         node.Label = label ?? node.Label;
         foreach ((var key, var choice) in ParseChoices())
             node.Choices.Add(key, choice);
@@ -122,10 +147,12 @@ public sealed class WorkflowParser {
     }
 
     private IEnumerable<(string, INode?)> ParseChoices() {
+        _indentLevel++;
         while (TryParseCaseOption(out var choice))
             yield return choice;
         if (TryParseOtherwise(out var otherwise))
             yield return (string.Empty, otherwise);
+        _indentLevel--;
     }
 
     private bool TryParseCaseOption(out (string, INode?) result) {
@@ -133,7 +160,7 @@ public sealed class WorkflowParser {
         if (!TokenIs(TokenType.Is)) return false;
 
         Ensure(TokenType.Is);
-        var key = GetRequiredValueFrom(TokenType.String);
+        var key = GetValue(TokenType.String);
         Ensure(TokenType.EndOfLine);
         result = (key, ParseBlock());
         return true;
@@ -151,27 +178,29 @@ public sealed class WorkflowParser {
     }
 
     private INode ParseExit() {
+        var token = _tokens.Current;
         Ensure(TokenType.Exit);
-        var number = GetValueOrDefaultFrom(TokenType.Number, "0"); // if number not found default to 0
+        var number = GetValueOrDefault(TokenType.Number, "0"); // if number not found default to 0
         if (!int.TryParse(number, out var exitCode))
             AddError("Exit code must be a number.");
-        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        var label = GetValueOrDefaultFrom(TokenType.Label);
+        var id = GetValueOrDefault(TokenType.Id, string.Empty);
+        var label = GetValueOrDefault(TokenType.Label);
         Ensure(TokenType.EndOfLine);
 
-        var node = new ExitNode(id, exitCode, _sequence) { Token = _currentToken };
+        var node = new ExitNode(id, exitCode, _sequence) { Token = token };
         node.Label = label ?? node.Label;
         return node;
     }
 
     private INode ParseJumpTo() {
+        var token = _tokens.Current;
         Ensure(TokenType.JumpTo);
-        var target = GetRequiredValueFrom(TokenType.Identifier);
-        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        var label = GetValueOrDefaultFrom(TokenType.Label);
+        var target = GetValue(TokenType.Identifier);
+        var id = GetValueOrDefault(TokenType.Id, string.Empty);
+        var label = GetValueOrDefault(TokenType.Label);
         Ensure(TokenType.EndOfLine);
 
-        var node = new JumpNode(id, target, _sequence) { Token = _currentToken };
+        var node = new JumpNode(id, target, _sequence) { Token = token };
         node.Label = label ?? node.Label;
         return node;
     }
@@ -197,48 +226,50 @@ public sealed class WorkflowParser {
     }
 
     private void AddError(string? message)
-        => Errors.Add(new ValidationError(message ?? "Unknown error.", $"[{_currentToken.Line}, {_currentToken.Column}]: {_currentToken.Type}"));
+        => Errors.Add(new ValidationError(message ?? "Unknown error.", $"[{_tokens.Current.Line}, {_tokens.Current.Column}]: {_tokens.Current.Type}"));
 
-    private bool TokenIs(TokenType type)
-        => _currentToken.Type == type;
+    private int CountToken(TokenType type) {
+        var count = 0;
+        while (TokenIs(type)) {
+            count++;
+            _tokens.MoveNext();
+        }
 
-    private void AllowMany(TokenType type) {
-        while (_currentToken.Type == type)
-            NextToken();
+        return count;
     }
+    private bool TokenIs(TokenType type)
+        => _tokens.Current.Type == type;
 
     private void Ensure(TokenType type) {
-        if (_currentToken.Type != type)
+        if (!TokenIs(type)) {
             AddError($"Expected token: '{type}'.");
-        NextToken();
+            return;
+        }
+        _tokens.MoveNext();
     }
 
     private void Forbid(TokenType type) {
-        if (_currentToken.Type == type)
+        if (TokenIs(type))
             AddError("Token not allowed.");
-        NextToken();
+        _tokens.MoveNext();
     }
 
-    private string GetRequiredValueFrom(TokenType type) {
-        if (_currentToken.Type != type)
+    private string GetValue(TokenType type) {
+        if (!TokenIs(type)) {
             AddError($"Expected token: '{type}'.");
-        if (_currentToken.Value is null)
-            AddError("Token value not set.");
-        NextToken();
-        return _currentToken.Value!;
+            return "[Invalid Token]";
+        }
+        var value = _tokens.Current.Value;
+        _tokens.MoveNext();
+        return value!;
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    private string? GetValueOrDefaultFrom(TokenType type, string? defaultValue = null) {
-        if (_currentToken.Type != type)
-            AddError($"Expected token: '{type}'.");
-        NextToken();
-        return _currentToken.Value ?? defaultValue;
+    private string? GetValueOrDefault(TokenType type, string? defaultValue = null) {
+        if (!TokenIs(type))
+            return defaultValue;
+        var value = _tokens.Current.Value ?? defaultValue;
+        _tokens.MoveNext();
+        return value;
     }
-
-    [MemberNotNull(nameof(_currentToken))]
-    private void NextToken()
-        => _currentToken = _tokens.MoveNext()
-           ? _tokens.Current
-           : new(TokenType.Exit, 0, 0, string.Empty);
 }
