@@ -5,7 +5,7 @@ public sealed class WorkflowBuilderTests {
 
     public WorkflowBuilderTests() {
         var services = new ServiceCollection();
-        services.AddTransient<INodeFactory>(p => new NodeFactory(p));
+        services.AddScoped<INodeFactory, NodeFactory>();
         services.AddTransient<IPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
         _builder = new(provider);
@@ -18,7 +18,7 @@ public sealed class WorkflowBuilderTests {
                                       1["action"]
 
                                       """;
-        var start = _builder.Do(_ => { }).Build().Value!;
+        var start = _builder.Do(_ => { }).Build();
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -37,7 +37,7 @@ public sealed class WorkflowBuilderTests {
 
         var start = _builder.Do(_ => { })
                             .Do(_ => { })
-                            .Build().Value!;
+                            .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -58,7 +58,7 @@ public sealed class WorkflowBuilderTests {
         var start = _builder.If(_ => true,
                                 t => t.Do(_ => { }),
                                 f => f.Do(_ => { }))
-                            .Build().Value!;
+                            .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -84,7 +84,7 @@ public sealed class WorkflowBuilderTests {
                                       ["key2"] = b => b.Do(_ => { }),
                                       ["key3"] = b => b.Do(_ => { })
                                   })
-                            .Build().Value!;
+                            .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -119,7 +119,7 @@ public sealed class WorkflowBuilderTests {
                                           ["key2"] = b => b.Do(_ => { })
                                       }),
                                 f => f.Do(_ => { }))
-                            .Build().Value!;
+                            .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -143,7 +143,7 @@ public sealed class WorkflowBuilderTests {
                             .If("Decision", _ => true,
                                 t => t.Do("Success", _ => { }),
                                 f => f.Do("Fail", _ => { }))
-                            .Build().Value!;
+                            .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -171,7 +171,7 @@ public sealed class WorkflowBuilderTests {
                                 t => t.Do("LoopAction", _ => { })
                                       .JumpTo("LoopCondition"),
                                 f => f.Do("Exit", _ => { }))
-                            .Build().Value!;
+                            .Build();
         var graph = GraphBuilder.BuildFrom(start);
 
         graph.Should().Be(expectedResult);
@@ -184,7 +184,7 @@ public sealed class WorkflowBuilderTests {
                                       1["CustomAction"]
 
                                       """;
-        var start = _builder.Do<CustomAction>().Build().Value!;
+        var start = _builder.Do<CustomAction>().Build();
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -211,7 +211,7 @@ public sealed class WorkflowBuilderTests {
                                             t2 => t2.Do(_ => { }),
                                             f2 => f2.Do(_ => { })),
                                 f1 => f1.Do(_ => { }))
-                            .Build().Value!;
+                            .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -219,8 +219,8 @@ public sealed class WorkflowBuilderTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomAction(string? tag = null, INodeSequence? sequence = null, IPolicy? policy = null)
-                : ActionNode<CustomAction>(tag, sequence, policy) {
+    private sealed class CustomAction(string? id = null, INodeSequence? sequence = null, IPolicy? policy = null)
+                : ActionNode<CustomAction>(id, sequence, policy) {
         protected override Task Execute(Context context, CancellationToken ct)
             => Task.CompletedTask;
     }

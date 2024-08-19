@@ -17,14 +17,6 @@ public sealed class CaseNode(string id, Func<Context, CancellationToken, Task<st
     protected override string DefaultLabel { get; } = "case";
 
     protected override Task<string> Select(Context context, CancellationToken ct) => _select(context, ct);
-
-    public static TNode Create<TNode>(IServiceProvider services, string? id = null)
-        where TNode : CaseNode<TNode>
-        => Node.Create<TNode>(services, id);
-
-    public static TNode Create<TNode>(string? id = null, INodeSequence? sequence = null, params object?[] args)
-        where TNode : CaseNode<TNode>
-        => Node.Create<TNode>(id ?? string.Empty, sequence, args);
 }
 
 public abstract class CaseNode<TNode>(string? id, INodeSequence? sequence)
@@ -51,6 +43,7 @@ public abstract class CaseNode<TNode>(string? id, INodeSequence? sequence)
         ct.ThrowIfCancellationRequested();
         var key = await Select(context, ct);
         var choice = Choices.GetValueOrDefault(key)
+            ?? Choices.GetValueOrDefault(string.Empty)
             ?? throw new InvalidOperationException($"The path '{key}' was not found.");
         return await choice.Run(context, ct);
     }
@@ -60,28 +53,8 @@ public abstract class CaseNode<TNode>(string? id, INodeSequence? sequence)
     protected sealed override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
 
-    public sealed override Result<INode> ConnectTo(INode? next) {
-        var result = Success(next);
-        var token = next?.Token;
-        if (token?.Type is TokenType.Is) {
-            var key = token.Value;
-            if (string.IsNullOrEmpty(key))
-                result += new ValidationError("The case key cannot be empty.", token.ToSource());
-            else if (!Choices.TryAdd(key, next))
-                result += new ValidationError($"The case choice '{key}' is already set.", token.ToSource());
-        }
-        else if (token?.Type is TokenType.Otherwise) {
-            if (!Choices.TryAdd(string.Empty, next))
-                result += new ValidationError($"The default case is already set.", token.ToSource());
-        }
-        else {
-            if (Choices.Count == 0)
-                result += new ValidationError("The case node has no choices.", Token?.ToSource());
-            foreach (var choice in Choices) {
-                if (choice.Value is null) Choices[choice.Key] = next;
-                else result += choice.Value.ConnectTo(next);
-            }
-        }
-        return result;
+    public sealed override void ConnectTo(INode? next) {
+        foreach (var choice in Choices)
+            choice.Value?.ConnectTo(next);
     }
 }

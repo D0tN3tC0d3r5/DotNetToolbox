@@ -21,8 +21,8 @@ public abstract class ExitNode<TNode>(string? id, INodeSequence? sequence)
     protected override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
 
-    public override Result ConnectTo(INode? next)
-        => new ValidationError("Cannot connect to an exit node.", Token?.ToSource());
+    public override void ConnectTo(INode? next)
+        => throw new ValidationException("Cannot connect to an exit node.", Token?.ToSource() ?? Id);
 
     public abstract int ExitCode { get; }
 }

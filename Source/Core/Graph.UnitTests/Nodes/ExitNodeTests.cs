@@ -11,23 +11,26 @@ public class ExitNodeTests {
     }
 
     [Fact]
-    public void CreateStop_WithoutLabel_ReturnsTerminalNodeWithDefaultLabel() {
-        var node = _factory.CreateExit("1");
+    public void CreateStop_WithoutId_ReturnsTerminalNodeWithDefaultLabel() {
+        var node = _factory.CreateExit();
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ExitNode>();
+        node.ExitCode.Should().Be(0);
+        node.Id.Should().Be("1");
         node.Label.Should().Be("end");
     }
 
     [Fact]
-    public void CreateStop_WithCustomLabel_ReturnsTerminalNodeWithCustomLabel() {
+    public void CreateStop_WithCustomId_ReturnsTerminalNodeWithCustomLabel() {
         const int customCode = -2;
-        const string customTag = "CustomEnd";
-        var node = _factory.CreateExit(customTag, customCode);
+        const string customId = "CustomEnd";
+        var node = _factory.CreateExit(customId, customCode);
 
         node.Should().NotBeNull();
         var exitNode = node.Should().BeOfType<ExitNode>().Subject;
         exitNode.ExitCode.Should().Be(customCode);
-        exitNode.Id.Should().Be(customTag);
+        exitNode.Id.Should().Be(customId);
+        node.Label.Should().Be(customId);
     }
 }

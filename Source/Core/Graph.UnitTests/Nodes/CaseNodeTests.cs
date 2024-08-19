@@ -6,33 +6,34 @@ public class CaseNodeTests {
     public CaseNodeTests() {
         var services = new ServiceCollection();
         services.AddTransient<IPolicy, RetryPolicy>();
-        services.AddTransient<INodeFactory>(p => new NodeFactory(p));
+        services.AddScoped<INodeFactory, NodeFactory>();
         var provider = services.BuildServiceProvider();
         _factory = provider.GetRequiredService<INodeFactory>();
     }
 
     [Fact]
-    public void CreateChoice_WithoutLabel_ReturnsBranchingNodeWithDefaultLabel() {
-        var node = _factory.CreateCase("1", _ => "default", []);
+    public void CreateCase_WithoutId_ReturnsBranchingNodeWithDefaultLabel() {
+        var node = _factory.CreateCase(_ => "default", []);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<CaseNode>();
+        node.Id.Should().Be("1");
         node.Label.Should().Be("case");
     }
 
     [Fact]
-    public void CreateChoice_WithCustomLabel_ReturnsBranchingNodeWithCustomLabel() {
-        const string customLabel = "Custom Choice";
-        const string customTag = "Action1";
-        var node = _factory.CreateCase(customTag, _ => "default", []);
+    public void CreateCase_WithCustomId_ReturnsBranchingNodeWithCustomLabel() {
+        const string customId = "Action1";
+        var node = _factory.CreateCase(customId, _ => "default", []);
 
         node.Should().NotBeNull();
         node.Should().BeOfType<CaseNode>();
-        node.Label.Should().Be(customLabel);
+        node.Id.Should().Be(customId);
+        node.Label.Should().Be(customId);
     }
 
     [Fact]
-    public void CreateChoice_WithMultipleBranches_SetsAllBranches() {
+    public void CreateCase_WithMultipleBranches_SetsAllBranches() {
         var node = _factory.CreateCase("1",
                                          _ => "key",
                                          new() {
@@ -88,13 +89,13 @@ public class CaseNodeTests {
     }
 
     [Fact]
-    public async Task Run_MethodWithNonExistingKeyAndOtherwise_ThrowsInvalidOperationException() {
+    public async Task Run_MethodWithNonExistingKeyAndWithOtherwise_ExecutesOtherwise() {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         using var context = new Context(provider);
         var node = _factory.CreateCase("1",
                                          _ => "nonexistent",
-                                         new Dictionary<string, INode?> {
+                                         new() {
                                              ["key1"] = _factory.CreateAction("k1", ctx => ctx["branch"] = "1"),
                                              ["key2"] = _factory.CreateAction("k2", ctx => ctx["branch"] = "2"),
                                          },
@@ -106,10 +107,10 @@ public class CaseNodeTests {
     }
 
     [Fact]
-    public void CreateChoice_ValidateMethod_ValidatesAllBranches() {
+    public void CreateCase_ValidateMethod_ValidatesAllBranches() {
         var node = _factory.CreateCase("1",
                                          _ => "key",
-                                         new Dictionary<string, INode?> {
+                                         new() {
                                              ["key1"] = null,
                                              ["key2"] = null,
                                              ["key3"] = null,

@@ -1,13 +1,14 @@
 ﻿namespace DotNetToolbox.Graph.Factories;
 
-internal sealed class NodeFactory(IServiceProvider services)
+internal sealed class NodeFactory(IServiceProvider services, INodeSequence? sequence = null)
     : INodeFactory {
-    //private readonly string _builderId = id ?? GuidProvider.Default.Create().ToString()!;
-    private readonly INodeSequence? _sequence = services.GetService<INodeSequence>() ?? NodeSequence.Shared;
+    private readonly INodeSequence? _sequence = sequence
+                                             ?? services.GetService<INodeSequence>()
+                                             ?? NodeSequence.Transient;
 
     public TNode Create<TNode>(string? id = null)
         where TNode : Node<TNode>
-        => Node.Create<TNode>(id ?? string.Empty, _sequence);
+        => Node.Create<TNode>(services, id ?? string.Empty);
 
     public IActionNode CreateAction(string id,
                                     Action<Context> action) {

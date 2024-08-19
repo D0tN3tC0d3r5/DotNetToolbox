@@ -12,11 +12,12 @@ public class ActionNodeTests {
     }
 
     [Fact]
-    public void CreateAction_WithoutLabel_ReturnsActionNodeWithDefaultLabel() {
-        var node = _factory.CreateAction("1", _ => { });
+    public void CreateAction_WithoutId_ReturnsActionNodeWithDefaultLabel() {
+        var node = _factory.CreateAction(_ => { });
 
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
+        node.Id.Should().Be("1");
         node.Label.Should().Be("action");
     }
 
@@ -28,6 +29,7 @@ public class ActionNodeTests {
         node.Should().NotBeNull();
         node.Should().BeOfType<ActionNode>();
         node.Id.Should().Be(customTag);
+        node.Label.Should().Be(customTag);
     }
 
     [Fact]

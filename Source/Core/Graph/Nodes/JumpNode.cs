@@ -21,10 +21,8 @@ public abstract class JumpNode<TNode>(string id, INodeSequence? sequence = null)
     protected override Task UpdateState(Context context, CancellationToken ct)
         => Task.CompletedTask;
 
-    public override Result ConnectTo(INode? next)
-        => next is not null
-        ? Success()
-        : new ValidationError($"Jump target '{TargetTag}' not found.", Token?.ToSource());
+    public override void ConnectTo(INode? next)
+        => Next = next;
 
     public abstract string TargetTag { get; }
 }

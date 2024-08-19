@@ -96,7 +96,7 @@ public record Result<TValue> : Result, IResult<ResultType, TValue> {
         : base(exception) {
     }
 
-    internal Result(TValue value, IEnumerable<ValidationError>? errors = null)
+    public Result(TValue value, IEnumerable<ValidationError>? errors = null)
         : base(errors) {
         Value = value;
     }

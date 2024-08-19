@@ -1,19 +1,20 @@
 namespace DotNetToolbox.Graph.Nodes;
 
 public class ComplexWorkflowTests {
-    private readonly NodeFactory _factory;
+    private readonly INodeFactory _factory;
 
     public ComplexWorkflowTests() {
         var services = new ServiceCollection();
+        services.AddScoped<INodeFactory, NodeFactory>();
         services.AddTransient<IPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
-        _factory = new(provider);
+        _factory = provider.GetRequiredService<INodeFactory>();
     }
 
     [Fact]
     public async Task ComplexWorkflow_WithMultipleNodeTypes_ExecutesCorrectly() {
         var services = new ServiceCollection();
-        services.AddTransient<INodeFactory>(p => new NodeFactory(p));
+        services.AddScoped<INodeFactory, NodeFactory>();
         var provider = services.BuildServiceProvider();
         using var context = new Context(provider);
         var start = CreateComplexWorkflow();
@@ -60,7 +61,7 @@ public class ComplexWorkflowTests {
         var builder = new WorkflowBuilder(provider);
         builder.Do(_ => { });
 
-        var wf = builder.Build().Value!;
+        var wf = builder.Build();
 
         wf.Run(context);
 
@@ -85,7 +86,7 @@ public class ComplexWorkflowTests {
                                f2 => f2.Do(ctx => ctx["result"] = "Action3", label: "[Odd] Set result to Action3"),
                                label: "[No] Is even?"),
                    "Is less than 2?");
-        return builder.Build().Value!;
+        return builder.Build();
     }
 
     private sealed class CustomPolicy(Action onExecute) : IPolicy {

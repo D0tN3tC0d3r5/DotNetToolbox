@@ -17,13 +17,6 @@ public class IfNode(string id, Func<Context, CancellationToken, Task<bool>> pred
     protected override string DefaultLabel { get; } = "if";
 
     protected override Task<bool> When(Context context, CancellationToken ct) => _predicate(context, ct);
-
-    public static TNode Create<TNode>(uint id, string label, IServiceProvider services)
-        where TNode : IfNode<TNode>
-        => InstanceFactory.Create<TNode>(id, label, services);
-    public static TNode Create<TNode>(uint id, IServiceProvider services)
-        where TNode : IfNode<TNode>
-        => InstanceFactory.Create<TNode>(id, services);
 }
 
 public abstract class IfNode<TNode>(string id, INodeSequence? sequence = null)
@@ -56,13 +49,10 @@ public abstract class IfNode<TNode>(string id, INodeSequence? sequence = null)
     private Task<INode?> TryRunFalseNode(Context context, CancellationToken ct)
         => Else is not null ? Else.Run(context, ct) : Task.FromResult<INode?>(null);
 
-    public sealed override Result ConnectTo(INode? next) {
-        var result = Success();
-        var token = next?.Token;
+    public sealed override void ConnectTo(INode? next) {
         if (Then is null) Then = next;
         else Then.ConnectTo(next);
         if (Else is null) Else = next;
         else Else.ConnectTo(next);
-        return result;
     }
 }

@@ -171,7 +171,7 @@ public sealed class WorkflowLexer {
             "EXIT" => (TokenType.Exit, null),
             "GOTO" => (TokenType.JumpTo, null),
             ['`', .. var w, '`'] => (TokenType.Label, w),
-            [':', .. var w, ':'] => (Tag: TokenType.Id, w),
+            [':', .. var w, ':'] => (TokenType.Id, w),
             ['"', .. var w, '"'] => (TokenType.String, w),
             ['[' or '|', .., '|' or ']'] => (TokenType.Range, word.Text),
             ['{', .. var w, '}'] => (TokenType.Array, string.Join(",", w.Trim().Split(',').Select(a => a.Trim()))),

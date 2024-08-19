@@ -8,7 +8,7 @@ public interface INode {
     Token? Token { get; set; }
     INode? Next { get; set; }
 
-    Result ConnectTo(INode? next);
+    void ConnectTo(INode? next);
     Result Validate(ISet<INode>? visited = null);
     Task<INode?> Run(Context context, CancellationToken ct = default);
 }

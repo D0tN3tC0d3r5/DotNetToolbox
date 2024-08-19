@@ -22,10 +22,6 @@ public sealed class ActionNode(string id, Func<Context, CancellationToken, Task>
     public static TNode Create<TNode>(IServiceProvider services, string? id = null)
         where TNode : ActionNode<TNode>
         => Node.Create<TNode>(services, id);
-
-    public static TNode Create<TNode>(string? id = null, INodeSequence? sequence = null, IPolicy? policy = null)
-        where TNode : ActionNode<TNode>
-        => Node.Create<TNode>(id, sequence, policy);
 }
 
 public abstract class ActionNode<TAction>(string? id, INodeSequence? sequence = null, IPolicy? policy = null)
@@ -34,11 +30,9 @@ public abstract class ActionNode<TAction>(string? id, INodeSequence? sequence = 
     where TAction : ActionNode<TAction> {
     private readonly IPolicy _policy = policy ?? Policy.Default;
 
-    public sealed override Result ConnectTo(INode? next) {
-        var result = Success();
+    public sealed override void ConnectTo(INode? next) {
         if (Next is null) Next = next;
-        else result += Next.ConnectTo(next);
-        return result;
+        else Next.ConnectTo(next);
     }
 
     protected sealed override Task<INode?> SelectPath(Context context, CancellationToken ct)

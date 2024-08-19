@@ -2,108 +2,91 @@
 
 public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
-    private Token _currentToken;
-
     private readonly INodeSequence? _sequence;
 
+    private Token _currentToken;
+
     private WorkflowParser(IEnumerable<Token> tokens, IServiceProvider services) {
-        _sequence = services.GetService<INodeSequence>() ?? NodeSequence.Shared;
+        _sequence = services.GetService<INodeSequence>() ?? NodeSequence.Singleton;
         _tokens = tokens.GetEnumerator();
         NextToken();
     }
 
+    internal ValidationErrors Errors { get; } = [];
+
     public static Result<INode?> Parse(IEnumerable<Token> tokens, IServiceProvider services) {
         var parser = new WorkflowParser(tokens, services);
-        var builder = new WorkflowBuilder(services);
-        return parser.ParseStatements(builder);
+        return new(parser.ParseBlock(), parser.Errors);
     }
 
-    private Result<INode?> ParseStatements(IWorkflowBuilder builder) {
-        Result<INode?>? result = default;
+    private INode? ParseBlock() {
+        var nodes = new List<INode>();
         var indentColumn = _currentToken.Column;
         while (_currentToken.Type is not TokenType.EndOfFile && _currentToken.Column >= indentColumn)
-            result += ParseStatement(builder);
-        return result ?? Success<INode?>(null);
+            nodes.Add(ParseStatement());
+        return nodes.FirstOrDefault();
     }
 
-    private Result<INode?> ParseStatement(IWorkflowBuilder builder) {
-        var result = Success<INode?>(null);
-        result += AllowMany(TokenType.Indent);
-        return result + _currentToken.Type switch {
-            TokenType.Identifier => ParseAction(builder),
-            TokenType.If => ParseIf(builder),
-            TokenType.Case => ParseCase(builder),
-            TokenType.Exit => ParseExit(builder),
-            TokenType.JumpTo => ParseJumpTo(builder),
+    private INode ParseStatement() {
+        AllowMany(TokenType.Indent);
+        return _currentToken.Type switch {
+            TokenType.Identifier => ParseAction(),
+            TokenType.If => ParseIf(),
+            TokenType.Case => ParseCase(),
+            TokenType.Exit => ParseExit(),
+            TokenType.JumpTo => ParseJumpTo(),
             TokenType.EndOfLine => ParseEndOfLine(),
             TokenType.Error => ParseError(),
             _ => ParseUnknownToken(),
         };
     }
 
-    private Result<INode?> ParseUnknownToken() {
-        var result = Success<INode?>(null);
-        result += CreateError("Unexpected token.");
+    private INode ParseUnknownToken() {
+        AddError("Unexpected token.");
         NextToken();
-        return result;
+        return null!;
     }
 
-    private Result<INode?> ParseError() {
-        var result = Success<INode?>(null);
-        result += CreateError(_currentToken.Value);
+    private INode ParseError() {
+        AddError(_currentToken.Value);
         NextToken();
-        return result;
+        return null!;
     }
 
-    private Result<INode?> ParseEndOfLine() {
-        var result = Success<INode?>(null);
+    private INode ParseEndOfLine() {
         NextToken();
-        return result;
+        return null!;
     }
 
-    private Result<INode?> ParseAction(IWorkflowBuilder builder) {
-        var result = Success<INode?>(null);
-        var nameResult = GetRequiredValueFrom(TokenType.Identifier);
-        result += nameResult.Errors;
-        var idResult = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        result += idResult.Errors;
-        var labelResult = GetValueOrDefaultFrom(TokenType.Label);
-        result += labelResult.Errors;
+    private INode ParseAction() {
+        var name = GetRequiredValueFrom(TokenType.Identifier);
+        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
+        var label = GetValueOrDefaultFrom(TokenType.Label);
         Ensure(TokenType.EndOfLine);
-        var buildResult = BuildCommand(nameResult.Value);
-        result += buildResult.Errors;
-
-        var node = new ActionNode(idResult.Value!, buildResult.Value, _sequence);
-        result += Success<INode?>(node);
-
-        node.Label = labelResult.Value ?? nameResult.Value;
-        builder.AddNode(node);
-        return result;
+        var command = BuildCommand(name);
+        return new ActionNode(id, command, _sequence) {
+            Token = _currentToken,
+            Label = label ?? name,
+        };
     }
 
-    private Result<INode?> ParseIf(IWorkflowBuilder builder) {
-        var result = Success<INode?>(null);
-        result += Ensure(TokenType.If);
-        var idResult = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        result += idResult.Errors;
-        var labelResult = GetValueOrDefaultFrom(TokenType.Label);
-        result += labelResult.Errors;
-        var predicateResult = ParsePredicate();
-        result += predicateResult.Errors;
-        result += Ensure(TokenType.EndOfLine);
+    private INode ParseIf() {
+        Ensure(TokenType.If);
+        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
+        var label = GetValueOrDefaultFrom(TokenType.Label);
+        var predicate = ParsePredicate();
+        Ensure(TokenType.EndOfLine);
 
-        var node = new IfNode(idResult.Value!, predicateResult.Value, _sequence);
-        result += Success<INode?>(node);
-
-        node.Token = _currentToken;
-        node.Label = labelResult.Value ?? node.Label;
-        builder.AddNode(node);
-        result += ParseThen(builder, node);
-        result += ParseElse(builder, node);
-        return result;
+        var node = new IfNode(id, predicate, _sequence) {
+            Token = _currentToken,
+            Then = ParseBlock(),
+            Else = ParseElse(),
+        };
+        node.Label = label ?? node.Label;
+        return node;
     }
 
-    private Result<Func<Context, bool>> ParsePredicate() {
+    private Func<Context, bool> ParsePredicate() {
         var condition = new StringBuilder();
         while (_currentToken.Type is not TokenType.Id and not TokenType.Label and not TokenType.EndOfLine) {
             condition.Append(_currentToken.Value);
@@ -115,194 +98,142 @@ public sealed class WorkflowParser {
         return BuildPredicate(expression);
     }
 
-    private Result ParseThen(IWorkflowBuilder builder, IIfNode node) {
-        var result = ParseStatements(builder);
-        node.Then = result.Value;
-        return result.Errors;
-    }
-
-    private Result ParseElse(IWorkflowBuilder builder, IIfNode node) {
-        var result = Success();
+    private INode? ParseElse() {
         if (!TokenIs(TokenType.Else))
-            return result;
-        result += Ensure(TokenType.Else);
-        result += Ensure(TokenType.EndOfLine);
-        var blockResult = ParseStatements(builder);
-        node.Else = blockResult.Value;
-        return result + blockResult.Errors;
+            return null;
+        Ensure(TokenType.Else);
+        Ensure(TokenType.EndOfLine);
+        return ParseBlock();
     }
 
-    private Result<INode?> ParseCase(IWorkflowBuilder builder) {
-        var result = Success<INode?>(null);
-        result += Ensure(TokenType.Case);
-        var identifierResult = GetRequiredValueFrom(TokenType.Identifier);
-        result += identifierResult.Errors;
-        var idResult = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        result += idResult.Errors;
-        var labelResult = GetValueOrDefaultFrom(TokenType.Label);
-        result += labelResult.Errors;
-        result += Ensure(TokenType.EndOfLine);
+    private INode ParseCase() {
+        Ensure(TokenType.Case);
+        var identifier = GetRequiredValueFrom(TokenType.Identifier);
+        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
+        var label = GetValueOrDefaultFrom(TokenType.Label);
+        Ensure(TokenType.EndOfLine);
 
-        var selectorResult = BuildSelector(identifierResult.Value);
-        result += selectorResult.Errors;
-
-        var node = new CaseNode(idResult.Value!, selectorResult.Value, _sequence);
-        result += Success<INode?>(node);
-
-        node.Label = labelResult.Value ?? node.Label;
-        node.Token = _currentToken;
-        builder.AddNode(node);
-        result += ParseCases(builder, node);
-
-        return result;
+        var selector = BuildSelector(identifier);
+        var node = new CaseNode(id, selector, _sequence) { Token = _currentToken, };
+        node.Label = label ?? node.Label;
+        foreach ((var key, var choice) in ParseChoices())
+            node.Choices.Add(key, choice);
+        return node;
     }
 
-    private Result ParseCases(IWorkflowBuilder builder, ICaseNode node) {
-        var result = Success();
-        while (TryParseCaseOption(builder, node, out var choiceResult))
-            result += choiceResult;
-        if (node.Choices.Count == 0)
-            result += Forbid(TokenType.Otherwise);
-        else if (TryParseOtherwise(builder, node, out var otherwiseResult))
-            result += otherwiseResult;
-        return result;
+    private IEnumerable<(string, INode?)> ParseChoices() {
+        while (TryParseCaseOption(out var choice))
+            yield return choice;
+        if (TryParseOtherwise(out var otherwise))
+            yield return (string.Empty, otherwise);
     }
 
-    private bool TryParseCaseOption(IWorkflowBuilder builder, ICaseNode node, out Result result) {
-        result = Success();
+    private bool TryParseCaseOption(out (string, INode?) result) {
+        result = default;
         if (!TokenIs(TokenType.Is)) return false;
 
-        result += Ensure(TokenType.Is);
-        var choiceKeyResult = GetRequiredValueFrom(TokenType.String);
-        result += choiceKeyResult.Errors;
-        result += Ensure(TokenType.EndOfLine);
-        var blockResult = ParseStatements(builder);
-        result += blockResult.Errors;
-        node.Choices.Add(choiceKeyResult.Value, blockResult.Value);
+        Ensure(TokenType.Is);
+        var key = GetRequiredValueFrom(TokenType.String);
+        Ensure(TokenType.EndOfLine);
+        result = (key, ParseBlock());
         return true;
     }
 
-    private bool TryParseOtherwise(IWorkflowBuilder builder, ICaseNode node, out Result result) {
-        result = Success();
+    private bool TryParseOtherwise(out INode? result) {
+        result = default;
         if (!TokenIs(TokenType.Otherwise)) return false;
 
-        result += Ensure(TokenType.Otherwise);
-        result += Ensure(TokenType.EndOfLine);
-        var blockResult = ParseStatements(builder);
-        result += blockResult.Errors;
-        node.Choices.Add(string.Empty, blockResult.Value);
-        result += Forbid(TokenType.Otherwise);
+        Ensure(TokenType.Otherwise);
+        Ensure(TokenType.EndOfLine);
+        result = ParseBlock();
+        Forbid(TokenType.Otherwise);
         return true;
     }
 
-    private Result<INode?> ParseExit(IWorkflowBuilder builder) {
-        var result = Success<INode?>(null);
-        result += Ensure(TokenType.Exit);
-        var numberResult = GetValueOrDefaultFrom(TokenType.Number, "0"); // if number not found default to 0
-        if (int.TryParse(numberResult.Value, out var exitCode))
-            result += CreateError("Exit code must be a number.");
-        var idResult = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        result += idResult.Errors;
+    private INode ParseExit() {
+        Ensure(TokenType.Exit);
+        var number = GetValueOrDefaultFrom(TokenType.Number, "0"); // if number not found default to 0
+        if (!int.TryParse(number, out var exitCode))
+            AddError("Exit code must be a number.");
+        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
+        var label = GetValueOrDefaultFrom(TokenType.Label);
+        Ensure(TokenType.EndOfLine);
 
-        var node = new ExitNode(idResult.Value!, exitCode, _sequence);
-        result += Success<INode?>(node);
-
-        var labelResult = GetValueOrDefaultFrom(TokenType.Label);
-        result += labelResult.Errors;
-        node.Label = labelResult.Value ?? node.Label;
-        node.Token = _currentToken;
-        builder.AddNode(node);
-
-        result += Ensure(TokenType.EndOfLine);
-        return result;
+        var node = new ExitNode(id, exitCode, _sequence) { Token = _currentToken };
+        node.Label = label ?? node.Label;
+        return node;
     }
 
-    private Result<INode?> ParseJumpTo(IWorkflowBuilder builder) {
-        var result = Success<INode?>(null);
-        result += Ensure(TokenType.JumpTo);
-        var targetResult = GetRequiredValueFrom(TokenType.Identifier);
-        result += targetResult.Errors;
-        var idResult = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
-        result += idResult.Errors;
+    private INode ParseJumpTo() {
+        Ensure(TokenType.JumpTo);
+        var target = GetRequiredValueFrom(TokenType.Identifier);
+        var id = GetValueOrDefaultFrom(TokenType.Id, string.Empty);
+        var label = GetValueOrDefaultFrom(TokenType.Label);
+        Ensure(TokenType.EndOfLine);
 
-        var node = new JumpNode(idResult.Value!, targetResult.Value, _sequence);
-        result += Success<INode?>(node);
-
-        var labelResult = GetValueOrDefaultFrom(TokenType.Label);
-        result += labelResult.Errors;
-        node.Label = labelResult.Value ?? node.Label;
-        node.Token = _currentToken;
-        builder.AddNode(node);
-
-        result += Ensure(TokenType.EndOfLine);
-        return result;
+        var node = new JumpNode(id, target, _sequence) { Token = _currentToken };
+        node.Label = label ?? node.Label;
+        return node;
     }
 
-    private Result<Action<Context>> BuildCommand(string action) {
+    private Action<Context> BuildCommand(string action) {
         // fetch or build the action expression;
-        return Success(Command);
+        return Command;
 
         static void Command(Context _) { }
     }
-    private Result<Func<Context, bool>> BuildPredicate(string condition) {
+    private Func<Context, bool> BuildPredicate(string condition) {
         // fetch or build the predicateExpression expression;
-        return Success(Predicate);
+        return Predicate;
 
         static bool Predicate(Context _) => true;
     }
 
-    private Result<Func<Context, string>> BuildSelector(string selector) {
+    private Func<Context, string> BuildSelector(string selector) {
         // fetch or build the selector expression;
-        return Success(Selector);
+        return Selector;
 
         static string Selector(Context _) => string.Empty;
     }
 
-    private Result CreateError(string? message)
-        => new ValidationError(message ?? "Unknown error.", $"[{_currentToken.Line}, {_currentToken.Column}]: {_currentToken.Type}");
+    private void AddError(string? message)
+        => Errors.Add(new ValidationError(message ?? "Unknown error.", $"[{_currentToken.Line}, {_currentToken.Column}]: {_currentToken.Type}"));
 
     private bool TokenIs(TokenType type)
         => _currentToken.Type == type;
 
-    private Result AllowMany(TokenType type) {
-        var result = Success();
+    private void AllowMany(TokenType type) {
         while (_currentToken.Type == type)
             NextToken();
-        return result;
     }
 
-    private Result Ensure(TokenType type) {
-        var result = Success();
+    private void Ensure(TokenType type) {
         if (_currentToken.Type != type)
-            result += CreateError($"Expected token: '{type}'.");
+            AddError($"Expected token: '{type}'.");
         NextToken();
-        return result;
     }
 
-    private Result Forbid(TokenType type) {
-        if (_currentToken.Type != type) Success();
-        var result = CreateError("Token not allowed.");
+    private void Forbid(TokenType type) {
+        if (_currentToken.Type == type)
+            AddError("Token not allowed.");
         NextToken();
-        return result;
     }
 
-    private Result<string> GetRequiredValueFrom(TokenType type) {
-        var result = Success(_currentToken.Value!);
+    private string GetRequiredValueFrom(TokenType type) {
         if (_currentToken.Type != type)
-            result += CreateError($"Expected token: '{type}'.");
+            AddError($"Expected token: '{type}'.");
         if (_currentToken.Value is null)
-            result += CreateError("Token value not set.");
+            AddError("Token value not set.");
         NextToken();
-        return result;
+        return _currentToken.Value!;
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    private Result<string?> GetValueOrDefaultFrom(TokenType type, string? defaultValue = null) {
-        var result = Success(_currentToken.Value);
+    private string? GetValueOrDefaultFrom(TokenType type, string? defaultValue = null) {
         if (_currentToken.Type != type)
-            result += CreateError($"Expected token: '{type}'.");
+            AddError($"Expected token: '{type}'.");
         NextToken();
-        return result;
+        return _currentToken.Value ?? defaultValue;
     }
 
     [MemberNotNull(nameof(_currentToken))]

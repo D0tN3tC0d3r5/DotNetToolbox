@@ -6,19 +6,18 @@ public static class Node {
         where TNode : Node<TNode>
         => InstanceFactory.Create<TNode>(services, id);
 
-    public static TNode Create<TNode>(string id, INodeSequence? sequence = null, params object?[] args)
-        where TNode : Node<TNode>
-        => InstanceFactory.Create<TNode>([id, sequence, .. args]);
+    //public static TNode Create<TNode>(string id, INodeSequence? sequence = null, params object?[] args)
+    //    where TNode : Node<TNode>
+    //    => InstanceFactory.Create<TNode>([id, sequence, .. args]);
 }
 
 public abstract class Node<TNode>
     : INode
     where TNode : Node<TNode> {
-    private readonly uint _number;
 
     protected Node(string? id, INodeSequence? sequence) {
-        Number = (sequence ?? NodeSequence.Shared).Next;
-        Id = string.IsNullOrWhiteSpace(id) ? $"{_number}" : id;
+        Number = (sequence ?? NodeSequence.Singleton).Next;
+        Id = string.IsNullOrWhiteSpace(id) ? $"{Number}" : id;
         Label = string.IsNullOrWhiteSpace(id) ? DefaultLabel : Id;
     }
 
@@ -37,7 +36,7 @@ public abstract class Node<TNode>
             : IsValid(visited);
     }
 
-    public abstract Result ConnectTo(INode? next);
+    public abstract void ConnectTo(INode? next);
 
     protected virtual Result IsValid(ISet<INode> visited) => Success();
 

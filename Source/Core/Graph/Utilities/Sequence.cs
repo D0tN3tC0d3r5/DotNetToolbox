@@ -2,65 +2,61 @@
 
 public abstract class Sequence<TSequence, TValue>
     : ISequence<TValue>
-    where TSequence : Sequence<TSequence, TValue> {
+    where TSequence : Sequence<TSequence, TValue>
+    where TValue : notnull {
     private static readonly ConcurrentDictionary<string, TSequence> _providers = [];
     private bool _disposed;
-    private bool _doneOnce;
+    private bool _isFirstTime = true;
 
-    public static TSequence Shared
-        => _providers.GetOrAdd(string.Empty, _ => InstanceFactory.Create<TSequence>());
+    public static TSequence Transient => InstanceFactory.Create<TSequence>();
+
+    public static TSequence Singleton { get; } = InstanceFactory.Create<TSequence>();
 
     public static TSequence Keyed(string key)
         => _providers.GetOrAdd(IsNotNullOrWhiteSpace(key), _ => InstanceFactory.Create<TSequence>());
 
     protected Sequence(TValue first) {
-        First = IsNotNull(first);
-        Reset();
+        First = first;
+        Current = First;
     }
 
-    [NotNull]
-    public required TValue First { get; init; }
+    public TValue First { get; }
 
-    [NotNull]
     public TValue Current { get; protected set; }
 
-    [NotNull]
-    public TValue? Next {
+    public TValue Next {
         get => MoveNext()
                 ? Current
                 : throw new InvalidOperationException("The sequence has no more elements.");
         set => SetNext(value);
     }
-    [NotNull]
+
     object IEnumerator.Current => Current;
 
-    public bool HasNext() => !_doneOnce || TryGenerateNext(out _);
+    public bool HasNext() => !_isFirstTime || TryGenerateNext(out _);
     public TValue PeekNext()
-        => !_doneOnce
+        => !_isFirstTime
             ? Current
             : TryGenerateNext(out var next)
                 ? next
                 : throw new InvalidOperationException("The sequence has no more elements.");
 
-    [MemberNotNull(nameof(Current))]
     public void Reset()
         => Current = First;
 
-    [MemberNotNullWhen(true, nameof(Current))]
     public bool MoveNext() {
-        if (!_doneOnce) {
-#pragma warning disable CS8775 // Member must have a non-null value when exiting in some condition.
-            return true;
-#pragma warning restore CS8775
-        }
-        if (TryGenerateNext(out var next)) {
-            Current = next;
+        if (_isFirstTime) {
+            Current = First;
+            _isFirstTime = false;
             return true;
         }
-        return false;
+
+        var nextGenerated = TryGenerateNext(out var next);
+        Current = nextGenerated ? next : Current;
+        return nextGenerated;
     }
 
-    protected abstract void SetNext(TValue? value);
+    protected abstract void SetNext(TValue value);
     protected abstract bool TryGenerateNext([NotNullWhen(true)] out TValue next);
 
     protected virtual void Dispose(bool disposing) {
@@ -70,8 +66,9 @@ public abstract class Sequence<TSequence, TValue>
             if (Current is IDisposable disposableCurrent) disposableCurrent.Dispose();
             _providers.TryRemove(string.Empty, out _);
             _providers.Clear();
-            _disposed = true;
         }
+
+        _disposed = true;
     }
 
     public void Dispose() {
