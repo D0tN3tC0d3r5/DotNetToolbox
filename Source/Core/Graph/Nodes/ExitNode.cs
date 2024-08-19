@@ -22,7 +22,7 @@ public abstract class ExitNode<TNode>(string? id, INodeSequence? sequence)
         => Task.CompletedTask;
 
     public override void ConnectTo(INode? next)
-        => throw new ValidationException("Cannot connect to an exit node.", Token?.ToSource() ?? Id);
+        => throw new ValidationException("An exit node cannot be conected to another node.", Token?.ToSource() ?? Id);
 
     public abstract int ExitCode { get; }
 }

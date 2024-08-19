@@ -1,25 +1,32 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public class IfNode(string id, Func<Context, CancellationToken, Task<bool>> predicate, INodeSequence? sequence = null)
-    : IfNode<IfNode>(id, sequence) {
-    public IfNode(string id, Func<Context, bool> predicate, INodeSequence? sequence = null)
-        : this(id, (ctx, ct) => Task.Run(() => predicate(ctx), ct), sequence) {
-    }
-    public IfNode(Func<Context, CancellationToken, Task<bool>> predicate, INodeSequence? sequence = null)
-        : this(null!, predicate, sequence) {
-    }
-    public IfNode(Func<Context, bool> predicate, INodeSequence? sequence = null)
-        : this(null!, (ctx, ct) => Task.Run(() => predicate(ctx), ct), sequence) {
+public class IfNode : IfNode<IfNode> {
+    private IfNode(string? id, INodeSequence? sequence, Func<Context, CancellationToken, Task<bool>> predicate)
+        : base(id, sequence) {
+        _predicate = IsNotNull(predicate);
     }
 
-    private readonly Func<Context, CancellationToken, Task<bool>> _predicate = IsNotNull(predicate);
+    public IfNode(string id, Func<Context, CancellationToken, Task<bool>> predicate)
+        : this(IsNotNullOrWhiteSpace(id), null, predicate) {
+    }
+    public IfNode(Func<Context, CancellationToken, Task<bool>> predicate, INodeSequence? sequence = null)
+        : this(null, sequence, predicate) {
+    }
+    public IfNode(string id, Func<Context, bool> predicate)
+        : this(IsNotNullOrWhiteSpace(id), null, (ctx, ct) => Task.Run(() => predicate(ctx), ct)) {
+    }
+    public IfNode(Func<Context, bool> predicate, INodeSequence? sequence = null)
+        : this(null, sequence, (ctx, ct) => Task.Run(() => predicate(ctx), ct)) {
+    }
+
+    private readonly Func<Context, CancellationToken, Task<bool>> _predicate;
 
     protected override string DefaultLabel { get; } = "if";
 
     protected override Task<bool> When(Context context, CancellationToken ct) => _predicate(context, ct);
 }
 
-public abstract class IfNode<TNode>(string id, INodeSequence? sequence = null)
+public abstract class IfNode<TNode>(string? id, INodeSequence? sequence)
     : Node<TNode>(id, sequence),
       IIfNode
     where TNode : IfNode<TNode> {

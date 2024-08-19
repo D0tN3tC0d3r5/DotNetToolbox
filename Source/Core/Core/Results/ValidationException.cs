@@ -4,7 +4,7 @@ public class ValidationException
     : Exception {
     public const string DefaultMessage = "Validation failed.";
 
-    public ValidationError[] Errors { get; }
+    public ValidationError[] Errors { get; init; } = [];
 
     public ValidationException()
         : base(DefaultMessage) {
@@ -49,10 +49,8 @@ public class ValidationException
     }
 
     public ValidationException(string message, string source, IEnumerable<ValidationError> errors, Exception? innerException = null)
-        : base(FormatSource(source) + FormatMessage(message), innerException) {
+        : base(IsNotNullOrWhiteSpace(message), innerException) {
         Errors = errors.Distinct().ToArray();
+        Source = source;
     }
-
-    private static string FormatMessage(string message) => IsNotNullOrWhiteSpace(message);
-    private static string FormatSource(string source) => string.IsNullOrEmpty(source) ? string.Empty : $"{source}: ";
 }

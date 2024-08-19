@@ -1,14 +1,15 @@
 namespace DotNetToolbox.Graph;
 
 public sealed class WorkflowBuilderTests {
-    private readonly WorkflowBuilder _builder;
+    private readonly IWorkflowBuilder _builder;
 
     public WorkflowBuilderTests() {
         var services = new ServiceCollection();
-        services.AddScoped<INodeFactory, NodeFactory>();
+        services.AddScoped<INodeSequence, NodeSequence>();
+        services.AddTransient<INodeFactory, NodeFactory>();
         services.AddTransient<IPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
-        _builder = new(provider);
+        _builder = new WorkflowBuilder(provider);
     }
 
     [Fact]

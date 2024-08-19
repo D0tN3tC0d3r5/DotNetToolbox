@@ -3,6 +3,7 @@
 public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
     private readonly INodeSequence? _sequence;
+    private readonly List<INode> _nodes = [];
 
     private int _indentLevel = -1;
 
@@ -16,40 +17,62 @@ public sealed class WorkflowParser {
 
     public static Result<INode?> Parse(IEnumerable<Token> tokens, IServiceProvider services) {
         var parser = new WorkflowParser(tokens, services);
-        return new(parser.ParseBlock(), parser.Errors);
+        var blockStart = parser.ParseBlock();
+        parser.ConnectJumps();
+        return new(blockStart, parser.Errors);
     }
 
     private INode? ParseBlock() {
-        EnsureIndent();
-        var nodes = new List<INode>();
+        IncreaseIndent();
+        var first = default(INode);
         var lastNode = default(INode);
         var finishBlock = IsEndOfFile();
         while (!finishBlock) {
             var newNode = ParseStatement();
-            lastNode?.ConnectTo(newNode);
+            ConnectNode(lastNode, newNode);
+            first ??= newNode;
             lastNode = newNode;
-            nodes.Add(newNode);
+            if (newNode is not null) _nodes.Add(newNode);
             finishBlock = IsEndOfFile() || IsDedented();
         }
-        return nodes.FirstOrDefault();
+        return first;
+    }
+
+    private void ConnectNode(INode? source, INode? target) {
+        try {
+            source?.ConnectTo(target);
+        }
+        catch (Exception ex) {
+            AddError(ex.Message, target?.Token);
+        }
     }
 
     private bool IsEndOfFile()
         => _tokens.Current.Type is TokenType.EndOfFile;
 
-    private void EnsureIndent() {
+    private void EnsureIndented() {
         var count = CountToken(TokenType.Indent);
         var isIndented = _indentLevel < count;
-        if (_indentLevel > count) AddError($"Wrong indentation level. Expected '{_indentLevel}' but found {count}.");
+        if (_indentLevel > count) AddError($"Invalid indentation. Expected '{_indentLevel}' but found {count}.");
         if (isIndented) _indentLevel = count;
+    }
+
+    private void IncreaseIndent() {
+        _indentLevel++;
+        EnsureIndented();
     }
 
     private bool IsDedented() {
         var count = CountToken(TokenType.Indent);
         var isDedented = _indentLevel > count;
-        if (_indentLevel < count) AddError($"Wrong indentation level. Expected '{_indentLevel}' but found {count}.");
+        if (_indentLevel < count) AddError($"Invalid indentation. Expected '{_indentLevel}' but found {count}.");
         if (isDedented) _indentLevel = count;
         return isDedented;
+    }
+
+    private void DecreaseIndent() {
+        if (_indentLevel > 0) _indentLevel--;
+        IsDedented();
     }
 
     private INode ParseStatement()
@@ -65,7 +88,7 @@ public sealed class WorkflowParser {
         };
 
     private INode ParseUnknownToken() {
-        AddError("Unexpected token.");
+        AddError($"Unexpected token: '{_tokens.Current.Type}'.");
         _tokens.MoveNext();
         return null!;
     }
@@ -106,6 +129,8 @@ public sealed class WorkflowParser {
             Then = ParseBlock(),
             Else = ParseElse(),
         };
+        if (node.Then is null)
+            AddError("If statement must have a body.");
         node.Label = label ?? node.Label;
         return node;
     }
@@ -147,12 +172,12 @@ public sealed class WorkflowParser {
     }
 
     private IEnumerable<(string, INode?)> ParseChoices() {
-        _indentLevel++;
+        IncreaseIndent();
         while (TryParseCaseOption(out var choice))
             yield return choice;
         if (TryParseOtherwise(out var otherwise))
             yield return (string.Empty, otherwise);
-        _indentLevel--;
+        DecreaseIndent();
     }
 
     private bool TryParseCaseOption(out (string, INode?) result) {
@@ -225,8 +250,11 @@ public sealed class WorkflowParser {
         static string Selector(Context _) => string.Empty;
     }
 
-    private void AddError(string? message)
-        => Errors.Add(new ValidationError(message ?? "Unknown error.", $"[{_tokens.Current.Line}, {_tokens.Current.Column}]: {_tokens.Current.Type}"));
+    private void AddError(string? message, Token? token = null) {
+        var source = (token ?? _tokens.Current).ToSource();
+        message ??= "Unknown error.";
+        Errors.Add(new ValidationError(message, source));
+    }
 
     private int CountToken(TokenType type) {
         var count = 0;
@@ -242,7 +270,7 @@ public sealed class WorkflowParser {
 
     private void Ensure(TokenType type) {
         if (!TokenIs(type)) {
-            AddError($"Expected token: '{type}'.");
+            AddError($"'{type}' expected but found '{_tokens.Current.Type}'.");
             return;
         }
         _tokens.MoveNext();
@@ -250,18 +278,15 @@ public sealed class WorkflowParser {
 
     private void Forbid(TokenType type) {
         if (TokenIs(type))
-            AddError("Token not allowed.");
-        _tokens.MoveNext();
+            AddError($"'{type}' not allowed here.");
     }
 
     private string GetValue(TokenType type) {
-        if (!TokenIs(type)) {
-            AddError($"Expected token: '{type}'.");
-            return "[Invalid Token]";
-        }
         var value = _tokens.Current.Value;
-        _tokens.MoveNext();
-        return value!;
+        if (!TokenIs(type)) AddError($"'{type}' expected but found '{_tokens.Current.Type}'.");
+        else _tokens.MoveNext();
+        if (value is null) AddError("Required value not found.");
+        return value ?? string.Empty;
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
@@ -271,5 +296,13 @@ public sealed class WorkflowParser {
         var value = _tokens.Current.Value ?? defaultValue;
         _tokens.MoveNext();
         return value;
+    }
+
+    private void ConnectJumps() {
+        foreach (var jumpNode in _nodes.OfType<IJumpNode>()) {
+            var targetNode = _nodes.Find(n => n.Id == jumpNode.TargetTag);
+            if (targetNode is null) AddError($"Jump target '{jumpNode.TargetTag}' not found.", jumpNode.Token);
+            else jumpNode.ConnectTo(targetNode);
+        }
     }
 }
