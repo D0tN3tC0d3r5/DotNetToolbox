@@ -14,16 +14,16 @@ public abstract class Node<TNode>
         Services = services;
         var idProvider = services.GetRequiredService<INodeSequence>();
         Id = idProvider.Next;
-        Tag = $"{Id}";
-        Label = typeof(TNode).Name;
     }
+
+    public virtual string Label { get; init; } = typeof(TNode).Name;
 
     protected IServiceProvider Services { get; }
 
     public uint Id { get; }
-    public string Tag { get; set; }
-    public string Label { get; set; }
-    public Token? Token { get; set; }
+    public Token? Token { get; init; }
+
+    public string? Tag { get; set; }
     public INode? Next { get; set; }
 
     public Result Validate(ISet<INode>? visited = null) {
@@ -45,5 +45,5 @@ public abstract class Node<TNode>
     protected abstract Task UpdateState(Context context, CancellationToken ct = default);
     protected abstract Task<INode?> SelectPath(Context context, CancellationToken ct = default);
 
-    public override int GetHashCode() => Tag.GetHashCode();
+    public override int GetHashCode() => HashCode.Combine(Id, Tag ?? string.Empty);
 }

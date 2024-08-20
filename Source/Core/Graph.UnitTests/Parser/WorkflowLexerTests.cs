@@ -22,27 +22,15 @@ public class WorkflowLexerTests {
     }
 
     [Fact]
-    public void Tokenize_ActionWithDescription_ReturnsCorrectTokens() {
-        const string script = "DoSomething `This is a label`";
-        var tokens = WorkflowLexer.Tokenize(script).ToList();
-
-        tokens.Should().HaveCount(4);
-        tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "DoSomething"));
-        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Label, 1, 13, "This is a label"));
-        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 29));
-        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 1, 29));
-    }
-
-    [Fact]
     public void Tokenize_ActionWithDescriptionWithoutSpaces_ReturnsCorrectTokens() {
-        const string script = "DoSomething`This is a label`";
+        const string script = "DoSomething:Tag:";
         var tokens = WorkflowLexer.Tokenize(script).ToList();
 
         tokens.Should().HaveCount(4);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "DoSomething"));
-        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Label, 1, 12, "This is a label"));
-        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 28));
-        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 1, 28));
+        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Tag, 1, 12, "Tag"));
+        tokens[2].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 16));
+        tokens[3].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 1, 16));
     }
 
     [Fact]
@@ -52,7 +40,7 @@ public class WorkflowLexerTests {
 
         tokens.Should().HaveCount(4);
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.Identifier, 1, 1, "DoSomething"));
-        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Id, 1, 13, "Label1"));
+        tokens[1].Should().BeEquivalentTo(new Token(TokenType.Tag, 1, 13, "Label1"));
         tokens[2].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 20));
         tokens[3].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 1, 20));
     }
@@ -159,7 +147,7 @@ public class WorkflowLexerTests {
         tokens[0].Should().BeEquivalentTo(new Token(TokenType.Exit, 1, 1));
         tokens[1].Should().BeEquivalentTo(new Token(TokenType.Number, 1, 6, "1"));
         tokens[2].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 1, 6));
-        tokens[3].Should().BeEquivalentTo(new Token(TokenType.JumpTo, 2, 1));
+        tokens[3].Should().BeEquivalentTo(new Token(TokenType.GoTo, 2, 1));
         tokens[4].Should().BeEquivalentTo(new Token(TokenType.Identifier, 2, 6, "Label1"));
         tokens[5].Should().BeEquivalentTo(new Token(TokenType.EndOfLine, 2, 11));
         tokens[6].Should().BeEquivalentTo(new Token(TokenType.EndOfFile, 2, 17));

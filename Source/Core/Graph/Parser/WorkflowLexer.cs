@@ -169,9 +169,8 @@ public sealed class WorkflowLexer {
             "IS" => (TokenType.Is, null),
             "OTHERWISE" => (TokenType.Otherwise, null),
             "EXIT" => (TokenType.Exit, null),
-            "GOTO" => (TokenType.JumpTo, null),
-            ['`', .. var w, '`'] => (TokenType.Label, w),
-            [':', .. var w, ':'] => (TokenType.Id, w),
+            "GOTO" => (TokenType.GoTo, null),
+            [':', .. var w, ':'] => (TokenType.Tag, w),
             ['"', .. var w, '"'] => (TokenType.String, w),
             ['[' or '|', .., '|' or ']'] => (TokenType.Range, word.Text),
             ['{', .. var w, '}'] => (TokenType.Array, string.Join(",", w.Trim().Split(',').Select(a => a.Trim()))),
@@ -223,7 +222,4 @@ public sealed class WorkflowLexer {
         _currentColumn++;
         return c;
     }
-
-    private Token CreateErrorToken(string errorMessage)
-        => new(TokenType.Error, _currentLine, _currentColumn, errorMessage);
 }

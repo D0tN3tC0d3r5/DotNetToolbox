@@ -4,7 +4,7 @@ public sealed class ExitNode : ExitNode<ExitNode> {
     public ExitNode(int exitCode, IServiceProvider services)
         : base(services) {
         ExitCode = exitCode;
-        Label = "end";
+        Label = "exit";
     }
     public ExitNode(IServiceProvider services)
         : this(0, services) {

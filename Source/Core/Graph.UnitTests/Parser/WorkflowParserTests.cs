@@ -1,9 +1,13 @@
 ﻿namespace DotNetToolbox.Graph.Parser;
 
 public partial class WorkflowParserTests {
-    private readonly IServiceProvider _mockServiceProvider;
+    private readonly IServiceProvider _services;
 
-    public WorkflowParserTests() {
-        _mockServiceProvider = Substitute.For<IServiceProvider>();
+    protected WorkflowParserTests() {
+        var services = new ServiceCollection();
+        services.AddScoped<INodeSequence, NodeSequence>();
+        services.AddSingleton<INodeFactory, NodeFactory>();
+        services.AddScoped<IRetryPolicy, RetryPolicy>();
+        _services = services.BuildServiceProvider();
     }
 }

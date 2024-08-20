@@ -1,14 +1,7 @@
 namespace DotNetToolbox.Graph;
 
 public sealed class RunnerTests : IDisposable {
-    private readonly Context _context;
-    private readonly ServiceProvider _provider;
-
-    public RunnerTests() {
-        var services = new ServiceCollection();
-        _provider = services.BuildServiceProvider();
-        _context = new(_provider);
-    }
+    private readonly Context _context = [];
 
     public void Dispose()
         => _context.Dispose();
@@ -82,7 +75,7 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithEmptyContext_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var context = new Context(_provider);
+        var context = new Context();
         var workflow = new Workflow(startingNode, context);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
         var runner = new Runner(workflow);
@@ -118,7 +111,7 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public async Task Run_WithSingleNode_ReturnsSameContext() {
         // Arrange
-        var context = new Context(_provider);
+        var context = new Context();
 
         var startingNode = Substitute.For<INode>();
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
@@ -139,7 +132,7 @@ public sealed class RunnerTests : IDisposable {
         // Arrange
         var loggerFactory = new TrackedLoggerFactory();
 
-        var context = new Context(_provider);
+        var context = new Context();
 
         var startingNode = Substitute.For<INode>();
         startingNode.Id.Returns(1u);
@@ -288,7 +281,7 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnNodeExecutingEvent_CanCancelExecution() {
-        var context = new Context(_provider);
+        var context = new Context();
 
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
@@ -337,7 +330,7 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnNodeExecutedEvent_CanCancelExecution() {
-        var context = new Context(_provider);
+        var context = new Context();
 
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();

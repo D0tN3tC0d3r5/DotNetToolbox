@@ -39,10 +39,12 @@ public abstract class IfNode<TNode>(IServiceProvider services)
     protected sealed override Task UpdateState(Context context, CancellationToken ct = default)
         => Task.CompletedTask;
 
-    protected sealed override async Task<INode?> SelectPath(Context context, CancellationToken ct = default)
-        => await If(context, ct)
-               ? await ThenDo(context, ct)
-               : await ElseDo(context, ct);
+    protected sealed override async Task<INode?> SelectPath(Context context, CancellationToken ct = default) {
+        var result = await If(context, ct);
+        return result
+            ? await ThenDo(context, ct)
+            : await ElseDo(context, ct);
+    }
 
     protected abstract Task<bool> If(Context context, CancellationToken ct = default);
 

@@ -2,10 +2,10 @@
 
 public interface INode {
     uint Id { get; }
+    string Label { get; }
+    Token? Token { get; }
+    string? Tag { get; }
 
-    string Tag { get; set; }
-    string Label { get; set; }
-    Token? Token { get; set; }
     INode? Next { get; set; }
 
     void ConnectTo(INode? next);

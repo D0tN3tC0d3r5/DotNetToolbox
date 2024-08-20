@@ -2,6 +2,4 @@
 
 public interface IContext
     : IMap,
-      IDisposable {
-    IServiceProvider Services { get; }
-}
+      IDisposable;

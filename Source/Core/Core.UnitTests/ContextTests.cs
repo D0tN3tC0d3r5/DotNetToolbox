@@ -3,11 +3,8 @@ namespace DotNetToolbox;
 public class ContextTests {
     [Fact]
     public void Constructor_WithNullSource_CreatesEmptyContext() {
-        // Arrange
-        var services = Substitute.For<IServiceProvider>();
-
         // Act
-        var context = new Context(services);
+        var context = new Context();
 
         // Assert
         context.Should().NotBeNull();
@@ -17,11 +14,10 @@ public class ContextTests {
     [Fact]
     public void Constructor_WithNonNullSource_CreatesContextWithSourceItems() {
         // Arrange
-        var services = Substitute.For<IServiceProvider>();
         var source = new Dictionary<string, object> { { "key1", "value1" }, { "key2", 2 } };
 
         // Act
-        var context = new Context(services, source);
+        var context = new Context(source);
 
         // Assert
         context.Should().NotBeNull();
@@ -33,9 +29,8 @@ public class ContextTests {
     [Fact]
     public void Dispose_DisposesAllKeys() {
         // Arrange
-        var services = Substitute.For<IServiceProvider>();
         var source = new Dictionary<string, object> { { "key1", "value1" }, { "key2", 2 } };
-        var context = new Context(services, source);
+        var context = new Context(source);
 
         // Act
         context.Dispose();
@@ -47,8 +42,7 @@ public class ContextTests {
     [Fact]
     public void Dispose_SetsIsDisposedToTrue() {
         // Arrange
-        var services = Substitute.For<IServiceProvider>();
-        var context = new Context(services);
+        var context = new Context();
 
         // Act
         context.Dispose();
@@ -57,18 +51,5 @@ public class ContextTests {
         var isDisposedField = typeof(Context).GetField("_isDisposed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var isDisposed = (bool)isDisposedField?.GetValue(context)!;
         isDisposed.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Services_ReturnsCorrectServiceProvider() {
-        // Arrange
-        var services = Substitute.For<IServiceProvider>();
-        var context = new Context(services);
-
-        // Act
-        var result = context.Services;
-
-        // Assert
-        result.Should().Be(services);
     }
 }

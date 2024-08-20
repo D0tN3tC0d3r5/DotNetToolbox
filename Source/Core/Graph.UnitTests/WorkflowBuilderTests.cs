@@ -5,9 +5,9 @@ public sealed class WorkflowBuilderTests {
 
     public WorkflowBuilderTests() {
         var services = new ServiceCollection();
+        services.AddSingleton<INodeFactory, NodeFactory>();
         services.AddScoped<INodeSequence, NodeSequence>();
-        services.AddTransient<INodeFactory, NodeFactory>();
-        services.AddTransient<IRetryPolicy, RetryPolicy>();
+        services.AddScoped<IRetryPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
         _builder = new WorkflowBuilder(provider);
     }

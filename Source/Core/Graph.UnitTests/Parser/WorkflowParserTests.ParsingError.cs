@@ -9,7 +9,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -25,7 +25,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -41,7 +41,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -69,7 +69,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -89,7 +89,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -98,7 +98,7 @@ public partial class WorkflowParserTests {
             error1.Message.Should().Be("'EndOfLine' expected but found 'Identifier'.");
             error1.Source.Should().Be("Identifier@(1, 6): InvalidCode");
             var error2 = result.Errors[1];
-            error2.Message.Should().Be("An exit node cannot be conected to another node.");
+            error2.Message.Should().Be("An exit node cannot be connected to another node.");
             error2.Source.Should().Be("Identifier@(1, 6): InvalidCode");
         }
 
@@ -109,20 +109,20 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
             result.Errors.Should().HaveCount(4);
             var error1 = result.Errors[0];
-            error1.Message.Should().Be("'Identifier' expected but found 'Id'.");
-            error1.Source.Should().Be("Id@(1, 6): 123");
+            error1.Message.Should().Be("'Identifier' expected but found 'Number'.");
+            error1.Source.Should().Be("Number@(1, 6): 123");
             var error2 = result.Errors[1];
-            error2.Message.Should().Be("'EndOfLine' expected but found 'Id'.");
-            error2.Source.Should().Be("Id@(1, 6): 123");
+            error2.Message.Should().Be("'EndOfLine' expected but found 'Number'.");
+            error2.Source.Should().Be("Number@(1, 6): 123");
             var error3 = result.Errors[2];
-            error3.Message.Should().Be("Unexpected token: 'Id'.");
-            error3.Source.Should().Be("Id@(1, 6): 123");
+            error3.Message.Should().Be("Unexpected token: 'Number'.");
+            error3.Source.Should().Be("Number@(1, 6): 123");
             var error4 = result.Errors[3];
             error4.Message.Should().Be("Jump target '123' not found.");
             error4.Source.Should().Be("GoTo@(1, 1)");
@@ -144,7 +144,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -166,7 +166,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -191,7 +191,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -217,7 +217,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeFalse();

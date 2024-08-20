@@ -20,7 +20,7 @@ public sealed class GraphBuilder {
             _stringBuilder.AppendLine("flowchart TD");
         if (!_visited.Add(node))
             return _stringBuilder.ToString();
-        _stringBuilder.AppendLine($"{node.Id}[\"{node.Label}\"]");
+        _stringBuilder.AppendLine($"{node.Id}[\"{node.Tag ?? node.Label}\"]");
 
         switch (node) {
             case IActionNode actionNode:

@@ -9,7 +9,7 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
@@ -25,12 +25,13 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Tag.Should().Be("1");
+            start.Id.Should().Be(1);
+            start.Tag.Should().BeNull();
             start.Label.Should().Be("DoSomething");
             start.Next.Should().BeNull();
         }
@@ -45,16 +46,17 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Tag.Should().Be("1");
+            start.Id.Should().Be(1);
             start.Label.Should().Be("DoSomething");
             var end = start.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Tag.Should().Be("2");
-            end.Label.Should().Be("end");
+            end.Id.Should().Be(2);
+            end.Tag.Should().BeNull();
+            end.Label.Should().Be("exit");
             end.ExitCode.Should().Be(0);
         }
 
@@ -69,38 +71,39 @@ public partial class WorkflowParserTests {
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
-            var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Tag.Should().Be("1");
-            start.Label.Should().Be("Action1");
-            var next1 = start.Next.Should().BeOfType<ActionNode>().Subject;
-            next1.Tag.Should().Be("2");
-            next1.Label.Should().Be("Action2");
-            var next2 = next1.Next.Should().BeOfType<ActionNode>().Subject;
-            next2.Tag.Should().Be("3");
-            next2.Label.Should().Be("Action3");
-            next2.Next.Should().BeNull();
+            var action1 = result.Value.Should().BeOfType<ActionNode>().Subject;
+            action1.Id.Should().Be(1);
+            action1.Label.Should().Be("Action1");
+            var action2 = action1.Next.Should().BeOfType<ActionNode>().Subject;
+            action2.Id.Should().Be(2);
+            action2.Label.Should().Be("Action2");
+            var action3 = action2.Next.Should().BeOfType<ActionNode>().Subject;
+            action3.Id.Should().Be(3);
+            action3.Label.Should().Be("Action3");
+            action3.Next.Should().BeNull();
         }
 
         [Fact]
         public void Parse_ActionWithLabelAndTag_ReturnsWorkflowWithLabeledAndTaggedAction() {
             // Arrange
             const string script = """
-                                  DoSomething :Tag: `Action Label`
+                                  DoSomething :Tag:
                                   """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
 
             // Act
-            var result = WorkflowParser.Parse(tokens, _mockServiceProvider);
+            var result = WorkflowParser.Parse(tokens, _services);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
+            start.Id.Should().Be(1);
             start.Tag.Should().Be("Tag");
-            start.Label.Should().Be("Action Label");
+            start.Label.Should().Be("DoSomething");
             start.Next.Should().BeNull();
         }
     }

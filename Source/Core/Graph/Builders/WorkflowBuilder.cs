@@ -6,7 +6,6 @@ public sealed class WorkflowBuilder(IServiceProvider services)
       IElseBuilder,
       IOtherwiseBuilder,
       IActionBuilder {
-    private readonly INodeSequence _sequence = services.GetRequiredService<INodeSequence>();
     private readonly List<INode> _nodes = [];
 
     private INode? _first;
@@ -14,8 +13,11 @@ public sealed class WorkflowBuilder(IServiceProvider services)
 
     public INode Build() {
         ConnectJumps();
-        return _first ?? new ExitNode(services);
+        return GetStart();
     }
+
+    internal INode GetStart()
+        => _first ?? new ExitNode(services);
 
     public IWorkflowBuilder AddNode(INode node) {
         Connect(node);
@@ -75,14 +77,14 @@ public sealed class WorkflowBuilder(IServiceProvider services)
     public IElseBuilder Then(Action<IWorkflowBuilder> setThen) {
         var builder = new WorkflowBuilder(services);
         setThen(builder);
-        ((IIfNode)_current!).Then = builder.Build();
+        ((IIfNode)_current!).Then = builder.GetStart();
         _nodes.AddRange(builder._nodes);
         return this;
     }
     public IWorkflowBuilder Else(Action<IWorkflowBuilder> setElse) {
         var builder = new WorkflowBuilder(services);
         setElse(builder);
-        ((IIfNode)_current!).Else = builder.Build();
+        ((IIfNode)_current!).Else = builder.GetStart();
         _nodes.AddRange(builder._nodes);
         return this;
     }
@@ -132,11 +134,6 @@ public sealed class WorkflowBuilder(IServiceProvider services)
     public IExitBuilder Exit(string tag, int exitCode = 0) {
         var node = new ExitNode(exitCode, services) { Tag = tag };
         AddNode(node);
-        return this;
-    }
-
-    public IWorkflowBuilder WithLabel(string label) {
-        _current!.Label = label;
         return this;
     }
 

@@ -30,7 +30,7 @@ public sealed class WorkflowParser {
             ConnectNode(lastNode, newNode);
             first ??= newNode;
             lastNode = newNode;
-            _nodes.Add(newNode);
+            if (newNode is not null) _nodes.Add(newNode);
             finishBlock = IsEndOfFile() || IsOutdented();
         }
         return first;
@@ -73,47 +73,46 @@ public sealed class WorkflowParser {
         IsOutdented();
     }
 
-    private INode ParseStatement()
+    private INode? ParseStatement()
         => _tokens.Current.Type switch {
             TokenType.Identifier => ParseAction(),
             TokenType.If => ParseIf(),
             TokenType.Case => ParseCase(),
             TokenType.Exit => ParseExit(),
-            TokenType.JumpTo => ParseJumpTo(),
+            TokenType.GoTo => ParseJumpTo(),
             TokenType.EndOfLine => ParseEndOfLine(),
             TokenType.Error => ParseError(),
             _ => ParseUnknownToken(),
         };
 
-    private INode ParseUnknownToken() {
+    private INode? ParseUnknownToken() {
         AddError($"Unexpected token: '{_tokens.Current.Type}'.");
         _tokens.MoveNext();
-        return null!;
+        return null;
     }
 
-    private INode ParseError() {
+    private INode? ParseError() {
         AddError(_tokens.Current.Value);
         _tokens.MoveNext();
-        return null!;
+        return null;
     }
 
-    private INode ParseEndOfLine() {
+    private INode? ParseEndOfLine() {
         _tokens.MoveNext();
-        return null!;
+        return null;
     }
 
     private INode ParseAction() {
         var token = _tokens.Current;
         var name = GetValue(TokenType.Identifier);
-        var id = GetValueOrDefault(TokenType.Id, string.Empty);
-        var label = GetValueOrDefault(TokenType.Label);
+        var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
         var command = BuildCommand(name);
         var retry = _services.GetService<IRetryPolicy>() ?? RetryPolicy.Default;
         return new ActionNode(command, _services) {
             Token = token,
-            Label = label ?? name,
-            Tag = id,
+            Tag = tag,
+            Label = name,
             Retry = retry,
         };
     }
@@ -121,25 +120,23 @@ public sealed class WorkflowParser {
     private INode ParseIf() {
         var token = _tokens.Current;
         Ensure(TokenType.If);
-        var id = GetValueOrDefault(TokenType.Id, string.Empty);
-        var label = GetValueOrDefault(TokenType.Label);
+        var tag = GetValueOrDefault(TokenType.Tag);
         var predicate = ParsePredicate();
         Ensure(TokenType.EndOfLine);
         var node = new IfNode(predicate, _services) {
             Token = token,
-            Tag = id,
+            Tag = tag,
             Then = ParseBlock(),
             Else = ParseElse(),
         };
         if (node.Then is null)
             AddError("If statement must have a body.");
-        node.Label = label ?? node.Label;
         return node;
     }
 
     private Func<Context, CancellationToken, Task<bool>> ParsePredicate() {
         var condition = new StringBuilder();
-        while (_tokens.Current.Type is not TokenType.Id and not TokenType.Label and not TokenType.EndOfLine) {
+        while (_tokens.Current.Type is not TokenType.Tag and not TokenType.EndOfLine) {
             condition.Append(_tokens.Current.Value);
             condition.Append(' ');
             _tokens.MoveNext();
@@ -161,16 +158,14 @@ public sealed class WorkflowParser {
         var token = _tokens.Current;
         Ensure(TokenType.Case);
         var identifier = GetValue(TokenType.Identifier);
-        var id = GetValueOrDefault(TokenType.Id, string.Empty);
-        var label = GetValueOrDefault(TokenType.Label);
+        var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
 
         var selector = BuildSelector(identifier);
         var node = new CaseNode(selector, _services) {
             Token = token,
-            Tag = id,
+            Tag = tag,
         };
-        node.Label = label ?? node.Label;
         foreach ((var key, var choice) in ParseChoices())
             node.Choices.Add(key, choice);
         return node;
@@ -210,34 +205,30 @@ public sealed class WorkflowParser {
     private INode ParseExit() {
         var token = _tokens.Current;
         Ensure(TokenType.Exit);
-        var number = GetValueOrDefault(TokenType.Number, "0"); // if number not found default to 0
-        if (!int.TryParse(number, out var exitCode))
+        var number = GetValueOrDefault(TokenType.Number); // if number not found default to 0
+        if (!int.TryParse(number ?? "0", out var exitCode))
             AddError("Exit code must be a number.");
-        var id = GetValueOrDefault(TokenType.Id, string.Empty);
-        var label = GetValueOrDefault(TokenType.Label);
+        var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
 
         var node = new ExitNode(exitCode, _services) {
             Token = token,
-            Tag = id,
+            Tag = tag,
         };
-        node.Label = label ?? node.Label;
         return node;
     }
 
     private INode ParseJumpTo() {
         var token = _tokens.Current;
-        Ensure(TokenType.JumpTo);
+        Ensure(TokenType.GoTo);
         var target = GetValue(TokenType.Identifier);
-        var id = GetValueOrDefault(TokenType.Id, string.Empty);
-        var label = GetValueOrDefault(TokenType.Label);
+        var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
 
         var node = new JumpNode(target, _services) {
             Token = token,
-            Tag = id,
+            Tag = tag,
         };
-        node.Label = label ?? node.Label;
         return node;
     }
 

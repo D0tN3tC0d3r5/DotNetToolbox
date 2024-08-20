@@ -70,7 +70,7 @@ public sealed class Runner(string id,
     }
 
     private Task<bool> ExecutingNode(IWorkflow workflow, INode currentNode, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Executing node '{Id}' during the workflow '{WorkFlowId}'...", currentNode.Id, Id);
+        _logger.LogInformation(message: "Executing node '{Tag}' during the workflow '{WorkFlowId}'...", currentNode.Id, Id);
         return OnExecutingNode is null
                    ? Task.FromResult(true)
                    : OnExecutingNode(workflow, currentNode, ct);
