@@ -2,12 +2,13 @@
 
 public sealed class WorkflowBuilder(IServiceProvider services)
     : IWorkflowBuilder {
-    private readonly INodeSequence? _sequence = services.GetService<INodeSequence>()
-                                             ?? NodeSequence.Transient;
+    private readonly IServiceProvider _services = services;
+    private readonly INodeSequence _sequence = services.GetService<INodeSequence>()
+                                             ?? NodeSequence.Singleton;
+    private readonly List<INode> _nodes = [];
 
     private INode? _first;
     private INode? _current;
-    private readonly List<INode> _nodes = [];
 
     public INode Build() {
         ConnectJumps();
@@ -19,21 +20,20 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         return this;
     }
 
-    public IWorkflowBuilder Do<TAction>(string? ìd = null,
-                                        string? label = null)
+    public IWorkflowBuilder Do<TAction>(params object?[] args)
         where TAction : ActionNode<TAction> {
-        var node = Node.Create<TAction>(services, ìd ?? string.Empty);
-        node.Label = label ?? node.Label;
-        Connect(node);
+        var node = Node.Create<TAction>(_services, args);
+        //node.Label = label ?? node.Label;
+        AddNode(node);
         return this;
     }
 
-    public IWorkflowBuilder Do(string ìd,
+    public IWorkflowBuilder Do(string id,
                                Action<Context> action,
                                string? label = null) {
-        var node = new ActionNode(ìd, action);
-        node.Label = label ?? node.Label;
-        Connect(node);
+        CreateActionNode(id,
+                        (ctx, ct) => Task.Run(() => action(ctx), ct),
+                        label);
         return this;
     }
     public IWorkflowBuilder Do(Action<Context> action,
@@ -45,16 +45,22 @@ public sealed class WorkflowBuilder(IServiceProvider services)
                                Action<IWorkflowBuilder> setThen,
                                Action<IWorkflowBuilder>? setElse = null,
                                string? label = null) {
-        var ifNode = new IfNode(id, predicate);
-        CreateIfNode(ifNode, setThen, setElse, label, services);
+        CreateIfNode(id,
+                     (ctx, ct) => Task.Run(() => predicate(ctx), ct),
+                     setThen,
+                     setElse,
+                     label);
         return this;
     }
     public IWorkflowBuilder If(Func<Context, bool> predicate,
                                Action<IWorkflowBuilder> setThen,
                                Action<IWorkflowBuilder>? setElse = null,
                                string? label = null) {
-        var ifNode = new IfNode(predicate, _sequence);
-        CreateIfNode(ifNode, setThen, setElse, label, services);
+        CreateIfNode(null,
+                     (ctx, ct) => Task.Run(() => predicate(ctx), ct),
+                     setThen,
+                     setElse,
+                     label);
         return this;
     }
 
@@ -63,15 +69,24 @@ public sealed class WorkflowBuilder(IServiceProvider services)
                                  Dictionary<string, Action<IWorkflowBuilder>> setCases,
                                  Action<IWorkflowBuilder>? setDefault = null,
                                  string? label = null) {
-        var node = new CaseNode(id, select);
-        SetCaseNode(node, setCases, setDefault, label, services);
+        CreateCaseNode(id,
+                       (ctx, ct) => Task.Run(() => select(ctx), ct),
+                       setCases,
+                       setDefault,
+                       label);
         return this;
     }
     public IWorkflowBuilder Case(Func<Context, string> select,
                                  Dictionary<string, Action<IWorkflowBuilder>> setCases,
                                  Action<IWorkflowBuilder>? setDefault = null,
-                                 string? label = null)
-        => Case(string.Empty, select, setCases, setDefault, label);
+                                 string? label = null) {
+        CreateCaseNode(null,
+                       (ctx, ct) => Task.Run(() => select(ctx), ct),
+                       setCases,
+                       setDefault,
+                       label);
+        return this;
+    }
 
     public IWorkflowBuilder JumpTo(string targetNodeId,
                                    string? label = null) {
@@ -97,47 +112,58 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         return this;
     }
 
-    private INode CreateIfNode(IfNode node, Action<IWorkflowBuilder> setThen, Action<IWorkflowBuilder>? setElse, string? label, IServiceProvider services) {
-        var node = new IfNode(id, _sequence, select);
+    private void CreateActionNode(string? id,
+                                  Func<Context, CancellationToken, Task> action,
+                                  string? label) {
+        var policy = _services.GetService<IPolicy>() ?? Policy.Default;
+        var node = new ActionNode(id, _sequence, policy, action);
+        node.Label = label ?? node.Label;
+        Connect(node);
+    }
+
+    private void CreateIfNode(string? id,
+                              Func<Context, CancellationToken, Task<bool>> predicate,
+                              Action<IWorkflowBuilder> setThen,
+                              Action<IWorkflowBuilder>? setElse,
+                              string? label) {
+        var node = new IfNode(id, _sequence, predicate);
         node.Label = label ?? node.Label;
         Connect(node);
 
-        var thenBuilder = new WorkflowBuilder(services);
+        var thenBuilder = new WorkflowBuilder(_services);
         setThen(thenBuilder);
         node.Then = thenBuilder._first;
         _nodes.AddRange(thenBuilder._nodes);
 
         if (setElse is null) return;
 
-        var elseBuilder = new WorkflowBuilder(services);
+        var elseBuilder = new WorkflowBuilder(_services);
         setElse(elseBuilder);
         node.Else = elseBuilder._first;
         _nodes.AddRange(elseBuilder._nodes);
     }
 
-    private INode CreateCaseNode(string? id,
-                                 Func<Context, CancellationToken, Task<string>> select select,
-                                 Dictionary<string, Action<IWorkflowBuilder>> setCases,
-                                 Action<IWorkflowBuilder>? setDefault,
-                                 string? label,
-                                 IServiceProvider services) {
+    private void CreateCaseNode(string? id,
+                                Func<Context, CancellationToken, Task<string>> select,
+                                Dictionary<string, Action<IWorkflowBuilder>> setCases,
+                                Action<IWorkflowBuilder>? setDefault,
+                                string? label) {
         var node = new CaseNode(id, _sequence, select);
         node.Label = label ?? node.Label;
         Connect(node);
         foreach ((var key, var buildChoice) in setCases) {
-            var choiceBuilder = new WorkflowBuilder(services);
+            var choiceBuilder = new WorkflowBuilder(_services);
             buildChoice(choiceBuilder);
             _nodes.AddRange(choiceBuilder._nodes);
             node.Choices[key] = choiceBuilder._first;
         }
 
-        if (setDefault is null) return node;
+        if (setDefault is null) return;
 
-        var defaultBuilder = new WorkflowBuilder(services);
+        var defaultBuilder = new WorkflowBuilder(_services);
         setDefault(defaultBuilder);
         _nodes.AddRange(defaultBuilder._nodes);
         node.Choices[string.Empty] = defaultBuilder._first;
-        return node;
     }
 
     private void Connect(INode node) {

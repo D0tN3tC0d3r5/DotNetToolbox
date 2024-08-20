@@ -1,18 +1,25 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class CaseNode(string id, Func<Context, CancellationToken, Task<string>> select, INodeSequence? sequence = null)
-    : CaseNode<CaseNode>(id, sequence) {
-    public CaseNode(string id, Func<Context, string> select, INodeSequence? sequence = null)
-        : this(id, (ctx, ct) => Task.Run(() => select(ctx), ct), sequence) {
-    }
-    public CaseNode(Func<Context, CancellationToken, Task<string>> select, INodeSequence? sequence = null)
-        : this(null!, select, sequence) {
-    }
-    public CaseNode(Func<Context, string> select, INodeSequence? sequence = null)
-        : this(null!, (ctx, ct) => Task.Run(() => select(ctx), ct), sequence) {
+public sealed class CaseNode : CaseNode<CaseNode> {
+    internal CaseNode(string? id, INodeSequence? sequence, Func<Context, CancellationToken, Task<string>> select)
+        : base(id, sequence) {
+        _select = IsNotNull(select);
     }
 
-    private readonly Func<Context, CancellationToken, Task<string>> _select = IsNotNull(select);
+    public CaseNode(string id, Func<Context, CancellationToken, Task<string>> select)
+        : this(IsNotNullOrWhiteSpace(id), null, select) {
+    }
+    public CaseNode(Func<Context, CancellationToken, Task<string>> select, INodeSequence? sequence = null)
+        : this(null, sequence, select) {
+    }
+    public CaseNode(string id, Func<Context, string> select)
+        : this(IsNotNullOrWhiteSpace(id), null, (ctx, ct) => Task.Run(() => select(ctx), ct)) {
+    }
+    public CaseNode(Func<Context, string> select, INodeSequence? sequence = null)
+        : this(null, sequence, (ctx, ct) => Task.Run(() => select(ctx), ct)) {
+    }
+
+    private readonly Func<Context, CancellationToken, Task<string>> _select;
 
     protected override string DefaultLabel { get; } = "case";
 

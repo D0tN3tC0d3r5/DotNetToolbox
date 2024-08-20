@@ -4,11 +4,10 @@ public interface IWorkflowBuilder
     : INodeBuilder {
     IWorkflowBuilder AddNode(INode node);
 
-    IWorkflowBuilder Do<TAction>(string ìd,
-                                 string? label = null)
+    IWorkflowBuilder Do<TAction>(params object?[] args)
         where TAction : ActionNode<TAction>;
 
-    IWorkflowBuilder Do(string ìd,
+    IWorkflowBuilder Do(string id,
                         Action<Context> action,
                         string? label = null);
     IWorkflowBuilder Do(Action<Context> action,

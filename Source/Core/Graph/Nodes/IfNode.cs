@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public class IfNode : IfNode<IfNode> {
-    private IfNode(string? id, INodeSequence? sequence, Func<Context, CancellationToken, Task<bool>> predicate)
+    internal IfNode(string? id, INodeSequence? sequence, Func<Context, CancellationToken, Task<bool>> predicate)
         : base(id, sequence) {
         _predicate = IsNotNull(predicate);
     }

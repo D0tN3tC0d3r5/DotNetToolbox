@@ -1,18 +1,25 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class ActionNode(string id, Func<Context, CancellationToken, Task> execute, INodeSequence? sequence = null, IPolicy? policy = null)
-    : ActionNode<ActionNode>(id, sequence, policy) {
-    public ActionNode(string id, Action<Context> execute, INodeSequence? sequence = null, IPolicy? policy = null)
-        : this(id, (ctx, ct) => Task.Run(() => execute(ctx), ct), sequence, policy) {
-    }
-    public ActionNode(Func<Context, CancellationToken, Task> execute, INodeSequence? sequence = null, IPolicy? policy = null)
-        : this(null!, execute, sequence, policy) {
-    }
-    public ActionNode(Action<Context> execute, INodeSequence? sequence = null, IPolicy? policy = null)
-        : this(null!, (ctx, ct) => Task.Run(() => execute(ctx), ct), sequence, policy) {
+public sealed class ActionNode : ActionNode<ActionNode> {
+    internal ActionNode(string? id, INodeSequence? sequence, IPolicy? policy, Func<Context, CancellationToken, Task> execute)
+        : base(id, sequence, policy) {
+        _execute = IsNotNull(execute);
     }
 
-    private readonly Func<Context, CancellationToken, Task> _execute = IsNotNull(execute);
+    public ActionNode(string id, Func<Context, CancellationToken, Task> execute, IPolicy? policy = null)
+        : this(IsNotNullOrWhiteSpace(id), null, policy, execute) {
+    }
+    public ActionNode(string id, Action<Context> execute, IPolicy? policy = null)
+        : this(IsNotNullOrWhiteSpace(id), null, policy, (ctx, ct) => Task.Run(() => execute(ctx), ct)) {
+    }
+    public ActionNode(Func<Context, CancellationToken, Task> execute, IPolicy? policy = null, INodeSequence? sequence = null)
+        : this(null, sequence, policy, execute) {
+    }
+    public ActionNode(Action<Context> execute, IPolicy? policy = null, INodeSequence? sequence = null)
+        : this(null, sequence, policy, (ctx, ct) => Task.Run(() => execute(ctx), ct)) {
+    }
+
+    private readonly Func<Context, CancellationToken, Task> _execute;
 
     protected override string DefaultLabel { get; } = "action";
 

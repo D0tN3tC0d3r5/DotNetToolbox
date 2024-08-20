@@ -1,17 +1,24 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
-public sealed class JumpNode(string id, string targetTag, INodeSequence? sequence = null)
-    : JumpNode<JumpNode>(id, sequence) {
+public sealed class JumpNode : JumpNode<JumpNode> {
+    internal JumpNode(string? id, INodeSequence? sequence, string targetTag)
+        : base(id, sequence) {
+        TargetTag = IsNotNull(targetTag);
+    }
+
+    public JumpNode(string id, string targetTag)
+        : this(IsNotNullOrWhiteSpace(id), null, targetTag) {
+    }
     public JumpNode(string targetTag, INodeSequence? sequence = null)
-        : this(null!, targetTag, sequence) {
+        : this(null, sequence, targetTag) {
     }
 
     protected override string DefaultLabel { get; } = "goto";
 
-    public override string TargetTag { get; } = IsNotNull(targetTag);
+    public override string TargetTag { get; }
 }
 
-public abstract class JumpNode<TNode>(string id, INodeSequence? sequence = null)
+public abstract class JumpNode<TNode>(string? id, INodeSequence? sequence = null)
     : Node<TNode>(id, sequence),
       IJumpNode
     where TNode : JumpNode<TNode> {

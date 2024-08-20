@@ -2,13 +2,9 @@
 
 public static class Node {
     [return: NotNull]
-    public static TNode Create<TNode>(IServiceProvider services, string? id = null)
+    public static TNode Create<TNode>(IServiceProvider services, params object?[] args)
         where TNode : Node<TNode>
-        => InstanceFactory.Create<TNode>(services, id);
-
-    //public static TNode Create<TNode>(string id, INodeSequence? sequence = null, params object?[] args)
-    //    where TNode : Node<TNode>
-    //    => InstanceFactory.Create<TNode>([id, sequence, .. args]);
+        => InstanceFactory.Create<TNode>(services, args);
 }
 
 public abstract class Node<TNode>
