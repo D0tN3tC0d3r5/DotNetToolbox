@@ -142,9 +142,9 @@ public sealed class RunnerTests : IDisposable {
         var context = new Context(_provider);
 
         var startingNode = Substitute.For<INode>();
-        startingNode.Number.Returns(1u);
+        startingNode.Id.Returns(1u);
         var nextNode = Substitute.For<INode>();
-        nextNode.Number.Returns(2u);
+        nextNode.Id.Returns(2u);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(nextNode);
         nextNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
 
@@ -390,9 +390,9 @@ public sealed class RunnerTests : IDisposable {
         var eventOrder = new List<string>();
 
         var startingNode = Substitute.For<INode>();
-        startingNode.Number.Returns(1u);
+        startingNode.Id.Returns(1u);
         var secondNode = Substitute.For<INode>();
-        secondNode.Number.Returns(2u);
+        secondNode.Id.Returns(2u);
         startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
         secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
 
@@ -404,11 +404,11 @@ public sealed class RunnerTests : IDisposable {
                 return Task.CompletedTask;
             },
             OnExecutingNode = (_, node, _) => {
-                eventOrder.Add($"NodeExecuting: {node.Number}");
+                eventOrder.Add($"NodeExecuting: {node.Id}");
                 return Task.FromResult(true);
             },
             OnNodeExecuted = (_, node, _, _) => {
-                eventOrder.Add($"NodeExecuted: {node.Number}");
+                eventOrder.Add($"NodeExecuted: {node.Id}");
                 return Task.FromResult(true);
             },
             OnWorkflowEnded = (_, _) => {

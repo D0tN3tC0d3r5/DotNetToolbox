@@ -2,25 +2,22 @@
 
 public sealed class WorkflowParser {
     private readonly IEnumerator<Token> _tokens;
-    private readonly INodeSequence? _sequence;
     private readonly List<INode> _nodes = [];
+    private readonly ValidationErrors _errors = [];
     private readonly IServiceProvider _services;
     private int _indentLevel = -1;
 
     private WorkflowParser(IEnumerable<Token> tokens, IServiceProvider services) {
         _services = services;
-        _sequence = _services.GetService<INodeSequence>() ?? NodeSequence.Transient;
         _tokens = tokens.GetEnumerator();
         _tokens.MoveNext();
     }
-
-    internal ValidationErrors Errors { get; } = [];
 
     public static Result<INode?> Parse(IEnumerable<Token> tokens, IServiceProvider services) {
         var parser = new WorkflowParser(tokens, services);
         var blockStart = parser.ParseBlock();
         parser.ConnectJumps();
-        return new(blockStart, parser.Errors);
+        return new(blockStart, parser._errors);
     }
 
     private INode? ParseBlock() {
@@ -33,8 +30,8 @@ public sealed class WorkflowParser {
             ConnectNode(lastNode, newNode);
             first ??= newNode;
             lastNode = newNode;
-            if (newNode is not null) _nodes.Add(newNode);
-            finishBlock = IsEndOfFile() || IsDedented();
+            _nodes.Add(newNode);
+            finishBlock = IsEndOfFile() || IsOutdented();
         }
         return first;
     }
@@ -63,17 +60,17 @@ public sealed class WorkflowParser {
         EnsureIndented();
     }
 
-    private bool IsDedented() {
+    private bool IsOutdented() {
         var count = CountToken(TokenType.Indent);
-        var isDedented = _indentLevel > count;
+        var isOutdented = _indentLevel > count;
         if (_indentLevel < count) AddError($"Invalid indentation. Expected '{_indentLevel}' but found {count}.");
-        if (isDedented) _indentLevel = count;
-        return isDedented;
+        if (isOutdented) _indentLevel = count;
+        return isOutdented;
     }
 
     private void DecreaseIndent() {
         if (_indentLevel > 0) _indentLevel--;
-        IsDedented();
+        IsOutdented();
     }
 
     private INode ParseStatement()
@@ -112,10 +109,12 @@ public sealed class WorkflowParser {
         var label = GetValueOrDefault(TokenType.Label);
         Ensure(TokenType.EndOfLine);
         var command = BuildCommand(name);
-        var policy = _services.GetService<IPolicy>() ?? Policy.Default;
-        return new ActionNode(id, _sequence, policy, command) {
+        var retry = _services.GetService<IRetryPolicy>() ?? RetryPolicy.Default;
+        return new ActionNode(command, _services) {
             Token = token,
             Label = label ?? name,
+            Tag = id,
+            Retry = retry,
         };
     }
 
@@ -126,8 +125,9 @@ public sealed class WorkflowParser {
         var label = GetValueOrDefault(TokenType.Label);
         var predicate = ParsePredicate();
         Ensure(TokenType.EndOfLine);
-        var node = new IfNode(id, _sequence, predicate) {
+        var node = new IfNode(predicate, _services) {
             Token = token,
+            Tag = id,
             Then = ParseBlock(),
             Else = ParseElse(),
         };
@@ -166,7 +166,10 @@ public sealed class WorkflowParser {
         Ensure(TokenType.EndOfLine);
 
         var selector = BuildSelector(identifier);
-        var node = new CaseNode(id, _sequence, selector) { Token = token };
+        var node = new CaseNode(selector, _services) {
+            Token = token,
+            Tag = id,
+        };
         node.Label = label ?? node.Label;
         foreach ((var key, var choice) in ParseChoices())
             node.Choices.Add(key, choice);
@@ -214,7 +217,10 @@ public sealed class WorkflowParser {
         var label = GetValueOrDefault(TokenType.Label);
         Ensure(TokenType.EndOfLine);
 
-        var node = new ExitNode(id, _sequence, exitCode) { Token = token };
+        var node = new ExitNode(exitCode, _services) {
+            Token = token,
+            Tag = id,
+        };
         node.Label = label ?? node.Label;
         return node;
     }
@@ -227,7 +233,10 @@ public sealed class WorkflowParser {
         var label = GetValueOrDefault(TokenType.Label);
         Ensure(TokenType.EndOfLine);
 
-        var node = new JumpNode(id, _sequence, target) { Token = token };
+        var node = new JumpNode(target, _services) {
+            Token = token,
+            Tag = id,
+        };
         node.Label = label ?? node.Label;
         return node;
     }
@@ -255,7 +264,7 @@ public sealed class WorkflowParser {
     private void AddError(string? message, Token? token = null) {
         var source = (token ?? _tokens.Current).ToSource();
         message ??= "Unknown error.";
-        Errors.Add(new ValidationError(message, source));
+        _errors.Add(new ValidationError(message, source));
     }
 
     private int CountToken(TokenType type) {
@@ -302,7 +311,7 @@ public sealed class WorkflowParser {
 
     private void ConnectJumps() {
         foreach (var jumpNode in _nodes.OfType<IJumpNode>()) {
-            var targetNode = _nodes.Find(n => n.Id == jumpNode.TargetTag);
+            var targetNode = _nodes.Find(n => n.Tag == jumpNode.TargetTag);
             if (targetNode is null) AddError($"Jump target '{jumpNode.TargetTag}' not found.", jumpNode.Token);
             else jumpNode.ConnectTo(targetNode);
         }

@@ -70,14 +70,14 @@ public sealed class Runner(string id,
     }
 
     private Task<bool> ExecutingNode(IWorkflow workflow, INode currentNode, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Executing node '{Number}' during the workflow '{WorkFlowId}'...", currentNode.Number, Id);
+        _logger.LogInformation(message: "Executing node '{Id}' during the workflow '{WorkFlowId}'...", currentNode.Id, Id);
         return OnExecutingNode is null
                    ? Task.FromResult(true)
                    : OnExecutingNode(workflow, currentNode, ct);
     }
 
     private Task<bool> NodeExecuted(IWorkflow workflow, INode currentNode, INode? nextNode, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Node '{NodeNumberProvider}' executed during the workflow '{WorkFlowId}'.", currentNode.Number, Id);
+        _logger.LogInformation(message: "Node '{NodeNumberProvider}' executed during the workflow '{WorkFlowId}'.", currentNode.Id, Id);
         return OnNodeExecuted is null
                    ? Task.FromResult(true)
                    : OnNodeExecuted(workflow, currentNode, nextNode, ct);

@@ -115,17 +115,17 @@ public partial class WorkflowParserTests {
             result.IsSuccess.Should().BeFalse();
             result.Errors.Should().HaveCount(4);
             var error1 = result.Errors[0];
-            error1.Message.Should().Be("'Identifier' expected but found 'Number'.");
-            error1.Source.Should().Be("Number@(1, 6): 123");
+            error1.Message.Should().Be("'Identifier' expected but found 'Id'.");
+            error1.Source.Should().Be("Id@(1, 6): 123");
             var error2 = result.Errors[1];
-            error2.Message.Should().Be("'EndOfLine' expected but found 'Number'.");
-            error2.Source.Should().Be("Number@(1, 6): 123");
+            error2.Message.Should().Be("'EndOfLine' expected but found 'Id'.");
+            error2.Source.Should().Be("Id@(1, 6): 123");
             var error3 = result.Errors[2];
-            error3.Message.Should().Be("Unexpected token: 'Number'.");
-            error3.Source.Should().Be("Number@(1, 6): 123");
+            error3.Message.Should().Be("Unexpected token: 'Id'.");
+            error3.Source.Should().Be("Id@(1, 6): 123");
             var error4 = result.Errors[3];
             error4.Message.Should().Be("Jump target '123' not found.");
-            error4.Source.Should().Be("JumpTo@(1, 1)");
+            error4.Source.Should().Be("GoTo@(1, 1)");
         }
 
         [Fact]

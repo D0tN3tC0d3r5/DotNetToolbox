@@ -7,7 +7,7 @@ public sealed class WorkflowBuilderTests {
         var services = new ServiceCollection();
         services.AddScoped<INodeSequence, NodeSequence>();
         services.AddTransient<INodeFactory, NodeFactory>();
-        services.AddTransient<IPolicy, RetryPolicy>();
+        services.AddTransient<IRetryPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
         _builder = new WorkflowBuilder(provider);
     }
@@ -56,9 +56,9 @@ public sealed class WorkflowBuilderTests {
                                       3["action"]
 
                                       """;
-        var start = _builder.If(_ => true,
-                                t => t.Do(_ => { }),
-                                f => f.Do(_ => { }))
+        var start = _builder.If(_ => true)
+                            .Then(t => t.Do(_ => { }))
+                            .Else(f => f.Do(_ => { }))
                             .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -79,12 +79,10 @@ public sealed class WorkflowBuilderTests {
                                       4["action"]
 
                                       """;
-        var start = _builder.Case(_ => "key1",
-                                  new() {
-                                      ["key1"] = b => b.Do(_ => { }),
-                                      ["key2"] = b => b.Do(_ => { }),
-                                      ["key3"] = b => b.Do(_ => { })
-                                  })
+        var start = _builder.Case(_ => "key1")
+                            .Is("key1", b => b.Do(_ => { }))
+                            .Is("key2", b => b.Do(_ => { }))
+                            .Is("key3", b => b.Do(_ => { }))
                             .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -113,13 +111,12 @@ public sealed class WorkflowBuilderTests {
                                       """;
 
         var start = _builder.Do(_ => { })
-                            .If(_ => true,
-                                t => t.Do(_ => { })
-                                      .Case(_ => "key1", new() {
-                                          ["key1"] = b => b.Do(_ => { }),
-                                          ["key2"] = b => b.Do(_ => { })
-                                      }),
-                                f => f.Do(_ => { }))
+                            .If(_ => true)
+                            .Then(t => t.Do(_ => { })
+                                        .Case(_ => "key1")
+                                        .Is("key1", b => b.Do(_ => { }))
+                                        .Is("key2", b => b.Do(_ => { })))
+                            .Else(f => f.Do(_ => { }))
                             .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -141,9 +138,9 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
         var start = _builder.Do("Start", _ => { })
-                            .If("Decision", _ => true,
-                                t => t.Do("Success", _ => { }),
-                                f => f.Do("Fail", _ => { }))
+                            .If("Decision", _ => true)
+                            .Then(t => t.Do("Success", _ => { }))
+                            .Else(f => f.Do("Fail", _ => { }))
                             .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -167,11 +164,10 @@ public sealed class WorkflowBuilderTests {
 
                                       """;
         var start = _builder.Do("Start", _ => { })
-                            .If("LoopCondition",
-                                _ => true,
-                                t => t.Do("LoopAction", _ => { })
-                                      .JumpTo("LoopCondition"),
-                                f => f.Do("Exit", _ => { }))
+                            .If("LoopCondition", _ => true)
+                            .Then(t => t.Do("LoopAction", _ => { })
+                                        .GoTo("LoopCondition"))
+                            .Else(f => f.Do("Exit", _ => { }))
                             .Build();
         var graph = GraphBuilder.BuildFrom(start);
 
@@ -207,11 +203,11 @@ public sealed class WorkflowBuilderTests {
                                       5["action"]
 
                                       """;
-        var start = _builder.If(_ => true,
-                                t1 => t1.If(_ => false,
-                                            t2 => t2.Do(_ => { }),
-                                            f2 => f2.Do(_ => { })),
-                                f1 => f1.Do(_ => { }))
+        var start = _builder.If(_ => true)
+                            .Then(t1 => t1.If(_ => false)
+                                          .Then(t2 => t2.Do(_ => { }))
+                                          .Else(f2 => f2.Do(_ => { })))
+                            .Else(f1 => f1.Do(_ => { }))
                             .Build();
 
         var graph = GraphBuilder.BuildFrom(start);
@@ -220,8 +216,8 @@ public sealed class WorkflowBuilderTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Test class
-    private sealed class CustomAction(string? id = null, INodeSequence? sequence = null, IPolicy? policy = null)
-                : ActionNode<CustomAction>(id, sequence, policy) {
+    private sealed class CustomAction(IServiceProvider services)
+                : ActionNode<CustomAction>(services) {
         protected override Task Execute(Context context, CancellationToken ct)
             => Task.CompletedTask;
     }

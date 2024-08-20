@@ -19,7 +19,7 @@ public class GenericNodeTests {
     }
 
     public sealed class GenericNode(string tag)
-        : ActionNode<GenericNode>(tag, null, null) {
+        : ActionNode<GenericNode>(null) {
         protected override Task Execute(Context context, CancellationToken ct) => Task.CompletedTask;
     }
 }

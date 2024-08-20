@@ -1,33 +1,29 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public class IfNode : IfNode<IfNode> {
-    internal IfNode(string? id, INodeSequence? sequence, Func<Context, CancellationToken, Task<bool>> predicate)
-        : base(id, sequence) {
-        _predicate = IsNotNull(predicate);
-    }
-
-    public IfNode(string id, Func<Context, CancellationToken, Task<bool>> predicate)
-        : this(IsNotNullOrWhiteSpace(id), null, predicate) {
-    }
-    public IfNode(Func<Context, CancellationToken, Task<bool>> predicate, INodeSequence? sequence = null)
-        : this(null, sequence, predicate) {
-    }
-    public IfNode(string id, Func<Context, bool> predicate)
-        : this(IsNotNullOrWhiteSpace(id), null, (ctx, ct) => Task.Run(() => predicate(ctx), ct)) {
-    }
-    public IfNode(Func<Context, bool> predicate, INodeSequence? sequence = null)
-        : this(null, sequence, (ctx, ct) => Task.Run(() => predicate(ctx), ct)) {
-    }
-
     private readonly Func<Context, CancellationToken, Task<bool>> _predicate;
 
-    protected override string DefaultLabel { get; } = "if";
+    public IfNode(Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
+        : base(services) {
+        _predicate = IsNotNull(predicate);
+        Label = "if";
+    }
+    public IfNode(string tag, Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
+        : this(predicate, services) {
+        Tag = IsNotNullOrWhiteSpace(tag);
+    }
+    public IfNode(Func<Context, bool> predicate, IServiceProvider services)
+        : this((ctx, ct) => Task.Run(() => predicate(ctx), ct), services) {
+    }
+    public IfNode(string tag, Func<Context, bool> predicate, IServiceProvider services)
+        : this(tag, (ctx, ct) => Task.Run(() => predicate(ctx), ct), services) {
+    }
 
-    protected override Task<bool> When(Context context, CancellationToken ct) => _predicate(context, ct);
+    protected override Task<bool> If(Context context, CancellationToken ct = default) => _predicate(context, ct);
 }
 
-public abstract class IfNode<TNode>(string? id, INodeSequence? sequence)
-    : Node<TNode>(id, sequence),
+public abstract class IfNode<TNode>(IServiceProvider services)
+    : Node<TNode>(services),
       IIfNode
     where TNode : IfNode<TNode> {
     public INode? Then { get; set; }
@@ -40,20 +36,20 @@ public abstract class IfNode<TNode>(string? id, INodeSequence? sequence)
         return result;
     }
 
-    protected sealed override Task UpdateState(Context context, CancellationToken ct)
+    protected sealed override Task UpdateState(Context context, CancellationToken ct = default)
         => Task.CompletedTask;
 
-    protected sealed override async Task<INode?> SelectPath(Context context, CancellationToken ct)
-        => await When(context, ct)
-               ? await TryRunTrueNode(context, ct)
-               : await TryRunFalseNode(context, ct);
+    protected sealed override async Task<INode?> SelectPath(Context context, CancellationToken ct = default)
+        => await If(context, ct)
+               ? await ThenDo(context, ct)
+               : await ElseDo(context, ct);
 
-    protected abstract Task<bool> When(Context context, CancellationToken ct);
+    protected abstract Task<bool> If(Context context, CancellationToken ct = default);
 
-    private Task<INode?> TryRunTrueNode(Context context, CancellationToken ct)
+    private Task<INode?> ThenDo(Context context, CancellationToken ct)
         => Then is not null ? Then.Run(context, ct) : Task.FromResult<INode?>(null);
 
-    private Task<INode?> TryRunFalseNode(Context context, CancellationToken ct)
+    private Task<INode?> ElseDo(Context context, CancellationToken ct)
         => Else is not null ? Else.Run(context, ct) : Task.FromResult<INode?>(null);
 
     public sealed override void ConnectTo(INode? next) {

@@ -10,17 +10,18 @@ public static class Node {
 public abstract class Node<TNode>
     : INode
     where TNode : Node<TNode> {
-
-    protected Node(string? id, INodeSequence? sequence) {
-        Number = (sequence ?? NodeSequence.Singleton).Next;
-        Id = string.IsNullOrWhiteSpace(id) ? $"{Number}" : id;
-        Label = string.IsNullOrWhiteSpace(id) ? DefaultLabel : Id;
+    protected Node(IServiceProvider services) {
+        Services = services;
+        var idProvider = services.GetRequiredService<INodeSequence>();
+        Id = idProvider.Next;
+        Tag = $"{Id}";
+        Label = typeof(TNode).Name;
     }
 
-    protected virtual string DefaultLabel { get; } = typeof(TNode).Name;
+    protected IServiceProvider Services { get; }
 
-    public string Id { get; }
-    public uint Number { get; }
+    public uint Id { get; }
+    public string Tag { get; set; }
     public string Label { get; set; }
     public Token? Token { get; set; }
     public INode? Next { get; set; }
@@ -44,8 +45,5 @@ public abstract class Node<TNode>
     protected abstract Task UpdateState(Context context, CancellationToken ct = default);
     protected abstract Task<INode?> SelectPath(Context context, CancellationToken ct = default);
 
-    public override int GetHashCode() => Id.GetHashCode();
-
-    internal void MapTo(Token token, Dictionary<INode, Token> nodeMap)
-        => nodeMap[this] = token;
+    public override int GetHashCode() => Tag.GetHashCode();
 }

@@ -6,7 +6,7 @@ public class ComplexWorkflowTests {
     public ComplexWorkflowTests() {
         var services = new ServiceCollection();
         services.AddScoped<INodeFactory, NodeFactory>();
-        services.AddTransient<IPolicy, RetryPolicy>();
+        services.AddTransient<IRetryPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
         _factory = provider.GetRequiredService<INodeFactory>();
     }
@@ -50,10 +50,10 @@ public class ComplexWorkflowTests {
     [Fact]
     public void ComplexWorkflow_WithCustomPolicy_AppliesPolicyCorrectly() {
         var policyExecutionCount = 0;
-        var policy = new CustomPolicy(() => policyExecutionCount++);
+        var policy = new CustomRetryPolicy(() => policyExecutionCount++);
         var services = new ServiceCollection();
         services.AddTransient<INodeFactory>(p => new NodeFactory(p));
-        services.AddTransient<IPolicy>(_ => policy);
+        services.AddTransient<IRetryPolicy>(_ => policy);
         var provider = services.BuildServiceProvider();
 
         using var context = new Context(provider);
@@ -71,25 +71,32 @@ public class ComplexWorkflowTests {
     private static INode CreateComplexWorkflow() {
         var services = new ServiceCollection();
         services.AddTransient<INodeFactory>(p => new NodeFactory(p));
-        services.AddTransient<IPolicy, RetryPolicy>();
+        services.AddTransient<IRetryPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
 
         var builder = new WorkflowBuilder(provider);
-        builder.Do(ctx => ctx["count"] = 0, label: "Initialize")
-               .If("LoopStart",
-                   ctx => ctx["count"].As<int>() < 2,
-                   t1 => t1.Do(ctx => ctx["count"] = ctx["count"].As<int>() + 1, label: "[Yes1] Add one")
-                           .Do(ctx => ctx["result"] = "Action1", label: "[Yes2] Set result to Action1")
-                           .JumpTo("LoopStart", label: "[Yes3] Loop back"),
-                   f1 => f1.If(ctx => ctx["count"].As<int>() % 2 == 0,
-                               t2 => t2.Do(ctx => ctx["result"] = "Action2", label: "[Even] Set result to Action2"),
-                               f2 => f2.Do(ctx => ctx["result"] = "Action3", label: "[Odd] Set result to Action3"),
-                               label: "[No] Is even?"),
-                   "Is less than 2?");
+        builder.Do("LoopStart", ctx => ctx["count"] = 0).WithLabel("Initialize")
+               .If(ctx => ctx["count"].As<int>() < 2)
+               .Then(t1 => t1.Do(ctx => ctx["count"] = ctx["count"].As<int>() + 1)
+                             .WithLabel("[Yes1] Add one")
+                             .Do(ctx => ctx["result"] = "Action1")
+                             .WithLabel("[Yes2] Set result to Action1")
+                             .GoTo("LoopStart")
+                             .WithLabel("[Yes3] Loop back"))
+               .Else(f1 => f1.If(ctx => ctx["count"].As<int>() % 2 == 0)
+                              .Then(t2 => t2.Do(ctx => ctx["result"] = "Action2")
+                                            .WithLabel("[Even] Set result to Action2"))
+                              .Else(f2 => f2.Do(ctx => ctx["result"] = "Action3")
+                                            .WithLabel("[Odd] Set result to Action3"))
+                              .WithLabel("[No] Is even?"))
+               .WithLabel("Is less than 2?");
         return builder.Build();
     }
 
-    private sealed class CustomPolicy(Action onExecute) : IPolicy {
+    private sealed class CustomRetryPolicy(Action onExecute) : IRetryPolicy {
+        public IReadOnlyList<TimeSpan> Delays { get; } = [];
+        public byte MaxRetries => 3;
+
         public Task Execute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct = default) {
             onExecute();
             return action(ctx, ct);

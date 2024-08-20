@@ -30,7 +30,7 @@ public partial class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be("1");
+            start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
             start.Next.Should().BeNull();
         }
@@ -50,10 +50,10 @@ public partial class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be("1");
+            start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
             var end = start.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Id.Should().Be("2");
+            end.Tag.Should().Be("2");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
         }
@@ -74,13 +74,13 @@ public partial class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be("1");
+            start.Tag.Should().Be("1");
             start.Label.Should().Be("Action1");
             var next1 = start.Next.Should().BeOfType<ActionNode>().Subject;
-            next1.Id.Should().Be("2");
+            next1.Tag.Should().Be("2");
             next1.Label.Should().Be("Action2");
             var next2 = next1.Next.Should().BeOfType<ActionNode>().Subject;
-            next2.Id.Should().Be("3");
+            next2.Tag.Should().Be("3");
             next2.Label.Should().Be("Action3");
             next2.Next.Should().BeNull();
         }
@@ -99,7 +99,7 @@ public partial class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be("Tag");
+            start.Tag.Should().Be("Tag");
             start.Label.Should().Be("Action Label");
             start.Next.Should().BeNull();
         }

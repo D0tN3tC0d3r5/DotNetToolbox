@@ -48,7 +48,6 @@ public interface INodeFactory {
                          INode? otherwise = null);
 
     IJumpNode CreateJump(string targetTag);
-    IJumpNode CreateJump(string id, string targetTag);
 
     IExitNode CreateExit(int exitCode = 0);
     IExitNode CreateExit(string id, int exitCode = 0);

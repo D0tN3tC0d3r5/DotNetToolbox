@@ -1,31 +1,28 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public sealed class JumpNode : JumpNode<JumpNode> {
-    internal JumpNode(string? id, INodeSequence? sequence, string targetTag)
-        : base(id, sequence) {
+    public JumpNode(string targetTag, IServiceProvider services)
+        : base(services) {
         TargetTag = IsNotNull(targetTag);
+        Label = "goto";
     }
 
-    public JumpNode(string id, string targetTag)
-        : this(IsNotNullOrWhiteSpace(id), null, targetTag) {
+    public JumpNode(string tag, string targetTag, IServiceProvider services)
+        : this(targetTag, services) {
+        Tag = IsNotNullOrWhiteSpace(tag);
     }
-    public JumpNode(string targetTag, INodeSequence? sequence = null)
-        : this(null, sequence, targetTag) {
-    }
-
-    protected override string DefaultLabel { get; } = "goto";
 
     public override string TargetTag { get; }
 }
 
-public abstract class JumpNode<TNode>(string? id, INodeSequence? sequence = null)
-    : Node<TNode>(id, sequence),
+public abstract class JumpNode<TNode>(IServiceProvider services)
+    : Node<TNode>(services),
       IJumpNode
     where TNode : JumpNode<TNode> {
-    protected override Task<INode?> SelectPath(Context context, CancellationToken ct)
+    protected override Task<INode?> SelectPath(Context context, CancellationToken ct = default)
         => Task.FromResult(Next);
 
-    protected override Task UpdateState(Context context, CancellationToken ct)
+    protected override Task UpdateState(Context context, CancellationToken ct = default)
         => Task.CompletedTask;
 
     public override void ConnectTo(INode? next)

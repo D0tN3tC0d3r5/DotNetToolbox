@@ -15,14 +15,16 @@ public class RetryPolicy
 }
 
 public abstract class RetryPolicy<TPolicy>
-    : Policy<TPolicy>,
-      IRetryPolicy
+    : IRetryPolicy,
+      IHasDefault<TPolicy>
     where TPolicy : RetryPolicy<TPolicy>, new() {
     private readonly Random _random = Random.Shared;
 
     protected RetryPolicy()
         : this(RetryPolicy.DefaultMaximumRetries) {
     }
+
+    public static TPolicy Default => new();
 
     protected RetryPolicy(byte maxRetries, TimeSpan? delay = null, ushort? jiggleSizeInTicks = null) {
         MaxRetries = maxRetries;
@@ -47,7 +49,7 @@ public abstract class RetryPolicy<TPolicy>
         return delays;
     }
 
-    public sealed override async Task Execute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct = default) {
+    public async Task Execute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct = default) {
         var attempts = 0;
         while (true) {
             attempts++;

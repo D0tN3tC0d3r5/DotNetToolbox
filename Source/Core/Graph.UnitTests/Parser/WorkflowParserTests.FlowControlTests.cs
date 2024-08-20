@@ -17,11 +17,11 @@ public partial class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
-            start.Id.Should().Be("1");
+            start.Tag.Should().Be("1");
             start.Label.Should().Be("DoSomething");
 
             var end = start.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Id.Should().Be("2");
+            end.Tag.Should().Be("2");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(13);
         }
@@ -45,30 +45,30 @@ public partial class WorkflowParserTests {
             // Assert
             result.IsSuccess.Should().BeTrue();
             var action1 = result.Value.Should().BeOfType<ActionNode>().Subject;
-            action1.Id.Should().Be("Label1");
+            action1.Tag.Should().Be("Label1");
             action1.Label.Should().Be("Action1");
 
             var action2 = action1.Next.Should().BeOfType<ActionNode>().Subject;
-            action2.Id.Should().Be("2");
+            action2.Tag.Should().Be("2");
             action2.Label.Should().Be("Action2");
 
             var ifNode = action2.Next.Should().BeOfType<IfNode>().Subject;
-            ifNode.Id.Should().Be("3");
+            ifNode.Tag.Should().Be("3");
             ifNode.Label.Should().Be("if");
 
             var exitJump = ifNode.Then.Should().BeOfType<JumpNode>().Subject;
-            exitJump.Id.Should().Be("4");
+            exitJump.Tag.Should().Be("4");
             exitJump.Label.Should().Be("goto");
             exitJump.TargetTag.Should().Be("end");
 
             var jumpBack = ifNode.Else.Should().BeOfType<JumpNode>().Subject;
-            jumpBack.Id.Should().Be("5");
+            jumpBack.Tag.Should().Be("5");
             jumpBack.Label.Should().Be("goto");
             jumpBack.TargetTag.Should().Be("Label1");
             jumpBack.Next.Should().Be(action1);
 
             var end = exitJump.Next.Should().BeOfType<ExitNode>().Subject;
-            end.Id.Should().Be("end");
+            end.Tag.Should().Be("end");
             end.Label.Should().Be("end");
             end.ExitCode.Should().Be(0);
         }

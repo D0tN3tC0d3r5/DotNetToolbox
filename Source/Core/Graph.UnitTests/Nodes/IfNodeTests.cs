@@ -5,7 +5,7 @@ public class IfNodeTests {
 
     public IfNodeTests() {
         var services = new ServiceCollection();
-        services.AddTransient<IPolicy, RetryPolicy>();
+        services.AddTransient<IRetryPolicy, RetryPolicy>();
         services.AddScoped<INodeFactory, NodeFactory>();
         var provider = services.BuildServiceProvider();
         _factory = provider.GetRequiredService<INodeFactory>();
@@ -18,7 +18,7 @@ public class IfNodeTests {
 
         node.Should().NotBeNull();
         node.Should().BeOfType<IfNode>();
-        node.Id.Should().Be("2");
+        node.Tag.Should().Be("2");
         node.Label.Should().Be("if");
     }
 
@@ -31,7 +31,7 @@ public class IfNodeTests {
 
         node.Should().NotBeNull();
         node.Should().BeOfType<IfNode>();
-        node.Id.Should().Be(customTag);
+        node.Tag.Should().Be(customTag);
         node.Label.Should().Be(customTag);
     }
 

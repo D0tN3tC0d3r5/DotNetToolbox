@@ -5,7 +5,7 @@ public class CaseNodeTests {
 
     public CaseNodeTests() {
         var services = new ServiceCollection();
-        services.AddTransient<IPolicy, RetryPolicy>();
+        services.AddTransient<IRetryPolicy, RetryPolicy>();
         services.AddScoped<INodeFactory, NodeFactory>();
         var provider = services.BuildServiceProvider();
         _factory = provider.GetRequiredService<INodeFactory>();
@@ -17,7 +17,7 @@ public class CaseNodeTests {
 
         node.Should().NotBeNull();
         node.Should().BeOfType<CaseNode>();
-        node.Id.Should().Be("1");
+        node.Tag.Should().Be("1");
         node.Label.Should().Be("case");
     }
 
@@ -28,7 +28,7 @@ public class CaseNodeTests {
 
         node.Should().NotBeNull();
         node.Should().BeOfType<CaseNode>();
-        node.Id.Should().Be(customId);
+        node.Tag.Should().Be(customId);
         node.Label.Should().Be(customId);
     }
 

@@ -1,44 +1,51 @@
 ﻿namespace DotNetToolbox.Graph.Builders;
 
+public interface IIfBuilder {
+    IElseBuilder Then(Action<IWorkflowBuilder> setThen);
+}
+public interface IActionBuilder : IWorkflowBuilder {
+    IWorkflowBuilder WithRetry(IRetryPolicy retry);
+}
+public interface IElseBuilder : IWorkflowBuilder {
+    IWorkflowBuilder Else(Action<IWorkflowBuilder> setElse);
+}
+
+public interface ICaseBuilder : IWorkflowBuilder {
+    IOtherwiseBuilder Is(string key, Action<IWorkflowBuilder> setCase);
+}
+public interface IOtherwiseBuilder : ICaseBuilder {
+    IWorkflowBuilder Otherwise(Action<IWorkflowBuilder> setOtherwise);
+}
+
+public interface IExitBuilder
+    : INodeBuilder;
+
 public interface IWorkflowBuilder
     : INodeBuilder {
     IWorkflowBuilder AddNode(INode node);
 
     IWorkflowBuilder Do<TAction>(params object?[] args)
         where TAction : ActionNode<TAction>;
+    IWorkflowBuilder Do<TAction>(string tag, params object?[] args)
+        where TAction : ActionNode<TAction>;
 
-    IWorkflowBuilder Do(string id,
-                        Action<Context> action,
-                        string? label = null);
-    IWorkflowBuilder Do(Action<Context> action,
-                        string? label = null);
+    IWorkflowBuilder Do(Action<Context> action);
+    IWorkflowBuilder Do(Func<Context, CancellationToken, Task> action);
+    IWorkflowBuilder Do(string tag, Action<Context> action);
+    IWorkflowBuilder Do(string tag, Func<Context, CancellationToken, Task> action);
 
-    IWorkflowBuilder If(string id,
-                        Func<Context, bool> predicate,
-                        Action<IWorkflowBuilder> setThen,
-                        Action<IWorkflowBuilder>? setElse = null,
-                        string? label = null);
-    IWorkflowBuilder If(Func<Context, bool> predicate,
-                        Action<IWorkflowBuilder> setThen,
-                        Action<IWorkflowBuilder>? setElse = null,
-                        string? label = null);
+    IIfBuilder If(Func<Context, bool> predicate);
+    IIfBuilder If(Func<Context, CancellationToken, Task<bool>> predicate);
+    IIfBuilder If(string tag, Func<Context, bool> predicate);
+    IIfBuilder If(string tag, Func<Context, CancellationToken, Task<bool>> predicate);
 
-    IWorkflowBuilder Case(string id,
-                          Func<Context, string> select,
-                          Dictionary<string, Action<IWorkflowBuilder>> setCases,
-                          Action<IWorkflowBuilder>? setDefault = null,
-                          string? label = null);
-    IWorkflowBuilder Case(Func<Context, string> select,
-                          Dictionary<string, Action<IWorkflowBuilder>> setCases,
-                          Action<IWorkflowBuilder>? setDefault = null,
-                          string? label = null);
+    ICaseBuilder Case(Func<Context, string> select);
+    ICaseBuilder Case(Func<Context, CancellationToken, Task<string>> select);
+    ICaseBuilder Case(string tag, Func<Context, string> select);
+    ICaseBuilder Case(string tag, Func<Context, CancellationToken, Task<string>> select);
 
-    IWorkflowBuilder JumpTo(string targetNodeId,
-                            string? label = null);
+    IWorkflowBuilder GoTo(string nodeTag);
 
-    IWorkflowBuilder Exit(string id,
-                          int exitCode = 0,
-                          string? label = null);
-    IWorkflowBuilder Exit(int exitCode = 0,
-                          string? label = null);
+    IExitBuilder Exit(int exitCode = 0);
+    IExitBuilder Exit(string tag, int exitCode = 0);
 }

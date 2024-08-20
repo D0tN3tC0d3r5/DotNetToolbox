@@ -1,33 +1,29 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public sealed class CaseNode : CaseNode<CaseNode> {
-    internal CaseNode(string? id, INodeSequence? sequence, Func<Context, CancellationToken, Task<string>> select)
-        : base(id, sequence) {
+    public CaseNode(Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
+        : base(services) {
         _select = IsNotNull(select);
+        Label = "case";
     }
-
-    public CaseNode(string id, Func<Context, CancellationToken, Task<string>> select)
-        : this(IsNotNullOrWhiteSpace(id), null, select) {
+    public CaseNode(string tag, Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
+        : this(select, services) {
+        Tag = IsNotNullOrWhiteSpace(tag);
     }
-    public CaseNode(Func<Context, CancellationToken, Task<string>> select, INodeSequence? sequence = null)
-        : this(null, sequence, select) {
+    public CaseNode(Func<Context, string> select, IServiceProvider services)
+        : this((ctx, ct) => Task.Run(() => select(ctx), ct), services) {
     }
-    public CaseNode(string id, Func<Context, string> select)
-        : this(IsNotNullOrWhiteSpace(id), null, (ctx, ct) => Task.Run(() => select(ctx), ct)) {
-    }
-    public CaseNode(Func<Context, string> select, INodeSequence? sequence = null)
-        : this(null, sequence, (ctx, ct) => Task.Run(() => select(ctx), ct)) {
+    public CaseNode(string tag, Func<Context, string> select, IServiceProvider services)
+        : this(tag, (ctx, ct) => Task.Run(() => select(ctx), ct), services) {
     }
 
     private readonly Func<Context, CancellationToken, Task<string>> _select;
 
-    protected override string DefaultLabel { get; } = "case";
-
-    protected override Task<string> Select(Context context, CancellationToken ct) => _select(context, ct);
+    protected override Task<string> Select(Context context, CancellationToken ct = default) => _select(context, ct);
 }
 
-public abstract class CaseNode<TNode>(string? id, INodeSequence? sequence)
-    : Node<TNode>(id, sequence),
+public abstract class CaseNode<TNode>(IServiceProvider services)
+    : Node<TNode>(services),
       ICaseNode
     where TNode : CaseNode<TNode> {
     public Dictionary<string, INode?> Choices { get; } = [];
@@ -46,7 +42,7 @@ public abstract class CaseNode<TNode>(string? id, INodeSequence? sequence)
             => current + choice.Validate(visited);
     }
 
-    protected override async Task<INode?> SelectPath(Context context, CancellationToken ct) {
+    protected override async Task<INode?> SelectPath(Context context, CancellationToken ct = default) {
         ct.ThrowIfCancellationRequested();
         var key = await Select(context, ct);
         var choice = Choices.GetValueOrDefault(key)
@@ -55,9 +51,9 @@ public abstract class CaseNode<TNode>(string? id, INodeSequence? sequence)
         return await choice.Run(context, ct);
     }
 
-    protected abstract Task<string> Select(Context context, CancellationToken ct);
+    protected abstract Task<string> Select(Context context, CancellationToken ct = default);
 
-    protected sealed override Task UpdateState(Context context, CancellationToken ct)
+    protected sealed override Task UpdateState(Context context, CancellationToken ct = default)
         => Task.CompletedTask;
 
     public sealed override void ConnectTo(INode? next) {

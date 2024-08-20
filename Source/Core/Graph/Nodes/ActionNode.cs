@@ -1,52 +1,49 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public sealed class ActionNode : ActionNode<ActionNode> {
-    internal ActionNode(string? id, INodeSequence? sequence, IPolicy? policy, Func<Context, CancellationToken, Task> execute)
-        : base(id, sequence, policy) {
+    public ActionNode(Func<Context, CancellationToken, Task> execute, IServiceProvider services)
+        : base(services) {
         _execute = IsNotNull(execute);
+        Label = "action";
     }
-
-    public ActionNode(string id, Func<Context, CancellationToken, Task> execute, IPolicy? policy = null)
-        : this(IsNotNullOrWhiteSpace(id), null, policy, execute) {
+    public ActionNode(string tag, Func<Context, CancellationToken, Task> execute, IServiceProvider services)
+        : this(execute, services) {
+        Tag = IsNotNullOrWhiteSpace(tag);
     }
-    public ActionNode(string id, Action<Context> execute, IPolicy? policy = null)
-        : this(IsNotNullOrWhiteSpace(id), null, policy, (ctx, ct) => Task.Run(() => execute(ctx), ct)) {
+    public ActionNode(Action<Context> execute, IServiceProvider services)
+        : this((ctx, ct) => Task.Run(() => execute(ctx), ct), services) {
     }
-    public ActionNode(Func<Context, CancellationToken, Task> execute, IPolicy? policy = null, INodeSequence? sequence = null)
-        : this(null, sequence, policy, execute) {
-    }
-    public ActionNode(Action<Context> execute, IPolicy? policy = null, INodeSequence? sequence = null)
-        : this(null, sequence, policy, (ctx, ct) => Task.Run(() => execute(ctx), ct)) {
+    public ActionNode(string tag, Action<Context> execute, IServiceProvider services)
+        : this(tag, (ctx, ct) => Task.Run(() => execute(ctx), ct), services) {
     }
 
     private readonly Func<Context, CancellationToken, Task> _execute;
 
-    protected override string DefaultLabel { get; } = "action";
-
     protected override Task Execute(Context context, CancellationToken ct)
         => _execute(context, ct);
 
-    public static TNode Create<TNode>(IServiceProvider services, string? id = null)
+    public static TNode Create<TNode>(IServiceProvider services, params object?[] args)
         where TNode : ActionNode<TNode>
-        => Node.Create<TNode>(services, id);
+        => Node.Create<TNode>(services, args);
 }
 
-public abstract class ActionNode<TAction>(string? id, INodeSequence? sequence = null, IPolicy? policy = null)
-    : Node<TAction>(id, sequence),
+public abstract class ActionNode<TNode>(IServiceProvider services)
+    : Node<TNode>(services),
       IActionNode
-    where TAction : ActionNode<TAction> {
-    private readonly IPolicy _policy = policy ?? Policy.Default;
-
+    where TNode : ActionNode<TNode> {
     public sealed override void ConnectTo(INode? next) {
         if (Next is null) Next = next;
         else Next.ConnectTo(next);
     }
 
+    public IRetryPolicy Retry { get; set; } = services.GetService<IRetryPolicy>()
+                                           ?? RetryPolicy.Default;
+
     protected sealed override Task<INode?> SelectPath(Context context, CancellationToken ct)
         => Task.FromResult(Next);
 
     protected sealed override Task UpdateState(Context context, CancellationToken ct)
-        => _policy.Execute(Execute, context, ct);
+        => Retry.Execute(Execute, context, ct);
 
     protected abstract Task Execute(Context context, CancellationToken ct);
 }
