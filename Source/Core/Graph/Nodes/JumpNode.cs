@@ -3,20 +3,15 @@
 public sealed class JumpNode : JumpNode<JumpNode> {
     public JumpNode(string targetTag, IServiceProvider services)
         : base(services) {
-        TargetTag = IsNotNull(targetTag);
         Label = "goto";
-    }
-
-    public JumpNode(string tag, string targetTag, IServiceProvider services)
-        : this(targetTag, services) {
-        Tag = IsNotNullOrWhiteSpace(tag);
+        TargetTag = IsNotNull(targetTag);
     }
 
     public override string TargetTag { get; }
 }
 
 public abstract class JumpNode<TNode>(IServiceProvider services)
-    : Node<TNode>(services),
+    : Node<TNode>(null, services),
       IJumpNode
     where TNode : JumpNode<TNode> {
     protected override Task<INode?> SelectPath(Context context, CancellationToken ct = default)

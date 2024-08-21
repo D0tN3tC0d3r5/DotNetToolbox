@@ -32,7 +32,7 @@ public partial class WorkflowParserTests {
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
             start.Id.Should().Be(1);
             start.Tag.Should().BeNull();
-            start.Label.Should().Be("DoSomething");
+            start.Name.Should().Be("DoSomething");
             start.Next.Should().BeNull();
         }
 
@@ -52,7 +52,7 @@ public partial class WorkflowParserTests {
             result.IsSuccess.Should().BeTrue();
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
             start.Id.Should().Be(1);
-            start.Label.Should().Be("DoSomething");
+            start.Name.Should().Be("DoSomething");
             var end = start.Next.Should().BeOfType<ExitNode>().Subject;
             end.Id.Should().Be(2);
             end.Tag.Should().BeNull();
@@ -77,13 +77,13 @@ public partial class WorkflowParserTests {
             result.IsSuccess.Should().BeTrue();
             var action1 = result.Value.Should().BeOfType<ActionNode>().Subject;
             action1.Id.Should().Be(1);
-            action1.Label.Should().Be("Action1");
+            action1.Name.Should().Be("Action1");
             var action2 = action1.Next.Should().BeOfType<ActionNode>().Subject;
             action2.Id.Should().Be(2);
-            action2.Label.Should().Be("Action2");
+            action2.Name.Should().Be("Action2");
             var action3 = action2.Next.Should().BeOfType<ActionNode>().Subject;
             action3.Id.Should().Be(3);
-            action3.Label.Should().Be("Action3");
+            action3.Name.Should().Be("Action3");
             action3.Next.Should().BeNull();
         }
 
@@ -103,7 +103,7 @@ public partial class WorkflowParserTests {
             var start = result.Value.Should().BeOfType<ActionNode>().Subject;
             start.Id.Should().Be(1);
             start.Tag.Should().Be("Tag");
-            start.Label.Should().Be("DoSomething");
+            start.Name.Should().Be("DoSomething");
             start.Next.Should().BeNull();
         }
     }

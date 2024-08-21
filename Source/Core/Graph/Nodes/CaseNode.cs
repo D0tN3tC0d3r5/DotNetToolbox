@@ -1,20 +1,29 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public sealed class CaseNode : CaseNode<CaseNode> {
-    public CaseNode(Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
-        : base(services) {
-        _select = IsNotNull(select);
-        Label = "case";
+    private CaseNode(string? tag, string? name, Func<Context, CancellationToken, Task<string>>? select, IServiceProvider services)
+        : base(tag, services) {
+        Name = name ?? Name;
+        Label = name ?? "case";
+        _select = select!;
     }
-    public CaseNode(string tag, Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
-        : this(select, services) {
-        Tag = IsNotNullOrWhiteSpace(tag);
+    public CaseNode(string? name, IServiceProvider services)
+        : this(null, name, null, services) {
+    }
+    public CaseNode(string? tag, string? name, IServiceProvider services)
+        : this(tag, name, null, services) {
+    }
+    public CaseNode(Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
+        : this(null, null, select, services) {
+    }
+    public CaseNode(string? tag, Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
+        : this(tag, null, select, services) {
     }
     public CaseNode(Func<Context, string> select, IServiceProvider services)
-        : this((ctx, ct) => Task.Run(() => select(ctx), ct), services) {
+        : this(null, null, (ctx, ct) => Task.Run(() => select(ctx), ct), services) {
     }
-    public CaseNode(string tag, Func<Context, string> select, IServiceProvider services)
-        : this(tag, (ctx, ct) => Task.Run(() => select(ctx), ct), services) {
+    public CaseNode(string? tag, Func<Context, string> select, IServiceProvider services)
+        : this(tag, null, (ctx, ct) => Task.Run(() => select(ctx), ct), services) {
     }
 
     private readonly Func<Context, CancellationToken, Task<string>> _select;
@@ -22,10 +31,11 @@ public sealed class CaseNode : CaseNode<CaseNode> {
     protected override Task<string> Select(Context context, CancellationToken ct = default) => _select(context, ct);
 }
 
-public abstract class CaseNode<TNode>(IServiceProvider services)
-    : Node<TNode>(services),
+public abstract class CaseNode<TNode>(string? tag, IServiceProvider services)
+    : Node<TNode>(tag, services),
       ICaseNode
     where TNode : CaseNode<TNode> {
+    public string Name { get; set; } = typeof(TNode).Name;
     public Dictionary<string, INode?> Choices { get; } = [];
 
     protected override Result IsValid(ISet<INode> visited) {

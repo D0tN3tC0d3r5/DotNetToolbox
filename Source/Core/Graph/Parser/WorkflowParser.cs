@@ -104,15 +104,12 @@ public sealed class WorkflowParser {
 
     private INode ParseAction() {
         var token = _tokens.Current;
-        var name = GetValue(TokenType.Identifier);
+        var actionName = GetValue(TokenType.Identifier);
         var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
-        var command = BuildCommand(name);
         var retry = _services.GetService<IRetryPolicy>() ?? RetryPolicy.Default;
-        return new ActionNode(command, _services) {
+        return new ActionNode(tag!, actionName, _services) {
             Token = token,
-            Tag = tag,
-            Label = name,
             Retry = retry,
         };
     }
@@ -121,29 +118,16 @@ public sealed class WorkflowParser {
         var token = _tokens.Current;
         Ensure(TokenType.If);
         var tag = GetValueOrDefault(TokenType.Tag);
-        var predicate = ParsePredicate();
+        var predicateName = GetValue(TokenType.Identifier);
         Ensure(TokenType.EndOfLine);
-        var node = new IfNode(predicate, _services) {
+        var node = new IfNode(tag!, predicateName, _services) {
             Token = token,
-            Tag = tag,
             Then = ParseBlock(),
             Else = ParseElse(),
         };
         if (node.Then is null)
             AddError("If statement must have a body.");
         return node;
-    }
-
-    private Func<Context, CancellationToken, Task<bool>> ParsePredicate() {
-        var condition = new StringBuilder();
-        while (_tokens.Current.Type is not TokenType.Tag and not TokenType.EndOfLine) {
-            condition.Append(_tokens.Current.Value);
-            condition.Append(' ');
-            _tokens.MoveNext();
-        }
-
-        var expression = condition.ToString().Trim();
-        return BuildPredicate(expression);
     }
 
     private INode? ParseElse() {
@@ -157,15 +141,11 @@ public sealed class WorkflowParser {
     private INode ParseCase() {
         var token = _tokens.Current;
         Ensure(TokenType.Case);
-        var identifier = GetValue(TokenType.Identifier);
+        var selector = GetValue(TokenType.Identifier);
         var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
 
-        var selector = BuildSelector(identifier);
-        var node = new CaseNode(selector, _services) {
-            Token = token,
-            Tag = tag,
-        };
+        var node = new CaseNode(tag!, selector, _services) { Token = token };
         foreach ((var key, var choice) in ParseChoices())
             node.Choices.Add(key, choice);
         return node;
@@ -211,45 +191,16 @@ public sealed class WorkflowParser {
         var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
 
-        var node = new ExitNode(exitCode, _services) {
-            Token = token,
-            Tag = tag,
-        };
-        return node;
+        return new ExitNode(tag!, exitCode, _services) { Token = token };
     }
 
     private INode ParseJumpTo() {
         var token = _tokens.Current;
         Ensure(TokenType.GoTo);
         var target = GetValue(TokenType.Identifier);
-        var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
 
-        var node = new JumpNode(target, _services) {
-            Token = token,
-            Tag = tag,
-        };
-        return node;
-    }
-
-    private Func<Context, CancellationToken, Task> BuildCommand(string action) {
-        // fetch or build the action expression;
-        return Command;
-
-        static Task Command(Context ctx, CancellationToken ct) => Task.CompletedTask;
-    }
-    private Func<Context, CancellationToken, Task<bool>> BuildPredicate(string condition) {
-        // fetch or build the predicateExpression expression;
-        return Predicate;
-
-        static Task<bool> Predicate(Context ctx, CancellationToken ct) => Task.FromResult(true);
-    }
-
-    private Func<Context, CancellationToken, Task<string>> BuildSelector(string selector) {
-        // fetch or build the selector expression;
-        return Selector;
-
-        static Task<string> Selector(Context ctx, CancellationToken ct) => Task.FromResult(string.Empty);
+        return new JumpNode(target, _services) { Token = token };
     }
 
     private void AddError(string? message, Token? token = null) {

@@ -6,7 +6,7 @@ namespace System;
 public static class InstanceFactory {
     private const BindingFlags _allConstructors = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance;
 
-    public static bool TryCreate<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>([MaybeNullWhen(false)] out T instance, params object?[] args)
+    public static bool TryCreate<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>([MaybeNullWhen(false)] out T instance, params object[] args)
         where T : class {
         try {
             instance = (T)IsNotNull(Activator.CreateInstance(typeof(T), _allConstructors, null, args, null, null), typeof(T).Name);
@@ -19,7 +19,7 @@ public static class InstanceFactory {
     }
 
     [return: NotNull]
-    public static T Create<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>(params object?[] args)
+    public static T Create<[DynamicallyAccessedMembers(PublicConstructors | NonPublicConstructors)] T>(params object[] args)
         where T : class {
         try {
             return (T)IsNotNull(Activator.CreateInstance(typeof(T), _allConstructors, null, args, null, null), typeof(T).Name);
@@ -29,10 +29,10 @@ public static class InstanceFactory {
         }
     }
 
-    public static bool TryCreate<[DynamicallyAccessedMembers(PublicConstructors)] T>(IServiceProvider services, [MaybeNullWhen(false)] out T instance, params object?[] args)
+    public static bool TryCreate<[DynamicallyAccessedMembers(PublicConstructors)] T>(IServiceProvider services, [MaybeNullWhen(false)] out T instance, params object[] args)
         where T : class {
         try {
-            instance = ActivatorUtilities.CreateInstance<T>(services, args!);
+            instance = ActivatorUtilities.CreateInstance<T>(services, args);
             return true;
         }
         catch {
@@ -42,10 +42,10 @@ public static class InstanceFactory {
     }
 
     [return: NotNull]
-    public static T Create<[DynamicallyAccessedMembers(PublicConstructors)] T>(IServiceProvider services, params object?[] args)
+    public static T Create<[DynamicallyAccessedMembers(PublicConstructors)] T>(IServiceProvider services, params object[] args)
         where T : class {
         try {
-            return ActivatorUtilities.CreateInstance<T>(services, args!);
+            return ActivatorUtilities.CreateInstance<T>(services, args);
         }
         catch (Exception ex) {
             throw new InvalidOperationException($"Failed to create instance of type {typeof(T).Name}", ex);

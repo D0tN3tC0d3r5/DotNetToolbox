@@ -16,7 +16,7 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         return GetStart();
     }
 
-    internal INode GetStart()
+    private INode GetStart()
         => _first ?? new ExitNode(services);
 
     public IWorkflowBuilder AddNode(INode node) {
@@ -24,38 +24,50 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         return this;
     }
 
-    public IWorkflowBuilder Do<TAction>(params object?[] args)
+    public IWorkflowBuilder Do<TAction>(params object[] args)
         where TAction : ActionNode<TAction> {
         AddNode(Node.Create<TAction>(services, args));
         return this;
     }
-    public IWorkflowBuilder Do<TAction>(string tag, params object?[] args)
+    public IWorkflowBuilder Do<TAction>(string tag, params object[] args)
         where TAction : ActionNode<TAction> {
-        var node = Node.Create<TAction>(services, args);
-        node.Tag = tag;
-        AddNode(node);
+        AddNode(Node.Create<TAction>(tag, services, args));
         return this;
     }
 
-    public IWorkflowBuilder Do(Action<Context> action) {
+    public IActionBuilder Do(string name) {
+        AddNode(new ActionNode(name, services));
+        return this;
+    }
+    public IActionBuilder Do(string tag, string name) {
+        AddNode(new ActionNode(tag, name, services));
+        return this;
+    }
+    public IActionBuilder Do(Action<Context> action) {
         AddNode(new ActionNode(action, services));
         return this;
     }
-    public IWorkflowBuilder Do(Func<Context, CancellationToken, Task> action) {
+    public IActionBuilder Do(Func<Context, CancellationToken, Task> action) {
         AddNode(new ActionNode(action, services));
         return this;
     }
-    public IWorkflowBuilder Do(string tag, Action<Context> action) {
-        var node = new ActionNode(action, services) { Tag = tag };
-        AddNode(node);
+    public IActionBuilder Do(string tag, Action<Context> action) {
+        AddNode(new ActionNode(tag, action, services));
         return this;
     }
-    public IWorkflowBuilder Do(string tag, Func<Context, CancellationToken, Task> action) {
-        var node = new ActionNode(action, services) { Tag = tag };
-        AddNode(node);
+    public IActionBuilder Do(string tag, Func<Context, CancellationToken, Task> action) {
+        AddNode(new ActionNode(tag, action, services));
         return this;
     }
 
+    public IIfBuilder If(string name) {
+        AddNode(new IfNode(name, services));
+        return this;
+    }
+    public IIfBuilder If(string tag, string name) {
+        AddNode(new IfNode(tag, name, services));
+        return this;
+    }
     public IIfBuilder If(Func<Context, bool> predicate) {
         AddNode(new IfNode(predicate, services));
         return this;
@@ -65,13 +77,11 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         return this;
     }
     public IIfBuilder If(string tag, Func<Context, bool> predicate) {
-        var node = new IfNode(predicate, services) { Tag = tag };
-        AddNode(node);
+        AddNode(new IfNode(tag, predicate, services));
         return this;
     }
     public IIfBuilder If(string tag, Func<Context, CancellationToken, Task<bool>> predicate) {
-        var node = new IfNode(predicate, services) { Tag = tag };
-        AddNode(node);
+        AddNode(new IfNode(tag, predicate, services));
         return this;
     }
     public IElseBuilder Then(Action<IWorkflowBuilder> setThen) {
@@ -89,6 +99,14 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         return this;
     }
 
+    public ICaseBuilder Case(string selector) {
+        AddNode(new CaseNode(selector, services));
+        return this;
+    }
+    public ICaseBuilder Case(string tag, string selector) {
+        AddNode(new CaseNode(tag, selector, services));
+        return this;
+    }
     public ICaseBuilder Case(Func<Context, string> select) {
         AddNode(new CaseNode(select, services));
         return this;
@@ -97,14 +115,12 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         AddNode(new CaseNode(select, services));
         return this;
     }
-    public ICaseBuilder Case(string tag, Func<Context, string> select) {
-        var node = new CaseNode(select, services) { Tag = tag };
-        AddNode(node);
+    public ICaseBuilder Case(string? tag, Func<Context, string> select) {
+        AddNode(new CaseNode(tag, select, services));
         return this;
     }
     public ICaseBuilder Case(string tag, Func<Context, CancellationToken, Task<string>> select) {
-        var node = new CaseNode(select, services) { Tag = tag };
-        AddNode(node);
+        AddNode(new CaseNode(tag, select, services));
         return this;
     }
     public IOtherwiseBuilder Is(string key, Action<IWorkflowBuilder> setCase) {
@@ -132,8 +148,7 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         return this;
     }
     public IExitBuilder Exit(string tag, int exitCode = 0) {
-        var node = new ExitNode(exitCode, services) { Tag = tag };
-        AddNode(node);
+        AddNode(new ExitNode(tag, exitCode, services));
         return this;
     }
 
@@ -152,7 +167,7 @@ public sealed class WorkflowBuilder(IServiceProvider services)
     private void ConnectJumps() {
         foreach (var jumpNode in _nodes.OfType<IJumpNode>()) {
             var targetNodeTag = _nodes.Find(n => n.Tag == jumpNode.TargetTag)
-                             ?? throw new ValidationException($"Jump target '{jumpNode.TargetTag}' not found.", jumpNode.Token?.ToSource() ?? jumpNode.Tag);
+                             ?? throw new ValidationException($"Jump target '{jumpNode.TargetTag}' not found.", jumpNode.Token?.ToSource() ?? string.Empty);
             jumpNode.ConnectTo(targetNodeTag);
         }
     }

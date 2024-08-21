@@ -1,20 +1,30 @@
 ﻿namespace DotNetToolbox.Graph.Nodes;
 
 public sealed class ActionNode : ActionNode<ActionNode> {
-    public ActionNode(Func<Context, CancellationToken, Task> execute, IServiceProvider services)
-        : base(services) {
-        _execute = IsNotNull(execute);
-        Label = "action";
+    private ActionNode(string? tag, string? name, Func<Context, CancellationToken, Task>? execute, IServiceProvider services)
+        : base(tag, services) {
+        Name = name ?? Name;
+        Label = name ?? "action";
+        _execute = execute!;
     }
-    public ActionNode(string tag, Func<Context, CancellationToken, Task> execute, IServiceProvider services)
-        : this(execute, services) {
+    public ActionNode(string? name, IServiceProvider services)
+        : this(null, name, null, services) {
+    }
+    public ActionNode(string? tag, string? name, IServiceProvider services)
+        : this(tag, name, null, services) {
+    }
+    public ActionNode(Func<Context, CancellationToken, Task> execute, IServiceProvider services)
+        : this(null, null, execute, services) {
+    }
+    public ActionNode(string? tag, Func<Context, CancellationToken, Task> execute, IServiceProvider services)
+        : this(tag, null, execute, services) {
         Tag = IsNotNullOrWhiteSpace(tag);
     }
     public ActionNode(Action<Context> execute, IServiceProvider services)
-        : this((ctx, ct) => Task.Run(() => execute(ctx), ct), services) {
+        : this(null, null, (ctx, ct) => Task.Run(() => execute(ctx), ct), services) {
     }
-    public ActionNode(string tag, Action<Context> execute, IServiceProvider services)
-        : this(tag, (ctx, ct) => Task.Run(() => execute(ctx), ct), services) {
+    public ActionNode(string? tag, Action<Context> execute, IServiceProvider services)
+        : this(tag, null, (ctx, ct) => Task.Run(() => execute(ctx), ct), services) {
     }
 
     private readonly Func<Context, CancellationToken, Task> _execute;
@@ -27,8 +37,8 @@ public sealed class ActionNode : ActionNode<ActionNode> {
         => Node.Create<TNode>(services, args);
 }
 
-public abstract class ActionNode<TNode>(IServiceProvider services)
-    : Node<TNode>(services),
+public abstract class ActionNode<TNode>(string? tag, IServiceProvider services)
+    : Node<TNode>(tag, services),
       IActionNode
     where TNode : ActionNode<TNode> {
     public sealed override void ConnectTo(INode? next) {
@@ -36,6 +46,7 @@ public abstract class ActionNode<TNode>(IServiceProvider services)
         else Next.ConnectTo(next);
     }
 
+    public string Name { get; set; } = typeof(TNode).Name;
     public IRetryPolicy Retry { get; set; } = services.GetService<IRetryPolicy>()
                                            ?? RetryPolicy.Default;
 

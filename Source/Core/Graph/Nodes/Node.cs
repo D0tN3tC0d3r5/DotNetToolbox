@@ -2,28 +2,32 @@
 
 public static class Node {
     [return: NotNull]
-    public static TNode Create<TNode>(IServiceProvider services, params object?[] args)
+    public static TNode Create<TNode>(IServiceProvider services, params object[] args)
         where TNode : Node<TNode>
         => InstanceFactory.Create<TNode>(services, args);
+    public static TNode Create<TNode>(string tag, IServiceProvider services, params object[] args)
+        where TNode : Node<TNode>
+        => InstanceFactory.Create<TNode>(services, [IsNotNull(tag), .. args]);
 }
 
 public abstract class Node<TNode>
     : INode
     where TNode : Node<TNode> {
-    protected Node(IServiceProvider services) {
+    protected Node(string? tag, IServiceProvider services) {
         Services = services;
         var idProvider = services.GetRequiredService<INodeSequence>();
         Id = idProvider.Next;
+        Tag = tag;
     }
 
-    public virtual string Label { get; init; } = typeof(TNode).Name;
+    public string Label { get; protected init; } = typeof(TNode).Name;
 
     protected IServiceProvider Services { get; }
 
     public uint Id { get; }
     public Token? Token { get; init; }
+    public string? Tag { get; init; }
 
-    public string? Tag { get; set; }
     public INode? Next { get; set; }
 
     public Result Validate(ISet<INode>? visited = null) {

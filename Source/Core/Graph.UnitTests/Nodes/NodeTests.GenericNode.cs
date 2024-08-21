@@ -11,8 +11,8 @@ public partial class NodeTests {
             node.Data.Should().Be("Data");
         }
 
-        public sealed class GenericNode(IServiceProvider services, string data)
-            : ActionNode<GenericNode>(services) {
+        public sealed class GenericNode(string? tag, IServiceProvider services, string data)
+            : ActionNode<GenericNode>(tag, services) {
             public string Data { get; } = data;
 
             protected override Task Execute(Context context, CancellationToken ct) => Task.CompletedTask;

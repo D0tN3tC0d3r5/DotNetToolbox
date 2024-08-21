@@ -3,29 +3,39 @@
 public class IfNode : IfNode<IfNode> {
     private readonly Func<Context, CancellationToken, Task<bool>> _predicate;
 
-    public IfNode(Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
-        : base(services) {
-        _predicate = IsNotNull(predicate);
-        Label = "if";
+    private IfNode(string? tag, string? name, Func<Context, CancellationToken, Task<bool>>? predicate, IServiceProvider services)
+        : base(tag, services) {
+        Name = name ?? Name;
+        Label = name ?? "if";
+        _predicate = predicate!;
     }
-    public IfNode(string tag, Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
-        : this(predicate, services) {
-        Tag = IsNotNullOrWhiteSpace(tag);
+    public IfNode(string? name, IServiceProvider services)
+        : this(null, name, null, services) {
+    }
+    public IfNode(string? tag, string? name, IServiceProvider services)
+        : this(tag, name, null, services) {
+    }
+    public IfNode(Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
+        : this(null, null, predicate, services) {
+    }
+    public IfNode(string? tag, Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
+        : this(tag, null, predicate, services) {
     }
     public IfNode(Func<Context, bool> predicate, IServiceProvider services)
-        : this((ctx, ct) => Task.Run(() => predicate(ctx), ct), services) {
+        : this(null, null, (ctx, ct) => Task.Run(() => predicate(ctx), ct), services) {
     }
-    public IfNode(string tag, Func<Context, bool> predicate, IServiceProvider services)
-        : this(tag, (ctx, ct) => Task.Run(() => predicate(ctx), ct), services) {
+    public IfNode(string? tag, Func<Context, bool> predicate, IServiceProvider services)
+        : this(tag, null, (ctx, ct) => Task.Run(() => predicate(ctx), ct), services) {
     }
 
     protected override Task<bool> If(Context context, CancellationToken ct = default) => _predicate(context, ct);
 }
 
-public abstract class IfNode<TNode>(IServiceProvider services)
-    : Node<TNode>(services),
+public abstract class IfNode<TNode>(string? tag, IServiceProvider services)
+    : Node<TNode>(tag, services),
       IIfNode
     where TNode : IfNode<TNode> {
+    public string Name { get; set; } = typeof(TNode).Name;
     public INode? Then { get; set; }
     public INode? Else { get; set; }
 
