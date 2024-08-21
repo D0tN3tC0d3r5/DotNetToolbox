@@ -39,7 +39,7 @@ public sealed class WorkflowGraphTests {
 
                                       """;
         var wf = _builder.Do("wf", _ => { })
-                            .Do("Action1", _ => { })
+                            .Do(_ => { })
                             .GoTo("wf")
                             .Build();
 
@@ -62,10 +62,10 @@ public sealed class WorkflowGraphTests {
 
                                       """;
 
-        var wf = _builder.Do("Action1", _ => { })
-                         .Do("Action2", _ => { })
-                         .Do("Action3", _ => { })
-                         .Do("Action4", _ => { })
+        var wf = _builder.Do(_ => { })
+                         .Do(_ => { })
+                         .Do(_ => { })
+                         .Do(_ => { })
                          .Build();
 
         var graph = WorkflowGraph.Draw(wf);
@@ -85,8 +85,8 @@ public sealed class WorkflowGraphTests {
 
                                       """;
         var wf = _builder.If(_ => true)
-                            .Then(t => t.Do("Action1", _ => { }))
-                            .Else(f => f.Do("Action2", _ => { }))
+                            .Then(t => t.Do(_ => { }))
+                            .Else(f => f.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf);
@@ -106,8 +106,8 @@ public sealed class WorkflowGraphTests {
 
                                       """;
         var wf = _builder.If(_ => true)
-                            .Then(t => t.Do("Action1", _ => { }))
-                            .Else(f => f.Do("Action1", _ => { }))
+                            .Then(t => t.Do(_ => { }))
+                            .Else(f => f.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf, c => c.Format(GraphFormat.GroupedEdges));
@@ -127,8 +127,8 @@ public sealed class WorkflowGraphTests {
 
                                       """;
         var wf = _builder.If(_ => true)
-                            .Then(t => t.Do("Action1", _ => { }))
-                            .Else(f => f.Do("Action1", _ => { }))
+                            .Then(t => t.Do(_ => { }))
+                            .Else(f => f.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf, c => c.Format(GraphFormat.Indented));
@@ -150,9 +150,9 @@ public sealed class WorkflowGraphTests {
 
                                       """;
         var wf = _builder.Case(_ => "key1")
-                            .Is("key1", b => b.Do("Action1", _ => { }))
-                            .Is("key2", b => b.Do("Action1", _ => { }))
-                            .Is("key3", b => b.Do("Action1", _ => { }))
+                            .Is("key1", b => b.Do(_ => { }))
+                            .Is("key2", b => b.Do(_ => { }))
+                            .Is("key3", b => b.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf);
@@ -174,9 +174,9 @@ public sealed class WorkflowGraphTests {
 
                                       """;
         var wf = _builder.Case(_ => "key1")
-                            .Is("key1", b => b.Do("Action1", _ => { }))
-                            .Is("key2", b => b.Do("Action1", _ => { }))
-                            .Is("key3", b => b.Do("Action1", _ => { }))
+                            .Is("key1", b => b.Do(_ => { }))
+                            .Is("key2", b => b.Do(_ => { }))
+                            .Is("key3", b => b.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf, c => c.Format(GraphFormat.GroupedEdges));
@@ -198,9 +198,9 @@ public sealed class WorkflowGraphTests {
 
                                       """;
         var wf = _builder.Case(_ => "key1")
-                            .Is("key1", b => b.Do("Action1", _ => { }))
-                            .Is("key2", b => b.Do("Action1", _ => { }))
-                            .Is("key3", b => b.Do("Action1", _ => { }))
+                            .Is("key1", b => b.Do(_ => { }))
+                            .Is("key2", b => b.Do(_ => { }))
+                            .Is("key3", b => b.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf, c => c.Format(GraphFormat.Indented));
@@ -228,13 +228,13 @@ public sealed class WorkflowGraphTests {
 
                                       """;
 
-        var wf = _builder.Do("Action1", _ => { })
+        var wf = _builder.Do(_ => { })
                             .If(_ => true)
-                            .Then(t => t.Do("Action1", _ => { })
+                            .Then(t => t.Do(_ => { })
                                         .Case(_ => "key1")
-                                        .Is("key1", b => b.Do("Action1", _ => { }))
-                                        .Is("key2", b => b.Do("Action1", _ => { })))
-                            .Else(f => f.Do("Action1", _ => { }))
+                                        .Is("key1", b => b.Do(_ => { }))
+                                        .Is("key2", b => b.Do(_ => { })))
+                            .Else(f => f.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf);
@@ -262,13 +262,13 @@ public sealed class WorkflowGraphTests {
 
                                       """;
 
-        var wf = _builder.Do("Action1", _ => { })
+        var wf = _builder.Do(_ => { })
                             .If(_ => true)
-                            .Then(t => t.Do("Action1", _ => { })
+                            .Then(t => t.Do(_ => { })
                                         .Case(_ => "key1")
-                                        .Is("key1", b => b.Do("Action1", _ => { }))
-                                        .Is("key2", b => b.Do("Action1", _ => { })))
-                            .Else(f => f.Do("Action1", _ => { }))
+                                        .Is("key1", b => b.Do(_ => { }))
+                                        .Is("key2", b => b.Do(_ => { })))
+                            .Else(f => f.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf, c => c.Format(GraphFormat.GroupedEdges));
@@ -296,13 +296,13 @@ public sealed class WorkflowGraphTests {
 
                                       """;
 
-        var wf = _builder.Do("Action1", _ => { })
+        var wf = _builder.Do(_ => { })
                             .If(_ => true)
-                            .Then(t => t.Do("Action1", _ => { })
+                            .Then(t => t.Do(_ => { })
                                         .Case(_ => "key1")
-                                        .Is("key1", b => b.Do("Action1", _ => { }))
-                                        .Is("key2", b => b.Do("Action1", _ => { })))
-                            .Else(f => f.Do("Action1", _ => { }))
+                                        .Is("key1", b => b.Do(_ => { }))
+                                        .Is("key2", b => b.Do(_ => { })))
+                            .Else(f => f.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf, c => c.Format(GraphFormat.Indented));
@@ -350,9 +350,9 @@ public sealed class WorkflowGraphTests {
                                       5["exit"]
 
                                       """;
-        var wf = _builder.Do("Action1", _ => { })
+        var wf = _builder.Do(_ => { })
                             .If("Loop", _ => true)
-                            .Then(t => t.Do("Action1", _ => { })
+                            .Then(t => t.Do(_ => { })
                                         .GoTo("Loop"))
                             .Exit()
                             .Build();
@@ -392,9 +392,9 @@ public sealed class WorkflowGraphTests {
                                       """;
         var wf = _builder.If(_ => true)
                             .Then(t1 => t1.If(_ => false)
-                                          .Then(t2 => t2.Do("Action1", _ => { }))
-                                          .Else(f2 => f2.Do("Action1", _ => { })))
-                            .Else(f1 => f1.Do("Action1", _ => { }))
+                                          .Then(t2 => t2.Do(_ => { }))
+                                          .Else(f2 => f2.Do(_ => { })))
+                            .Else(f1 => f1.Do(_ => { }))
                             .Build();
 
         var graph = WorkflowGraph.Draw(wf, c => c.Direction(GraphDirection.Horizontal));

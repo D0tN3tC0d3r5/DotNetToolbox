@@ -84,7 +84,7 @@ public sealed class WorkflowGraph
 
     private void DrawBox(int level, INode node) {
         _stringBuilder.Append(' ', level * 4);
-        _stringBuilder.AppendLine($"{node.Id}[\"{node.Tag ?? node.Label}\"]");
+        _stringBuilder.AppendLine($"{node.Id}[\"{(string.IsNullOrWhiteSpace(node.Tag) ? node.Label : node.Tag)}\"]");
     }
 
     private void DrawEdge(int level, INode? from, INode? to, string? label = null) {

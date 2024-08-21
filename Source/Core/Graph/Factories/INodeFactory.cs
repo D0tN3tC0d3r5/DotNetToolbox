@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Graph.Factories;
 
 public interface INodeFactory {
-    TNode Create<TNode>(string? tag = null)
+    TNode Create<TNode>(string? tag = null, params object[] args)
         where TNode : Node<TNode>;
 
     IActionNode CreateAction(Func<Context, CancellationToken, Task> action);

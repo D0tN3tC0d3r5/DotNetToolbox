@@ -6,7 +6,7 @@ public partial class WorkflowParserTests {
         public void Parse_IfThen_ReturnsWorkflowWithIfStructure() {
             // Arrange
             const string script = """
-                              IF Condition THEN
+                              IF Condition
                                 ActionTrue
                               """;
             var tokens = WorkflowLexer.Tokenize(script).ToList();
@@ -19,7 +19,7 @@ public partial class WorkflowParserTests {
             var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
             ifNode.Tag.Should().BeNull();
-            ifNode.Label.Should().Be("if");
+            ifNode.Label.Should().Be("Condition");
             ifNode.Next.Should().BeNull();
 
             var trueAction = ifNode.Then.Should().BeOfType<ActionNode>().Subject;
@@ -35,7 +35,7 @@ public partial class WorkflowParserTests {
         public void Parse_IfThenWithExit_ReturnsWorkflowWithIfStructure() {
             // Arrange
             const string script = """
-                              IF Condition THEN
+                              IF Condition
                                 ActionTrue
                               EXIT
                               """;
@@ -48,7 +48,7 @@ public partial class WorkflowParserTests {
             result.IsSuccess.Should().BeTrue();
             var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
-            ifNode.Label.Should().Be("if");
+            ifNode.Label.Should().Be("Condition");
 
             var trueAction = ifNode.Then.Should().BeOfType<ActionNode>().Subject;
             trueAction.Id.Should().Be(2);
@@ -66,7 +66,7 @@ public partial class WorkflowParserTests {
         public void Parse_IfThenElse_ReturnsWorkflowWithIfElseStructure() {
             // Arrange
             const string script = """
-                              IF Condition THEN
+                              IF Condition
                                 ActionTrue
                               ELSE
                                 ActionFalse
@@ -81,7 +81,7 @@ public partial class WorkflowParserTests {
             result.IsSuccess.Should().BeTrue();
             var ifNode = result.Value.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(1);
-            ifNode.Label.Should().Be("if");
+            ifNode.Label.Should().Be("Condition");
 
             var trueAction = ifNode.Then.Should().BeOfType<ActionNode>().Subject;
             trueAction.Id.Should().Be(2);
@@ -121,7 +121,7 @@ public partial class WorkflowParserTests {
             result.IsSuccess.Should().BeTrue();
             var caseNode = result.Value.Should().BeOfType<CaseNode>().Subject;
             caseNode.Id.Should().Be(1);
-            caseNode.Label.Should().Be("case");
+            caseNode.Label.Should().Be("Selection");
 
             caseNode.Choices.Should().HaveCount(3);
 

@@ -54,7 +54,7 @@ public partial class WorkflowParserTests {
 
             var ifNode = action2.Next.Should().BeOfType<IfNode>().Subject;
             ifNode.Id.Should().Be(3);
-            ifNode.Label.Should().Be("if");
+            ifNode.Label.Should().Be("Condition");
 
             var exitJump = ifNode.Then.Should().BeOfType<JumpNode>().Subject;
             exitJump.Id.Should().Be(4);

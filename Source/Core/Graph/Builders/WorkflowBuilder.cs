@@ -26,7 +26,7 @@ public sealed class WorkflowBuilder(IServiceProvider services)
 
     public IWorkflowBuilder Do<TAction>(params object[] args)
         where TAction : ActionNode<TAction> {
-        AddNode(Node.Create<TAction>(services, args));
+        AddNode(Node.Create<TAction>(string.Empty, services, args));
         return this;
     }
     public IWorkflowBuilder Do<TAction>(string tag, params object[] args)
