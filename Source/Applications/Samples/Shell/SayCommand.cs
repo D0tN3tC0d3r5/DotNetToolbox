@@ -13,7 +13,7 @@ public class SayCommand : Command<SayCommand> {
         type = type is string s && s.Equals("secret", StringComparison.OrdinalIgnoreCase) ? "Secret" : "Public";
         Context.TryGetValue("Info", out var info);
         Application.Context.TryGetValue($"{type}{info}", out var secret);
-        Environment.ConsoleOutput.WriteLine(secret != null
+        Environment.OperatingSystem.Output.WriteLine(secret != null
                                                 ? $"Ok {name}. Your {type} {info} is {secret}."
                                                 : "I don't know.");
         return base.Execute(ct);

@@ -57,7 +57,7 @@ public class JobContextBuilder(IServiceProvider services)
 
     public JobContext Build() {
         var agentFactory = services.GetRequiredKeyedService<IAgentFactory>(_provider);
-        var source = _source as IContext ?? new Context(services, _source);
+        var source = _source as IContext ?? new Context(_source);
         return new(services, source, _dateTime) {
             Job = _job ?? throw new InvalidOperationException("The Job is required"),
             Agent = agentFactory.Create(_provider),

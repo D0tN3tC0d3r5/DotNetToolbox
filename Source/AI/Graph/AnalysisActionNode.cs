@@ -1,9 +1,9 @@
 ﻿namespace DotNetToolbox.Graph.AI;
 
-public class AnalysisActionNode(uint id, string label, string provider, IServiceProvider services)
-    : ActionNode<AnalysisActionNode>(id, label, services) {
-    public AnalysisActionNode(uint id, string label, IServiceProvider services)
-        : this(id, label, null!, services) {
+public class AnalysisActionNode(string tag, string provider, IServiceProvider services)
+    : ActionNode<AnalysisActionNode>(tag, services) {
+    public AnalysisActionNode(string tag, IServiceProvider services)
+        : this(tag, null!, services) {
     }
 
     protected override async Task Execute(Context context, CancellationToken ct) {

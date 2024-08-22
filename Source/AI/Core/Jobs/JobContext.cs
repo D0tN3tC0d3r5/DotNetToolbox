@@ -3,11 +3,11 @@
 public class JobContext
     : Context {
     public JobContext(IServiceProvider services, IDateTimeProvider? dateTime = null)
-        : this(services, new Context(services), dateTime) {
+        : this(services, new Context(), dateTime) {
     }
 
     public JobContext(IServiceProvider services, IContext source, IDateTimeProvider? dateTime = null)
-        : base(services, source) {
+        : base(source) {
         World = new(dateTime);
         Memory = [];
         Assets = [];

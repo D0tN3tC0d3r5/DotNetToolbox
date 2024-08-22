@@ -8,7 +8,7 @@ internal sealed class SayCommand : Command<SayCommand> {
 
     public override Task<Result> Execute(CancellationToken ct = default) {
         var text = Application.Context["Text"];
-        Environment.ConsoleOutput.WriteLine(text);
+        Environment.OperatingSystem.Output.WriteLine(text);
         return SuccessTask();
     }
 }

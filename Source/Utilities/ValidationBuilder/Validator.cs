@@ -16,7 +16,7 @@ public abstract class Validator(string source, ValidatorMode mode = And) : IVali
 
     public void AddError(ValidationError error) => Result += error;
 
-    public void AddErrors(IEnumerable<ValidationError> errors) => Result += errors.ToArray();
+    public void AddErrors(IEnumerable<ValidationError> errors) => Result += (ValidationErrors)errors.ToArray();
 }
 
 public abstract class Validator<TSubject>(TSubject? subject, string source, ValidatorMode mode = And) : Validator(source, mode) {
