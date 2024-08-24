@@ -10,8 +10,10 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
 
     public static TBuilder CreateBuilder(Action<IConfigurationBuilder>? setConfiguration = null)
         => CreateBuilder([], setConfiguration);
-    public static TBuilder CreateBuilder(string[] args, Action<IConfigurationBuilder>? setConfiguration = null)
-        => InstanceFactory.Create<TBuilder>(args, setConfiguration);
+    public static TBuilder CreateBuilder(string[] args, Action<IConfigurationBuilder>? setConfiguration = null) {
+        Action<IConfigurationBuilder> defaultAction = _ => {};
+        return  InstanceFactory.Create<TBuilder>(args, setConfiguration ?? defaultAction);
+    }
 
     public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder) {
         var builder = CreateBuilder(args, setConfiguration);
@@ -20,7 +22,7 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     }
 
     public static TApplication Create(Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder)
-        => Create([], setConfiguration, null!);
+        => Create([], setConfiguration, configureBuilder);
 
     public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration)
         => Create(args, setConfiguration, null!);

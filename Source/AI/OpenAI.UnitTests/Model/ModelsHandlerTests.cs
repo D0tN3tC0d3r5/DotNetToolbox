@@ -55,7 +55,7 @@ public sealed class ModelsHandlerTests : IDisposable {
         result[0].Should().Be("ft:model1");
         result[1].Should().Be("model2");
         _logger.Should().Have(1).LogsWith(LogLevel.Debug, "Getting list of models...");
-        _logger.Should().Have(1).LogsWith(LogLevel.Debug, "A list of 2 models was found.");
+        _logger.Should().Have(1).LogsWith(LogLevel.Debug, "A list of 2 models of type chat was found.");
     }
 
     [Fact]

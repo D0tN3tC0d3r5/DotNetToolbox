@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace DotNetToolbox.Http;
 
 public sealed class HttpClientProviderTests : IDisposable {
@@ -10,24 +8,26 @@ public sealed class HttpClientProviderTests : IDisposable {
         _clientFactory = Substitute.For<IHttpClientFactory>();
         var client = new HttpClient();
         _clientFactory.CreateClient(Arg.Any<string>()).Returns(client);
-        _provider = CreateHttpClientBuilder();
+        _provider = CreateHttpClientBuilder(true);
     }
 
-    private HttpClientProvider CreateHttpClientBuilder() {
+    private HttpClientProvider CreateHttpClientBuilder(bool useConfiguration = false, Action<HttpClientOptions>? configure = null) {
         var builder = new ConfigurationBuilder();
-        var options = new HttpClientOptions {
-            BaseAddress = "http://example.com/api/"
-        };
-        var configMap = new Dictionary<string, string?> {
-            ["HttpClient:Provider"] = JsonSerializer.Serialize(options)
-        };
+        var configMap = new Dictionary<string, string?>();
+        if (useConfiguration) configMap["HttpClient:Provider:BaseAddress"] = "http://example.com/api/";
         builder.AddInMemoryCollection(configMap);
-        return new("Provider", _clientFactory, builder.Build());
+        return new("Provider", _clientFactory, builder.Build(), configure);
     }
 
     private HttpClientProvider CreateKeyedHttpClientBuilder(string key) {
-        var config = Substitute.For<IConfiguration>();
-        return new(key, _clientFactory, config);
+        var builder = new ConfigurationBuilder();
+        var configMap = new Dictionary<string, string?> {
+            [$"HttpClient:{key}:BaseAddress"] = "http://example.com/api/",
+            [$"HttpClient:{key}:CustomHeaders:x-custom-string:[0]"] = "SomeValue",
+            [$"HttpClient:{key}:CustomHeaders:x-custom-int:[0]"] = "42",
+        };
+        builder.AddInMemoryCollection(configMap);
+        return new(key, _clientFactory, builder.Build());
     }
 
     private bool _isDisposed;
@@ -39,16 +39,13 @@ public sealed class HttpClientProviderTests : IDisposable {
 
     [Fact]
     public void GetHttpClient_WithDefaultOptions_Throws() {
-        // Arrange
-        var builder = CreateHttpClientBuilder();
-
         // Act
-        var result = builder.GetHttpClient;
+        var result = () => CreateHttpClientBuilder();
 
         // Assert
         var exception = result.Should().Throw<ValidationException>().Subject.First();
         exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("The value is invalid.");
+        exception.Errors[0].Message.Should().Be("Http client base address is missing.");
     }
 
     [Fact]

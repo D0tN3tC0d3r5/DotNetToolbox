@@ -2,6 +2,8 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
+using IConfigurationBuilder = DotNetToolbox.ConsoleApplication.Application.IConfigurationBuilder;
+
 namespace DotNetToolbox.ConsoleApplication;
 
 public class ApplicationBaseTests {
@@ -601,13 +603,13 @@ public class ApplicationBaseTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestApplication(string[] args, IServiceProvider serviceProvider)
-        : ApplicationBase<TestApplication, TestApplicationBuilder>(args, serviceProvider) {
+    private sealed class TestApplication(string[] args, IServiceProvider services)
+        : ApplicationBase<TestApplication, TestApplicationBuilder>(args, services) {
         internal override Task Run(CancellationToken ct = default)
             => Result.SuccessTask();
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestApplicationBuilder(string[] args)
-        : ApplicationBuilder<TestApplication, TestApplicationBuilder>(args);
+    private sealed class TestApplicationBuilder(string[] args, Action<IConfigurationBuilder>? configure = null)
+        : ApplicationBuilder<TestApplication, TestApplicationBuilder>(args, configure);
 }

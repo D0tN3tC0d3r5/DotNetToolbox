@@ -339,10 +339,10 @@ public sealed class ShellApplicationTests {
                        at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`2.*
+                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`2.*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`2.*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`2.*
+                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.*
 
 
             """;
@@ -379,10 +379,10 @@ public sealed class ShellApplicationTests {
                        at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`2.ProcessCommand(String[] input, CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.ProcessCommand(String[] input, CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(String input, CancellationToken ct)*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`2.Run(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`2.RunAsync()*
+                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.RunAsync()*
 
 
             """;
@@ -423,12 +423,12 @@ public sealed class ShellApplicationTests {
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
                        at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`2*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(CancellationToken ct)*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.Execute*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.DotNetToolbox.ConsoleApplication.Nodes.ICommand.Set*
+                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.ProcessCommand*
+                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(String input, CancellationToken ct)*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`2.Run(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Application.Application`2.RunAsync()*
+                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.RunAsync()*
                 Inner Exception => InvalidOperationException: Some error.
                     Stack Trace:
                            at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
@@ -531,7 +531,8 @@ public sealed class ShellApplicationTests {
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private sealed class TestShellApp(string[] args, IServiceProvider serviceProvider)
         : ShellApplication<TestShellApp>(args, serviceProvider) {
-        protected override Task<Result> OnStart(CancellationToken ct) => Result.InvalidTask("Some error.");
+        protected override Task<Result> OnStart(CancellationToken ct)
+            => Result.InvalidTask("Some error.");
     }
 
     [Fact]
@@ -553,7 +554,8 @@ public sealed class ShellApplicationTests {
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private sealed class TestFaultyShellApp(string[] args, IServiceProvider serviceProvider)
         : ShellApplication<TestFaultyShellApp>(args, serviceProvider) {
-        protected override Task<Result> OnStart(CancellationToken ct = default) => Result.ErrorTask(new ConsoleException(13));
+        protected override Task<Result> OnStart(CancellationToken ct = default)
+            => Result.ErrorTask(new ConsoleException(13));
     }
 
     [Fact]

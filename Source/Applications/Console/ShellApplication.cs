@@ -29,7 +29,7 @@ public abstract class ShellApplication<TApplication, TBuilder>
         var result = await OnStart(ct).ConfigureAwait(false);
         ProcessResult(result);
         if (!result.IsSuccess) {
-            Exit();
+            Exit(1);
             return;
         }
 
@@ -46,9 +46,16 @@ public abstract class ShellApplication<TApplication, TBuilder>
         if (AllowMultiLine && lines.Length > 1)
             return await ProcessFreeText(lines, ct).ConfigureAwait(false);
         var tokens = UserInputParser.Parse(input);
-        return StartsWithCommand(tokens.FirstOrDefault())
+        var result = StartsWithCommand(tokens.FirstOrDefault())
                    ? await ProcessCommand(tokens, ct).ConfigureAwait(false)
                    : await ProcessFreeText(lines, ct).ConfigureAwait(false);
+        if (!result.IsSuccess) {
+            foreach (var error in result.Errors) {
+                Output.WriteLine($"Validation error: {error}");
+            }
+            Output.WriteLine();
+        }
+        return result;
     }
 
     protected virtual Task<Result> ProcessFreeText(string[] lines, CancellationToken ct = default)

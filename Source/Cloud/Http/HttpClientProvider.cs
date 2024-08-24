@@ -4,14 +4,27 @@ public class HttpClientProvider
     : IHttpClientProvider {
     private readonly IHttpClientFactory _clientFactory;
 
-    public HttpClientProvider(string name, IHttpClientFactory clientFactory, IConfiguration configuration) {
+    public HttpClientProvider(string name,
+                              IHttpClientFactory clientFactory,
+                              IConfiguration configuration,
+                              Action<HttpClientOptions>? configure = null,
+                              Dictionary<string, object?>? context = null) {
         Name = IsNotNullOrWhiteSpace(name);
         _clientFactory = clientFactory;
         ConfigurationPath = $"{HttpClientOptions.SectionName}:{Name}";
         Options = new();
+        EnsureIsConfigured(configuration, configure);
+    }
+
+    private void EnsureIsConfigured(IConfiguration configuration,
+                                    Action<HttpClientOptions>? configure,
+                                    Dictionary<string, object?>? context = null) {
         configuration.GetSection(ConfigurationPath).Bind(Options);
-        // ReSharper disable once VirtualMemberCallInConstructor - As intended.
         SetDefaultConfiguration(Options);
+        configure?.Invoke(Options);
+        var result = Options.Validate(context);
+        if (result.HasException) throw result.Exception;
+        if (result.HasErrors) throw new ValidationException("Error while creating up the HttpClient provider.", result.Errors);
     }
 
     public string Name { get; }
