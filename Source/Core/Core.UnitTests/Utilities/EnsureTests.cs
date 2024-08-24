@@ -166,7 +166,8 @@ public class EnsureTests {
         var action = () => ItemsAreNotNull(input);
 
         // Assert
-        action.Should().Throw<ValidationException>().WithMessage("input: The collection cannot contain null element(s).");
+        action.Should().Throw<ValidationException>().WithMessage("The collection cannot contain null element(s).");
+        action.Should().Throw<ValidationException>().Which.Source.Should().Be(nameof(input));
     }
 
     [Fact]
@@ -238,7 +239,8 @@ public class EnsureTests {
         var action = () => ItemsAreNotNull(input);
 
         // Assert
-        action.Should().Throw<ValidationException>().WithMessage("input: The collection cannot contain null element(s).");
+        action.Should().Throw<ValidationException>().WithMessage("The collection cannot contain null element(s).");
+        action.Should().Throw<ValidationException>().Which.Source.Should().Be(nameof(input));
     }
 
     [Fact]
@@ -496,7 +498,8 @@ public class EnsureTests {
         Action act = () => ItemsAreValid(argument);
 
         // Assert
-        act.Should().Throw<ValidationException>().WithMessage($"*{nameof(argument)}*");
+        act.Should().Throw<ValidationException>().WithMessage("The collection cannot have invalid element(s).");
+        act.Should().Throw<ValidationException>().Which.Source.Should().Be(nameof(argument));
     }
 
     [Fact]
@@ -520,7 +523,8 @@ public class EnsureTests {
         Action act = () => ItemsAreValid<List<string>, string>(argument, _ => Result.Invalid("ErrorWriter"));
 
         // Assert
-        act.Should().Throw<ValidationException>().WithMessage($"*{nameof(argument)}*");
+        act.Should().Throw<ValidationException>().WithMessage("The collection cannot have invalid element(s).");
+        act.Should().Throw<ValidationException>().Which.Source.Should().Be(nameof(argument));
     }
 
     [Fact]
@@ -553,6 +557,7 @@ public class EnsureTests {
         Action act = () => IsValid(argument, _ => false);
 
         // Assert
-        act.Should().Throw<ValidationException>().WithMessage($"*{nameof(argument)}*");
+        act.Should().Throw<ValidationException>().WithMessage("The value is not valid.");
+        act.Should().Throw<ValidationException>().Which.Source.Should().Be(nameof(argument));
     }
 }

@@ -7,7 +7,7 @@
     <RootNamespace>FluentAssertions</RootNamespace>
     <PackageId>DotNetToolbox.FluentAssertions</PackageId>
     <Title>DotNetToolbox FluentAssertions Library</Title>
-    <Version>8.1.1-rc1</Version>
+    <Version>8.1.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Tests;UnitTests;Log;Logger;Logging;LoggerFactory;Tracking;FluentAssertions;</PackageTags>
@@ -64,7 +64,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.TestUtilities" Version="8.1.1-rc1" />
+    <PackageReference Include="DotNetToolbox.TestUtilities" Version="8.1.1" />
   </ItemGroup>
 
   <ItemGroup>

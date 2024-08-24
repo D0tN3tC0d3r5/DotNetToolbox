@@ -7,7 +7,7 @@
     <RootNamespace>System.Linq</RootNamespace>
     <PackageId>DotNetToolbox.Linq</PackageId>
     <Title>DotNetToolbox Asynchronous Linq Library</Title>
-    <Version>8.1.1-rc1</Version>
+    <Version>8.1.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Async;Linq</PackageTags>
@@ -64,7 +64,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.1-rc1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.1.1" />
   </ItemGroup>
 
   <ItemGroup>

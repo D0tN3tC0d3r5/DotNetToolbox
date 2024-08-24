@@ -7,7 +7,7 @@
     <RootNamespace>DotNetToolbox.TestUtilities</RootNamespace>
     <PackageId>DotNetToolbox.TestUtilities</PackageId>
     <Title>DotNetToolbox TestUtilities Library</Title>
-    <Version>8.1.1-rc1</Version>
+    <Version>8.1.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;TestUtilities;Tests;UnitTests;Log;Logger;Logging;LoggerFactory;Tracking;</PackageTags>

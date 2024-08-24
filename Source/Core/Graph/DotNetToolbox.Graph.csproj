@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>DotNetToolbox Graph Library</Title>
-    <Version>8.1.1-rc1</Version>
+    <Version>8.1.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Graph;Library;Workflow;</PackageTags>
@@ -62,7 +62,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.1-rc1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="8.1.1" />
   </ItemGroup>
 
   <ItemGroup>

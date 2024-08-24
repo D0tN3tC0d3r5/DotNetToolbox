@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace DotNetToolbox.Http;
 
 public sealed class HttpClientProviderTests : IDisposable {
@@ -12,8 +14,15 @@ public sealed class HttpClientProviderTests : IDisposable {
     }
 
     private HttpClientProvider CreateHttpClientBuilder() {
-        var config = Substitute.For<IConfiguration>();
-        return new("Provider", _clientFactory, config);
+        var builder = new ConfigurationBuilder();
+        var options = new HttpClientOptions {
+            BaseAddress = "http://example.com/api/"
+        };
+        var configMap = new Dictionary<string, string?> {
+            ["HttpClient:Provider"] = JsonSerializer.Serialize(options)
+        };
+        builder.AddInMemoryCollection(configMap);
+        return new("Provider", _clientFactory, builder.Build());
     }
 
     private HttpClientProvider CreateKeyedHttpClientBuilder(string key) {

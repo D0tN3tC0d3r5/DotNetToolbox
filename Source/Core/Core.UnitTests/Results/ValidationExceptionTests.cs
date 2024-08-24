@@ -45,7 +45,8 @@ public class ValidationExceptionTests {
 
         // Assert
         exception.Errors.Should().ContainSingle();
-        exception.Message.Should().Be("Field1: Some error.");
+        exception.Message.Should().Be("Some error.");
+        exception.Source.Should().Be("Field1");
         exception.InnerException.Should().BeNull();
     }
 
@@ -56,7 +57,8 @@ public class ValidationExceptionTests {
 
         // Assert
         exception.Errors.Should().ContainSingle();
-        exception.Message.Should().Be("Field1: Some error.");
+        exception.Message.Should().Be("Some error.");
+        exception.Source.Should().Be("Field1");
         exception.InnerException.Should().NotBeNull();
     }
 
@@ -128,7 +130,8 @@ public class ValidationExceptionTests {
 
         // Assert
         exception.Errors.Should().BeEquivalentTo(new[] { error1 });
-        exception.Message.Should().Be("Field1: Some message.");
+        exception.Message.Should().Be("Some message.");
+        exception.Source.Should().Be("Field1");
         exception.InnerException.Should().BeNull();
     }
 
@@ -142,7 +145,8 @@ public class ValidationExceptionTests {
 
         // Assert
         exception.Errors.Should().BeEquivalentTo(new[] { error1 });
-        exception.Message.Should().Be("Field1: Some message.");
+        exception.Message.Should().Be("Some message.");
+        exception.Source.Should().Be("Field1");
         exception.InnerException.Should().NotBeNull();
     }
 
@@ -157,7 +161,8 @@ public class ValidationExceptionTests {
 
         // Assert
         exception.Errors.Should().BeEquivalentTo(new[] { error1, error2 });
-        exception.Message.Should().Be("Field1: Some message.");
+        exception.Message.Should().Be("Some message.");
+        exception.Source.Should().Be("Field1");
         exception.InnerException.Should().NotBeNull();
     }
 
