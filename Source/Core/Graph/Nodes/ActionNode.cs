@@ -32,7 +32,7 @@ public sealed class ActionNode : ActionNode<ActionNode> {
     protected override Task Execute(Context context, CancellationToken ct)
         => _execute(context, ct);
 
-    public static TNode Create<TNode>(IServiceProvider services, params object?[] args)
+    public static TNode Create<TNode>(IServiceProvider services, params object[] args)
         where TNode : ActionNode<TNode>
         => Node.Create<TNode>(services, args);
 }
