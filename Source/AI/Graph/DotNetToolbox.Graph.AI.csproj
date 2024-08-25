@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>DotNetToolbox Graph AI Extension Library</Title>
-    <Version>8.1.1</Version>
+    <Version>9.0.0-alpha1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>.NET;Toolbox;Graph;Library;Workflow;AI</PackageTags>
@@ -17,7 +17,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Graph.AI Version 8.1.1:
+      DotNetToolbox.Graph.AI Version 9.0.0-alpha1:
 
       Stable release of DotNetToolbox.Graph.AI, a comprehensive utility library for building and running workflows defined as a graph.
     </PackageReleaseNotes>
@@ -26,8 +26,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Graph.AI</AssemblyName>
-    <AssemblyVersion>8.1.1.*</AssemblyVersion>
-    <FileVersion>8.1.1</FileVersion>
+    <AssemblyVersion>9.0.0.*</AssemblyVersion>
+    <FileVersion>9.0.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -63,8 +63,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.AI" Version="8.1.1" />
-    <PackageReference Include="DotNetToolbox.Graph" Version="8.1.1" />
+    <PackageReference Include="DotNetToolbox.AI" Version="9.0.0-alpha1" />
+    <PackageReference Include="DotNetToolbox.Graph" Version="9.0.0-alpha1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -24,8 +24,10 @@ public abstract class Node<TNode>
 
     protected ILogger<TNode> Logger { get; }
 
-    public override string ToString()
-        => $"{GetType().Name}: {string.Join(", ", [Name, .. Aliases])} => {Description}";
+    public override string ToString() {
+        string[] aliases = [Name, .. Aliases];
+        return $"{GetType().Name}: {aliases} => {Description}";
+    }
 
     private static IApplication FindRoot(INode node) {
         while (node is IHasParent hasParent) node = hasParent.Parent;

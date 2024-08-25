@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Product>DotNetToolbox.Console</Product>
     <PackageId>DotNetToolbox.Console</PackageId>
     <RootNamespace>DotNetToolbox.ConsoleApplication</RootNamespace>
     <Title>DotNetToolbox Console Applcation Library</Title>
-    <Version>8.1.1</Version>
+    <Version>9.0.0-alpha1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>Console;CLI;Shell,; BNuilder;Tools;Library</PackageTags>
@@ -20,7 +20,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Console Version 8.1.1:
+      DotNetToolbox.Console Version 9.0.0-alpha1:
 
       Stable release of DotNetToolbox.Console, a .NET 8 with powerful tools to simplify the creating of CLI (Command-Line Interface) and Shell-like console applications.
     </PackageReleaseNotes>
@@ -29,8 +29,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Console</AssemblyName>
-    <AssemblyVersion>8.1.1.*</AssemblyVersion>
-    <FileVersion>8.1.1</FileVersion>
+    <AssemblyVersion>9.0.0.*</AssemblyVersion>
+    <FileVersion>9.0.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -65,19 +65,19 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="9.0.0-alpha1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.0-preview.7.24405.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0-preview.7.24405.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0-preview.7.24405.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0-preview.7.24405.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="9.0.0-preview.7.24405.7" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0-preview.7.24405.7" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0-preview.7.24405.7" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0-preview.7.24405.7" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0-preview.7.24405.7" />
   </ItemGroup>
 
   <ItemGroup>

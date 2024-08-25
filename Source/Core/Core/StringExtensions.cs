@@ -19,7 +19,7 @@ public static class StringExtensions {
                : source[..^value.Length];
 
     public static string? Trim(this string? source, string? value)
-        => source.TrimStart(value).TrimEnd(value);
+        => source?.TrimStart(value).TrimEnd(value);
 }
 
 public static class HashSetExtensions {

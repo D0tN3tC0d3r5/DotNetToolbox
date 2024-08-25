@@ -34,10 +34,10 @@ public class LogsConstraint(string constraint, int count, IEnumerable<Log> logs)
                 matches.Should().HaveCount(count);
                 break;
             case "AtLeast":
-                matches.Should().HaveCountGreaterOrEqualTo(count);
+                matches.Should().HaveCountGreaterThanOrEqualTo(count);
                 break;
             case "AtMost":
-                matches.Should().HaveCountLessOrEqualTo(count);
+                matches.Should().HaveCountLessThanOrEqualTo(count);
                 break;
         }
     }

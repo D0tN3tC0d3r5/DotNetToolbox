@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>System.Linq</RootNamespace>
     <PackageId>DotNetToolbox.Linq</PackageId>
     <Title>DotNetToolbox Asynchronous Linq Library</Title>
-    <Version>8.1.1</Version>
+    <Version>9.0.0-alpha1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Async;Linq</PackageTags>
@@ -19,7 +19,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Linq Version 8.1.1
+      DotNetToolbox.Linq Version 9.0.0-alpha1
 
       Stable release of the DotNetToolbox.Linq library.
     </PackageReleaseNotes>
@@ -28,8 +28,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>DotNetToolbox.Linq</AssemblyName>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>8.1.1.*</AssemblyVersion>
-    <FileVersion>8.1.1</FileVersion>
+    <AssemblyVersion>9.0.0.*</AssemblyVersion>
+    <FileVersion>9.0.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -64,7 +64,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.Core" Version="8.1.1" />
+    <PackageReference Include="DotNetToolbox.Core" Version="9.0.0-alpha1" />
   </ItemGroup>
 
   <ItemGroup>
