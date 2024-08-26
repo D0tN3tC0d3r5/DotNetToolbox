@@ -6,6 +6,7 @@ public interface IApplication : IHasChildren {
     int ExitCode { get; }
 
     string Version { get; }
+    string DisplayVersion { get; }
     string AssemblyName { get; }
     string FullName { get; }
     IServiceProvider Services { get; }
@@ -14,13 +15,15 @@ public interface IApplication : IHasChildren {
     void Exit(int code = DefaultExitCode);
 }
 
-public interface IApplication<TApplication, out TBuilder>
+public interface IApplication<TApplication, out TBuilder, out TSettings>
     : IApplication,
-      IBuilderCreator<TApplication, TBuilder>,
-      IApplicationCreator<TApplication, TBuilder>,
+      IBuilderCreator<TApplication, TBuilder, TSettings>,
+      IApplicationCreator<TApplication, TBuilder, TSettings>,
       IAsyncDisposable
-    where TApplication : class, IApplication<TApplication, TBuilder>
-    where TBuilder : class, IApplicationBuilder<TApplication, TBuilder> {
+    where TApplication : class, IApplication<TApplication, TBuilder, TSettings>
+    where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TSettings : ApplicationSettings, new() {
+    TSettings Settings { get; }
     int Run();
     Task<int> RunAsync();
 }

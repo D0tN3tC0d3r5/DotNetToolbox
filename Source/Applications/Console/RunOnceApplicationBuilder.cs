@@ -2,11 +2,13 @@
 
 namespace DotNetToolbox.ConsoleApplication;
 
-public class RunOnceApplicationBuilder<TApplication>(string[] args, Action<IConfigurationBuilder>? configure = null)
-    : RunOnceApplicationBuilder<TApplication, RunOnceApplicationBuilder<TApplication>>(args, configure)
-    where TApplication : RunOnceApplication<TApplication>;
+public class RunOnceApplicationBuilder<TApplication, TSettings>(string[] args, Action<IConfigurationBuilder>? configure = null)
+    : RunOnceApplicationBuilder<TApplication, RunOnceApplicationBuilder<TApplication, TSettings>, TSettings>(args, configure)
+    where TApplication : RunOnceApplication<TApplication, TSettings>
+    where TSettings : ApplicationSettings, new();
 
-public abstract class RunOnceApplicationBuilder<TApplication, TBuilder>(string[] args, Action<IConfigurationBuilder>? configure = null)
-    : ApplicationBuilder<TApplication, TBuilder>(args, configure)
-    where TApplication : RunOnceApplication<TApplication, TBuilder>
-    where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder>;
+public abstract class RunOnceApplicationBuilder<TApplication, TBuilder, TSettings>(string[] args, Action<IConfigurationBuilder>? configure = null)
+    : ApplicationBuilder<TApplication, TBuilder, TSettings>(args, configure)
+    where TApplication : RunOnceApplication<TApplication, TBuilder, TSettings>
+    where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TSettings : ApplicationSettings, new();

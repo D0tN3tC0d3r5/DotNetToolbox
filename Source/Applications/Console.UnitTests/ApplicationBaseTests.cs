@@ -604,12 +604,12 @@ public class ApplicationBaseTests {
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private sealed class TestApplication(string[] args, IServiceProvider services)
-        : ApplicationBase<TestApplication, TestApplicationBuilder>(args, services) {
+        : ApplicationBase<TestApplication, TestApplicationBuilder, ApplicationSettings>(args, services) {
         internal override Task Run(CancellationToken ct = default)
             => Result.SuccessTask();
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private sealed class TestApplicationBuilder(string[] args, Action<IConfigurationBuilder>? configure = null)
-        : ApplicationBuilder<TestApplication, TestApplicationBuilder>(args, configure);
+        : ApplicationBuilder<TestApplication, TestApplicationBuilder, ApplicationSettings>(args, configure);
 }

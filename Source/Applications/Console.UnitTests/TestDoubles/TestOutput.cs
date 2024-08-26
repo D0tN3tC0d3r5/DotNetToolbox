@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
 internal sealed class TestOutput : IOutput {
     public string Prompt { get; set; } = "> ";
@@ -113,4 +115,58 @@ internal sealed class TestOutput : IOutput {
     public void WriteOntoNewLine(string format, params object?[] arg) => throw new NotImplementedException();
     public void WriteOntoNewLine(string? value, ConsoleColor foreground = default, ConsoleColor background = default) => throw new NotImplementedException();
     public void WriteOntoNewLine(StringBuilder? builder, ConsoleColor foreground = default, ConsoleColor background = default) => throw new NotImplementedException();
+    public void Write(bool value) => throw new NotImplementedException();
+    public void Write(char value) => throw new NotImplementedException();
+    public void Write(char[] buffer, int index, int count) => throw new NotImplementedException();
+    public void Write(char[]? buffer) => throw new NotImplementedException();
+    public void Write(decimal value) => throw new NotImplementedException();
+    public void Write(double value) => throw new NotImplementedException();
+    public void Write(float value) => throw new NotImplementedException();
+    public void Write(int value) => throw new NotImplementedException();
+    public void Write(long value) => throw new NotImplementedException();
+    public void Write(object? value) => throw new NotImplementedException();
+    public void Write([StringSyntax("CompositeFormat")] string format, object? arg0) => throw new NotImplementedException();
+    public void Write([StringSyntax("CompositeFormat")] string format, object? arg0, object? arg1) => throw new NotImplementedException();
+    public void Write([StringSyntax("CompositeFormat")] string format, object? arg0, object? arg1, object? arg2) => throw new NotImplementedException();
+    public void Write(string? value) => throw new NotImplementedException();
+    public void Write(StringBuilder? builder) => throw new NotImplementedException();
+    public void Write(uint value) => throw new NotImplementedException();
+    public void Write(ulong value) => throw new NotImplementedException();
+    public void WritePrompt() => throw new NotImplementedException();
+    public void WriteLine() => throw new NotImplementedException();
+    public void WriteLine(bool value) => throw new NotImplementedException();
+    public void WriteLine(char value) => throw new NotImplementedException();
+    public void WriteLine(char[] buffer, int index, int count) => throw new NotImplementedException();
+    public void WriteLine(char[]? buffer) => throw new NotImplementedException();
+    public void WriteLine(decimal value) => throw new NotImplementedException();
+    public void WriteLine(double value) => throw new NotImplementedException();
+    public void WriteLine(float value) => throw new NotImplementedException();
+    public void WriteLine(int value) => throw new NotImplementedException();
+    public void WriteLine(uint value) => throw new NotImplementedException();
+    public void WriteLine(long value) => throw new NotImplementedException();
+    public void WriteLine(ulong value) => throw new NotImplementedException();
+    public void WriteLine(object? value) => throw new NotImplementedException();
+    public void WriteLine([StringSyntax("CompositeFormat")] string format, object? arg0) => throw new NotImplementedException();
+    public void WriteLine([StringSyntax("CompositeFormat")] string format, object? arg0, object? arg1) => throw new NotImplementedException();
+    public void WriteLine([StringSyntax("CompositeFormat")] string format, object? arg0, object? arg1, object? arg2) => throw new NotImplementedException();
+    public void WriteLine(string? value) => throw new NotImplementedException();
+    public void WriteLine(StringBuilder? builder) => throw new NotImplementedException();
+    public void WriteOntoNewLine(bool value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(char value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(char[] buffer, int index, int count) => throw new NotImplementedException();
+    public void WriteOntoNewLine(char[]? buffer) => throw new NotImplementedException();
+    public void WriteOntoNewLine(decimal value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(double value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(float value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(int value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(uint value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(long value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(ulong value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(object? value) => throw new NotImplementedException();
+    public void WriteOntoNewLine([StringSyntax("CompositeFormat")] string format, object? arg0) => throw new NotImplementedException();
+    public void WriteOntoNewLine([StringSyntax("CompositeFormat")] string format, object? arg0, object? arg1) => throw new NotImplementedException();
+    public void WriteOntoNewLine([StringSyntax("CompositeFormat")] string format, object? arg0, object? arg1, object? arg2) => throw new NotImplementedException();
+    public void WriteOntoNewLine(string? value) => throw new NotImplementedException();
+    public void WriteOntoNewLine(StringBuilder? builder) => throw new NotImplementedException();
+    public void WriteError(Exception exception) => throw new NotImplementedException();
 }

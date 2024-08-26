@@ -2,10 +2,11 @@
 
 namespace DotNetToolbox.ConsoleApplication.Application;
 
-public class ConfigurationBuilder<TApplication, TBuilder>(string? environmentName = null)
+public class ConfigurationBuilder<TApplication, TBuilder, TSettings>(string? environmentName = null)
     : IConfigurationBuilder
-    where TApplication : ApplicationBase<TApplication, TBuilder>
-    where TBuilder : ApplicationBuilder<TApplication, TBuilder> {
+    where TApplication : ApplicationBase<TApplication, TBuilder, TSettings>
+    where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TSettings : ApplicationSettings, new() {
     private readonly string? _environmentName = environmentName ?? string.Empty;
 
     private bool _addEnvironmentVariables;

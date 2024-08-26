@@ -2,10 +2,11 @@
 
 namespace DotNetToolbox.ConsoleApplication.Application;
 
-public class ApplicationBuilder<TApplication, TBuilder>
-    : IApplicationBuilder<TApplication, TBuilder>
-    where TApplication : ApplicationBase<TApplication, TBuilder>
-    where TBuilder : ApplicationBuilder<TApplication, TBuilder> {
+public class ApplicationBuilder<TApplication, TBuilder, TSettings>
+    : IApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TApplication : ApplicationBase<TApplication, TBuilder, TSettings>
+    where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TSettings : ApplicationSettings, new() {
     private readonly string[] _args;
     private readonly string _environment;
 
@@ -23,7 +24,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
         _environment = (index >= 0 ? _args[index + 1] : null)
                     ?? System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
                     ?? string.Empty;
-        var configurationBuilder = new ConfigurationBuilder<TApplication, TBuilder>(_environment);
+        var configurationBuilder = new ConfigurationBuilder<TApplication, TBuilder, TSettings>(_environment);
         configure?.Invoke(configurationBuilder);
         Configuration = configurationBuilder.Build();
     }
@@ -60,7 +61,7 @@ public class ApplicationBuilder<TApplication, TBuilder>
         AddLogging(Configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
-        return InstanceFactory.Create<TApplication>(_args, serviceProvider);
+        return InstanceFactory.Create<TApplication>(serviceProvider, (object)_args);
     }
 
     private void AddLogging(IConfiguration configuration)

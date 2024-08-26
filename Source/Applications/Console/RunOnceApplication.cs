@@ -1,20 +1,30 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
 public sealed class RunOnceApplication
-    : RunOnceApplication<RunOnceApplication> {
+    : RunOnceApplication<ApplicationSettings> {
     internal RunOnceApplication(string[] args, IServiceProvider services)
         : base(args, services) {
     }
 }
 
-public abstract class RunOnceApplication<TApplication>(string[] args, IServiceProvider services)
-    : RunOnceApplication<TApplication, RunOnceApplicationBuilder<TApplication>>(args, services)
-    where TApplication : RunOnceApplication<TApplication>;
+public class RunOnceApplication<TSettings>
+    : RunOnceApplication<RunOnceApplication<TSettings>, TSettings>
+    where TSettings : ApplicationSettings, new() {
+    internal RunOnceApplication(string[] args, IServiceProvider services)
+        : base(args, services) {
+    }
+}
 
-public abstract class RunOnceApplication<TApplication, TBuilder>(string[] args, IServiceProvider services)
-    : ApplicationBase<TApplication, TBuilder>(args, services), IRunOnce
-    where TApplication : RunOnceApplication<TApplication, TBuilder>
-    where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder> {
+public abstract class RunOnceApplication<TApplication, TSettings>(string[] args, IServiceProvider services)
+    : RunOnceApplication<TApplication, RunOnceApplicationBuilder<TApplication, TSettings>, TSettings>(args, services)
+    where TApplication : RunOnceApplication<TApplication, TSettings>
+    where TSettings : ApplicationSettings, new();
+
+public abstract class RunOnceApplication<TApplication, TBuilder, TSettings>(string[] args, IServiceProvider services)
+    : ApplicationBase<TApplication, TBuilder, TSettings>(args, services), IRunOnce
+    where TApplication : RunOnceApplication<TApplication, TBuilder, TSettings>
+    where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TSettings : ApplicationSettings, new() {
     internal sealed override async Task Run(CancellationToken ct = default) {
         if (Arguments.Length == 0) {
             await ShowHelp(ct).ConfigureAwait(false);

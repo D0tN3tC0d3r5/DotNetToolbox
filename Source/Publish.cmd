@@ -18,8 +18,8 @@ setlocal EnableDelayedExpansion
 cd %folder%
 
 if [!target!]==[local] (
-	set task=build
 	@echo [96mBuilding and packing project...[0m
+	set task=build
 	dotnet build -c Debug --nologo
 	if not [!errorlevel!]==[0] goto :ERROR
 
@@ -35,6 +35,26 @@ if [!target!]==[local] (
 	@echo [96mPublish package locally...[0m
 	set task=publish
 	nuget push pkgs\Debug\DotNetToolbox.%packageName%.%version%.nupkg -source c:\nuget\packages
+	if not [!errorlevel!]==[0] goto :ERROR
+)
+if [!target!]==[local-release] (
+	@echo [96mBuilding and packing project...[0m
+	set task=build
+	dotnet build -c Release
+	if not [!errorlevel!]==[0] goto :ERROR
+
+	set task=create
+	dotnet pack -c Release --no-build
+	if not [!errorlevel!]==[0] goto :ERROR
+
+	@echo [96mRemove existing packages locally...[0m
+	set task=delete
+	rmdir /Q /S %USERPROFILE%\.nuget\packages\DotNetToolbox.%project%\%version%
+	nuget delete DotNetToolbox.%project% %version% -source c:\nuget\packages -noninteractive
+
+	@echo [96mPublish package locally...[0m
+	set task=publish
+	nuget push pkgs\Release\DotNetToolbox.%packageName%.%version%.nupkg -source c:\nuget\packages
 	if not [!errorlevel!]==[0] goto :ERROR
 )
 if [!target!]==[remote] (

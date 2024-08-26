@@ -18,6 +18,9 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.FileProviders;
 global using Microsoft.Extensions.Logging;
 
+global using Spectre.Console;
+global using static Spectre.Console.AnsiConsole;
+
 global using static System.ConsoleKey;
 global using static System.ConsoleModifiers;
 global using static System.Ensure;

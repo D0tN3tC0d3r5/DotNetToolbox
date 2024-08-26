@@ -1,7 +1,7 @@
 ﻿namespace BigMouth;
 
 public class BigMouth
-    : ShellApplication<BigMouth> {
+    : ShellApplication<BigMouth, ApplicationSettings> {
     public BigMouth(string[] args, IServiceProvider services)
         : base(args, services) {
         AddCommand<SayCommand>();

@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>DotNetToolbox.Data</RootNamespace>
     <PackageId>DotNetToolbox.Data</PackageId>
-    <Title>DotNetToolbox Data Library</Title>
+    <Title>DotNetToolbox Data Storage Handler Library</Title>
     <Version>9.0.0-alpha1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
@@ -23,7 +23,7 @@
 
       Stable release of DotNetToolbox.Data, a comprehensive utility .NET 8 library for handling data storage in a agnostic way.
     </PackageReleaseNotes>
-    <Product>DotNetToolbox.Data.Storage</Product>
+    <Product>DotNetToolbox.Data</Product>
     <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>

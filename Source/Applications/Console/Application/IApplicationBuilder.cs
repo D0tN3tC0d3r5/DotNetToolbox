@@ -14,9 +14,10 @@ public interface IApplicationBuilder {
     void ConfigureLogging(Action<ILoggingBuilder> configure);
 }
 
-public interface IApplicationBuilder<out TApplication, out TBuilder>
+public interface IApplicationBuilder<out TApplication, out TBuilder, out TSettings>
     : IApplicationBuilder
-    where TApplication : class, IApplication<TApplication, TBuilder>
-    where TBuilder : class, IApplicationBuilder<TApplication, TBuilder> {
+    where TApplication : class, IApplication<TApplication, TBuilder, TSettings>
+    where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TSettings : ApplicationSettings, new() {
     TApplication Build();
 }

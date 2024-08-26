@@ -25,6 +25,8 @@ global using Microsoft.Extensions.Logging.Abstractions;
 
 global using NUlid;
 
+global using Spectre.Console;
+
 global using static System.Ensure;
 global using static DotNetToolbox.Constants.Messages;
 

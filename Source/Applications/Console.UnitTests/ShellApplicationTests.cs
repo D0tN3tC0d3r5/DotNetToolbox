@@ -40,7 +40,7 @@ public sealed class ShellApplicationTests {
         const string expectedOutput =
             """
             testhost v15.0.0.0
-            > 
+            >
             > --exit
             > "exit"
             > exit
@@ -530,7 +530,7 @@ public sealed class ShellApplicationTests {
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private sealed class TestShellApp(string[] args, IServiceProvider serviceProvider)
-        : ShellApplication<TestShellApp>(args, serviceProvider) {
+        : ShellApplication<TestShellApp, ApplicationSettings>(args, serviceProvider) {
         protected override Task<Result> OnStart(CancellationToken ct)
             => Result.InvalidTask("Some error.");
     }
@@ -553,7 +553,7 @@ public sealed class ShellApplicationTests {
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private sealed class TestFaultyShellApp(string[] args, IServiceProvider serviceProvider)
-        : ShellApplication<TestFaultyShellApp>(args, serviceProvider) {
+        : ShellApplication<TestFaultyShellApp, ApplicationSettings>(args, serviceProvider) {
         protected override Task<Result> OnStart(CancellationToken ct = default)
             => Result.ErrorTask(new ConsoleException(13));
     }

@@ -1,18 +1,19 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
-public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, IServiceProvider services)
+public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[] args, IServiceProvider services)
     : ApplicationBase(args, services),
-      IApplication<TApplication, TBuilder>
-    where TApplication : ApplicationBase<TApplication, TBuilder>
-    where TBuilder : ApplicationBuilder<TApplication, TBuilder> {
+      IApplication<TApplication, TBuilder, TSettings>
+    where TApplication : ApplicationBase<TApplication, TBuilder, TSettings>
+    where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TSettings : ApplicationSettings, new() {
     protected virtual ValueTask Dispose()
         => ValueTask.CompletedTask;
 
     public static TBuilder CreateBuilder(Action<IConfigurationBuilder>? setConfiguration = null)
         => CreateBuilder([], setConfiguration);
     public static TBuilder CreateBuilder(string[] args, Action<IConfigurationBuilder>? setConfiguration = null) {
-        Action<IConfigurationBuilder> defaultAction = _ => {};
-        return  InstanceFactory.Create<TBuilder>(args, setConfiguration ?? defaultAction);
+        Action<IConfigurationBuilder> defaultAction = _ => { };
+        return InstanceFactory.Create<TBuilder>(args, setConfiguration ?? defaultAction);
     }
 
     public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder) {
@@ -42,6 +43,8 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
     public static TApplication Create()
         => Create([], null!, null!);
 
+    public TSettings Settings { get; init; } = new();
+
     public override string ToString()
         => $"{GetType().Name}: {Name} v{Version} => {Description}";
 
@@ -60,11 +63,13 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
             return ExitCode;
         }
         catch (ConsoleException ex) {
-            Output.WriteLine(ex.ToText());
+            HandleException(ex);
+            Output.WriteError(ex);
             return ex.ExitCode;
         }
         catch (Exception ex) {
-            Output.WriteLine(ex.ToText());
+            HandleException(ex);
+            Output.WriteError(ex);
             return IApplication.DefaultErrorCode;
         }
     }
@@ -80,6 +85,9 @@ public abstract class ApplicationBase<TApplication, TBuilder>(string[] args, ISe
         ProcessResult(result);
         return result.HasErrors;
     }
+
+    protected virtual bool HandleException<TException>(TException ex)
+        where TException : Exception => false;
 
     protected virtual async Task<Result> ProcessCommand(string[] input, CancellationToken ct) {
         if (input.Length == 0) return Success();
@@ -114,6 +122,10 @@ public abstract class ApplicationBase : IApplication {
 
         AssemblyName = Environment.Assembly.Name;
         Version = Environment.Assembly.Version.ToString();
+        DisplayVersion = Environment.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? Version;
+        DisplayVersion = DisplayVersion.Replace("-alpha", "-alpha");
+        var plusIndex = DisplayVersion.IndexOf('+');
+        if (plusIndex > 0) DisplayVersion = DisplayVersion[..plusIndex];
         var ata = Environment.Assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
         Name = ata ?? AssemblyName;
         var ada = Environment.Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
@@ -128,7 +140,8 @@ public abstract class ApplicationBase : IApplication {
     public string AssemblyName { get; }
     public string Name { get; }
     public string Version { get; }
-    public string FullName => $"{Name} v{Version}";
+    public string DisplayVersion { get; }
+    public string FullName => $"{Name} v{DisplayVersion}";
     public string Description { get; init; }
     public ILogger Logger { get; init; }
 

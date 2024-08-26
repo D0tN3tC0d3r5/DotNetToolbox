@@ -1,31 +1,42 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
 public sealed class ShellApplication
-    : ShellApplication<ShellApplication> {
+    : ShellApplication<ApplicationSettings> {
     internal ShellApplication(string[] args, IServiceProvider services)
         : base(args, services) {
     }
 }
 
-public abstract class ShellApplication<TApplication>(string[] args, IServiceProvider services)
-    : ShellApplication<TApplication, ShellApplicationBuilder<TApplication>>(args, services)
-    where TApplication : ShellApplication<TApplication>;
+public class ShellApplication<TSettings>
+    : ShellApplication<ShellApplication<TSettings>, TSettings>
+    where TSettings : ApplicationSettings, new() {
+    internal ShellApplication(string[] args, IServiceProvider services)
+        : base(args, services) {
+    }
+}
 
-public abstract class ShellApplication<TApplication, TBuilder>
-    : ApplicationBase<TApplication, TBuilder>,
+public abstract class ShellApplication<TApplication, TSettings>(string[] args, IServiceProvider services)
+    : ShellApplication<TApplication, ShellApplicationBuilder<TApplication, TSettings>, TSettings>(args, services)
+    where TApplication : ShellApplication<TApplication, TSettings>
+    where TSettings : ApplicationSettings, new();
+
+public abstract class ShellApplication<TApplication, TBuilder, TSettings>
+    : ApplicationBase<TApplication, TBuilder, TSettings>,
       IRunAsShell
-    where TApplication : ShellApplication<TApplication, TBuilder>
-    where TBuilder : ShellApplicationBuilder<TApplication, TBuilder> {
+    where TApplication : ShellApplication<TApplication, TBuilder, TSettings>
+    where TBuilder : ShellApplicationBuilder<TApplication, TBuilder, TSettings>
+    where TSettings : ApplicationSettings, new() {
+    private bool _useDefaultHelp;
+
     protected ShellApplication(string[] args, IServiceProvider services)
         : base(args, services) {
         AddCommand<ExitCommand>();
         AddCommand<ClearScreenCommand>();
-        AddCommand<HelpCommand>();
+        if (_useDefaultHelp) AddCommand<HelpCommand>();
     }
     protected bool AllowMultiLine { get; set; }
 
     internal sealed override async Task Run(CancellationToken ct = default) {
-        Output.WriteLine(FullName);
         var result = await OnStart(ct).ConfigureAwait(false);
         ProcessResult(result);
         if (!result.IsSuccess) {
@@ -37,7 +48,10 @@ public abstract class ShellApplication<TApplication, TBuilder>
             await ExecuteDefault(ct).ConfigureAwait(false);
     }
 
-    protected virtual Task<Result> OnStart(CancellationToken ct = default) => SuccessTask();
+    protected virtual Task<Result> OnStart(CancellationToken ct = default) {
+        Output.WriteLine(FullName);
+        return SuccessTask();
+    }
 
     protected virtual string GetPrePromptText() => string.Empty;
 
