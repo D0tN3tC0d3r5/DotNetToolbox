@@ -14,8 +14,10 @@ global using System.Text;
 global using System.Text.Json;
 global using System.Text.RegularExpressions;
 
+global using DotNetToolbox;
 global using DotNetToolbox.Environment;
 global using DotNetToolbox.Results;
+global using DotNetToolbox.Sequencers;
 global using DotNetToolbox.Singleton;
 
 global using Microsoft.Extensions.DependencyInjection;

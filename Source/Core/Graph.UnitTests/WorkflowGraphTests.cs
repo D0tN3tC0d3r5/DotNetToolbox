@@ -6,7 +6,7 @@ public sealed class WorkflowGraphTests {
     public WorkflowGraphTests() {
         var services = new ServiceCollection();
         services.AddSingleton<INodeFactory, NodeFactory>();
-        services.AddScoped<INodeSequence, NodeSequence>();
+        services.AddScoped<INodeSequencer, NodeSequencer>();
         services.AddScoped<IRetryPolicy, RetryPolicy>();
         var provider = services.BuildServiceProvider();
         _builder = new WorkflowBuilder(provider);

@@ -73,7 +73,7 @@ public sealed class NodeTests {
         var command = (Command)node.AddCommand("command", (Action)(() => throw new()));
 
         // Act
-        var result = () => command.Execute();
+        var result = () => command.Execute([]);
 
         // Assert
         await result.Should().ThrowAsync<Exception>();
@@ -112,7 +112,7 @@ public sealed class NodeTests {
         node.Children.Should().ContainSingle(x => x.Name == "command");
         var command = subject.Should().BeOfType<Command>().Subject;
         command.Aliases.Should().BeEmpty();
-        var result = await command.Execute();
+        var result = await command.Execute([]);
         result.Should().Be(Result.Success());
     }
 
@@ -150,7 +150,7 @@ public sealed class NodeTests {
         command.Aliases.Should().BeEquivalentTo("c");
         var text = command.ToString();
         text.Should().Be("TestCommand: Command, c => Test command.");
-        var result = () => command.Execute();
+        var result = () => command.Execute([]);
         await result.Should().NotThrowAsync();
     }
 
@@ -468,7 +468,7 @@ public sealed class NodeTests {
             Description = "Test command.";
         }
 
-        public override Task<Result> Execute(CancellationToken ct = default) {
+        protected override Task<Result> Execute(CancellationToken ct = default) {
             Logger.LogInformation("Some logger.");
             return base.Execute(ct);
         }

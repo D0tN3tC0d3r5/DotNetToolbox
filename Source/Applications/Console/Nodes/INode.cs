@@ -8,9 +8,12 @@ public interface INode {
     IApplicationEnvironment Environment { get; }
     IPromptFactory PromptFactory { get; }
 
+    IInput Input { get; }
+    IOutput Output { get; }
+
     public string Path => this switch {
-                              IApplication app => app.AssemblyName,
-                              IHasParent { Parent: not IRunAsShell } node => $"{node.Parent.Path} {Name}".Trim(),
-                              _ => Name,
-                          };
+        IApplication app => app.AssemblyName,
+        IHasParent { Parent: not IRunAsShell } node => $"{node.Parent.Path} {Name}".Trim(),
+        _ => Name,
+    };
 }

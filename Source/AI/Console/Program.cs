@@ -19,11 +19,17 @@
     ab.Services.Configure<LolaSettings>(ab.Configuration.GetSection("Lola"));
     ab.Services.AddOptions<LolaSettings>();
 
-    ab.Services.AddSingleton<IRepository<Agent, string>>(sp => {
-        var filePath = Path.Combine(AppContext.BaseDirectory, "data", "agents.json");
-        var strategy = new JsonFileRepositoryStrategy<Agent, string>(filePath);
-        return new Repository<JsonFileRepositoryStrategy<Agent, string>, Agent, string>(strategy);
-    });
+    ab.Services.AddKeyedSingleton<INumericSequencer, NumericSequencer>("Providers");
+    ab.Services.AddSingleton<IProviderRepositoryStrategy, ProviderRepositoryStrategy>();
+    ab.Services.AddScoped<IProviderRepository, ProviderRepository>();
+    ab.Services.AddScoped<IProviderHandler, ProviderHandler>();
+    ab.Services.AddScoped(p => new Lazy<IProviderRepository>(() => p.GetRequiredService<IProviderRepository>()));
+
+    ab.Services.AddKeyedSingleton<INumericSequencer, NumericSequencer>("Agents");
+    ab.Services.AddSingleton<IAgentRepositoryStrategy, AgentRepositoryStrategy>();
+    ab.Services.AddScoped<IAgentRepository, AgentRepository>();
+    ab.Services.AddScoped<IAgentHandler, AgentHandler>();
+    ab.Services.AddScoped(p => new Lazy<IAgentRepository>(() => p.GetRequiredService<IAgentRepository>()));
 });
 
 try {

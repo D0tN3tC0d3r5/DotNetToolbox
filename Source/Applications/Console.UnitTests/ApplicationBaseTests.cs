@@ -196,7 +196,7 @@ public class ApplicationBaseTests {
         var command = (Command)app.AddCommand("command", (Action)(() => throw new()));
 
         // Act
-        var result = () => command.Execute();
+        var result = () => command.Execute([]);
 
         // Assert
         await result.Should().ThrowAsync<Exception>();
@@ -233,7 +233,7 @@ public class ApplicationBaseTests {
         app.Children.Should().ContainSingle(x => x.Name == "command");
         var command = subject.Should().BeOfType<Command>().Subject;
         command.Aliases.Should().BeEmpty();
-        var result = await command.Execute();
+        var result = await command.Execute([]);
         result.Should().Be(Result.Success());
     }
 
@@ -292,7 +292,7 @@ public class ApplicationBaseTests {
         command.Aliases.Should().BeEquivalentTo("c");
         var text = command.ToString();
         text.Should().Be("TestCommand: Command, c => Test command.");
-        var result = () => command.Execute();
+        var result = () => command.Execute([]);
         await result.Should().NotThrowAsync();
     }
 
@@ -564,7 +564,7 @@ public class ApplicationBaseTests {
             Description = "Test command.";
         }
 
-        public override Task<Result> Execute(CancellationToken ct = default) {
+        protected override Task<Result> Execute(CancellationToken ct = default) {
             Logger.LogInformation("Some logger.");
             return base.Execute(ct);
         }
@@ -578,7 +578,7 @@ public class ApplicationBaseTests {
     private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
-    private IServiceProvider CreateFakeServiceProvider() {
+    private IServiceCollection CreateFakeServiceProvider() {
         var output = new TestOutput();
         var input = new TestInput(output);
         var environment = Substitute.For<IApplicationEnvironment>();
@@ -586,24 +586,24 @@ public class ApplicationBaseTests {
         environment.Assembly.Returns(assembly);
         assembly.Name.Returns("TestApp");
         assembly.Version.Returns(new Version(1, 0));
-        var serviceProvider = Substitute.For<IKeyedServiceProvider>();
-        serviceProvider.GetService(typeof(IConfigurationRoot)).Returns(Substitute.For<IConfigurationRoot>());
-        serviceProvider.GetService(typeof(IPromptFactory)).Returns(Substitute.For<IPromptFactory>());
-        serviceProvider.GetRequiredKeyedService(typeof(IAssemblyDescriptor), Arg.Any<string>()).Returns(_assemblyDescriptor);
-        serviceProvider.GetRequiredKeyedService(typeof(IDateTimeProvider), Arg.Any<string>()).Returns(Substitute.For<IDateTimeProvider>());
-        serviceProvider.GetRequiredKeyedService(typeof(IGuidProvider), Arg.Any<string>()).Returns(Substitute.For<IGuidProvider>());
-        serviceProvider.GetRequiredKeyedService(typeof(IFileSystemAccessor), Arg.Any<string>()).Returns(Substitute.For<IFileSystemAccessor>());
-        serviceProvider.GetRequiredKeyedService(typeof(IOutput), Arg.Any<string>()).Returns(output);
-        serviceProvider.GetRequiredKeyedService(typeof(IInput), Arg.Any<string>()).Returns(input);
-        serviceProvider.GetService(typeof(IApplicationEnvironment)).Returns(environment);
+        var services = new ServiceCollection();
+        services.AddSingleton(Substitute.For<IConfigurationRoot>());
+        services.AddSingleton(Substitute.For<IPromptFactory>());
+        services.AddKeyedSingleton("TestApp", _assemblyDescriptor);
+        services.AddKeyedSingleton("TestApp", Substitute.For<IDateTimeProvider>());
+        services.AddKeyedSingleton("TestApp", Substitute.For<IGuidProvider>());
+        services.AddKeyedSingleton("TestApp", Substitute.For<IFileSystemAccessor>());
+        services.AddKeyedSingleton<IOutput>("TestApp", output);
+        services.AddKeyedSingleton<IInput>("TestApp", input);
+        services.AddSingleton(environment);
         _assemblyDescriptor.Name.Returns("TestApp");
         _assemblyDescriptor.Version.Returns(new Version(1, 0));
-        serviceProvider.GetService(typeof(ILoggerFactory)).Returns(Substitute.For<ILoggerFactory>());
-        return serviceProvider;
+        services.AddSingleton(Substitute.For<ILoggerFactory>());
+        return services;
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestApplication(string[] args, IServiceProvider services)
+    private sealed class TestApplication(string[] args, IServiceCollection services)
         : ApplicationBase<TestApplication, TestApplicationBuilder, ApplicationSettings>(args, services) {
         internal override Task Run(CancellationToken ct = default)
             => Result.SuccessTask();

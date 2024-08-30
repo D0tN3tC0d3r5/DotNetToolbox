@@ -2,9 +2,8 @@ namespace DotNetToolbox.Data.Strategies;
 
 public interface IRepositoryStrategy
     : IReadOnlyRepository
-    , IUpdatableRepository {
-    void SetRepository(IQueryableRepository repository);
-}
+    , IUpdatableRepository
+    , IAsyncDisposable;
 
 public interface IRepositoryStrategy<TItem>
     : IRepositoryStrategy
@@ -16,6 +15,4 @@ public interface IRepositoryStrategy<TItem, TKey>
     , IReadOnlyRepository<TItem, TKey>
     , IUpdatableRepository<TItem, TKey>
     where TItem : IEntity<TKey>
-    where TKey : notnull {
-    void SetKeyHandler(IKeyHandler<TKey> keyHandler);
-};
+    where TKey : notnull;

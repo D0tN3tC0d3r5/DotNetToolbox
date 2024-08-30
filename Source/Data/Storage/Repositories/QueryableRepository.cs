@@ -1,10 +1,10 @@
 namespace DotNetToolbox.Data.Repositories;
 
-public abstract class QueryableRepository<TItem>
+public abstract class QueryableRepository<TItem>(IEnumerable<TItem>? data = null)
     : IQueryableRepository<TItem> {
-    internal string Id { get; } = $"|>Repository[{typeof(TItem).Name}]_{Guid.NewGuid():N}<|";
+    internal string Id { get; } = $"|>Repository[{typeof(TItem).Name}]_{GuidProvider.Sortable.Create():N}<|";
 
-    internal List<TItem> Data { get; set; } = [];
+    internal List<TItem> Data { get; set; } = data?.ToList() ?? [];
     public Type ElementType => Query.ElementType;
     public Expression Expression => Query.Expression;
 

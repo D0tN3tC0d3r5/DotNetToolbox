@@ -13,8 +13,15 @@
     <NoWarn>$(NoWarn);DV2001;DV2002</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+    <ProjectReference Include="..\..\Console\DotNetToolbox.Console.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release'">
     <PackageReference Include="DotNetToolbox.Console" Version="9.0.0-alpha1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="9.0.0-preview.7.24405.7" />
   </ItemGroup>
 

@@ -16,15 +16,15 @@ public class Command<TCommand>(IHasChildren parent, string name, string[]? alias
     public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
     public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
 
-    async Task<Result> ICommand.Set(IReadOnlyList<string> args, CancellationToken ct) {
-        var result = await ArgumentsParser.Parse(this, args, ct);
-        return result.IsSuccess
-                   ? await Execute(ct)
-                   : result;
-    }
+    protected virtual Task<Result> Prepare(IReadOnlyList<string> args, CancellationToken ct = default)
+        => ArgumentsParser.Parse(this, args, ct);
 
-    public virtual Task<Result> Execute(CancellationToken ct = default)
+    protected virtual Task<Result> Execute(CancellationToken ct = default)
         => execute?.Invoke((TCommand)this, ct) ?? SuccessTask();
+    public async Task<Result> Execute(IReadOnlyList<string> args, CancellationToken ct = default) {
+        var result = await Prepare(args, ct);
+        return result.IsSuccess ? await Execute(ct) : result;
+    }
 
     public ICommand AddCommand(string name, Delegate action)
         => AddCommand(name, aliases: [], action);

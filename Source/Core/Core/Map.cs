@@ -103,9 +103,6 @@ public class Map<TValue>
     bool ICollection<KeyValuePair<string, TValue>>.Remove(KeyValuePair<string, TValue> item)
         => Remove(item.Key);
 
-    IEnumerable<string> IReadOnlyDictionary<string, TValue>.Keys => _data.Keys;
-    IEnumerable<TValue> IReadOnlyDictionary<string, TValue>.Values => _data.Values;
-
     protected override void ToText(StringBuilder builder, string? name = null, uint level = 0) {
         if (Keys.Count == 0) return;
         var indent = new string(' ', (int)level * 4);

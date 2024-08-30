@@ -4,7 +4,8 @@ namespace DotNetToolbox.Data.Repositories;
 public interface IRepository
     : IQueryableRepository
     , IReadOnlyRepository
-    , IUpdatableRepository;
+    , IUpdatableRepository
+    , IAsyncDisposable;
 
 public interface IRepository<TItem>
     : IRepository
@@ -17,6 +18,4 @@ public interface IRepository<TItem, TKey>
     , IReadOnlyRepository<TItem, TKey>
     , IUpdatableRepository<TItem, TKey>
     where TItem : IEntity<TKey>
-    where TKey : notnull {
-    void SetKeyHandler(IKeyHandler<TKey> keyHandler);
-}
+    where TKey : notnull;

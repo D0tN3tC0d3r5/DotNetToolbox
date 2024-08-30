@@ -22,6 +22,9 @@ public abstract class Node<TNode>
     public string[] Aliases { get; }
     public string Description { get; init; } = string.Empty;
 
+    public IInput Input => Environment.OperatingSystem.Input;
+    public IOutput Output => Environment.OperatingSystem.Output;
+
     protected ILogger<TNode> Logger { get; }
 
     public override string ToString() {

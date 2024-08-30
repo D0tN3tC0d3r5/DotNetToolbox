@@ -68,5 +68,5 @@ public interface IOutput {
     void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, params object?[] args);
     void WriteOntoNewLine(string? value);
     void WriteOntoNewLine(StringBuilder? builder);
-    void WriteError(Exception exception);
+    void WriteError(Exception exception, string? message = null);
 }

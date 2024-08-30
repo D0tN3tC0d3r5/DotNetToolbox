@@ -8,7 +8,7 @@ public sealed class DateTimeValidatorsTests {
         public DateTime? Nullable { get; init; }
         public DateTime? Required { get; init; }
 
-        public Result Validate(IDictionary<string, object?>? context = null) {
+        public Result Validate(IContext? context = null) {
             var result = Success();
             result += NotNull.Is().And().IsAfter(_baseDate).And().IsBefore(_baseDate.AddDays(1)).Result;
             result += Nullable.IsOptional().And().IsAfter(_baseDate).And().IsBefore(_baseDate.AddDays(1)).Result;

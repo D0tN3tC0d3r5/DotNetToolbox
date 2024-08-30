@@ -185,8 +185,8 @@ public class RunOnceApplicationTests {
 
             """;
         var app = RunOnceApplication.Create(b => b.SetOutputHandler(output));
-        app.AddCommand("say-it", (Command c) => c.Environment.OperatingSystem.Output.WriteLine("Hello world!"));
-        app.AddCommand("magic", (Command c) => c.Environment.OperatingSystem.Output.WriteLine("Please..."));
+        app.AddCommand("say-it", (Command c) => c.Output.WriteLine("Hello world!"));
+        app.AddCommand("magic", (Command c) => c.Output.WriteLine("Please..."));
 
         // Act
         app.Run();

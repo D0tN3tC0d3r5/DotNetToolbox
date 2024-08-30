@@ -8,17 +8,17 @@ public class HttpClientProvider
                               IHttpClientFactory clientFactory,
                               IConfiguration configuration,
                               Action<HttpClientOptions>? configure = null,
-                              Dictionary<string, object?>? context = null) {
+                              IContext? context = null) {
         Name = IsNotNullOrWhiteSpace(name);
         _clientFactory = clientFactory;
         ConfigurationPath = $"{HttpClientOptions.SectionName}:{Name}";
         Options = new();
-        EnsureIsConfigured(configuration, configure);
+        EnsureIsConfigured(configuration, configure, context);
     }
 
     private void EnsureIsConfigured(IConfiguration configuration,
                                     Action<HttpClientOptions>? configure,
-                                    Dictionary<string, object?>? context = null) {
+                                    IContext? context = null) {
         configuration.GetSection(ConfigurationPath).Bind(Options);
         SetDefaultConfiguration(Options);
         configure?.Invoke(Options);

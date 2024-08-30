@@ -15,8 +15,8 @@ public abstract class Node<TNode>
     where TNode : Node<TNode> {
     protected Node(string? tag, IServiceProvider services) {
         Services = services;
-        var idProvider = services.GetRequiredService<INodeSequence>();
-        Id = idProvider.Next;
+        var idProvider = services.GetRequiredService<INodeSequencer>();
+        Id = idProvider.Current;
         Tag = tag;
     }
 

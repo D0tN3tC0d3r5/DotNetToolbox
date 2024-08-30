@@ -41,6 +41,6 @@ public class Tool
 
     public string Signature => $"{Name}({string.Join(",", Arguments.Select(p => p.Signature))}) -> {ReturnType}";
 
-    public Result Validate(IDictionary<string, object?>? context = null)
+    public Result Validate(IContext? context = null)
         => Result.Success();
 }

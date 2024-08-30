@@ -41,5 +41,5 @@ public class Persona
         init => this[nameof(Attitude)] = value;
     }
 
-    public Result Validate(IDictionary<string, object?>? context = null) => Result.Success();
+    public Result Validate(IContext? context = null) => Result.Success();
 }

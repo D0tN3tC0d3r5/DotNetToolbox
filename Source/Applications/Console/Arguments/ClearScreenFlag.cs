@@ -2,14 +2,13 @@
 
 internal sealed class ClearScreenFlag
     : Flag<ClearScreenFlag> {
-    private readonly ClearScreenCommand _command;
-
     public ClearScreenFlag(IHasChildren parent)
         : base(parent, "Clear-Screen", ["cls"]) {
-        _command = new(parent);
-        Description = _command.Description;
+        Description = "Clear the screen.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default)
-        => _command.Execute(ct);
+    protected override Task<Result> Execute(CancellationToken ct = default) {
+        Output.ClearScreen();
+        return SuccessTask();
+    }
 }

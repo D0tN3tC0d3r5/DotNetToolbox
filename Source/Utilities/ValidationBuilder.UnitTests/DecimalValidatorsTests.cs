@@ -6,7 +6,7 @@ public sealed class DecimalValidatorsTests {
         public decimal? Nullable { get; init; }
         public decimal? Required { get; init; }
 
-        public Result Validate(IDictionary<string, object?>? context = null) {
+        public Result Validate(IContext? context = null) {
             var result = Success();
             result += NonNull.Is().Result;
             result += Nullable.IsOptional().And().IsGreaterThan(10).And().IsLessThan(20).And().IsEqualTo(15).Result;

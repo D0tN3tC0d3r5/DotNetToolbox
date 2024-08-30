@@ -6,51 +6,51 @@ public interface IUpdatableRepository<TItem>
     : IUpdatableRepository {
     #region Blocking
 
-    TItem Create(Action<TItem> setItem);
+    Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null);
 
-    void Seed(IEnumerable<TItem> seed);
+    Result Seed(IEnumerable<TItem> seed, bool preserveContent = false, IContext? validationContext = null);
 
-    void Add(TItem newItem);
-    void AddMany(IEnumerable<TItem> newItems);
+    Result Add(TItem newItem, IContext? validationContext = null);
+    Result AddMany(IEnumerable<TItem> newItems, IContext? validationContext = null);
 
-    void Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem);
-    void UpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems);
+    Result Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IContext? validationContext = null);
+    Result UpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, IContext? validationContext = null);
 
-    void AddOrUpdate(Expression<Func<TItem, bool>> predicate, TItem updatedItem);
-    void AddOrUpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> items);
+    Result AddOrUpdate(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IContext? validationContext = null);
+    Result AddOrUpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> items, IContext? validationContext = null);
 
-    void Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem);
-    void PatchMany(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem);
+    Result Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IContext? validationContext = null);
+    Result PatchMany(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IContext? validationContext = null);
 
-    void Remove(Expression<Func<TItem, bool>> predicate);
-    void RemoveMany(Expression<Func<TItem, bool>> predicate);
+    Result Remove(Expression<Func<TItem, bool>> predicate);
+    Result RemoveMany(Expression<Func<TItem, bool>> predicate);
 
-    void Clear();
+    Result Clear();
 
     #endregion
 
     #region Async
 
-    Task SeedAsync(IEnumerable<TItem> seed, CancellationToken ct = default);
+    Task<Result> SeedAsync(IEnumerable<TItem> seed, bool preserveContent = false, IContext? validationContext = null, CancellationToken ct = default);
 
-    Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
-    Task AddAsync(TItem newItem, CancellationToken ct = default);
-    Task AddManyAsync(IEnumerable<TItem> newItems, CancellationToken ct = default);
+    Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> AddAsync(TItem newItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> AddManyAsync(IEnumerable<TItem> newItems, IContext? validationContext = null, CancellationToken ct = default);
 
-    Task UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default);
+    Task<Result> UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IContext? validationContext = null, CancellationToken ct = default);
 
-    Task AddOrUpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, CancellationToken ct = default);
-    Task AddOrUpdateManyAsync(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, CancellationToken ct = default);
+    Task<Result> AddOrUpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> AddOrUpdateManyAsync(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, IContext? validationContext = null, CancellationToken ct = default);
 
-    Task PatchAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, CancellationToken ct = default);
-    Task PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
-    Task PatchManyAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, CancellationToken ct = default);
-    Task PatchManyAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
+    Task<Result> PatchAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> PatchManyAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> PatchManyAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default);
 
-    Task RemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
-    Task RemoveManyAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
+    Task<Result> RemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
+    Task<Result> RemoveManyAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default);
 
-    Task ClearAsync(CancellationToken ct = default);
+    Task<Result> ClearAsync(CancellationToken ct = default);
 
     #endregion
 }
@@ -61,34 +61,34 @@ public interface IUpdatableRepository<TItem, in TKey>
     where TKey : notnull {
     #region Blocking
 
-    void Update(TItem updatedItem);
-    void UpdateMany(IEnumerable<TItem> updatedItems);
+    Result Update(TItem updatedItem, IContext? validationContext = null);
+    Result UpdateMany(IEnumerable<TItem> updatedItems, IContext? validationContext = null);
 
-    void AddOrUpdate(TItem updatedItem);
-    void AddOrUpdateMany(IEnumerable<TItem> updatedItems);
+    Result AddOrUpdate(TItem updatedItem, IContext? validationContext = null);
+    Result AddOrUpdateMany(IEnumerable<TItem> updatedItems, IContext? validationContext = null);
 
-    void Patch(TKey key, Action<TItem> setItem);
-    void PatchMany(IEnumerable<TKey> keys, Action<TItem> setItem);
+    Result Patch(TKey key, Action<TItem> setItem, IContext? validationContext = null);
+    Result PatchMany(IEnumerable<TKey> keys, Action<TItem> setItem, IContext? validationContext = null);
 
-    void Remove(TKey key);
-    void RemoveMany(IEnumerable<TKey> keys);
+    Result Remove(TKey key);
+    Result RemoveMany(IEnumerable<TKey> keys);
 
     #endregion
 
     #region Async
 
-    Task UpdateAsync(TItem updatedItem, CancellationToken ct = default);
-    Task UpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default);
+    Task<Result> UpdateAsync(TItem updatedItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> UpdateManyAsync(IEnumerable<TItem> updatedItems, IContext? validationContext = null, CancellationToken ct = default);
 
-    Task AddOrUpdateAsync(TItem updatedItem, CancellationToken ct = default);
-    Task AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, CancellationToken ct = default);
+    Task<Result> AddOrUpdateAsync(TItem updatedItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, IContext? validationContext = null, CancellationToken ct = default);
 
-    Task PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
-    Task PatchManyAsync(IEnumerable<TKey> keys, Action<TItem> setItem, CancellationToken ct = default);
-    Task PatchManyAsync(IEnumerable<TKey> keys, Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
+    Task<Result> PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> PatchManyAsync(IEnumerable<TKey> keys, Action<TItem> setItem, IContext? validationContext = null, CancellationToken ct = default);
+    Task<Result> PatchManyAsync(IEnumerable<TKey> keys, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default);
 
-    Task RemoveAsync(TKey key, CancellationToken ct = default);
-    Task RemoveManyAsync(IEnumerable<TKey> keys, CancellationToken ct = default);
+    Task<Result> RemoveAsync(TKey key, CancellationToken ct = default);
+    Task<Result> RemoveManyAsync(IEnumerable<TKey> keys, CancellationToken ct = default);
 
     #endregion
 }

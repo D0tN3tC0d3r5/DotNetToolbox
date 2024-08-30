@@ -8,6 +8,6 @@ public class World(IDateTimeProvider? dateTime = null)
 
     public DateTimeOffset DateTime => _dateTime.Now;
 
-    public Result Validate(IDictionary<string, object?>? context = null)
+    public Result Validate(IContext? context = null)
         => Result.Success();
 }

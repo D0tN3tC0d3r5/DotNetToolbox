@@ -1,4 +1,6 @@
-﻿using Shell = DotNetToolbox.ConsoleApplication.ShellApplication;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+using Shell = DotNetToolbox.ConsoleApplication.ShellApplication;
 
 namespace DotNetToolbox.ConsoleApplication;
 
@@ -529,8 +531,8 @@ public sealed class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestShellApp(string[] args, IServiceProvider serviceProvider)
-        : ShellApplication<TestShellApp, ApplicationSettings>(args, serviceProvider) {
+    private sealed class TestShellApp(string[] args, IServiceCollection services)
+        : ShellApplication<TestShellApp, ApplicationSettings>(args, services) {
         protected override Task<Result> OnStart(CancellationToken ct)
             => Result.InvalidTask("Some error.");
     }
@@ -552,8 +554,8 @@ public sealed class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestFaultyShellApp(string[] args, IServiceProvider serviceProvider)
-        : ShellApplication<TestFaultyShellApp, ApplicationSettings>(args, serviceProvider) {
+    private sealed class TestFaultyShellApp(string[] args, IServiceCollection services)
+        : ShellApplication<TestFaultyShellApp, ApplicationSettings>(args, services) {
         protected override Task<Result> OnStart(CancellationToken ct = default)
             => Result.ErrorTask(new ConsoleException(13));
     }

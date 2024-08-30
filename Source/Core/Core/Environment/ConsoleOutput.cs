@@ -236,8 +236,10 @@ public class ConsoleOutput
         Write(buffer, index, count, foreground, background);
     }
 
-    public virtual void WriteError(Exception exception)
-        => WriteLine(exception.ToString());
+    public virtual void WriteError(Exception exception, string? message = null) {
+        if (!string.IsNullOrWhiteSpace(message)) WriteLine(message);
+        WriteLine(exception.ToString());
+    }
 
     private void WithColor(Action method, ConsoleColor foreground, ConsoleColor background) {
         var previous = (ForegroundColor, BackgroundColor);

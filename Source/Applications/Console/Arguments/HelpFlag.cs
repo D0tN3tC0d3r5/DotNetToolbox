@@ -2,17 +2,14 @@
 
 internal sealed class HelpFlag
     : Flag<HelpFlag> {
-    private readonly HelpCommand _command;
-
     public HelpFlag(IHasChildren parent)
         : base(parent, "Help", ["h", "?"]) {
-        _command = new(parent);
-        Description = _command.Description;
+        Description = "Display this help information.";
     }
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var result = _command.Execute(ct);
+        Output.WriteLine(Parent.ToHelp());
         Application.Exit();
-        return result;
+        return SuccessTask();
     }
 }

@@ -5,7 +5,7 @@ public partial class WorkflowParserTests {
 
     protected WorkflowParserTests() {
         var services = new ServiceCollection();
-        services.AddScoped<INodeSequence, NodeSequence>();
+        services.AddScoped<INodeSequencer, NodeSequencer>();
         services.AddSingleton<INodeFactory, NodeFactory>();
         services.AddScoped<IRetryPolicy, RetryPolicy>();
         _services = services.BuildServiceProvider();

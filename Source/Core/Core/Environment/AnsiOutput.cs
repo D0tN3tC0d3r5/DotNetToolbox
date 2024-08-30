@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.Environment;
+﻿using Spectre.Console.Rendering;
+
+namespace DotNetToolbox.Environment;
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
@@ -28,27 +30,29 @@ public class AnsiOutput
     public virtual void ClearScreen() => Console.Clear();
 
     public virtual void Write(bool value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(ulong value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(uint value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(long value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(int value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(float value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(double value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(decimal value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(char value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Write(value);
     public virtual void Write(string? value)
-        => AnsiConsole.Markup($"{value}");
-    public virtual void Write(object? value)
-        => AnsiConsole.Markup($"{value}");
+        => AnsiConsole.Markup(value ?? string.Empty);
+    public virtual void Write(object? value) {
+        if (value is IRenderable renderable) AnsiConsole.Write(renderable);
+        else AnsiConsole.Markup($"{value}");
+    }
     public virtual void Write(StringBuilder? builder)
         => AnsiConsole.Markup(builder?.ToString() ?? string.Empty);
     public virtual void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0)
@@ -71,27 +75,29 @@ public class AnsiOutput
     public virtual void WriteLine()
         => AnsiConsole.WriteLine();
     public virtual void WriteLine(bool value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
     public virtual void WriteLine(ulong value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
     public virtual void WriteLine(uint value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
     public virtual void WriteLine(long value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
     public virtual void WriteLine(int value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
     public virtual void WriteLine(float value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
     public virtual void WriteLine(double value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
     public virtual void WriteLine(decimal value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
     public virtual void WriteLine(char value)
-        => AnsiConsole.MarkupLine($"{value}");
-    public virtual void WriteLine(string? value)
-        => AnsiConsole.MarkupLine($"{value}");
-    public virtual void WriteLine(object? value)
-        => AnsiConsole.MarkupLine($"{value}");
+        => AnsiConsole.WriteLine(value);
+    public virtual void WriteLine(string value)
+        => AnsiConsole.MarkupLine(value);
+    public virtual void WriteLine(object? value) {
+        if (value is IRenderable renderable) AnsiConsole.Write(renderable);
+        else AnsiConsole.MarkupLine($"{value}");
+    }
     public virtual void WriteLine(StringBuilder? builder)
         => AnsiConsole.MarkupLine(builder?.ToString() ?? string.Empty);
     public virtual void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0)
@@ -188,10 +194,10 @@ public class AnsiOutput
                                                     | ExceptionFormats.NoStackTrace;
 #endif
 
-    public virtual void WriteError(Exception exception) {
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[bold red]An error occurred:[/]");
+    public virtual void WriteError(Exception exception, string? message = null) {
+        WriteLine();
+        WriteLine($"[bold red]{message ?? "An error has occurred."}[/]");
         AnsiConsole.WriteException(exception, _exceptionFormat);
-        AnsiConsole.WriteLine();
+        WriteLine();
     }
 }

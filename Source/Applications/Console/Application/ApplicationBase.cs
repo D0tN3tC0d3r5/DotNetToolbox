@@ -1,13 +1,11 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
-public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[] args, IServiceProvider services)
+public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[] args, IServiceCollection services)
     : ApplicationBase(args, services),
       IApplication<TApplication, TBuilder, TSettings>
     where TApplication : ApplicationBase<TApplication, TBuilder, TSettings>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {
-    protected virtual ValueTask Dispose()
-        => ValueTask.CompletedTask;
 
     public static TBuilder CreateBuilder(Action<IConfigurationBuilder>? setConfiguration = null)
         => CreateBuilder([], setConfiguration);
@@ -19,7 +17,9 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[
     public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder) {
         var builder = CreateBuilder(args, setConfiguration);
         configureBuilder?.Invoke(builder);
-        return builder.Build();
+        var app = builder.Build();
+        builder.Services.AddSingleton<IApplication>(app);
+        return app;
     }
 
     public static TApplication Create(Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder)
@@ -94,7 +94,7 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[
         var command = FindCommand((this as IHasChildren).Commands, input[0]);
         if (command is null) return Invalid($"Command '{input[0]}' not found. For a list of available commands use 'help'.");
         var arguments = input.Skip(1).ToArray();
-        return await command.Set(arguments, ct).ConfigureAwait(false);
+        return await command.Execute(arguments, ct);
     }
 
     private static ICommand? FindCommand(IEnumerable<ICommand> commands, string token)
@@ -102,23 +102,20 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[
                ? null
                : commands.FirstOrDefault(c => c.Name.Equals(token, StringComparison.OrdinalIgnoreCase)
                                            || c.Aliases.Contains(token));
-
-    public async ValueTask DisposeAsync() {
-        await Dispose();
-        GC.SuppressFinalize(this);
-    }
 }
 
 public abstract class ApplicationBase : IApplication {
-    public int ExitCode { get; protected set; } = IApplication.DefaultExitCode;
-
-    protected ApplicationBase(string[] args, IServiceProvider services) {
-        Services = services;
+    private readonly AsyncServiceScope _servicesScope;
+    protected ApplicationBase(string[] args, IServiceCollection services) {
+        services.AddSingleton<IApplication>(this);
+        var provider = services.BuildServiceProvider();
+        _servicesScope = provider.CreateAsyncScope();
+        Services = _servicesScope.ServiceProvider;
         Arguments = args;
-        Logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
-        Environment = services.GetRequiredService<IApplicationEnvironment>();
-        Configuration = services.GetRequiredService<IConfigurationRoot>();
-        PromptFactory = services.GetRequiredService<IPromptFactory>();
+        Logger = Services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
+        Environment = Services.GetRequiredService<IApplicationEnvironment>();
+        Configuration = Services.GetRequiredService<IConfigurationRoot>();
+        PromptFactory = Services.GetRequiredService<IPromptFactory>();
 
         AssemblyName = Environment.Assembly.Name;
         Version = Environment.Assembly.Version.ToString();
@@ -137,6 +134,16 @@ public abstract class ApplicationBase : IApplication {
         IsRunning = false;
     }
 
+    protected virtual ValueTask Dispose()
+        => _servicesScope.DisposeAsync();
+
+    public async ValueTask DisposeAsync() {
+        await Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public int ExitCode { get; protected set; } = IApplication.DefaultExitCode;
+
     public string AssemblyName { get; }
     public string Name { get; }
     public string Version { get; }
@@ -148,8 +155,8 @@ public abstract class ApplicationBase : IApplication {
     public IServiceProvider Services { get; }
     public IConfigurationRoot Configuration { get; }
     public IApplicationEnvironment Environment { get; }
-    protected IOutput Output => Environment.OperatingSystem.Output;
-    protected IInput Input => Environment.OperatingSystem.Input;
+    public IOutput Output => Environment.OperatingSystem.Output;
+    public IInput Input => Environment.OperatingSystem.Input;
     protected IFileSystemAccessor FileSystem => Environment.OperatingSystem.FileSystem;
     protected IAssemblyDescriptor Assembly => Environment.Assembly;
     protected IDateTimeProvider DateTime => Environment.OperatingSystem.DateTime;

@@ -169,4 +169,5 @@ internal sealed class TestOutput : IOutput {
     public void WriteOntoNewLine(string? value) => throw new NotImplementedException();
     public void WriteOntoNewLine(StringBuilder? builder) => throw new NotImplementedException();
     public void WriteError(Exception exception) => throw new NotImplementedException();
+    public void WriteError(Exception exception, string? message = null) => throw new NotImplementedException();
 }

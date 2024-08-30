@@ -61,7 +61,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TSettings>
         AddLogging(Configuration);
 
         var serviceProvider = Services.BuildServiceProvider();
-        return InstanceFactory.Create<TApplication>(serviceProvider, (object)_args);
+        return InstanceFactory.Create<TApplication>(serviceProvider, _args, Services);
     }
 
     private void AddLogging(IConfiguration configuration)

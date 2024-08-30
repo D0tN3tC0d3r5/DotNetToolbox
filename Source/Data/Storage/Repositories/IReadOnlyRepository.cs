@@ -6,7 +6,7 @@ public interface IReadOnlyRepository<TItem>
     : IReadOnlyRepository {
     #region Blocking
 
-    void Load();
+    Result Load();
 
     TItem[] GetAll();
 
@@ -19,7 +19,7 @@ public interface IReadOnlyRepository<TItem>
 
     #region Async
 
-    Task LoadAsync(CancellationToken ct = default);
+    Task<Result> LoadAsync(CancellationToken ct = default);
 
     ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default);
     ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default);

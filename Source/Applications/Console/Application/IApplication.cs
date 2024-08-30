@@ -1,6 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
-public interface IApplication : IHasChildren {
+public interface IApplication
+    : IHasChildren,
+      IAsyncDisposable {
     public const int DefaultExitCode = 0;
     public const int DefaultErrorCode = 1;
     int ExitCode { get; }
@@ -18,8 +20,7 @@ public interface IApplication : IHasChildren {
 public interface IApplication<TApplication, out TBuilder, out TSettings>
     : IApplication,
       IBuilderCreator<TApplication, TBuilder, TSettings>,
-      IApplicationCreator<TApplication, TBuilder, TSettings>,
-      IAsyncDisposable
+      IApplicationCreator<TApplication, TBuilder, TSettings>
     where TApplication : class, IApplication<TApplication, TBuilder, TSettings>
     where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {

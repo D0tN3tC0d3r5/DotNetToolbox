@@ -11,12 +11,12 @@ public class HelpCommand : Command<HelpCommand> {
         AddParameter("Target", string.Empty);
     }
 
-    public override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Task<Result> Execute(CancellationToken ct = default) {
         var target = (string?)Context.GetValueOrDefault("Target");
         var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? _parent;
         var helpText = GetHelp(node);
-        AnsiConsole.Markup(helpText);
+        Output.Write(helpText);
         return Result.SuccessTask();
     }
 
@@ -100,32 +100,4 @@ public class HelpCommand : Command<HelpCommand> {
         builder.Append(' ', 30 - length).AppendLine(lines[0]);
         foreach (var line in lines.Skip(1)) builder.Append(' ', 30).AppendLine(line);
     }
-
-    //    private static void AppendException(StringBuilder builder, Exception ex, bool isInner = false, byte indent = 0) {
-    //        while (true) {
-    //            AppendExceptionDescription(builder, ex, isInner, indent);
-    //            ShowStackTrace(builder, ex, (byte)(indent + 1));
-    //            if (ex.InnerException is null) break;
-    //            ex = ex.InnerException;
-    //            isInner = true;
-    //            indent = (byte)(indent + 1);
-    //        }
-    //    }
-
-    //    private static void AppendExceptionDescription(StringBuilder builder, Exception ex, bool isInner, int indent) {
-    //        builder.Append(' ', indent * _indentSize);
-    //        if (isInner) builder.Append("Inner Exception => ");
-    //        builder.Append(ex.GetType().Name);
-    //        builder.Append(": ");
-    //        builder.AppendLine(ex.Message);
-    //    }
-
-    //    private static void ShowStackTrace(StringBuilder builder, Exception ex, byte indent) {
-    //        if (string.IsNullOrEmpty(ex.StackTrace)) return;
-    //        builder.Append(' ', indent * _indentSize).AppendLine("Stack Trace:");
-    //        var lines = ex.StackTrace.Split(System.Environment.NewLine);
-    //#pragma warning disable CA1806 // Do not ignore method results - contains side effects
-    //        lines.Aggregate(builder, (s, l) => s.Append(' ', (indent + 1) * _indentSize).AppendLine(l));
-    //#pragma warning restore CA1806 // Do not ignore method results
-    //    }
 }

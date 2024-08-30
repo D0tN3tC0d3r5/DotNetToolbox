@@ -15,16 +15,18 @@ public partial class InMemoryRepositoryTests {
 
     [Fact]
     public void Create_CreatesItem() {
-        var item = _updatableRepo.Create(s => s.Name = "Z");
-        item.Name.Should().Be("Z");
+        var result = _updatableRepo.Create(s => s.Name = "Z");
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Name.Should().Be("Z");
     }
 
     [Fact]
     public async Task CreateAsync_CreatesItem() {
-        var item = await _updatableRepo.CreateAsync((s, _) => {
+        var result = await _updatableRepo.CreateAsync((s, _) => {
             s.Name = "Z";
             return Task.CompletedTask;
         });
-        item.Name.Should().Be("Z");
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Name.Should().Be("Z");
     }
 }

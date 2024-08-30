@@ -11,6 +11,7 @@
       "AI\\OpenAI\\DotNetToolbox.AI.OpenAI.csproj",
       "AI\\Console\\DotNetToolbox.AI.Sample.csproj",
       "Applications\\Console\\DotNetToolbox.Console.csproj",
+      "Cloud\\Http\\DotNetToolbox.Http.csproj",
       "Core\\Core\\DotNetToolbox.Core.csproj",
       "Data\\Storage\\DotNetToolbox.Data.csproj",
       "Data\\File\\DotNetToolbox.Data.File.csproj"

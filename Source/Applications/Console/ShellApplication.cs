@@ -2,7 +2,7 @@
 
 public sealed class ShellApplication
     : ShellApplication<ApplicationSettings> {
-    internal ShellApplication(string[] args, IServiceProvider services)
+    internal ShellApplication(string[] args, IServiceCollection services)
         : base(args, services) {
     }
 }
@@ -10,12 +10,12 @@ public sealed class ShellApplication
 public class ShellApplication<TSettings>
     : ShellApplication<ShellApplication<TSettings>, TSettings>
     where TSettings : ApplicationSettings, new() {
-    internal ShellApplication(string[] args, IServiceProvider services)
+    internal ShellApplication(string[] args, IServiceCollection services)
         : base(args, services) {
     }
 }
 
-public abstract class ShellApplication<TApplication, TSettings>(string[] args, IServiceProvider services)
+public abstract class ShellApplication<TApplication, TSettings>(string[] args, IServiceCollection services)
     : ShellApplication<TApplication, ShellApplicationBuilder<TApplication, TSettings>, TSettings>(args, services)
     where TApplication : ShellApplication<TApplication, TSettings>
     where TSettings : ApplicationSettings, new();
@@ -28,7 +28,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {
     private bool _useDefaultHelp;
 
-    protected ShellApplication(string[] args, IServiceProvider services)
+    protected ShellApplication(string[] args, IServiceCollection services)
         : base(args, services) {
         AddCommand<ExitCommand>();
         AddCommand<ClearScreenCommand>();
@@ -45,7 +45,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
         }
 
         while (IsRunning && !ct.IsCancellationRequested)
-            await ExecuteDefault(ct).ConfigureAwait(false);
+            await ProcessInteraction(ct).ConfigureAwait(false);
     }
 
     protected virtual Task<Result> OnStart(CancellationToken ct = default) {
@@ -55,7 +55,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
 
     protected virtual string GetPrePromptText() => string.Empty;
 
-    private async Task<Result> ProcessInput(string input, CancellationToken ct) {
+    private async Task<Result> ProcessUserInput(string input, CancellationToken ct) {
         var lines = input.Split(Output.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (AllowMultiLine && lines.Length > 1)
             return await ProcessFreeText(lines, ct).ConfigureAwait(false);
@@ -75,13 +75,13 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
     protected virtual Task<Result> ProcessFreeText(string[] lines, CancellationToken ct = default)
         => SuccessTask();
 
-    protected virtual Task<Result> ExecuteDefault(CancellationToken ct = default) {
+    protected virtual Task<Result> ProcessInteraction(CancellationToken ct = default) {
         Output.Write(GetPrePromptText());
         Output.WritePrompt();
         var input = AllowMultiLine
                         ? Input.ReadMultiLine(Enter, Control)
                         : Input.ReadLine() ?? string.Empty;
-        return ProcessInput(input, ct);
+        return ProcessUserInput(input, ct);
     }
 
     private bool StartsWithCommand(string? firstWord)

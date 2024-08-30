@@ -21,7 +21,7 @@ public class AgentModel
     public bool ResponseIsStream { get; set; }
     public bool RespondsAsJson { get; set; }
 
-    public Result Validate(IDictionary<string, object?>? context = null) {
+    public Result Validate(IContext? context = null) {
         var result = Result.Success();
         if (StopSequences.Count > 0 && StopSequences.Any(string.IsNullOrWhiteSpace))
             result += new ValidationError("StopWaiting signals cannot be null, empty, or contain only whitespace.", nameof(StopSequences));

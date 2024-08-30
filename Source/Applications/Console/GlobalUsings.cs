@@ -5,6 +5,7 @@ global using System.Text.RegularExpressions;
 
 global using DotNetToolbox.ConsoleApplication.Application;
 global using DotNetToolbox.ConsoleApplication.Arguments;
+global using DotNetToolbox.ConsoleApplication.Commands;
 global using DotNetToolbox.ConsoleApplication.Exceptions;
 global using DotNetToolbox.ConsoleApplication.Nodes;
 global using DotNetToolbox.ConsoleApplication.Questions;
@@ -19,7 +20,6 @@ global using Microsoft.Extensions.FileProviders;
 global using Microsoft.Extensions.Logging;
 
 global using Spectre.Console;
-global using static Spectre.Console.AnsiConsole;
 
 global using static System.ConsoleKey;
 global using static System.ConsoleModifiers;

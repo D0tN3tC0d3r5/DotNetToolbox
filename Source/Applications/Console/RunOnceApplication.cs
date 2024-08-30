@@ -2,7 +2,7 @@
 
 public sealed class RunOnceApplication
     : RunOnceApplication<ApplicationSettings> {
-    internal RunOnceApplication(string[] args, IServiceProvider services)
+    internal RunOnceApplication(string[] args, IServiceCollection services)
         : base(args, services) {
     }
 }
@@ -10,17 +10,17 @@ public sealed class RunOnceApplication
 public class RunOnceApplication<TSettings>
     : RunOnceApplication<RunOnceApplication<TSettings>, TSettings>
     where TSettings : ApplicationSettings, new() {
-    internal RunOnceApplication(string[] args, IServiceProvider services)
+    internal RunOnceApplication(string[] args, IServiceCollection services)
         : base(args, services) {
     }
 }
 
-public abstract class RunOnceApplication<TApplication, TSettings>(string[] args, IServiceProvider services)
+public abstract class RunOnceApplication<TApplication, TSettings>(string[] args, IServiceCollection services)
     : RunOnceApplication<TApplication, RunOnceApplicationBuilder<TApplication, TSettings>, TSettings>(args, services)
     where TApplication : RunOnceApplication<TApplication, TSettings>
     where TSettings : ApplicationSettings, new();
 
-public abstract class RunOnceApplication<TApplication, TBuilder, TSettings>(string[] args, IServiceProvider services)
+public abstract class RunOnceApplication<TApplication, TBuilder, TSettings>(string[] args, IServiceCollection services)
     : ApplicationBase<TApplication, TBuilder, TSettings>(args, services), IRunOnce
     where TApplication : RunOnceApplication<TApplication, TBuilder, TSettings>
     where TBuilder : RunOnceApplicationBuilder<TApplication, TBuilder, TSettings>
@@ -39,6 +39,6 @@ public abstract class RunOnceApplication<TApplication, TBuilder, TSettings>(stri
 
     private Task<Result> ShowHelp(CancellationToken ct) {
         var help = new HelpCommand(this);
-        return help.Execute(ct);
+        return help.Execute([], ct);
     }
 }
