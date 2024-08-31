@@ -16,20 +16,27 @@
         loggingBuilder.AddSerilog(dispose: true);
     });
     ab.SetOutputHandler(new AnsiOutput());
+    ab.SetInputHandler(new AnsiInput());
     ab.Services.Configure<LolaSettings>(ab.Configuration.GetSection("Lola"));
     ab.Services.AddOptions<LolaSettings>();
 
-    ab.Services.AddKeyedSingleton<INumericSequencer, NumericSequencer>("Providers");
     ab.Services.AddSingleton<IProviderRepositoryStrategy, ProviderRepositoryStrategy>();
     ab.Services.AddScoped<IProviderRepository, ProviderRepository>();
     ab.Services.AddScoped<IProviderHandler, ProviderHandler>();
     ab.Services.AddScoped(p => new Lazy<IProviderRepository>(() => p.GetRequiredService<IProviderRepository>()));
+    ab.Services.AddScoped(p => new Lazy<IProviderHandler>(() => p.GetRequiredService<IProviderHandler>()));
 
-    ab.Services.AddKeyedSingleton<INumericSequencer, NumericSequencer>("Agents");
     ab.Services.AddSingleton<IAgentRepositoryStrategy, AgentRepositoryStrategy>();
     ab.Services.AddScoped<IAgentRepository, AgentRepository>();
     ab.Services.AddScoped<IAgentHandler, AgentHandler>();
     ab.Services.AddScoped(p => new Lazy<IAgentRepository>(() => p.GetRequiredService<IAgentRepository>()));
+    ab.Services.AddScoped(p => new Lazy<IAgentHandler>(() => p.GetRequiredService<IAgentHandler>()));
+
+    ab.Services.AddSingleton<IModelRepositoryStrategy, ModelRepositoryStrategy>();
+    ab.Services.AddScoped<IModelRepository, ModelRepository>();
+    ab.Services.AddScoped<IModelHandler, ModelHandler>();
+    ab.Services.AddScoped(p => new Lazy<IModelRepository>(() => p.GetRequiredService<IModelRepository>()));
+    ab.Services.AddScoped(p => new Lazy<IModelHandler>(() => p.GetRequiredService<IModelHandler>()));
 });
 
 try {

@@ -7,7 +7,8 @@ public sealed class Command : Command<Command> {
 }
 
 public class Command<TCommand>(IHasChildren parent, string name, string[]? aliases = null, Func<TCommand, CancellationToken, Task<Result>>? execute = null)
-    : Node<TCommand>(parent, name, aliases ?? []), ICommand
+    : Node<TCommand>(parent, name, aliases ?? []),
+      ICommand
     where TCommand : Command<TCommand> {
     public NodeContext Context { get; } = [];
 

@@ -56,8 +56,8 @@ public class ConsoleOutput
     void IOutput.Write(char value) => Write(value);
     public virtual void Write(char value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground)
         => WithColor(() => Console.Write(value), foreground, background);
-    void IOutput.Write(string? value) => Write(value);
-    public virtual void Write(string? value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground)
+    void IOutput.Write(string value) => Write(value);
+    public virtual void Write(string value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground)
         => WithColor(() => Console.Write(value), foreground, background);
     void IOutput.Write(object? value) => Write(value);
     public virtual void Write(object? value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground)
@@ -118,8 +118,8 @@ public class ConsoleOutput
     void IOutput.WriteLine(char value) => WriteLine(value);
     public virtual void WriteLine(char value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground)
         => WithColor(() => Console.WriteLine(value), foreground, background);
-    void IOutput.WriteLine(string? value) => WriteLine(value);
-    public virtual void WriteLine(string? value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground)
+    void IOutput.WriteLine(string value) => WriteLine(value);
+    public virtual void WriteLine(string value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground)
         => WithColor(() => Console.WriteLine(value), foreground, background);
     void IOutput.WriteLine(object? value) => WriteLine(value);
     public virtual void WriteLine(object? value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground)
@@ -190,8 +190,8 @@ public class ConsoleOutput
         WriteLine(foreground, background);
         Write(value, foreground, background);
     }
-    void IOutput.WriteOntoNewLine(string? value) => WriteOntoNewLine(value);
-    public virtual void WriteOntoNewLine(string? value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground) {
+    void IOutput.WriteOntoNewLine(string value) => WriteOntoNewLine(value);
+    public virtual void WriteOntoNewLine(string value, ConsoleColor foreground = DefaultForeground, ConsoleColor background = DefaultBackground) {
         WriteLine(foreground, background);
         Write(value, foreground, background);
     }
@@ -237,8 +237,14 @@ public class ConsoleOutput
     }
 
     public virtual void WriteError(Exception exception, string? message = null) {
-        if (!string.IsNullOrWhiteSpace(message)) WriteLine(message);
+        WriteLine(message ?? "An error has occurred.");
         WriteLine(exception.ToString());
+    }
+
+    public virtual void WriteError(string message) {
+        WriteLine();
+        WriteLine($"An error has occurred: {IsNotNullOrWhiteSpace(message)}");
+        WriteLine();
     }
 
     private void WithColor(Action method, ConsoleColor foreground, ConsoleColor background) {

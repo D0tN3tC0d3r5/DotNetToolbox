@@ -1,17 +1,23 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
 public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
-    : Command<ProviderAddCommand>(parent, "Add", ["new"]) {
+    : Command<ProviderAddCommand>(parent, "Create", ["add", "new"]) {
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var provider = handler.Create(p => p.Name = AnsiConsole.Ask<string>("Enter the provider name:"));
         try {
+            var provider = handler.Create(SetUp);
             handler.Add(provider);
             Output.WriteLine($"[green]Provider '{provider.Name}' added successfully.[/]");
+            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' added successfully.", provider.Key, provider.Name);
             return Result.SuccessTask();
         }
         catch (Exception ex) {
-            Output.WriteError(ex, "Error adding an provider.");
+            Output.WriteError("Error adding the new provider.");
+            Logger.LogError(ex, "Error adding the new provider.");
             return Result.ErrorTask(ex.Message);
         }
     }
+
+    private void SetUp(ProviderEntity provider)
+        => provider.Name = Input.TextPrompt("Enter the provider name:")
+                                .For("name").AsRequired();
 }

@@ -2,12 +2,11 @@
 
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
-public class ConsoleInput()
-    : HasDefault<ConsoleInput>,
-      IInput {
-    private readonly IOutput _output = new ConsoleOutput();
+public class AnsiInput()
+    : HasDefault<AnsiInput>, IInput {
+    private readonly IOutput _output = new AnsiOutput();
 
-    public ConsoleInput(IOutput output) : this() {
+    public AnsiInput(IOutput output) : this() {
         _output = output;
     }
 
@@ -85,18 +84,53 @@ public class ConsoleInput()
         inputBuilder.AppendLine();
     }
 
-    public TextPromptBuilder<TValue> TextPrompt<TValue>(string prompt) => throw new NotImplementedException();
-    public TextPromptBuilder<string> TextPrompt(string prompt) => throw new NotImplementedException();
-    public TValue Ask<TValue>(string prompt, TValue defaultChoice) => throw new NotImplementedException();
-    public TValue Ask<TValue>(string prompt) => throw new NotImplementedException();
-    public string Ask(string prompt) => throw new NotImplementedException();
-    public bool Confirm(string prompt, bool defaultChoice = true) => throw new NotImplementedException();
-    public SelectionPromptBuilder<TValue> SelectionPrompt<TValue>(string prompt)
-        where TValue : notnull => throw new NotImplementedException();
-    public SelectionPromptBuilder<string> SelectionPrompt(string prompt) => throw new NotImplementedException();
-    public TValue Select<TValue>(string prompt, TValue defaultChoice)
-        where TValue : notnull => throw new NotImplementedException();
-    public TValue Select<TValue>(string prompt)
-        where TValue : notnull => throw new NotImplementedException();
-    public string Select(string prompt) => throw new NotImplementedException();
+    public virtual TextPromptBuilder<TValue> TextPrompt<TValue>(string prompt)
+        => new(prompt, _output);
+    public virtual TextPromptBuilder<string> TextPrompt(string prompt)
+        => new(prompt, _output);
+
+    public virtual TValue Ask<TValue>(string prompt, TValue defaultChoice) {
+        var builder = new TextPromptBuilder<TValue>(prompt, _output);
+        builder.WithDefault(defaultChoice);
+        return builder.Show();
+    }
+    public virtual TValue Ask<TValue>(string prompt) {
+        var builder = new TextPromptBuilder<TValue>(prompt, _output);
+        return builder.Show();
+    }
+    public virtual string Ask(string prompt) {
+        var builder = new TextPromptBuilder<string>(prompt, _output);
+        return builder.Show();
+    }
+
+    public virtual bool Confirm(string prompt, bool defaultChoice = true) {
+        var builder = new TextPromptBuilder<bool>(prompt, _output);
+        builder.AddChoices(true, false);
+        builder.ConvertWith(value => value ? "Yes" : "No");
+        builder.WithDefault(defaultChoice);
+        return builder.Show();
+    }
+
+    public virtual SelectionPromptBuilder<TValue> SelectionPrompt<TValue>(string prompt)
+        where TValue : notnull
+        => new(prompt, _output);
+
+    public virtual SelectionPromptBuilder<string> SelectionPrompt(string prompt)
+        => new(prompt, _output);
+
+    public virtual TValue Select<TValue>(string prompt, TValue defaultChoice)
+        where TValue : notnull {
+        var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
+        builder.WithDefault(defaultChoice);
+        return builder.Show();
+    }
+    public virtual TValue Select<TValue>(string prompt)
+        where TValue : notnull {
+        var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
+        return builder.Show();
+    }
+    public virtual string Select(string prompt) {
+        var builder = new SelectionPromptBuilder<string>(prompt, _output);
+        return builder.Show();
+    }
 }

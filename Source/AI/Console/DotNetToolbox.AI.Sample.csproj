@@ -12,7 +12,7 @@
     <InformationalVersion>0.1.alpha</InformationalVersion>
     <AssemblyVersion>0.1.*</AssemblyVersion>
     <Deterministic>false</Deterministic>
-    <NoWarn>$(NoWarn);DV2001;DV2002</NoWarn>
+    <NoWarn>$(NoWarn);DV2001;DV2002;CS7035</NoWarn>
     <UserSecretsId>0453e4b5-0554-42b5-a904-36f2e1ea3686</UserSecretsId>
   </PropertyGroup>
 

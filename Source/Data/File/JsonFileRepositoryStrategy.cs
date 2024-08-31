@@ -1,11 +1,12 @@
-﻿namespace DotNetToolbox.Data.File;
+﻿using System.Linq.Expressions;
 
-public class JsonFileRepositoryStrategy<TRepository, TItem, TKey, TSequencer>
-    : RepositoryStrategy<JsonFileRepositoryStrategy<TRepository, TItem, TKey, TSequencer>, TRepository, TItem, TKey>
+namespace DotNetToolbox.Data.File;
+
+public class JsonFileRepositoryStrategy<TRepository, TItem, TKey>
+    : RepositoryStrategy<JsonFileRepositoryStrategy<TRepository, TItem, TKey>, TRepository, TItem, TKey>
     where TRepository : class, IQueryableRepository<TItem>
     where TItem : class, IEntity<TKey>
-    where TKey : notnull
-    where TSequencer : class, ISequencer<TKey> {
+    where TKey : notnull {
     private const string _defaultBaseFolder = "data";
     private readonly string _filePath;
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
@@ -42,24 +43,33 @@ public class JsonFileRepositoryStrategy<TRepository, TItem, TKey, TSequencer>
         return Result.Success(LastUsedKey);
     }
 
-    public override Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null) {
-        var item = InstanceFactory.Create<TItem>();
-        setItem(item);
-        return Result.Success(item);
-    }
-
     public override TItem[] GetAll() => [.. _data];
 
     public override TItem? FindByKey(TKey key)
         => _data.Find(item => item.Key.Equals(key));
+
+    public override TItem? Find(Expression<Func<TItem, bool>> predicate)
+        => _data.AsQueryable().FirstOrDefault(predicate);
 
     private void Save() {
         var json = JsonSerializer.Serialize(_data, _jsonOptions);
         System.IO.File.WriteAllText(_filePath, json);
     }
 
+    public override Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null) {
+        var item = InstanceFactory.Create<TItem>();
+        if (TryGetNextKey(out var next)) item.Key = next;
+        setItem(item);
+        var result = Result.Success(item);
+        result += item.Validate(validationContext);
+        if (!result.IsSuccess) return result;
+        _data.Add(item);
+        Save();
+        return result;
+    }
+
     public override Result Add(TItem newItem, IContext? validationContext = null) {
-        newItem.Key = GetNextKey();
+        if (TryGetNextKey(out var next)) newItem.Key = next;
         var result = newItem.Validate(validationContext);
         if (!result.IsSuccess) return result;
         _data.Add(newItem);

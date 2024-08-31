@@ -39,12 +39,15 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>(Lazy<TReposito
 
     public override Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null) {
         var item = new TItem();
+        item.Key = TryGetNextKey(out var next) ? next : item.Key;
         setItem(item);
-        return Result.Success(item);
+        var result = Result.Success(item);
+        result += _keylessStrategy.Add(item, validationContext);
+        return result;
     }
 
     public override Result Add(TItem newItem, IContext? validationContext = null) {
-        newItem.Key = GetNextKey();
+        newItem.Key = TryGetNextKey(out var next) ? next : newItem.Key;
         return _keylessStrategy.Add(newItem, validationContext);
     }
 
@@ -322,9 +325,8 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>(Lazy<TRepository> re
         var item = Activator.CreateInstance<TItem>();
         setItem(item);
         var result = Result.Success(item);
-        return item is IValidatable validatable
-            ? result + validatable.Validate(validationContext)
-            : result;
+        result += Add(item, validationContext);
+        return result;
     }
 
     public override Result Add(TItem newItem, IContext? validationContext = null) {

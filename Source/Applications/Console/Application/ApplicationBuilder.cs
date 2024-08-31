@@ -59,6 +59,7 @@ public class ApplicationBuilder<TApplication, TBuilder, TSettings>
         Services.TryAddSingleton<IConfiguration>(Configuration);
         Services.TryAddSingleton<IPromptFactory, PromptFactory>();
         AddLogging(Configuration);
+        Services.Configure<TSettings>(Configuration.GetSection(nameof(ApplicationBase<TSettings>.Settings)));
 
         var serviceProvider = Services.BuildServiceProvider();
         return InstanceFactory.Create<TApplication>(serviceProvider, _args, Services);

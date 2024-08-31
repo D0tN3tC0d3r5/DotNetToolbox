@@ -17,14 +17,18 @@ public interface IApplication
     void Exit(int code = DefaultExitCode);
 }
 
+public interface IApplication<out TSettings>
+    : IApplication {
+    TSettings Settings { get; }
+}
+
 public interface IApplication<TApplication, out TBuilder, out TSettings>
-    : IApplication,
+    : IApplication<TSettings>,
       IBuilderCreator<TApplication, TBuilder, TSettings>,
       IApplicationCreator<TApplication, TBuilder, TSettings>
     where TApplication : class, IApplication<TApplication, TBuilder, TSettings>
     where TBuilder : class, IApplicationBuilder<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {
-    TSettings Settings { get; }
     int Run();
     Task<int> RunAsync();
 }

@@ -151,10 +151,9 @@ public class Repository<TStrategy, TItem>
         => Strategy?.GetChunk(isChunkStart, blockSize)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
-    public virtual TItem? Find(Expression<Func<TItem, bool>> predicate) {
-        if (Strategy is null) throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
-        return Strategy.Find(predicate);
-    }
+    public virtual TItem? Find(Expression<Func<TItem, bool>> predicate)
+        => Strategy is not null ? Strategy.Find(predicate)
+        : throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
     public virtual Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null)
         => Strategy?.Create(setItem, validationContext)
@@ -222,15 +221,13 @@ public class Repository<TStrategy, TItem>
         => Strategy?.GetChunkAsync(isChunkStart, blockSize, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
-    public virtual ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
-        if (Strategy is null) throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
-        return Strategy.FindAsync(predicate, ct);
-    }
+    public virtual ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => Strategy is not null ? Strategy.FindAsync(predicate, ct)
+        : throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
     public virtual Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default)
         => Strategy?.CreateAsync(setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
-
     public virtual Task<Result> AddAsync(TItem newItem, IContext? validationContext = null, CancellationToken ct = default)
         => Strategy?.AddAsync(newItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");

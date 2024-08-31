@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
 public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[] args, IServiceCollection services)
-    : ApplicationBase(args, services),
+    : ApplicationBase<TSettings>(args, services),
       IApplication<TApplication, TBuilder, TSettings>
     where TApplication : ApplicationBase<TApplication, TBuilder, TSettings>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>
@@ -18,7 +18,6 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[
         var builder = CreateBuilder(args, setConfiguration);
         configureBuilder?.Invoke(builder);
         var app = builder.Build();
-        builder.Services.AddSingleton<IApplication>(app);
         return app;
     }
 
@@ -42,8 +41,6 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[
 
     public static TApplication Create()
         => Create([], null!, null!);
-
-    public TSettings Settings { get; init; } = new();
 
     public override string ToString()
         => $"{GetType().Name}: {Name} v{Version} => {Description}";
@@ -104,27 +101,32 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[
                                            || c.Aliases.Contains(token));
 }
 
-public abstract class ApplicationBase : IApplication {
+public abstract class ApplicationBase<TSettings>
+    : IApplication<TSettings>
+    where TSettings : ApplicationSettings, new() {
     private readonly AsyncServiceScope _servicesScope;
     protected ApplicationBase(string[] args, IServiceCollection services) {
+        Arguments = args;
         services.AddSingleton<IApplication>(this);
         var provider = services.BuildServiceProvider();
         _servicesScope = provider.CreateAsyncScope();
         Services = _servicesScope.ServiceProvider;
-        Arguments = args;
         Logger = Services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
         Environment = Services.GetRequiredService<IApplicationEnvironment>();
         Configuration = Services.GetRequiredService<IConfigurationRoot>();
         PromptFactory = Services.GetRequiredService<IPromptFactory>();
 
         AssemblyName = Environment.Assembly.Name;
-        Version = Environment.Assembly.Version.ToString();
-        DisplayVersion = Environment.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? Version;
-        DisplayVersion = DisplayVersion.Replace("-alpha", "-alpha");
-        var plusIndex = DisplayVersion.IndexOf('+');
-        if (plusIndex > 0) DisplayVersion = DisplayVersion[..plusIndex];
         var ata = Environment.Assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
         Name = ata ?? AssemblyName;
+        Settings = new();
+        Configuration.GetSection(nameof(Settings)).Bind(Settings);
+
+        Version = Environment.Assembly.Version.ToString();
+        DisplayVersion = Environment.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? Version;
+        var plusIndex = DisplayVersion.IndexOf('+');
+        if (plusIndex > 0) DisplayVersion = DisplayVersion[..plusIndex];
+
         var ada = Environment.Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
         Description = ada ?? string.Empty;
 
@@ -150,6 +152,8 @@ public abstract class ApplicationBase : IApplication {
     public string DisplayVersion { get; }
     public string FullName => $"{Name} v{DisplayVersion}";
     public string Description { get; init; }
+    public TSettings Settings { get; init; }
+
     public ILogger Logger { get; init; }
 
     public IServiceProvider Services { get; }

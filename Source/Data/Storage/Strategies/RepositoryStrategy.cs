@@ -15,14 +15,13 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem, TKey>(Lazy<TRepos
     protected virtual Result LoadLastUsedKey()
         => throw new NotImplementedException();
 
-    protected virtual Result<TKey> GenerateNextKey()
+    protected virtual bool TryGenerateNextKey([MaybeNullWhen(false)] out TKey next)
         => throw new NotImplementedException();
 
-    protected TKey GetNextKey() {
-        var result = GenerateNextKey();
-        if (!result.IsSuccess) throw new InvalidOperationException("Failed to generate next key.");
-        LastUsedKey = result.Value;
-        return LastUsedKey;
+    protected bool TryGetNextKey([MaybeNullWhen(false)] out TKey next) {
+        if (!TryGenerateNextKey(out next)) return false;
+        LastUsedKey = next;
+        return true;
     }
 
     public virtual TItem? FindByKey(TKey key)
@@ -109,7 +108,7 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem>(Lazy<TRepository>
         }
     }
 
-    protected virtual async ValueTask DisposeAsyncCore() { }
+    protected virtual ValueTask DisposeAsyncCore() => ValueTask.CompletedTask;
 
     protected QueryableRepository<TItem> Repository
         => _repository.Value as QueryableRepository<TItem>

@@ -47,8 +47,8 @@ public class AnsiOutput
         => AnsiConsole.Write(value);
     public virtual void Write(char value)
         => AnsiConsole.Write(value);
-    public virtual void Write(string? value)
-        => AnsiConsole.Markup(value ?? string.Empty);
+    public virtual void Write(string value)
+        => AnsiConsole.Markup(value);
     public virtual void Write(object? value) {
         if (value is IRenderable renderable) AnsiConsole.Write(renderable);
         else AnsiConsole.Markup($"{value}");
@@ -149,7 +149,7 @@ public class AnsiOutput
         WriteLine();
         Write(value);
     }
-    public virtual void WriteOntoNewLine(string? value) {
+    public virtual void WriteOntoNewLine(string value) {
         WriteLine();
         Write(value);
     }
@@ -198,6 +198,12 @@ public class AnsiOutput
         WriteLine();
         WriteLine($"[bold red]{message ?? "An error has occurred."}[/]");
         AnsiConsole.WriteException(exception, _exceptionFormat);
+        WriteLine();
+    }
+
+    public virtual void WriteError(string message) {
+        WriteLine();
+        WriteLine($"[bold red]An error has occurred:[/] {IsNotNullOrWhiteSpace(message)}");
         WriteLine();
     }
 }

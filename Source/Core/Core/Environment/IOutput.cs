@@ -19,12 +19,12 @@ public interface IOutput {
     void Write(float value);
     void Write(int value);
     void Write(long value);
+    void Write(string value);
     void Write(object? value);
     void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0);
     void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1);
     void Write([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);
     void Write([Syntax(Syntax.CompositeFormat)] string format, params object?[] args);
-    void Write(string? value);
     void Write(StringBuilder? builder);
     void Write(uint value);
     void Write(ulong value);
@@ -43,12 +43,12 @@ public interface IOutput {
     void WriteLine(uint value);
     void WriteLine(long value);
     void WriteLine(ulong value);
+    void WriteLine(string value);
     void WriteLine(object? value);
     void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0);
     void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1);
     void WriteLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);
     void WriteLine([Syntax(Syntax.CompositeFormat)] string format, params object?[] arg);
-    void WriteLine(string? value);
     void WriteLine(StringBuilder? builder);
     void WriteOntoNewLine(bool value);
     void WriteOntoNewLine(char value);
@@ -61,12 +61,13 @@ public interface IOutput {
     void WriteOntoNewLine(uint value);
     void WriteOntoNewLine(long value);
     void WriteOntoNewLine(ulong value);
+    void WriteOntoNewLine(string value);
     void WriteOntoNewLine(object? value);
     void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0);
     void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1);
     void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);
     void WriteOntoNewLine([Syntax(Syntax.CompositeFormat)] string format, params object?[] args);
-    void WriteOntoNewLine(string? value);
     void WriteOntoNewLine(StringBuilder? builder);
     void WriteError(Exception exception, string? message = null);
+    void WriteError(string message);
 }

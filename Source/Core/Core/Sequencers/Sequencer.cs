@@ -40,7 +40,7 @@ public abstract class Sequencer<TSequencer, TValue>
     }
 
     [MemberNotNullWhen(true, nameof(_current))]
-    protected abstract bool TryGenerateNext(TValue current, out TValue next);
+    protected abstract bool TryGenerateNext(TValue? current, out TValue next);
 
     protected virtual void Dispose(bool disposing) {
         if (_disposed) return;

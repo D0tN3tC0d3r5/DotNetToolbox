@@ -1,27 +1,28 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
-public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler providerHandler)
+public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler)
     : Command<ProviderUpdateCommand>(parent, "Update", ["edit"]) {
-    private readonly IProviderHandler _providerHandler = providerHandler;
+    private readonly IProviderHandler _handler = handler;
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var key = AnsiConsole.Ask<uint>("Enter the key of the provider to update:");
-        var provider = _providerHandler.GetByKey(key);
-
-        if (provider == null) {
-            Output.WriteLine($"[red]Provider with key '{key}' not found.[/]");
-            return Result.InvalidTask($"Provider with key '{key}' not found.");
+        var provider = this.EntitySelectionPrompt(_handler.List(), "update", "Provider", m => m.Key, m => m.Name);
+        if (provider is null) {
+            Logger.LogInformation("Provider updated action cancelled.");
+            return Result.SuccessTask();
         }
 
-        provider.Name = AnsiConsole.Ask("Enter the new name for the provider:", provider.Name);
+        provider.Name = Input.TextPrompt("Enter the new name for the provider")
+                             .For("name").WithDefault(provider.Name).AsRequired();
 
         try {
-            _providerHandler.Update(provider);
-            Output.WriteLine($"[green]Provider updated successfully.[/]");
+            _handler.Update(provider);
+            Output.WriteLine($"[green]Provider '{provider.Name}' updated successfully.[/]");
+            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' updated successfully.", provider.Key, provider.Name);
             return Result.SuccessTask();
         }
         catch (Exception ex) {
-            Output.WriteError(ex, "Error updating the provider.");
+            Output.WriteError("Error updating the provider.");
+            Logger.LogError(ex, "Error updating the provider '{ProviderKey}:{ProviderName}'.", provider.Key, provider.Name);
             return Result.InvalidTask(ex.Message);
         }
     }

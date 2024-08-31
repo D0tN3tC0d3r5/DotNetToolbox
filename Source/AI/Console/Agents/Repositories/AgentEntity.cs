@@ -1,8 +1,8 @@
-﻿namespace AI.Sample.Providers.Model;
+﻿namespace AI.Sample.Agents.Repositories;
 
-public class ProviderEntity
-    : Entity<ProviderEntity, uint> {
-    public string Name { get; set; }
+public class AgentEntity
+        : Entity<AgentEntity, uint> {
+    public string Name { get; set; } = string.Empty;
 
     public override Result Validate(IContext? context = null) {
         var result = base.Validate(context);

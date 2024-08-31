@@ -18,6 +18,7 @@ global using Microsoft.Extensions.Configuration.Json;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.FileProviders;
 global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
 
 global using Spectre.Console;
 

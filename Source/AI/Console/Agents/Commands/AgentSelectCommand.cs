@@ -1,7 +1,7 @@
 ﻿namespace AI.Sample.Agents.Commands;
 
 public class AgentSelectCommand(IHasChildren parent, IAgentHandler agentHandler)
-    : Command<AgentSelectCommand>(parent, "Select", ["sel"]) {
+    : Command<AgentSelectCommand>(parent, "SelectionPrompt", ["sel"]) {
     private readonly IAgentHandler _agentHandler = agentHandler;
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
@@ -13,7 +13,7 @@ public class AgentSelectCommand(IHasChildren parent, IAgentHandler agentHandler)
         }
 
         var prompt = new SelectionPrompt<AgentEntity>()
-                .Title("Select an agent:")
+                .Title("SelectionPrompt an agent:")
                 .AddChoices(agents)
                 .UseConverter(c => $"{c.Key}: {c.Name}");
         var selected = AnsiConsole.Prompt(prompt);
@@ -24,7 +24,7 @@ public class AgentSelectCommand(IHasChildren parent, IAgentHandler agentHandler)
             return Result.SuccessTask();
         }
         catch (Exception ex) {
-            Output.WriteError(ex, "Error selecting an agent.");
+            Output.WriteError("Error selecting an agent.");
             return Result.ErrorTask(ex.Message);
         }
     }

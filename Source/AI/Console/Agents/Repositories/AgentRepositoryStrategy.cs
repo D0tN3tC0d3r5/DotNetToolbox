@@ -2,13 +2,12 @@
 
 public class AgentRepositoryStrategy(IConfigurationRoot configuration,
                                      Lazy<IAgentRepository> repository)
-    : JsonFileRepositoryStrategy<IAgentRepository, AgentEntity, uint, INumericSequencer>("agents", configuration, repository),
+    : JsonFileRepositoryStrategy<IAgentRepository, AgentEntity, uint>("agents", configuration, repository),
       IAgentRepositoryStrategy {
     protected override uint FirstKey { get; } = 1;
 
-    protected override Result<uint> GenerateNextKey() {
-        if (LastUsedKey == default) LastUsedKey = FirstKey;
-        else ++LastUsedKey;
-        return Result.Success(LastUsedKey);
+    protected override bool TryGenerateNextKey(out uint next) {
+        next = LastUsedKey == default ? FirstKey : ++LastUsedKey;
+        return true;
     }
 }

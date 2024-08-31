@@ -1,4 +1,6 @@
 ﻿
+using AI.Sample.Main.Commands;
+
 namespace AI.Sample.Providers.Commands;
 
 public class ProvidersCommand

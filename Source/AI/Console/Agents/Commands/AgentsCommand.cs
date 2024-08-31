@@ -1,4 +1,6 @@
-﻿namespace AI.Sample.Agents.Commands;
+﻿using AI.Sample.Main.Commands;
+
+namespace AI.Sample.Agents.Commands;
 
 public class AgentsCommand
     : Command<AgentsCommand> {

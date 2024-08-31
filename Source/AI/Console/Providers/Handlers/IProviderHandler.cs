@@ -3,6 +3,7 @@
 public interface IProviderHandler {
     ProviderEntity[] List();
     ProviderEntity? GetByKey(uint key);
+    ProviderEntity? GetByName(string name);
     ProviderEntity Create(Action<ProviderEntity> setUp);
     void Add(ProviderEntity provider);
     void Update(ProviderEntity provider);

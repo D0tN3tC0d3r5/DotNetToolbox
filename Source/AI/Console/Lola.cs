@@ -11,6 +11,7 @@ public class Lola
         AddCommand<SettingsCommand>();
         AddCommand<VersionCommand>();
         AddCommand<ProvidersCommand>();
+        AddCommand<ModelsCommand>();
         AddCommand<AgentsCommand>();
     }
 

@@ -1,4 +1,4 @@
-﻿namespace AI.Sample.Commands;
+﻿namespace AI.Sample.Main.Commands;
 
 public class HelpCommand : Command<HelpCommand> {
     private const int _indentSize = 4;

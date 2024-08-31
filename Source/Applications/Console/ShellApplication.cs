@@ -26,13 +26,12 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
     where TApplication : ShellApplication<TApplication, TBuilder, TSettings>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {
-    private bool _useDefaultHelp;
 
     protected ShellApplication(string[] args, IServiceCollection services)
         : base(args, services) {
         AddCommand<ExitCommand>();
         AddCommand<ClearScreenCommand>();
-        if (_useDefaultHelp) AddCommand<HelpCommand>();
+        if (Settings.UseDefaultHelp) AddCommand<HelpCommand>();
     }
     protected bool AllowMultiLine { get; set; }
 
@@ -79,7 +78,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
         Output.Write(GetPrePromptText());
         Output.WritePrompt();
         var input = AllowMultiLine
-                        ? Input.ReadMultiLine(Enter, Control)
+                        ? Input.ReadText(Enter, Control)
                         : Input.ReadLine() ?? string.Empty;
         return ProcessUserInput(input, ct);
     }

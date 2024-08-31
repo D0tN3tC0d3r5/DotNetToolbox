@@ -1,4 +1,4 @@
-namespace AI.Sample.Commands;
+namespace AI.Sample.Main.Commands;
 
 public class VersionCommand : Command<VersionCommand> {
     public VersionCommand(IHasChildren parent)
