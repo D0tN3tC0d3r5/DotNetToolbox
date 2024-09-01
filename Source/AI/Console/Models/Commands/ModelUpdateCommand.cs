@@ -27,7 +27,7 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
         var currentProvider = _providerHandler.GetByKey(model.ProviderKey);
         var provider = Input.SelectionPrompt<ProviderEntity>("Select a provider:")
                             .For("provider").ConvertWith(p => $"{p.Key}: {p.Name}")
-                            .WithDefault(currentProvider).AddChoices(_providerHandler.List())
+                            .WithDefault(currentProvider!).AddChoices(_providerHandler.List())
                             .Show();
         model.ProviderKey = provider.Key;
 

@@ -8,7 +8,7 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
     private bool _allowNoChoice = false;
     private string _noChoiceText = string.Empty;
     private Func<TValue, string>? _converter;
-    private List<TValue?> _choices = [];
+    private List<TValue> _choices = [];
     private TValue? _defaultValue;
     private string _fieldName = "value";
 
