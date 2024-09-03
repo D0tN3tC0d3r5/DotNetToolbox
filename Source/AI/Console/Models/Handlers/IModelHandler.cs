@@ -9,4 +9,7 @@ public interface IModelHandler {
     void Remove(string key);
     ModelEntity[] ListByProvider(string provider);
     void RemoveByProviderKey(uint providerKey);
+
+    void Select(string key);
+    ModelEntity? Selected { get; }
 }

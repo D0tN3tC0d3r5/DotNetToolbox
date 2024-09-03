@@ -8,7 +8,7 @@ public class ProviderListCommand(IHasChildren parent, IProviderHandler providerH
         var providers = _providerHandler.List();
 
         if (providers.Length == 0) {
-            Output.WriteLine("[yellom]No providers found.[/]");
+            Output.WriteLine("[yellow]No providers found.[/]");
             Logger.LogInformation("No providers found. List providers action cancelled.");
             return Result.SuccessTask();
         }

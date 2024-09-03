@@ -13,7 +13,7 @@ public class ArgumentsParserTests {
     public ArgumentsParserTests() {
         _serviceProvider.GetService(typeof(ILoggerFactory)).Returns(_loggerFactory);
         _app.Services.Returns(_serviceProvider);
-        _app.Context.Returns([]);
+        _app.Context.Returns(new Context());
         _option = new Option(_app, "Option", "o");
         _flag = new Flag(_app, "Flag", ["f"]);
         _requiredParameter = new Parameter(_app, "Name");
@@ -307,7 +307,7 @@ public class ArgumentsParserTests {
         _app.Children.Returns([_flag, _option, _requiredParameter, _parameter]);
         _app.Options.Returns([_flag, _option]);
         _app.Parameters.Returns([_requiredParameter, _parameter]);
-        _app.Context.Returns([]);
+        _app.Context.Returns(new Context());
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);

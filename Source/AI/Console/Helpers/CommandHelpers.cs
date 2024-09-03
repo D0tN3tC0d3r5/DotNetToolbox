@@ -9,7 +9,7 @@ public static class CommandHelpers {
         public TItem? Item { get; } = item;
     }
 
-    public static TItem? EntitySelectionPrompt<TItem, TKey>(this ICommand _,
+    public static TItem? EntitySelectionPrompt<TItem, TKey>(this ICommand command,
                                                       IEnumerable<TItem> entities,
                                                       string action,
                                                       string name,
@@ -20,7 +20,7 @@ public static class CommandHelpers {
         where TItem : class, IEntity<TKey>
         where TKey : notnull {
         if (!IsNotNull(entities).Any()) {
-            AnsiConsole.WriteLine($"[yellow]No {IsNotNullOrWhiteSpace(name)} available to {IsNotNullOrWhiteSpace(action)}.[/]");
+            command.Output.WriteLine($"[yellow]No {IsNotNullOrWhiteSpace(name)} available to {IsNotNullOrWhiteSpace(action)}.[/]");
             return null;
         }
 
@@ -28,15 +28,13 @@ public static class CommandHelpers {
         var cancelOption = new ListItem<TItem, TKey>(cancelKey, cancelText ?? "Cancel", null);
         choices.Add(cancelOption);
 
-        var prompt = new SelectionPrompt<ListItem<TItem, TKey>>()
-            .Title($"SelectionPrompt {IndefinteArticleFor(name[0])} {name} to {action} (or cancel):")
-            .AddChoices(choices)
-            .UseConverter(e => IsCancel(e) ? $"[yellow bold]{e.Text}[/]" : e.Text);
-
-        return AnsiConsole.Prompt(prompt).Item;
+        var prompt = $"Select {IndefiniteArticleFor(name[0])} {name} to {action} (or cancel):";
+        return command.Input.SelectionPrompt<ListItem<TItem, TKey>>(prompt)
+                      .AddChoices([.. choices])
+                      .ConvertWith(e => IsCancel(e) ? $"[yellow bold]{e.Text}[/]" : e.Text)
+                      .Show().Item;
 
         bool IsCancel(ListItem<TItem, TKey> item) => item.Key?.Equals(cancelKey) ?? cancelKey is null;
-        static string IndefinteArticleFor(char c)
-            => c is 'a' or 'e' or 'i' or 'o' or 'u' ? "an" : "a";
+        static string IndefiniteArticleFor(char c) => c is 'a' or 'e' or 'i' or 'o' or 'u' ? "an" : "a";
     }
 }

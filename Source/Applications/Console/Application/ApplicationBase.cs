@@ -1,11 +1,15 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
-public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[] args, IServiceCollection services)
-    : ApplicationBase<TSettings>(args, services),
+public abstract class ApplicationBase<TApplication, TBuilder, TSettings> : ApplicationBase<TSettings>,
       IApplication<TApplication, TBuilder, TSettings>
     where TApplication : ApplicationBase<TApplication, TBuilder, TSettings>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {
+    public ApplicationBase(string[] args, IServiceCollection services)
+        : base(args, services) {
+        services.AddSingleton<TApplication>((TApplication)this);
+        services.AddSingleton<Lazy<TApplication>>(_ => new Lazy<TApplication>(() => (TApplication)this));
+    }
 
     public static TBuilder CreateBuilder(Action<IConfigurationBuilder>? setConfiguration = null)
         => CreateBuilder([], setConfiguration);
@@ -86,6 +90,12 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>(string[
     protected virtual bool HandleException<TException>(TException ex)
         where TException : Exception => false;
 
+    protected Task<Result> ProcessCommand(string command, CancellationToken ct)
+        => ProcessCommand([command], ct);
+
+    protected Task<Result> ProcessCommand(string command, string[] args, CancellationToken ct)
+        => ProcessCommand([command, .. args], ct);
+
     protected virtual async Task<Result> ProcessCommand(string[] input, CancellationToken ct) {
         if (input.Length == 0) return Success();
         var command = FindCommand((this as IHasChildren).Commands, input[0]);
@@ -105,9 +115,12 @@ public abstract class ApplicationBase<TSettings>
     : IApplication<TSettings>
     where TSettings : ApplicationSettings, new() {
     private readonly AsyncServiceScope _servicesScope;
+
+    private static Regex _versionRegex = new(@"\.([a-z]\S*)$", Compiled | IgnoreCase | Singleline);
     protected ApplicationBase(string[] args, IServiceCollection services) {
         Arguments = args;
         services.AddSingleton<IApplication>(this);
+        services.AddSingleton<Lazy<IApplication>>(_ => new Lazy<IApplication>(() => this));
         var provider = services.BuildServiceProvider();
         _servicesScope = provider.CreateAsyncScope();
         Services = _servicesScope.ServiceProvider;
@@ -126,6 +139,7 @@ public abstract class ApplicationBase<TSettings>
         DisplayVersion = Environment.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? Version;
         var plusIndex = DisplayVersion.IndexOf('+');
         if (plusIndex > 0) DisplayVersion = DisplayVersion[..plusIndex];
+        DisplayVersion = _versionRegex.Replace(DisplayVersion, "-$1");
 
         var ada = Environment.Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
         Description = ada ?? string.Empty;
@@ -167,14 +181,18 @@ public abstract class ApplicationBase<TSettings>
     protected IGuidProvider Guid => Environment.OperatingSystem.Guid;
     public IPromptFactory PromptFactory { get; }
 
-    public NodeContext Context { get; } = [];
+    public IContext Context { get; } = new Context();
 
     public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
     public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
     public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
 
+    protected virtual Task<Result> OnStart(CancellationToken ct = default) => SuccessTask();
+    protected virtual Result OnExit() => Success();
+
     public virtual void Exit(int code = IApplication.DefaultExitCode) {
+        OnExit();
         ExitCode = code;
         IsRunning = false;
     }

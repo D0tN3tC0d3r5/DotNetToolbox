@@ -9,7 +9,7 @@ public class AgentListCommand(IHasChildren parent, IAgentHandler agentHandler)
 
         var table = new Table();
         table.AddColumn("Name");
-        table.AddColumn("Is Selected");
+        table.AddColumn("Is IsSelected");
 
         foreach (var agent in agents) {
             table.AddRow(

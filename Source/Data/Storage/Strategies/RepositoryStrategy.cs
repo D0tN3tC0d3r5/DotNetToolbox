@@ -1,7 +1,7 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public class RepositoryStrategy<TStrategy, TRepository, TItem, TKey>(Lazy<TRepository> repository)
-    : RepositoryStrategy<TStrategy, TRepository, TItem>(repository)
+public class RepositoryStrategy<TStrategy, TRepository, TItem, TKey>()
+    : RepositoryStrategy<TStrategy, TRepository, TItem>()
     , IRepositoryStrategy<TItem, TKey>
     where TStrategy : RepositoryStrategy<TStrategy, TRepository, TItem, TKey>
     where TRepository : class, IQueryableRepository<TItem>
@@ -94,12 +94,11 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem, TKey>(Lazy<TRepos
     #endregion
 }
 
-public class RepositoryStrategy<TStrategy, TRepository, TItem>(Lazy<TRepository> repository)
+public class RepositoryStrategy<TStrategy, TRepository, TItem>()
     : IRepositoryStrategy<TItem>
     where TStrategy : RepositoryStrategy<TStrategy, TRepository, TItem>
     where TRepository : class, IQueryableRepository<TItem> {
     private bool _disposed;
-    private readonly Lazy<TRepository> _repository = repository;
 
     public async ValueTask DisposeAsync() {
         if (!_disposed) {
@@ -109,10 +108,7 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem>(Lazy<TRepository>
     }
 
     protected virtual ValueTask DisposeAsyncCore() => ValueTask.CompletedTask;
-
-    protected QueryableRepository<TItem> Repository
-        => _repository.Value as QueryableRepository<TItem>
-        ?? throw new InvalidOperationException($"Repository of type {typeof(TRepository).Name} is not assinable to 'QueryableRepository<{typeof(TItem).Name}>'.");
+    public QueryableRepository<TItem> Repository { get; set; }
 
     #region Blocking
 
@@ -131,7 +127,7 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem>(Lazy<TRepository>
     public virtual TItem? Find(Expression<Func<TItem, bool>> predicate)
         => throw new NotImplementedException();
 
-    public virtual Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null)
+    public virtual Result<TItem> Create(Action<TItem>? setItem = null, IContext? validationContext = null)
         => throw new NotImplementedException();
     public virtual Result Add(TItem newItem, IContext? validationContext = null)
         => throw new NotImplementedException();

@@ -6,6 +6,6 @@ public class Model
     public required string Name { get; init; }
     public required uint MaximumContextSize { get; init; }
     public required uint MaximumOutputTokens { get; init; }
-    public DateOnly CreatedOn { get; init; }
-    public string? OwnedBy { get; init; }
+    public DateOnly TrainingDataCutOff { get; init; }
+    public string ProviderId { get; init; }
 }

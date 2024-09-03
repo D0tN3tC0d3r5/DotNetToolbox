@@ -12,22 +12,22 @@ public class ModelInfoCommand : Command<ModelInfoCommand> {
     }
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var model = this.EntitySelectionPrompt(_handler.List(), "show", "Model", m => m.Key, m => m.Name);
+        var model = this.EntitySelectionPrompt(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
         if (model is null) {
-            Logger.LogInformation("No model selected. Model display action cancelled.");
+            Logger.LogInformation("No model selected. Settings display action cancelled.");
             return Result.SuccessTask();
         }
 
         var provider = _providerHandler.GetByKey(model.ProviderKey)!;
 
         var table = new Table();
-        table.RoundedBorder().Title($"Model Information: [yellow]{model.Name}[/]");
+        table.RoundedBorder().Title($"Settings Information: [yellow]{model.Name}[/]");
         table.AddColumn("[blue]Property[/]");
         table.AddColumn("[blue]Value[/]");
 
         table.AddRow("Id", model.Key);
         table.AddRow("Name", model.Name);
-        table.AddRow("Provider", provider.Name);
+        table.AddRow("ProviderId", provider.Name);
         table.AddRow("Maximum Context Size", model.MaximumContextSize.ToString("#,##0").PadLeft(30));
         table.AddRow("Maximum Output Tokens", model.MaximumOutputTokens.ToString("#,##0").PadLeft(30));
         table.AddRow("Input Cost per MTok", model.InputCostPerMillionTokens.ToString("$#,##0.00").PadLeft(30));

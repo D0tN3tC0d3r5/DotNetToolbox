@@ -19,7 +19,7 @@ public partial class InMemoryRepositoryTests {
 
     private sealed class DummyRepository : Repository<DummyRepositoryStrategy, TestEntity, int>;
     private sealed class DummyRepositoryStrategy()
-        : RepositoryStrategy<DummyRepositoryStrategy, DummyRepository, TestEntity, int>(new Lazy<DummyRepository>(() => new DummyRepository()));
+        : RepositoryStrategy<DummyRepositoryStrategy, DummyRepository, TestEntity, int>();
     private static readonly DummyRepository _dummyRepository = [];
 
     [Fact]

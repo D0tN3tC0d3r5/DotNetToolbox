@@ -12,7 +12,7 @@ public class HelpCommand : Command<HelpCommand> {
     }
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var target = (string?)Context.GetValueOrDefault("Target");
+        var target = Context.GetValueOrDefault<string>("Target");
         var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? _parent;
         var helpText = GetHelp(node);

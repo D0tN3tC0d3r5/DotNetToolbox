@@ -8,7 +8,9 @@ public interface IRepositoryStrategy
 public interface IRepositoryStrategy<TItem>
     : IRepositoryStrategy
     , IReadOnlyRepository<TItem>
-    , IUpdatableRepository<TItem>;
+    , IUpdatableRepository<TItem> {
+    QueryableRepository<TItem> Repository { get; set; }
+}
 
 public interface IRepositoryStrategy<TItem, TKey>
     : IRepositoryStrategy<TItem>

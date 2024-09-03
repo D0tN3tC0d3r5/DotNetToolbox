@@ -466,7 +466,7 @@ public class ApplicationBaseTests {
         var serviceProvider = CreateFakeServiceProvider();
         var app = new TestApplication([], serviceProvider);
         var flag = app.AddFlag("flag", (Action)(() => throw new()));
-        var context = new NodeContext();
+        var context = new Context();
 
         // Act
         var result = () => flag.Read(context);
@@ -498,7 +498,7 @@ public class ApplicationBaseTests {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
         var app = new TestApplication([], serviceProvider);
-        var context = new NodeContext();
+        var context = new Context();
 
         // Act
         var subject = app.AddFlag("flag", action);

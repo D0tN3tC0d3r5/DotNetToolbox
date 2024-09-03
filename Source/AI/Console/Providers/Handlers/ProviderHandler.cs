@@ -1,6 +1,7 @@
 ﻿namespace AI.Sample.Providers.Handlers;
 
-public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler> modelHandler, ILogger<ProviderHandler> logger) : IProviderHandler {
+public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler> modelHandler, ILogger<ProviderHandler> logger)
+    : IProviderHandler {
     private readonly IProviderRepository _repository = repository;
     private readonly Lazy<IModelHandler> _modelHandler = modelHandler;
     private readonly ILogger<ProviderHandler> _logger = logger;
@@ -23,7 +24,7 @@ public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler>
 
     public void Update(ProviderEntity provider) {
         if (_repository.FindByKey(provider.Key) == null)
-            throw new InvalidOperationException($"Provider with key '{provider.Key}' not found.");
+            throw new InvalidOperationException($"ProviderId with key '{provider.Key}' not found.");
 
         _repository.Update(provider);
         _logger.LogInformation("Updated provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
@@ -31,7 +32,7 @@ public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler>
 
     public void Remove(uint key) {
         var provider = _repository.FindByKey(key)
-                     ?? throw new InvalidOperationException($"Provider with key '{key}' not found.");
+                     ?? throw new InvalidOperationException($"ProviderId with key '{key}' not found.");
 
         _modelHandler.Value.RemoveByProviderKey(key);
         _logger.LogInformation("Removed all models associated with provider: {ProviderKey}", key);

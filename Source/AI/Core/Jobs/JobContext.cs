@@ -2,21 +2,11 @@
 
 public class JobContext
     : Context {
-    public JobContext(IServiceProvider services, IDateTimeProvider? dateTime = null)
-        : this(services, new Context(), dateTime) {
-    }
-
-    public JobContext(IServiceProvider services, IContext source, IDateTimeProvider? dateTime = null)
+    public JobContext(IEnumerable<KeyValuePair<string, object>>? source = null)
         : base(source) {
-        World = new(dateTime);
         Memory = [];
         Assets = [];
         Tools = [];
-    }
-
-    public World World {
-        get => (World)this[nameof(World)];
-        init => this[nameof(World)] = value;
     }
 
     public Map Memory {
@@ -29,23 +19,23 @@ public class JobContext
         init => this[nameof(Assets)] = value;
     }
 
-    public UserProfile? User {
-        get => (UserProfile?)this[nameof(User)]!;
-        init => this[nameof(User)] = value;
-    }
-
     public Map<Tool> Tools {
         get => (Map<Tool>)this[nameof(Tools)];
         init => this[nameof(Tools)] = value;
     }
 
-    public IAgent Agent {
-        get => (IAgent)this[nameof(Agent)];
-        init => this[nameof(Agent)] = value;
+    public required World World {
+        get => (World)this[nameof(World)];
+        init => this[nameof(World)] = value;
     }
 
-    public IJob Job {
-        get => (IJob)this[nameof(Job)];
-        set => this[nameof(Job)] = value;
+    public required UserProfile? User {
+        get => (UserProfile?)this[nameof(User)]!;
+        init => this[nameof(User)] = value;
+    }
+
+    public required IAgent Agent {
+        get => (IAgent)this[nameof(Agent)];
+        init => this[nameof(Agent)] = value;
     }
 }

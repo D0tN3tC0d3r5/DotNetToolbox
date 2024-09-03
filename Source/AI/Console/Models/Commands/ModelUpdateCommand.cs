@@ -12,9 +12,9 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
     }
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var model = this.EntitySelectionPrompt(_handler.List(), "show", "Model", m => m.Key, m => m.Name);
+        var model = this.EntitySelectionPrompt(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
         if (model is null) {
-            Logger.LogInformation("Model updated action cancelled.");
+            Logger.LogInformation("Settings updated action cancelled.");
             return Result.SuccessTask();
         }
 
@@ -26,7 +26,7 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
 
         var currentProvider = _providerHandler.GetByKey(model.ProviderKey);
         var provider = Input.SelectionPrompt<ProviderEntity>("Select a provider:")
-                            .For("provider").ConvertWith(p => $"{p.Key}: {p.Name}")
+                            .ConvertWith(p => $"{p.Key}: {p.Name}")
                             .WithDefault(currentProvider!).AddChoices(_providerHandler.List())
                             .Show();
         model.ProviderKey = provider.Key;
@@ -53,8 +53,8 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
 
         try {
             _handler.Update(model);
-            Logger.LogInformation("Model '{ModelKey}:{ModelName}' updated successfuly.", model.Key, model.Name);
-            Output.WriteLine("[green]Model updated successfully.[/]");
+            Logger.LogInformation("Settings '{ModelKey}:{ModelName}' updated successfully.", model.Key, model.Name);
+            Output.WriteLine("[green]Settings updated successfully.[/]");
             return Result.SuccessTask();
         }
         catch (Exception ex) {
@@ -62,36 +62,5 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
             Output.WriteError("Error updating the model.");
             return Result.ErrorTask(ex.Message);
         }
-        //model.Key = AnsiConsole.TextPrompt("[yellow]Enter the new identifier for the model[/]", model.Key);
-        //model.Name = AnsiConsole.TextPrompt("[yellow]Enter the new name for the model[/]", model.Name);
-
-        //var providers = _providerHandler.List();
-        //var currentProvider = _providerHandler.GetByKey(model.ProviderKey);
-        //var selectTitle = $"[yellow]SelectionPrompt a new provider[/] [green]({IsNotNull(currentProvider).Name})[/]";
-        //var providerPrompt = new SelectionPrompt<ProviderEntity>()
-        //    .Title(selectTitle)
-        //    .AddChoices(providers)
-        //    .UseConverter(p => $"{p.Key}: {p.Name}");
-        //var selectedProvider = AnsiConsole.Show(providerPrompt);
-        //model.ProviderKey = selectedProvider.Key;
-        //Output.WriteLine($"{selectTitle}: {selectedProvider.Name}");
-
-        //model.MaximumContextSize = AnsiConsole.TextPrompt("[yellow]Enter the new maximum context size[/]", model.MaximumContextSize);
-        //model.MaximumOutputTokens = AnsiConsole.TextPrompt("[yellow]Enter the new maximum output tokens[/]", model.MaximumOutputTokens);
-        //model.InputCostPerMillionTokens = AnsiConsole.TextPrompt<decimal>("[yellow]Enter the input cost per million tokens[/]", model.InputCostPerMillionTokens);
-        //model.OutputCostPerMillionTokens = AnsiConsole.TextPrompt<decimal>("[yellow]Enter the output cost per million tokens[/]", model.OutputCostPerMillionTokens);
-        //model.TrainingDataCutOff = AnsiConsole.TextPrompt<DateOnly>("[yellow]Enter the training data cut-off date[/]", model.TrainingDataCutOff);
-
-        //try {
-        //    _handler.Update(model);
-        //    Output.WriteLine($"[green]Model '{model.Name}' updated successfully.[/]");
-        //    Logger.LogInformation("Model '{ModelKey}:{ModelName}' updated successfuly.", model.Key, model.Name);
-        //    return Result.SuccessTask();
-        //}
-        //catch (Exception ex) {
-        //    Output.WriteError("Error updating the model.");
-        //    Logger.LogError(ex, "Error updating the model '{ModelKey}:{ModelName}'.", model.Key, model.Name);
-        //    return Result.ErrorTask(ex.Message);
-        //}
     }
 }

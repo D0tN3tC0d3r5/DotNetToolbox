@@ -4,10 +4,10 @@ public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactor
     : Agent<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
     protected override ChatRequest CreateRequest(IJob job, IChat chat)
         => new(this, chat) {
-            Temperature = Model.Temperature,
-            StopSequences = Model.StopSequences.Count == 0 ? null : [.. Model.StopSequences],
-            MinimumTokenProbability = Model.TokenProbabilityCutOff,
-            ResponseIsStream = Model.ResponseIsStream,
+            Temperature = Settings.Temperature,
+            StopSequences = Settings.StopSequences.Count == 0 ? null : [.. Settings.StopSequences],
+            MinimumTokenProbability = Settings.TokenProbabilityCutOff,
+            ResponseIsStream = Settings.ResponseIsStream,
 
             NumberOfChoices = 1,
             FrequencyPenalty = 0,

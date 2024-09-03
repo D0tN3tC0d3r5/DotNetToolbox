@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public sealed class Command : Command<Command> {
-    internal Command(IHasChildren parent, string name, string[] aliases, Func<Command, CancellationToken, Task<Result>>? execute = null)
+    internal Command(IHasChildren parent, string name, string[]? aliases = null, Func<Command, CancellationToken, Task<Result>>? execute = null)
         : base(parent, name, aliases, execute) {
     }
 }
@@ -10,7 +10,7 @@ public class Command<TCommand>(IHasChildren parent, string name, string[]? alias
     : Node<TCommand>(parent, name, aliases ?? []),
       ICommand
     where TCommand : Command<TCommand> {
-    public NodeContext Context { get; } = [];
+    public IContext Context { get; } = new Context();
 
     public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];

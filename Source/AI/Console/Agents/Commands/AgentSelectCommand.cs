@@ -12,11 +12,10 @@ public class AgentSelectCommand(IHasChildren parent, IAgentHandler agentHandler)
             return Result.SuccessTask();
         }
 
-        var prompt = new SelectionPrompt<AgentEntity>()
-                .Title("SelectionPrompt an agent:")
-                .AddChoices(agents)
-                .UseConverter(c => $"{c.Key}: {c.Name}");
-        var selected = AnsiConsole.Prompt(prompt);
+        var selected = Input.SelectionPrompt<AgentEntity>("Select an agent:")
+                            .AddChoices(agents)
+                            .ConvertWith(c => $"{c.Key}: {c.Name}")
+                            .Show();
 
         try {
             _agentHandler.Select(selected.Key);

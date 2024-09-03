@@ -2,7 +2,6 @@
 
 public interface ISelectionPromptBuilder<TValue>
     where TValue : notnull {
-    SelectionPromptBuilder<TValue> For(string name);
     SelectionPromptBuilder<TValue> AllowNoChoice(string noChoiceText);
     SelectionPromptBuilder<TValue> WithDefault(TValue defaultValue);
     SelectionPromptBuilder<TValue> ConvertWith(Func<TValue, string> converter);

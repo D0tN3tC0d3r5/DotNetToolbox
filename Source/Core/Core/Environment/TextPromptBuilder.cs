@@ -4,7 +4,8 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
     : ITextPromptBuilder<TValue> {
     private readonly IOutput _output = output;
     private string _prompt = prompt;
-    private bool _isRequired = true;
+    private bool _isRequired;
+    private bool _addLineBreak;
     private Func<TValue, Result>? _validator;
     private Func<TValue, string>? _converter;
     private List<TValue> _choices = [];
@@ -26,8 +27,15 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
     }
 
     public TextPromptBuilder<TValue> WithDefault(TValue defaultValue) {
-        _defaultValue = IsNotNull(defaultValue);
-        HasDefault = true;
+        if (defaultValue is null) return this;
+        _defaultValue = defaultValue;
+        HasDefault = _defaultValue is not null
+                  && (_defaultValue is not string text || !string.IsNullOrEmpty(text));
+        return this;
+    }
+
+    public TextPromptBuilder<TValue> AnswerInNewLine() {
+        _addLineBreak = true;
         return this;
     }
 
@@ -78,7 +86,7 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         return this;
     }
 
-    private Func<TValue, ValidationResult>? GetValidator()
+    private Func<TValue, ValidationResult>? BuildValidator()
         => value => {
             var result = _validator?.Invoke(value);
             if (result?.IsSuccess != false) return ValidationResult.Success();
@@ -90,24 +98,30 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         };
 
     public TValue Show() {
+        var isQuestion = _prompt.EndsWith('?');
+        _prompt = $"[teal]{_prompt}[/]";
+        if (!_isRequired) _prompt = $"[green][[Optional]][/] {_prompt}";
+        //        if (HasDefault) _prompt += $" [[[blue]{_defaultValue}[/]]]";
+        if (_addLineBreak) _prompt += _output.NewLine;
         var prompt = new TextPrompt<TValue>(_prompt);
-        prompt = prompt.AllowEmpty();
-        prompt = prompt.PromptStyle(new Style(foreground: Color.Yellow));
-        prompt = prompt.DefaultValueStyle(new Style(foreground: Color.Green));
-        prompt = prompt.ChoicesStyle(new Style(foreground: Color.Blue));
-        if (!_isRequired) _prompt = $"[Optional] {_prompt}";
-        if (HasDefault) prompt = prompt.DefaultValue(_defaultValue);
+        prompt.DefaultValue(_defaultValue);
+        prompt.AllowEmpty()
+              .DefaultValueStyle(new Style(foreground: Color.Green))
+              .ChoicesStyle(new Style(foreground: Color.Blue));
         if (_maskChar is not null) prompt = prompt.Secret(_maskChar);
         if (_choices.Count > 0) {
-            prompt = prompt.ShowChoices();
+            prompt.AddChoices(_choices);
+            prompt.ShowChoices();
+            var oldValidator = _validator;
             _validator = value => {
-                var result = _validator?.Invoke(value) ?? Result.Success();
+                var result = oldValidator?.Invoke(value) ?? Result.Success();
                 if (!_choices.Contains(value)) result += new ValidationError($"The {_fieldName} must be one of the given choices.");
                 return result;
             };
         }
-        if (_converter is not null) prompt = prompt.WithConverter(_converter);
-        if (_validator is not null) prompt.Validator = GetValidator();
+        if (_converter is not null) prompt.Converter = _converter;
+        if (_validator is not null) prompt.Validator = BuildValidator();
+
         return AnsiConsole.Prompt(prompt);
     }
 

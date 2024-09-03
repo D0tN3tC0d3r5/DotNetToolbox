@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public class AgentModel
-    : IAgentModel {
+public class AgentSettings
+    : IAgentSettings {
     private const byte _maximumRetries = 10;
     private const byte _maximumTemperature = 2;
     private const byte _maximumTokenProbabilityCutOff = 1;
@@ -12,12 +12,12 @@ public class AgentModel
     private const byte _defaultTemperature = 1;
     private const decimal _defaultProbabilityCutOff = 0;
 
-    public required IModel Model { get; init; } = default!;
-    public byte MaximumNumberOfRetries { get; init; } = _defaultNumberOfRetries;
-    public uint MaximumOutputTokens { get; init; } = _defaultMaximumOutputTokens;
-    public decimal Temperature { get; init; } = _defaultTemperature;
-    public decimal TokenProbabilityCutOff { get; init; } = _defaultProbabilityCutOff;
-    public List<string> StopSequences { get; init; } = [];
+    public IModel Model { get; set; } = default!;
+    public byte MaximumNumberOfRetries { get; set; } = _defaultNumberOfRetries;
+    public uint MaximumOutputTokens { get; set; } = _defaultMaximumOutputTokens;
+    public decimal Temperature { get; set; } = _defaultTemperature;
+    public decimal TokenProbabilityCutOff { get; set; } = _defaultProbabilityCutOff;
+    public List<string> StopSequences { get; set; } = [];
     public bool ResponseIsStream { get; set; }
     public bool RespondsAsJson { get; set; }
 

@@ -11,7 +11,6 @@ public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strateg
     protected JobContext Context => context;
 
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
-        Context.Job = this;
         var chat = new Chat(Id, Context);
         strategy.AddPrompt(chat, input);
         var result = await Context.Agent.SendRequest(this, chat, ct);

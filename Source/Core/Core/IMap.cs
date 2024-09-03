@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox;
 
 public interface IMap : IMap<object> {
-    TValue GetValueAs<TValue>(string key);
+    TValue? GetValueOrDefault<TValue>(string key);
     bool TryGetValueAs<TValue>(string key, [MaybeNullWhen(false)] out TValue value);
 }
 

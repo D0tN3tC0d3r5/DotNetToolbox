@@ -6,7 +6,7 @@ public interface IUpdatableRepository<TItem>
     : IUpdatableRepository {
     #region Blocking
 
-    Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null);
+    Result<TItem> Create(Action<TItem>? setItem = null, IContext? validationContext = null);
 
     Result Seed(IEnumerable<TItem> seed, bool preserveContent = false, IContext? validationContext = null);
 

@@ -4,6 +4,8 @@ namespace DotNetToolbox.Data.Repositories;
 public interface IQueryableRepository
     : IAsyncQueryable;
 
-public interface IQueryableRepository<out TItem>
+public interface IQueryableRepository<TItem>
     : IQueryableRepository,
-      IAsyncQueryable<TItem>;
+      IAsyncQueryable<TItem> {
+    List<TItem> Data { get; }
+}

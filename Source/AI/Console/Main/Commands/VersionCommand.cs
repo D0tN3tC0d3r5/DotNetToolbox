@@ -7,7 +7,7 @@ public class VersionCommand : Command<VersionCommand> {
     }
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        AnsiConsole.MarkupLine($"[bold]Lola version:[/] {Application.Version}");
+        Output.WriteLine($"[bold]Lola version:[/] {Application.Version}");
 
         return Task.FromResult(Result.Success());
     }

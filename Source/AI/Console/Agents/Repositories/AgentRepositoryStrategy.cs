@@ -1,8 +1,7 @@
 ﻿namespace AI.Sample.Agents.Repositories;
 
-public class AgentRepositoryStrategy(IConfigurationRoot configuration,
-                                     Lazy<IAgentRepository> repository)
-    : JsonFileRepositoryStrategy<IAgentRepository, AgentEntity, uint>("agents", configuration, repository),
+public class AgentRepositoryStrategy(IConfigurationRoot configuration)
+    : JsonFileRepositoryStrategy<IAgentRepository, AgentEntity, uint>("agents", configuration),
       IAgentRepositoryStrategy {
     protected override uint FirstKey { get; } = 1;
 

@@ -15,10 +15,16 @@
 
         loggingBuilder.AddSerilog(dispose: true);
     });
-    ab.SetOutputHandler(new AnsiOutput());
-    ab.SetInputHandler(new AnsiInput());
+    ab.SetOutputHandler(new ConsoleOutput());
+    ab.SetInputHandler(new ConsoleInput());
     ab.Services.Configure<LolaSettings>(ab.Configuration.GetSection("Lola"));
     ab.Services.AddOptions<LolaSettings>();
+
+    ab.Services.AddSingleton<IUserRepositoryStrategy, UserRepositoryStrategy>();
+    ab.Services.AddScoped<IUserRepository, UserRepository>();
+    ab.Services.AddScoped<IUserHandler, UserHandler>();
+    ab.Services.AddScoped(p => new Lazy<IUserRepository>(() => p.GetRequiredService<IUserRepository>()));
+    ab.Services.AddScoped(p => new Lazy<IUserHandler>(() => p.GetRequiredService<IUserHandler>()));
 
     ab.Services.AddSingleton<IProviderRepositoryStrategy, ProviderRepositoryStrategy>();
     ab.Services.AddScoped<IProviderRepository, ProviderRepository>();

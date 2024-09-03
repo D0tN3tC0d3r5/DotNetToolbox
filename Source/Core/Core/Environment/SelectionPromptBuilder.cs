@@ -4,24 +4,24 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
     : ISelectionPromptBuilder<TValue>
     where TValue : notnull {
     private readonly IOutput _output = output;
+    private readonly List<TValue> _choices = [];
     private string _prompt = prompt;
-    private bool _allowNoChoice = false;
+    private bool _allowNoChoice;
     private string _noChoiceText = string.Empty;
     private Func<TValue, string>? _converter;
-    private List<TValue> _choices = [];
     private TValue? _defaultValue;
-    private string _fieldName = "value";
+    private bool _showResult;
 
     [MemberNotNullWhen(true, nameof(_defaultValue))]
     private bool HasDefault { get; set; }
 
-    public SelectionPromptBuilder<TValue> For(string fieldName) {
-        _fieldName = fieldName;
+    public SelectionPromptBuilder<TValue> ConvertWith(Func<TValue, string> converter) {
+        _converter = converter;
         return this;
     }
 
-    public SelectionPromptBuilder<TValue> ConvertWith(Func<TValue, string> converter) {
-        _converter = converter;
+    public SelectionPromptBuilder<TValue> ShowResult() {
+        _showResult = true;
         return this;
     }
 
@@ -31,9 +31,9 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
         return this;
     }
 
-    public SelectionPromptBuilder<TValue> AllowNoChoice(string text) {
+    public SelectionPromptBuilder<TValue> AllowNoChoice(string noChoiceText) {
         _allowNoChoice = true;
-        _noChoiceText = text;
+        _noChoiceText = noChoiceText;
         return this;
     }
 
@@ -57,11 +57,13 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
         }
         prompt.AddChoices(_choices);
         var defaultText = _defaultValue is not null ? prompt.Converter?.Invoke(_defaultValue) : null;
-        _prompt = defaultText is not null ? $"{_prompt} [blue]({defaultText})[/]" : _prompt;
+        var isQuestion = _prompt.EndsWith('?');
+        _prompt = HasDefault ? $"{_prompt} [blue]({defaultText})[/]" : _prompt;
         prompt.Title(_prompt);
         var result = AnsiConsole.Prompt(prompt);
         var resultText = result is not null ? prompt.Converter?.Invoke(result) ?? string.Empty : string.Empty;
-        _output.WriteLine($"{_prompt}: {resultText}");
+        var separator = isQuestion ? string.Empty : ":";
+        if (_showResult) _output.WriteLine($"{_prompt}{separator} [green]{resultText}[/]");
         return result!;
     }
 

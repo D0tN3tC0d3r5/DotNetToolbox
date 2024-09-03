@@ -1,11 +1,11 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>(Lazy<TRepository> repository)
-    : RepositoryStrategy<InMemoryRepositoryStrategy<TRepository, TItem, TKey>, TRepository, TItem, TKey>(repository)
+public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
+    : RepositoryStrategy<InMemoryRepositoryStrategy<TRepository, TItem, TKey>, TRepository, TItem, TKey>()
     where TRepository : class, IQueryableRepository<TItem>
     where TItem : class, IEntity<TKey>, new()
     where TKey : notnull {
-    private readonly IRepositoryStrategy<TItem> _keylessStrategy = new InMemoryRepositoryStrategy<TRepository, TItem>(repository);
+    private readonly IRepositoryStrategy<TItem> _keylessStrategy = new InMemoryRepositoryStrategy<TRepository, TItem>();
 
     #region Blocking
 
@@ -37,10 +37,10 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>(Lazy<TReposito
     public override TItem? FindByKey(TKey key)
         => Find(x => x.Key.Equals(key));
 
-    public override Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null) {
+    public override Result<TItem> Create(Action<TItem>? setItem = null, IContext? validationContext = null) {
         var item = new TItem();
         item.Key = TryGetNextKey(out var next) ? next : item.Key;
-        setItem(item);
+        setItem?.Invoke(item);
         var result = Result.Success(item);
         result += _keylessStrategy.Add(item, validationContext);
         return result;
@@ -273,8 +273,8 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>(Lazy<TReposito
     #endregion
 }
 
-public class InMemoryRepositoryStrategy<TRepository, TItem>(Lazy<TRepository> repository)
-    : RepositoryStrategy<InMemoryRepositoryStrategy<TRepository, TItem>, TRepository, TItem>(repository)
+public class InMemoryRepositoryStrategy<TRepository, TItem>()
+    : RepositoryStrategy<InMemoryRepositoryStrategy<TRepository, TItem>, TRepository, TItem>()
     where TRepository : class, IQueryableRepository<TItem> {
     #region Blocking
 
@@ -321,9 +321,9 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>(Lazy<TRepository> re
     public override TItem? Find(Expression<Func<TItem, bool>> predicate)
         => Repository.Query.FirstOrDefault(predicate);
 
-    public override Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null) {
+    public override Result<TItem> Create(Action<TItem>? setItem = null, IContext? validationContext = null) {
         var item = Activator.CreateInstance<TItem>();
-        setItem(item);
+        setItem?.Invoke(item);
         var result = Result.Success(item);
         result += Add(item, validationContext);
         return result;

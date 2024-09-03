@@ -4,7 +4,7 @@ public abstract class QueryableRepository<TItem>(IEnumerable<TItem>? data = null
     : IQueryableRepository<TItem> {
     internal string Id { get; } = $"|>Repository[{typeof(TItem).Name}]_{GuidProvider.Sortable.Create():N}<|";
 
-    internal List<TItem> Data { get; set; } = data?.ToList() ?? [];
+    public List<TItem> Data { get; internal set; } = data?.ToList() ?? [];
     public Type ElementType => Query.ElementType;
     public Expression Expression => Query.Expression;
 

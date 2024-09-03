@@ -6,9 +6,9 @@ public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler
     private readonly IModelHandler _modelHandler = modelHandler;
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var provider = this.EntitySelectionPrompt(_handler.List(), "remove", "Provider", m => m.Key, m => m.Name);
+        var provider = this.EntitySelectionPrompt(_handler.List(), "remove", "ProviderId", m => m.Key, m => m.Name);
         if (provider is null) {
-            Logger.LogInformation("Provider remove action cancelled.");
+            Logger.LogInformation("ProviderId remove action cancelled.");
             return Result.SuccessTask();
         }
 
@@ -17,8 +17,8 @@ public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler
         if (associatedModels.Length > 0) {
             Output.WriteLine($"[yellow]The provider '{provider.Name}' has associated models:[/]");
             var table = new Table();
-            table.AddColumn("Model Key");
-            table.AddColumn("Model Name");
+            table.AddColumn("Settings Key");
+            table.AddColumn("Settings Name");
             foreach (var model in associatedModels) {
                 table.AddRow(model.Key, model.Name);
             }
@@ -27,14 +27,14 @@ public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler
         }
 
         if (!Input.Confirm($"Are you sure you want to remove the provider '{provider.Name}' ({provider.Key})?")) {
-            Logger.LogInformation("Provider remove action cancelled.");
+            Logger.LogInformation("ProviderId remove action cancelled.");
             return Result.SuccessTask();
         }
 
         try {
             _handler.Remove(provider.Key);
-            Output.WriteLine($"[green]Provider with key '{provider.Name}' removed successfully.[/]");
-            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' removed successfully.", provider.Key, provider.Name);
+            Output.WriteLine($"[green]ProviderId with key '{provider.Name}' removed successfully.[/]");
+            Logger.LogInformation("ProviderId '{ProviderKey}:{ProviderName}' removed successfully.", provider.Key, provider.Name);
             return Result.SuccessTask();
         }
         catch (Exception ex) {

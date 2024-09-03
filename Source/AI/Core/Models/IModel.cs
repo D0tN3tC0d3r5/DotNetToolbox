@@ -5,6 +5,6 @@ public interface IModel {
     string Name { get; }
     uint MaximumContextSize { get; }
     uint MaximumOutputTokens { get; }
-    DateOnly CreatedOn { get; }
-    string? OwnedBy { get; }
+    DateOnly TrainingDataCutOff { get; }
+    string? ProviderId { get; }
 }

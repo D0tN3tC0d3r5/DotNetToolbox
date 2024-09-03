@@ -47,7 +47,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
             await ProcessInteraction(ct).ConfigureAwait(false);
     }
 
-    protected virtual Task<Result> OnStart(CancellationToken ct = default) {
+    protected override Task<Result> OnStart(CancellationToken ct = default) {
         Output.WriteLine(FullName);
         return SuccessTask();
     }

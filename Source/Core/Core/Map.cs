@@ -1,15 +1,15 @@
 ﻿namespace DotNetToolbox;
 
-public class Map(IDictionary<string, object>? source = null)
+public class Map(IEnumerable<KeyValuePair<string, object>>? source = null)
     : Map<object>(source),
       IMap {
-    public TValue GetValueAs<TValue>(string key) {
+    public TValue? GetValueOrDefault<TValue>(string key) {
         var value = this[key];
         return value switch {
             TValue result => result,
             not null when value.GetType()
                                .IsAssignableTo(typeof(TValue)) => (TValue)value,
-            null when typeof(TValue).IsClass => default!,
+            null when typeof(TValue).IsClass => default,
             _ => throw new InvalidCastException($"The value for key '{key}' is not of type '{typeof(TValue)}'."),
         };
     }
@@ -35,16 +35,16 @@ public class Map<TValue>
       IMap<TValue> {
     private readonly ConcurrentDictionary<string, TValue> _data = [];
 
-    public Map(IDictionary<string, TValue>? source = null) {
+    public Map(IEnumerable<KeyValuePair<string, TValue>>? source = null) {
         switch (source) {
             case Map<TValue> map:
                 _data = map._data;
                 break;
             case not null:
                 _data = new(source);
-                MyKeys.AddRange(source.Keys);
                 break;
         }
+        MyKeys.AddRange(_data.Keys);
     }
 
     protected HashSet<string> MyKeys { get; } = [];
@@ -95,8 +95,7 @@ public class Map<TValue>
     public bool ContainsKey(string key)
         => _data.ContainsKey(key);
 
-    void ICollection<KeyValuePair<string, TValue>>.Add(KeyValuePair<string, TValue> item)
-        => Add(item.Key, item.Value);
+    public void Add(KeyValuePair<string, TValue> item) => Add(item.Key, item.Value);
     bool ICollection<KeyValuePair<string, TValue>>.Contains(KeyValuePair<string, TValue> item)
         => ContainsKey(item.Key)
         && (this[item.Key]?.Equals(item.Value) ?? false);

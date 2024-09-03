@@ -5,9 +5,9 @@ public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler
     private readonly IProviderHandler _handler = handler;
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var provider = this.EntitySelectionPrompt(_handler.List(), "update", "Provider", m => m.Key, m => m.Name);
+        var provider = this.EntitySelectionPrompt(_handler.List(), "update", "ProviderId", m => m.Key, m => m.Name);
         if (provider is null) {
-            Logger.LogInformation("Provider updated action cancelled.");
+            Logger.LogInformation("ProviderId updated action cancelled.");
             return Result.SuccessTask();
         }
 
@@ -16,8 +16,8 @@ public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler
 
         try {
             _handler.Update(provider);
-            Output.WriteLine($"[green]Provider '{provider.Name}' updated successfully.[/]");
-            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' updated successfully.", provider.Key, provider.Name);
+            Output.WriteLine($"[green]ProviderId '{provider.Name}' updated successfully.[/]");
+            Logger.LogInformation("ProviderId '{ProviderKey}:{ProviderName}' updated successfully.", provider.Key, provider.Name);
             return Result.SuccessTask();
         }
         catch (Exception ex) {

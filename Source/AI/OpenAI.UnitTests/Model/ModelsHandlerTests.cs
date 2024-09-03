@@ -29,19 +29,19 @@ public sealed class ModelsHandlerTests : IDisposable {
             Data = [
                 new() {
                     Id = "ft:model1",
-                    Name = "Model 1",
+                    Name = "Settings 1",
                     MaximumContextSize = 32000,
                     MaximumOutputTokens = 2048,
-                    CreatedOn = DateOnly.Parse("2020-01-01"),
-                    OwnedBy = "user1",
+                    TrainingDataCutOff = DateOnly.Parse("2020-01-01"),
+                    ProviderId = "user1",
                 },
                 new() {
                     Id = "model2",
-                    Name = "Model 2",
+                    Name = "Settings 2",
                     MaximumContextSize = 32000,
                     MaximumOutputTokens = 2048,
-                    CreatedOn = DateOnly.Parse("2020-01-01"),
-                    OwnedBy = "user1",
+                    TrainingDataCutOff = DateOnly.Parse("2020-01-01"),
+                    ProviderId = "user1",
                 },
             ],
         };

@@ -6,8 +6,8 @@ public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
         try {
             var provider = handler.Create(SetUp);
             handler.Add(provider);
-            Output.WriteLine($"[green]Provider '{provider.Name}' added successfully.[/]");
-            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' added successfully.", provider.Key, provider.Name);
+            Output.WriteLine($"[green]ProviderId '{provider.Name}' added successfully.[/]");
+            Logger.LogInformation("ProviderId '{ProviderKey}:{ProviderName}' added successfully.", provider.Key, provider.Name);
             return Result.SuccessTask();
         }
         catch (Exception ex) {

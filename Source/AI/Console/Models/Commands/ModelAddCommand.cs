@@ -21,14 +21,14 @@ public class ModelAddCommand : Command<ModelAddCommand> {
             }
 
             var provider = Input.SelectionPrompt<ProviderEntity>("Select a provider:")
-                                .For("provider").ConvertWith(p => $"{p.Key}: {p.Name}")
+                                .ConvertWith(p => $"{p.Key}: {p.Name}")
                                 .AddChoices(providers)
                                 .Show();
             var model = _modelHandler.Create(m => SetUp(m, provider));
 
             _modelHandler.Register(model);
-            Output.WriteLine($"[green]Model '{model.Name}' added successfully.[/]");
-            Logger.LogInformation("Model '{ModelKey}:{ModelName}' added successfully.", model.Key, model.Name);
+            Output.WriteLine($"[green]Settings '{model.Name}' added successfully.[/]");
+            Logger.LogInformation("Settings '{ModelKey}:{ModelName}' added successfully.", model.Key, model.Name);
             return Result.SuccessTask();
         }
         catch (Exception ex) {

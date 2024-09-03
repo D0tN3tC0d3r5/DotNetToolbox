@@ -2,8 +2,8 @@
 
 namespace AI.Sample.Models.Repositories;
 
-public class ModelRepositoryStrategy(IConfigurationRoot configuration, Lazy<IModelRepository> repository)
-    : JsonFileRepositoryStrategy<IModelRepository, ModelEntity, string>("models", configuration, repository),
+public class ModelRepositoryStrategy(IConfigurationRoot configuration)
+    : JsonFileRepositoryStrategy<IModelRepository, ModelEntity, string>("models", configuration),
       IModelRepositoryStrategy {
     protected override bool TryGenerateNextKey([MaybeNullWhen(false)] out string next) {
         next = default;

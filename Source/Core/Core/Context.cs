@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox;
 
-public class Context(IDictionary<string, object>? source = null)
+public class Context(IEnumerable<KeyValuePair<string, object>>? source = null)
     : Map(source),
       IContext {
     private bool _isDisposed;

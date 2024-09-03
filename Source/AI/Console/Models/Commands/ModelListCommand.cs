@@ -9,19 +9,15 @@ public class ModelListCommand : Command<ModelListCommand> {
         _modelHandler = modelHandler;
         _providerHandler = providerHandler;
         Description = "List all models or models for a specific provider.";
-        AddParameter("Provider", "");
+        AddParameter("ProviderId", "");
     }
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
-        var providerKeyStr = (string?)Context.GetValueOrDefault("Provider");
+        var providerKeyStr = Context.GetValueOrDefault<string>("ProviderId");
 
-        var models = Array.Empty<ModelEntity>();
-
-        AnsiConsole.Status()
-            .Start("Loading models...",
-                   ctx => models = string.IsNullOrEmpty(providerKeyStr)
-                        ? _modelHandler.List()
-                        : _modelHandler.ListByProvider(providerKeyStr));
+        var models = string.IsNullOrEmpty(providerKeyStr)
+            ? _modelHandler.List()
+            : _modelHandler.ListByProvider(providerKeyStr);
 
         var sortedModels = models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name);
 
@@ -29,7 +25,7 @@ public class ModelListCommand : Command<ModelListCommand> {
         table.Expand();
 
         // Add columns
-        table.AddColumn(new TableColumn("[yellow]Provider[/]"));
+        table.AddColumn(new TableColumn("[yellow]ProviderId[/]"));
         table.AddColumn(new TableColumn("[yellow]Name[/]"));
         table.AddColumn(new TableColumn("[yellow]Id[/]"));
         table.AddColumn(new TableColumn("[yellow]Context Size[/]").RightAligned());
@@ -52,7 +48,7 @@ public class ModelListCommand : Command<ModelListCommand> {
             );
         }
 
-        AnsiConsole.Write(table);
+        Output.Write(table);
         return Result.SuccessTask();
     }
 }

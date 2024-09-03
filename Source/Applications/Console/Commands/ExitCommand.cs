@@ -1,8 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Commands;
 
-internal class ExitCommand : Command<ExitCommand> {
+public class ExitCommand : Command<ExitCommand> {
     public ExitCommand(IHasChildren parent)
-        : base(parent, "Exit", []) {
+        : base(parent, "Exit", ["quit"]) {
         Description = "Exit the application.";
     }
 

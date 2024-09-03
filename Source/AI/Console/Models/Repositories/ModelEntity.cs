@@ -1,13 +1,18 @@
-﻿namespace AI.Sample.Models.Repositories;
+﻿using System.Text.Json.Serialization;
+
+namespace AI.Sample.Models.Repositories;
 
 public class ModelEntity : Entity<ModelEntity, string> {
     public uint ProviderKey { get; set; }
+    [JsonIgnore]
+    public ProviderEntity? Provider { get; set; }
     public string Name { get; set; } = string.Empty;
     public uint MaximumContextSize { get; set; }
     public uint MaximumOutputTokens { get; set; }
     public decimal InputCostPerMillionTokens { get; set; }
     public decimal OutputCostPerMillionTokens { get; set; }
     public DateOnly TrainingDataCutOff { get; set; }
+    public bool IsSelected { get; set; }
 
     public override Result Validate(IContext? context = null) {
         var result = base.Validate(context);

@@ -18,7 +18,7 @@ public abstract class Parameter<TParameter>
     public bool IsRequired => DefaultValue is null;
     public bool IsSet { get; private set; }
 
-    Task<Result> IParameter.Read(string? value, NodeContext context, CancellationToken ct) {
+    Task<Result> IParameter.Read(string? value, IContext context, CancellationToken ct) {
         context[Name] = value switch {
             null or "default" => DefaultValue,
             "null" => null,

@@ -113,6 +113,8 @@ public class Repository<TStrategy, TItem>
     public Repository(TStrategy strategy, IEnumerable<TItem>? data = null)
         : base(data) {
         Strategy = IsNotNull(strategy);
+        Strategy.Repository = this;
+        Strategy.Load();
     }
 
     public async ValueTask DisposeAsync() {
@@ -155,7 +157,7 @@ public class Repository<TStrategy, TItem>
         => Strategy is not null ? Strategy.Find(predicate)
         : throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
-    public virtual Result<TItem> Create(Action<TItem> setItem, IContext? validationContext = null)
+    public virtual Result<TItem> Create(Action<TItem>? setItem = null, IContext? validationContext = null)
         => Strategy?.Create(setItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
     public virtual Result Add(TItem newItem, IContext? validationContext = null)

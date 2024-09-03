@@ -7,7 +7,7 @@ public class ChatRequest(IAgent agent, IChat chat)
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => [.. Messages];
 
     [JsonPropertyName("model")]
-    public string Model { get; } = agent.Model.Model.Id;
+    public string Model { get; } = agent.Settings.Model.Id;
 
     [JsonPropertyName("system")]
     public string System { get; } = SetContext(chat);
@@ -37,8 +37,8 @@ public class ChatRequest(IAgent agent, IChat chat)
         => chat.Messages.Where(m => m.Role != MessageRole.System).ToArray(m => new ChatRequestMessage(m));
 
     private static uint SetMaximumOutputTokens(IAgent agent)
-        => agent.Model.MaximumOutputTokens > AgentModel.MinimumOutputTokens
-        && agent.Model.MaximumOutputTokens < agent.Model.Model.MaximumOutputTokens
-               ? agent.Model.MaximumOutputTokens
-               : agent.Model.Model.MaximumOutputTokens;
+        => agent.Settings.MaximumOutputTokens > AgentSettings.MinimumOutputTokens
+        && agent.Settings.MaximumOutputTokens < agent.Settings.Model.MaximumOutputTokens
+               ? agent.Settings.MaximumOutputTokens
+               : agent.Settings.Model.MaximumOutputTokens;
 }

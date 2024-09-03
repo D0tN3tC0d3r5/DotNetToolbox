@@ -1,32 +1,25 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
 public class JobContextBuilder(IServiceProvider services)
-    : IJobContextBuilder, IJobContextBuilderFactory {
-    private string? _provider;
+    : IJobContextBuilder,
+      IJobContextBuilderFactory {
 
-    private IDictionary<string, object>? _source;
+    private IEnumerable<KeyValuePair<string, object>>? _source;
     private IDateTimeProvider _dateTime = DateTimeProvider.Default;
     private UserProfile? _userProfile;
     private readonly Map _memory = [];
     private readonly Map<Asset> _assets = [];
     private readonly Map<Tool> _tools = [];
+    private string? _provider;
 
-    private IJob? _job;
-
-    public IJobContextBuilder Create() => this;
-
-    public IJobContextBuilder CreateFrom(IDictionary<string, object> source) {
+    public IJobContextBuilder CreateFrom(IEnumerable<KeyValuePair<string, object>> source) {
         _source = IsNotNull(source);
         return this;
     }
+    public IJobContextBuilder Create() => this;
 
     public IJobContextBuilder WithAgentFrom(string provider) {
         _provider = provider;
-        return this;
-    }
-
-    public IJobContextBuilder ForJob(IJob job) {
-        _job = job;
         return this;
     }
 
@@ -57,9 +50,8 @@ public class JobContextBuilder(IServiceProvider services)
 
     public JobContext Build() {
         var agentFactory = services.GetRequiredKeyedService<IAgentFactory>(_provider);
-        var source = _source as IContext ?? new Context(_source);
-        return new(services, source, _dateTime) {
-            Job = _job ?? throw new InvalidOperationException("The Job is required"),
+        return new(_source) {
+            World = new World(_dateTime),
             Agent = agentFactory.Create(_provider),
             Memory = _memory,
             Assets = _assets,

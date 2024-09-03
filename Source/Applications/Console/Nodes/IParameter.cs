@@ -6,5 +6,5 @@ public interface IParameter : IHasParent {
     bool IsRequired { get; }
     bool IsSet { get; }
 
-    Task<Result> Read(string? value, NodeContext context, CancellationToken ct = default);
+    Task<Result> Read(string? value, IContext context, CancellationToken ct = default);
 }

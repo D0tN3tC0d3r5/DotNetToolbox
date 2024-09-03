@@ -6,13 +6,13 @@ public class AgentHandler(IApplication application, IAgentRepository repository,
     private readonly IAgentRepository _repository = repository;
     private readonly ILogger<AgentHandler> _logger = logger;
 
-    private const string CurrentAgentKey = "Selected";
+    private const string CurrentAgentKey = "IsSelected";
 
     public AgentEntity[] List() => _repository.GetAll();
 
     public AgentEntity? Selected {
         get => _application.Context.TryGetValue(CurrentAgentKey, out var agent) ? agent as AgentEntity : null;
-        private set => _application.Context[CurrentAgentKey] = value;
+        private set => _application.Context[CurrentAgentKey] = value!;
     }
 
     public AgentEntity? GetByKey(uint key) => _repository.FindByKey(key);
@@ -53,6 +53,6 @@ public class AgentHandler(IApplication application, IAgentRepository repository,
     public void Select(uint key) {
         Selected = _repository.FindByKey(key)
                 ?? throw new InvalidOperationException($"Agent with key '{key}' not found.");
-        _logger.LogInformation("Selected model: {AgentKey} => {AgentName}", Selected.Key, Selected.Name);
+        _logger.LogInformation("IsSelected model: {AgentKey} => {AgentName}", Selected.Key, Selected.Name);
     }
 }

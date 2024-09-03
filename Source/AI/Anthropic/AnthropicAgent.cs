@@ -5,10 +5,10 @@ public class AnthropicAgent([FromKeyedServices("Anthropic")] IHttpClientProvider
     : Agent<AnthropicAgent, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
     protected override ChatRequest CreateRequest(IJob job, IChat chat)
         => new(this, chat) {
-            Temperature = Model.Temperature,
-            StopSequences = Model.StopSequences.Count == 0 ? null : [.. Model.StopSequences],
-            MinimumTokenProbability = Model.TokenProbabilityCutOff,
-            ResponseIsStream = Model.ResponseIsStream,
+            Temperature = Settings.Temperature,
+            StopSequences = Settings.StopSequences.Count == 0 ? null : [.. Settings.StopSequences],
+            MinimumTokenProbability = Settings.TokenProbabilityCutOff,
+            ResponseIsStream = Settings.ResponseIsStream,
             MaximumTokenSamples = 0,
         };
 
