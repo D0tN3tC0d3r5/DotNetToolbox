@@ -19,7 +19,7 @@ public class ModelSelectCommand : Command<ModelSelectCommand> {
 
         var selected = Input.SelectionPrompt<ModelEntity>("Select an model:")
                             .AddChoices(models)
-                            .ConvertWith(c => $"{c.Key}: {c.Name}")
+                            .ConvertWith(c => c.Name)
                             .Show();
 
         try {

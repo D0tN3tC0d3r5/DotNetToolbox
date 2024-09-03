@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug AI.Sample App",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build: DotNetToolbox.AI.Sample.csproj",
+            "program": "${workspaceFolder}/AI/Console/bin/Debug/net9.0/lola.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/AI/Console",
+            "console": "externalTerminal",
+            "stopAtEntry": false
+        }
+    ]
+}

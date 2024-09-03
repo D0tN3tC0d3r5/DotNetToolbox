@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "msbuild",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build",
+            "label": "Build: DotNetToolbox.AI.Sample.csproj",
+            "detail": "Build the DotNetToolbox.AI.Sample.csproj project using dotnet build"
+        }
+    ]
+}

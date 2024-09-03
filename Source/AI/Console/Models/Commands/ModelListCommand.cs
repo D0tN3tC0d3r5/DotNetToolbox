@@ -30,7 +30,7 @@ public class ModelListCommand : Command<ModelListCommand> {
         table.Expand();
 
         // Add columns
-        table.AddColumn(new TableColumn("[yellow]ProviderId[/]"));
+        table.AddColumn(new TableColumn("[yellow]Provider[/]"));
         table.AddColumn(new TableColumn("[yellow]Name[/]"));
         table.AddColumn(new TableColumn("[yellow]Id[/]"));
         table.AddColumn(new TableColumn("[yellow]Context Size[/]").RightAligned());
