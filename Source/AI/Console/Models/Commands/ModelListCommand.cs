@@ -19,6 +19,11 @@ public class ModelListCommand : Command<ModelListCommand> {
             ? _modelHandler.List()
             : _modelHandler.ListByProvider(providerKeyStr);
 
+        if (models.Length == 0) {
+            Output.WriteLine("[yellow]No models found.[/]");
+            return Result.SuccessTask();
+        }
+
         var sortedModels = models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name);
 
         var table = new Table();
@@ -30,8 +35,8 @@ public class ModelListCommand : Command<ModelListCommand> {
         table.AddColumn(new TableColumn("[yellow]Id[/]"));
         table.AddColumn(new TableColumn("[yellow]Context Size[/]").RightAligned());
         table.AddColumn(new TableColumn("[yellow]Output Tokens[/]").RightAligned());
-        table.AddColumn(new TableColumn("[yellow]Input Cost per MTok[/]").RightAligned());
-        table.AddColumn(new TableColumn("[yellow]Output Cost per MTok[/]").RightAligned());
+        table.AddColumn(new TableColumn("[yellow]Input Cost\nper MTok[/]").RightAligned());
+        table.AddColumn(new TableColumn("[yellow]Output Cost\nper MTok[/]").RightAligned());
         table.AddColumn(new TableColumn("[yellow]Training Date Cut-Off[/]").Centered());
 
         foreach (var model in sortedModels) {

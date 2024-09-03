@@ -14,7 +14,7 @@ public class ModelInfoCommand : Command<ModelInfoCommand> {
     protected override Task<Result> Execute(CancellationToken ct = default) {
         var model = this.EntitySelectionPrompt(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
         if (model is null) {
-            Logger.LogInformation("No model selected. Settings display action cancelled.");
+            Logger.LogInformation("No model selected.");
             return Result.SuccessTask();
         }
 

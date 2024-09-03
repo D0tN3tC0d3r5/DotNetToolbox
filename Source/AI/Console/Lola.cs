@@ -50,9 +50,9 @@ public class Lola
         var choice = Input.SelectionPrompt("What would you like to do?")
                           .ConvertWith(MapTo)
                           .AddChoices("Providers",
-                                      "Agents",
                                       "Models",
                                       "Personas",
+                                      "Agents",
                                       "User",
                                       "Settings",
                                       "Help",

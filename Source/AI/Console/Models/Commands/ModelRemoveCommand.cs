@@ -12,7 +12,7 @@ public class ModelRemoveCommand : Command<ModelRemoveCommand> {
     protected override Task<Result> Execute(CancellationToken ct = default) {
         var model = this.EntitySelectionPrompt(_handler.List(), "remove", "Settings", m => m.Key, m => m.Name);
         if (model is null) {
-            Logger.LogInformation("Settings delete action cancelled.");
+            Logger.LogInformation("No model selected.");
             return Result.SuccessTask();
         }
 
