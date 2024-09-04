@@ -141,16 +141,16 @@ public class Repository<TStrategy, TItem>
         => Strategy?.Seed(seed, preserveContent, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
-    public virtual TItem[] GetAll()
-        => Strategy?.GetAll()
+    public virtual TItem[] GetAll(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
+        => Strategy?.GetAll(filterBy, orderBy)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
-    public virtual Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize)
-        => Strategy?.GetPage(pageIndex, pageSize)
+    public virtual Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
+        => Strategy?.GetPage(pageIndex, pageSize, filterBy, orderBy)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
-    public virtual Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize)
-        => Strategy?.GetChunk(isChunkStart, blockSize)
+    public virtual Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
+        => Strategy?.GetChunk(isChunkStart, blockSize, filterBy, orderBy)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
     public virtual TItem? Find(Expression<Func<TItem, bool>> predicate)
@@ -212,20 +212,20 @@ public class Repository<TStrategy, TItem>
         => Strategy?.LoadAsync(ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
-    public virtual ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default)
-        => Strategy?.GetAllAsync(ct)
+    public virtual ValueTask<TItem[]> GetAllAsync(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
+        => Strategy?.GetAllAsync(filterBy, orderBy, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
-    public virtual ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default)
-        => Strategy?.GetPageAsync(pageIndex, pageSize, ct)
+    public virtual ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
+        => Strategy?.GetPageAsync(pageIndex, pageSize, filterBy, orderBy, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
-    public virtual ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize, CancellationToken ct = default)
-        => Strategy?.GetChunkAsync(isChunkStart, blockSize, ct)
+    public virtual ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
+        => Strategy?.GetChunkAsync(isChunkStart, blockSize, filterBy, orderBy, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
     public virtual ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
-        => Strategy is not null ? Strategy.FindAsync(predicate, ct)
-        : throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
+        => Strategy?.FindAsync(predicate, ct)
+        ?? throw new NotImplementedException("The method implementation is required when the strategys is not defined.");
 
     public virtual Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default)
         => Strategy?.CreateAsync(setItem, validationContext, ct)

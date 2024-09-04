@@ -2,4 +2,5 @@
 namespace System.Linq.Async;
 
 public interface IOrderedAsyncQueryable<out TItem>
-    : IAsyncQueryable<TItem>;
+    : IOrderedQueryable<TItem>,
+      IAsyncQueryable<TItem>;

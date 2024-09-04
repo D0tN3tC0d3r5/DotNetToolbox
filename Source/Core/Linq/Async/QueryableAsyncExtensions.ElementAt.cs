@@ -1,7 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
 namespace System.Linq.Async;
 
-public static partial class AsyncQueryableExtensions {
+public static partial class QueryableAsyncExtensions {
     public static async ValueTask<TItem?> ElementAtAsync<TItem>(this IQueryable<TItem> source, int index, CancellationToken ct = default) {
         IsNotNegative(index);
         var count = 0;

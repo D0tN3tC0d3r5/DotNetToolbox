@@ -3,7 +3,7 @@ namespace DotNetToolbox.Data.Repositories;
 public partial class InMemoryRepositoryTests {
     [Fact]
     public void GetAll_BaseStrategy_ShouldThrow() {
-        var action = _dummyRepository.GetAll;
+        var action = () => _dummyRepository.GetAll();
         action.Should().Throw<NotImplementedException>();
     }
 

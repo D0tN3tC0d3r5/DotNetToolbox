@@ -1,20 +1,13 @@
 ﻿namespace AI.Sample.Models.Handlers;
 
-public class ModelHandler : IModelHandler {
+public class ModelHandler(IApplication application, IModelRepository repository, ILogger<ModelHandler> logger)
+    : IModelHandler {
     private const string ApplicationModelKey = "ApplicationModel";
 
-    private readonly IApplication _application;
-    private readonly IModelRepository _repository;
-    private readonly Lazy<IProviderHandler> _providerHandler;
-    private readonly ILogger<ModelHandler> _logger;
+    private readonly IApplication _application = application;
+    private readonly IModelRepository _repository = repository;
+    private readonly ILogger<ModelHandler> _logger = logger;
     private ModelEntity? _selected;
-
-    public ModelHandler(IApplication application, IModelRepository repository, Lazy<IProviderHandler> providerHandler, ILogger<ModelHandler> logger) {
-        _application = application;
-        _repository = repository;
-        _providerHandler = providerHandler;
-        _logger = logger;
-    }
 
     public ModelEntity? Selected {
         get => GetSelectedModel();
@@ -47,12 +40,7 @@ public class ModelHandler : IModelHandler {
 
     public ModelEntity[] List() => _repository.GetAll();
 
-    public ModelEntity? GetByKey(string key) {
-        var model = _repository.FindByKey(key);
-        if (model is null || model.ProviderKey == 0) return model;
-        model.Provider = _providerHandler.Value.GetByKey(model.ProviderKey);
-        return model;
-    }
+    public ModelEntity? GetByKey(string key) => _repository.FindByKey(key);
 
     public ModelEntity Create(Action<ModelEntity> setUp) {
         var model = new ModelEntity();
@@ -80,26 +68,18 @@ public class ModelHandler : IModelHandler {
     }
 
     public void Remove(string key) {
-        var model = _repository.FindByKey(key) ?? throw new InvalidOperationException($"Settings with key '{key}' not found.");
+        var model = _repository.FindByKey(key, false) ?? throw new InvalidOperationException($"Settings with key '{key}' not found.");
 
         _repository.Remove(key);
         _logger.LogInformation("Removed model: {ModelKey} => {ModelName}", model.Key, model.Name);
     }
 
-    public ModelEntity[] ListByProvider(string provider) {
-        if (uint.TryParse(provider, out var key))
-            return _repository.GetByProviderKey(key);
-        var entity = _providerHandler.Value.GetByName(provider);
-        return entity is null
-            ? []
-            : _repository.GetByProviderKey(entity.Key);
-    }
+    public ModelEntity[] ListByProvider(string provider) => _repository.GetFromProvider(provider);
 
-    public void RemoveByProviderKey(uint providerKey) {
-        foreach (var model in _repository.GetByProviderKey(providerKey)) {
+    public void RemoveByProvider(string provider) {
+        foreach (var model in _repository.GetFromProvider(provider)) {
             _repository.Remove(model.Key);
-            _logger.LogInformation("Removed model associated with provider {ProviderKey}: {ModelKey} => {ModelName}",
-                providerKey, model.Key, model.Name);
+            _logger.LogInformation("Removed model associated with provider {Provider}: {ModelKey} => {ModelName}", provider, model.Key, model.Name);
         }
     }
 

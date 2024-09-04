@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace DotNetToolbox.Data.File;
+﻿namespace DotNetToolbox.Data.File;
 
 public class JsonFileRepositoryStrategy<TRepository, TItem, TKey>
     : RepositoryStrategy<JsonFileRepositoryStrategy<TRepository, TItem, TKey>, TRepository, TItem, TKey>
@@ -41,7 +39,40 @@ public class JsonFileRepositoryStrategy<TRepository, TItem, TKey>
         return Result.Success(LastUsedKey);
     }
 
-    public override TItem[] GetAll() => [.. Repository.Data];
+    public override TItem[] GetAll(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null) {
+        var query = Repository.Data.AsQueryable();
+        query = ApplyFilter(query, filterBy);
+        query = ApplySorting(query, orderBy);
+        return [.. query];
+    }
+
+    private static IQueryable<TItem> ApplyFilter(IQueryable<TItem> query, Expression<Func<TItem, bool>>? filterBy = null)
+     => filterBy is null ? query : query.Where(filterBy);
+
+    private static IQueryable<TItem> ApplySorting(IQueryable<TItem> query, HashSet<SortClause>? orderBy = null)
+    {
+        if (orderBy is null) return query;
+        IOrderedQueryable<TItem>? orderedQuery = null;
+
+        foreach (var clause in orderBy)
+        {
+            if (typeof(TItem).GetProperty(clause.PropertyName) is null)
+                throw new ArgumentException($"Property {clause.PropertyName} not found on {typeof(TItem).Name}.", nameof(orderBy));
+
+            var parameter = Expression.Parameter(typeof(TItem), "x");
+            var property = Expression.Property(parameter, clause.PropertyName);
+            var lambda = Expression.Lambda<Func<TItem, object>>(property, parameter);
+            orderedQuery = orderedQuery is null
+                ? clause.Direction is SortDirection.Ascending
+                    ? query.OrderBy(lambda)
+                    : query.OrderByDescending(lambda)
+                : clause.Direction is SortDirection.Ascending
+                    ? orderedQuery.ThenBy(lambda)
+                    : orderedQuery.ThenByDescending(lambda);
+        }
+        return orderedQuery ?? query;
+    }
+
 
     public override TItem? FindByKey(TKey key)
         => Repository.Data.Find(item => item.Key.Equals(key));

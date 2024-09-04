@@ -6,10 +6,11 @@ public class ProviderListCommand(IHasChildren parent, IProviderHandler providerH
 
     protected override Task<Result> Execute(CancellationToken ct = default) {
         var providers = _providerHandler.List();
-
         if (providers.Length == 0) {
             Output.WriteLine("[yellow]No providers found.[/]");
             Logger.LogInformation("No providers found. List providers action cancelled.");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
 
@@ -23,6 +24,8 @@ public class ProviderListCommand(IHasChildren parent, IProviderHandler providerH
 
         Output.Write(table);
         Logger.LogInformation("Providers listed.");
+        Output.WriteLine();
+
         return Result.SuccessTask();
     }
 }

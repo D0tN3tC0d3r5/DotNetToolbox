@@ -1,7 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
 namespace System.Linq.Async;
 
-public static partial class AsyncQueryableExtensions {
+public static partial class QueryableAsyncExtensions {
     public static ValueTask<Dictionary<TKey, TItem>> ToDictionaryAsync<TItem, TKey>(this IQueryable<TItem> source, Func<TItem, TKey> keySelector, CancellationToken ct = default)
         where TKey : notnull
         => source.ToDictionaryAsync((x, _) => keySelector(x), (x, _) => x, null!, ct);

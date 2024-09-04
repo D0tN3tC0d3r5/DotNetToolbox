@@ -14,6 +14,8 @@ public class ModelSelectCommand : Command<ModelSelectCommand> {
 
         if (models.Length == 0) {
             Output.WriteLine("[yellow]No models available. Please add a model before proceeding.[/]");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
 
@@ -25,10 +27,14 @@ public class ModelSelectCommand : Command<ModelSelectCommand> {
         try {
             _handler.Select(selected.Key);
             Output.WriteLine($"[green]Settings '{selected.Key}' selected successfully.[/]");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
         catch (Exception ex) {
             Output.WriteError("Error selecting an model.");
+            Output.WriteLine();
+
             return Result.ErrorTask(ex.Message);
         }
     }

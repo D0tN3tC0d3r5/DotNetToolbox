@@ -1,11 +1,8 @@
-// ReSharper disable once CheckNamespace - Intended to be in this namespace
 namespace System.Linq.Async;
 
 public abstract class AsyncQueryable {
     public static EmptyAsyncQueryable<TItem> Empty<TItem>() => new();
 }
-
-public sealed class EmptyAsyncQueryable<TItem> : AsyncQueryable<TItem>;
 
 public class AsyncQueryable<TItem>
     : AsyncQueryable
@@ -17,10 +14,6 @@ public class AsyncQueryable<TItem>
     public AsyncQueryable(IEnumerable<TItem> source, Expression? expression = null) {
         _source = source.AsQueryable();
         _expression = expression ?? Expression.Constant(_source);
-    }
-
-    public AsyncQueryable(Expression? expression = null)
-        : this([], expression) {
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -36,7 +29,7 @@ public class AsyncQueryable<TItem>
     Type IQueryable.ElementType => typeof(TItem);
 
     IAsyncQueryable<TElement> IAsyncQueryProvider.CreateAsyncQuery<TElement>(Expression expression)
-        => new AsyncQueryable<TElement>(expression);
+        => new AsyncQueryable<TElement>([], expression);
 
     Task<TResult> IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken ct)
         => throw new NotImplementedException();

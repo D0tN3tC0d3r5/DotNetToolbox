@@ -1,7 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
 namespace System.Linq.Async;
 
-public static partial class AsyncQueryableExtensions {
+public static partial class QueryableAsyncExtensions {
     public static ValueTask<long> LongCountAsync<TItem>(this IQueryable<TItem> source, CancellationToken ct = default)
         => source.LongCountAsync(_ => true, ct);
 

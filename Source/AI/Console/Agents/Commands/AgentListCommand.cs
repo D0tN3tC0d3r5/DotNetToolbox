@@ -19,6 +19,8 @@ public class AgentListCommand(IHasChildren parent, IAgentHandler agentHandler)
         }
 
         Output.Write(table);
+        Output.WriteLine();
+
         return Result.SuccessTask();
     }
 }

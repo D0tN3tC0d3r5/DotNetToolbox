@@ -20,6 +20,13 @@ public class ModelInfoCommand : Command<ModelInfoCommand> {
 
         var provider = _providerHandler.GetByKey(model.ProviderKey)!;
 
+        Output.WriteLine($"[yellow]Model Information:[/]");
+        Output.WriteLine($"[blue]Id:[/] {model.Key}");
+        Output.WriteLine($"[blue]Name:[/] {model.Name}");
+        Output.WriteLine($"[blue]Provider:[/] {model.Provider!.Name}");
+        Output.WriteLine($"[blue]Name:[/] {model.Name}");
+        Output.WriteLine($"[blue]Name:[/] {model.Name}");
+
         var table = new Table();
         table.RoundedBorder().Title($"Settings Information: [yellow]{model.Name}[/]");
         table.AddColumn("[blue]Property[/]");
@@ -35,6 +42,8 @@ public class ModelInfoCommand : Command<ModelInfoCommand> {
         table.AddRow("Training Date Cut-Off", $"{model.TrainingDataCutOff:MMM yyyy}");
 
         Output.Write(table);
+        Output.WriteLine();
+
         return Result.SuccessTask();
     }
 }

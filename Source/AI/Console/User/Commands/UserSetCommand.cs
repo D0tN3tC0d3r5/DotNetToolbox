@@ -10,11 +10,15 @@ public class UserSetCommand(IHasChildren parent, IUserHandler handler)
 
             Output.WriteLine("[green]User profile set successfully.[/]");
             Logger.LogInformation("User profile set successfully.");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
         catch (Exception ex) {
             Output.WriteError("Error setting the user profile.");
             Logger.LogError(ex, "Error setting the user profile.");
+            Output.WriteLine();
+
             return Result.ErrorTask(ex.Message);
         }
     }

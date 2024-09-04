@@ -1,5 +1,4 @@
-﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
-namespace System.Linq;
+﻿namespace System.Linq;
 
 public static partial class QueryableExtensions {
     public static async IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source, [EnumeratorCancellation] CancellationToken ct = default) {

@@ -19,6 +19,7 @@ public class SettingsCommand : Command<SettingsCommand> {
         table.AddRow("Default AI Provider", _settings.DefaultAIProvider);
         table.AddRow("Available Models", string.Join(", ", _settings.AvailableModels));
         Output.Write(table);
+        Output.WriteLine();
 
         return Result.SuccessTask();
     }

@@ -7,10 +7,14 @@ public class AgentAddCommand(IHasChildren parent, IAgentHandler handler)
         try {
             handler.Register(agent);
             Output.WriteLine($"[green]Agent '{agent.Name}' added successfully.[/]");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
         catch (Exception ex) {
             Output.WriteError("Error adding an agent.");
+            Output.WriteLine();
+
             return Result.ErrorTask(ex.Message);
         }
     }

@@ -8,11 +8,15 @@ public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
             handler.Add(provider);
             Output.WriteLine($"[green]ProviderId '{provider.Name}' added successfully.[/]");
             Logger.LogInformation("ProviderId '{ProviderKey}:{ProviderName}' added successfully.", provider.Key, provider.Name);
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
         catch (Exception ex) {
             Output.WriteError("Error adding the new provider.");
             Logger.LogError(ex, "Error adding the new provider.");
+            Output.WriteLine();
+
             return Result.ErrorTask(ex.Message);
         }
     }

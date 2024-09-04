@@ -1,7 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
 namespace System.Linq.Async;
 
-public static partial class AsyncQueryableExtensions {
+public static partial class QueryableAsyncExtensions {
     public static ValueTask<TItem> AggregateAsync<TItem>(this IQueryable<TItem> source, Func<TItem, TItem, TItem> aggregate, CancellationToken ct = default)
         => GetAggregatedValue(source, default, aggregate, x => x, ct);
 

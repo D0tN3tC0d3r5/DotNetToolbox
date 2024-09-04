@@ -25,12 +25,12 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
         return Result.Success(LastUsedKey);
     }
 
-    public override TItem[] GetAll()
-        => _keylessStrategy.GetAll();
-    public override Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = 20)
-        => _keylessStrategy.GetPage(pageIndex, pageSize);
-    public override Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20)
-        => _keylessStrategy.GetChunk(isChunkStart, blockSize);
+    public override TItem[] GetAll(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
+        => _keylessStrategy.GetAll(filterBy, orderBy);
+    public override Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = 20, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
+        => _keylessStrategy.GetPage(pageIndex, pageSize, filterBy, orderBy);
+    public override Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
+        => _keylessStrategy.GetChunk(isChunkStart, blockSize, filterBy, orderBy);
 
     public override TItem? Find(Expression<Func<TItem, bool>> predicate)
         => _keylessStrategy.Find(predicate);
@@ -151,12 +151,12 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
         return result;
     }
 
-    public override ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default)
-        => _keylessStrategy.GetAllAsync(ct);
-    public override ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = 20, CancellationToken ct = default)
-        => _keylessStrategy.GetPageAsync(pageIndex, pageSize, ct);
-    public override ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20, CancellationToken ct = default)
-        => _keylessStrategy.GetChunkAsync(isChunkStart, blockSize, ct);
+    public override ValueTask<TItem[]> GetAllAsync(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
+        => _keylessStrategy.GetAllAsync(filterBy, orderBy, ct);
+    public override ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = 20, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
+        => _keylessStrategy.GetPageAsync(pageIndex, pageSize, filterBy, orderBy, ct);
+    public override ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
+        => _keylessStrategy.GetChunkAsync(isChunkStart, blockSize, filterBy, orderBy, ct);
 
     public override ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => _keylessStrategy.FindAsync(predicate, ct);
@@ -233,7 +233,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
     public override async Task<Result> PatchManyAsync(IEnumerable<TKey> keys, Action<TItem> setItem, IContext? validationContext = null, CancellationToken ct = default) {
         var result = Result.Success();
         await foreach (var key in keys.AsAsyncEnumerable(ct)) {
-            var item = await FindByKeyAsync(key, ct);
+            var item = await FindByKeyAsync(key, ct: ct);
             if (item is null) {
                 result += new ValidationError($"Item with key {key} not found.", nameof(keys));
                 continue;
@@ -246,7 +246,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
     public override async Task<Result> PatchManyAsync(IEnumerable<TKey> keys, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default) {
         var result = Result.Success();
         await foreach (var key in keys.AsAsyncEnumerable(ct)) {
-            var item = await FindByKeyAsync(key, ct);
+            var item = await FindByKeyAsync(key, ct: ct);
             if (item is null) {
                 result += new ValidationError($"Item with key {key} not found.", nameof(keys));
                 continue;
@@ -260,7 +260,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
     public override async Task<Result> RemoveManyAsync(IEnumerable<TKey> keys, CancellationToken ct = default) {
         var result = Result.Success();
         await foreach (var key in keys.AsAsyncEnumerable(ct)) {
-            var item = await FindByKeyAsync(key, ct);
+            var item = await FindByKeyAsync(key, ct: ct);
             if (item is null) {
                 result += new ValidationError($"Item with key {key} not found.", nameof(keys));
                 continue;
@@ -287,10 +287,10 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>()
 
     public override Result Load() => Result.Success();
 
-    public override TItem[] GetAll()
+    public override TItem[] GetAll(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
         => [.. Repository.Query];
 
-    public override Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize) {
+    public override Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null) {
         var count = Repository.Query.Count();
         var items = Repository.Query.Skip((int)(pageIndex * pageSize))
                    .Take((int)pageSize)
@@ -303,7 +303,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>()
         };
     }
 
-    public override Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize) {
+    public override Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null) {
         var query = Repository.Query;
         if (isChunkStart is not null) {
             var isNotStart = (Expression<Func<TItem, bool>>)Expression.Lambda(Expression.Not(isChunkStart.Body), isChunkStart.Parameters);
@@ -422,10 +422,41 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>()
         return Result.SuccessTask();
     }
 
-    public override ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default)
-        => Repository.AsyncQuery.ToArrayAsync(ct);
+    public override ValueTask<TItem[]> GetAllAsync(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default) {
+        var query = Repository.AsyncQuery;
+        query = ApplyFilter(query, filterBy);
+        query = ApplySorting(query, orderBy);
+        return query.ToArrayAsync(ct);
+    }
 
-    public override async ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default) {
+    private static IAsyncQueryable<TItem> ApplyFilter(IAsyncQueryable<TItem> query, Expression<Func<TItem, bool>>? filterBy = null)
+     => filterBy is null ? query : query.Where(filterBy);
+
+    private static IAsyncQueryable<TItem> ApplySorting(IAsyncQueryable<TItem> query, HashSet<SortClause>? orderBy = null)
+    {
+        if (orderBy is null) return query;
+        IOrderedAsyncQueryable<TItem>? orderedQuery = null;
+
+        foreach (var clause in orderBy)
+        {
+            if (typeof(TItem).GetProperty(clause.PropertyName) is null)
+                throw new ArgumentException($"Property {clause.PropertyName} not found on {typeof(TItem).Name}.", nameof(orderBy));
+
+            var parameter = Expression.Parameter(typeof(TItem), "x");
+            var property = Expression.Property(parameter, clause.PropertyName);
+            var lambda = Expression.Lambda<Func<TItem, object>>(property, parameter);
+            orderedQuery = orderedQuery is null
+                ? clause.Direction is SortDirection.Ascending
+                    ? query.OrderBy(lambda)
+                    : query.OrderByDescending(lambda)
+                : clause.Direction is SortDirection.Ascending
+                    ? orderedQuery.ThenBy(lambda)
+                    : orderedQuery.ThenByDescending(lambda);
+        }
+        return orderedQuery ?? query;
+    }
+
+    public override async ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default) {
         var count = await Repository.AsyncQuery.CountAsync(ct);
         var items = await Repository.AsyncQuery.Skip((int)(pageIndex * pageSize))
                    .Take((int)pageSize)
@@ -438,7 +469,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>()
         };
     }
 
-    public override async ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize, CancellationToken ct = default) {
+    public override async ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default) {
         var query = Repository.AsyncQuery;
         if (isChunkStart is not null) {
             var isNotStart = (Expression<Func<TItem, bool>>)Expression.Lambda(Expression.Not(isChunkStart.Body), isChunkStart.Parameters);

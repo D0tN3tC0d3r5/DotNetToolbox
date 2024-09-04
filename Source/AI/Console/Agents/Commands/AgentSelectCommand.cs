@@ -9,6 +9,8 @@ public class AgentSelectCommand(IHasChildren parent, IAgentHandler agentHandler)
 
         if (agents.Length == 0) {
             Output.WriteLine("[yellow]No agents available. Please add an agent first.[/]");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
 
@@ -20,10 +22,14 @@ public class AgentSelectCommand(IHasChildren parent, IAgentHandler agentHandler)
         try {
             _agentHandler.Select(selected.Key);
             Output.WriteLine($"[green]Agent '{selected.Key}' selected successfully.[/]");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
         catch (Exception ex) {
             Output.WriteError("Error selecting an agent.");
+            Output.WriteLine();
+
             return Result.ErrorTask(ex.Message);
         }
     }

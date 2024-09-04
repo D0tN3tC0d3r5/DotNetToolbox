@@ -1,5 +1,5 @@
 // Global using directives
-
+global using System.Linq.Expressions;
 global using System.Text;
 
 global using AI.Sample;

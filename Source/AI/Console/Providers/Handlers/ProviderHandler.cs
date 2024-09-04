@@ -5,7 +5,6 @@ public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler>
     private readonly IProviderRepository _repository = repository;
     private readonly Lazy<IModelHandler> _modelHandler = modelHandler;
     private readonly ILogger<ProviderHandler> _logger = logger;
-
     public ProviderEntity[] List() => _repository.GetAll();
 
     public ProviderEntity? GetByKey(uint key) => _repository.FindByKey(key);
@@ -34,7 +33,7 @@ public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler>
         var provider = _repository.FindByKey(key)
                      ?? throw new InvalidOperationException($"ProviderId with key '{key}' not found.");
 
-        _modelHandler.Value.RemoveByProviderKey(key);
+        _modelHandler.Value.RemoveByProvider(provider.Name);
         _logger.LogInformation("Removed all models associated with provider: {ProviderKey}", key);
 
         _repository.Remove(key);

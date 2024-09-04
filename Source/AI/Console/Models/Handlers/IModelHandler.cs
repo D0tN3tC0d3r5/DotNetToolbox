@@ -8,7 +8,7 @@ public interface IModelHandler {
     void Update(ModelEntity model);
     void Remove(string key);
     ModelEntity[] ListByProvider(string provider);
-    void RemoveByProviderKey(uint providerKey);
+    void RemoveByProvider(string provider);
 
     void Select(string key);
     ModelEntity? Selected { get; }

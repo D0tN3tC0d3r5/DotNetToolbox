@@ -21,6 +21,8 @@ public class ModelListCommand : Command<ModelListCommand> {
 
         if (models.Length == 0) {
             Output.WriteLine("[yellow]No models found.[/]");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
 
@@ -54,6 +56,7 @@ public class ModelListCommand : Command<ModelListCommand> {
         }
 
         Output.Write(table);
+        Output.WriteLine();
         return Result.SuccessTask();
     }
 }

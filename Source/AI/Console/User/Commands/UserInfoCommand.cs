@@ -13,12 +13,15 @@ public class UserInfoCommand : Command<UserInfoCommand> {
         var user = _handler.Get();
         if (user is null) {
             Logger.LogInformation("No user selected.");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
 
         Output.WriteLine($"[yellow]User Information:[/]");
         Output.WriteLine($"[blue]Id:[/] {user.Key}");
         Output.WriteLine($"[blue]Name:[/] {user.Name}");
+        Output.WriteLine();
 
         return Result.SuccessTask();
     }

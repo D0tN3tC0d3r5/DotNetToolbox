@@ -1,5 +1,7 @@
 ﻿namespace AI.Sample.Models.Repositories;
 
 public interface IModelRepository : IRepository<ModelEntity, string> {
-    ModelEntity[] GetByProviderKey(uint provider);
+    ModelEntity[] GetFromProvider(string provider);
+    ModelEntity[] GetAll(Expression<Func<ModelEntity, bool>>? predicate = null, bool includeProviders = true);
+    ModelEntity? FindByKey(string key, bool includeProvider = true);
 }

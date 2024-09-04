@@ -2,7 +2,7 @@
 
 namespace System.Linq.Async;
 
-public static partial class AsyncQueryableExtensions {
+public static partial class QueryableAsyncExtensions {
     public static ValueTask<TItem?> LastOrDefaultAsync<TItem>(this IQueryable<TItem> source, CancellationToken ct = default)
         => FindLastOrDefault(source, _ => true, default, ct);
 

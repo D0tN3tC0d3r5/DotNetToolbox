@@ -108,7 +108,7 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem>()
     }
 
     protected virtual ValueTask DisposeAsyncCore() => ValueTask.CompletedTask;
-    public QueryableRepository<TItem> Repository { get; set; }
+    public QueryableRepository<TItem> Repository { get; set; } = default!;
 
     #region Blocking
 
@@ -117,11 +117,11 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem>()
     public virtual Result Load()
         => throw new NotImplementedException();
 
-    public virtual TItem[] GetAll()
+    public virtual TItem[] GetAll(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
         => throw new NotImplementedException();
-    public virtual Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize)
+    public virtual Page<TItem> GetPage(uint pageIndex = 0, uint pageSize = DefaultPageSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
         => throw new NotImplementedException();
-    public virtual Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize)
+    public virtual Chunk<TItem> GetChunk(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = DefaultBlockSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null)
         => throw new NotImplementedException();
 
     public virtual TItem? Find(Expression<Func<TItem, bool>> predicate)
@@ -171,11 +171,11 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem>()
     public virtual Task<Result> LoadAsync(CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual ValueTask<TItem[]> GetAllAsync(CancellationToken ct = default)
+    public virtual ValueTask<TItem[]> GetAllAsync(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
         => throw new NotImplementedException();
-    public virtual ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, CancellationToken ct = default)
+    public virtual ValueTask<Page<TItem>> GetPageAsync(uint pageIndex = 0, uint pageSize = DefaultPageSize, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
         => throw new NotImplementedException();
-    public virtual ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20U, CancellationToken ct = default)
+    public virtual ValueTask<Chunk<TItem>> GetChunkAsync(Expression<Func<TItem, bool>>? isChunkStart = null, uint blockSize = 20U, Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     public virtual ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)

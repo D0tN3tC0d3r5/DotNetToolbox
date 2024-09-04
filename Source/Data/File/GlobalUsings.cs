@@ -1,3 +1,5 @@
+global using System.Linq.Async;
+global using System.Linq.Expressions;
 global using System.Text.Json;
 
 global using DotNetToolbox.Data.Repositories;

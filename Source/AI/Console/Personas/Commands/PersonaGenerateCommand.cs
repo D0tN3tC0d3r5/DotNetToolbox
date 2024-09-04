@@ -37,27 +37,18 @@ public class PersonaGenerateCommand : Command<PersonaGenerateCommand> {
                 persona.AdditionalInformation.Add(new Query { Question = nextQuestion, Answer = answer });
             }
 
-            //Output.WriteLine("[yellow]Generating persona...[/]");
-            //persona.Prompt = await _aiService.GeneratePrompt(persona);
-            //var reviewPrompt = string.Empty;
-            //var feedBackCount = 0;
-            //while (!reviewPrompt.Equals("No", StringComparison.OrdinalIgnoreCase)) {
-            //    Output.WriteLine(persona.Prompt);
-            //    reviewPrompt = Input.TextPrompt("Would you like to review the generated prompt?\n[white]Respond with 'No' to continue or enter your feedback to regenerate the prompt.[/]")
-            //                        .WithDefault("No").Show();
-            //    Output.WriteLine("[yellow]Updating persona...[/]");
-            //    persona.AdditionalInformation.Add(new Query { Question = $"User feedback {++feedBackCount}", Answer = reviewPrompt });
-            //    persona.Prompt = await _aiService.GeneratePrompt(persona);
-            //}
-
             _personaHandler.Add(persona);
             Output.WriteLine($"[green]Persona '{persona.Name}' generated successfully.[/]");
             Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' added successfully.", persona.Key, persona.Name);
+            Output.WriteLine();
+
             return Result.Success();
         }
         catch (Exception ex) {
             Output.WriteError($"Error generating persona: {ex.Message}");
             Logger.LogError(ex, "Error generating the new persona.");
+            Output.WriteLine();
+
             return Result.Error(ex.Message);
         }
     }

@@ -15,6 +15,8 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
         var model = this.EntitySelectionPrompt(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
         if (model is null) {
             Logger.LogInformation("No model selected.");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
 
@@ -55,11 +57,15 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
             _handler.Update(model);
             Logger.LogInformation("Settings '{ModelKey}:{ModelName}' updated successfully.", model.Key, model.Name);
             Output.WriteLine("[green]Settings updated successfully.[/]");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
         catch (Exception ex) {
             Logger.LogError(ex, "Error updating the model '{ModelKey}:{ModelName}'.", model.Key, model.Name);
             Output.WriteError("Error updating the model.");
+            Output.WriteLine();
+
             return Result.ErrorTask(ex.Message);
         }
     }

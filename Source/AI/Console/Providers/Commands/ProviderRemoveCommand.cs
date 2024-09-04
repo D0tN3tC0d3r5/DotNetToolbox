@@ -9,6 +9,8 @@ public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler
         var provider = this.EntitySelectionPrompt(_handler.List(), "remove", "ProviderId", m => m.Key, m => m.Name);
         if (provider is null) {
             Logger.LogInformation("ProviderId remove action cancelled.");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
 
@@ -35,11 +37,15 @@ public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler
             _handler.Remove(provider.Key);
             Output.WriteLine($"[green]ProviderId with key '{provider.Name}' removed successfully.[/]");
             Logger.LogInformation("ProviderId '{ProviderKey}:{ProviderName}' removed successfully.", provider.Key, provider.Name);
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
         catch (Exception ex) {
             Output.WriteError("Error removing the provider.");
             Logger.LogError(ex, "Error removing the provider '{ProviderKey}:{ProviderName}'.", provider.Key, provider.Name);
+            Output.WriteLine();
+
             return Result.ErrorTask(ex);
         }
     }

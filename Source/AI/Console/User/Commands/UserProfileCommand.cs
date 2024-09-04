@@ -27,7 +27,10 @@ public class UserProfileCommand
             "Exit" => new ExitCommand(this),
             _ => (ICommand?)null,
         };
-        return await (command?.Execute([], ct) ?? Result.SuccessTask());
+        var result = await (command?.Execute([], ct) ?? Result.SuccessTask());
+        Output.WriteLine();
+
+        return result;
 
         static string MapTo(string choice) => choice switch {
             "Set" => "Set User Profile",

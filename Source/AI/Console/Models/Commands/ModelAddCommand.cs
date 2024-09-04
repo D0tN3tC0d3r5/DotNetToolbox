@@ -29,11 +29,15 @@ public class ModelAddCommand : Command<ModelAddCommand> {
             _modelHandler.Register(model);
             Output.WriteLine($"[green]Settings '{model.Name}' added successfully.[/]");
             Logger.LogInformation("Settings '{ModelKey}:{ModelName}' added successfully.", model.Key, model.Name);
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
         catch (Exception ex) {
             Output.WriteError("Error adding the new model.");
             Logger.LogError(ex, "Error adding the new model.");
+            Output.WriteLine();
+
             return Result.ErrorTask(ex.Message);
         }
     }

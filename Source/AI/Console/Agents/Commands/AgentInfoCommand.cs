@@ -9,6 +9,8 @@ public class AgentInfoCommand(IHasChildren parent, IAgentHandler agentHandler)
 
         if (agent == null) {
             Output.WriteLine("[yellow]No agent currently selected.[/]");
+            Output.WriteLine();
+
             return Result.SuccessTask();
         }
 
@@ -20,6 +22,8 @@ public class AgentInfoCommand(IHasChildren parent, IAgentHandler agentHandler)
         table.AddRow(nameof(AgentEntity.Name), agent.Name);
 
         Output.Write(table);
+        Output.WriteLine();
+
         return Result.SuccessTask();
     }
 }
