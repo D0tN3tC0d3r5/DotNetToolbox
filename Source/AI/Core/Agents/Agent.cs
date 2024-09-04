@@ -13,7 +13,7 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider, IHttpC
     protected ILogger<TAgent> Logger { get; } = logger;
 
     public AgentSettings Settings { get; } = new AgentSettings();
-    public Persona Persona { get; set; }
+    public Persona Persona { get; set; } = default!;
     public List<Tool> Tools { get; } = [];
 
     public virtual async Task<HttpResult> SendRequest(IJob job, IChat chat, CancellationToken ct) {

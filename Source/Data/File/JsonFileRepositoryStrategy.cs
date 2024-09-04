@@ -73,7 +73,6 @@ public class JsonFileRepositoryStrategy<TRepository, TItem, TKey>
         return orderedQuery ?? query;
     }
 
-
     public override TItem? FindByKey(TKey key)
         => Repository.Data.Find(item => item.Key.Equals(key));
 

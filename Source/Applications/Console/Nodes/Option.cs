@@ -8,7 +8,7 @@ public abstract class Option<TOption>(IHasChildren parent, string name, params s
     where TOption : Option<TOption> {
     Task<Result> IOption.Read(string? value, IContext context, CancellationToken ct) {
         context[Name] = value switch {
-            null or "null" or "default" => null,
+            null or "null" or "default" => null!,
             ['"', .. var text, '"'] => text,
             _ => value,
         };

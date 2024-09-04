@@ -15,7 +15,7 @@ public static class ArgumentsParser {
         foreach (var flag in node.Options.Where(o => o is IFlag))
             node.Context[flag.Name] = bool.FalseString;
         foreach (var optional in node.Parameters.Where(p => !p.IsRequired))
-            node.Context[optional.Name] = optional.DefaultValue;
+            node.Context[optional.Name] = optional.DefaultValue!;
     }
 
     private static async Task<(Result result, int index)> TrySetupChild(IHasChildren node, IReadOnlyList<string> arguments, int index, CancellationToken ct) {

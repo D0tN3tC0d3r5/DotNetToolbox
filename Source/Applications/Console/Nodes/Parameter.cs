@@ -9,7 +9,7 @@ public abstract class Parameter<TParameter>
     protected Parameter(IHasChildren parent, string name, string? defaultValue = default)
         : base(parent, name) {
         DefaultValue = defaultValue;
-        parent.Context[Name] = DefaultValue;
+        parent.Context[Name] = DefaultValue!;
         Order = parent.Children.OfType<IParameter>().Count();
     }
 
@@ -20,8 +20,8 @@ public abstract class Parameter<TParameter>
 
     Task<Result> IParameter.Read(string? value, IContext context, CancellationToken ct) {
         context[Name] = value switch {
-            null or "default" => DefaultValue,
-            "null" => null,
+            null or "default" => DefaultValue!,
+            "null" => null!,
             ['"', .. var text, '"'] => text,
             _ => value,
         };

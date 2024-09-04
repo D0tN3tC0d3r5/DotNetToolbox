@@ -104,7 +104,7 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         //        if (HasDefault) _prompt += $" [[[blue]{_defaultValue}[/]]]";
         if (_addLineBreak) _prompt += _output.NewLine;
         var prompt = new TextPrompt<TValue>(_prompt);
-        prompt.DefaultValue(_defaultValue);
+        prompt!.DefaultValue(_defaultValue);
         prompt.AllowEmpty()
               .DefaultValueStyle(new Style(foreground: Color.Green))
               .ChoicesStyle(new Style(foreground: Color.Blue));
