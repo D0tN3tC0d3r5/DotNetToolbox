@@ -11,5 +11,5 @@ public interface IModelHandler {
     void RemoveByProvider(string provider);
 
     void Select(string key);
-    ModelEntity? Selected { get; }
+    ModelEntity? Internal { get; }
 }

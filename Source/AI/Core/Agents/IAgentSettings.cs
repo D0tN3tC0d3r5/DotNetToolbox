@@ -14,5 +14,5 @@ public interface IAgentSettings : IValidatable {
     decimal TokenProbabilityCutOff { get; }
     List<string> StopSequences { get; }
     bool ResponseIsStream { get; }
-    bool RespondsAsJson { get; }
+    bool ResponseIsJson { get; }
 }

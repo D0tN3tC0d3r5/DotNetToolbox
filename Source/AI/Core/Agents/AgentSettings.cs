@@ -3,13 +3,13 @@
 public class AgentSettings
     : IAgentSettings {
     private const byte _maximumRetries = 10;
-    private const byte _maximumTemperature = 2;
-    private const byte _maximumTokenProbabilityCutOff = 1;
+    private const decimal _maximumTemperature = 2;
+    private const decimal _maximumTokenProbabilityCutOff = 1;
 
     public const uint MinimumOutputTokens = 256;
     private const uint _defaultMaximumOutputTokens = MinimumOutputTokens;
     private const byte _defaultNumberOfRetries = 0;
-    private const byte _defaultTemperature = 1;
+    private const decimal _defaultTemperature = 1;
     private const decimal _defaultProbabilityCutOff = 0;
 
     public IModel Model { get; set; } = default!;
@@ -19,7 +19,7 @@ public class AgentSettings
     public decimal TokenProbabilityCutOff { get; set; } = _defaultProbabilityCutOff;
     public List<string> StopSequences { get; set; } = [];
     public bool ResponseIsStream { get; set; }
-    public bool RespondsAsJson { get; set; }
+    public bool ResponseIsJson { get; set; }
 
     public Result Validate(IContext? context = null) {
         var result = Result.Success();

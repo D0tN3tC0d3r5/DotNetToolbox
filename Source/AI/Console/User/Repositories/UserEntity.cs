@@ -1,7 +1,7 @@
 ﻿namespace AI.Sample.Users.Repositories;
 
 public class UserEntity
-    : Entity<UserEntity, uint> {
+    : Entity<UserEntity, string> {
     public string Name { get; set; } = string.Empty;
 
     public override Result Validate(IContext? context = null) {

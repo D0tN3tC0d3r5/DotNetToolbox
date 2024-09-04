@@ -1,24 +1,27 @@
-﻿namespace AI.Sample.Services;
+﻿using Model = DotNetToolbox.AI.Models.Model;
 
-public class AIService(IModelHandler modelHandler, IAgentHandler agentHandler, IAgentFactory aiAgentFactory, ILogger<AIService> logger)
+namespace AI.Sample.Services;
+
+public class AIService(IModelHandler modelHandler, IAgentHandler agentHandler, IUserHandler userHandler, IAgentFactory aiAgentFactory, ILogger<AIService> logger)
     : IAIService {
     private readonly IModelHandler _modelHandler = modelHandler;
     private readonly IAgentHandler _agentHandler = agentHandler;
+    private readonly IUserHandler _userHandler = userHandler;
     private readonly IAgentFactory _aiAgentFactory = aiAgentFactory;
     private readonly ILogger<AIService> _logger = logger;
 
     public Task<string> GetNextQuestion(PersonaEntity persona) {
         try {
-            var appModel = _modelHandler.Selected ?? throw new InvalidOperationException("No AI model selected."); ;
+            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No intenal AI model selected."); ;
             var aiAgent = _aiAgentFactory.Create(appModel.Provider!.NormalizedName);
-            aiAgent.Settings.Model = new DotNetToolbox.AI.Models.Model() {
-                Name = appModel.Name,
-                Id = appModel.Key,
-                MaximumContextSize = appModel.MaximumContextSize,
-                MaximumOutputTokens = appModel.MaximumOutputTokens,
-                TrainingDataCutOff = appModel.TrainingDataCutOff,
+            aiAgent.Settings.Model = new Model(appModel.Key);
+            aiAgent.Persona = [];
+            var user = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
+            var context = new JobContext() {
+                Agent = aiAgent,
+                User = new UserProfile(user.Key, user.Name),
             };
-            aiAgent.Persona = new DotNetToolbox.AI.Agents.Persona();
+
 
             var chat = new Chat(Guid.NewGuid().ToString(), new Context());
             // Add system message to set up the context

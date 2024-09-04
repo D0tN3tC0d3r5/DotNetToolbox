@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.AI.Models;
 
-public class Model
+public class Model(string id)
     : IModel {
-    public required string Id { get; init; }
-    public required string ProviderId { get; init; }
-    public required string Name { get; init; }
+    public string Id { get; init; } = IsNotNullOrWhiteSpace(id);
+    public string ProviderId { get; init; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
     public uint MaximumContextSize { get; init; }
     public uint MaximumOutputTokens { get; init; }
     public DateOnly TrainingDataCutOff { get; init; }

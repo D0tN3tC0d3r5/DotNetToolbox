@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
+using Model = DotNetToolbox.AI.Models.Model;
+
 namespace AI.Sample.Models.Repositories;
 
 public class ModelEntity : Entity<ModelEntity, string> {

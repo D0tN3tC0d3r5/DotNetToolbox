@@ -9,7 +9,7 @@ public class ModelHandler(IApplication application, IModelRepository repository,
     private readonly ILogger<ModelHandler> _logger = logger;
     private ModelEntity? _selected;
 
-    public ModelEntity? Selected {
+    public ModelEntity? Internal {
         get => GetSelectedModel();
         private set => SetSelectedModel(IsNotNull(value));
     }
@@ -86,7 +86,7 @@ public class ModelHandler(IApplication application, IModelRepository repository,
     public void Select(string key) {
         var model = _repository.FindByKey(key)
                  ?? throw new InvalidOperationException($"Settings '{key}' not found.");
-        Selected = model;
+        Internal = model;
         _logger.LogInformation("Settings '{ModelKey} => {ModelName}' selected : ", model.Key, model.Name);
     }
 }

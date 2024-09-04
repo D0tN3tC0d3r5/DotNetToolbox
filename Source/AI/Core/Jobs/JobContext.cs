@@ -4,9 +4,11 @@ public class JobContext
     : Context {
     public JobContext(IEnumerable<KeyValuePair<string, object>>? source = null)
         : base(source) {
+        World = [];
         Memory = [];
         Assets = [];
         Tools = [];
+        User = [];
     }
 
     public Map Memory {
@@ -24,12 +26,12 @@ public class JobContext
         init => this[nameof(Tools)] = value;
     }
 
-    public required World World {
+    public World World {
         get => (World)this[nameof(World)];
         init => this[nameof(World)] = value;
     }
 
-    public required UserProfile? User {
+    public UserProfile User {
         get => (UserProfile?)this[nameof(User)]!;
         init => this[nameof(User)] = value;
     }
