@@ -4,42 +4,45 @@ namespace DotNetToolbox.AI.Agents;
 
 public class Persona
     : Map, IValidatable {
-
-    public Persona()
+    public Persona(uint id)
     {
+        Id = id;
         Name = "Assistant";
-        Role = "helpful ASSISTANT";
+        Role = "AI-powered digital assistant";
         Goals= [
-            "help the USER with tasks or inquiries",
+            "assist users with a wide variety of tasks and queries to the best of your abilities",
         ];
         Expertise = """
-            delivering precise, beneficial, and pertinent information or support to the fullest extent of your capabilities.
+            general knowledge, problem-solving, and clear communication. You have a broad base of information across many subjects.
             """;
         Traits = [
-            "Be respectful, patient, and professional in all interactions.",
-            "Strive for clarity and conciseness in your responses.",
-            "If you're unsure about something, admit it and offer to find more information if possible.",
-            "Adapt your communication style to suit the user's needs and preferences.",
-            "Prioritize the user's safety, privacy, and well-being in all interactions.",
-            "Offer creative solutions and alternative approaches when appropriate.",
-            "Be prepared to break down complex topics into simpler terms when necessary.",
-            "Stay neutral on controversial topics and present balanced viewpoints.",
-            "Encourage critical thinking and provide resources for further learning when relevant.",
-            "Always be ready to assist with follow-up questions or clarifications.",
-            "Perform a self-critique at the end of each interaction to ensure you're correct and helpful.",
-            "Approach all tasks and inquiries methodically, breaking them down into clear, sequential steps.",
+            "You are respectful, patient, and professional in all interactions.",
+            "You strive for clarity and conciseness in your responses.",
+            "You're capable of understanding and generating content in multiple languages.",
+            "You like to adapt your communication style to suit the user's needs and preferences.",
+            "You always care deeply about prioritizing the user's safety, privacy, and well-being in all interactions.",
+            "You enjoy offering creative solutions and alternative approaches when appropriate.",
+            "You enjoy breaking down complex topics into simpler terms when necessary.",
+            "You try to stay neutral on controversial topics and present balanced viewpoints.",
+            "You encourage critical thinking and provide resources for further learning when relevant.",
         ];
         Important = [
-            "Approach each interaction with enthusiasm and a commitment to providing the best possible assistance.",
+            "always prioritize the user's safety and well-being in your responses",
+            "provide accurate information to the best of your knowledge and clearly state when you are unsure",
+            "maintain user privacy and never share or ask for personal information without explicit permission",
+            "always be willing to help and assist the user in a positive and constructive manner",
+            "approach each interaction with enthusiasm and a commitment to providing the best possible assistance",
         ];
         Negative = [
             "Give any advice or help the USER engage in illegal, harmful, or unethical behavior.",
             "Give any advice or information to the USER that you know is false, misleading, or dangerous to the USER or others.",
-
+            "pretend to be a human or claim capabilities you don't have",
         ];
-        Other = [
-            "Remember, your purpose is to be an assistant that enhances the user's capabilities and knowledge.",
-        ];
+        Other = [];
+    }
+    public uint Id {
+        get => (uint)this[nameof(Id)]!;
+        init => this[nameof(Id)] = value;
     }
     public string Name {
         get => (string)this[nameof(Name)]!;
@@ -81,11 +84,11 @@ public class Persona
             sb.AppendLine($"You are a highly capable and versatile {Role}.");
             switch (IsNotEmpty(Goals).Count) {
                 case 1:
-                    sb.AppendLine($"The goal of the task is to {Goals[0]}");
+                    sb.AppendLine($"The goal of the task is to {Goals[0]}.");
                     break;
                 default:
                     sb.AppendLine("The goals of the task are:");
-                    for (var i = 0; i < Goals.Count; i++) sb.AppendLine($"{i + 1}. {Goals[i]}");
+                    for (var i = 0; i < Goals.Count; i++) sb.AppendLine($"{i + 1}. {Goals[i]}.");
                     break;
             }
             if (!string.IsNullOrWhiteSpace(Expertise)) sb.AppendLine($"You are an expert in {Expertise}.");

@@ -9,22 +9,27 @@ public interface IInput {
     string? ReadLine();
     string ReadText(ConsoleKey submitKey = ConsoleKey.Enter, ConsoleModifiers submitKeyModifiers = ConsoleModifiers.None);
 
-    TextPromptBuilder<TValue> TextPrompt<TValue>(string prompt);
-    TextPromptBuilder<string> TextPrompt(string prompt);
-
-    TValue Ask<TValue>(string prompt, TValue defaultChoice);
-    TValue Ask<TValue>(string prompt);
-    string Ask(string prompt);
-
     bool Confirm(string prompt, bool defaultChoice = true);
 
-    SelectionPromptBuilder<TValue> SelectionPrompt<TValue>(string prompt)
-        where TValue : notnull;
-    SelectionPromptBuilder<string> SelectionPrompt(string prompt);
+    TValue Ask<TValue>(string prompt, params TValue[] choices);
+    TValue Ask<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices);
+    TValue AskRequired<TValue>(string prompt, params TValue[] choices);
+    string Ask(string prompt, params string[] choices);
+    string Ask(string prompt, string defaultChoice, params string[] otherChoices);
+    string AskRequired(string prompt, params string[] choices);
 
-    TValue Select<TValue>(string prompt, TValue defaultChoice)
+    TValue Select<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices)
         where TValue : notnull;
-    TValue Select<TValue>(string prompt)
+    TValue Select<TValue>(string prompt, params TValue[] choices)
         where TValue : notnull;
-    string Select(string prompt);
+    TValue SelectRequired<TValue>(string prompt, params TValue[] choices)
+        where TValue : notnull;
+    string Select(string prompt, string defaultChoice, params string[] otherChoices);
+    string Select(string prompt, params string[] choices);
+    string SelectRequired(string prompt, params string[] choices);
+
+    TextPromptBuilder<TValue> BuildTextPrompt<TValue>(string prompt);
+
+    SelectionPromptBuilder<TValue> BuildSelectionPrompt<TValue>(string prompt)
+        where TValue : notnull;
 }

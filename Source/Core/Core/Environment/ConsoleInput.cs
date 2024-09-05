@@ -84,22 +84,39 @@ public class ConsoleInput()
         inputBuilder.AppendLine();
     }
 
-    public virtual TextPromptBuilder<TValue> TextPrompt<TValue>(string prompt)
-        => new(prompt, _output);
-    public virtual TextPromptBuilder<string> TextPrompt(string prompt)
-        => new(prompt, _output);
-
-    public virtual TValue Ask<TValue>(string prompt, TValue defaultChoice) {
+    public virtual TValue Ask<TValue>(string prompt, params TValue[] choices) {
         var builder = new TextPromptBuilder<TValue>(prompt, _output);
+        if (choices.Length > 0) builder.AddChoices(choices);
+        return builder.Show();
+    }
+    public virtual TValue Ask<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices) {
+        var builder = new TextPromptBuilder<TValue>(prompt, _output);
+        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, ..otherChoices]);
         builder.WithDefault(defaultChoice);
         return builder.Show();
     }
-    public virtual TValue Ask<TValue>(string prompt) {
-        var builder = new TextPromptBuilder<TValue>(prompt, _output);
+    public virtual string Ask(string prompt, params string[] choices) {
+        var builder = new TextPromptBuilder<string>(prompt, _output);
+        if (choices.Length > 0) builder.AddChoices(choices);
         return builder.Show();
     }
-    public virtual string Ask(string prompt) {
+    public virtual string Ask(string prompt, string defaultChoice, params string[] otherChoices) {
         var builder = new TextPromptBuilder<string>(prompt, _output);
+        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, ..otherChoices]);
+        builder.WithDefault(defaultChoice);
+        return builder.Show();
+    }
+    public virtual TValue AskRequired<TValue>(string prompt, params TValue[] choices) {
+
+        var builder = new TextPromptBuilder<TValue>(prompt, _output);
+        builder.AsRequired();
+        if (choices.Length > 0) builder.AddChoices(choices);
+        return builder.Show();
+    }
+    public virtual string AskRequired(string prompt, params string[] choices) {
+        var builder = new TextPromptBuilder<string>(prompt, _output);
+        builder.AsRequired();
+        if (choices.Length > 0) builder.AddChoices(choices);
         return builder.Show();
     }
 
@@ -111,26 +128,52 @@ public class ConsoleInput()
         return builder.Show();
     }
 
-    public virtual SelectionPromptBuilder<TValue> SelectionPrompt<TValue>(string prompt)
+    public virtual TextPromptBuilder<TValue> BuildTextPrompt<TValue>(string prompt)
+        => new(prompt, _output);
+
+    public virtual SelectionPromptBuilder<TValue> BuildSelectionPrompt<TValue>(string prompt)
         where TValue : notnull
         => new(prompt, _output);
 
-    public virtual SelectionPromptBuilder<string> SelectionPrompt(string prompt)
-        => new(prompt, _output);
-
-    public virtual TValue Select<TValue>(string prompt, TValue defaultChoice)
+    public virtual TValue Select<TValue>(string prompt, params TValue[] choices)
+        where TValue : notnull {
+        var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
+        if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
+        builder.AddChoices(choices);
+        return builder.Show();
+    }
+    public virtual TValue Select<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices)
         where TValue : notnull {
         var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
         builder.WithDefault(defaultChoice);
+        if (otherChoices.Length < 1) throw new ArgumentException("At least two choices must be provided.", nameof(otherChoices));
+        builder.AddChoices([defaultChoice, ..otherChoices]);
         return builder.Show();
     }
-    public virtual TValue Select<TValue>(string prompt)
+    public virtual string Select(string prompt, params string[] choices) {
+        var builder = new SelectionPromptBuilder<string>(prompt, _output);
+        if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
+        builder.AddChoices(choices);
+        return builder.Show();
+    }
+    public virtual string Select(string prompt, string defaultChoice, params string[] otherChoices) {
+        var builder = new SelectionPromptBuilder<string>(prompt, _output);
+        builder.WithDefault(defaultChoice);
+        if (otherChoices.Length < 1) throw new ArgumentException("At least two choices must be provided.", nameof(otherChoices));
+        builder.AddChoices([defaultChoice, ..otherChoices]);
+        return builder.Show();
+    }
+    public virtual TValue SelectRequired<TValue>(string prompt, params TValue[] choices)
         where TValue : notnull {
         var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
+        if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
+        builder.AddChoices(choices);
         return builder.Show();
     }
-    public virtual string Select(string prompt) {
+    public virtual string SelectRequired(string prompt, params string[] choices) {
         var builder = new SelectionPromptBuilder<string>(prompt, _output);
+        if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
+        builder.AddChoices(choices);
         return builder.Show();
     }
 }

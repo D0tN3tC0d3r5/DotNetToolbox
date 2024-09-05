@@ -3,19 +3,15 @@
 public class UserProfile
     : Map,
       IValidatable {
-    public UserProfile()
-     : this("1", "User") {
-    }
-
-    public UserProfile(string id, string name) {
-        Id = IsNotNullOrWhiteSpace(id);
-        Name = IsNotNullOrWhiteSpace(name);
+    public UserProfile(uint id) {
+        Id = id;
+        Name = "User";
         Language = "English";
         Facts = [];
     }
 
-    public string Id {
-        get => (string)this[nameof(Id)];
+    public uint Id {
+        get => (uint)this[nameof(Id)];
         init => this[nameof(Id)] = value;
     }
 

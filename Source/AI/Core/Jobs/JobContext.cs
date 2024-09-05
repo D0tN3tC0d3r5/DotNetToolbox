@@ -4,13 +4,13 @@ public class JobContext
     : Context {
     public JobContext(IEnumerable<KeyValuePair<string, object>>? source = null)
         : base(source) {
-        User = [];
         World = [];
+        User = new UserProfile(0);
+        Persona = new Persona(0);
+        Task = new Task(0);
         Assets = [];
         Tools = [];
-        Persona = [];
         Memory = [];
-        Task = [];
     }
 
     public required Model Model {

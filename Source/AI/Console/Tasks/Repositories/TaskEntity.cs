@@ -1,7 +1,10 @@
-﻿namespace AI.Sample.Tasks.Repositories;
+﻿using Task = DotNetToolbox.AI.Jobs.Task;
+
+namespace AI.Sample.Tasks.Repositories;
 
 public class TaskEntity
-    : Entity<TaskEntity, string> {
+    : Entity<TaskEntity, uint> {
+    public string Name { get; set; } = string.Empty;
     public List<string> Goals { get; } = [];
     public List<string> Scope { get; } = [];
     public List<string> Requirements { get; } = [];
@@ -13,6 +16,7 @@ public class TaskEntity
 
     public override Result Validate(IContext? context = null) {
         var result = base.Validate(context);
+        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("The name is required.", nameof(Name));
         if (Goals.Count == 0) result += new ValidationError("At least one goal is required.", nameof(Goals));
         return result;
     }
@@ -21,6 +25,7 @@ public class TaskEntity
     public string Prompt {
         get {
             var sb = new StringBuilder();
+            sb.AppendLine($"## Task: {Name}");
             switch (IsNotEmpty(Goals).Count) {
                 case 1:
                     sb.AppendLine($"Your task is to {Goals[0]}");
@@ -72,8 +77,9 @@ public class TaskEntity
         }
     }
 
-    public static implicit operator DotNetToolbox.AI.Jobs.Task(TaskEntity entity)
-        => new() {
+    public static implicit operator Task(TaskEntity entity)
+        => new(entity.Key) {
+            Name = entity.Name,
             Goals = entity.Goals,
             Scope = entity.Scope,
             Requirements = entity.Requirements,

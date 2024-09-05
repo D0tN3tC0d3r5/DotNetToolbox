@@ -1,8 +1,11 @@
 ﻿namespace AI.Sample.Users.Repositories;
 
 public class UserEntity
-    : Entity<UserEntity, string> {
-    public string Name { get; set; } = string.Empty;
+    : Entity<UserEntity, uint> {
+    public bool Internal { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Language { get; init; } = "English";
+    public List<string> Facts { get; } = [];
 
     public override Result Validate(IContext? context = null) {
         var result = base.Validate(context);
@@ -11,5 +14,9 @@ public class UserEntity
     }
 
     public static implicit operator UserProfile(UserEntity entity)
-        => new(entity.Key, entity.Name);
+        => new(entity.Key) {
+            Name = entity.Name,
+            Language = entity.Language,
+            Facts = entity.Facts,
+        };
 }

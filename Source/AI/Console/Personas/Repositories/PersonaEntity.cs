@@ -14,12 +14,9 @@ public class PersonaEntity
 
     public override Result Validate(IContext? context = null) {
         var result = base.Validate(context);
-        if (string.IsNullOrWhiteSpace(Name))
-            result += new ValidationError("The name is required.", nameof(Name));
-        if (string.IsNullOrWhiteSpace(Role))
-            result += new ValidationError("The primary role is required.", nameof(Role));
-        if (Goals.Count == 0)
-            result += new ValidationError("At least one goal is required.", nameof(Goals));
+        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("The name is required.", nameof(Name));
+        if (string.IsNullOrWhiteSpace(Role)) result += new ValidationError("The primary role is required.", nameof(Role));
+        if (Goals.Count == 0) result += new ValidationError("At least one goal is required.", nameof(Goals));
         return result;
     }
 
@@ -27,11 +24,11 @@ public class PersonaEntity
     public string Prompt {
         get {
             var sb = new StringBuilder();
-            sb.AppendLine($"Your name is {Name}.");
+            sb.AppendLine($"## {Name}.");
             sb.AppendLine($"You are a highly capable and versatile {Role}.");
             switch (IsNotEmpty(Goals).Count) {
                 case 1:
-                    sb.AppendLine($"The goal of the task is to {Goals[0]}");
+                    sb.AppendLine($"The goal of the task is to {Goals[0]}.");
                     break;
                 default:
                     sb.AppendLine("The goals of the task are:");
@@ -47,24 +44,24 @@ public class PersonaEntity
             if (Important.Count != 0) {
                 sb.AppendLine();
                 sb.AppendLine("## Important Information:");
-                foreach (var info in Important) sb.AppendLine($"**IMPORTANT!** {info}");
+                foreach (var info in Important) sb.AppendLine($"- **IMPORTANT!** You MUST{info}");
             }
             if (Negative.Count != 0) {
                 sb.AppendLine();
                 sb.AppendLine("## Never:");
-                foreach (var neg in Negative) sb.AppendLine($"**NEVER, IN ANY CIRCUMSTANCES!** {neg}");
+                foreach (var neg in Negative) sb.AppendLine($"- **NEVER, IN ANY CIRCUMSTANCES!** {neg}");
             }
             if (Other.Count != 0) {
                 sb.AppendLine();
                 sb.AppendLine("## Additional Information:");
-                foreach (var other in Other) sb.AppendLine(other);
+                foreach (var other in Other) sb.AppendLine($"- {other}");
             }
             return sb.ToString().TrimEnd();
         }
     }
 
     public static implicit operator Persona(PersonaEntity entity)
-        => new() {
+        => new(entity.Key) {
             Name = entity.Name,
             Role = entity.Role,
             Goals = entity.Goals,

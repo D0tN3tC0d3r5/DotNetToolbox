@@ -15,10 +15,20 @@ public class PersonaGenerateCommand : Command<PersonaGenerateCommand> {
     protected override async Task<Result> Execute(CancellationToken ct = default) {
         try {
             var persona = new PersonaEntity {
-                Name = Input.Ask<string>("Enter the name for the persona:"),
-                Role = Input.Ask<string>("Enter the primary role for the persona:"),
-                Goal = Input.Ask<string>("Enter the intended use for the persona:")
+                Name = Input.BuildTextPrompt<string>("Enter the name for the persona:").AnswerInNewLine().For(nameof(PersonaEntity.Name)).Show(),
+                Role = Input.BuildTextPrompt<string>("Enter the primary role for the persona:").AsRequired().AnswerInNewLine().For(nameof(PersonaEntity.Role)).Show(),
             };
+            var goalCount = 1;
+            Output.WriteLine("[yellow]Add the goals for the persona:[/]");
+            var goal = Input.BuildTextPrompt<string>($"Goal {goalCount}: ").AsRequired().AnswerInNewLine().For($"Goal {goalCount}").Show();
+            persona.Goals.Add(goal);
+            var addAnotherGoal = Input.Confirm("Would you like to add another goal?", false);
+            while (addAnotherGoal) {
+                goalCount++;
+                goal = Input.BuildTextPrompt<string>($"Goal {goalCount}: ").AsRequired().AnswerInNewLine().For($"Goal {goalCount}").Show();
+                persona.Goals.Add(goal);
+                addAnotherGoal = Input.Confirm("Would you like to add another goal?", false);
+            }
 
             Output.WriteLine("[yellow]Starting AI-assisted questioning phase...[/]");
             Output.WriteLine("[grey](Type 'generate' at any time to proceed with persona generation)[/]");
@@ -29,12 +39,12 @@ public class PersonaGenerateCommand : Command<PersonaGenerateCommand> {
                     Output.WriteLine("[green]AI has gathered sufficient information to generate the persona.[/]");
                     break;
                 }
-                var answer = Input.Ask($"Question {questionCount + 1}: {nextQuestion}");
+                var answer = Input.BuildTextPrompt<string>($"Question {questionCount + 1}: {nextQuestion}").AsRequired().AnswerInNewLine().For($"Question {questionCount + 1}").Show();
                 if (answer.Equals("generate", StringComparison.OrdinalIgnoreCase)) {
                     Output.WriteLine("[green]The user requested to proceed with the persona generation.[/]");
                     break;
                 }
-                persona.Traits.Add(new Query { Question = nextQuestion, Answer = answer });
+                persona.Questions.Add(new Query { Question = nextQuestion, Answer = answer });
             }
 
             _personaHandler.Add(persona);

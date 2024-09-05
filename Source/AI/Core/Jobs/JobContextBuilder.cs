@@ -10,7 +10,7 @@ public class JobContextBuilder(IServiceProvider services)
     private readonly Map _memory = [];
     private readonly Map<Asset> _assets = [];
     private readonly Map<Tool> _tools = [];
-    private string? _provider;
+    private Model? _model;
 
     public IJobContextBuilder CreateFrom(IEnumerable<KeyValuePair<string, object>> source) {
         _source = IsNotNull(source);
@@ -18,8 +18,8 @@ public class JobContextBuilder(IServiceProvider services)
     }
     public IJobContextBuilder Create() => this;
 
-    public IJobContextBuilder WithAgentFrom(string provider) {
-        _provider = provider;
+    public IJobContextBuilder WithModel(Model model) {
+        _model = model;
         return this;
     }
 
@@ -49,14 +49,16 @@ public class JobContextBuilder(IServiceProvider services)
     }
 
     public JobContext Build() {
-        var agentFactory = services.GetRequiredKeyedService<IHttpConnectionAccessor>(_provider);
+        if (_model is null) throw new InvalidOperationException("Model is required.");
+        var agentFactory = services.GetRequiredKeyedService<IHttpConnectionAccessor>(_model.ProviderId);
         return new(_source) {
-            World = new World(_dateTime),
-            Connection = agentFactory.Create(_provider),
+            Model = _model,
+            User = _userProfile ?? new UserProfile(),
+            World = new(_dateTime),
+            Connection = agentFactory.GetFor(_model.ProviderId),
             Memory = _memory,
             Assets = _assets,
             Tools = _tools,
-            User = _userProfile,
         };
     }
 }
