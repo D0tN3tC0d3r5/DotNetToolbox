@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public class AgentSettings
-    : IAgentSettings {
+public class HttpConnectionSettings
+    : IHttpConnectionSettings {
     private const byte _maximumRetries = 10;
     private const decimal _maximumTemperature = 2;
     private const decimal _maximumTokenProbabilityCutOff = 1;
@@ -12,7 +12,6 @@ public class AgentSettings
     private const decimal _defaultTemperature = 1;
     private const decimal _defaultProbabilityCutOff = 0;
 
-    public IModel Model { get; set; } = default!;
     public byte MaximumNumberOfRetries { get; set; } = _defaultNumberOfRetries;
     public uint MaximumOutputTokens { get; set; } = _defaultMaximumOutputTokens;
     public decimal Temperature { get; set; } = _defaultTemperature;

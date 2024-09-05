@@ -1,0 +1,86 @@
+﻿namespace AI.Sample.Tasks.Repositories;
+
+public class TaskEntity
+    : Entity<TaskEntity, string> {
+    public List<string> Goals { get; } = [];
+    public List<string> Scope { get; } = [];
+    public List<string> Requirements { get; } = [];
+    public List<string> Assumptions { get; } = [];
+    public List<string> Constraints { get; } = [];
+    public List<string> Examples { get; } = [];
+    public List<string> Guidelines { get; } = [];
+    public List<string> Validations { get; } = [];
+
+    public override Result Validate(IContext? context = null) {
+        var result = base.Validate(context);
+        if (Goals.Count == 0) result += new ValidationError("At least one goal is required.", nameof(Goals));
+        return result;
+    }
+
+    [JsonIgnore]
+    public string Prompt {
+        get {
+            var sb = new StringBuilder();
+            switch (IsNotEmpty(Goals).Count) {
+                case 1:
+                    sb.AppendLine($"Your task is to {Goals[0]}");
+                    break;
+                default:
+                    sb.AppendLine("Your task is to:");
+                    for (var i = 0; i < Goals.Count; i++) sb.AppendLine($"{i + 1}. {Goals[i]}");
+                    break;
+            }
+            if (Scope.Count != 0) {
+                sb.AppendLine();
+                sb.AppendLine("## Task Scope");
+                sb.AppendLine("The task should be limited to:");
+                foreach (var item in Scope) sb.AppendLine($"- {item}");
+            }
+            if (Assumptions.Count != 0) {
+                sb.AppendLine();
+                sb.AppendLine("## Task Assumptions");
+                sb.AppendLine("The task assumes that:");
+                foreach (var item in Assumptions) sb.AppendLine($"- {item}");
+            }
+            if (Requirements.Count != 0) {
+                sb.AppendLine();
+                sb.AppendLine("## Task Requirements");
+                foreach (var item in Requirements) sb.AppendLine($"- The task **MUST** {item}");
+            }
+            if (Constraints.Count != 0) {
+                sb.AppendLine();
+                sb.AppendLine("## Task Constraints");
+                foreach (var item in Constraints) sb.AppendLine($"- The task **MUST NOT** {item}");
+            }
+            if (Guidelines.Count != 0) {
+                sb.AppendLine();
+                sb.AppendLine("## Task Strategy and Guidelines");
+                foreach (var item in Guidelines) sb.AppendLine($"- {item}");
+            }
+            if (Validations.Count != 0) {
+                sb.AppendLine();
+                sb.AppendLine("## Task Validation and Verification");
+                sb.AppendLine("You **MUST VERIFY AND VALIDATE** the task by:");
+                foreach (var item in Validations) sb.AppendLine($"- {item}");
+            }
+            if (Examples.Count != 0) {
+                sb.AppendLine();
+                sb.AppendLine("## Examples");
+                for (var i = 0; i < Examples.Count; i++) sb.AppendLine($"{i + 1}. {Examples[i]}");
+            }
+            return sb.ToString().TrimEnd();
+        }
+    }
+
+    public static implicit operator DotNetToolbox.AI.Jobs.Task(TaskEntity entity)
+        => new() {
+            Goals = entity.Goals,
+            Scope = entity.Scope,
+            Requirements = entity.Requirements,
+            Assumptions = entity.Assumptions,
+            Constraints = entity.Constraints,
+            Examples = entity.Examples,
+            Guidelines = entity.Guidelines,
+            Validations = entity.Validations,
+        };
+}

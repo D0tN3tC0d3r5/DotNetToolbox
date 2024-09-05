@@ -2,73 +2,59 @@
 
 namespace AI.Sample.Services;
 
-public class AIService(IModelHandler modelHandler, IAgentHandler agentHandler, IUserHandler userHandler, IAgentFactory aiAgentFactory, ILogger<AIService> logger)
+public class AIService(IModelHandler modelHandler, IUserHandler userHandler, IPersonaHandler personaHandler, ITaskHandler taskHandler, IHttpConnectionAccessor connectionAccessor, ILogger<AIService> logger)
     : IAIService {
     private readonly IModelHandler _modelHandler = modelHandler;
-    private readonly IAgentHandler _agentHandler = agentHandler;
     private readonly IUserHandler _userHandler = userHandler;
-    private readonly IAgentFactory _aiAgentFactory = aiAgentFactory;
+    private readonly IPersonaHandler _personaHandler = personaHandler;
+    private readonly ITaskHandler _taskHandler = taskHandler;
+    private readonly IHttpConnectionAccessor _connectionAccessor = connectionAccessor;
     private readonly ILogger<AIService> _logger = logger;
 
-    public Task<string> GetNextQuestion(PersonaEntity persona) {
+    public async Task<string> GetNextQuestion(PersonaEntity entity) {
         try {
-            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No intenal AI model selected."); ;
-            var aiAgent = _aiAgentFactory.Create(appModel.Provider!.NormalizedName);
-            aiAgent.Settings.Model = new Model(appModel.Key);
-            aiAgent.Persona = [];
-            var user = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
-            var context = new JobContext() {
-                Agent = aiAgent,
-                User = new UserProfile(user.Key, user.Name),
+            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No intenal AI model selected.");
+            var context = new JobContext {
+                Model = appModel,
+                Connection = _connectionAccessor.GetFor(appModel.Provider!.NormalizedName),
+                User = _userHandler.Get() ?? throw new InvalidOperationException("No user found."),
+                Persona = _personaHandler.GetByName("AgentForge") ?? throw new InvalidOperationException($"Required persona not found. Name: 'AgentForge'."),
+                Task = _taskHandler.GetByName("AgentForge") ?? throw new InvalidOperationException($"Required persona not found. Name: 'AgentForge'."),
             };
+            var job = new PersonaGenerationJob(context);
+            var result = await job.Execute(entity, CancellationToken.None);
+            return result.HasException
+                ? throw new Exception("Failed to generate next question: " + result.Exception.Message)
+                : result.Value;
 
+            // var chat = new Chat(Guid.NewGuid().ToString(), new Context());
+            // var message = new Message(MessageRole.System, """
+            //                                               You are an AI assistant helping to generate a persona.
+            //                                               Ask relevant questions to gather information for creating a detailed persona.
+            //                                               """);
+            // chat.Messages.Add(message);
 
-            var chat = new Chat(Guid.NewGuid().ToString(), new Context());
-            // Add system message to set up the context
-            var message = new Message(MessageRole.System, """
-                                                          You are an AI assistant helping to generate a persona.
-                                                          Ask relevant questions to gather information for creating a detailed persona.
-                                                          """);
-            chat.Messages.Add(message);
-
-            // Add user message with current persona information
-            var userMessage = $"""
-                               I'm creating a persona with the following details:
-                               Name: {persona.Name}
-                               Primary Role: {persona.PrimaryRole}
-                               Intended Use: {persona.IntendedUse}
-                               """;
-            if (persona.AdditionalInformation.Any()) {
-                userMessage += "Additional Information:\n";
-                foreach (var query in persona.AdditionalInformation) {
-                    userMessage += $"""
-                                    Q: {query.Question}
-                                    A: {query.Answer}
-                                    """;
-                }
-            }
-            userMessage += "What's the next question you'd like to ask to gather more information for this persona?";
-            chat.Messages.Add(new Message(MessageRole.User, userMessage));
-
-            //var jobContext = new JobContext() {
-            //    World = new World(),
-            //    Agent = aiAgent,
-            //    User = new UserProfile(),
-            //};
-
-            //var job = new PersonaGenerationJob(jobContext);
-
-            //var result = await job.Execute(chat, CancellationToken.None);
-            //if (result.HasException) {
-            //    throw new Exception("Failed to generate next question: " + result.Exception.Message);
-            //}
-
-            //return result.Value;
-
-            return Task.FromResult(string.Empty);
+            // // Add user message with current persona information
+            // var userMessage = $"""
+            //                    I'm creating a persona with the following details:
+            //                    Name: {entity.Name}
+            //                    Primary Role: {entity.Role}
+            //                    Intended Use: {string.Join(", ", entity.Goals)}
+            //                    """;
+            // if (entity.Traits.Any()) {
+            //     userMessage += "Additional Information:\n";
+            //     foreach (var query in entity.Questions) {
+            //         userMessage += $"""
+            //                         Q: {query.Question}
+            //                         A: {query.Answer}
+            //                         """;
+            //     }
+            // }
+            // userMessage += "What's the next question you'd like to ask to gather more information for this persona?";
+            // chat.Messages.Add(new Message(MessageRole.User, userMessage));
         }
         catch (Exception ex) {
-            _logger.LogError(ex, "Error generating next question for persona {PersonaName}", persona.Name);
+            _logger.LogError(ex, "Error generating next question for persona {PersonaName}", entity.Name);
             throw;
         }
     }

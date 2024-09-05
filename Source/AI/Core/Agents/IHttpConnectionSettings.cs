@@ -1,13 +1,12 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public interface IAgentSettings : IValidatable {
+public interface IHttpConnectionSettings : IValidatable {
     public static readonly JsonSerializerOptions SerializerOptions = new() {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
     };
-    IModel Model { get; }
     byte MaximumNumberOfRetries { get; }
     uint MaximumOutputTokens { get; }
     decimal Temperature { get; }

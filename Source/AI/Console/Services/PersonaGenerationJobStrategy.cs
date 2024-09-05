@@ -11,7 +11,6 @@ public class PersonaGenerationJobStrategy : IJobStrategy<PersonaEntity, string> 
         // This method is not used in our implementation as we're adding messages directly in the GetNextQuestion method
     }
 
-    public string GetResult(IChat chat) {
-        return chat.Messages.Last(m => m.Role == MessageRole.Assistant).Text;
-    }
+    public string GetResult(IChat chat)
+        => chat.Messages.Last(m => m.Role == MessageRole.Assistant).Text;
 }

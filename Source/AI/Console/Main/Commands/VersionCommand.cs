@@ -9,6 +9,6 @@ public class VersionCommand : Command<VersionCommand> {
     protected override Task<Result> Execute(CancellationToken ct = default) {
         Output.WriteLine($"[bold]Lola version:[/] {Application.Version}");
 
-        return Task.FromResult(Result.Success());
+        return System.Threading.Tasks.Task.FromResult(Result.Success());
     }
 }

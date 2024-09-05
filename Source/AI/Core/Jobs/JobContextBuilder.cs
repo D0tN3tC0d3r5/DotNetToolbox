@@ -49,10 +49,10 @@ public class JobContextBuilder(IServiceProvider services)
     }
 
     public JobContext Build() {
-        var agentFactory = services.GetRequiredKeyedService<IAgentFactory>(_provider);
+        var agentFactory = services.GetRequiredKeyedService<IHttpConnectionAccessor>(_provider);
         return new(_source) {
             World = new World(_dateTime),
-            Agent = agentFactory.Create(_provider),
+            Connection = agentFactory.Create(_provider),
             Memory = _memory,
             Assets = _assets,
             Tools = _tools,

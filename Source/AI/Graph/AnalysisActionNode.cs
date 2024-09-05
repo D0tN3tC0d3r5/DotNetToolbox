@@ -6,7 +6,7 @@ public class AnalysisActionNode(string tag, string provider, IServiceProvider se
         : this(tag, null!, services) {
     }
 
-    protected override async Task Execute(Context context, CancellationToken ct) {
+    protected override async System.Threading.Tasks.Task Execute(Context context, CancellationToken ct) {
         var input = context["AnalysisInput"] as string
                  ?? throw new InvalidOperationException("Analysis input not found in context");
 

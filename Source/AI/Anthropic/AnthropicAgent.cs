@@ -1,8 +1,8 @@
 ﻿
 namespace DotNetToolbox.AI.Anthropic;
 
-public class AnthropicAgent([FromKeyedServices("Anthropic")] IHttpClientProviderFactory factory, ILogger<AnthropicAgent> logger)
-    : Agent<AnthropicAgent, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
+public class AnthropicAgent([FromKeyedServices("Anthropic")] IHttpClientProviderAccessor factory, ILogger<AnthropicAgent> logger)
+    : HttpConnection<AnthropicAgent, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
     protected override ChatRequest CreateRequest(IJob job, IChat chat)
         => new(this, chat) {
             Temperature = Settings.Temperature,

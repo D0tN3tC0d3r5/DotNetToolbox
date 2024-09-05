@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.OpenAI;
 
-public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderFactory factory, ILogger<OpenAIAgent> logger)
-    : Agent<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
+public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderAccessor factory, ILogger<OpenAIAgent> logger)
+    : HttpConnection<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
     protected override ChatRequest CreateRequest(IJob job, IChat chat)
         => new(this, chat) {
             Temperature = Settings.Temperature,

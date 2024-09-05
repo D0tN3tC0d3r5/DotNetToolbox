@@ -26,4 +26,12 @@ public class ModelEntity : Entity<ModelEntity, string> {
             result += new ValidationError("MaximumOutputTokens must be greater than 0.", nameof(MaximumOutputTokens));
         return result;
     }
+
+    public static implicit operator Model(ModelEntity entity) => new(entity.Key) {
+        ProviderId = entity.Provider!.NormalizedName,
+        Name = entity.Name,
+        MaximumContextSize = entity.MaximumContextSize,
+        MaximumOutputTokens = entity.MaximumOutputTokens,
+        TrainingDataCutOff = entity.TrainingDataCutOff,
+    };
 }

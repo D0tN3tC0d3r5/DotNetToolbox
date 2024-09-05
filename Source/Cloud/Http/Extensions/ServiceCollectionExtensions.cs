@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions {
 
     public static IServiceCollection AddHttpClientProviderFactory(this IServiceCollection services) {
         services.AddHttpClient();
-        services.TryAddSingleton<IHttpClientProviderFactory, HttpClientProviderFactory>();
+        services.TryAddSingleton<IHttpClientProviderAccessor, HttpClientProviderAccessor>();
         return services;
     }
 }

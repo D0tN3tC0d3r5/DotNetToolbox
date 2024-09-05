@@ -16,8 +16,8 @@ public class PersonaGenerateCommand : Command<PersonaGenerateCommand> {
         try {
             var persona = new PersonaEntity {
                 Name = Input.Ask<string>("Enter the name for the persona:"),
-                PrimaryRole = Input.Ask<string>("Enter the primary role for the persona:"),
-                IntendedUse = Input.Ask<string>("Enter the intended use for the persona:")
+                Role = Input.Ask<string>("Enter the primary role for the persona:"),
+                Goal = Input.Ask<string>("Enter the intended use for the persona:")
             };
 
             Output.WriteLine("[yellow]Starting AI-assisted questioning phase...[/]");
@@ -34,7 +34,7 @@ public class PersonaGenerateCommand : Command<PersonaGenerateCommand> {
                     Output.WriteLine("[green]The user requested to proceed with the persona generation.[/]");
                     break;
                 }
-                persona.AdditionalInformation.Add(new Query { Question = nextQuestion, Answer = answer });
+                persona.Traits.Add(new Query { Question = nextQuestion, Answer = answer });
             }
 
             _personaHandler.Add(persona);

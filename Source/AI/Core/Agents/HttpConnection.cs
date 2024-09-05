@@ -1,18 +1,20 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class Agent<TAgent, TRequest, TResponse>(string provider, IHttpClientProviderFactory factory, ILogger<TAgent> logger) : IAgent
-    where TAgent : Agent<TAgent, TRequest, TResponse>
+public abstract class HttpConnection<TAgent, TRequest, TResponse>(string provider, IHttpClientProviderAccessor httpClientProviderAcessor, ILogger<TAgent> logger)
+    : IHttpConnection
+    where TAgent : HttpConnection<TAgent, TRequest, TResponse>
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
-    private readonly IHttpClientProvider _httpClientProvider = factory.Create(provider);
 
-    protected Agent(IHttpClientProviderFactory factory, ILogger<TAgent> logger)
+    private readonly IHttpClientProvider _httpClientProvider = httpClientProviderAcessor.Get(provider);
+
+    protected HttpConnection(IHttpClientProviderAccessor factory, ILogger<TAgent> logger)
         : this(null!, factory, logger) {
     }
 
     protected ILogger<TAgent> Logger { get; } = logger;
 
-    public AgentSettings Settings { get; } = new AgentSettings();
+    public HttpConnectionSettings Settings { get; } = new HttpConnectionSettings();
     public Persona Persona { get; set; } = default!;
     public List<Tool> Tools { get; } = [];
 
@@ -24,14 +26,14 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider, IHttpC
                 Logger.LogDebug("Sending request {RequestNumber} for {ChatId}...", count++, chat.Id);
                 var request = CreateRequest(job, chat);
                 var mediaType = MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType);
-                var content = JsonContent.Create(request, mediaType, options: IAgentSettings.SerializerOptions);
+                var content = JsonContent.Create(request, mediaType, options: IHttpConnectionSettings.SerializerOptions);
                 var httpClient = _httpClientProvider.GetHttpClient();
                 var chatEndpoint = _httpClientProvider.Options.Endpoints["Chat"];
                 var httpResult = await httpClient.PostAsync(chatEndpoint, content, ct).ConfigureAwait(false);
                 switch (httpResult.StatusCode) {
                     case HttpStatusCode.BadRequest:
                         Logger.LogDebug("Invalid request.");
-                        var input = JsonSerializer.Serialize(request, IAgentSettings.SerializerOptions);
+                        var input = JsonSerializer.Serialize(request, IHttpConnectionSettings.SerializerOptions);
                         var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                         var errorMessage = $"""
                                             RequestPackage: {input}
@@ -48,7 +50,7 @@ public abstract class Agent<TAgent, TRequest, TResponse>(string provider, IHttpC
                     default:
                         Logger.LogDebug("Response received.");
                         var json = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                        var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IAgentSettings.SerializerOptions)!;
+                        var apiResponse = JsonSerializer.Deserialize<TResponse>(json, IHttpConnectionSettings.SerializerOptions)!;
                         hasFinished = UpdateChat(chat, apiResponse);
                         if (!hasFinished) Logger.LogDebug("Response is incomplete.");
                         break;

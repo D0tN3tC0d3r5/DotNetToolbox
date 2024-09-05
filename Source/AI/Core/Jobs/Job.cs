@@ -13,7 +13,7 @@ public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strateg
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
         var chat = new Chat(Id, Context);
         strategy.AddPrompt(chat, input);
-        var result = await Context.Agent.SendRequest(this, chat, ct);
+        var result = await Context.Connection.SendRequest(this, chat, ct);
 
         if (result.HasException)
             throw new JobException("An internal error occurred while executing the job.", result.Exception);

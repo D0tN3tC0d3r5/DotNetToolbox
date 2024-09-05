@@ -9,4 +9,7 @@ public class UserEntity
         if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("Name is required.", nameof(Name));
         return result;
     }
+
+    public static implicit operator UserProfile(UserEntity entity)
+        => new(entity.Key, entity.Name);
 }

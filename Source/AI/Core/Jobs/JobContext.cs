@@ -4,16 +4,33 @@ public class JobContext
     : Context {
     public JobContext(IEnumerable<KeyValuePair<string, object>>? source = null)
         : base(source) {
+        User = [];
         World = [];
-        Memory = [];
         Assets = [];
         Tools = [];
-        User = [];
+        Persona = [];
+        Memory = [];
+        Task = [];
     }
 
-    public Map Memory {
-        get => (Map)this[nameof(Memory)];
-        init => this[nameof(Memory)] = value;
+    public required Model Model {
+        get => (Model)this[nameof(Model)]!;
+        init => this[nameof(Model)] = value;
+    }
+
+    public required IHttpConnection Connection {
+        get => (IHttpConnection)this[nameof(Connection)];
+        init => this[nameof(Connection)] = value;
+    }
+
+    public UserProfile User {
+        get => (UserProfile?)this[nameof(User)]!;
+        init => this[nameof(User)] = value;
+    }
+
+    public World World {
+        get => (World)this[nameof(World)];
+        init => this[nameof(World)] = value;
     }
 
     public Map<Asset> Assets {
@@ -26,18 +43,18 @@ public class JobContext
         init => this[nameof(Tools)] = value;
     }
 
-    public World World {
-        get => (World)this[nameof(World)];
-        init => this[nameof(World)] = value;
+    public Persona Persona {
+        get => (Persona)this[nameof(Persona)]!;
+        init => this[nameof(Persona)] = value;
     }
 
-    public UserProfile User {
-        get => (UserProfile?)this[nameof(User)]!;
-        init => this[nameof(User)] = value;
+    public Map Memory {
+        get => (Map)this[nameof(Memory)];
+        init => this[nameof(Memory)] = value;
     }
 
-    public required IAgent Agent {
-        get => (IAgent)this[nameof(Agent)];
-        init => this[nameof(Agent)] = value;
+    public Task Task {
+        get => (Task)this[nameof(Task)];
+        init => this[nameof(Task)] = value;
     }
 }

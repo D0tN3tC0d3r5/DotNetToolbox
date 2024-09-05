@@ -13,7 +13,6 @@ public class Lola
         AddCommand<SettingsCommand>();
         AddCommand<ProvidersCommand>();
         AddCommand<ModelsCommand>();
-        AddCommand<AgentsCommand>();
         AddCommand<UserProfileCommand>();
     }
 
@@ -52,7 +51,6 @@ public class Lola
                           .AddChoices("Providers",
                                       "Models",
                                       "Personas",
-                                      "Agents",
                                       "User",
                                       "Settings",
                                       "Help",
@@ -62,7 +60,6 @@ public class Lola
 
         static string MapTo(string choice) => choice switch {
             "Providers" => "Manage Providers",
-            "Agents" => "Manage Agents",
             "Models" => "Manage Models",
             "Personas" => "Manage Personas",
             "User" => "Manage User Profile",

@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Anthropic.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(IAgent agent, IChat chat)
+public class ChatRequest(IHttpConnection agent, IChat chat)
     : IChatRequest {
     string IChatRequest.Context => System;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => [.. Messages];
@@ -36,8 +36,8 @@ public class ChatRequest(IAgent agent, IChat chat)
     private static ChatRequestMessage[] SetMessages(IChat chat)
         => chat.Messages.Where(m => m.Role != MessageRole.System).ToArray(m => new ChatRequestMessage(m));
 
-    private static uint SetMaximumOutputTokens(IAgent agent)
-        => agent.Settings.MaximumOutputTokens > AgentSettings.MinimumOutputTokens
+    private static uint SetMaximumOutputTokens(IHttpConnection agent)
+        => agent.Settings.MaximumOutputTokens > HttpConnectionSettings.MinimumOutputTokens
         && agent.Settings.MaximumOutputTokens < agent.Settings.Model.MaximumOutputTokens
                ? agent.Settings.MaximumOutputTokens
                : agent.Settings.Model.MaximumOutputTokens;
