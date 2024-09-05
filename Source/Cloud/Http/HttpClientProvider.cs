@@ -2,15 +2,15 @@
 
 public class HttpClientProvider
     : IHttpClientProvider {
-    private readonly IHttpClientFactory _clientFactory;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public HttpClientProvider(string name,
-                              IHttpClientFactory clientFactory,
+                              IHttpClientFactory httpClientFactory,
                               IConfiguration configuration,
                               Action<HttpClientOptions>? configure = null,
                               IContext? context = null) {
         Name = IsNotNullOrWhiteSpace(name);
-        _clientFactory = clientFactory;
+        _httpClientFactory = httpClientFactory;
         ConfigurationPath = $"{HttpClientOptions.SectionName}:{Name}";
         Options = new();
         EnsureIsConfigured(configuration, configure, context);
@@ -43,7 +43,7 @@ public class HttpClientProvider
         => Options.Authentication?.Revoke();
 
     public HttpClient GetHttpClient() {
-        var client = _clientFactory.CreateClient(Name);
+        var client = _httpClientFactory.CreateClient(Name);
         Options.Configure(client);
         return client;
     }

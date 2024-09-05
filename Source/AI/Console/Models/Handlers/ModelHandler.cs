@@ -10,37 +10,39 @@ public class ModelHandler(IApplication application, IModelRepository repository,
     private ModelEntity? _selected;
 
     public ModelEntity? Internal {
-        get => GetSelectedModel();
-        private set => SetSelectedModel(IsNotNull(value));
+        get => GetSelected();
+        private set => SetSelected(IsNotNull(value));
     }
 
-    private ModelEntity? GetSelectedModel() {
+    private ModelEntity? GetSelected() {
         var cachedValue = _application.Context.GetValueOrDefault<ModelEntity>(ApplicationModelKey);
-        _selected = cachedValue ?? _repository.FirstOrDefault(m => m.IsSelected);
+        _selected = cachedValue ?? _repository.FirstOrDefault(m => m.Selected);
         if (cachedValue is null && _selected is not null) _application.Context[ApplicationModelKey] = _selected;
         return _selected; // Should only only return null if the storage is empty or there is no selected model in the storage.
     }
 
-    private void SetSelectedModel(ModelEntity value) {
+    private void SetSelected(ModelEntity value) {
         if (value.Key == _selected?.Key) return;
         _selected = value;
 
         // Ensure record uniqueness in storage
-        var oldSelectedModel = _repository.FirstOrDefault(m => m.IsSelected);
+        var oldSelectedModel = _repository.FirstOrDefault(m => m.Selected);
         if (oldSelectedModel is not null && oldSelectedModel.Key != _selected.Key) {
-            oldSelectedModel.IsSelected = false;
+            oldSelectedModel.Selected = false;
             _repository.Update(oldSelectedModel);
         }
-        _selected.IsSelected = true;
+        _selected.Selected = true;
         _repository.Update(_selected);
 
         // Update cached value
         _application.Context[ApplicationModelKey] = _selected;
     }
 
-    public ModelEntity[] List() => _repository.GetAll();
+    public ModelEntity[] List()
+        => [.._repository.GetAll().OrderBy(m => m.Name)];
 
-    public ModelEntity? GetByKey(string key) => _repository.FindByKey(key);
+    public ModelEntity? GetByKey(string key)
+        => _repository.FindByKey(key);
 
     public ModelEntity Create(Action<ModelEntity> setUp) {
         var model = new ModelEntity();
@@ -52,7 +54,7 @@ public class ModelHandler(IApplication application, IModelRepository repository,
         if (_repository.FindByKey(model.Key) is not null) {
             throw new InvalidOperationException($"A model with the key '{model.Key}' already exists.");
         }
-        if (_selected is null) model.IsSelected = true;
+        if (_selected is null) model.Selected = true;
         _repository.Add(model);
         _selected = model;
         _logger.LogInformation("Added new model: {ModelKey} => {ModelName}", model.Key, model.Name);

@@ -1,18 +1,18 @@
 ﻿namespace AI.Sample.Personas.Commands;
 
-public class PersonaGenerateCommand : Command<PersonaGenerateCommand> {
+public class PersonaCreateCommand : Command<PersonaCreateCommand> {
     private readonly IPersonaHandler _personaHandler;
     private readonly IAIService _aiService;
-    private const int MaxQuestions = 10;
+    private const int _maxQuestions = 10;
 
-    public PersonaGenerateCommand(IHasChildren parent, IPersonaHandler personaHandler, IAIService aiService)
+    public PersonaCreateCommand(IHasChildren parent, IPersonaHandler personaHandler, IAIService aiService)
         : base(parent, "Generate", ["gen"]) {
         _personaHandler = personaHandler;
         _aiService = aiService;
         Description = "Generate a new persona using AI assistance.";
     }
 
-    protected override async Task<Result> Execute(CancellationToken ct = default) {
+    protected override async Task<Result> ExecuteAsync(CancellationToken ct = default) {
         try {
             var persona = new PersonaEntity {
                 Name = Input.BuildTextPrompt<string>("Enter the name for the persona:").AnswerInNewLine().For(nameof(PersonaEntity.Name)).Show(),
@@ -33,7 +33,7 @@ public class PersonaGenerateCommand : Command<PersonaGenerateCommand> {
             Output.WriteLine("[yellow]Starting AI-assisted questioning phase...[/]");
             Output.WriteLine("[grey](Type 'generate' at any time to proceed with persona generation)[/]");
 
-            for (var questionCount = 0; questionCount < MaxQuestions; questionCount++) {
+            for (var questionCount = 0; questionCount < _maxQuestions; questionCount++) {
                 var nextQuestion = await _aiService.GetNextQuestion(persona);
                 if (string.IsNullOrEmpty(nextQuestion)) {
                     Output.WriteLine("[green]AI has gathered sufficient information to generate the persona.[/]");
@@ -44,7 +44,7 @@ public class PersonaGenerateCommand : Command<PersonaGenerateCommand> {
                     Output.WriteLine("[green]The user requested to proceed with the persona generation.[/]");
                     break;
                 }
-                persona.Questions.Add(new Query { Question = nextQuestion, Answer = answer });
+                persona.Questions.Add(new() { Question = nextQuestion, Answer = answer });
             }
 
             _personaHandler.Add(persona);

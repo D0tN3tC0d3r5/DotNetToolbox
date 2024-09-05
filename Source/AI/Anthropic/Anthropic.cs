@@ -1,4 +1,4 @@
 ﻿namespace DotNetToolbox.AI.Anthropic;
 
-public class Anthropic(IHttpClientFactory clientFactory, IConfiguration configuration)
-    : HttpClientProvider("Anthropic", clientFactory, configuration);
+public class Anthropic(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+    : HttpClientProvider("Anthropic", httpClientFactory, configuration);

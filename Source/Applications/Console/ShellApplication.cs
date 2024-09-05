@@ -26,7 +26,6 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
     where TApplication : ShellApplication<TApplication, TBuilder, TSettings>
     where TBuilder : ShellApplicationBuilder<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {
-
     protected ShellApplication(string[] args, IServiceCollection services)
         : base(args, services) {
         AddCommand<ExitCommand>();

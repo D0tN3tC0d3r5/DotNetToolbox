@@ -1,8 +1,8 @@
-﻿namespace AI.Sample.Users.Commands;
+﻿namespace AI.Sample.UserProfile.Commands;
 
-public class UserSetCommand(IHasChildren parent, IUserHandler handler)
-    : Command<UserSetCommand>(parent, "Change", ["set"]) {
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+public class UserProfileSetCommand(IHasChildren parent, IUserProfileHandler handler)
+    : Command<UserProfileSetCommand>(parent, "Change", ["set"]) {
+    protected override Result Execute() {
         try {
             var user = handler.Get() ?? handler.Create();
             SetUp(user);
@@ -12,18 +12,18 @@ public class UserSetCommand(IHasChildren parent, IUserHandler handler)
             Logger.LogInformation("User profile set successfully.");
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
         catch (Exception ex) {
             Output.WriteError("Error setting the user profile.");
             Logger.LogError(ex, "Error setting the user profile.");
             Output.WriteLine();
 
-            return Result.ErrorTask(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    private void SetUp(UserEntity user)
+    private void SetUp(UserProfileEntity user)
         => user.Name = Input.BuildTextPrompt<string>("How would you like me to call you?")
                                 .For("name").WithDefault("Temp").AsRequired();
 }

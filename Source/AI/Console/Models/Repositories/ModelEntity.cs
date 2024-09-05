@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-using Model = DotNetToolbox.AI.Models.Model;
+﻿using Model = DotNetToolbox.AI.Models.Model;
 
 namespace AI.Sample.Models.Repositories;
 
@@ -14,7 +12,7 @@ public class ModelEntity : Entity<ModelEntity, string> {
     public decimal InputCostPerMillionTokens { get; set; }
     public decimal OutputCostPerMillionTokens { get; set; }
     public DateOnly TrainingDataCutOff { get; set; }
-    public bool IsSelected { get; set; }
+    public bool Selected { get; set; }
 
     public override Result Validate(IContext? context = null) {
         var result = base.Validate(context);
@@ -28,7 +26,7 @@ public class ModelEntity : Entity<ModelEntity, string> {
     }
 
     public static implicit operator Model(ModelEntity entity) => new(entity.Key) {
-        ProviderId = entity.Provider!.NormalizedName,
+        Provider = entity.Provider!.Name,
         Name = entity.Name,
         MaximumContextSize = entity.MaximumContextSize,
         MaximumOutputTokens = entity.MaximumOutputTokens,

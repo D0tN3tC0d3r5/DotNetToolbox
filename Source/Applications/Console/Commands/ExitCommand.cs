@@ -6,7 +6,7 @@ public class ExitCommand : Command<ExitCommand> {
         Description = "Exit the application.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
         Application.Exit();
         return SuccessTask();
     }

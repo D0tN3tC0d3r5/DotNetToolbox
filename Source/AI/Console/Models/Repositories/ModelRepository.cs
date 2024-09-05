@@ -16,7 +16,7 @@ public class ModelRepository(IModelRepositoryStrategy strategy, Lazy<IProviderRe
     }
 
     public ModelEntity[] GetAll(Expression<Func<ModelEntity, bool>>? predicate = null, bool includeProviders = true) {
-        var models = GetAll(predicate);
+        var models = base.GetAll(predicate);
         if (!includeProviders) return models;
         var providers = _providers.Value.GetAll();
         foreach (var model in models)

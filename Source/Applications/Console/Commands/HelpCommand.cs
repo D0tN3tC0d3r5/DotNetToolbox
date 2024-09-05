@@ -11,7 +11,7 @@ internal sealed class HelpCommand
         AddParameter("Target", string.Empty);
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
         var target = Context.GetValueOrDefault<string>("Target");
         var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? _parent;

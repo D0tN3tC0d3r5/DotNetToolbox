@@ -7,7 +7,7 @@ public class SayCommand : Command<SayCommand> {
         AddParameter("Info", "Color");
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
         var name = Application.Context["MyName"];
         Context.TryGetValue("My", out var type);
         type = type is string s && s.Equals("secret", StringComparison.OrdinalIgnoreCase) ? "Secret" : "Public";
@@ -16,6 +16,6 @@ public class SayCommand : Command<SayCommand> {
         Output.WriteLine(secret != null
                                                 ? $"Ok {name}. Your {type} {info} is {secret}."
                                                 : "I don't know.");
-        return base.Execute(ct);
+        return base.ExecuteAsync(ct);
     }
 }

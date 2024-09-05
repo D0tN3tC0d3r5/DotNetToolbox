@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.Data.File;
 
-public class JsonFileRepositoryStrategy<TRepository, TItem, TKey>
-    : RepositoryStrategy<JsonFileRepositoryStrategy<TRepository, TItem, TKey>, TRepository, TItem, TKey>
+public abstract class JsonFilePerTypeRepositoryStrategy<TRepository, TItem, TKey>
+    : RepositoryStrategy<JsonFilePerTypeRepositoryStrategy<TRepository, TItem, TKey>, TRepository, TItem, TKey>
     where TRepository : class, IQueryableRepository<TItem>
     where TItem : class, IEntity<TKey>
     where TKey : notnull {
@@ -9,15 +9,14 @@ public class JsonFileRepositoryStrategy<TRepository, TItem, TKey>
     private readonly string _filePath;
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
-    public JsonFileRepositoryStrategy(string name, IConfigurationRoot configuration)
-        : base() {
+    protected JsonFilePerTypeRepositoryStrategy(string name, IConfigurationRoot configuration) {
         var baseFolder = configuration.GetValue<string>("Data:BaseFolder")
                       ?? configuration.GetValue<string>($"Data:{name}:BaseFolder")
                       ?? _defaultBaseFolder;
         _filePath = Path.Combine(baseFolder, $"{name}.json");
-        EnsureFileExistis(baseFolder);
+        EnsureFileExists(baseFolder);
     }
-    private void EnsureFileExistis(string baseFolder) {
+    private void EnsureFileExists(string baseFolder) {
         if (Path.Exists(_filePath)) return;
         Directory.CreateDirectory(baseFolder);
         Save();
@@ -49,13 +48,11 @@ public class JsonFileRepositoryStrategy<TRepository, TItem, TKey>
     private static IQueryable<TItem> ApplyFilter(IQueryable<TItem> query, Expression<Func<TItem, bool>>? filterBy = null)
      => filterBy is null ? query : query.Where(filterBy);
 
-    private static IQueryable<TItem> ApplySorting(IQueryable<TItem> query, HashSet<SortClause>? orderBy = null)
-    {
+    private static IQueryable<TItem> ApplySorting(IQueryable<TItem> query, HashSet<SortClause>? orderBy = null) {
         if (orderBy is null) return query;
         IOrderedQueryable<TItem>? orderedQuery = null;
 
-        foreach (var clause in orderBy)
-        {
+        foreach (var clause in orderBy) {
             if (typeof(TItem).GetProperty(clause.PropertyName) is null)
                 throw new ArgumentException($"Property {clause.PropertyName} not found on {typeof(TItem).Name}.", nameof(orderBy));
 

@@ -1,10 +1,8 @@
-﻿using DotNetToolbox.AI.Chats;
-using DotNetToolbox.AI.Jobs;
-
-namespace AI.Sample.Services;
+﻿namespace AI.Sample.Services;
 
 // Custom job strategies
-public class PersonaGenerationJobStrategy : IJobStrategy<PersonaEntity, string> {
+public class PersonaGenerationJobStrategy
+    : IJobStrategy<PersonaEntity, string> {
     public string Instructions => "Generate the next question for persona creation based on the provided information.";
 
     public void AddPrompt(IChat chat, PersonaEntity input) {

@@ -1,7 +1,7 @@
 ﻿namespace AI.Sample.Providers.Repositories;
 
 public class ProviderRepositoryStrategy(IConfigurationRoot configuration)
-    : JsonFileRepositoryStrategy<IProviderRepository, ProviderEntity, uint>("providers", configuration),
+    : JsonFilePerTypeRepositoryStrategy<IProviderRepository, ProviderEntity, uint>("providers", configuration),
       IProviderRepositoryStrategy {
     protected override uint FirstKey { get; } = 1;
 

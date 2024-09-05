@@ -11,13 +11,13 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
         Description = "Update an existing model.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Result Execute() {
         var model = this.EntitySelectionPrompt(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
 
         model.Key = Input.BuildTextPrompt<string>("Enter the new identifier for the model")
@@ -59,14 +59,14 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
             Output.WriteLine("[green]Settings updated successfully.[/]");
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
         catch (Exception ex) {
             Logger.LogError(ex, "Error updating the model '{ModelKey}:{ModelName}'.", model.Key, model.Name);
             Output.WriteError("Error updating the model.");
             Output.WriteLine();
 
-            return Result.ErrorTask(ex.Message);
+            return Result.Error(ex);
         }
     }
 }

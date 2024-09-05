@@ -2,17 +2,17 @@
 
 public class ModelsCommand : Command<ModelsCommand> {
     public ModelsCommand(IHasChildren parent) : base(parent, "Models", []) {
-        Description = "Manage AI models.";
+        Description = "Manage AI Models.";
 
         AddCommand<ModelListCommand>();
         AddCommand<ModelAddCommand>();
         AddCommand<ModelUpdateCommand>();
         AddCommand<ModelRemoveCommand>();
-        AddCommand<ModelInfoCommand>();
+        AddCommand<ModelViewCommand>();
         AddCommand<HelpCommand>();
     }
 
-    protected override async Task<Result> Execute(CancellationToken ct = default) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
         var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
                           .ConvertWith(MapTo)
                           .AddChoices("List",
@@ -30,7 +30,7 @@ public class ModelsCommand : Command<ModelsCommand> {
         var command = choice switch {
             "List" => new ModelListCommand(this, modelHandler, providerHandler),
             "Create" => new ModelAddCommand(this, modelHandler, providerHandler),
-            "Info" => new ModelInfoCommand(this, modelHandler, providerHandler),
+            "Info" => new ModelViewCommand(this, modelHandler, providerHandler),
             "Select" => new ModelSelectCommand(this, modelHandler),
             "Update" => new ModelUpdateCommand(this, modelHandler, providerHandler),
             "Remove" => new ModelRemoveCommand(this, modelHandler),
@@ -38,7 +38,7 @@ public class ModelsCommand : Command<ModelsCommand> {
             "Exit" => new ExitCommand(this),
             _ => (ICommand?)null,
         };
-        return await (command?.Execute([], ct) ?? Result.SuccessTask());
+        return command?.Execute([], ct) ?? Result.SuccessTask();
 
         static string MapTo(string choice) => choice switch {
             "List" => "List Models",

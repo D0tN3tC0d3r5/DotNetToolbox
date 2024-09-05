@@ -468,9 +468,9 @@ public sealed class NodeTests {
             Description = "Test command.";
         }
 
-        protected override Task<Result> Execute(CancellationToken ct = default) {
+        protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
             Logger.LogInformation("Some logger.");
-            return base.Execute(ct);
+            return base.ExecuteAsync(ct);
         }
     }
 

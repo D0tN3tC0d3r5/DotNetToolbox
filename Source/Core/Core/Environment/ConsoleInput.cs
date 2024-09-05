@@ -107,7 +107,6 @@ public class ConsoleInput()
         return builder.Show();
     }
     public virtual TValue AskRequired<TValue>(string prompt, params TValue[] choices) {
-
         var builder = new TextPromptBuilder<TValue>(prompt, _output);
         builder.AsRequired();
         if (choices.Length > 0) builder.AddChoices(choices);

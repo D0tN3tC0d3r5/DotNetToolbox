@@ -3,7 +3,6 @@
 public class JobContextBuilder(IServiceProvider services)
     : IJobContextBuilder,
       IJobContextBuilderFactory {
-
     private IEnumerable<KeyValuePair<string, object>>? _source;
     private IDateTimeProvider _dateTime = DateTimeProvider.Default;
     private UserProfile? _userProfile;
@@ -50,12 +49,12 @@ public class JobContextBuilder(IServiceProvider services)
 
     public JobContext Build() {
         if (_model is null) throw new InvalidOperationException("Model is required.");
-        var agentFactory = services.GetRequiredKeyedService<IHttpConnectionAccessor>(_model.ProviderId);
+        var agentFactory = services.GetRequiredKeyedService<IHttpConnectionAccessor>(_model.Provider);
         return new(_source) {
             Model = _model,
             User = _userProfile ?? new UserProfile(0),
             World = new(_dateTime),
-            Connection = agentFactory.GetFor(_model.ProviderId),
+            Connection = agentFactory.GetFor(_model.Provider),
             Memory = _memory,
             Assets = _assets,
             Tools = _tools,

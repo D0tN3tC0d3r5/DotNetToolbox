@@ -1,15 +1,50 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public sealed class Command : Command<Command> {
-    internal Command(IHasChildren parent, string name, string[]? aliases = null, Func<Command, CancellationToken, Task<Result>>? execute = null)
+    internal Command(IHasChildren parent, string name, Func<Command, CancellationToken, Task<Result>> executeAsync)
+        : this(parent, name, [], executeAsync) {
+    }
+    internal Command(IHasChildren parent, string name, Func<Command, Result> execute)
+        : this(parent, name, [], execute) {
+    }
+    internal Command(IHasChildren parent, string name, string[] aliases, Func<Command, CancellationToken, Task<Result>> executeAsync)
+        : base(parent, name, aliases, executeAsync) {
+    }
+    internal Command(IHasChildren parent, string name, string[] aliases, Func<Command, Result> execute)
         : base(parent, name, aliases, execute) {
+    }
+    internal Command(IHasChildren parent, string name, params string[] aliases)
+        : base(parent, name, aliases) {
     }
 }
 
-public class Command<TCommand>(IHasChildren parent, string name, string[]? aliases = null, Func<TCommand, CancellationToken, Task<Result>>? execute = null)
-    : Node<TCommand>(parent, name, aliases ?? []),
+public class Command<TCommand>
+    : Node<TCommand>,
       ICommand
     where TCommand : Command<TCommand> {
+    private readonly Func<TCommand, CancellationToken, Task<Result>>? _executeAsync;
+
+    public Command(IHasChildren parent, string name, Func<TCommand, CancellationToken, Task<Result>> executeAsync)
+        : this(parent, name, [], executeAsync) {
+    }
+
+    public Command(IHasChildren parent, string name, Func<TCommand, Result> execute)
+        : this(parent, name, [], execute) {
+    }
+
+    public Command(IHasChildren parent, string name, string[] aliases, Func<TCommand, CancellationToken, Task<Result>> executeAsync)
+        : base(parent, name, aliases) {
+        _executeAsync = executeAsync;
+    }
+
+    public Command(IHasChildren parent, string name, string[] aliases, Func<TCommand, Result> execute)
+        : this(parent, name, aliases, (cmd, ct) => Task.Run(() => execute(cmd), ct)) {
+    }
+
+    public Command(IHasChildren parent, string name, params string[] aliases)
+        : base(parent, name, aliases) {
+    }
+
     public IContext Context { get; } = new Context();
 
     public ICollection<INode> Children { get; } = [];
@@ -20,11 +55,12 @@ public class Command<TCommand>(IHasChildren parent, string name, string[]? alias
     protected virtual Task<Result> Prepare(IReadOnlyList<string> args, CancellationToken ct = default)
         => ArgumentsParser.Parse(this, args, ct);
 
-    protected virtual Task<Result> Execute(CancellationToken ct = default)
-        => execute?.Invoke((TCommand)this, ct) ?? SuccessTask();
+    protected virtual Task<Result> ExecuteAsync(CancellationToken ct = default)
+        => _executeAsync?.Invoke((TCommand)this, ct) ?? Task.Run(Execute, ct);
+    protected virtual Result Execute() => Success();
     public async Task<Result> Execute(IReadOnlyList<string> args, CancellationToken ct = default) {
         var result = await Prepare(args, ct);
-        return result.IsSuccess ? await Execute(ct) : result;
+        return result.IsSuccess ? await ExecuteAsync(ct) : result;
     }
 
     public ICommand AddCommand(string name, Delegate action)

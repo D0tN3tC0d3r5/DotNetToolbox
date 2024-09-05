@@ -1,30 +1,21 @@
-﻿using Model = DotNetToolbox.AI.Models.Model;
+﻿namespace AI.Sample.Services;
 
-namespace AI.Sample.Services;
-
-public class AIService(IModelHandler modelHandler, IUserHandler userHandler, IPersonaHandler personaHandler, ITaskHandler taskHandler, IHttpConnectionAccessor connectionAccessor, ILogger<AIService> logger)
+public class AIService(IModelHandler modelHandler, IUserProfileHandler userHandler, IPersonaHandler personaHandler, ITaskHandler taskHandler, IHttpConnectionAccessor connectionAccessor, ILogger<AIService> logger)
     : IAIService {
-    private readonly IModelHandler _modelHandler = modelHandler;
-    private readonly IUserHandler _userHandler = userHandler;
-    private readonly IPersonaHandler _personaHandler = personaHandler;
-    private readonly ITaskHandler _taskHandler = taskHandler;
-    private readonly IHttpConnectionAccessor _connectionAccessor = connectionAccessor;
-    private readonly ILogger<AIService> _logger = logger;
-
-    public async Task<string> GetNextQuestion(PersonaEntity entity) {
+    public async Task<string> GetNextQuestion(PersonaEntity persona) {
         try {
-            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No intenal AI model selected.");
+            var appModel = modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
             var context = new JobContext {
                 Model = appModel,
-                Connection = _connectionAccessor.GetFor(appModel.Provider!.NormalizedName),
-                User = _userHandler.Get() ?? throw new InvalidOperationException("No user found."),
-                Persona = _personaHandler.GetByName("AgentForge") ?? throw new InvalidOperationException($"Required persona not found. Name: 'AgentForge'."),
-                Task = _taskHandler.GetByName("AgentForge") ?? throw new InvalidOperationException($"Required persona not found. Name: 'AgentForge'."),
+                Connection = connectionAccessor.GetFor(appModel.Provider!.Name),
+                User = userHandler.Get() ?? throw new InvalidOperationException("No user found."),
+                Persona = personaHandler.GetByName("AgentForge") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'."),
+                Task = taskHandler.GetByName("AgentForge") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'."),
             };
             var job = new PersonaGenerationJob(context);
-            var result = await job.Execute(entity, CancellationToken.None);
+            var result = await job.Execute(persona, CancellationToken.None);
             return result.HasException
-                ? throw new Exception("Failed to generate next question: " + result.Exception.Message)
+                ? throw new("Failed to generate next question: " + result.Exception.Message)
                 : result.Value;
 
             // var chat = new Chat(Guid.NewGuid().ToString(), new Context());
@@ -54,7 +45,7 @@ public class AIService(IModelHandler modelHandler, IUserHandler userHandler, IPe
             // chat.Messages.Add(new Message(MessageRole.User, userMessage));
         }
         catch (Exception ex) {
-            _logger.LogError(ex, "Error generating next question for persona {PersonaName}", entity.Name);
+            logger.LogError(ex, "Error generating next question for persona {PersonaName}", persona.Name);
             throw;
         }
     }
@@ -62,7 +53,7 @@ public class AIService(IModelHandler modelHandler, IUserHandler userHandler, IPe
     //public async Task<string> GeneratePrompt(PersonaEntity persona) {
     //    try {
     //        var appAgent = _agentHandler.Selected ?? throw new InvalidOperationException("No AI agent selected.");
-    //        var aiAgent = _aiAgentFactory.Create(appAgent.ProviderId);
+    //        var aiAgent = _aiAgentFactory.Create(appAgent.Provider);
 
     //        var chat = new Chat(Guid.NewGuid().ToString(), new Context());
 
@@ -87,7 +78,7 @@ public class AIService(IModelHandler modelHandler, IUserHandler userHandler, IPe
     //            Agent = aiAgent
     //        };
 
-    //        var result = await job.Execute(chat, CancellationToken.None);
+    //        var result = await job.ExecuteAsync(chat, CancellationToken.None);
     //        if (result.HasException) {
     //            throw new Exception("Failed to generate prompt: " + result.Exception.Message);
     //        }

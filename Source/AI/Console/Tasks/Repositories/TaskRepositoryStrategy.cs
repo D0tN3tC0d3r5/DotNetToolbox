@@ -1,7 +1,7 @@
 ﻿namespace AI.Sample.Tasks.Repositories;
 
 public class TaskRepositoryStrategy(IConfigurationRoot configuration)
-    : JsonFileRepositoryStrategy<ITaskRepository, TaskEntity, uint>("tasks", configuration),
+    : JsonFilePerTypeRepositoryStrategy<ITaskRepository, TaskEntity, uint>("tasks", configuration),
       ITaskRepositoryStrategy {
     protected override uint FirstKey { get; } = 1;
 

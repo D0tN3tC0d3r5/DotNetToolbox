@@ -2,7 +2,6 @@
 
 public class Task
     : Map {
-
     public Task(uint id) {
         Id = id;
         Name = "Provide Assistance";

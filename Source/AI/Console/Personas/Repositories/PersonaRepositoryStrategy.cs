@@ -1,7 +1,7 @@
 ﻿namespace AI.Sample.Personas.Repositories;
 
 public class PersonaRepositoryStrategy(IConfigurationRoot configuration)
-    : JsonFileRepositoryStrategy<IPersonaRepository, PersonaEntity, uint>("personas", configuration),
+    : JsonFilePerTypeRepositoryStrategy<IPersonaRepository, PersonaEntity, uint>("personas", configuration),
       IPersonaRepositoryStrategy {
     protected override uint FirstKey { get; } = 1;
 

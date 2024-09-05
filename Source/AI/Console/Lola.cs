@@ -2,10 +2,10 @@
 
 public class Lola
         : ShellApplication<Lola, LolaSettings> {
-    private readonly Lazy<IUserHandler> _userHandler;
+    private readonly Lazy<IUserProfileHandler> _userHandler;
     private readonly ILogger<Lola> _logger;
 
-    public Lola(string[] args, IServiceCollection services, Lazy<IUserHandler> userHandler, ILogger<Lola> logger)
+    public Lola(string[] args, IServiceCollection services, Lazy<IUserProfileHandler> userHandler, ILogger<Lola> logger)
         : base(args, services) {
         _userHandler = userHandler;
         _logger = logger;
@@ -14,6 +14,8 @@ public class Lola
         AddCommand<ProvidersCommand>();
         AddCommand<ModelsCommand>();
         AddCommand<UserProfileCommand>();
+        AddCommand<PersonasCommand>();
+        AddCommand<TasksCommand>();
     }
 
     protected override async Task<Result> OnStart(CancellationToken ct = default) {
@@ -30,7 +32,7 @@ public class Lola
         return Result.Success();
     }
 
-    private Result SaluteUser(UserEntity user) {
+    private Result SaluteUser(UserProfileEntity user) {
         Output.WriteLine($"[Green]Hi {user.Name}! Welcome back.[/]");
         Output.WriteLine();
         return Result.Success();
@@ -39,7 +41,7 @@ public class Lola
     private Task<Result> RegisterUser(CancellationToken ct = default) {
         Output.WriteLine($"[bold]Welcome to {Name}, your AI assisted shell![/]");
         Output.WriteLine();
-        var command = new UserSetCommand(this, _userHandler.Value);
+        var command = new UserProfileSetCommand(this, _userHandler.Value);
         Output.WriteLine("[bold][Yellow]Hi![/] It seems that is the first time that I see you around here.[/]");
         return command.Execute([], ct);
     }
@@ -51,7 +53,8 @@ public class Lola
                           .AddChoices("Providers",
                                       "Models",
                                       "Personas",
-                                      "User",
+                                      "Tasks",
+                                      "UserProfile",
                                       "Settings",
                                       "Help",
                                       "Exit").Show();
@@ -62,7 +65,8 @@ public class Lola
             "Providers" => "Manage Providers",
             "Models" => "Manage Models",
             "Personas" => "Manage Personas",
-            "User" => "Manage User Profile",
+            "Tasks" => "Manage Tasks",
+            "UserProfile" => "Manage User Profile",
             "Settings" => "Settings",
             "Help" => "Help",
             "Exit" => "Exit",

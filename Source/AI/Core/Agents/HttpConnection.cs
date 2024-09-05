@@ -1,12 +1,11 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class HttpConnection<TAgent, TRequest, TResponse>(string provider, IHttpClientProviderAccessor httpClientProviderAcessor, ILogger<TAgent> logger)
+public abstract class HttpConnection<TAgent, TRequest, TResponse>(string provider, IHttpClientProviderAccessor httpClientProviderAccessor, ILogger<TAgent> logger)
     : IHttpConnection
     where TAgent : HttpConnection<TAgent, TRequest, TResponse>
     where TRequest : class, IChatRequest
     where TResponse : class, IChatResponse {
-
-    private readonly IHttpClientProvider _httpClientProvider = httpClientProviderAcessor.Get(provider);
+    private readonly IHttpClientProvider _httpClientProvider = httpClientProviderAccessor.Get(provider);
 
     protected HttpConnection(IHttpClientProviderAccessor factory, ILogger<TAgent> logger)
         : this(null!, factory, logger) {

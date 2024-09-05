@@ -2,7 +2,7 @@
 
 public interface IModel {
     string Id { get; }
-    string ProviderId { get; }
+    string Provider { get; }
     string Name { get; }
     uint MaximumContextSize { get; }
     uint MaximumOutputTokens { get; }

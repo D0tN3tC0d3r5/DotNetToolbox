@@ -27,21 +27,19 @@ public sealed class ModelsHandlerTests : IDisposable {
         // Arrange
         var response = new ModelsResponse {
             Data = [
-                new() {
-                    Id = "ft:model1",
+                new("ft:model1") {
                     Name = "Settings 1",
                     MaximumContextSize = 32000,
                     MaximumOutputTokens = 2048,
                     TrainingDataCutOff = DateOnly.Parse("2020-01-01"),
-                    ProviderId = "user1",
+                    Provider = "user1",
                 },
-                new() {
-                    Id = "model2",
+                new("model2") {
                     Name = "Settings 2",
                     MaximumContextSize = 32000,
                     MaximumOutputTokens = 2048,
                     TrainingDataCutOff = DateOnly.Parse("2020-01-01"),
-                    ProviderId = "user1",
+                    Provider = "user1",
                 },
             ],
         };

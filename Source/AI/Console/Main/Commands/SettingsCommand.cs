@@ -11,7 +11,7 @@ public class SettingsCommand : Command<SettingsCommand> {
         Description = "Display the current configuration of Lola.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Result Execute() {
         _logger.LogInformation("Executing Settings command...");
         var table = new Table();
         table.AddColumn("Setting");
@@ -21,6 +21,6 @@ public class SettingsCommand : Command<SettingsCommand> {
         Output.Write(table);
         Output.WriteLine();
 
-        return Result.SuccessTask();
+        return Result.Success();
     }
 }

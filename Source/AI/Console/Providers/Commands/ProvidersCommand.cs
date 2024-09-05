@@ -4,7 +4,7 @@ public class ProvidersCommand
     : Command<ProvidersCommand> {
     public ProvidersCommand(IHasChildren parent)
         : base(parent, "Providers", []) {
-        Description = "Manage AI providers.";
+        Description = "Manage AI Providers.";
 
         AddCommand<ProviderListCommand>();
         AddCommand<ProviderAddCommand>();
@@ -14,7 +14,7 @@ public class ProvidersCommand
         AddCommand<ExitCommand>();
     }
 
-    protected override async Task<Result> Execute(CancellationToken ct = default) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
         var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
                           .ConvertWith(MapTo)
                           .AddChoices("List",
@@ -36,7 +36,7 @@ public class ProvidersCommand
             "Exit" => new ExitCommand(this),
             _ => (ICommand?)null,
         };
-        return await (command?.Execute([], ct) ?? Result.SuccessTask());
+        return command?.Execute([], ct) ?? Result.SuccessTask();
 
         static string MapTo(string choice) => choice switch {
             "List" => "List Providers",

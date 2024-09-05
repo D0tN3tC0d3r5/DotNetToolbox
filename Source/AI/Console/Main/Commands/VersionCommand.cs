@@ -6,9 +6,9 @@ public class VersionCommand : Command<VersionCommand> {
         Description = "Display the current version of Lola.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Result Execute() {
         Output.WriteLine($"[bold]Lola version:[/] {Application.Version}");
 
-        return System.Threading.Tasks.Task.FromResult(Result.Success());
+        return Result.Success();
     }
 }

@@ -9,14 +9,14 @@ public class ModelSelectCommand : Command<ModelSelectCommand> {
         Description = "Select the default model.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Result Execute() {
         var models = _handler.List();
 
         if (models.Length == 0) {
             Output.WriteLine("[yellow]No models available. Please add a model before proceeding.[/]");
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
 
         var selected = Input.BuildSelectionPrompt<ModelEntity>("Select an model:")
@@ -29,13 +29,13 @@ public class ModelSelectCommand : Command<ModelSelectCommand> {
             Output.WriteLine($"[green]Settings '{selected.Key}' selected successfully.[/]");
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
         catch (Exception ex) {
             Output.WriteError("Error selecting an model.");
             Output.WriteLine();
 
-            return Result.ErrorTask(ex.Message);
+            return Result.Error(ex);
         }
     }
 }

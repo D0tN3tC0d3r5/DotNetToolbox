@@ -5,7 +5,7 @@
       "name": "C#: DotNetToolbox.AI.Sample",
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/Source/AI/Console/DotNetToolbox.AI.Sample.csproj"
+      "projectPath": "${workspaceFolder}/Source/AI/Console/DotNetToolbox.AI.Sample.csproj",
     }
   ]
 }

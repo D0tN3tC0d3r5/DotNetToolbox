@@ -11,13 +11,13 @@ public class ModelAddCommand : Command<ModelAddCommand> {
         Description = "Create a new model.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Result Execute() {
         try {
             var providers = _providerHandler.List();
             if (providers.Length == 0) {
                 Output.WriteLine("[yellow bold]No providers available. Please add a provider first.[/]");
                 Logger.LogInformation("No providers available. Create model action cancelled.");
-                return Result.InvalidTask("No providers available.");
+                return Result.Invalid("No providers available.");
             }
 
             var provider = Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
@@ -31,14 +31,14 @@ public class ModelAddCommand : Command<ModelAddCommand> {
             Logger.LogInformation("Settings '{ModelKey}:{ModelName}' added successfully.", model.Key, model.Name);
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
         catch (Exception ex) {
             Output.WriteError("Error adding the new model.");
             Logger.LogError(ex, "Error adding the new model.");
             Output.WriteLine();
 
-            return Result.ErrorTask(ex.Message);
+            return Result.Error(ex);
         }
     }
 

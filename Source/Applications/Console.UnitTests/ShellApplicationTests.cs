@@ -425,7 +425,7 @@ public sealed class ShellApplicationTests {
                 Stack Trace:
                        at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
                        at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.Execute*
+                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.ExecuteAsync*
                        at DotNetToolbox.ConsoleApplication.Nodes.Command`1.DotNetToolbox.ConsoleApplication.Nodes.ICommand.Set*
                        at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.ProcessCommand*
                        at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(String input, CancellationToken ct)*

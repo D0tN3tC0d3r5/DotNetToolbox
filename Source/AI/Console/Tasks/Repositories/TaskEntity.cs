@@ -4,15 +4,15 @@ namespace AI.Sample.Tasks.Repositories;
 
 public class TaskEntity
     : Entity<TaskEntity, uint> {
-    public string Name { get; set; } = string.Empty;
-    public List<string> Goals { get; } = [];
-    public List<string> Scope { get; } = [];
-    public List<string> Requirements { get; } = [];
-    public List<string> Assumptions { get; } = [];
-    public List<string> Constraints { get; } = [];
-    public List<string> Examples { get; } = [];
-    public List<string> Guidelines { get; } = [];
-    public List<string> Validations { get; } = [];
+    public string Name { get; init; } = string.Empty;
+    public List<string> Goals { get; init; } = [];
+    public List<string> Scope { get; init; } = [];
+    public List<string> Requirements { get; init; } = [];
+    public List<string> Assumptions { get; init; } = [];
+    public List<string> Constraints { get; init; } = [];
+    public List<string> Examples { get; init; } = [];
+    public List<string> Guidelines { get; init; } = [];
+    public List<string> Validations { get; init; } = [];
 
     public override Result Validate(IContext? context = null) {
         var result = base.Validate(context);

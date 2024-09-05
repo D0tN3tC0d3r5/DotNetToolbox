@@ -6,7 +6,7 @@ internal class VersionCommand : Command<VersionCommand> {
         Description = "Display the application's version.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
         Output.WriteLine((Parent as IApplication)!.FullName);
         return SuccessTask();
     }

@@ -9,19 +9,19 @@ public class ModelRemoveCommand : Command<ModelRemoveCommand> {
         Description = "Remove a model.";
     }
 
-    protected override Task<Result> Execute(CancellationToken ct = default) {
+    protected override Result Execute() {
         var model = this.EntitySelectionPrompt(_handler.List(), "remove", "Settings", m => m.Key, m => m.Name);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
 
         if (!Input.Confirm($"Are you sure you want to remove the model '{model.Name}' ({model.Key})?")) {
             Output.WriteLine();
 
-            return Result.InvalidTask("Action cancelled.");
+            return Result.Invalid("Action cancelled.");
         }
 
         try {
@@ -29,13 +29,13 @@ public class ModelRemoveCommand : Command<ModelRemoveCommand> {
             Output.WriteLine($"[green]Settings with key '{model.Name}' removed successfully.[/]");
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
         catch (Exception ex) {
             Output.WriteError("Error removing the model.");
             Output.WriteLine();
 
-            return Result.ErrorTask(ex.Message);
+            return Result.Error(ex);
         }
     }
 }

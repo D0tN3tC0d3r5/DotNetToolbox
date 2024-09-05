@@ -1,5 +1,8 @@
 // Global using directives
+global using System;
+global using System.IO;
 global using System.Linq.Expressions;
+global using System.Security.Cryptography;
 global using System.Text;
 global using System.Text.Json.Serialization;
 
@@ -10,17 +13,19 @@ global using AI.Sample.Main.Commands;
 global using AI.Sample.Models.Commands;
 global using AI.Sample.Models.Handlers;
 global using AI.Sample.Models.Repositories;
+global using AI.Sample.Personas.Commands;
 global using AI.Sample.Personas.Handlers;
 global using AI.Sample.Personas.Repositories;
 global using AI.Sample.Providers.Commands;
 global using AI.Sample.Providers.Handlers;
 global using AI.Sample.Providers.Repositories;
 global using AI.Sample.Services;
+global using AI.Sample.Tasks.Commands;
 global using AI.Sample.Tasks.Handlers;
 global using AI.Sample.Tasks.Repositories;
-global using AI.Sample.Users.Commands;
-global using AI.Sample.Users.Handlers;
-global using AI.Sample.Users.Repositories;
+global using AI.Sample.UserProfile.Commands;
+global using AI.Sample.UserProfile.Handlers;
+global using AI.Sample.UserProfile.Repositories;
 
 global using DotNetToolbox;
 global using DotNetToolbox.AI.Agents;

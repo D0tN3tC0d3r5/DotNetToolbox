@@ -1,7 +1,9 @@
-﻿namespace AI.Sample.Users.Repositories;
+﻿using AIUserProfile = DotNetToolbox.AI.Jobs.UserProfile;
 
-public class UserEntity
-    : Entity<UserEntity, uint> {
+namespace AI.Sample.UserProfile.Repositories;
+
+public class UserProfileEntity
+    : Entity<UserProfileEntity, uint> {
     public bool Internal { get; init; }
     public string Name { get; set; } = string.Empty;
     public string Language { get; set; } = "English";
@@ -13,7 +15,7 @@ public class UserEntity
         return result;
     }
 
-    public static implicit operator UserProfile(UserEntity entity)
+    public static implicit operator AIUserProfile(UserProfileEntity entity)
         => new(entity.Key) {
             Name = entity.Name,
             Language = entity.Language,
