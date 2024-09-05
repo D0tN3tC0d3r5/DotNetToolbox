@@ -3,8 +3,8 @@
 public class UserEntity
     : Entity<UserEntity, uint> {
     public bool Internal { get; init; }
-    public string Name { get; init; } = string.Empty;
-    public string Language { get; init; } = "English";
+    public string Name { get; set; } = string.Empty;
+    public string Language { get; set; } = "English";
     public List<string> Facts { get; } = [];
 
     public override Result Validate(IContext? context = null) {

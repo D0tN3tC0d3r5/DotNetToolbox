@@ -19,7 +19,7 @@ public class ModelSelectCommand : Command<ModelSelectCommand> {
             return Result.SuccessTask();
         }
 
-        var selected = Input.SelectionPrompt<ModelEntity>("Select an model:")
+        var selected = Input.BuildSelectionPrompt<ModelEntity>("Select an model:")
                             .AddChoices(models)
                             .ConvertWith(c => c.Name)
                             .Show();

@@ -53,7 +53,7 @@ public class JobContextBuilder(IServiceProvider services)
         var agentFactory = services.GetRequiredKeyedService<IHttpConnectionAccessor>(_model.ProviderId);
         return new(_source) {
             Model = _model,
-            User = _userProfile ?? new UserProfile(),
+            User = _userProfile ?? new UserProfile(0),
             World = new(_dateTime),
             Connection = agentFactory.GetFor(_model.ProviderId),
             Memory = _memory,

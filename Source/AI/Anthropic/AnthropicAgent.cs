@@ -1,10 +1,10 @@
 ﻿
 namespace DotNetToolbox.AI.Anthropic;
 
-public class AnthropicAgent([FromKeyedServices("Anthropic")] IHttpClientProviderAccessor factory, ILogger<AnthropicAgent> logger)
-    : HttpConnection<AnthropicAgent, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
+public class AnthropicHttpConnection([FromKeyedServices("Anthropic")] IHttpClientProviderAccessor factory, ILogger<AnthropicHttpConnection> logger)
+    : HttpConnection<AnthropicHttpConnection, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
     protected override ChatRequest CreateRequest(IJob job, IChat chat)
-        => new(this, chat) {
+        => new(this, job.Context.Model, chat) {
             Temperature = Settings.Temperature,
             StopSequences = Settings.StopSequences.Count == 0 ? null : [.. Settings.StopSequences],
             MinimumTokenProbability = Settings.TokenProbabilityCutOff,

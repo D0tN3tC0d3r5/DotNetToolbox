@@ -1,13 +1,13 @@
 ﻿namespace DotNetToolbox.AI.Anthropic.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(IHttpConnection agent, IChat chat)
+public class ChatRequest(IHttpConnection connection, IModel model, IChat chat)
     : IChatRequest {
     string IChatRequest.Context => System;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => [.. Messages];
 
     [JsonPropertyName("model")]
-    public string Model { get; } = agent.Settings.Model.Id;
+    public string Model { get; } = model.Id;
 
     [JsonPropertyName("system")]
     public string System { get; } = SetContext(chat);
@@ -16,7 +16,7 @@ public class ChatRequest(IHttpConnection agent, IChat chat)
     public ChatRequestMessage[] Messages { get; } = SetMessages(chat);
 
     [JsonPropertyName("max_tokens")]
-    public uint MaximumOutputTokens { get; } = SetMaximumOutputTokens(agent);
+    public uint MaximumOutputTokens { get; } = SetMaximumOutputTokens(connection, model);
 
     [JsonPropertyName("stop_sequences")]
     public string[]? StopSequences { get; set; }
@@ -36,9 +36,9 @@ public class ChatRequest(IHttpConnection agent, IChat chat)
     private static ChatRequestMessage[] SetMessages(IChat chat)
         => chat.Messages.Where(m => m.Role != MessageRole.System).ToArray(m => new ChatRequestMessage(m));
 
-    private static uint SetMaximumOutputTokens(IHttpConnection agent)
+    private static uint SetMaximumOutputTokens(IHttpConnection agent, IModel model)
         => agent.Settings.MaximumOutputTokens > HttpConnectionSettings.MinimumOutputTokens
-        && agent.Settings.MaximumOutputTokens < agent.Settings.Model.MaximumOutputTokens
+        && agent.Settings.MaximumOutputTokens < model.MaximumOutputTokens
                ? agent.Settings.MaximumOutputTokens
-               : agent.Settings.Model.MaximumOutputTokens;
+               : model.MaximumOutputTokens;
 }

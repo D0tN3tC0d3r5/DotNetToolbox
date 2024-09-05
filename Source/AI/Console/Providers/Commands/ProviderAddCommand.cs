@@ -22,6 +22,6 @@ public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
     }
 
     private void SetUp(ProviderEntity provider)
-        => provider.Name = Input.TextPrompt("Enter the provider name:")
+        => provider.Name = Input.BuildTextPrompt<string>("Enter the provider name:")
                                 .For("name").AsRequired();
 }

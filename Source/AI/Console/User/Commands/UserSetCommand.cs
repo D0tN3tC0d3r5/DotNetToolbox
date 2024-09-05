@@ -24,6 +24,6 @@ public class UserSetCommand(IHasChildren parent, IUserHandler handler)
     }
 
     private void SetUp(UserEntity user)
-        => user.Name = Input.TextPrompt("How would you like me to call you?")
+        => user.Name = Input.BuildTextPrompt<string>("How would you like me to call you?")
                                 .For("name").WithDefault("Temp").AsRequired();
 }

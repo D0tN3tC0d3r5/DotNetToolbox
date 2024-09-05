@@ -29,7 +29,7 @@ public static class CommandHelpers {
         choices.Add(cancelOption);
 
         var prompt = $"Select {IndefiniteArticleFor(name[0])} {name} to {action} (or cancel):";
-        return command.Input.SelectionPrompt<ListItem<TItem, TKey>>(prompt)
+        return command.Input.BuildSelectionPrompt<ListItem<TItem, TKey>>(prompt)
                       .AddChoices([.. choices])
                       .ConvertWith(e => IsCancel(e) ? $"[yellow bold]{e.Text}[/]" : e.Text)
                       .Show().Item;

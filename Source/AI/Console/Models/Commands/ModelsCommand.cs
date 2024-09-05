@@ -13,7 +13,7 @@ public class ModelsCommand : Command<ModelsCommand> {
     }
 
     protected override async Task<Result> Execute(CancellationToken ct = default) {
-        var choice = Input.SelectionPrompt("What would you like to do?")
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
                           .ConvertWith(MapTo)
                           .AddChoices("List",
                                       "Create",

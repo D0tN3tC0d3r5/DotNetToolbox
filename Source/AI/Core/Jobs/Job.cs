@@ -8,7 +8,7 @@ public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strateg
 
     public string Id { get; } = id;
     public JobType Type { get; protected init; }
-    protected JobContext Context => context;
+    public JobContext Context => context;
 
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
         var chat = new Chat(Id, Context);

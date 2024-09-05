@@ -13,7 +13,7 @@ public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler
             return Result.SuccessTask();
         }
 
-        provider.Name = Input.TextPrompt("Enter the new name for the provider")
+        provider.Name = Input.BuildTextPrompt<string>("Enter the new name for the provider")
                              .For("name").WithDefault(provider.Name).AsRequired();
 
         try {

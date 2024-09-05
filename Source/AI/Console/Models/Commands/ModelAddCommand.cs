@@ -20,7 +20,7 @@ public class ModelAddCommand : Command<ModelAddCommand> {
                 return Result.InvalidTask("No providers available.");
             }
 
-            var provider = Input.SelectionPrompt<ProviderEntity>("Select a provider:")
+            var provider = Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
                                 .ConvertWith(p => $"{p.Key}: {p.Name}")
                                 .AddChoices(providers)
                                 .Show();
@@ -43,24 +43,24 @@ public class ModelAddCommand : Command<ModelAddCommand> {
     }
 
     private void SetUp(ModelEntity model, ProviderEntity provider) {
-        model.Key = Input.TextPrompt("Enter the model identifier:")
+        model.Key = Input.BuildTextPrompt<string>("Enter the model identifier:")
                          .For("Identifier").AsRequired();
-        model.Name = Input.TextPrompt("Enter the model name:")
+        model.Name = Input.BuildTextPrompt<string>("Enter the model name:")
                           .For("name").AsRequired();
         model.ProviderKey = provider.Key;
-        model.MaximumContextSize = Input.TextPrompt<uint>("Enter the maximum context size:")
+        model.MaximumContextSize = Input.BuildTextPrompt<uint>("Enter the maximum context size:")
                                         .For("maximum context size").AsRequired()
                                         .Validate(size => size > 0, "Maximum context size must be greater than 0.");
-        model.MaximumOutputTokens = Input.TextPrompt<uint>("Enter the maximum output tokens:")
+        model.MaximumOutputTokens = Input.BuildTextPrompt<uint>("Enter the maximum output tokens:")
                                          .For("maximum output tokens").AsRequired()
                                          .Validate(tokens => tokens > 0, "Maximum output tokens must be greater than 0.");
-        model.InputCostPerMillionTokens = Input.TextPrompt<decimal>("Enter the input cost per million tokens:")
+        model.InputCostPerMillionTokens = Input.BuildTextPrompt<decimal>("Enter the input cost per million tokens:")
                                                .For("input cost per million tokens")
                                                .Validate(cost => cost >= 0, "Cost must be non-negative.");
-        model.OutputCostPerMillionTokens = Input.TextPrompt<decimal>("Enter the output cost per million tokens:")
+        model.OutputCostPerMillionTokens = Input.BuildTextPrompt<decimal>("Enter the output cost per million tokens:")
                                                 .For("output cost per million tokens")
                                                 .Validate(cost => cost >= 0, "Cost must be non-negative.");
-        model.TrainingDataCutOff = Input.TextPrompt<DateOnly>("Enter the training data cut-off date (YYYY-MM-DD):")
+        model.TrainingDataCutOff = Input.BuildTextPrompt<DateOnly>("Enter the training data cut-off date (YYYY-MM-DD):")
                                         .For("training data cut-off date")
                                         .Validate(date => date <= DateOnly.FromDateTime(DateTime.Now), "Cut-off date cannot be in the future.");
     }

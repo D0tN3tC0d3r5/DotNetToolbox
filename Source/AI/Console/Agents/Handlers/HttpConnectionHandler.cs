@@ -2,20 +2,18 @@
 
 namespace AI.Sample.Agents.Handlers;
 
-public class HttpConnectionHandler(IApplication application, IModelHandler modelHandler, IHttpClientProviderAccessor httpClientAccessor, ILogger<HttpConnectionHandler> logger)
+public class HttpConnectionHandler(IModelHandler modelHandler, IHttpConnectionAccessor httpConnectionAccessor)
     : IHttpConnectionHandler {
     private readonly IModelHandler _modelHandler = modelHandler;
-    private readonly IHttpClientProviderAccessor _httpClientAccessor = httpClientAccessor;
-    private readonly ILogger<HttpConnectionHandler> _logger = logger;
-    private readonly IApplication _application = application;
+    private readonly IHttpConnectionAccessor _httpConnectionAccessor = httpConnectionAccessor;
 
     public IHttpConnection GetInternal() {
         var model = _modelHandler.Internal ?? throw new InvalidOperationException("No internal model found.");
-        var httpClientProvider = _httpClientAccessor.Get(model.Provider!.NormalizedName);
+        return _httpConnectionAccessor.GetFor(model.Provider!.NormalizedName);
     }
 
-    public IHttpConnection Create() {
-        var agent = _factory.Create(setUp);
-        _repository.Create(setUp);
+    public IHttpConnection Get(string modelKey) {
+        var model = _modelHandler.GetByKey(modelKey) ?? throw new InvalidOperationException("Model not found.");
+        return _httpConnectionAccessor.GetFor(model.Provider!.NormalizedName);
     }
 }

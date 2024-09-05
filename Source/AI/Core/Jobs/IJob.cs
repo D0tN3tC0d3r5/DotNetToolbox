@@ -2,6 +2,7 @@
 
 public interface IJob {
     JobType Type { get; }
+    JobContext Context { get; }
     string Id { get; }
 }
 

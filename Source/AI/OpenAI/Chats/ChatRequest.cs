@@ -1,18 +1,18 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(IHttpConnection agent, IChat chat)
+public class ChatRequest(IHttpConnection connection, IModel model, IChat chat)
     : IChatRequest {
     string IChatRequest.Context => (string?)Messages[0].Content ?? string.Empty;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.Skip(1).ToArray();
 
     [JsonPropertyName("model")]
-    public required string Model { get; init; } = agent.Settings.Model.Id;
+    public required string Model { get; init; } = model.Id;
     [JsonPropertyName("messages")]
     public ChatRequestMessage[] Messages { get; } = SetMessages(chat);
 
     [JsonPropertyName("max_tokens")]
-    public uint MaximumOutputTokens { get; set; } = SetMaximumOutputTokens(agent);
+    public uint MaximumOutputTokens { get; set; } = SetMaximumOutputTokens(connection, model);
 
     [JsonPropertyName("frequency_penalty")]
     public decimal? FrequencyPenalty { get; set; }
@@ -39,9 +39,9 @@ public class ChatRequest(IHttpConnection agent, IChat chat)
     private static ChatRequestMessage[] SetMessages(IChat chat)
         => chat.Messages.ToArray(m => new ChatRequestMessage(m));
 
-    private static uint SetMaximumOutputTokens(IHttpConnection agent)
+    private static uint SetMaximumOutputTokens(IHttpConnection agent, IModel model)
         => agent.Settings.MaximumOutputTokens > HttpConnectionSettings.MinimumOutputTokens
-        && agent.Settings.MaximumOutputTokens < agent.Settings.Model.MaximumOutputTokens
+        && agent.Settings.MaximumOutputTokens < model.MaximumOutputTokens
             ? agent.Settings.MaximumOutputTokens
-            : agent.Settings.Model.MaximumOutputTokens;
+            : model.MaximumOutputTokens;
 }

@@ -7,7 +7,7 @@ public interface IJobContextBuilderFactory {
 }
 
 public interface IJobContextBuilder {
-    IJobContextBuilder WithAgentFrom(string provider);
+     IJobContextBuilder WithModel(Model model);
     IJobContextBuilder WithAsset(Asset asset);
     IJobContextBuilder WithDateTimeFrom(IDateTimeProvider dateTime);
     IJobContextBuilder WithFact(string key, object value);

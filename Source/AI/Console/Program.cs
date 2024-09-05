@@ -32,10 +32,7 @@
     ab.Services.AddScoped(p => new Lazy<IProviderRepository>(() => p.GetRequiredService<IProviderRepository>()));
     ab.Services.AddScoped(p => new Lazy<IProviderHandler>(() => p.GetRequiredService<IProviderHandler>()));
 
-    ab.Services.AddSingleton<IAgentRepositoryStrategy, AgentRepositoryStrategy>();
-    ab.Services.AddScoped<IAgentRepository, AgentRepository>();
     ab.Services.AddScoped<IHttpConnectionHandler, HttpConnectionHandler>();
-    ab.Services.AddScoped(p => new Lazy<IAgentRepository>(() => p.GetRequiredService<IAgentRepository>()));
     ab.Services.AddScoped(p => new Lazy<IHttpConnectionHandler>(() => p.GetRequiredService<IHttpConnectionHandler>()));
 
     ab.Services.AddSingleton<IModelRepositoryStrategy, ModelRepositoryStrategy>();

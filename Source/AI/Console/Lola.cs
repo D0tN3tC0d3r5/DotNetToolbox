@@ -46,7 +46,7 @@ public class Lola
 
     protected override Task<Result> ProcessInteraction(CancellationToken ct = default) {
         _logger.LogInformation("Executing default command...");
-        var choice = Input.SelectionPrompt("What would you like to do?")
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
                           .ConvertWith(MapTo)
                           .AddChoices("Providers",
                                       "Models",

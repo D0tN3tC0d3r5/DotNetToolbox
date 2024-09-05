@@ -1,9 +1,9 @@
 ﻿namespace DotNetToolbox.AI.OpenAI;
 
-public class OpenAIAgent([FromKeyedServices("OpenAI")] IHttpClientProviderAccessor factory, ILogger<OpenAIAgent> logger)
-    : HttpConnection<OpenAIAgent, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
+public class OpenAIHttpConnection([FromKeyedServices("OpenAI")] IHttpClientProviderAccessor factory, ILogger<OpenAIHttpConnection> logger)
+    : HttpConnection<OpenAIHttpConnection, ChatRequest, ChatResponse>("OpenAI", factory, logger) {
     protected override ChatRequest CreateRequest(IJob job, IChat chat)
-        => new(this, chat) {
+        => new(this, job.Context.Model, chat) {
             Temperature = Settings.Temperature,
             StopSequences = Settings.StopSequences.Count == 0 ? null : [.. Settings.StopSequences],
             MinimumTokenProbability = Settings.TokenProbabilityCutOff,
