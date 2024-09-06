@@ -7,10 +7,10 @@ public interface IJobContextBuilderFactory {
 }
 
 public interface IJobContextBuilder {
-     IJobContextBuilder WithModel(Model model);
+    IJobContextBuilder WithModel(Model model);
     IJobContextBuilder WithAsset(Asset asset);
     IJobContextBuilder WithDateTimeFrom(IDateTimeProvider dateTime);
-    IJobContextBuilder WithFact(string key, object value);
+    IJobContextBuilder WithFact(string key, string value);
     IJobContextBuilder WithTool(Tool tool);
     IJobContextBuilder WithUser(UserProfile profile);
 

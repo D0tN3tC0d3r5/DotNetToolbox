@@ -1,6 +1,6 @@
 ﻿namespace AI.Sample.Services;
 
-public class AIService(IModelHandler modelHandler, IUserProfileHandler userHandler, IPersonaHandler personaHandler, ITaskHandler taskHandler, IHttpConnectionAccessor connectionAccessor, ILogger<AIService> logger)
+public class AIService(IModelHandler modelHandler, IServiceProvider services, IUserProfileHandler userHandler, IPersonaHandler personaHandler, ITaskHandler taskHandler, IHttpConnectionAccessor connectionAccessor, ILogger<AIService> logger)
     : IAIService {
     public async Task<string> GetNextQuestion(PersonaEntity persona) {
         try {
@@ -8,11 +8,11 @@ public class AIService(IModelHandler modelHandler, IUserProfileHandler userHandl
             var context = new JobContext {
                 Model = appModel,
                 Connection = connectionAccessor.GetFor(appModel.Provider!.Name),
-                User = userHandler.Get() ?? throw new InvalidOperationException("No user found."),
-                Persona = personaHandler.GetByName("AgentForge") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'."),
-                Task = taskHandler.GetByName("AgentForge") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'."),
+                UserProfile = userHandler.Get() ?? throw new InvalidOperationException("No user found."),
+                Persona = personaHandler.GetByName("Agent Creator") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'."),
+                Task = taskHandler.GetByName("Ask Questions about the AI Agent") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'."),
             };
-            var job = new PersonaGenerationJob(context);
+            var job = new PersonaGenerationJob(context, services);
             var result = await job.Execute(persona, CancellationToken.None);
             return result.HasException
                 ? throw new("Failed to generate next question: " + result.Exception.Message)

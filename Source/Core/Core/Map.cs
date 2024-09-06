@@ -3,16 +3,10 @@
 public class Map(IEnumerable<KeyValuePair<string, object>>? source = null)
     : Map<object>(source),
       IMap {
-    public TValue? GetValueOrDefault<TValue>(string key) {
-        var value = this[key];
-        return value switch {
-            TValue result => result,
-            not null when value.GetType()
-                               .IsAssignableTo(typeof(TValue)) => (TValue)value,
-            null when typeof(TValue).IsClass => default,
-            _ => throw new InvalidCastException($"The value for key '{key}' is not of type '{typeof(TValue)}'."),
-        };
-    }
+    public TValue? GetValueOrDefaultAs<TValue>(string key)
+        => TryGetValueAs<TValue>(key, out var value)
+            ? value
+            : default;
 
     public bool TryGetValueAs<TValue>(string key, [MaybeNullWhen(false)] out TValue value) {
         value = default;
@@ -36,14 +30,11 @@ public class Map<TValue>
     private readonly ConcurrentDictionary<string, TValue> _data = [];
 
     public Map(IEnumerable<KeyValuePair<string, TValue>>? source = null) {
-        switch (source) {
-            case Map<TValue> map:
-                _data = map._data;
-                break;
-            case not null:
-                _data = new(source);
-                break;
-        }
+        _data = source switch {
+            Map<TValue> map => map._data,
+            not null => new(source),
+            _ => _data,
+        };
         MyKeys.AddRange(_data.Keys);
     }
 
@@ -65,6 +56,11 @@ public class Map<TValue>
             }
         }
     }
+
+    public TValue? GetValueOrDefault(string key)
+        => TryGetValue(key, out var value)
+               ? value
+               : default;
 
     public ICollection<string> Keys => _data.Keys;
     public ICollection<TValue> Values => _data.Values;

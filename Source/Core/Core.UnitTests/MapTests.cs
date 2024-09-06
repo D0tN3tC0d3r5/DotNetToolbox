@@ -32,7 +32,7 @@ public class MapTests {
         var map = new Map(new Dictionary<string, object> { { "key", 123 } });
 
         // Act
-        var value = map.GetValueOrDefault<int>("key");
+        var value = map.GetValueOrDefaultAs<int>("key");
 
         // Assert
         value.Should().Be(123);
@@ -44,7 +44,7 @@ public class MapTests {
         var map = new Map(new Dictionary<string, object> { { "key", 123 } });
 
         // Act
-        Action action = () => map.GetValueOrDefault<string>("key");
+        Action action = () => map.GetValueOrDefaultAs<string>("key");
 
         // Assert
         action.Should().Throw<InvalidCastException>();
@@ -56,7 +56,7 @@ public class MapTests {
         var map = new Map(new Dictionary<string, object> { { "key", null! } });
 
         // Act
-        var value = map.GetValueOrDefault<string>("key");
+        var value = map.GetValueOrDefaultAs<string>("key");
 
         // Assert
         value.Should().BeNull();

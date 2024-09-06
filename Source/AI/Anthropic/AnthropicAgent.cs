@@ -13,7 +13,7 @@ public class AnthropicHttpConnection([FromKeyedServices("Anthropic")] IHttpClien
         };
 
     protected override bool UpdateChat(IChat chat, ChatResponse response) {
-        chat.TotalTokens += (uint)(response.Usage.InputTokens + response.Usage.OutputTokens);
+        chat.InputTokens += (uint)(response.Usage.InputTokens + response.Usage.OutputTokens);
         var message = ToMessage(response);
         chat.Messages.Add(message);
         return message.IsComplete;

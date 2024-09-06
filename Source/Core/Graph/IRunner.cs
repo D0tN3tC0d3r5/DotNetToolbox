@@ -1,7 +1,8 @@
 ﻿namespace DotNetToolbox.Graph;
 
 public interface IRunner {
-    public string Id { get; }
+    public string WorkflowId { get; }
+    public uint Id { get; }
     public bool IsRunning { get; }
     public DateTimeOffset? Start { get; }
     public DateTimeOffset? End { get; }

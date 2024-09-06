@@ -1,13 +1,13 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
 public class JobContext
-    : Context {
+    : Context, IJobContext {
     public JobContext(IEnumerable<KeyValuePair<string, object>>? source = null)
         : base(source) {
         World = [];
-        User = new UserProfile(0);
-        Persona = new Persona(0);
-        Task = new Task(0);
+        UserProfile = new(0);
+        Persona = new(0);
+        Task = new(0);
         Assets = [];
         Tools = [];
         Memory = [];
@@ -23,9 +23,9 @@ public class JobContext
         init => this[nameof(Connection)] = value;
     }
 
-    public UserProfile User {
-        get => (UserProfile?)this[nameof(User)]!;
-        init => this[nameof(User)] = value;
+    public UserProfile UserProfile {
+        get => (UserProfile?)this[nameof(UserProfile)]!;
+        init => this[nameof(UserProfile)] = value;
     }
 
     public World World {
@@ -33,13 +33,13 @@ public class JobContext
         init => this[nameof(World)] = value;
     }
 
-    public Map<Asset> Assets {
-        get => (Map<Asset>)this[nameof(Assets)];
+    public Context<Asset> Assets {
+        get => (Context<Asset>)this[nameof(Assets)];
         init => this[nameof(Assets)] = value;
     }
 
-    public Map<Tool> Tools {
-        get => (Map<Tool>)this[nameof(Tools)];
+    public Context<Tool> Tools {
+        get => (Context<Tool>)this[nameof(Tools)];
         init => this[nameof(Tools)] = value;
     }
 
@@ -48,8 +48,8 @@ public class JobContext
         init => this[nameof(Persona)] = value;
     }
 
-    public Map Memory {
-        get => (Map)this[nameof(Memory)];
+    public Context<string> Memory {
+        get => (Context<string>)this[nameof(Memory)];
         init => this[nameof(Memory)] = value;
     }
 

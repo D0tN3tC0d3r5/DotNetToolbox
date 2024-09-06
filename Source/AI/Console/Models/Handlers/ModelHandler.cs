@@ -15,10 +15,10 @@ public class ModelHandler(IApplication application, IModelRepository repository,
     }
 
     private ModelEntity? GetSelected() {
-        var cachedValue = _application.Context.GetValueOrDefault<ModelEntity>(ApplicationModelKey);
+        var cachedValue = _application.Context.GetValueOrDefaultAs<ModelEntity>(ApplicationModelKey);
         _selected = cachedValue ?? _repository.FirstOrDefault(m => m.Selected);
         if (cachedValue is null && _selected is not null) _application.Context[ApplicationModelKey] = _selected;
-        return _selected; // Should only only return null if the storage is empty or there is no selected model in the storage.
+        return _selected; // Should only return null if the storage is empty or there is no selected model in the storage.
     }
 
     private void SetSelected(ModelEntity value) {
@@ -39,7 +39,7 @@ public class ModelHandler(IApplication application, IModelRepository repository,
     }
 
     public ModelEntity[] List()
-        => [.._repository.GetAll().OrderBy(m => m.Name)];
+        => [.. _repository.GetAll().OrderBy(m => m.Name)];
 
     public ModelEntity? GetByKey(string key)
         => _repository.FindByKey(key);

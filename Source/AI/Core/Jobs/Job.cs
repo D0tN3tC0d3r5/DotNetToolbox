@@ -2,8 +2,11 @@
 
 public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strategy, string id, JobContext context)
     : IJob<TInput, TOutput> {
-    protected Job(IJobStrategy<TInput, TOutput> strategy, JobContext context, IGuidProvider? guid = null)
-        : this(strategy, (guid ?? GuidProvider.Default).AsSortable.Create().ToString(), context) {
+    protected Job(IJobStrategy<TInput, TOutput> strategy, IStringGuidProvider guid, JobContext context)
+        : this(strategy, guid.CreateSortable(), context) {
+    }
+    protected Job(IJobStrategy<TInput, TOutput> strategy, JobContext context)
+        : this(strategy, StringGuidProvider.Default, context) {
     }
 
     public string Id { get; } = id;
@@ -11,8 +14,8 @@ public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strateg
     public JobContext Context => context;
 
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
-        var chat = new Chat(Id, Context);
-        strategy.AddPrompt(chat, input);
+        var chat = new Chat(Id);
+        strategy.AddPrompt(chat, input, Context);
         var result = await Context.Connection.SendRequest(this, chat, ct);
 
         if (result.HasException)
@@ -21,6 +24,6 @@ public abstract class Job<TInput, TOutput>(IJobStrategy<TInput, TOutput> strateg
             return result.Errors;
 
         // Process the chat result into the output
-        return strategy.GetResult(chat);
+        return strategy.GetResult(chat, Context);
     }
 }

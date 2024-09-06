@@ -1,16 +1,17 @@
-﻿using DotNetToolbox.AI.Chats;
-using DotNetToolbox.AI.Jobs;
+﻿namespace AI.Sample.Services;
 
-namespace AI.Sample.Services;
+public class PromptGenerationJobStrategy(IServiceProvider services)
+    : IJobStrategy<PersonaEntity, string> {
+    private readonly IOutput _output = services.GetRequiredService<IOutput>();
+    private readonly IInput _input = services.GetRequiredService<IInput>();
 
-public class PromptGenerationJobStrategy : IJobStrategy<PersonaEntity, string> {
     public string Instructions => "Generate a comprehensive prompt for an AI persona based on the provided information.";
 
-    public void AddPrompt(IChat chat, PersonaEntity input) {
-        // This method is not used in our implementation as we're adding messages directly in the GeneratePrompt method
+    public void AddPrompt(IChat chat, PersonaEntity input, IJobContext context) {
+        _output.WriteLine("I am here!");
+        _input.Confirm("continue?");
     }
 
-    public string GetResult(IChat chat) {
-        return chat.Messages.Last(m => m.Role == MessageRole.Assistant).Text;
-    }
+    public string GetResult(IChat chat, IJobContext context)
+        => chat.Messages.Last(m => m.Role == MessageRole.Assistant).Text;
 }

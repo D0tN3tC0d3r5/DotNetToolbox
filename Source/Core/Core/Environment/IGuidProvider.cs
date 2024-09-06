@@ -1,11 +1,12 @@
 ﻿namespace DotNetToolbox.Environment;
 
 public interface IGuidProvider {
-    IGuidProvider AsSortable { get; }
-
     Guid Create();
     Guid Create(byte[] bytes);
     Guid Create(ReadOnlySpan<byte> bytes);
+    Guid CreateSortable();
+    Guid CreateSortable(byte[] bytes);
+    Guid CreateSortable(ReadOnlySpan<byte> bytes);
 
     Guid Parse(ReadOnlySpan<char> input);
     Guid Parse(ReadOnlySpan<char> s, IFormatProvider? provider);

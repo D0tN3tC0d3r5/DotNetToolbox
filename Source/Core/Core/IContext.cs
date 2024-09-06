@@ -1,5 +1,9 @@
 ﻿namespace DotNetToolbox;
 
 public interface IContext
-    : IMap,
+    : IContext<object>,
+      IMap;
+
+public interface IContext<TValue>
+    : IMap<TValue>,
       IDisposable;

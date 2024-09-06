@@ -13,7 +13,7 @@ public class ModelListCommand : Command<ModelListCommand> {
     }
 
     protected override Result Execute() {
-        var providerKeyStr = Context.GetValueOrDefault<string>("Provider");
+        var providerKeyStr = Context.GetValueOrDefaultAs<string>("Provider");
 
         var models = string.IsNullOrEmpty(providerKeyStr)
             ? _modelHandler.List()

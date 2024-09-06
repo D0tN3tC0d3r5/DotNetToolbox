@@ -3,5 +3,6 @@
 public interface IChat {
     string Id { get; }
     List<Message> Messages { get; }
-    uint TotalTokens { get; set; }
+    uint InputTokens { get; set; }
+    uint OutputTokens { get; set; }
 }

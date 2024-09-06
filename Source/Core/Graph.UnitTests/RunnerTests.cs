@@ -17,7 +17,7 @@ public sealed class RunnerTests : IDisposable {
         var workflow = new Workflow(startingNode, _context);
 
         // Act
-        var runner = new Runner("42", workflow, dateTimeProvider, loggerFactory);
+        var runner = new Runner(42, workflow, dateTimeProvider, loggerFactory);
 
         // Assert
         runner.Should().NotBeNull();
@@ -26,7 +26,7 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public void Constructor_WithNullStartingNode_Throws() {
         // Act
-        var action = () => new Runner(null!);
+        var action = () => new Runner(1, null!);
 
         // Assert
         action.Should().Throw<ArgumentNullException>().WithMessage("*workflow*");
@@ -44,7 +44,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow);
+        var runner = new Runner(1, workflow);
 
         // Act
         var action = () => runner.Run();
@@ -62,7 +62,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow);
+        var runner = new Runner(1, workflow);
 
         // Act
         var action = () => runner.Run();
@@ -78,7 +78,7 @@ public sealed class RunnerTests : IDisposable {
         var context = new Context();
         var workflow = new Workflow(startingNode, context);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
-        var runner = new Runner(workflow);
+        var runner = new Runner(1, workflow);
 
         // Act
         var action = () => runner.Run();
@@ -95,7 +95,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow);
+        var runner = new Runner(1, workflow);
 
         // Set the Start property using reflection
         var propertyInfo = typeof(Runner).GetProperty("Start");
@@ -118,7 +118,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, context);
 
-        var runner = new Runner(workflow);
+        var runner = new Runner(1, workflow);
 
         // Act
         var action = () => runner.Run();
@@ -143,7 +143,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, context);
 
-        var runner = new Runner(workflow, loggerFactory: loggerFactory);
+        var runner = new Runner(1, workflow, loggerFactory: loggerFactory);
 
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
@@ -163,7 +163,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow);
+        var runner = new Runner(1, workflow);
 
         // Act
         var action = () => runner.Run();
@@ -182,7 +182,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow, loggerFactory: loggerFactory);
+        var runner = new Runner(1, workflow, loggerFactory: loggerFactory);
 
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
@@ -203,7 +203,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow);
+        var runner = new Runner(1, workflow);
 
         // Act
         var action = () => runner.Run();
@@ -222,7 +222,7 @@ public sealed class RunnerTests : IDisposable {
         var workflow = new Workflow(startingNode, _context);
         startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
 
-        var runner = new Runner(workflow, loggerFactory: loggerFactory);
+        var runner = new Runner(1, workflow, loggerFactory: loggerFactory);
 
         var logger = loggerFactory.Loggers[typeof(Runner).FullName!];
 
@@ -243,7 +243,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow) {
+        var runner = new Runner(1, workflow) {
             OnStartingWorkflow = (wf, _) => {
                 eventRaised = true;
                 wf.Should().BeSameAs(workflow);
@@ -267,7 +267,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow) {
+        var runner = new Runner(1, workflow) {
             OnExecutingNode = (_, _, _) => {
                 executingCount++;
                 return Task.FromResult(true);
@@ -290,7 +290,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, context);
 
-        var runner = new Runner(workflow) {
+        var runner = new Runner(1, workflow) {
             OnExecutingNode = (wf, node, _) => {
                 wf.Context.Should().BeSameAs(context);
                 return Task.FromResult(node != secondNode);
@@ -316,7 +316,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow) {
+        var runner = new Runner(1, workflow) {
             OnNodeExecuted = (_, _, _, _) => {
                 executedCount++;
                 return Task.FromResult(true);
@@ -340,7 +340,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, context);
 
-        var runner = new Runner(workflow) {
+        var runner = new Runner(1, workflow) {
             OnNodeExecuted = (wf, node, _, _) => {
                 wf.Context.Should().BeSameAs(context);
                 return Task.FromResult(node != secondNode);
@@ -365,7 +365,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow) {
+        var runner = new Runner(1, workflow) {
             OnWorkflowEnded = (wf, _) => {
                 eventRaised = true;
                 wf.Should().BeSameAs(workflow);
@@ -391,7 +391,7 @@ public sealed class RunnerTests : IDisposable {
 
         var workflow = new Workflow(startingNode, _context);
 
-        var runner = new Runner(workflow) {
+        var runner = new Runner(1, workflow) {
             OnStartingWorkflow = (_, _) => {
                 eventOrder.Add("RunStarting");
                 return Task.CompletedTask;
@@ -407,7 +407,7 @@ public sealed class RunnerTests : IDisposable {
             OnWorkflowEnded = (_, _) => {
                 eventOrder.Add("RunEnded");
                 return Task.CompletedTask;
-            }
+            },
         };
 
         await runner.Run();

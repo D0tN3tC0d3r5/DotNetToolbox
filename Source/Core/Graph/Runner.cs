@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.Graph;
 
-public sealed class Runner(string id,
+public sealed class Runner(uint id,
                            Workflow workflow,
                            IDateTimeProvider? dateTime = null,
                            ILoggerFactory? loggerFactory = null)
@@ -9,17 +9,8 @@ public sealed class Runner(string id,
     private readonly IDateTimeProvider _dateTime = dateTime ?? DateTimeProvider.Default;
     private readonly ILogger _logger = loggerFactory?.CreateLogger<Runner>() ?? NullLogger<Runner>.Instance;
 
-    public Runner(Workflow workflow,
-                  IDateTimeProvider? dateTime = null,
-                  IGuidProvider? guid = null,
-                  ILoggerFactory? loggerFactory = null)
-        : this((guid ?? GuidProvider.Default).AsSortable.Create().ToString(),
-               workflow,
-               dateTime,
-               loggerFactory) {
-    }
-
-    public string Id { get; } = id;
+    public string WorkflowId => _workflow.Id;
+    public uint Id { get; } = id;
 
     public Func<IWorkflow, CancellationToken, Task>? OnStartingWorkflow { private get; set; }
     public Func<IWorkflow, INode, CancellationToken, Task<bool>>? OnExecutingNode { private get; set; }
@@ -84,7 +75,7 @@ public sealed class Runner(string id,
     }
 
     private Task RunEnded(IWorkflow workflow, CancellationToken ct = default) {
-        _logger.LogInformation(message: "Thhe workflow '{WorkFlowId}' ended at '{Exit}' after '{ElapsedTimeInMilliseconds}' milliseconds.", Id, End, ElapsedTime!.Value.TotalMilliseconds);
+        _logger.LogInformation(message: "The workflow '{WorkFlowId}' ended at '{Exit}' after '{ElapsedTimeInMilliseconds}' milliseconds.", Id, End, ElapsedTime!.Value.TotalMilliseconds);
         return OnWorkflowEnded is null
             ? Task.CompletedTask
             : OnWorkflowEnded(workflow, ct);

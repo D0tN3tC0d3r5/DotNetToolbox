@@ -2,18 +2,12 @@
 
 internal sealed class TestGuidProvider()
     : IGuidProvider {
-    public IGuidProvider AsSortable => throw new NotImplementedException();
-
     public Guid Create() => throw new NotImplementedException();
     public Guid Create(byte[] bytes) => throw new NotImplementedException();
-    public Guid Create(int a, short b, short c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
-        => throw new NotImplementedException();
-    public Guid Create(int a, short b, short c, byte[] d) => throw new NotImplementedException();
     public Guid Create(ReadOnlySpan<byte> bytes) => throw new NotImplementedException();
-    public Guid Create(ReadOnlySpan<byte> bytes, bool bigEndian) => throw new NotImplementedException();
-    public Guid Create(string text) => throw new NotImplementedException();
-    public Guid Create(uint a, ushort b, ushort c, byte d, byte e, byte f, byte g, byte h, byte i, byte j, byte k)
-        => throw new NotImplementedException();
+    public Guid CreateSortable() => throw new NotImplementedException();
+    public Guid CreateSortable(byte[] bytes) => throw new NotImplementedException();
+    public Guid CreateSortable(ReadOnlySpan<byte> bytes) => throw new NotImplementedException();
 
     public Guid Parse(ReadOnlySpan<char> input) => throw new NotImplementedException();
     public Guid Parse(ReadOnlySpan<char> s, IFormatProvider? provider) => throw new NotImplementedException();

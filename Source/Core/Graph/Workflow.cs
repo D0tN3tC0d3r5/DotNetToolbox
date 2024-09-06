@@ -4,19 +4,30 @@ public class Workflow(string id,
                       INode start,
                       Context context,
                       IDateTimeProvider? dateTime = null,
-                      IGuidProvider? guid = null,
                       ILoggerFactory? loggerFactory = null)
     : IWorkflow {
+    private uint _runCount;
+
     public Workflow(INode start,
                     Context context,
+                    IStringGuidProvider guid,
                     IDateTimeProvider? dateTime = null,
-                    ILoggerFactory? loggerFactory = null,
-                    IGuidProvider? guid = null)
-        : this((guid ?? GuidProvider.Default).AsSortable.Create().ToString(),
+                    ILoggerFactory? loggerFactory = null)
+        : this(guid.CreateSortable(),
                start,
                context,
                dateTime,
-               guid,
+               loggerFactory) {
+    }
+
+    public Workflow(INode start,
+                    Context context,
+                    IDateTimeProvider? dateTime = null,
+                    ILoggerFactory? loggerFactory = null)
+        : this(start,
+               context,
+               StringGuidProvider.Default,
+               dateTime,
                loggerFactory) {
     }
 
@@ -49,7 +60,7 @@ public class Workflow(string id,
     }
 
     public Task Run(CancellationToken ct = default) {
-        var runner = new Runner(this, dateTime, guid, loggerFactory);
+        var runner = new Runner(++_runCount, this, dateTime, loggerFactory);
         return runner.Run(ct);
     }
 }

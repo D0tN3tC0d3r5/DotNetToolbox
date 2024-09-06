@@ -17,7 +17,7 @@ public class OpenAIHttpConnection([FromKeyedServices("OpenAI")] IHttpClientProvi
             ResponseFormat = null,
         };
     protected override bool UpdateChat(IChat chat, ChatResponse response) {
-        chat.TotalTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.TotalTokens);
+        chat.InputTokens = (uint)(response.Usage?.TotalTokens ?? (int)chat.InputTokens);
         var message = ToMessage(response.Choices[0]);
         chat.Messages.Add(message);
         return message.IsComplete;

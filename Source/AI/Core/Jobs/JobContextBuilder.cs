@@ -6,9 +6,9 @@ public class JobContextBuilder(IServiceProvider services)
     private IEnumerable<KeyValuePair<string, object>>? _source;
     private IDateTimeProvider _dateTime = DateTimeProvider.Default;
     private UserProfile? _userProfile;
-    private readonly Map _memory = [];
-    private readonly Map<Asset> _assets = [];
-    private readonly Map<Tool> _tools = [];
+    private readonly Context<string> _memory = [];
+    private readonly Context<Asset> _assets = [];
+    private readonly Context<Tool> _tools = [];
     private Model? _model;
 
     public IJobContextBuilder CreateFrom(IEnumerable<KeyValuePair<string, object>> source) {
@@ -32,7 +32,7 @@ public class JobContextBuilder(IServiceProvider services)
         return this;
     }
 
-    public IJobContextBuilder WithFact(string key, object value) {
+    public IJobContextBuilder WithFact(string key, string value) {
         _memory[key] = value;
         return this;
     }
@@ -52,7 +52,7 @@ public class JobContextBuilder(IServiceProvider services)
         var agentFactory = services.GetRequiredKeyedService<IHttpConnectionAccessor>(_model.Provider);
         return new(_source) {
             Model = _model,
-            User = _userProfile ?? new UserProfile(0),
+            UserProfile = _userProfile ?? new UserProfile(0),
             World = new(_dateTime),
             Connection = agentFactory.GetFor(_model.Provider),
             Memory = _memory,

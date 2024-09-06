@@ -1,12 +1,16 @@
 ﻿namespace DotNetToolbox.AI.Chats;
 
-public class Chat(string id, IContext context) : IChat {
-    public Chat(Context context, IGuidProvider? guid = null)
-        : this((guid ??= GuidProvider.Default).AsSortable.Create().ToString(), context) {
+public class Chat(string id)
+    : IChat {
+    public Chat(IStringGuidProvider guid)
+        : this(guid.CreateSortable()) {
+    }
+    public Chat()
+        : this(StringGuidProvider.Default) {
     }
 
-    public string Id { get; } = id;
-    public IContext Context { get; } = context;
+    public string Id { get; } = IsNotNull(id);
     public List<Message> Messages { get; } = [];
-    public uint TotalTokens { get; set; }
+    public uint InputTokens { get; set; }
+    public uint OutputTokens { get; set; }
 }

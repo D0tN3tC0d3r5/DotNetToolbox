@@ -2,22 +2,21 @@
 
 public class TextPromptBuilder<TValue>(string prompt, IOutput output)
     : ITextPromptBuilder<TValue> {
-    private readonly IOutput _output = output;
+    private readonly List<TValue> _choices = [];
     private string _prompt = prompt;
     private bool _isRequired;
     private bool _addLineBreak;
     private Func<TValue, Result>? _validator;
     private Func<TValue, string>? _converter;
-    private List<TValue> _choices = [];
     private char? _maskChar;
-    private TValue? _defaultValue;
+    private TValue? _defaultChoice;
     private string _fieldName = "value";
 
-    [MemberNotNullWhen(true, nameof(_defaultValue))]
+    [MemberNotNullWhen(true, nameof(_defaultChoice))]
     private bool HasDefault { get; set; }
 
-    public TextPromptBuilder<TValue> For(string fieldName) {
-        _fieldName = fieldName;
+    public TextPromptBuilder<TValue> For(string name) {
+        _fieldName = name;
         return this;
     }
 
@@ -28,9 +27,9 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
 
     public TextPromptBuilder<TValue> WithDefault(TValue defaultValue) {
         if (defaultValue is null) return this;
-        _defaultValue = defaultValue;
-        HasDefault = _defaultValue is not null
-                  && (_defaultValue is not string text || !string.IsNullOrEmpty(text));
+        _defaultChoice = defaultValue;
+        HasDefault = _defaultChoice is not null
+                  && (_defaultChoice is not string text || !string.IsNullOrEmpty(text));
         return this;
     }
 
@@ -86,7 +85,7 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         return this;
     }
 
-    private Func<TValue, ValidationResult>? BuildValidator()
+    private Func<TValue, ValidationResult> BuildValidator()
         => value => {
             var result = _validator?.Invoke(value);
             if (result?.IsSuccess != false) return ValidationResult.Success();
@@ -98,17 +97,14 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         };
 
     public TValue Show() {
-        var isQuestion = _prompt.EndsWith('?');
         _prompt = $"[teal]{_prompt}[/]";
         if (!_isRequired) _prompt = $"[green][[Optional]][/] {_prompt}";
-        //        if (HasDefault) _prompt += $" [[[blue]{_defaultValue}[/]]]";
-        if (_addLineBreak) _prompt += _output.NewLine;
+        if (_addLineBreak) _prompt += output.NewLine;
         var prompt = new TextPrompt<TValue>(_prompt);
-        prompt!.DefaultValue(_defaultValue);
         prompt.AllowEmpty()
-              .DefaultValueStyle(new Style(foreground: Color.Green))
-              .ChoicesStyle(new Style(foreground: Color.Blue));
+              .ChoicesStyle(new(foreground: Color.Blue));
         if (_maskChar is not null) prompt = prompt.Secret(_maskChar);
+        if (HasDefault) prompt.DefaultValue(_defaultChoice);
         if (_choices.Count > 0) {
             prompt.AddChoices(_choices);
             prompt.ShowChoices();
