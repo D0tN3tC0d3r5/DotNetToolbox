@@ -5,12 +5,16 @@ public class AIService(IModelHandler modelHandler, IServiceProvider services, IU
     public async Task<string> GetNextQuestion(PersonaEntity persona) {
         try {
             var appModel = modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
+            var httpConnection = connectionAccessor.GetFor(appModel.Provider!.Name);
+            var userProfileEntity = userHandler.Get() ?? throw new InvalidOperationException("No user found.");
+            var personaEntity = personaHandler.GetByName("Agent Creator") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'.");
+            var taskEntity = taskHandler.GetByName("Ask Questions about the AI Agent") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'.");
             var context = new JobContext {
                 Model = appModel,
-                Connection = connectionAccessor.GetFor(appModel.Provider!.Name),
-                UserProfile = userHandler.Get() ?? throw new InvalidOperationException("No user found."),
-                Persona = personaHandler.GetByName("Agent Creator") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'."),
-                Task = taskHandler.GetByName("Ask Questions about the AI Agent") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'."),
+                Connection = httpConnection,
+                UserProfile = userProfileEntity,
+                Persona = personaEntity,
+                Task = taskEntity,
             };
             var job = new PersonaGenerationJob(context, services);
             var result = await job.Execute(persona, CancellationToken.None);

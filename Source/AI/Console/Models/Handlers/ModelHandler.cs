@@ -2,11 +2,8 @@
 
 public class ModelHandler(IApplication application, IModelRepository repository, ILogger<ModelHandler> logger)
     : IModelHandler {
-    private const string ApplicationModelKey = "ApplicationModel";
+    private const string _applicationModelKey = "ApplicationModel";
 
-    private readonly IApplication _application = application;
-    private readonly IModelRepository _repository = repository;
-    private readonly ILogger<ModelHandler> _logger = logger;
     private ModelEntity? _selected;
 
     public ModelEntity? Internal {
@@ -15,9 +12,10 @@ public class ModelHandler(IApplication application, IModelRepository repository,
     }
 
     private ModelEntity? GetSelected() {
-        var cachedValue = _application.Context.GetValueOrDefaultAs<ModelEntity>(ApplicationModelKey);
-        _selected = cachedValue ?? _repository.FirstOrDefault(m => m.Selected);
-        if (cachedValue is null && _selected is not null) _application.Context[ApplicationModelKey] = _selected;
+        var cachedValue = application.Context.GetValueOrDefaultAs<ModelEntity>(_applicationModelKey);
+        _selected = cachedValue ?? repository.GetSelected();
+        if (_selected is null) return null;
+        if (cachedValue is null) application.Context[_applicationModelKey] = _selected;
         return _selected; // Should only return null if the storage is empty or there is no selected model in the storage.
     }
 
@@ -26,23 +24,23 @@ public class ModelHandler(IApplication application, IModelRepository repository,
         _selected = value;
 
         // Ensure record uniqueness in storage
-        var oldSelectedModel = _repository.FirstOrDefault(m => m.Selected);
+        var oldSelectedModel = repository.FirstOrDefault(m => m.Selected);
         if (oldSelectedModel is not null && oldSelectedModel.Key != _selected.Key) {
             oldSelectedModel.Selected = false;
-            _repository.Update(oldSelectedModel);
+            repository.Update(oldSelectedModel);
         }
         _selected.Selected = true;
-        _repository.Update(_selected);
+        repository.Update(_selected);
 
         // Update cached value
-        _application.Context[ApplicationModelKey] = _selected;
+        application.Context[_applicationModelKey] = _selected;
     }
 
     public ModelEntity[] List()
-        => [.. _repository.GetAll().OrderBy(m => m.Name)];
+        => [.. repository.GetAll().OrderBy(m => m.Name)];
 
     public ModelEntity? GetByKey(string key)
-        => _repository.FindByKey(key);
+        => repository.FindByKey(key);
 
     public ModelEntity Create(Action<ModelEntity> setUp) {
         var model = new ModelEntity();
@@ -51,44 +49,41 @@ public class ModelHandler(IApplication application, IModelRepository repository,
     }
 
     public void Register(ModelEntity model) {
-        if (_repository.FindByKey(model.Key) is not null) {
+        if (repository.FindByKey(model.Key) is not null)
             throw new InvalidOperationException($"A model with the key '{model.Key}' already exists.");
-        }
         if (_selected is null) model.Selected = true;
-        _repository.Add(model);
+        repository.Add(model);
         _selected = model;
-        _logger.LogInformation("Added new model: {ModelKey} => {ModelName}", model.Key, model.Name);
+        logger.LogInformation("Added new model: {ModelKey} => {ModelName}", model.Key, model.Name);
     }
 
     public void Update(ModelEntity model) {
-        if (_repository.FindByKey(model.Key) == null) {
+        if (repository.FindByKey(model.Key) == null)
             throw new InvalidOperationException($"Settings with key '{model.Key}' not found.");
-        }
-
-        _repository.Update(model);
-        _logger.LogInformation("Updated model: {ModelKey} => {ModelName}", model.Key, model.Name);
+        repository.Update(model);
+        logger.LogInformation("Updated model: {ModelKey} => {ModelName}", model.Key, model.Name);
     }
 
     public void Remove(string key) {
-        var model = _repository.FindByKey(key, false) ?? throw new InvalidOperationException($"Settings with key '{key}' not found.");
+        var model = repository.FindByKey(key, false) ?? throw new InvalidOperationException($"Settings with key '{key}' not found.");
 
-        _repository.Remove(key);
-        _logger.LogInformation("Removed model: {ModelKey} => {ModelName}", model.Key, model.Name);
+        repository.Remove(key);
+        logger.LogInformation("Removed model: {ModelKey} => {ModelName}", model.Key, model.Name);
     }
 
-    public ModelEntity[] ListByProvider(string provider) => _repository.GetFromProvider(provider);
+    public ModelEntity[] ListByProvider(string provider) => repository.GetFromProvider(provider);
 
     public void RemoveByProvider(string provider) {
-        foreach (var model in _repository.GetFromProvider(provider)) {
-            _repository.Remove(model.Key);
-            _logger.LogInformation("Removed model associated with provider {Provider}: {ModelKey} => {ModelName}", provider, model.Key, model.Name);
+        foreach (var model in repository.GetFromProvider(provider)) {
+            repository.Remove(model.Key);
+            logger.LogInformation("Removed model associated with provider {Provider}: {ModelKey} => {ModelName}", provider, model.Key, model.Name);
         }
     }
 
     public void Select(string key) {
-        var model = _repository.FindByKey(key)
+        var model = repository.FindByKey(key)
                  ?? throw new InvalidOperationException($"Settings '{key}' not found.");
         Internal = model;
-        _logger.LogInformation("Settings '{ModelKey} => {ModelName}' selected : ", model.Key, model.Name);
+        logger.LogInformation("Settings '{ModelKey} => {ModelName}' selected : ", model.Key, model.Name);
     }
 }

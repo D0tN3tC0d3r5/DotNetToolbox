@@ -20,7 +20,9 @@
     ab.Services.Configure<LolaSettings>(ab.Configuration.GetSection("Lola"));
     ab.Services.AddOptions<LolaSettings>();
 
-    ab.Services.AddScoped<IHttpConnectionAccessor, HttpConnectionAccessor>();
+    ab.Services.AddOpenAI();
+    ab.Services.AddAnthropic();
+
     ab.Services.AddScoped<IHttpConnectionHandler, HttpConnectionHandler>();
     ab.Services.AddScoped(p => new Lazy<IHttpConnectionHandler>(p.GetRequiredService<IHttpConnectionHandler>));
 

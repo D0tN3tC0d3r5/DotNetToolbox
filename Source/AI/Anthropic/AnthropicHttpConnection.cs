@@ -1,5 +1,4 @@
-﻿
-namespace DotNetToolbox.AI.Anthropic;
+﻿namespace DotNetToolbox.AI.Anthropic;
 
 public class AnthropicHttpConnection([FromKeyedServices("Anthropic")] IHttpClientProviderAccessor factory, ILogger<AnthropicHttpConnection> logger)
     : HttpConnection<AnthropicHttpConnection, ChatRequest, ChatResponse>("Anthropic", factory, logger) {

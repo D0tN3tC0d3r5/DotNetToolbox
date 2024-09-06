@@ -13,7 +13,7 @@ public record HttpClientOptions
     public string ContentType { get; init; } = DefaultContentType;
     public string ResponseFormat { get; init; } = DefaultResponseFormat;
     public HttpClientAuthentication? Authentication { get; set; }
-    public Dictionary<string, string[]>? CustomHeaders { get; set; }
+    public Dictionary<string, string[]>? CustomHeaders { get; init; }
 
     public virtual Result Validate(IContext? context = null) {
         var result = new Result();
