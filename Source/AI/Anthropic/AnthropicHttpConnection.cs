@@ -1,8 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Anthropic;
 
 public class AnthropicHttpConnection([FromKeyedServices("Anthropic")] IHttpClientProviderAccessor factory, ILogger<AnthropicHttpConnection> logger)
-    : HttpConnection<AnthropicHttpConnection, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
-    protected override ChatRequest CreateRequest(IJob job, IChat chat)
+    : Agent<AnthropicHttpConnection, ChatRequest, ChatResponse>("Anthropic", factory, logger) {
+    protected override ChatRequest CreateRequest(IJob job, IMessages chat)
         => new(this, job.Context.Model, chat) {
             Temperature = Settings.Temperature,
             StopSequences = Settings.StopSequences.Count == 0 ? null : [.. Settings.StopSequences],
@@ -11,7 +11,7 @@ public class AnthropicHttpConnection([FromKeyedServices("Anthropic")] IHttpClien
             MaximumTokenSamples = 0,
         };
 
-    protected override bool UpdateChat(IChat chat, ChatResponse response) {
+    protected override bool UpdateChat(IMessages chat, ChatResponse response) {
         chat.InputTokens += (uint)(response.Usage.InputTokens + response.Usage.OutputTokens);
         var message = ToMessage(response);
         chat.Messages.Add(message);

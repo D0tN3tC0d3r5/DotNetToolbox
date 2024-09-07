@@ -18,9 +18,9 @@ public class JobContext
         init => this[nameof(Model)] = value;
     }
 
-    public required IHttpConnection Connection {
-        get => (IHttpConnection)this[nameof(Connection)];
-        init => this[nameof(Connection)] = value;
+    public required IAgent Agent {
+        get => (IAgent)this[nameof(Agent)];
+        init => this[nameof(Agent)] = value;
     }
 
     public UserProfile UserProfile {

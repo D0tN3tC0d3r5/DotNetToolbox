@@ -1,22 +1,28 @@
 ﻿namespace AI.Sample.Services;
 
-public class AIService(IModelHandler modelHandler, IServiceProvider services, IUserProfileHandler userHandler, IPersonaHandler personaHandler, ITaskHandler taskHandler, IHttpConnectionAccessor connectionAccessor, ILogger<AIService> logger)
+public class AIService(IServiceProvider services, ILogger<AIService> logger)
     : IAIService {
+    private readonly IModelHandler _modelHandler = services.GetRequiredService<IModelHandler>();
+    private readonly IUserProfileHandler _userHandler = services.GetRequiredService<IUserProfileHandler>();
+    private readonly IPersonaHandler _personaHandler = services.GetRequiredService<IPersonaHandler>();
+    private readonly ITaskHandler _taskHandler = services.GetRequiredService<ITaskHandler>();
+    private readonly IAgentAccessor _connectionAccessor = services.GetRequiredService<IAgentAccessor>();
+
     public async Task<string> GetNextQuestion(PersonaEntity persona) {
         try {
-            var appModel = modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
-            var httpConnection = connectionAccessor.GetFor(appModel.Provider!.Name);
-            var userProfileEntity = userHandler.Get() ?? throw new InvalidOperationException("No user found.");
-            var personaEntity = personaHandler.GetByName("Agent Creator") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'.");
-            var taskEntity = taskHandler.GetByName("Ask Questions about the AI Agent") ?? throw new InvalidOperationException("Required persona not found. Name: 'AgentForge'.");
+            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
+            var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
+            var userProfileEntity = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
+            var personaEntity = _personaHandler.GetByName("Agent Creator") ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
+            var taskEntity = _taskHandler.GetByName("Ask Questions about the AI Agent") ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
             var context = new JobContext {
                 Model = appModel,
-                Connection = httpConnection,
+                Agent = httpConnection,
                 UserProfile = userProfileEntity,
                 Persona = personaEntity,
                 Task = taskEntity,
             };
-            var job = new PersonaGenerationJob(context, services);
+            var job = new PersonaGenerationJob(context);
             var result = await job.Execute(persona, CancellationToken.None);
             return result.HasException
                 ? throw new("Failed to generate next question: " + result.Exception.Message)

@@ -3,16 +3,16 @@
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddAIProvider(this IServiceCollection services) {
         services.AddHttpClientProviderFactory();
-        services.TryAddSingleton<IHttpConnectionAccessor, HttpConnectionAccessor>();
+        services.TryAddSingleton<IAgentAccessor, AgentAccessor>();
         return services;
     }
 
     public static IServiceCollection AddAIAgent<TAgent>(this IServiceCollection services, string? provider = null)
-        where TAgent : class, IHttpConnection {
+        where TAgent : class, IAgent {
         if (provider is null)
-            services.TryAddTransient<IHttpConnection, TAgent>();
+            services.TryAddTransient<IAgent, TAgent>();
         else
-            services.AddKeyedTransient<IHttpConnection, TAgent>(provider);
+            services.AddKeyedTransient<IAgent, TAgent>(provider);
         return services;
     }
 }

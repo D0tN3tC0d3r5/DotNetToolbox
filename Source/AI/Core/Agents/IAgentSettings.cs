@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public interface IHttpConnectionSettings : IValidatable {
+public interface IAgentSettings : IValidatable {
     public static readonly JsonSerializerOptions SerializerOptions = new() {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,

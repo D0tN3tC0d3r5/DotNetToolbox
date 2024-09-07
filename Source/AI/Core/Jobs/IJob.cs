@@ -1,9 +1,8 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
 public interface IJob {
-    JobType Type { get; }
-    JobContext Context { get; }
     string Id { get; }
+    JobType Type { get; }
 }
 
 public interface IJob<in TInput, TOutput>

@@ -3,7 +3,7 @@
 public interface IJobContext
     : IContext {
     Context<Asset> Assets { get; init; }
-    IHttpConnection Connection { get; init; }
+    IAgent Agent { get; init; }
     Context<string> Memory { get; init; }
     Model Model { get; init; }
     Persona Persona { get; init; }

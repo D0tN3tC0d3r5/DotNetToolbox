@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public class HttpConnectionSettings
-    : IHttpConnectionSettings {
+public class AgentSettings
+    : IAgentSettings {
     private const byte _maximumRetries = 10;
     private const decimal _maximumTemperature = 2;
     private const decimal _maximumTokenProbabilityCutOff = 1;

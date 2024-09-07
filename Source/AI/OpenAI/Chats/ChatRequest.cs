@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.OpenAI.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(IHttpConnection connection, IModel model, IChat chat)
+public class ChatRequest(IAgent connection, IModel model, IMessages chat)
     : IChatRequest {
     string IChatRequest.Context => (string?)Messages[0].Content ?? string.Empty;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.Skip(1).ToArray();
@@ -36,11 +36,11 @@ public class ChatRequest(IHttpConnection connection, IModel model, IChat chat)
     [JsonPropertyName("response_format")]
     public ChatRequestResponseFormat? ResponseFormat { get; set; }
 
-    private static ChatRequestMessage[] SetMessages(IChat chat)
+    private static ChatRequestMessage[] SetMessages(IMessages chat)
         => chat.Messages.ToArray(m => new ChatRequestMessage(m));
 
-    private static uint SetMaximumOutputTokens(IHttpConnection agent, IModel model)
-        => agent.Settings.MaximumOutputTokens > HttpConnectionSettings.MinimumOutputTokens
+    private static uint SetMaximumOutputTokens(IAgent agent, IModel model)
+        => agent.Settings.MaximumOutputTokens > AgentSettings.MinimumOutputTokens
         && agent.Settings.MaximumOutputTokens < model.MaximumOutputTokens
             ? agent.Settings.MaximumOutputTokens
             : model.MaximumOutputTokens;

@@ -49,12 +49,12 @@ public class JobContextBuilder(IServiceProvider services)
 
     public JobContext Build() {
         if (_model is null) throw new InvalidOperationException("Model is required.");
-        var agentFactory = services.GetRequiredKeyedService<IHttpConnectionAccessor>(_model.Provider);
+        var agentFactory = services.GetRequiredKeyedService<IAgentAccessor>(_model.Provider);
         return new(_source) {
             Model = _model,
             UserProfile = _userProfile ?? new UserProfile(0),
             World = new(_dateTime),
-            Connection = agentFactory.GetFor(_model.Provider),
+            Agent = agentFactory.GetFor(_model.Provider),
             Memory = _memory,
             Assets = _assets,
             Tools = _tools,
