@@ -14,10 +14,11 @@ public abstract class Agent<TAgent> : IAgent
 
     public AgentSettings Settings { get; } = new AgentSettings();
 
-    public virtual async Task<HttpResult> SendRequest(IMessages messages, JobContext jobContext, CancellationToken ct = default) {
+    public virtual async Task<HttpResult<string>> SendRequest(IMessages messages, JobContext jobContext, CancellationToken ct = default) {
         try {
             var count = 1;
             var hasFinished = false;
+            var result = string.Empty;
             while (!hasFinished) {
                 Logger.LogDebug("Sending request {RequestNumber} for {ChatId}...", count++, messages.Id);
                 var request = CreateRequest(messages, jobContext);
@@ -38,26 +39,35 @@ public abstract class Agent<TAgent> : IAgent
                         Logger.LogDebug("Invalid request.");
                         var input = JsonSerializer.Serialize(request, IAgentSettings.SerializerOptions);
                         var errorResponse = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                        return HttpResult.BadRequest(errorResponse);
+                        return HttpResult.BadRequest(string.Empty, new ValidationError($"""
+                            Request: {string.Join("\n", messages.Select(x => x.Text))}
+                            Error: {errorResponse};
+                            """));
                     default:
                         Logger.LogDebug("Response received.");
                         var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                        hasFinished = AppendResponse(messages, response);
-                        if (!hasFinished) Logger.LogDebug("Response is incomplete.");
+                        var answer = GetAnswer(response);
+                        result += answer;
+                        hasFinished = HasFinished(response);
+                        if (!hasFinished) {
+                            Logger.LogDebug("Response is incomplete.");
+                            messages.AppendUserMessage(answer);
+                        }
                         break;
                 }
             }
             Logger.LogDebug("Request completed.");
-            return HttpResult.Ok();
+            return HttpResult.Ok(result);
         }
         catch (Exception ex) {
             Logger.LogWarning(ex, "Request failed!");
-            return HttpResult.InternalError(ex);
+            return HttpResult.InternalError<string>(ex);
         }
     }
 
     protected abstract string CreateRequest(IMessages messages, JobContext jobContext);
-    protected abstract bool AppendResponse(IMessages chat, string response);
+    protected abstract bool HasFinished(string response);
+    protected abstract string GetAnswer(string response);
 }
 
 // public abstract class HttpConnection<TAgent, TRequest>(string provider, IHttpClientProviderAccessor httpClientProviderAccessor, ILogger<TAgent> logger)
@@ -128,7 +138,6 @@ public abstract class Agent<TAgent> : IAgent
 //     protected abstract TRequest CreateRequest(IJob job, IMessages messages);
 //     protected abstract bool UpdateChat(IMessages chat, TResponse response);
 // }
-
 
 // public abstract class HttpConnection<TAgent, TRequest, TResponse>(string provider, IHttpClientProviderAccessor httpClientProviderAccessor, ILogger<TAgent> logger)
 //     : IHttpConnection

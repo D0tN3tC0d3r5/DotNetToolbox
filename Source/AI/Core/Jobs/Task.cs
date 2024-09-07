@@ -2,6 +2,9 @@
 
 public class Task
     : Map {
+
+    public static Task Default { get; } = new Task(0);
+
     public Task(uint id) {
         Id = id;
         Name = "Provide Assistance";
@@ -130,6 +133,18 @@ public class Task
         get => (List<string>)this[nameof(Validations)];
         init => this[nameof(Validations)] = value;
     }
+    public TaskResponseType ResponseType {
+        get => (TaskResponseType)this[nameof(ResponseType)];
+        init => this[nameof(ResponseType)] = value;
+    }
+    public string ResponseSchema {
+        get => (string)this[nameof(ResponseSchema)];
+        init => this[nameof(ResponseSchema)] = value;
+    }
+    public string InputTemplate {
+        get => (string)this[nameof(InputTemplate)];
+        init => this[nameof(InputTemplate)] = value;
+    }
 
     public string Prompt {
         get {
@@ -181,7 +196,30 @@ public class Task
                 sb.AppendLine("## Examples");
                 for (var i = 0; i < Examples.Count; i++) sb.AppendLine($"{i + 1}. {Examples[i]}");
             }
+            sb.AppendLine(ResponsePrompt);
             return sb.ToString().TrimEnd();
         }
     }
+
+    private string ResponsePrompt
+        => ResponseType switch {
+            TaskResponseType.Markdown => $"""
+                Your response **MUST BE** in **Markdown** format.
+                """,
+            TaskResponseType.Table => $"""
+                Your response **MUST BE** in a **Table**, with columns delimited by pipe ('|') and rows delimited by newline ('\n').
+                It **MUST NOT** have any text outside of the table, only the table itself.
+                The table **MUST** have the following columns:
+                {ResponseSchema}
+                """,
+            TaskResponseType.Json => $"""
+                Your response **MUST BE** in **JSON** format.
+                It **MUST NOT** have any text outside of the JSON, only the JSON itself.
+                The JSON **MUST** match the following schema:
+                {ResponseSchema}
+                """,
+            _ => $"""
+                Your response **MUST BE** in simple text format with no special formatting.
+                """,
+        };
 }

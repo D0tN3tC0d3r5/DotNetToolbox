@@ -14,7 +14,7 @@ public class Message(MessageRole role, MessagePart[] parts) {
     public MessageRole Role { get; set; } = role;
     public List<MessagePart> Parts { get; set; } = [.. parts];
     public bool IsComplete { get; set; }
-    public string Text => parts.Aggregate(new StringBuilder(), (b, v) => b.AppendLine(v.Text)).ToString();
+    public string Text => parts.Aggregate(new StringBuilder(), (b, v) => b.Append(v.Text)).ToString();
 
     public static implicit operator string(Message message) => message.Text;
 }
