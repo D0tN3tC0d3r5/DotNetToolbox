@@ -74,6 +74,7 @@ public record HttpResult : ResultBase<HttpResultType> {
     public static HttpResult<TValue> Ok<TValue>(TValue value) => new(HttpResultType.Ok, IsNotNull(value));
     public static HttpResult<TValue> Created<TValue>(TValue value) => new(HttpResultType.Created, IsNotNull(value));
     public static HttpResult<TValue> BadRequest<TValue>(TValue? value, Result result) => new(HttpResultType.BadRequest, value, result.Errors);
+    public static HttpResult<TValue> BadRequest<TValue>(Result result) => new(HttpResultType.BadRequest, default, result.Errors);
     public static HttpResult<TValue> Unauthorized<TValue>() => new(HttpResultType.Unauthorized);
     public static HttpResult<TValue> NotFound<TValue>() => new(HttpResultType.NotFound);
     public static HttpResult<TValue> Conflict<TValue>(TValue value) => new(HttpResultType.Conflict, IsNotNull(value));
@@ -83,6 +84,7 @@ public record HttpResult : ResultBase<HttpResultType> {
     public static Task<HttpResult<TValue>> OkTask<TValue>(TValue value) => Task.FromResult(Ok(value));
     public static Task<HttpResult<TValue>> CreatedTask<TValue>(TValue value) => Task.FromResult(Created(value));
     public static Task<HttpResult<TValue>> BadRequestTask<TValue>(TValue? value, Result result) => Task.FromResult(BadRequest(value, result));
+    public static Task<HttpResult<TValue>> BadRequestTask<TValue>(Result result) => Task.FromResult(BadRequest<TValue>(result));
     public static Task<HttpResult<TValue>> UnauthorizedTask<TValue>() => Task.FromResult(Unauthorized<TValue>());
     public static Task<HttpResult<TValue>> NotFoundTask<TValue>() => Task.FromResult(NotFound<TValue>());
     public static Task<HttpResult<TValue>> ConflictTask<TValue>(TValue value) => Task.FromResult(Conflict(value));

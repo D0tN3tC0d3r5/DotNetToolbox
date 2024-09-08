@@ -9,6 +9,7 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
     private readonly IPersonaRepository _repository = services.GetRequiredService<IPersonaRepository>();
     private readonly ITaskHandler _taskHandler = services.GetRequiredService<ITaskHandler>();
     private readonly IAgentAccessor _connectionAccessor = services.GetRequiredService<IAgentAccessor>();
+    private readonly ILoggerFactory _loggerFactory = services.GetRequiredService<ILoggerFactory>();
 
     public PersonaEntity[] List() => _repository.GetAll();
 
@@ -56,7 +57,7 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
                 Persona = personaEntity,
                 Task = taskEntity,
             };
-            var job = new GenerateQuestionJob(context);
+            var job = new GenerateQuestionJob(context, _loggerFactory.CreateLogger<GenerateQuestionJob>());
             var result = await job.Execute(persona, CancellationToken.None);
             return result.HasException
                 ? throw new("Failed to generate next question: " + result.Exception.Message)

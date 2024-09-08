@@ -11,14 +11,14 @@ public class AnthropicAgent(IServiceProvider services, ILogger<AnthropicAgent> l
             MaximumTokenSamples = 0,
         };
 
-    protected override bool ProcessResponse(IChat chat, ChatResponse response, Message resultMessage) {
+    protected override Message ExtractMessage(IChat chat, JobContext context, ChatResponse response) {
         chat.InputTokens += (uint)response.Usage.InputTokens;
         chat.OutputTokens += (uint)response.Usage.OutputTokens;
-        var hasFinished = response.StopReason != "max_tokens";
         var content = response.Content.ToArray(ToMessagePart);
-        resultMessage.AddRange(content);
-        chat.AppendMessage(hasFinished ? MessageRole.Assistant : MessageRole.User, content);
-        return hasFinished;
+        var message = new Message(MessageRole.Assistant);
+        message.AddRange(content);
+        message.IsPartial = response.StopReason == "max_tokens";
+        return message;
     }
 
     private static MessagePart ToMessagePart(MessageContent content)

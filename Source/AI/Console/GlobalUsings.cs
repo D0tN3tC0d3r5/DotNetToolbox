@@ -4,6 +4,7 @@ global using System.IO;
 global using System.Linq.Expressions;
 global using System.Security.Cryptography;
 global using System.Text;
+global using System.Text.Json;
 global using System.Text.Json.Serialization;
 
 global using AI.Sample;
@@ -29,6 +30,7 @@ global using AI.Sample.UserProfile.Repositories;
 global using DotNetToolbox;
 global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Anthropic;
+global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Jobs;
 global using DotNetToolbox.AI.OpenAI;
 global using DotNetToolbox.ConsoleApplication;

@@ -17,17 +17,17 @@ public class OpenAIAgent(IServiceProvider services, ILogger<OpenAIAgent> logger)
             ResponseFormat = null,
         };
 
-    protected override bool ProcessResponse(IChat chat, ChatResponse response, Message resultMessage) {
+    protected override Message ExtractMessage(IChat chat, JobContext context, ChatResponse response) {
         chat.InputTokens += (uint?)(response.Usage?.PromptTokens) ?? 0;
         chat.OutputTokens += (uint?)(response.Usage?.CompletionTokens) ?? 0;
-        var hasFinished = response.Choices[0].StopReason != "length";
         var content = response.Choices[0].Message.Content;
-        var message = content switch {
-            ChatResponseToolRequest[] tcs => new MessagePart(MessagePartContentType.ToolCall, tcs),
+        var messagePart = content switch {
+            ChatResponseToolRequest[] tcs => new(MessagePartContentType.ToolCall, tcs),
             _ => new MessagePart(content as string ?? string.Empty),
         };
-        resultMessage.AddRange([message]);
-        chat.AppendMessage(hasFinished ? MessageRole.Assistant : MessageRole.User, message);
-        return hasFinished;
+        var message = new Message(MessageRole.Assistant);
+        message.AddRange([messagePart]);
+        message.IsPartial = response.Choices[0].StopReason != "length";
+        return message;
     }
 }

@@ -27,10 +27,9 @@ public class PersonasCommand : Command<PersonasCommand> {
                                       "Exit").Show();
 
         var personaHandler = Application.Services.GetRequiredService<IPersonaHandler>();
-        var aiService = Application.Services.GetRequiredService<IAIService>();
         var command = choice switch {
             "List" => new PersonaListCommand(this, personaHandler),
-            "Create" => new PersonaCreateCommand(this, personaHandler, aiService),
+            "Create" => new PersonaCreateCommand(this, personaHandler),
             //"Info" => new PersonaViewCommand(this, personaHandler, providerHandler),
             //"Select" => new PersonaSelectCommand(this, personaHandler),
             //"Update" => new PersonaUpdateCommand(this, personaHandler, providerHandler),

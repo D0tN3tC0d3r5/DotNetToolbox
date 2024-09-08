@@ -2,11 +2,11 @@
 
 namespace DotNetToolbox.AI.Jobs;
 
-public class Job<TInput, TOutput>(string id, JobContext context, Func<TaskResponseType, string, TOutput>? mapResponse = null)
+public class Job<TInput, TOutput>(string id, JobContext context, Func<TaskResponseType, Message, TOutput>? mapResponse = null)
     : IJob<TInput, TOutput> {
     private readonly Chat _chat = new(id);
 
-    public Job(IStringGuidProvider guid, JobContext context, Func<TaskResponseType, string, TOutput>? mapResponse = null)
+    public Job(IStringGuidProvider guid, JobContext context, Func<TaskResponseType, Message, TOutput>? mapResponse = null)
         : this(guid.CreateSortable(), context, mapResponse) {
     }
     public Job(JobContext context)
@@ -27,7 +27,7 @@ public class Job<TInput, TOutput>(string id, JobContext context, Func<TaskRespon
         _chat.AppendMessage(MessageRole.User, GenerateInputPrompt(input));
     }
 
-    private TOutput MapResponse(TaskResponseType responseType, string response)
+    protected virtual TOutput MapResponse(TaskResponseType responseType, Message response)
         => mapResponse is null
             ? throw new NotImplementedException()
             : mapResponse(responseType, response);
@@ -35,9 +35,9 @@ public class Job<TInput, TOutput>(string id, JobContext context, Func<TaskRespon
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
         AppendInputMessage(input);
         var response = await context.Agent.SendRequest(_chat, context, ct);
-        return response.HasErrors
-            ? response.Errors
-            : MapResponse(context.Task.ResponseType, response.Value ?? string.Empty);
+        return response.IsOk
+            ? MapResponse(context.Task.ResponseType, _chat[^1])
+            : response.Errors;
     }
 
     private string GenerateInputPrompt(TInput input) {
