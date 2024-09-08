@@ -2,7 +2,6 @@
 
 public interface IJob {
     string Id { get; }
-    JobType Type { get; }
 }
 
 public interface IJob<in TInput, TOutput>

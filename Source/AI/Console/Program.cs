@@ -26,8 +26,6 @@
     ab.Services.AddScoped<IHttpConnectionHandler, HttpConnectionHandler>();
     ab.Services.AddScoped(p => new Lazy<IHttpConnectionHandler>(p.GetRequiredService<IHttpConnectionHandler>));
 
-    ab.Services.AddScoped<IAIService, AIService>();
-
     ab.Services.AddSingleton<IUserProfileRepositoryStrategy, UserProfileRepositoryStrategy>();
     ab.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
     ab.Services.AddScoped<IUserProfileHandler, UserProfileHandler>();

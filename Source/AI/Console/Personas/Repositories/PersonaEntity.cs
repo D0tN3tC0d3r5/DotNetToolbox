@@ -20,46 +20,6 @@ public class PersonaEntity
         return result;
     }
 
-    [JsonIgnore]
-    public string Prompt {
-        get {
-            var sb = new StringBuilder();
-            sb.AppendLine($"## {Name}.");
-            sb.AppendLine($"You are a highly capable and versatile {Role}.");
-            switch (IsNotEmpty(Goals).Count) {
-                case 1:
-                    sb.AppendLine($"The goal of the task is to {Goals[0]}.");
-                    break;
-                default:
-                    sb.AppendLine("The goals of the task are:");
-                    for (var i = 0; i < Goals.Count; i++) sb.AppendLine($"{i + 1}. {Goals[i]}");
-                    break;
-            }
-            if (!string.IsNullOrWhiteSpace(Expertise)) sb.AppendLine($"You are an expert in {Expertise}.");
-            if (Traits.Count != 0) {
-                sb.AppendLine();
-                sb.AppendLine("## Your Key Traits:");
-                foreach (var trait in Traits) sb.AppendLine($"- {trait}");
-            }
-            if (Important.Count != 0) {
-                sb.AppendLine();
-                sb.AppendLine("## Important Information:");
-                foreach (var info in Important) sb.AppendLine($"- **IMPORTANT!** You MUST{info}");
-            }
-            if (Negative.Count != 0) {
-                sb.AppendLine();
-                sb.AppendLine("## Never:");
-                foreach (var neg in Negative) sb.AppendLine($"- **NEVER, IN ANY CIRCUMSTANCES!** {neg}");
-            }
-            if (Other.Count != 0) {
-                sb.AppendLine();
-                sb.AppendLine("## Additional Information:");
-                foreach (var other in Other) sb.AppendLine($"- {other}");
-            }
-            return sb.ToString().TrimEnd();
-        }
-    }
-
     public static implicit operator Persona(PersonaEntity entity)
         => new(entity.Key) {
             Name = entity.Name,

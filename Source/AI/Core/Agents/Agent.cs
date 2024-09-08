@@ -1,10 +1,11 @@
 ﻿namespace DotNetToolbox.AI.Agents;
 
-public abstract class Agent<TAgent> : IAgent
-    where TAgent : Agent<TAgent> {
+public abstract class Agent<TAgent, TRequest, TResponse>
+    : IAgent
+    where TAgent : Agent<TAgent, TRequest, TResponse> {
     private readonly IHttpClientProvider _httpClientProvider;
 
-    public Agent(string provider, IServiceProvider services, ILogger<TAgent> logger) {
+    protected Agent(string provider, IServiceProvider services, ILogger<TAgent> logger) {
         var httpClientProviderAccessor = services.GetRequiredService<IHttpClientProviderAccessor>();
         _httpClientProvider = httpClientProviderAccessor.Get(provider);
         Logger = logger;
@@ -12,62 +13,58 @@ public abstract class Agent<TAgent> : IAgent
 
     protected ILogger<TAgent> Logger { get; }
 
-    public AgentSettings Settings { get; } = new AgentSettings();
+    public AgentSettings Settings { get; } = new();
 
-    public virtual async Task<HttpResult<string>> SendRequest(IMessages messages, JobContext jobContext, CancellationToken ct = default) {
+    public virtual async Task<HttpResult<Message>> SendRequest(IChat chat, JobContext context, CancellationToken ct = default) {
         try {
-            var count = 1;
             var hasFinished = false;
-            var result = string.Empty;
+            var resultMessage = new Message(MessageRole.Assistant);
             while (!hasFinished) {
-                Logger.LogDebug("Sending request {RequestNumber} for {ChatId}...", count++, messages.Id);
-                var request = CreateRequest(messages, jobContext);
+                Logger.LogDebug("Sending request {RequestNumber} for {ChatId}...", ++chat.CallCount, chat.Id);
+                var httpRequest = CreateRequest(chat, context);
                 var mediaType = MediaTypeWithQualityHeaderValue.Parse(HttpClientOptions.DefaultContentType);
-                var content = JsonContent.Create(request, mediaType, options: IAgentSettings.SerializerOptions);
-                var httpClient = _httpClientProvider.GetHttpClient();
+                var httpRequestContent = JsonContent.Create(httpRequest, mediaType, options: IAgentSettings.SerializerOptions);
+                using var httpClient = _httpClientProvider.GetHttpClient();
                 var chatEndpoint = _httpClientProvider.Options.Endpoints["Chat"];
-                var httpResult = await httpClient.PostAsync(chatEndpoint, content, ct).ConfigureAwait(false);
-                switch (httpResult.StatusCode) {
+                using var httpResponse = await httpClient.PostAsync(chatEndpoint, httpRequestContent, ct).ConfigureAwait(false);
+                switch (httpResponse.StatusCode) {
                     case HttpStatusCode.Unauthorized:
                     case HttpStatusCode.Forbidden:
                         Logger.LogDebug("Authentication failed.");
-                        return HttpResult.Unauthorized<string>();
+                        return HttpResult.Unauthorized<Message>();
                     case HttpStatusCode.NotFound:
                         Logger.LogDebug("Agent endpoint not found.");
-                        return HttpResult.NotFound<string>();
+                        return HttpResult.NotFound<Message>();
                     case HttpStatusCode.BadRequest:
                         Logger.LogDebug("Invalid request.");
-                        var input = JsonSerializer.Serialize(request, IAgentSettings.SerializerOptions);
-                        var errorResponse = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                        return HttpResult.BadRequest(string.Empty, new ValidationError($"""
-                            Request: {string.Join("\n", messages.Select(x => x.Text))}
+                        var errorResponse = await httpResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                        return HttpResult.BadRequest(resultMessage, new ValidationError($"""
+                            Request: {string.Join("\n", chat.Select(x => x.Text))}
                             Error: {errorResponse};
                             """));
                     default:
                         Logger.LogDebug("Response received.");
-                        var response = await httpResult.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                        var answer = GetAnswer(response);
-                        result += answer;
-                        hasFinished = HasFinished(response);
-                        if (!hasFinished) {
-                            Logger.LogDebug("Response is incomplete.");
-                            messages.AppendUserMessage(answer);
-                        }
+                        var httpResponseContent = await httpResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                        var response = JsonSerializer.Deserialize<TResponse>(httpResponseContent, IAgentSettings.SerializerOptions)!;
+                        hasFinished = ProcessResponse(chat, response, resultMessage);
+                        if (!hasFinished) Logger.LogDebug("Response is incomplete.");
                         break;
                 }
             }
             Logger.LogDebug("Request completed.");
-            return HttpResult.Ok(result);
+            return HttpResult.Ok(resultMessage);
         }
         catch (Exception ex) {
             Logger.LogWarning(ex, "Request failed!");
-            return HttpResult.InternalError<string>(ex);
+            return HttpResult.InternalError<Message>(ex);
         }
     }
 
-    protected abstract string CreateRequest(IMessages messages, JobContext jobContext);
-    protected abstract bool HasFinished(string response);
-    protected abstract string GetAnswer(string response);
+    protected abstract TRequest CreateRequest(IChat chat, JobContext context);
+    protected abstract bool ProcessResponse(IChat chat, TResponse response, Message resultMessage);
+    //protected abstract string GetAnswer(TResponse response);
+    //protected abstract void UpdateUsage(IChat chat, TResponse response);
+    //protected abstract bool HasFinished(TResponse response);
 }
 
 // public abstract class HttpConnection<TAgent, TRequest>(string provider, IHttpClientProviderAccessor httpClientProviderAccessor, ILogger<TAgent> logger)

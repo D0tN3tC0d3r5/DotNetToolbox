@@ -1,4 +1,4 @@
-﻿namespace AI.Sample.Provider.Commands;
+﻿namespace AI.Sample.Providers.Commands;
 
 public class ProviderViewCommand : Command<ProviderViewCommand> {
     private readonly IProviderHandler _handler;

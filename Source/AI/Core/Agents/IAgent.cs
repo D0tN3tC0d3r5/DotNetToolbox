@@ -2,5 +2,5 @@
 
 public interface IAgent {
     AgentSettings Settings { get; }
-    Task<HttpResult<string>> SendRequest(IMessages messages, JobContext jobContext, CancellationToken ct = default);
+    Task<HttpResult<Message>> SendRequest(IChat chat, JobContext context, CancellationToken ct = default);
 }

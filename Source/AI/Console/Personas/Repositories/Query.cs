@@ -1,6 +1,7 @@
 ﻿namespace AI.Sample.Personas.Repositories;
 
-public record Query {
-    public required string Question { get; init; }
+public class Query {
+    public string Question { get; set; } = string.Empty;
+    public string Explanation { get; set; } = string.Empty;
     public string Answer { get; set; } = string.Empty;
 }

@@ -4,17 +4,17 @@ public class AnalysisJobStrategy
     : IJobStrategy<string, string> {
     public string Instructions => "Analyze the given text and provide insights.";
 
-    public void AddPrompt(IMessages chat, string input, IJobContext context) {
+    public void AddPrompt(IChat chat, string input, IJobContext context) {
         var prompt = $"Analise the following:\n{input}";
         var message = new Message(MessageRole.User, prompt);
-        chat.Messages.Add(message);
+        chat.Add(message);
     }
 
-    public string GetResult(IMessages chat, IJobContext context) {
-        var message = chat.Messages.Last(m => m.Role == MessageRole.Assistant);
+    public string GetResult(IChat chat, IJobContext context) {
+        var message = chat.Last(m => m.Role == MessageRole.Assistant);
         return message.Text;
     }
 }
 
 public class AnalysisJob(string id, JobContext context)
-    : Job<string, string>(new AnalysisJobStrategy(), id, context);
+    : Job<string, string>(id, context);

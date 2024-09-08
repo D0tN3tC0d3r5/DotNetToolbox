@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Anthropic.Chats;
 
 [method: SetsRequiredMembers]
-public class ChatRequest(IAgent connection, IModel model, IMessages chat)
+public class ChatRequest(IAgent connection, IModel model, IChat chat)
     : IChatRequest {
     string IChatRequest.Context => System;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => [.. Messages];
@@ -30,11 +30,11 @@ public class ChatRequest(IAgent connection, IModel model, IMessages chat)
     [JsonPropertyName("top_k")]
     public decimal? MaximumTokenSamples { get; set; }
 
-    private static string SetContext(IMessages chat)
-        => chat.Messages.First(m => m.Role == MessageRole.System).Text;
+    private static string SetContext(IChat chat)
+        => chat.First(m => m.Role == MessageRole.System).Text;
 
-    private static ChatRequestMessage[] SetMessages(IMessages chat)
-        => chat.Messages.Where(m => m.Role != MessageRole.System).ToArray(m => new ChatRequestMessage(m));
+    private static ChatRequestMessage[] SetMessages(IChat chat)
+        => chat.Where(m => m.Role != MessageRole.System).ToArray(m => new ChatRequestMessage(m));
 
     private static uint SetMaximumOutputTokens(IAgent agent, IModel model)
         => agent.Settings.MaximumOutputTokens > AgentSettings.MinimumOutputTokens

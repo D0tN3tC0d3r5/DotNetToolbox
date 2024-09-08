@@ -33,7 +33,7 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         return this;
     }
 
-    public TextPromptBuilder<TValue> AnswerInNewLine() {
+    public TextPromptBuilder<TValue> StartTheAnswerOnANewLine() {
         _addLineBreak = true;
         return this;
     }

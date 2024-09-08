@@ -10,9 +10,9 @@ public class ChatRequestMessage : IChatRequestMessage {
                 break;
             case Message c:
                 Role = RoleToString(c.Role);
-                Content = c.Parts.Count == 1
-                              ? (string)c.Parts[0].Content
-                              : c.Parts.ToArray(p => new MessageContent(p.Content));
+                Content = c.Count == 1
+                              ? (string)c[0].Content
+                              : c.ToArray(p => new MessageContent(p.Content));
                 break;
             case ChatFunctionCallResult c:
                 Role = RoleToString(MessageRole.Tool);

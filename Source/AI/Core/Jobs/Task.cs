@@ -2,7 +2,6 @@
 
 public class Task
     : Map {
-
     public static Task Default { get; } = new Task(0);
 
     public Task(uint id) {
@@ -44,6 +43,9 @@ public class Task
             "include sharing personal opinions on sensitive topics as if they were facts",
             "involve remembering information from previous conversations with users",
         ];
+        InputTemplate = string.Empty;
+        ResponseType = TaskResponseType.Markdown;
+        ResponseSchema = string.Empty;
         Validations = [
             "ensuring your response directly addresses the user's query or task",
             "checking that the information provided is accurate to the best of your knowledge",
@@ -185,6 +187,9 @@ public class Task
                 sb.AppendLine("## Task Strategy and Guidelines");
                 foreach (var item in Guidelines) sb.AppendLine($"- {item}");
             }
+            sb.AppendLine();
+            sb.AppendLine("## Expected Response");
+            sb.AppendLine(ResponsePrompt);
             if (Validations.Count != 0) {
                 sb.AppendLine();
                 sb.AppendLine("## Task Validation and Verification");
@@ -194,32 +199,32 @@ public class Task
             if (Examples.Count != 0) {
                 sb.AppendLine();
                 sb.AppendLine("## Examples");
-                for (var i = 0; i < Examples.Count; i++) sb.AppendLine($"{i + 1}. {Examples[i]}");
+                for (var i = 0; i < Examples.Count; i++) {
+                    sb.AppendLine($"{i + 1}. {Examples[i]}");
+                    sb.AppendLine();
+                }
             }
-            sb.AppendLine(ResponsePrompt);
             return sb.ToString().TrimEnd();
         }
     }
 
     private string ResponsePrompt
         => ResponseType switch {
-            TaskResponseType.Markdown => $"""
-                Your response **MUST BE** in **Markdown** format.
-                """,
+            TaskResponseType.Markdown => "Your response **MUST BE** in **Markdown** format.",
             TaskResponseType.Table => $"""
                 Your response **MUST BE** in a **Table**, with columns delimited by pipe ('|') and rows delimited by newline ('\n').
-                It **MUST NOT** have any text outside of the table, only the table itself.
                 The table **MUST** have the following columns:
                 {ResponseSchema}
+                The first line of the response **MUST BE** the **Names of the Columns**, delimited by pipe ('|').
+                The columns' name **MUST BE** the same as the ones in the list provided above.
+                Your response **MUST NOT** have any text before or after the table, only the table data.
                 """,
             TaskResponseType.Json => $"""
                 Your response **MUST BE** in **JSON** format.
-                It **MUST NOT** have any text outside of the JSON, only the JSON itself.
                 The JSON **MUST** match the following schema:
                 {ResponseSchema}
+                Your response **MUST NOT** have any text before or after of the JSON, only the JSON itself.
                 """,
-            _ => $"""
-                Your response **MUST BE** in simple text format with no special formatting.
-                """,
+            _ => "Your response **MUST BE** in simple text format with no special formatting.",
         };
 }

@@ -1,62 +1,67 @@
-﻿namespace DotNetToolbox.AI.Jobs;
+﻿using System.Collections;
 
-public class Job<TInput, TOutput>(string id, JobContext context, Action<TInput> updateMessages, Func<TaskResponseType, string, TOutput> mapResponse)
+namespace DotNetToolbox.AI.Jobs;
+
+public class Job<TInput, TOutput>(string id, JobContext context, Func<TaskResponseType, string, TOutput>? mapResponse = null)
     : IJob<TInput, TOutput> {
-    private readonly Action<TInput>? _updateMessages = updateMessages;
-    private readonly Func<TaskResponseType, string, TOutput>? _mapResponse = mapResponse;
+    private readonly Chat _chat = new(id);
 
-    public Job(IStringGuidProvider guid, JobContext context, Action<TInput> updateMessages, Func<TaskResponseType, string, TOutput> mapResponse)
-        : this(guid.CreateSortable(), context, updateMessages, mapResponse) {
-    }
-    public Job(JobContext context, Action<TInput> updateMessages, Func<TaskResponseType, string, TOutput> mapResponse)
-        : this(StringGuidProvider.Default, context, updateMessages, mapResponse) {
-    }
-    public Job(string id, JobContext context)
-        : this(id, context, null!, null!) {
-    }
-    public Job(IStringGuidProvider guid, JobContext context)
-        : this(guid.CreateSortable(), context, null!, null!) {
+    public Job(IStringGuidProvider guid, JobContext context, Func<TaskResponseType, string, TOutput>? mapResponse = null)
+        : this(guid.CreateSortable(), context, mapResponse) {
     }
     public Job(JobContext context)
-        : this(StringGuidProvider.Default, context, null!, null!) {
+        : this(StringGuidProvider.Default, context) {
     }
-
     public string Id { get; } = id;
-    public JobType Type { get; protected init; } = JobType.Generic;
 
-    protected JobContext Context { get; } = context;
-    protected Messages Messages { get; } = new Messages(id);
+    private void AppendInputMessage(TInput input) {
+        if (_chat.Count == 0) {
+            _chat.SetSystemMessage($"""
+                # Agent Description
+                {context.Persona.Prompt}
 
-    protected virtual void AppendInputMessage(TInput input) {
-        if (Messages.Count == 0) Messages.SetSystemMessage(Context.Task.Prompt);
-        Messages.AppendUserMessage(GenerateInputPrompt(input));
+                # Task Description
+                {context.Task.Prompt}
+                """);
+        }
+        _chat.AppendMessage(MessageRole.User, GenerateInputPrompt(input));
     }
-    protected virtual TOutput MapResponse(TaskResponseType responseType, string response)
-        => _mapResponse is null
+
+    private TOutput MapResponse(TaskResponseType responseType, string response)
+        => mapResponse is null
             ? throw new NotImplementedException()
-            : _mapResponse(responseType, response);
+            : mapResponse(responseType, response);
 
     public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
         AppendInputMessage(input);
-        var response = await Context.Agent.SendRequest(Messages, Context, ct);
+        var response = await context.Agent.SendRequest(_chat, context, ct);
         return response.HasErrors
             ? response.Errors
-            : MapResponse(Context.Task.ResponseType, response.Value ?? string.Empty);
+            : MapResponse(context.Task.ResponseType, response.Value ?? string.Empty);
     }
 
     private string GenerateInputPrompt(TInput input) {
-        var template = Context.Task.InputTemplate;
+        var template = context.Task.InputTemplate;
 
-        if (string.IsNullOrEmpty(template))
-            return string.Empty;
+        if (string.IsNullOrEmpty(template)) {
+            return input is null ? string.Empty
+                 : input is string || input.GetType().IsPrimitive ? $"{input}"
+                 : JsonSerializer.Serialize(input);
+        }
 
-        var properties = typeof(TInput).GetProperties();
-        foreach (var prop in properties) {
-            var placeholder = $"[{prop.Name}]";
-            if (template.Contains(placeholder)) {
-                var value = prop.GetValue(input)?.ToString() ?? string.Empty;
-                template = template.Replace(placeholder, value);
-            }
+        foreach (var prop in typeof(TInput).GetProperties()) {
+            var placeholder = $"<<{prop.Name}>>";
+            if (!template.Contains(placeholder)) continue;
+
+            var value = prop.GetValue(input);
+            var valueText = value switch {
+                null => "[[no value found]]",
+                ICollection { Count: > 0 } arrayValue => $" - {string.Join("\n - ", [.. arrayValue])}",
+                ICollection => "[[no items found]]",
+                string stringValue => stringValue,
+                _ => $"{value}",
+            };
+            template = template.Replace(placeholder, valueText);
         }
 
         return template;

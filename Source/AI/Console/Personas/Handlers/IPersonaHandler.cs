@@ -8,4 +8,6 @@ public interface IPersonaHandler {
     void Add(PersonaEntity persona);
     void Update(PersonaEntity persona);
     void Remove(uint key);
+
+    Task<Query[]> GenerateQuestion(PersonaEntity persona);
 }
