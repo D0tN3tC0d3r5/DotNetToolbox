@@ -5,13 +5,13 @@ public class PersonaEntity
     public string Name { get; init; } = string.Empty;
     public string Role { get; init; } = string.Empty;
     public List<string> Goals { get; init; } = [];
-    public List<Query> Questions { get; } = [];
+    public List<Query> Questions { get; init; } = [];
 
     public string Expertise { get; set; } = string.Empty;
-    public List<string> Traits { get; } = [];
-    public List<string> Important { get; } = [];
-    public List<string> Negative { get; } = [];
-    public List<string> Other { get; } = [];
+    public List<string> Traits { get; init; } = [];
+    public List<string> Important { get; init; } = [];
+    public List<string> Negative { get; init; } = [];
+    public List<string> Other { get; init; } = [];
 
     public override Result Validate(IContext? context = null) {
         var result = base.Validate(context);

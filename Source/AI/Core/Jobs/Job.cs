@@ -11,6 +11,7 @@ public class Job(string id, JobContext context)
         : this(StringGuidProvider.Default, context) {
     }
     public string Id { get; } = id;
+    public Dictionary<Type, Func<object, string>> Converters { get; } = [];
 
     public async Task<Result> Execute(CancellationToken ct) {
         SetSystemMessage();
@@ -34,7 +35,7 @@ public class Job(string id, JobContext context)
     }
 
     private void SetUserMessage() {
-        var message = JobInputHelper.FormatInput(context.Input, context.Task.InputTemplate);
+        var message = JobInputHelper.FormatInput(context.Input, context.Task.InputTemplate, Converters);
         _chat.AppendMessage(MessageRole.User, message);
     }
 

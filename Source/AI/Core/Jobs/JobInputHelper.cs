@@ -7,8 +7,9 @@ internal static partial class JobInputHelper {
         Converters = { new JobObjectSerializer() },
     };
 
-    public static string FormatInput(object? input, string? template = null) {
-        if (string.IsNullOrWhiteSpace(template)) return input is null ? string.Empty : JsonSerializer.Serialize(input);
+    public static string FormatInput(object? input, string? template, Dictionary<Type, Func<object, string>>? converters = null) {
+        converters ??= [];
+        if (string.IsNullOrWhiteSpace(template)) return ConvertInput(input, converters);
         var keys = ExtractKeys(template);
         if (keys.Length == 0) return template;
 
@@ -16,7 +17,7 @@ internal static partial class JobInputHelper {
             throw new ArgumentException("Input must be either Dictionary<string, object> or an Class.", nameof(input));
         var result = template;
         foreach (var key in keys) {
-            var replacement = FindValue(input, key);
+            var replacement = FindValue(input, key, converters);
             result = result.Replace($"<<{key}>>", replacement);
         }
 
@@ -26,19 +27,22 @@ internal static partial class JobInputHelper {
     private static string[] ExtractKeys(string template)
         => MatchInputKey.Matches(template).Select(m => m.Groups[1].Value).Distinct().ToArray();
 
-    private static string FindValue(object input, string key) => input switch {
-        IEnumerable<KeyValuePair<string, object>> map when map.Any(x => x.Key == key) => FormatValue(map.First(x => x.Key == key).Value),
-        IEnumerable<KeyValuePair<string, object>> => throw new KeyNotFoundException($"Key '{key}' not found in the input."),
-        _ when input.GetType().GetProperty(key) is { } prop => FormatValue(prop.GetValue(input)),
-        _ => throw new MissingMemberException($"Property '{key}' not found in the input object."),
-    };
-
-    private static string FormatValue(object? value)
-        => value switch {
-            null => "[[no value found]]",
-            IEnumerable<object> enumerable => string.Join("\n", enumerable.Select(static item => $" - {item}")),
-            _ => JsonSerializer.Serialize(value, _jsonOptions),
+    private static string FindValue(object input, string key, IReadOnlyDictionary<Type, Func<object, string>> converters)
+        => input switch {
+            IEnumerable<KeyValuePair<string, object>> map when map.Any(x => x.Key == key) => ConvertInput(map.First(x => x.Key == key).Value, converters),
+            IEnumerable<KeyValuePair<string, object>> => throw new KeyNotFoundException($"Key '{key}' not found in the input."),
+            _ when input.GetType().GetProperty(key) is { } prop => ConvertInput(prop.GetValue(input), converters),
+            _ => throw new MissingMemberException($"Property '{key}' not found in the input object."),
         };
+
+    private static string ConvertInput(object? input, IReadOnlyDictionary<Type, Func<object, string>> converters) {
+        if (input is null) return string.Empty;
+        var inputType = input.GetType();
+        if (converters.TryGetValue(inputType, out var converter)) return converter(input);
+        if (input is IEnumerable<object> list) return string.Join("\n", list.ToArray(v => $" - {ConvertInput(v, converters)}"));
+        if (inputType.IsClass) return JsonSerializer.Serialize(input, _jsonOptions);
+        return input.ToString() ?? string.Empty;
+    }
 
     [GeneratedRegex(@"<<(\w+)>>", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex MatchInputKey { get; }

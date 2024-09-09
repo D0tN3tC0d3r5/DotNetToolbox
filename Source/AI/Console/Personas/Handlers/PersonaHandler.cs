@@ -47,8 +47,8 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
             var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
             var userProfileEntity = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
-            var personaEntity = GetByName("Agent Creator") ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
-            var taskEntity = _taskHandler.GetByName("Ask Questions about the AI Agent") ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
+            var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
+            var taskEntity = _taskHandler.GetByKey(1) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
             var context = new JobContext {
                 Model = appModel,
                 Agent = httpConnection,
@@ -60,8 +60,8 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
             context.Input = persona;
             var result = await job.Execute(CancellationToken.None);
             if (result.HasException) throw new("Failed to generate next question: " + result.Exception.Message);
-            var list = ((List<object>)context.Output).OfType<Dictionary<string, object>>().ToArray(i => new Map(i));
-            return list.Select(i => new Query {
+            var response = ((List<object>)context.Output).OfType<Dictionary<string, object>>().ToArray(i => new Map(i));
+            return response.Select(i => new Query {
                 Question = i.GetValueAs<string>(nameof(Query.Question)),
                 Explanation = i.GetValueAs<string>(nameof(Query.Explanation)),
             }).ToArray();
@@ -77,8 +77,8 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
             var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
             var userProfileEntity = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
-            var personaEntity = GetByName("Agent Creator") ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
-            var taskEntity = _taskHandler.GetByName("Generate AI Agent Persona") ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
+            var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
+            var taskEntity = _taskHandler.GetByKey(2) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
             var context = new JobContext {
                 Model = appModel,
                 Agent = httpConnection,
@@ -88,14 +88,26 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
                 Input = persona,
             };
             var job = new Job(context);
+            job.Converters.Add(typeof(List<Query>),
+                               v => {
+                                   var list = (List<Query>)v;
+                                   if (list.Count == 0) return string.Empty;
+                                   var sb = new StringBuilder();
+                                   foreach (var item in list) {
+                                       sb.AppendLine($"Q: {item.Question}");
+                                       sb.AppendLine($"{item.Explanation}");
+                                       sb.AppendLine($"A: {item.Answer}");
+                                   }
+                                   return sb.ToString();
+                               });
             var result = await job.Execute(CancellationToken.None);
             if (result.HasException) throw new("Failed to generate next question: " + result.Exception.Message);
-            var updatedPersona = context.Output as PersonaEntity ?? persona;
-            persona.Expertise = updatedPersona.Expertise;
-            persona.Traits.AddRange(updatedPersona.Traits);
-            persona.Important.AddRange(updatedPersona.Important);
-            persona.Negative.AddRange(updatedPersona.Negative);
-            persona.Other.AddRange(updatedPersona.Other);
+            var response = new Map((Dictionary<string, object>)context.Output);
+            persona.Expertise = response.GetValueAs<string>(nameof(Persona.Expertise));
+            persona.Traits.AddRange(((List<object>)response[nameof(Persona.Traits)]).OfType<string>());
+            persona.Important.AddRange(((List<object>)response[nameof(Persona.Important)]).OfType<string>());
+            persona.Negative.AddRange(((List<object>)response[nameof(Persona.Negative)]).OfType<string>());
+            persona.Other.AddRange(((List<object>)response[nameof(Persona.Other)]).OfType<string>());
         }
         catch (Exception ex) {
             logger.LogError(ex, "Error generating next question for persona {PersonaName}", persona.Name);

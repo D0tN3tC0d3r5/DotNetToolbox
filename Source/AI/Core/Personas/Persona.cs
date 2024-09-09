@@ -1,15 +1,12 @@
-﻿using System.Linq;
-
-namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Agents;
 
 public class Persona
     : Map, IValidatable {
-    public Persona(uint id)
-    {
+    public Persona(uint id) {
         Id = id;
         Name = "Assistant";
         Role = "AI-powered digital assistant";
-        Goals= [
+        Goals = [
             "assist users with a wide variety of tasks and queries to the best of your abilities",
         ];
         Expertise = """
@@ -84,10 +81,10 @@ public class Persona
             sb.AppendLine($"You are a highly capable and versatile {Role}.");
             switch (IsNotEmpty(Goals).Count) {
                 case 1:
-                    sb.AppendLine($"The goal of the task is to {Goals[0]}.");
+                    sb.AppendLine($"Your main goal is {Goals[0]}.");
                     break;
                 default:
-                    sb.AppendLine("The goals of the task are:");
+                    sb.AppendLine("Your goals are:");
                     for (var i = 0; i < Goals.Count; i++) sb.AppendLine($"{i + 1}. {Goals[i]}.");
                     break;
             }
