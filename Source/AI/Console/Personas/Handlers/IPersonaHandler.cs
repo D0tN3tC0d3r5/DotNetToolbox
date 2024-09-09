@@ -1,4 +1,6 @@
-﻿namespace AI.Sample.Personas.Handlers;
+﻿using Task = System.Threading.Tasks.Task;
+
+namespace AI.Sample.Personas.Handlers;
 
 public interface IPersonaHandler {
     PersonaEntity[] List();
@@ -9,5 +11,6 @@ public interface IPersonaHandler {
     void Update(PersonaEntity persona);
     void Remove(uint key);
 
-    Task<Query[]> GenerateQuestion(PersonaEntity persona);
+    Task<Query[]> GenerateQuestions(PersonaEntity persona);
+    Task GeneratePersonaProperties(PersonaEntity persona);
 }

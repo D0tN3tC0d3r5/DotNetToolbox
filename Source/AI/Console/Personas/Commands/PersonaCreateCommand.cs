@@ -28,11 +28,11 @@ public class PersonaCreateCommand : Command<PersonaCreateCommand> {
                 addAnotherGoal = Input.Confirm("Would you like to add another goal?", false);
             }
 
-            Output.WriteLine("[yellow]Let me see if I have more questions...[/]");
-            Output.WriteLine("[grey](You can skip the questions by typing 'proceed' at any time.)[/]");
-
             for (var questionCount = 0; questionCount < _maxQuestions; questionCount++) {
-                var queries = await _personaHandler.GenerateQuestion(persona);
+                Output.WriteLine("[yellow]Let me see if I have more questions...[/]");
+                Output.WriteLine("[grey](You can skip the questions by typing 'proceed' at any time.)[/]");
+
+                var queries = await _personaHandler.GenerateQuestions(persona);
                 if (queries.Length == 0) {
                     Output.WriteLine("[green]I've gathered sufficient information to generate the agent's persona.[/]");
                     break;
@@ -57,6 +57,8 @@ public class PersonaCreateCommand : Command<PersonaCreateCommand> {
                 Output.WriteLine("[green]Ok, Let's proceed with the generation of the agent's persona.[/]");
                 break;
             }
+
+            await _personaHandler.GeneratePersonaProperties(persona);
 
             _personaHandler.Add(persona);
             Output.WriteLine($"[green]Persona '{persona.Name}' generated successfully.[/]");

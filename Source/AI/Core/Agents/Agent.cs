@@ -18,7 +18,7 @@ public abstract class Agent<TAgent, TRequest, TResponse>
         try {
             var lastMessage = chat[^1];
             if (lastMessage.Role != MessageRole.User) throw new NotImplementedException();
-            var originalUserMessage = lastMessage.Text;
+            var originalUserMessage = lastMessage.ToString();
             lastMessage.Add("\n# Answer:\n");
 
             var finalMessage = new Message(MessageRole.Assistant);

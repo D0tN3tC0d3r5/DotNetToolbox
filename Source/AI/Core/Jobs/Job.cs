@@ -1,69 +1,44 @@
-﻿using System.Collections;
+﻿namespace DotNetToolbox.AI.Jobs;
 
-namespace DotNetToolbox.AI.Jobs;
-
-public class Job<TInput, TOutput>(string id, JobContext context, Func<TaskResponseType, Message, TOutput>? mapResponse = null)
-    : IJob<TInput, TOutput> {
+public class Job(string id, JobContext context)
+    : IJob {
     private readonly Chat _chat = new(id);
 
-    public Job(IStringGuidProvider guid, JobContext context, Func<TaskResponseType, Message, TOutput>? mapResponse = null)
-        : this(guid.CreateSortable(), context, mapResponse) {
+    public Job(IStringGuidProvider guid, JobContext context)
+        : this(guid.CreateSortable(), context) {
     }
     public Job(JobContext context)
         : this(StringGuidProvider.Default, context) {
     }
     public string Id { get; } = id;
 
-    private void AppendInputMessage(TInput input) {
-        if (_chat.Count == 0) {
-            _chat.SetSystemMessage($"""
-                # Agent Description
-                {context.Persona.Prompt}
-
-                # Task Description
-                {context.Task.Prompt}
-                """);
-        }
-        _chat.AppendMessage(MessageRole.User, GenerateInputPrompt(input));
-    }
-
-    protected virtual TOutput MapResponse(TaskResponseType responseType, Message response)
-        => mapResponse is null
-            ? throw new NotImplementedException()
-            : mapResponse(responseType, response);
-
-    public async Task<Result<TOutput>> Execute(TInput input, CancellationToken ct) {
-        AppendInputMessage(input);
+    public async Task<Result> Execute(CancellationToken ct) {
+        SetSystemMessage();
+        SetUserMessage();
         var response = await context.Agent.SendRequest(_chat, context, ct);
-        return response.IsOk
-            ? MapResponse(context.Task.ResponseType, _chat[^1])
-            : response.Errors;
+        if (!response.IsOk) return response.Errors;
+        SetAgentResponse();
+        return Result.Success();
     }
 
-    private string GenerateInputPrompt(TInput input) {
-        var template = context.Task.InputTemplate;
+    private void SetSystemMessage() {
+        if (_chat.Count != 0) return;
+        var message = $"""
+            # Agent Description
+            {context.Persona.Prompt}
 
-        if (string.IsNullOrEmpty(template)) {
-            return input is null ? string.Empty
-                 : input is string || input.GetType().IsPrimitive ? $"{input}"
-                 : JsonSerializer.Serialize(input);
-        }
-
-        foreach (var prop in typeof(TInput).GetProperties()) {
-            var placeholder = $"<<{prop.Name}>>";
-            if (!template.Contains(placeholder)) continue;
-
-            var value = prop.GetValue(input);
-            var valueText = value switch {
-                null => "[[no value found]]",
-                ICollection { Count: > 0 } arrayValue => $" - {string.Join("\n - ", [.. arrayValue])}",
-                ICollection => "[[no items found]]",
-                string stringValue => stringValue,
-                _ => $"{value}",
-            };
-            template = template.Replace(placeholder, valueText);
-        }
-
-        return template;
+            # Task Description
+            {context.Task.Prompt}
+            """;
+        _chat.AppendMessage(MessageRole.System, message);
     }
+
+    private void SetUserMessage()
+     {
+        var message = JobInputHelper.FormatInput(context["Input"], context.Task.InputTemplate);
+        _chat.AppendMessage(MessageRole.User, message);
+     }
+
+    private void SetAgentResponse()
+        => context["Output"] = JobOutputHelper.ExtractOutput(context.Task.ResponseType, _chat[^1]);
 }

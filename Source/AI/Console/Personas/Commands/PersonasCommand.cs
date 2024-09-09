@@ -42,7 +42,7 @@ public class PersonasCommand : Command<PersonasCommand> {
 
         static string MapTo(string choice) => choice switch {
             "List" => "List Personas",
-            "Create" => "Add a New Persona",
+            "Create" => "Create a Persona",
             //"Info" => "View the Details of a Persona",
             //"Select" => "Select the Default Persona",
             //"Update" => "Update a Persona",
