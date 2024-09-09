@@ -33,12 +33,11 @@ public class Job(string id, JobContext context)
         _chat.AppendMessage(MessageRole.System, message);
     }
 
-    private void SetUserMessage()
-     {
-        var message = JobInputHelper.FormatInput(context["Input"], context.Task.InputTemplate);
+    private void SetUserMessage() {
+        var message = JobInputHelper.FormatInput(context.Input, context.Task.InputTemplate);
         _chat.AppendMessage(MessageRole.User, message);
-     }
+    }
 
     private void SetAgentResponse()
-        => context["Output"] = JobOutputHelper.ExtractOutput(context.Task.ResponseType, _chat[^1]);
+        => context.Output = JobOutputHelper.ExtractOutput(context.Task.ResponseType, _chat[^1]);
 }

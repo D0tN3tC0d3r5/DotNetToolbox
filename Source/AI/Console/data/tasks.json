@@ -30,6 +30,7 @@
       "ensure that the questions cover a wide range of agent characteristics, including capabilities, limitations, ethical considerations, and interaction style",
       "adapt the questions based on the context provided by the initial input"
     ],
+    "InputTemplate": "Persona's Name: <<Name>>\nPersona's Main Role: <<Role>>\nPersona's Goals:\n<<Goals>>\n",
     "Internal": true,
     "Key": 1,
     "Name": "Ask Questions about the AI Agent",
@@ -44,6 +45,8 @@
       "generate questions designed to elicit specific, actionable information for agent creation",
       "generate an output that is a valid JSON file following strictly the schema defined in the prompt"
     ],
+    "ResponseType": "List",
+    "ResponseSchema": "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"Question\":{\"type\":\"string\"},\"Explanation\":{\"type\":\"string\"}},\"required\":[\"Explanation\",\"Question\"]}}",
     "Validations": [
       "Ensuring each question is directly relevant to the provided Name, Role, and Goals",
       "Checking that the set of questions covers a diverse range of agent characteristics",
@@ -83,6 +86,7 @@
       "ensure interactions are safe, ethical, and beneficial to the user",
       "adapt to various types of requests and communication styles"
     ],
+    "InputTemplate": "Persona's Name: <<Name>>\nPersona's Main Role: <<Role>>\nPersona's Goals:\n<<Goals>>\nAnswered Questions:\n<<Questions>>\n",
     "Internal": true,
     "Key": 2,
     "Name": "Generate AI Agent Persona",
@@ -96,6 +100,8 @@
       "provide responses that are relevant, coherent, and tailored to the user's needs",
       "include clarifying questions when the user's request is ambiguous or more information is needed"
     ],
+    "ResponseType": "Json",
+    "ResponseSchema": "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"Question\":{\"type\":\"string\"},\"Explanation\":{\"type\":\"string\"}},\"required\":[\"Explanation\",\"Question\"]}}",
     "Validations": [
       "ensuring your response directly addresses the user's query or task",
       "checking that the information provided is accurate to the best of your knowledge",

@@ -5,7 +5,7 @@ public class MessagePart(MessagePartContentType type, object? content = null) {
     public MessagePart(string text)
         : this(Text, text) {
     }
-    public MessagePart(byte[] data)
+    public MessagePart(IEnumerable data)
         : this(MessagePartContentType.File, data) {
     }
     public MessagePart()
@@ -17,14 +17,18 @@ public class MessagePart(MessagePartContentType type, object? content = null) {
     public bool IsPartial { get; set; }
 
     public override string ToString()
-        => Content is null ? string.Empty
-            : Content is string text ? text
-            : Encoding.ASCII.GetString((byte[])Content);
+        => Content switch {
+            null => string.Empty,
+            string text => text,
+            _ => Encoding.ASCII.GetString((byte[])Content),
+        };
 
     public byte[] ToBytes()
-        => Content is null ? []
-            : Content is byte[] data ? data
-            : Encoding.UTF8.GetBytes((string)Content);
+        => Content switch {
+            null => [],
+            byte[] data => data,
+            _ => Encoding.UTF8.GetBytes((string)Content),
+        };
 
     public static implicit operator MessagePart(string text) => new(text);
     public static implicit operator MessagePart(byte[] data) => new(data);

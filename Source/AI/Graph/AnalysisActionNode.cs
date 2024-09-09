@@ -11,9 +11,10 @@ public class AnalysisActionNode(string tag, IServiceProvider services)
         using var jobContext = factory.CreateFrom(context)
                                       .WithModel(model)
                                       .Build();
-        var job = new AnalysisJob($"{Id}", jobContext);
-        var result = await job.Execute(input, ct);
-
-        context["AnalysisResult"] = result.Value;
+        var job = new Job($"{Id}", jobContext);
+        jobContext.Input = input;
+        var result = await job.Execute(ct);
+        result.EnsureSuccess();
+        context["AnalysisResult"] = jobContext.Output;
     }
 }

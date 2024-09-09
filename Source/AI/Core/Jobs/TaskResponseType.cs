@@ -5,5 +5,6 @@ public enum TaskResponseType {
     Markdown,
     SimpleText,
     Table,
+    List,
     Json,
 }

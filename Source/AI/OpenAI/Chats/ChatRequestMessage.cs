@@ -11,8 +11,8 @@ public class ChatRequestMessage : IChatRequestMessage {
             case Message c:
                 Role = RoleToString(c.Role);
                 Content = c.Count == 1
-                              ? (string)c[0].Content
-                              : c.ToArray(p => new MessageContent(p.Content));
+                              ? (string?)c[0].Content ?? string.Empty
+                              : c.ToArray(p => new MessageContent(p.Content ?? string.Empty));
                 break;
             case ChatFunctionCallResult c:
                 Role = RoleToString(MessageRole.Tool);

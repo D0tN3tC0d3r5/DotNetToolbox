@@ -8,6 +8,11 @@ public class Map(IEnumerable<KeyValuePair<string, object>>? source = null)
             ? value
             : default;
 
+    public TValue GetValueAs<TValue>(string key)
+        => TryGetValueAs<TValue>(key, out var value)
+               ? value
+               : throw new InvalidCastException("The value does not exist or does not match the requested type.");
+
     public bool TryGetValueAs<TValue>(string key, [MaybeNullWhen(false)] out TValue value) {
         value = default;
         if (!TryGetValue(key, out var obj)) return false;

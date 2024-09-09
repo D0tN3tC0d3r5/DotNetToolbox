@@ -31,7 +31,7 @@ public class ChatRequest(IAgent connection, IModel model, IChat chat)
     public decimal? MaximumTokenSamples { get; set; }
 
     private static string SetContext(IChat chat)
-        => chat.First(m => m.Role == MessageRole.System).Text;
+        => chat.First(m => m.Role == MessageRole.System).ToString();
 
     private static ChatRequestMessage[] SetMessages(IChat chat)
         => chat.Where(m => m.Role != MessageRole.System).ToArray(m => new ChatRequestMessage(m));

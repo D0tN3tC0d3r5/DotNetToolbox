@@ -1,6 +1,11 @@
 namespace DotNetToolbox.AI.Jobs;
 
 internal static partial class JobInputHelper {
+    private static readonly JsonSerializerOptions _jsonOptions = new() {
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = true,
+        Converters = { new JobObjectSerializer() },
+    };
 
     public static string FormatInput(object? input, string? template = null) {
         if (string.IsNullOrWhiteSpace(template)) return input is null ? string.Empty : JsonSerializer.Serialize(input);
@@ -19,12 +24,12 @@ internal static partial class JobInputHelper {
     }
 
     private static string[] ExtractKeys(string template)
-        => MatchInputKey.Matches(template).Select(m => m.Groups[1].Value.ToLowerInvariant()).Distinct().ToArray();
+        => MatchInputKey.Matches(template).Select(m => m.Groups[1].Value).Distinct().ToArray();
 
     private static string FindValue(object input, string key) => input switch {
         IEnumerable<KeyValuePair<string, object>> map when map.Any(x => x.Key == key) => FormatValue(map.First(x => x.Key == key).Value),
         IEnumerable<KeyValuePair<string, object>> => throw new KeyNotFoundException($"Key '{key}' not found in the input."),
-        object obj when obj.GetType().GetProperty(key) is PropertyInfo prop => FormatValue(prop.GetValue(obj)),
+        _ when input.GetType().GetProperty(key) is { } prop => FormatValue(prop.GetValue(input)),
         _ => throw new MissingMemberException($"Property '{key}' not found in the input object."),
     };
 
@@ -32,10 +37,9 @@ internal static partial class JobInputHelper {
         => value switch {
             null => "[[no value found]]",
             IEnumerable<object> enumerable => string.Join("\n", enumerable.Select(static item => $" - {item}")),
-            _ => value.ToString()!
+            _ => JsonSerializer.Serialize(value, _jsonOptions),
         };
 
     [GeneratedRegex(@"<<(\w+)>>", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex MatchInputKey { get; }
 }
-

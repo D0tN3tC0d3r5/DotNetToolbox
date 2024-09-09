@@ -13,6 +13,16 @@ public class JobContext
         Memory = [];
     }
 
+    public object Input {
+        get => this[nameof(Input)]!;
+        set => this[nameof(Input)] = value;
+    }
+
+    public object Output {
+        get => this[nameof(Output)]!;
+        set => this[nameof(Output)] = value;
+    }
+
     public required Model Model {
         get => (Model)this[nameof(Model)]!;
         init => this[nameof(Model)] = value;

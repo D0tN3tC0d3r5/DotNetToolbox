@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.ConsoleApplication.Questions;
-
-using Task = System.Threading.Tasks.Task;
+﻿using Task = System.Threading.Tasks.Task;
 
 namespace AI.Sample.Personas.Handlers;
 
@@ -11,7 +9,6 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
     private readonly IPersonaRepository _repository = services.GetRequiredService<IPersonaRepository>();
     private readonly ITaskHandler _taskHandler = services.GetRequiredService<ITaskHandler>();
     private readonly IAgentAccessor _connectionAccessor = services.GetRequiredService<IAgentAccessor>();
-    private readonly ILoggerFactory _loggerFactory = services.GetRequiredService<ILoggerFactory>();
 
     public PersonaEntity[] List() => _repository.GetAll();
 
@@ -59,11 +56,15 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
                 Persona = personaEntity,
                 Task = taskEntity,
             };
-            context["Input"] = persona;
             var job = new Job(context);
+            context.Input = persona;
             var result = await job.Execute(CancellationToken.None);
             if (result.HasException) throw new("Failed to generate next question: " + result.Exception.Message);
-            return context["Output"] as Query[] ?? [];
+            var list = ((List<object>)context.Output).OfType<Dictionary<string, object>>().ToArray(i => new Map(i));
+            return list.Select(i => new Query {
+                Question = i.GetValueAs<string>(nameof(Query.Question)),
+                Explanation = i.GetValueAs<string>(nameof(Query.Explanation)),
+            }).ToArray();
         }
         catch (Exception ex) {
             logger.LogError(ex, "Error generating next question for persona {PersonaName}", persona.Name);
@@ -77,18 +78,24 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
             var userProfileEntity = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
             var personaEntity = GetByName("Agent Creator") ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
-            var taskEntity = _taskHandler.GetByName("Ask Questions about the AI Agent") ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
+            var taskEntity = _taskHandler.GetByName("Generate AI Agent Persona") ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
             var context = new JobContext {
                 Model = appModel,
                 Agent = httpConnection,
                 UserProfile = userProfileEntity,
                 Persona = personaEntity,
                 Task = taskEntity,
+                Input = persona,
             };
-            context["Input"] = persona;
             var job = new Job(context);
             var result = await job.Execute(CancellationToken.None);
             if (result.HasException) throw new("Failed to generate next question: " + result.Exception.Message);
+            var updatedPersona = context.Output as PersonaEntity ?? persona;
+            persona.Expertise = updatedPersona.Expertise;
+            persona.Traits.AddRange(updatedPersona.Traits);
+            persona.Important.AddRange(updatedPersona.Important);
+            persona.Negative.AddRange(updatedPersona.Negative);
+            persona.Other.AddRange(updatedPersona.Other);
         }
         catch (Exception ex) {
             logger.LogError(ex, "Error generating next question for persona {PersonaName}", persona.Name);

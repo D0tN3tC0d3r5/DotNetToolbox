@@ -22,6 +22,11 @@ public record Result : ResultBase<ResultType> {
     public bool IsInvalid => !HasException && HasErrors;
     public bool IsSuccess => !HasException && !HasErrors;
 
+    public void EnsureSuccess() {
+        if (HasException) throw Exception;
+        if (HasErrors) throw new ValidationException(Errors);
+    }
+
     public static Result Success() => new();
     public static Result Invalid(string message) => Invalid(message, string.Empty);
     public static Result Invalid(string message, string source) => Invalid(new ValidationError(message, source));

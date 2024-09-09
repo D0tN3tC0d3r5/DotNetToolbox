@@ -196,13 +196,15 @@ public class Task
                 sb.AppendLine("You **MUST VERIFY AND VALIDATE** the task by:");
                 foreach (var item in Validations) sb.AppendLine($"- {item}");
             }
-            if (Examples.Count != 0) {
+
+            if (Examples.Count == 0)
+                return sb.ToString().TrimEnd();
+
+            sb.AppendLine();
+            sb.AppendLine("## Examples");
+            for (var i = 0; i < Examples.Count; i++) {
+                sb.AppendLine($"{i + 1}. {Examples[i]}");
                 sb.AppendLine();
-                sb.AppendLine("## Examples");
-                for (var i = 0; i < Examples.Count; i++) {
-                    sb.AppendLine($"{i + 1}. {Examples[i]}");
-                    sb.AppendLine();
-                }
             }
             return sb.ToString().TrimEnd();
         }
@@ -219,7 +221,7 @@ public class Task
                 The columns' name **MUST BE** the same as the ones in the list provided above.
                 Your response **MUST NOT** have any text before or after the table, only the table data.
                 """,
-            TaskResponseType.Json => $"""
+            TaskResponseType.Json or TaskResponseType.List => $"""
                 Your response **MUST BE** in **JSON** format.
                 The JSON **MUST** match the following schema:
                 {ResponseSchema}

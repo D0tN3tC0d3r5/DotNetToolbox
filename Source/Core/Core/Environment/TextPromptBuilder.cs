@@ -99,10 +99,9 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
     public TValue Show() {
         _prompt = $"[teal]{_prompt}[/]";
         if (!_isRequired) _prompt = $"[green][[Optional]][/] {_prompt}";
-        if (_addLineBreak) _prompt += output.NewLine;
+        if (_addLineBreak) _prompt += $"{output.NewLine}{output.Prompt}";
         var prompt = new TextPrompt<TValue>(_prompt);
-        prompt.AllowEmpty()
-              .ChoicesStyle(new(foreground: Color.Blue));
+        prompt.AllowEmpty().ChoicesStyle(new(foreground: Color.Blue));
         if (_maskChar is not null) prompt = prompt.Secret(_maskChar);
         if (HasDefault) prompt.DefaultValue(_defaultChoice);
         if (_choices.Count > 0) {
