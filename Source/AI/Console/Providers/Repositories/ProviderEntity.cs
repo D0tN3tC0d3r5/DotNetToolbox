@@ -6,7 +6,7 @@ public class ProviderEntity
 
     public string? ApiKey { get; set; }
 
-    public override Result Validate(IContext? context = null) {
+    public override Result Validate(IMap? context = null) {
         var result = base.Validate(context);
         if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("Name is required.", nameof(Name));
         return result;

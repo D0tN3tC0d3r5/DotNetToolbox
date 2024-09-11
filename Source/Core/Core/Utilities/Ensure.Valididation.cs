@@ -3,12 +3,12 @@ namespace System;
 
 public static partial class Ensure {
     [return: NotNull]
-    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, IContext? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, IMap? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatable
         => IsValid(IsNotNull(argument, paramName), arg => arg.Validate(context), paramName);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, IContext? context = null, TArgument? defaultValue = default)
+    public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, IMap? context = null, TArgument? defaultValue = default)
         where TArgument : IValidatable {
         var result = argument?.Validate(context) ?? Result.Success();
         return result.IsSuccess && argument is not null

@@ -1,7 +1,7 @@
 namespace DotNetToolbox.Graph;
 
 public sealed class RunnerTests : IDisposable {
-    private readonly Context _context = [];
+    private readonly Map _context = [];
 
     public void Dispose()
         => _context.Dispose();
@@ -36,7 +36,7 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithValidNode_ExecutesWithoutError() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>())
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>())
                     .Returns(Task.Run(() => {
                         Thread.Sleep(100);
                         return default(INode?);
@@ -58,7 +58,7 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithNullContext_ReturnsNonNullContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -75,9 +75,9 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithEmptyContext_ReturnsSameContext() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        var context = new Context();
+        var context = new Map();
         var workflow = new Workflow(startingNode, context);
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
         var runner = new Runner(1, workflow);
 
         // Act
@@ -91,7 +91,7 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithRunningRunner_ThrowsInvalidOperationException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -111,10 +111,10 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public async Task Run_WithSingleNode_ReturnsSameContext() {
         // Arrange
-        var context = new Context();
+        var context = new Map();
 
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
 
         var workflow = new Workflow(startingNode, context);
 
@@ -132,14 +132,14 @@ public sealed class RunnerTests : IDisposable {
         // Arrange
         var loggerFactory = new TrackedLoggerFactory();
 
-        var context = new Context();
+        var context = new Map();
 
         var startingNode = Substitute.For<INode>();
         startingNode.Id.Returns(1u);
         var nextNode = Substitute.For<INode>();
         nextNode.Id.Returns(2u);
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(nextNode);
-        nextNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).Returns(nextNode);
+        nextNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).Returns(default(INode?));
 
         var workflow = new Workflow(startingNode, context);
 
@@ -159,7 +159,7 @@ public sealed class RunnerTests : IDisposable {
     public async Task Run_WithExceptionInNode_ThrowsException() {
         // Arrange
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -178,7 +178,7 @@ public sealed class RunnerTests : IDisposable {
         var loggerFactory = new TrackedLoggerFactory();
 
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -199,7 +199,7 @@ public sealed class RunnerTests : IDisposable {
         // Arrange
         var exception = new Exception();
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(exception);
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).ThrowsAsync(exception);
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -220,7 +220,7 @@ public sealed class RunnerTests : IDisposable {
 
         var startingNode = Substitute.For<INode>();
         var workflow = new Workflow(startingNode, _context);
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).ThrowsAsync(new Exception());
 
         var runner = new Runner(1, workflow, loggerFactory: loggerFactory);
 
@@ -239,7 +239,7 @@ public sealed class RunnerTests : IDisposable {
         var eventRaised = false;
 
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>(), Arg.Any<CancellationToken>()).Returns((INode?)null);
+        startingNode.Run(Arg.Any<Map>(), Arg.Any<CancellationToken>()).Returns((INode?)null);
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -262,8 +262,8 @@ public sealed class RunnerTests : IDisposable {
 
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
-        secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        startingNode.Run(Arg.Any<Map>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Map>()).Returns((INode?)null);
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -281,18 +281,18 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnNodeExecutingEvent_CanCancelExecution() {
-        var context = new Context();
+        var context = new Map();
 
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
-        secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        startingNode.Run(Arg.Any<Map>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Map>()).Returns((INode?)null);
 
         var workflow = new Workflow(startingNode, context);
 
         var runner = new Runner(1, workflow) {
             OnExecutingNode = (wf, node, _) => {
-                wf.Context.Should().BeSameAs(context);
+                wf.Map.Should().BeSameAs(context);
                 return Task.FromResult(node != secondNode);
             },
         };
@@ -300,8 +300,8 @@ public sealed class RunnerTests : IDisposable {
         await runner.Run();
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        startingNode.Received(1).Run(Arg.Any<Context>(), Arg.Any<CancellationToken>());
-        secondNode.DidNotReceive().Run(Arg.Any<Context>(), Arg.Any<CancellationToken>());
+        startingNode.Received(1).Run(Arg.Any<Map>(), Arg.Any<CancellationToken>());
+        secondNode.DidNotReceive().Run(Arg.Any<Map>(), Arg.Any<CancellationToken>());
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
     }
 
@@ -311,8 +311,8 @@ public sealed class RunnerTests : IDisposable {
 
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
-        secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        startingNode.Run(Arg.Any<Map>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Map>()).Returns((INode?)null);
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -330,19 +330,19 @@ public sealed class RunnerTests : IDisposable {
 
     [Fact]
     public async Task Run_OnNodeExecutedEvent_CanCancelExecution() {
-        var context = new Context();
+        var context = new Map();
 
         var startingNode = Substitute.For<INode>();
         var secondNode = Substitute.For<INode>();
         var thirdNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
-        secondNode.Run(Arg.Any<Context>()).Returns(thirdNode);
+        startingNode.Run(Arg.Any<Map>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Map>()).Returns(thirdNode);
 
         var workflow = new Workflow(startingNode, context);
 
         var runner = new Runner(1, workflow) {
             OnNodeExecuted = (wf, node, _, _) => {
-                wf.Context.Should().BeSameAs(context);
+                wf.Map.Should().BeSameAs(context);
                 return Task.FromResult(node != secondNode);
             },
         };
@@ -350,9 +350,9 @@ public sealed class RunnerTests : IDisposable {
         await runner.Run();
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        startingNode.Received(1).Run(Arg.Any<Context>(), Arg.Any<CancellationToken>());
-        secondNode.Received(1).Run(Arg.Any<Context>(), Arg.Any<CancellationToken>());
-        thirdNode.DidNotReceive().Run(Arg.Any<Context>(), Arg.Any<CancellationToken>());
+        startingNode.Received(1).Run(Arg.Any<Map>(), Arg.Any<CancellationToken>());
+        secondNode.Received(1).Run(Arg.Any<Map>(), Arg.Any<CancellationToken>());
+        thirdNode.DidNotReceive().Run(Arg.Any<Map>(), Arg.Any<CancellationToken>());
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
     }
 
@@ -361,7 +361,7 @@ public sealed class RunnerTests : IDisposable {
         var eventRaised = false;
 
         var startingNode = Substitute.For<INode>();
-        startingNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        startingNode.Run(Arg.Any<Map>()).Returns((INode?)null);
 
         var workflow = new Workflow(startingNode, _context);
 
@@ -386,8 +386,8 @@ public sealed class RunnerTests : IDisposable {
         startingNode.Id.Returns(1u);
         var secondNode = Substitute.For<INode>();
         secondNode.Id.Returns(2u);
-        startingNode.Run(Arg.Any<Context>()).Returns(secondNode);
-        secondNode.Run(Arg.Any<Context>()).Returns((INode?)null);
+        startingNode.Run(Arg.Any<Map>()).Returns(secondNode);
+        secondNode.Run(Arg.Any<Map>()).Returns((INode?)null);
 
         var workflow = new Workflow(startingNode, _context);
 

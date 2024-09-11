@@ -4,46 +4,46 @@ public interface INodeFactory {
     TNode Create<TNode>(string? tag = null, params object[] args)
         where TNode : Node<TNode>;
 
-    IActionNode CreateAction(Func<Context, CancellationToken, Task> action);
-    IActionNode CreateAction(string tag, Func<Context, CancellationToken, Task> action);
-    IActionNode CreateAction(Action<Context> action);
-    IActionNode CreateAction(string tag, Action<Context> action);
+    IActionNode CreateAction(Func<Map, CancellationToken, Task> action);
+    IActionNode CreateAction(string tag, Func<Map, CancellationToken, Task> action);
+    IActionNode CreateAction(Action<Map> action);
+    IActionNode CreateAction(string tag, Action<Map> action);
 
-    IIfNode CreateIf(Func<Context, CancellationToken, Task<bool>> predicate);
-    IIfNode CreateIf(string tag, Func<Context, CancellationToken, Task<bool>> predicate);
+    IIfNode CreateIf(Func<Map, CancellationToken, Task<bool>> predicate);
+    IIfNode CreateIf(string tag, Func<Map, CancellationToken, Task<bool>> predicate);
     IIfNode CreateIf(string tag,
-                     Func<Context, CancellationToken, Task<bool>> predicate,
+                     Func<Map, CancellationToken, Task<bool>> predicate,
                      INode truePath,
                      INode? falsePath = null);
-    IIfNode CreateIf(Func<Context, CancellationToken, Task<bool>> predicate,
+    IIfNode CreateIf(Func<Map, CancellationToken, Task<bool>> predicate,
                    INode truePath,
                    INode? falsePath = null);
-    IIfNode CreateIf(Func<Context, bool> predicate);
-    IIfNode CreateIf(string tag, Func<Context, bool> predicate);
+    IIfNode CreateIf(Func<Map, bool> predicate);
+    IIfNode CreateIf(string tag, Func<Map, bool> predicate);
     IIfNode CreateIf(string tag,
-                     Func<Context, bool> predicate,
+                     Func<Map, bool> predicate,
                      INode truePath,
                      INode? falsePath = null);
-    IIfNode CreateIf(Func<Context, bool> predicate,
+    IIfNode CreateIf(Func<Map, bool> predicate,
                    INode truePath,
                    INode? falsePath = null);
 
-    ICaseNode CreateCase(Func<Context, CancellationToken, Task<string>> selectPath);
-    ICaseNode CreateCase(string tag, Func<Context, CancellationToken, Task<string>> selectPath);
+    ICaseNode CreateCase(Func<Map, CancellationToken, Task<string>> selectPath);
+    ICaseNode CreateCase(string tag, Func<Map, CancellationToken, Task<string>> selectPath);
     ICaseNode CreateCase(string tag,
-                         Func<Context, CancellationToken, Task<string>> selectPath,
+                         Func<Map, CancellationToken, Task<string>> selectPath,
                          Dictionary<string, INode?> choices,
                          INode? otherwise = null);
-    ICaseNode CreateCase(Func<Context, CancellationToken, Task<string>> selectPath,
+    ICaseNode CreateCase(Func<Map, CancellationToken, Task<string>> selectPath,
                          Dictionary<string, INode?> choices,
                          INode? otherwise = null);
-    ICaseNode CreateCase(Func<Context, string> selectPath);
-    ICaseNode CreateCase(string tag, Func<Context, string> selectPath);
+    ICaseNode CreateCase(Func<Map, string> selectPath);
+    ICaseNode CreateCase(string tag, Func<Map, string> selectPath);
     ICaseNode CreateCase(string tag,
-                         Func<Context, string> selectPath,
+                         Func<Map, string> selectPath,
                          Dictionary<string, INode?> choices,
                          INode? otherwise = null);
-    ICaseNode CreateCase(Func<Context, string> selectPath,
+    ICaseNode CreateCase(Func<Map, string> selectPath,
                          Dictionary<string, INode?> choices,
                          INode? otherwise = null);
 

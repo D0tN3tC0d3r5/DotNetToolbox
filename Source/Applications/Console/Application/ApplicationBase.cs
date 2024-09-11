@@ -55,7 +55,7 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings> : Appli
         try {
             IsRunning = true;
             var taskRun = new CancellationTokenSource();
-            if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen is true)
+            if (Map.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen is true)
                 Output.ClearScreen();
             if (await TryParseArguments(taskRun.Token).ConfigureAwait(false))
                 return IApplication.DefaultErrorCode;
@@ -181,7 +181,7 @@ public abstract class ApplicationBase<TSettings>
     protected IGuidProvider Guid => Environment.OperatingSystem.Guid;
     public IPromptFactory PromptFactory { get; }
 
-    public IContext Context { get; } = new Context();
+    public IMap Map { get; } = new Map();
 
     public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];

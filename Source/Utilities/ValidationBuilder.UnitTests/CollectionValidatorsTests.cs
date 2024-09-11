@@ -6,7 +6,7 @@ public sealed class CollectionValidatorsTests {
         public required ICollection<(string Name, int Age)> Names { get; init; } = Array.Empty<(string Name, int Age)>();
         public ICollection<string> Empty { get; } = Array.Empty<string>();
 
-        public Result Validate(IContext? context = null) {
+        public Result Validate(IMap? context = null) {
             var result = Success();
             result += Numbers.Is()
                 .And().IsNotEmpty()

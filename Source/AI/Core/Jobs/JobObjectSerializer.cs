@@ -13,14 +13,14 @@ internal class JobObjectSerializer
             _ => throw new JsonException($"Unexpected token type: {reader.TokenType}"),
         };
 
-    private Dictionary<string, object> ReadObject(ref Utf8JsonReader reader, JsonSerializerOptions options) {
-        var dictionary = new Dictionary<string, object>();
+    private Map ReadObject(ref Utf8JsonReader reader, JsonSerializerOptions options) {
+        var map = new Map();
         while (reader.Read()) {
-            if (reader.TokenType == JsonTokenType.EndObject) return dictionary;
+            if (reader.TokenType == JsonTokenType.EndObject) return map;
             if (reader.TokenType != JsonTokenType.PropertyName) throw new JsonException();
-            var propertyName = reader.GetString();
+            var propertyName = reader.GetString()!;
             reader.Read();
-            dictionary[propertyName!] = ExtractValue(ref reader, options);
+            map[propertyName] = ExtractValue(ref reader, options);
         }
         throw new JsonException();
     }

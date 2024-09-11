@@ -13,6 +13,7 @@ public interface IJobContextBuilder {
     IJobContextBuilder WithFact(string key, string value);
     IJobContextBuilder WithTool(Tool tool);
     IJobContextBuilder WithUser(UserProfile profile);
+    IJobContextBuilder WithInput(object input);
 
     JobContext Build();
 }

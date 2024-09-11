@@ -38,7 +38,7 @@ public partial class NodeTests {
             var policy = new TestRetryPolicy(failedTries: 2);
             var actionExecuted = false;
             var node = CreateFactory(policy).CreateAction(_ => actionExecuted = true);
-            var context = new Context();
+            var context = new Map();
 
             await node.Run(context);
 
@@ -51,7 +51,7 @@ public partial class NodeTests {
             var policy = new TestRetryPolicy(failedTries: RetryPolicy.DefaultMaximumRetries + 1);
             var actionExecuted = false;
             var node = CreateFactory(policy).CreateAction(_ => actionExecuted = true);
-            var context = new Context();
+            var context = new Map();
 
             var action = () => node.Run(context);
 
@@ -65,7 +65,7 @@ public partial class NodeTests {
             var policy = new TestRetryPolicy(maxRetries: 10, failedTries: 11);
             var actionExecuted = false;
             var node = CreateFactory(policy).CreateAction(_ => actionExecuted = true);
-            var context = new Context();
+            var context = new Map();
 
             var action = () => node.Run(context);
 
@@ -78,7 +78,7 @@ public partial class NodeTests {
         public async Task Run_RetryOnException_ExecutesPolicyAndAction() {
             var policy = new TestRetryPolicy(failedTries: RetryPolicy.DefaultMaximumRetries + 1);
             var node = CreateFactory(policy).CreateAction(_ => throw new());
-            var context = new Context();
+            var context = new Map();
 
             var action = () => node.Run(context);
 
@@ -92,7 +92,7 @@ public partial class NodeTests {
             var node = CreateFactory(policy).CreateAction(_ => {
                 if (policy.TryCount < 10) throw new();
             });
-            var context = new Context();
+            var context = new Map();
 
             var action = () => node.Run(context);
 
@@ -102,7 +102,7 @@ public partial class NodeTests {
 
         [Fact]
         public async Task Run_RunMethod_UpdatesContextAndReturnsNextNode() {
-            var context = new Context();
+            var context = new Map();
             var node = CreateFactory().CreateAction("2", ctx => ctx["key"] = "value");
             node.Next = CreateFactory().CreateAction(_ => { }); ;
 
@@ -114,7 +114,7 @@ public partial class NodeTests {
 
         private sealed class TestRetryPolicy(byte maxRetries = RetryPolicy.DefaultMaximumRetries, uint failedTries = 0)
             : RetryPolicy(maxRetries) {
-            protected override async Task<bool> TryExecute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct) {
+            protected override async Task<bool> TryExecute(Func<Map, CancellationToken, Task> action, Map ctx, CancellationToken ct) {
                 TryCount++;
                 await action(ctx, ct);
                 return TryCount > failedTries;

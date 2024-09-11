@@ -21,27 +21,27 @@ public class Repository<TStrategy, TItem, TKey>
                ? throw new NotImplementedException("The method implementation is required when the strategy is not defined.")
                : Strategy.FindByKey(key);
 
-    public Result Update(TItem updatedItem, IContext? validationContext = null)
+    public Result Update(TItem updatedItem, IMap? validationContext = null)
         => Strategy?.Update(updatedItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Result UpdateMany(IEnumerable<TItem> updatedItems, IContext? validationContext = null)
+    public Result UpdateMany(IEnumerable<TItem> updatedItems, IMap? validationContext = null)
         => Strategy?.UpdateMany(updatedItems, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Result AddOrUpdate(TItem updatedItem, IContext? validationContext = null)
+    public Result AddOrUpdate(TItem updatedItem, IMap? validationContext = null)
         => Strategy?.AddOrUpdate(updatedItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Result AddOrUpdateMany(IEnumerable<TItem> updatedItems, IContext? validationContext = null)
+    public Result AddOrUpdateMany(IEnumerable<TItem> updatedItems, IMap? validationContext = null)
         => Strategy?.AddOrUpdateMany(updatedItems, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Result Patch(TKey key, Action<TItem> setItem, IContext? validationContext = null)
+    public Result Patch(TKey key, Action<TItem> setItem, IMap? validationContext = null)
         => Strategy?.Patch(key, setItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Result PatchMany(IEnumerable<TKey> keys, Action<TItem> setItem, IContext? validationContext = null)
+    public Result PatchMany(IEnumerable<TKey> keys, Action<TItem> setItem, IMap? validationContext = null)
         => Strategy?.PatchMany(keys, setItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
@@ -61,30 +61,30 @@ public class Repository<TStrategy, TItem, TKey>
         => Strategy?.FindByKeyAsync(key, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Task<Result> UpdateAsync(TItem updatedItem, IContext? validationContext = null, CancellationToken ct = default)
+    public Task<Result> UpdateAsync(TItem updatedItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.UpdateAsync(updatedItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Task<Result> UpdateManyAsync(IEnumerable<TItem> updatedItems, IContext? validationContext = null, CancellationToken ct = default)
+    public Task<Result> UpdateManyAsync(IEnumerable<TItem> updatedItems, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.UpdateManyAsync(updatedItems, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Task<Result> AddOrUpdateAsync(TItem updatedItem, IContext? validationContext = null, CancellationToken ct = default)
+    public Task<Result> AddOrUpdateAsync(TItem updatedItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.AddOrUpdateAsync(updatedItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Task<Result> AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, IContext? validationContext = null, CancellationToken ct = default)
+    public Task<Result> AddOrUpdateManyAsync(IEnumerable<TItem> updatedItems, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.AddOrUpdateManyAsync(updatedItems, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Task<Result> PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default)
+    public Task<Result> PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.PatchAsync(key, setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public Task<Result> PatchManyAsync(IEnumerable<TKey> keys, Action<TItem> setItem, IContext? validationContext = null, CancellationToken ct = default)
+    public Task<Result> PatchManyAsync(IEnumerable<TKey> keys, Action<TItem> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.PatchManyAsync(keys, setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public Task<Result> PatchManyAsync(IEnumerable<TKey> keys, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default)
+    public Task<Result> PatchManyAsync(IEnumerable<TKey> keys, Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.PatchManyAsync(keys, setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
@@ -132,7 +132,7 @@ public class Repository<TStrategy, TItem>
     public virtual Result Load()
         => Strategy?.Load()
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Result Seed(IEnumerable<TItem> seed, bool preserveContent = false, IContext? validationContext = null)
+    public virtual Result Seed(IEnumerable<TItem> seed, bool preserveContent = false, IMap? validationContext = null)
         => Strategy?.Seed(seed, preserveContent, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
@@ -152,35 +152,35 @@ public class Repository<TStrategy, TItem>
         => Strategy is not null ? Strategy.Find(predicate)
         : throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Result<TItem> Create(Action<TItem>? setItem = null, IContext? validationContext = null)
+    public virtual Result<TItem> Create(Action<TItem>? setItem = null, IMap? validationContext = null)
         => Strategy?.Create(setItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Result Add(TItem newItem, IContext? validationContext = null)
+    public virtual Result Add(TItem newItem, IMap? validationContext = null)
         => Strategy?.Add(newItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Result AddMany(IEnumerable<TItem> newItems, IContext? validationContext = null)
+    public virtual Result AddMany(IEnumerable<TItem> newItems, IMap? validationContext = null)
         => Strategy?.AddMany(newItems, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Result Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IContext? validationContext = null)
+    public virtual Result Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IMap? validationContext = null)
         => Strategy?.Update(predicate, updatedItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Result UpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, IContext? validationContext = null)
+    public virtual Result UpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, IMap? validationContext = null)
         => Strategy?.UpdateMany(predicate, updatedItems, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Result AddOrUpdate(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IContext? validationContext = null)
+    public virtual Result AddOrUpdate(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IMap? validationContext = null)
         => Strategy?.AddOrUpdate(predicate, updatedItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Result AddOrUpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> items, IContext? validationContext = null)
+    public virtual Result AddOrUpdateMany(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> items, IMap? validationContext = null)
         => Strategy?.AddOrUpdateMany(predicate, items, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Result Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IContext? validationContext = null)
+    public virtual Result Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IMap? validationContext = null)
         => Strategy?.Patch(predicate, setItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Result PatchMany(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IContext? validationContext = null)
+    public virtual Result PatchMany(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IMap? validationContext = null)
         => Strategy?.PatchMany(predicate, setItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
@@ -199,7 +199,7 @@ public class Repository<TStrategy, TItem>
 
     #region Async
 
-    public virtual Task<Result> SeedAsync(IEnumerable<TItem> seed, bool preserveContent = false, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> SeedAsync(IEnumerable<TItem> seed, bool preserveContent = false, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.SeedAsync(seed, preserveContent, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
@@ -222,37 +222,37 @@ public class Repository<TStrategy, TItem>
         => Strategy?.FindAsync(predicate, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.CreateAsync(setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Task<Result> AddAsync(TItem newItem, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> AddAsync(TItem newItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.AddAsync(newItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Task<Result> AddManyAsync(IEnumerable<TItem> newItems, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> AddManyAsync(IEnumerable<TItem> newItems, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.AddManyAsync(newItems, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Task<Result> UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.UpdateAsync(predicate, updatedItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Task<Result> AddOrUpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> AddOrUpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.AddOrUpdateAsync(predicate, updatedItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Task<Result> AddOrUpdateManyAsync(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> AddOrUpdateManyAsync(Expression<Func<TItem, bool>> predicate, IEnumerable<TItem> updatedItems, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.AddOrUpdateManyAsync(predicate, updatedItems, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Task<Result> PatchAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> PatchAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.PatchAsync(predicate, setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Task<Result> PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.PatchAsync(predicate, setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Task<Result> PatchManyAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> PatchManyAsync(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.PatchManyAsync(predicate, setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Task<Result> PatchManyAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, IContext? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result> PatchManyAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.PatchManyAsync(predicate, setItem, validationContext, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 

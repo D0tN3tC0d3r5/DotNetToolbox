@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.AI.Jobs;
 
 public class JobContext
-    : Context, IJobContext {
+    : Map, IJobContext {
     public JobContext(IEnumerable<KeyValuePair<string, object>>? source = null)
         : base(source) {
         World = [];
@@ -43,13 +43,13 @@ public class JobContext
         init => this[nameof(World)] = value;
     }
 
-    public Context<Asset> Assets {
-        get => (Context<Asset>)this[nameof(Assets)];
+    public Map<Asset> Assets {
+        get => (Map<Asset>)this[nameof(Assets)];
         init => this[nameof(Assets)] = value;
     }
 
-    public Context<Tool> Tools {
-        get => (Context<Tool>)this[nameof(Tools)];
+    public Map<Tool> Tools {
+        get => (Map<Tool>)this[nameof(Tools)];
         init => this[nameof(Tools)] = value;
     }
 
@@ -58,8 +58,8 @@ public class JobContext
         init => this[nameof(Persona)] = value;
     }
 
-    public Context<string> Memory {
-        get => (Context<string>)this[nameof(Memory)];
+    public Map<string> Memory {
+        get => (Map<string>)this[nameof(Memory)];
         init => this[nameof(Memory)] = value;
     }
 
@@ -67,4 +67,8 @@ public class JobContext
         get => (Task)this[nameof(Task)];
         init => this[nameof(Task)] = value;
     }
+
+    public IMap OutputAsMap => Output as IMap ?? throw new InvalidCastException("Output is not a Map.");
+    public IReadOnlyList<object> OutputAsList => Output as IReadOnlyList<object> ?? throw new InvalidCastException("Output is not a List.");
+    public IReadOnlyList<IReadOnlyList<object>> OutputAsTable => Output as IReadOnlyList<IReadOnlyList<object>> ?? throw new InvalidCastException("Output is not a Table.");
 }

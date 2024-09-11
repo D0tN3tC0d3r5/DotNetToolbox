@@ -11,7 +11,7 @@ public partial class InMemoryRepositoryTests {
         public int Key { get; set; }
         public string Name { get; set; } = string.Empty;
 
-        public Result Validate(IContext? context = null) => Result.Success();
+        public Result Validate(IMap? context = null) => Result.Success();
     };
 
     private static readonly InMemoryRepository<TestEntity, int> _readOnlyRepo = [.. Enumerable.Range(0, 90).Select(x => new TestEntity($"{x}"))];

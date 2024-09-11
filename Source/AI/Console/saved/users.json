@@ -1,0 +1,12 @@
+[
+  {
+    "Internal": true,
+    "Name": "User",
+    "Key": 0
+  },
+  {
+    "Internal": false,
+    "Name": "Argus",
+    "Key": 1
+  }
+]

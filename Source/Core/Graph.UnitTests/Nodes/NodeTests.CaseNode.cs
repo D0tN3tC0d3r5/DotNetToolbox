@@ -55,7 +55,7 @@ public partial class NodeTests {
                                                  ["key3"] = CreateFactory().CreateAction("k3", ctx => ctx["branch"] = "3"),
                                              });
 
-            using var context = new Context();
+            using var context = new Map();
             await node.Run(context);
 
             context["branch"].Should().Be("2");
@@ -70,7 +70,7 @@ public partial class NodeTests {
                                                  ["key2"] = CreateFactory().CreateAction("k2", ctx => ctx["branch"] = "2"),
                                              });
             var action = async () => {
-                using var context = new Context();
+                using var context = new Map();
                 return await node.Run(context);
             };
 
@@ -87,7 +87,7 @@ public partial class NodeTests {
                                                  ["key2"] = CreateFactory().CreateAction("k2", ctx => ctx["branch"] = "2"),
                                              },
                                              CreateFactory().CreateAction("o", ctx => ctx["branch"] = "9"));
-            using var context = new Context();
+            using var context = new Map();
             await node.Run(context);
 
             context["branch"].Should().Be("9");

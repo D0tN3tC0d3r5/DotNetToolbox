@@ -13,7 +13,7 @@ public class ArgumentsParserTests {
     public ArgumentsParserTests() {
         _serviceProvider.GetService(typeof(ILoggerFactory)).Returns(_loggerFactory);
         _app.Services.Returns(_serviceProvider);
-        _app.Context.Returns(new Context());
+        _app.Map.Returns(new Map());
         _option = new Option(_app, "Option", "o");
         _flag = new Flag(_app, "Flag", ["f"]);
         _requiredParameter = new Parameter(_app, "Name");
@@ -83,7 +83,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
+        _app.Map["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
+        _app.Map["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
+        _app.Map["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
+        _app.Map["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().Be("John Doe");
+        _app.Map["Option"].Should().Be("John Doe");
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().BeNull();
+        _app.Map["Option"].Should().BeNull();
     }
 
     [Fact]
@@ -184,7 +184,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Option"].Should().BeNull();
+        _app.Map["Option"].Should().BeNull();
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Age"].Should().BeOfType<string>().Subject.Should().Be("42");
+        _app.Map["Age"].Should().BeOfType<string>().Subject.Should().Be("42");
     }
 
     [Fact]
@@ -214,8 +214,8 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Name"].Should().Be("John Doe");
-        _app.Context["Age"].Should().Be("18");
+        _app.Map["Name"].Should().Be("John Doe");
+        _app.Map["Age"].Should().Be("18");
     }
 
     [Fact]
@@ -246,7 +246,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Age"].Should().BeOfType<string>().Subject.Should().Be("18");
+        _app.Map["Age"].Should().BeOfType<string>().Subject.Should().Be("18");
     }
 
     [Fact]
@@ -261,7 +261,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Age"].Should().BeOfType<string>().Subject.Should().Be("18");
+        _app.Map["Age"].Should().BeOfType<string>().Subject.Should().Be("18");
     }
 
     [Fact]
@@ -276,7 +276,7 @@ public class ArgumentsParserTests {
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Age"].Should().BeNull();
+        _app.Map["Age"].Should().BeNull();
     }
 
     [Fact]
@@ -307,17 +307,17 @@ public class ArgumentsParserTests {
         _app.Children.Returns([_flag, _option, _requiredParameter, _parameter]);
         _app.Options.Returns([_flag, _option]);
         _app.Parameters.Returns([_requiredParameter, _parameter]);
-        _app.Context.Returns(new Context());
+        _app.Map.Returns(new Map());
 
         // Act
         var result = await ArgumentsParser.Parse(_app, arguments, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _app.Context["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
-        _app.Context["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
-        _app.Context["Name"].Should().BeOfType<string>().Subject.Should().Be("John Doe");
-        _app.Context["Age"].Should().BeOfType<string>().Subject.Should().Be("20");
+        _app.Map["Flag"].Should().BeOfType<string>().Subject.Should().Be("True");
+        _app.Map["Option"].Should().BeOfType<string>().Subject.Should().Be("42");
+        _app.Map["Name"].Should().BeOfType<string>().Subject.Should().Be("John Doe");
+        _app.Map["Age"].Should().BeOfType<string>().Subject.Should().Be("20");
     }
 
     [Fact]

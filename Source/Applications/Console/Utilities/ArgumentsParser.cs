@@ -11,19 +11,19 @@ public static class ArgumentsParser {
 
     private static void ResetContext(IHasChildren node) {
         if (node is IApplication) return;
-        node.Context.Clear();
+        node.Map.Clear();
         foreach (var flag in node.Options.Where(o => o is IFlag))
-            node.Context[flag.Name] = bool.FalseString;
+            node.Map[flag.Name] = bool.FalseString;
         foreach (var optional in node.Parameters.Where(p => !p.IsRequired))
-            node.Context[optional.Name] = optional.DefaultValue!;
+            node.Map[optional.Name] = optional.DefaultValue!;
     }
 
     private static async Task<(Result result, int index)> TrySetupChild(IHasChildren node, IReadOnlyList<string> arguments, int index, CancellationToken ct) {
         var child = FindChild(node, arguments[index]);
         return child switch {
-            IFlag f => (await f.Read(node.Context, ct), index),
+            IFlag f => (await f.Read(node.Map, ct), index),
             IOption when index >= arguments.Count - 1 => (Invalid($"Missing value for option '{arguments[index]}'."), index + 1),
-            IOption o => (await o.Read(arguments[++index], node.Context, ct), index),
+            IOption o => (await o.Read(arguments[++index], node.Map, ct), index),
             ICommand c => (await c.Execute(arguments.Skip(++index).ToArray(), ct), index),
             _ => (await ReadParameters(node, arguments.Skip(index).ToArray(), ct), arguments.Count - 1),
         };
@@ -47,7 +47,7 @@ public static class ArgumentsParser {
             if (index >= arguments.Count) break;
             result += arguments[index].StartsWith('-')
                 ? Invalid($"Unknown argument '{arguments[index]}'. For a list of available arguments use '--help'.")
-                : await parameter.Read(arguments[index], node.Context, ct);
+                : await parameter.Read(arguments[index], node.Map, ct);
             index++;
         }
 

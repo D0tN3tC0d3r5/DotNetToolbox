@@ -15,7 +15,7 @@ public record HttpClientOptions
     public HttpClientAuthentication? Authentication { get; set; }
     public Dictionary<string, string[]>? CustomHeaders { get; init; }
 
-    public virtual Result Validate(IContext? context = null) {
+    public virtual Result Validate(IMap? context = null) {
         var result = new Result();
         var provider = (string?)context?["Provider"] ?? string.Empty;
         var providerPath = string.IsNullOrWhiteSpace(provider) ? string.Empty : $":{provider}";

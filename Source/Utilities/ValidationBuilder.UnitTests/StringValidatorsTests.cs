@@ -5,7 +5,7 @@ public sealed class StringValidatorsTests {
         private readonly IValidatable _fakePolicy = Substitute.For<IValidatable>();
 
         public TestObject() {
-            _fakePolicy.Validate(Arg.Any<IContext>()).Returns(x => {
+            _fakePolicy.Validate(Arg.Any<IMap>()).Returns(x => {
                 var result = Success();
                 if (x[0] is not "Invalid") return result;
 
@@ -20,7 +20,7 @@ public sealed class StringValidatorsTests {
         public string? Password { get; init; }
         public string Empty { get; } = string.Empty;
 
-        public Result Validate(IContext? context = null) {
+        public Result Validate(IMap? context = null) {
             var result = Success();
             result += Name.IsRequired()
                           .And().IsNotEmptyOrWhiteSpace()

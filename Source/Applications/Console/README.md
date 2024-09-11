@@ -217,7 +217,7 @@ public class BigMouth
     }
 
     protected override Task<Result> Execute(CancellationToken ct) {
-        var name = Context["MyName"];
+        var name = Map["MyName"];
         Environment.Output.WriteLine($"Hello {name}.");
         return base.Execute(ct);
     }
@@ -231,11 +231,11 @@ public class SayCommand : Command<SayCommand> {
     }
 
     public override Task<Result> Execute(CancellationToken ct = default) {
-        var name = Application.Context["MyName"];
-        Context.TryGetValue("My", out var type);
+        var name = Application.Map["MyName"];
+        Map.TryGetValue("My", out var type);
         type = type?.Equals("secret", StringComparison.CurrentCultureIgnoreCase) ?? false ? "Secret" : "Public";
-        Context.TryGetValue("Info", out var info);
-        Application.Context.TryGetValue($"{type}{info}", out var secret);
+        Map.TryGetValue("Info", out var info);
+        Application.Map.TryGetValue($"{type}{info}", out var secret);
         Environment.Output.WriteLine(secret != null
                                          ? $"Ok {name}. Your {type} {info} is {secret}."
                                          : "I don't know.");

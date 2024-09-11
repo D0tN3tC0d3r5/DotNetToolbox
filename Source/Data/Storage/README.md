@@ -58,7 +58,7 @@ The library includes several system utilities to abstract common operations:
 - `RepositoryStrategy<TStrategy, TItem>`: Base class for implementing custom repository strategies.
 - `InMemoryRepositoryStrategy<TItem>`: Strategy for in-memory data storage.
 
-### Data Context
+### Data Map
 - `IDataContext`: Interface for data context operations like ensuring existence, seeding, and saving changes.
 
 ## Extension Methods

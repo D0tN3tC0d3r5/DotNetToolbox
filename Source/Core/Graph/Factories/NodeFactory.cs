@@ -6,24 +6,24 @@ internal sealed class NodeFactory(IServiceProvider services)
         where TNode : Node<TNode>
         => Node.Create<TNode>(services, [tag ?? string.Empty, .. args]);
 
-    public IActionNode CreateAction(string tag, Func<Context, CancellationToken, Task> action)
+    public IActionNode CreateAction(string tag, Func<Map, CancellationToken, Task> action)
         => new ActionNode(action, services) { Tag = tag };
 
-    public IActionNode CreateAction(Func<Context, CancellationToken, Task> action)
+    public IActionNode CreateAction(Func<Map, CancellationToken, Task> action)
         => new ActionNode(action, services);
 
-    public IActionNode CreateAction(string tag, Action<Context> action)
+    public IActionNode CreateAction(string tag, Action<Map> action)
         => new ActionNode(action, services) { Tag = tag };
 
-    public IActionNode CreateAction(Action<Context> action)
+    public IActionNode CreateAction(Action<Map> action)
         => new ActionNode(action, services);
 
-    public IIfNode CreateIf(string tag, Func<Context, CancellationToken, Task<bool>> predicate)
+    public IIfNode CreateIf(string tag, Func<Map, CancellationToken, Task<bool>> predicate)
         => new IfNode(predicate, services) { Tag = tag };
-    public IIfNode CreateIf(Func<Context, CancellationToken, Task<bool>> predicate)
+    public IIfNode CreateIf(Func<Map, CancellationToken, Task<bool>> predicate)
         => new IfNode(predicate, services);
     public IIfNode CreateIf(string tag,
-                            Func<Context, CancellationToken, Task<bool>> predicate,
+                            Func<Map, CancellationToken, Task<bool>> predicate,
                             INode truePath,
                             INode? falsePath = null)
         => new IfNode(predicate, services) {
@@ -31,19 +31,19 @@ internal sealed class NodeFactory(IServiceProvider services)
             Then = truePath,
             Else = falsePath,
         };
-    public IIfNode CreateIf(Func<Context, CancellationToken, Task<bool>> predicate,
+    public IIfNode CreateIf(Func<Map, CancellationToken, Task<bool>> predicate,
                             INode truePath,
                             INode? falsePath = null)
         => new IfNode(predicate, services) {
             Then = truePath,
             Else = falsePath,
         };
-    public IIfNode CreateIf(string tag, Func<Context, bool> predicate)
+    public IIfNode CreateIf(string tag, Func<Map, bool> predicate)
         => new IfNode(predicate, services) { Tag = tag };
-    public IIfNode CreateIf(Func<Context, bool> predicate)
+    public IIfNode CreateIf(Func<Map, bool> predicate)
         => new IfNode(predicate, services);
     public IIfNode CreateIf(string tag,
-                            Func<Context, bool> predicate,
+                            Func<Map, bool> predicate,
                             INode truePath,
                             INode? falsePath = null)
         => new IfNode(predicate, services) {
@@ -51,7 +51,7 @@ internal sealed class NodeFactory(IServiceProvider services)
             Then = truePath,
             Else = falsePath,
         };
-    public IIfNode CreateIf(Func<Context, bool> predicate,
+    public IIfNode CreateIf(Func<Map, bool> predicate,
                             INode truePath,
                             INode? falsePath = null)
         => new IfNode(predicate, services) {
@@ -60,14 +60,14 @@ internal sealed class NodeFactory(IServiceProvider services)
         };
 
     public ICaseNode CreateCase(string tag,
-                                Func<Context, CancellationToken, Task<string>> selectPath)
+                                Func<Map, CancellationToken, Task<string>> selectPath)
         => new CaseNode(selectPath, services) { Tag = tag };
 
-    public ICaseNode CreateCase(Func<Context, CancellationToken, Task<string>> selectPath)
+    public ICaseNode CreateCase(Func<Map, CancellationToken, Task<string>> selectPath)
         => new CaseNode(selectPath, services);
 
     public ICaseNode CreateCase(string tag,
-                                Func<Context, CancellationToken, Task<string>> selectPath,
+                                Func<Map, CancellationToken, Task<string>> selectPath,
                                 Dictionary<string, INode?> choices,
                                 INode? otherwise = null) {
         var node = new CaseNode(selectPath, services) { Tag = tag };
@@ -75,7 +75,7 @@ internal sealed class NodeFactory(IServiceProvider services)
         node.Choices.Add(string.Empty, otherwise);
         return node;
     }
-    public ICaseNode CreateCase(Func<Context, CancellationToken, Task<string>> selectPath,
+    public ICaseNode CreateCase(Func<Map, CancellationToken, Task<string>> selectPath,
                                 Dictionary<string, INode?> choices,
                                 INode? otherwise = null) {
         var node = new CaseNode(selectPath, services);
@@ -84,14 +84,14 @@ internal sealed class NodeFactory(IServiceProvider services)
         return node;
     }
     public ICaseNode CreateCase(string tag,
-                                Func<Context, string> selectPath)
+                                Func<Map, string> selectPath)
         => new CaseNode(selectPath, services) { Tag = tag };
 
-    public ICaseNode CreateCase(Func<Context, string> selectPath)
+    public ICaseNode CreateCase(Func<Map, string> selectPath)
         => new CaseNode(selectPath, services);
 
     public ICaseNode CreateCase(string tag,
-                                Func<Context, string> selectPath,
+                                Func<Map, string> selectPath,
                                 Dictionary<string, INode?> choices,
                                 INode? otherwise = null) {
         var node = new CaseNode(selectPath, services) { Tag = tag };
@@ -99,7 +99,7 @@ internal sealed class NodeFactory(IServiceProvider services)
         node.Choices.Add(string.Empty, otherwise);
         return node;
     }
-    public ICaseNode CreateCase(Func<Context, string> selectPath,
+    public ICaseNode CreateCase(Func<Map, string> selectPath,
                                 Dictionary<string, INode?> choices,
                                 INode? otherwise = null) {
         var node = new CaseNode(selectPath, services);

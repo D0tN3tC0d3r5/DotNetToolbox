@@ -12,7 +12,7 @@ internal sealed class HelpCommand
     }
 
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
-        var target = Context.GetValueOrDefaultAs<string>("Target");
+        var target = Map.GetValueAs<string>("Target");
         var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? _parent;
         Output.WriteLine(node.ToHelp());

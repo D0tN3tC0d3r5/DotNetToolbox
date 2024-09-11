@@ -52,7 +52,7 @@ dotnet add package DotNetToolbox.Graph
 
 ### Utilities
 - `NodeSequence`: Manages unique identifiers for nodes
-- `Context`: Holds execution context for workflows
+- `Map`: Holds execution context for workflows
 
 ## Detailed Component Descriptions
 
@@ -65,7 +65,7 @@ Represents a single executable action within a workflow.
 public sealed class ActionNode : ActionNode<ActionNode> {
     public ActionNode(string? name, IServiceProvider services)
     public ActionNode(string? tag, string? name, IServiceProvider services)
-    public ActionNode(Func<Context, CancellationToken, Task> execute, IServiceProvider services)
+    public ActionNode(Func<Map, CancellationToken, Task> execute, IServiceProvider services)
     // Additional constructors...
 }
 ```
@@ -76,7 +76,7 @@ Implements conditional branching in the workflow.
 ```csharp
 public class IfNode : IfNode<IfNode> {
     public IfNode(string? name, IServiceProvider services)
-    public IfNode(Func<Context, CancellationToken, Task<bool>> predicate, IServiceProvider services)
+    public IfNode(Func<Map, CancellationToken, Task<bool>> predicate, IServiceProvider services)
     // Additional constructors...
 }
 ```
@@ -87,7 +87,7 @@ Allows for multi-way branching based on a selection.
 ```csharp
 public sealed class CaseNode : CaseNode<CaseNode> {
     public CaseNode(string? name, IServiceProvider services)
-    public CaseNode(Func<Context, CancellationToken, Task<string>> select, IServiceProvider services)
+    public CaseNode(Func<Map, CancellationToken, Task<string>> select, IServiceProvider services)
     // Additional constructors...
 }
 ```
@@ -119,7 +119,7 @@ The main class for defining and managing workflows.
 
 ```csharp
 public class Workflow : IWorkflow {
-    public Workflow(string id, INode start, Context context, IDateTimeProvider? dateTime = null, IGuidProvider? guid = null, ILoggerFactory? loggerFactory = null)
+    public Workflow(string id, INode start, Map context, IDateTimeProvider? dateTime = null, IGuidProvider? guid = null, ILoggerFactory? loggerFactory = null)
     public Task Run(CancellationToken ct = default)
     public Result Validate()
 }
@@ -181,7 +181,7 @@ public sealed class WorkflowBuilder : IExitBuilder, IIfBuilder, IElseBuilder, IO
     public INode Build()
     // Various methods for adding nodes and defining workflow structure
     public IWorkflowBuilder Do<TAction>(params object[] args) where TAction : ActionNode<TAction>
-    public IIfBuilder If(Func<Context, bool> predicate)
+    public IIfBuilder If(Func<Map, bool> predicate)
     public ICaseBuilder Case(string selector)
     // Additional methods...
 }
@@ -216,7 +216,7 @@ var workflow = new Workflow(
         .Do("Finalize")
         .Exit()
         .Build(),
-    new Context()
+    new Map()
 );
 
 await workflow.Run();
@@ -240,7 +240,7 @@ var result = interpreter.InterpretScript(script);
 
 if (result.IsSuccess)
 {
-    var workflow = new Workflow("ParsedWorkflow", result.Value!, new Context());
+    var workflow = new Workflow("ParsedWorkflow", result.Value!, new Map());
     await workflow.Run();
 }
 ```
@@ -268,13 +268,13 @@ public class CustomNode : Node<CustomNode>
         Label = "CustomNode";
     }
 
-    protected override Task UpdateState(Context context, CancellationToken ct = default)
+    protected override Task UpdateState(Map context, CancellationToken ct = default)
     {
         // Custom logic here
         return Task.CompletedTask;
     }
 
-    protected override Task<INode?> SelectPath(Context context, CancellationToken ct = default)
+    protected override Task<INode?> SelectPath(Map context, CancellationToken ct = default)
     {
         return Task.FromResult(Next);
     }
@@ -290,7 +290,7 @@ public class CustomRetryPolicy : RetryPolicy<CustomRetryPolicy>
     {
     }
 
-    protected override async Task<bool> TryExecute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct)
+    protected override async Task<bool> TryExecute(Func<Map, CancellationToken, Task> action, Map ctx, CancellationToken ct)
     {
         // Custom retry logic
         await action(ctx, ct);

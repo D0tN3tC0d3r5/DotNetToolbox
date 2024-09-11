@@ -16,7 +16,7 @@ public partial class NodeTests {
             : ActionNode<GenericNode>(null, services) {
             public string Data { get; } = data;
 
-            protected override Task Execute(Context context, CancellationToken ct) => Task.CompletedTask;
+            protected override Task Execute(Map context, CancellationToken ct) => Task.CompletedTask;
         }
     }
 }

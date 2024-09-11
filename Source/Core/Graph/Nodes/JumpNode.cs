@@ -14,10 +14,10 @@ public abstract class JumpNode<TNode>(IServiceProvider services)
     : Node<TNode>(null, services),
       IJumpNode
     where TNode : JumpNode<TNode> {
-    protected override Task<INode?> SelectPath(Context context, CancellationToken ct = default)
+    protected override Task<INode?> SelectPath(Map context, CancellationToken ct = default)
         => Task.FromResult(Next);
 
-    protected override Task UpdateState(Context context, CancellationToken ct = default)
+    protected override Task UpdateState(Map context, CancellationToken ct = default)
         => Task.CompletedTask;
 
     public override void ConnectTo(INode? next)

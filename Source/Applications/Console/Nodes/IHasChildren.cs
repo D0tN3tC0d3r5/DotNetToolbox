@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public interface IHasChildren : INode {
-    public IContext Context { get; }
+    public IMap Map { get; }
 
     ICollection<INode> Children { get; }
     IArgument[] Options { get; }

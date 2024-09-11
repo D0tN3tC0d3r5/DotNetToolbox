@@ -59,6 +59,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="saved\" />
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties data_4tasks_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

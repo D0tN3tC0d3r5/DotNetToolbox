@@ -362,7 +362,7 @@ public sealed class NodeTests {
         app.Services.Returns(serviceProvider);
         var node = new TestNode(app, "node", ["n"]);
         var flag = node.AddFlag("flag", (Action)(() => throw new()));
-        var context = new Context();
+        var context = new Map();
 
         // Act
         var result = () => flag.Read(context);
@@ -396,7 +396,7 @@ public sealed class NodeTests {
         var serviceProvider = CreateFakeServiceProvider();
         app.Services.Returns(serviceProvider);
         var node = new TestNode(app, "node", ["n"]);
-        var context = new Context();
+        var context = new Map();
 
         // Act
         var subject = node.AddFlag("flag", action);

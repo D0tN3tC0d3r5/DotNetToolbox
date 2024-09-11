@@ -9,7 +9,7 @@ public class BigMouth
 
     protected override Task<Result> OnStart(CancellationToken ct = default) {
         var result = base.OnStart(ct);
-        var name = Context["MyName"];
+        var name = Map["MyName"];
         Output.WriteLine($"Hello {name}.");
         return result;
     }

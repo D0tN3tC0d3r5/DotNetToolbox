@@ -4,7 +4,7 @@ public sealed class TypeValidatorsTests {
     public sealed record TestObject : IValidatable {
         public Type? Type { get; init; }
 
-        public Result Validate(IContext? context = null) {
+        public Result Validate(IMap? context = null) {
             var result = Success();
             result += Type.Is()
                 .And().IsEqualTo<string>().Result;

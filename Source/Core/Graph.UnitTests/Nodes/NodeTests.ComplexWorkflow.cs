@@ -4,7 +4,7 @@ public partial class NodeTests {
     public class ComplexWorkflowTests : NodeTests {
         [Fact]
         public async Task ComplexWorkflow_WithMultipleNodeTypes_ExecutesCorrectly() {
-            using var context = new Context();
+            using var context = new Map();
             var start = CreateComplexWorkflow();
             var workflow = new Workflow(start, context);
 
@@ -42,7 +42,7 @@ public partial class NodeTests {
             var builder = new WorkflowBuilder(CreateServiceProvider(policy));
             builder.Do(_ => { });
 
-            using var context = new Context();
+            using var context = new Map();
 
             var wf = builder.Build();
 
@@ -68,7 +68,7 @@ public partial class NodeTests {
             public IReadOnlyList<TimeSpan> Delays { get; } = [];
             public byte MaxRetries => 3;
 
-            public Task Execute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct = default) {
+            public Task Execute(Func<Map, CancellationToken, Task> action, Map ctx, CancellationToken ct = default) {
                 onExecute();
                 return action(ctx, ct);
             }

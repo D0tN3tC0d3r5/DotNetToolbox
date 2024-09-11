@@ -9,7 +9,7 @@ public abstract class Parameter<TParameter>
     protected Parameter(IHasChildren parent, string name, string? defaultValue = default)
         : base(parent, name) {
         DefaultValue = defaultValue;
-        parent.Context[Name] = DefaultValue!;
+        parent.Map[Name] = DefaultValue!;
         Order = parent.Children.OfType<IParameter>().Count();
     }
 
@@ -18,7 +18,7 @@ public abstract class Parameter<TParameter>
     public bool IsRequired => DefaultValue is null;
     public bool IsSet { get; private set; }
 
-    Task<Result> IParameter.Read(string? value, IContext context, CancellationToken ct) {
+    Task<Result> IParameter.Read(string? value, IMap context, CancellationToken ct) {
         context[Name] = value switch {
             null or "default" => DefaultValue!,
             "null" => null!,

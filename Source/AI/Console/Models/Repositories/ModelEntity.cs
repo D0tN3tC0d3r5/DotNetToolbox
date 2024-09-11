@@ -14,7 +14,7 @@ public class ModelEntity : Entity<ModelEntity, string> {
     public DateOnly TrainingDataCutOff { get; set; }
     public bool Selected { get; set; }
 
-    public override Result Validate(IContext? context = null) {
+    public override Result Validate(IMap? context = null) {
         var result = base.Validate(context);
         if (string.IsNullOrWhiteSpace(Name))
             result += new ValidationError("Name is required.", nameof(Name));

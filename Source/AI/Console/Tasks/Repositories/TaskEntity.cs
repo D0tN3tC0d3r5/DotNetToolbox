@@ -18,7 +18,7 @@ public class TaskEntity
     public TaskResponseType ResponseType { get; init; }
     public string ResponseSchema { get; init; } = string.Empty;
 
-    public override Result Validate(IContext? context = null) {
+    public override Result Validate(IMap? context = null) {
         var result = base.Validate(context);
         if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("The name is required.", nameof(Name));
         if (Goals.Count == 0) result += new ValidationError("At least one goal is required.", nameof(Goals));

@@ -84,7 +84,8 @@ public class Persona
                     sb.AppendLine($"Your main goal is {Goals[0]}.");
                     break;
                 default:
-                    sb.AppendLine("Your goals are:");
+                    sb.AppendLine();
+                    sb.AppendLine("## Your goals are:");
                     for (var i = 0; i < Goals.Count; i++) sb.AppendLine($"{i + 1}. {Goals[i]}.");
                     break;
             }
@@ -113,5 +114,5 @@ public class Persona
         }
     }
 
-    public Result Validate(IContext? context = null) => Result.Success();
+    public Result Validate(IMap? context = null) => Result.Success();
 }

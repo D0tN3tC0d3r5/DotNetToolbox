@@ -2,7 +2,7 @@
 
 public interface IChatRequest {
     string Model { get; }
-    string Context { get; }
+    string Map { get; }
     IEnumerable<IChatRequestMessage> Messages { get; }
     uint MaximumOutputTokens { get; }
 }

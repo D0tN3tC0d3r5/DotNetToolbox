@@ -14,12 +14,17 @@ public class Job(string id, JobContext context)
     public Dictionary<Type, Func<object, string>> Converters { get; } = [];
 
     public async Task<Result> Execute(CancellationToken ct) {
-        SetSystemMessage();
-        SetUserMessage();
-        var response = await context.Agent.SendRequest(_chat, context, ct);
-        if (!response.IsOk) return response.Errors;
-        SetAgentResponse();
-        return Result.Success();
+        try {
+            SetSystemMessage();
+            SetUserMessage();
+            var response = await context.Agent.SendRequest(_chat, context, ct);
+            if (!response.IsOk) return response.Errors;
+            SetAgentResponse();
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            throw new InvalidOperationException($"Chat: {_chat.DumpAsJson()}", ex);
+        }
     }
 
     private void SetSystemMessage() {

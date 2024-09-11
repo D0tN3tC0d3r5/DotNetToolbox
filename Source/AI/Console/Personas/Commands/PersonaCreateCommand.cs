@@ -20,24 +20,23 @@ public class PersonaCreateCommand : Command<PersonaCreateCommand> {
             Output.WriteLine("[yellow]Add the goals for the persona:[/]");
             var goal = Input.BuildTextPrompt<string>($"Goal {goalCount}: ").AsRequired().AnswerOnANewLine().For($"Goal {goalCount}").Show();
             persona.Goals.Add(goal);
-            var addAnotherGoal = Input.Confirm("Would you like to add another goal?", false);
+            var addAnotherGoal = Input.Confirm("Would you like to add another goal?");
             while (addAnotherGoal) {
                 goalCount++;
                 goal = Input.BuildTextPrompt<string>($"Goal {goalCount}: ").AsRequired().AnswerOnANewLine().For($"Goal {goalCount}").Show();
                 persona.Goals.Add(goal);
-                addAnotherGoal = Input.Confirm("Would you like to add another goal?", false);
+                addAnotherGoal = Input.Confirm("Would you like to add another goal?");
             }
 
             for (var questionCount = 0; questionCount < _maxQuestions; questionCount++) {
                 Output.WriteLine("[yellow]Let me see if I have more questions...[/]");
                 Output.WriteLine("[grey](You can skip the questions by typing 'proceed' at any time.)[/]");
 
-                var queries = await _personaHandler.GenerateQuestions(persona);
+                var queries = await _personaHandler.GeneratePersonaCreationQuestion(persona);
                 if (queries.Length == 0) {
                     Output.WriteLine("[green]I've gathered sufficient information to generate the agent's persona.[/]");
                     break;
                 }
-
                 var proceed = false;
                 foreach (var query in queries) {
                     query.Answer = Input.BuildTextPrompt<string>($"Question {questionCount + 1}: {query.Question}")
@@ -58,7 +57,7 @@ public class PersonaCreateCommand : Command<PersonaCreateCommand> {
                 break;
             }
 
-            await _personaHandler.GeneratePersonaProperties(persona);
+            await _personaHandler.UpdateCreatedPersona(persona);
 
             _personaHandler.Add(persona);
             Output.WriteLine($"[green]Persona '{persona.Name}' generated successfully.[/]");

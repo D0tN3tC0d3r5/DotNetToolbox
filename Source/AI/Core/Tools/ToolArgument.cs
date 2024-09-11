@@ -44,6 +44,6 @@ public class ToolArgument
     public override string ToString()
         => $"{Signature}{(string.IsNullOrWhiteSpace(Description) ? string.Empty : $" /* {Description} */")}";
 
-    public Result Validate(IContext? context = null)
+    public Result Validate(IMap? context = null)
         => Result.Success();
 }

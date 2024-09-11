@@ -38,10 +38,13 @@ internal static partial class JobInputHelper {
     private static string ConvertInput(object? input, IReadOnlyDictionary<Type, Func<object, string>> converters) {
         if (input is null) return string.Empty;
         var inputType = input.GetType();
-        if (converters.TryGetValue(inputType, out var converter)) return converter(input);
-        if (input is IEnumerable<object> list) return string.Join("\n", list.ToArray(v => $" - {ConvertInput(v, converters)}"));
-        if (inputType.IsClass) return JsonSerializer.Serialize(input, _jsonOptions);
-        return input.ToString() ?? string.Empty;
+        return converters.TryGetValue(inputType, out var converter)
+                   ? converter(input)
+                   : input is IEnumerable<object> list
+                       ? string.Join("\n", list.ToArray(v => $" - {ConvertInput(v, converters)}"))
+                       : inputType.IsClass
+                           ? JsonSerializer.Serialize(input, _jsonOptions)
+                           : input.ToString() ?? string.Empty;
     }
 
     [GeneratedRegex(@"<<(\w+)>>", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]

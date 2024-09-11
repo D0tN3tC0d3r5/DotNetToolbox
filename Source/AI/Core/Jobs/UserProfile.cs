@@ -30,5 +30,5 @@ public class UserProfile
         init => this[nameof(Facts)] = value;
     }
 
-    public Result Validate(IContext? context = null) => Result.Success();
+    public Result Validate(IMap? context = null) => Result.Success();
 }

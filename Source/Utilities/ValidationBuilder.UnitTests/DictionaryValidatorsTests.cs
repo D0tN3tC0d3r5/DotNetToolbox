@@ -6,7 +6,7 @@ public sealed class DictionaryValidatorsTests {
         public required IDictionary<string, string> Names { get; init; } = new Dictionary<string, string>();
         public IDictionary<string, string> Empty { get; } = new Dictionary<string, string>();
 
-        public Result Validate(IContext? context = null) {
+        public Result Validate(IMap? context = null) {
             var result = Success();
             result += Numbers.Is()
                 .And().IsNotEmpty()

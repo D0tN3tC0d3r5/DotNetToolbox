@@ -45,7 +45,7 @@ public class Command<TCommand>
         : base(parent, name, aliases) {
     }
 
-    public IContext Context { get; } = new Context();
+    public IMap Map { get; } = new Map();
 
     public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];

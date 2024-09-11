@@ -43,19 +43,19 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         AddNode(new ActionNode(tag, name, services));
         return this;
     }
-    public IActionBuilder Do(Action<Context> action) {
+    public IActionBuilder Do(Action<Map> action) {
         AddNode(new ActionNode(action, services));
         return this;
     }
-    public IActionBuilder Do(Func<Context, CancellationToken, Task> action) {
+    public IActionBuilder Do(Func<Map, CancellationToken, Task> action) {
         AddNode(new ActionNode(action, services));
         return this;
     }
-    public IActionBuilder Do(string tag, Action<Context> action) {
+    public IActionBuilder Do(string tag, Action<Map> action) {
         AddNode(new ActionNode(tag, action, services));
         return this;
     }
-    public IActionBuilder Do(string tag, Func<Context, CancellationToken, Task> action) {
+    public IActionBuilder Do(string tag, Func<Map, CancellationToken, Task> action) {
         AddNode(new ActionNode(tag, action, services));
         return this;
     }
@@ -68,19 +68,19 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         AddNode(new IfNode(tag, name, services));
         return this;
     }
-    public IIfBuilder If(Func<Context, bool> predicate) {
+    public IIfBuilder If(Func<Map, bool> predicate) {
         AddNode(new IfNode(predicate, services));
         return this;
     }
-    public IIfBuilder If(Func<Context, CancellationToken, Task<bool>> predicate) {
+    public IIfBuilder If(Func<Map, CancellationToken, Task<bool>> predicate) {
         AddNode(new IfNode(predicate, services));
         return this;
     }
-    public IIfBuilder If(string tag, Func<Context, bool> predicate) {
+    public IIfBuilder If(string tag, Func<Map, bool> predicate) {
         AddNode(new IfNode(tag, predicate, services));
         return this;
     }
-    public IIfBuilder If(string tag, Func<Context, CancellationToken, Task<bool>> predicate) {
+    public IIfBuilder If(string tag, Func<Map, CancellationToken, Task<bool>> predicate) {
         AddNode(new IfNode(tag, predicate, services));
         return this;
     }
@@ -107,19 +107,19 @@ public sealed class WorkflowBuilder(IServiceProvider services)
         AddNode(new CaseNode(tag, selector, services));
         return this;
     }
-    public ICaseBuilder Case(Func<Context, string> select) {
+    public ICaseBuilder Case(Func<Map, string> select) {
         AddNode(new CaseNode(select, services));
         return this;
     }
-    public ICaseBuilder Case(Func<Context, CancellationToken, Task<string>> select) {
+    public ICaseBuilder Case(Func<Map, CancellationToken, Task<string>> select) {
         AddNode(new CaseNode(select, services));
         return this;
     }
-    public ICaseBuilder Case(string? tag, Func<Context, string> select) {
+    public ICaseBuilder Case(string? tag, Func<Map, string> select) {
         AddNode(new CaseNode(tag, select, services));
         return this;
     }
-    public ICaseBuilder Case(string tag, Func<Context, CancellationToken, Task<string>> select) {
+    public ICaseBuilder Case(string tag, Func<Map, CancellationToken, Task<string>> select) {
         AddNode(new CaseNode(tag, select, services));
         return this;
     }

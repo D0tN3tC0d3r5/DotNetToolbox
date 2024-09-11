@@ -52,7 +52,7 @@ public partial class NodeTests {
 
         [Fact]
         public async Task CreateIf_RunMethodWithTrueCondition_ExecutesTrueBranch() {
-            using var context = new Context();
+            using var context = new Map();
             var node = CreateFactory().CreateIf(_ => true,
                                                 CreateFactory().CreateAction(ctx => ctx["branch"] = "true"),
                                                 CreateFactory().CreateAction(ctx => ctx["branch"] = "false"));
@@ -64,8 +64,8 @@ public partial class NodeTests {
 
         [Fact]
         public async Task CreateIf_RunMethodWithFalseCondition_ExecutesFalseBranch() {
-            var context = new Context() {
-                ["Disposable"] = new Context(),
+            var context = new Map() {
+                ["Disposable"] = new Map(),
             };
             var node = CreateFactory().CreateIf(_ => false,
                                                 CreateFactory().CreateAction(ctx => ctx["branch"] = "true"),

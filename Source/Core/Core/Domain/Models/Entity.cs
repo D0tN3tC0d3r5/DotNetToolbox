@@ -7,9 +7,6 @@ public abstract class Entity<TEntity, TKey>
     where TKey : notnull {
     public TKey Key { get; set; } = default!;
 
-    public virtual Result Validate(IContext? context = null) {
-        var result = Result.Success();
-        if (Key is null) result += new ValidationError("Key is required.", nameof(Key));
-        return result;
-    }
+    public virtual Result Validate(IMap? context = null)
+        => Result.Success();
 }

@@ -13,7 +13,7 @@ public class ModelListCommand : Command<ModelListCommand> {
     }
 
     protected override Result Execute() {
-        var providerKeyStr = Context.GetValueOrDefaultAs<string>("Provider");
+        var providerKeyStr = Map.GetValueAs<string>("Provider");
 
         var models = string.IsNullOrEmpty(providerKeyStr)
             ? _modelHandler.List()
@@ -37,7 +37,7 @@ public class ModelListCommand : Command<ModelListCommand> {
         table.AddColumn(new TableColumn("[yellow]Name[/]"));
         table.AddColumn(new TableColumn("[yellow]Provider[/]"));
         table.AddColumn(new TableColumn("[yellow]Id[/]"));
-        table.AddColumn(new TableColumn("[yellow]Context Size[/]").RightAligned());
+        table.AddColumn(new TableColumn("[yellow]Map Size[/]").RightAligned());
         table.AddColumn(new TableColumn("[yellow]Output Tokens[/]").RightAligned());
 
         foreach (var model in sortedModels) {

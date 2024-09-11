@@ -256,12 +256,12 @@ public class EnsureTests {
     }
 
     private sealed class ValidatableObject(bool isValid) : IValidatable {
-        public Result Validate(IContext? context = null)
+        public Result Validate(IMap? context = null)
             => isValid ? Result.Success() : Result.Invalid("Is not valid.", "Source");
     }
 
     private sealed class ValidatableAsyncObject(bool isValid) : IValidatableAsync {
-        public Task<Result> Validate(IContext? context = null, CancellationToken token = default)
+        public Task<Result> Validate(IMap? context = null, CancellationToken token = default)
             => isValid ? Result.SuccessTask() : Result.InvalidTask("Source", "Is not valid.");
     }
 

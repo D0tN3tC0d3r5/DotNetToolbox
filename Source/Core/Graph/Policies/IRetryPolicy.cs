@@ -3,5 +3,5 @@
 public interface IRetryPolicy {
     IReadOnlyList<TimeSpan> Delays { get; }
     byte MaxRetries { get; }
-    Task Execute(Func<Context, CancellationToken, Task> action, Context ctx, CancellationToken ct = default);
+    Task Execute(Func<Map, CancellationToken, Task> action, Map ctx, CancellationToken ct = default);
 }

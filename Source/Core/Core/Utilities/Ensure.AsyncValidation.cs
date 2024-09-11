@@ -1,11 +1,11 @@
 ﻿namespace System;
 
 public static partial class Ensure {
-    public static Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, IContext? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    public static Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, IMap? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IValidatableAsync
         => IsValidAsync(IsNotNull(argument, paramName), arg => arg.Validate(context), paramName);
 
-    public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, IContext? context = null, TArgument? defaultValue = default)
+    public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, IMap? context = null, TArgument? defaultValue = default)
         where TArgument : IValidatableAsync {
         var result = await (argument?.Validate(context) ?? Result.SuccessTask());
         return result.IsSuccess && argument is not null

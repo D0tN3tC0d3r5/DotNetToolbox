@@ -8,7 +8,7 @@ public class HttpClientProvider
                               IHttpClientFactory httpClientFactory,
                               IConfiguration configuration,
                               Action<HttpClientOptions>? configure = null,
-                              IContext? context = null) {
+                              IMap? context = null) {
         Name = IsNotNullOrWhiteSpace(name);
         _httpClientFactory = httpClientFactory;
         ConfigurationPath = $"{HttpClientOptions.SectionName}:{Name}";
@@ -18,7 +18,7 @@ public class HttpClientProvider
 
     private void EnsureIsConfigured(IConfiguration configuration,
                                     Action<HttpClientOptions>? configure,
-                                    IContext? context = null) {
+                                    IMap? context = null) {
         configuration.GetSection(ConfigurationPath).Bind(Options);
         SetDefaultConfiguration(Options);
         configure?.Invoke(Options);

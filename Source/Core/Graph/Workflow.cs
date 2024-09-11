@@ -2,14 +2,14 @@
 
 public class Workflow(string id,
                       INode start,
-                      Context context,
+                      Map context,
                       IDateTimeProvider? dateTime = null,
                       ILoggerFactory? loggerFactory = null)
     : IWorkflow {
     private uint _runCount;
 
     public Workflow(INode start,
-                    Context context,
+                    Map context,
                     IStringGuidProvider guid,
                     IDateTimeProvider? dateTime = null,
                     ILoggerFactory? loggerFactory = null)
@@ -21,7 +21,7 @@ public class Workflow(string id,
     }
 
     public Workflow(INode start,
-                    Context context,
+                    Map context,
                     IDateTimeProvider? dateTime = null,
                     ILoggerFactory? loggerFactory = null)
         : this(start,
@@ -33,7 +33,7 @@ public class Workflow(string id,
 
     public string Id { get; } = id;
     public INode StartNode { get; } = IsNotNull(start);
-    public Context Context { get; } = IsNotNull(context);
+    public Map Map { get; } = IsNotNull(context);
 
     public Result Validate() => ValidateNode(StartNode);
 

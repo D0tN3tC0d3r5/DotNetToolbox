@@ -23,7 +23,7 @@ public class ModelViewCommand : Command<ModelViewCommand> {
         Output.WriteLine($"[blue]Id:[/] {model.Key}{(model.Selected ? " [green](default)[/]" : "")}");
         Output.WriteLine($"[blue]Name:[/] {model.Name}");
         Output.WriteLine($"[blue]Provider:[/] {model.Provider!.Name}");
-        Output.WriteLine($"[blue]Maximum Context Size:[/] {model.MaximumContextSize}");
+        Output.WriteLine($"[blue]Maximum Map Size:[/] {model.MaximumContextSize}");
         Output.WriteLine($"[blue]Maximum Output Tokens:[/] {model.MaximumOutputTokens}");
         Output.WriteLine($"[blue]Input Cost per MTok:[/] {model.InputCostPerMillionTokens:C}");
         Output.WriteLine($"[blue]Output Cost per MTok:[/] {model.OutputCostPerMillionTokens:C}");

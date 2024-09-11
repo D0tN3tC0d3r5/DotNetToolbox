@@ -4,7 +4,7 @@ public sealed class ValidatableValidatorsTests {
     public sealed record ChildObject : IValidatable {
         public required string Name { get; init; }
 
-        public Result Validate(IContext? context = null) {
+        public Result Validate(IMap? context = null) {
             var result = Success();
             result += Name.IsRequired()
                 .And().LengthIs(5).Result;
@@ -15,7 +15,7 @@ public sealed class ValidatableValidatorsTests {
     public sealed record TestObject : IValidatable {
         public required ChildObject Child { get; init; }
 
-        public Result Validate(IContext? context = null) {
+        public Result Validate(IMap? context = null) {
             var result = Success();
             result += Child.IsRequired()
                 .And().IsValid().Result;

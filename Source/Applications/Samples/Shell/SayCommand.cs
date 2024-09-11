@@ -8,11 +8,11 @@ public class SayCommand : Command<SayCommand> {
     }
 
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
-        var name = Application.Context["MyName"];
-        Context.TryGetValue("My", out var type);
+        var name = Application.Map["MyName"];
+        Map.TryGetValue("My", out var type);
         type = type is string s && s.Equals("secret", StringComparison.OrdinalIgnoreCase) ? "Secret" : "Public";
-        Context.TryGetValue("Info", out var info);
-        Application.Context.TryGetValue($"{type}{info}", out var secret);
+        Map.TryGetValue("Info", out var info);
+        Application.Map.TryGetValue($"{type}{info}", out var secret);
         Output.WriteLine(secret != null
                                                 ? $"Ok {name}. Your {type} {info} is {secret}."
                                                 : "I don't know.");

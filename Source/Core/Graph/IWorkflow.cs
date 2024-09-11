@@ -3,7 +3,7 @@ namespace DotNetToolbox.Graph;
 
 public interface IWorkflow {
     string Id { get; }
-    Context Context { get; }
+    Map Map { get; }
     INode StartNode { get; }
 
     Result Validate();

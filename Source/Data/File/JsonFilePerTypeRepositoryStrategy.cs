@@ -81,7 +81,7 @@ public abstract class JsonFilePerTypeRepositoryStrategy<TRepository, TItem, TKey
         System.IO.File.WriteAllText(_filePath, json);
     }
 
-    public override Result<TItem> Create(Action<TItem>? setItem = null, IContext? validationContext = null) {
+    public override Result<TItem> Create(Action<TItem>? setItem = null, IMap? validationContext = null) {
         var item = InstanceFactory.Create<TItem>();
         if (TryGetNextKey(out var next)) item.Key = next;
         setItem?.Invoke(item);
@@ -90,7 +90,7 @@ public abstract class JsonFilePerTypeRepositoryStrategy<TRepository, TItem, TKey
         return result;
     }
 
-    public override Result Add(TItem newItem, IContext? validationContext = null) {
+    public override Result Add(TItem newItem, IMap? validationContext = null) {
         if (TryGetNextKey(out var next)) newItem.Key = next;
         var result = newItem.Validate(validationContext);
         if (!result.IsSuccess) return result;
@@ -99,7 +99,7 @@ public abstract class JsonFilePerTypeRepositoryStrategy<TRepository, TItem, TKey
         return result;
     }
 
-    public override Result Update(TItem updatedItem, IContext? validationContext = null) {
+    public override Result Update(TItem updatedItem, IMap? validationContext = null) {
         var index = Repository.Data.FindIndex(item => item.Key.Equals(updatedItem.Key));
         if (index == -1) return new ValidationError($"Item '{updatedItem.Key}' not found", nameof(updatedItem));
         var result = updatedItem.Validate(validationContext);

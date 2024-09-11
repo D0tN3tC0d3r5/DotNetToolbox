@@ -3,7 +3,7 @@
 [method: SetsRequiredMembers]
 public class ChatRequest(IAgent connection, IModel model, IChat chat)
     : IChatRequest {
-    string IChatRequest.Context => (string?)Messages[0].Content ?? string.Empty;
+    string IChatRequest.Map => (string?)Messages[0].Content ?? string.Empty;
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => Messages.Skip(1).ToArray();
 
     [JsonPropertyName("model")]

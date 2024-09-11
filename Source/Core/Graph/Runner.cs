@@ -34,7 +34,7 @@ public sealed class Runner(uint id,
 
             while (currentNode is not null) {
                 if (!await ExecutingNode(_workflow, currentNode, ct)) break;
-                var nextNode = await currentNode.Run(_workflow.Context, ct);
+                var nextNode = await currentNode.Run(_workflow.Map, ct);
                 if (!await NodeExecuted(_workflow, currentNode, nextNode, ct)) break;
                 currentNode = nextNode;
             }

@@ -1,9 +1,9 @@
 ﻿namespace DotNetToolbox.Results;
 
 public interface IValidatable {
-    Result Validate(IContext? context = null);
+    Result Validate(IMap? context = null);
 }
 
 public interface IValidatableAsync {
-    Task<Result> Validate(IContext? context = null, CancellationToken token = default);
+    Task<Result> Validate(IMap? context = null, CancellationToken token = default);
 }

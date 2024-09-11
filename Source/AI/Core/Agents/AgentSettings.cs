@@ -20,7 +20,7 @@ public class AgentSettings
     public bool ResponseIsStream { get; set; }
     public bool ResponseIsJson { get; set; }
 
-    public Result Validate(IContext? context = null) {
+    public Result Validate(IMap? context = null) {
         var result = Result.Success();
         if (StopSequences.Count > 0 && StopSequences.Any(string.IsNullOrWhiteSpace))
             result += new ValidationError("StopWaiting signals cannot be null, empty, or contain only whitespace.", nameof(StopSequences));

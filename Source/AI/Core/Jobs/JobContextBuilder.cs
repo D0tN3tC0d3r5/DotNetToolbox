@@ -6,10 +6,11 @@ public class JobContextBuilder(IServiceProvider services)
     private IEnumerable<KeyValuePair<string, object>>? _source;
     private IDateTimeProvider _dateTime = DateTimeProvider.Default;
     private UserProfile? _userProfile;
-    private readonly Context<string> _memory = [];
-    private readonly Context<Asset> _assets = [];
-    private readonly Context<Tool> _tools = [];
+    private readonly Map<string> _memory = [];
+    private readonly Map<Asset> _assets = [];
+    private readonly Map<Tool> _tools = [];
     private Model? _model;
+    private object? _input;
 
     public IJobContextBuilder CreateFrom(IEnumerable<KeyValuePair<string, object>> source) {
         _source = IsNotNull(source);
@@ -19,6 +20,11 @@ public class JobContextBuilder(IServiceProvider services)
 
     public IJobContextBuilder WithModel(Model model) {
         _model = model;
+        return this;
+    }
+
+    public IJobContextBuilder WithInput(object input) {
+        _input = input;
         return this;
     }
 
@@ -58,6 +64,7 @@ public class JobContextBuilder(IServiceProvider services)
             Memory = _memory,
             Assets = _assets,
             Tools = _tools,
+            Input = _input ?? string.Empty,
         };
     }
 }

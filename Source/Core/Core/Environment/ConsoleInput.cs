@@ -91,7 +91,7 @@ public class ConsoleInput()
     }
     public virtual TValue Ask<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices) {
         var builder = new TextPromptBuilder<TValue>(prompt, _output);
-        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, ..otherChoices]);
+        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, .. otherChoices]);
         builder.WithDefault(defaultChoice);
         return builder.Show();
     }
@@ -102,7 +102,7 @@ public class ConsoleInput()
     }
     public virtual string Ask(string prompt, string defaultChoice, params string[] otherChoices) {
         var builder = new TextPromptBuilder<string>(prompt, _output);
-        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, ..otherChoices]);
+        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, .. otherChoices]);
         builder.WithDefault(defaultChoice);
         return builder.Show();
     }
@@ -122,7 +122,7 @@ public class ConsoleInput()
     public virtual bool Confirm(string prompt, bool defaultChoice = true) {
         var builder = new TextPromptBuilder<bool>(prompt, _output);
         builder.AddChoices(true, false);
-        builder.ConvertWith(value => value ? "Yes" : "No");
+        builder.ConvertWith(value => value ? "y" : "n");
         builder.WithDefault(defaultChoice);
         return builder.Show();
     }
@@ -146,7 +146,7 @@ public class ConsoleInput()
         var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
         builder.WithDefault(defaultChoice);
         if (otherChoices.Length < 1) throw new ArgumentException("At least two choices must be provided.", nameof(otherChoices));
-        builder.AddChoices([defaultChoice, ..otherChoices]);
+        builder.AddChoices([defaultChoice, .. otherChoices]);
         return builder.Show();
     }
     public virtual string Select(string prompt, params string[] choices) {
@@ -159,7 +159,7 @@ public class ConsoleInput()
         var builder = new SelectionPromptBuilder<string>(prompt, _output);
         builder.WithDefault(defaultChoice);
         if (otherChoices.Length < 1) throw new ArgumentException("At least two choices must be provided.", nameof(otherChoices));
-        builder.AddChoices([defaultChoice, ..otherChoices]);
+        builder.AddChoices([defaultChoice, .. otherChoices]);
         return builder.Show();
     }
     public virtual TValue SelectRequired<TValue>(string prompt, params TValue[] choices)
