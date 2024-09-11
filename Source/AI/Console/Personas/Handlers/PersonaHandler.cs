@@ -1,4 +1,6 @@
-﻿using Task = System.Threading.Tasks.Task;
+﻿using DotNetToolbox.AI.Personas;
+
+using Task = System.Threading.Tasks.Task;
 
 namespace AI.Sample.Personas.Handlers;
 

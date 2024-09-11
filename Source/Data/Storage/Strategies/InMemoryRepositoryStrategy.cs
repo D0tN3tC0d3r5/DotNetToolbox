@@ -1,7 +1,7 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
-    : RepositoryStrategy<InMemoryRepositoryStrategy<TRepository, TItem, TKey>, TRepository, TItem, TKey>()
+public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>
+    : RepositoryStrategy<InMemoryRepositoryStrategy<TRepository, TItem, TKey>, TRepository, TItem, TKey>
     where TRepository : class, IQueryableRepository<TItem>
     where TItem : class, IEntity<TKey>, new()
     where TKey : notnull {
@@ -170,7 +170,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
     }
 
     public override async Task<Result> AddAsync(TItem newItem, IMap? validationContext = null, CancellationToken ct = default) {
-        newItem.Key = await GetNextKeyAsync();
+        newItem.Key = await GetNextKeyAsync(ct);
         return await _keylessStrategy.AddAsync(newItem, validationContext, ct);
     }
 
@@ -273,8 +273,8 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>()
     #endregion
 }
 
-public class InMemoryRepositoryStrategy<TRepository, TItem>()
-    : RepositoryStrategy<InMemoryRepositoryStrategy<TRepository, TItem>, TRepository, TItem>()
+public class InMemoryRepositoryStrategy<TRepository, TItem>
+    : RepositoryStrategy<InMemoryRepositoryStrategy<TRepository, TItem>, TRepository, TItem>
     where TRepository : class, IQueryableRepository<TItem> {
     #region Blocking
 
@@ -349,7 +349,7 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>()
             }
             validItems.Add(newItem);
         }
-        Repository.Data.AddRange(newItems);
+        Repository.Data.AddRange(validItems);
         return result;
     }
 
@@ -432,13 +432,11 @@ public class InMemoryRepositoryStrategy<TRepository, TItem>()
     private static IAsyncQueryable<TItem> ApplyFilter(IAsyncQueryable<TItem> query, Expression<Func<TItem, bool>>? filterBy = null)
      => filterBy is null ? query : query.Where(filterBy);
 
-    private static IAsyncQueryable<TItem> ApplySorting(IAsyncQueryable<TItem> query, HashSet<SortClause>? orderBy = null)
-    {
+    private static IAsyncQueryable<TItem> ApplySorting(IAsyncQueryable<TItem> query, HashSet<SortClause>? orderBy = null) {
         if (orderBy is null) return query;
         IOrderedAsyncQueryable<TItem>? orderedQuery = null;
 
-        foreach (var clause in orderBy)
-        {
+        foreach (var clause in orderBy) {
             if (typeof(TItem).GetProperty(clause.PropertyName) is null)
                 throw new ArgumentException($"Property {clause.PropertyName} not found on {typeof(TItem).Name}.", nameof(orderBy));
 

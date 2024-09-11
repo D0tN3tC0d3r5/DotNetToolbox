@@ -104,7 +104,7 @@ public partial class NodeTests {
         public async Task Run_RunMethod_UpdatesContextAndReturnsNextNode() {
             var context = new Map();
             var node = CreateFactory().CreateAction("2", ctx => ctx["key"] = "value");
-            node.Next = CreateFactory().CreateAction(_ => { }); ;
+            node.Next = CreateFactory().CreateAction(_ => { });
 
             var result = await node.Run(context);
 

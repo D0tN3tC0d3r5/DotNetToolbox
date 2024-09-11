@@ -40,14 +40,14 @@ public partial class AsyncQueryableTests {
     [Fact]
     public async Task MaxAsync_WithComparer_ReturnsMax() {
         var expectedItem = new TestEntity("CCC");
-        var result = await _repo.MaxAsync(_comparer!);
+        var result = await _repo.MaxAsync(_comparer);
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task MaxAsync_WithComparerAndTransformation_ReturnsMax() {
         var expectedItem = new TestEntity("CCC");
-        var result = await _repoWithNulls!.MaxAsync(_comparer!);
+        var result = await _repoWithNulls!.MaxAsync(_comparer);
         result.Should().Be(expectedItem);
     }
 }

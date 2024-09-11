@@ -4,8 +4,8 @@ public static class CommandHelpers {
     private sealed class ListItem<TItem, TKey>(object? key, string text, TItem? item)
         where TItem : class, IEntity<TKey>
         where TKey : notnull {
-        public object? Key { get; set; } = key;
-        public string Text { get; set; } = text;
+        public object? Key { get; } = key;
+        public string Text { get; } = text;
         public TItem? Item { get; } = item;
     }
 
@@ -19,12 +19,13 @@ public static class CommandHelpers {
                                                       string? cancelText = null)
         where TItem : class, IEntity<TKey>
         where TKey : notnull {
-        if (!IsNotNull(entities).Any()) {
+        var items = IsNotNull(entities).ToArray();
+        if (items.Length == 0) {
             command.Output.WriteLine($"[yellow]No {IsNotNullOrWhiteSpace(name)} available to {IsNotNullOrWhiteSpace(action)}.[/]");
             return null;
         }
 
-        var choices = entities.Select(e => new ListItem<TItem, TKey>(IsNotNull(itemKey)(e), IsNotNull(itemText)(e), e)).ToList();
+        var choices = items.Select(e => new ListItem<TItem, TKey>(IsNotNull(itemKey)(e), IsNotNull(itemText)(e), e)).ToList();
         var cancelOption = new ListItem<TItem, TKey>(cancelKey, cancelText ?? "Cancel", null);
         choices.Add(cancelOption);
 

@@ -9,7 +9,7 @@ public static partial class QueryableAsyncExtensions {
         IsNotNull(predicate);
         var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
         var count = 0;
-        await foreach (var item in filteredSource)
+        await foreach (var _ in filteredSource)
             count++;
         return count;
     }

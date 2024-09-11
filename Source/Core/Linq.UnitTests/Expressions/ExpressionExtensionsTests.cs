@@ -54,11 +54,9 @@ public class ExpressionExtensionsTests {
     public void VisitArray_FromVariable_Throws() {
         // Arrange
         var source = new[] { "1", "2", "3" };
-        var target = new[] { 1, 2, 3 };
         var arrayMapper = new TypeMapper<string[], int[]>();
         var elementMapper = new TypeMapper<string, int>(int.Parse);
         Expression<Func<string[], bool>> expression = x => x.SequenceEqual(source);
-        Expression<Func<int[], bool>> expectedExpression = x => x.SequenceEqual(target);
 
         // Act
         var action = () => expression.ReplaceExpressionType(arrayMapper, elementMapper);

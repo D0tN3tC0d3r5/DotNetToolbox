@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.Jobs;
+﻿using DotNetToolbox.AI.Personas;
+
+namespace DotNetToolbox.AI.Jobs;
 
 public interface IJobContext
     : IMap {

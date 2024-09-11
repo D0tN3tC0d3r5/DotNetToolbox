@@ -5,6 +5,8 @@ public static class JsonSchemaGenerator {
         where T : class
         => GenerateSchema(typeof(T));
 
+    private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+
     public static string GenerateSchema(Type type) {
         var schema = new Dictionary<string, object> {
             ["$schema"] = "https://json-schema.org/draft/2020-12/schema",
@@ -22,32 +24,43 @@ public static class JsonSchemaGenerator {
             schema["items"] = GenerateArrayItems(type);
         }
 
-        return JsonSerializer.Serialize(schema, new JsonSerializerOptions { WriteIndented = true });
+        return JsonSerializer.Serialize(schema, _jsonOptions);
     }
 
     private static Dictionary<string, object> GenerateArrayItems(Type type) {
         var elementType = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
         return elementType == null
-            ? new Dictionary<string, object> { ["type"] = "object" }
+            ? new() { ["type"] = "object" }
             : GenerateSchemaForType(elementType);
     }
 
-    private static string GetJsonType(Type type) => type switch
-    {
-        Type t when t == typeof(string) => "string",
-        Type t when t == typeof(DateTime) || t == typeof(DateTimeOffset) || t == typeof(TimeSpan) ||
-                    t == typeof(Guid) || t == typeof(Uri) || t == typeof(Version) => "string",
-        Type t when t.IsEnum => "string",
-        Type t when t == typeof(int) || t == typeof(long) || t == typeof(float) || t == typeof(double) ||
-                    t == typeof(decimal) || t == typeof(short) || t == typeof(ushort) || t == typeof(uint) ||
-                    t == typeof(ulong) || t == typeof(byte) || t == typeof(sbyte) => "number",
-        Type t when t == typeof(bool) => "boolean",
-        Type t when t.IsArray || (t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(List<>) ||
-                    t.GetGenericTypeDefinition() == typeof(IEnumerable<>))) => "array",
-        Type t when t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>) =>
-            GetJsonType(Nullable.GetUnderlyingType(t)!),
-        Type t when t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Dictionary<,>) => "object",
-        _ => "object"
+    private static string GetJsonType(Type type) => type switch {
+        not null when type == typeof(string) => "string",
+        not null when type == typeof(DateTime)
+                   || type == typeof(DateTimeOffset)
+                   || type == typeof(TimeSpan)
+                   || type == typeof(Guid)
+                   || type == typeof(Uri)
+                   || type == typeof(Version) => "string",
+        not null when type.IsEnum => "string",
+        not null when type == typeof(int)
+                   || type == typeof(long)
+                   || type == typeof(float)
+                   || type == typeof(double)
+                   || type == typeof(decimal)
+                   || type == typeof(short)
+                   || type == typeof(ushort)
+                   || type == typeof(uint)
+                   || type == typeof(ulong)
+                   || type == typeof(byte)
+                   || type == typeof(sbyte) => "number",
+        not null when type == typeof(bool) => "boolean",
+        not null when type.IsArray
+                   || (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(List<>)
+                                           || type.GetGenericTypeDefinition() == typeof(IEnumerable<>))) => "array",
+        not null when type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) => GetJsonType(Nullable.GetUnderlyingType(type)!),
+        not null when type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>) => "object",
+        _ => "object",
     };
     private static Dictionary<string, object> GenerateProperties(Type type) {
         var properties = new Dictionary<string, object>();
@@ -71,7 +84,7 @@ public static class JsonSchemaGenerator {
         else if (GetJsonType(type) == "object") {
             schema["properties"] = GenerateProperties(type);
             var requiredProperties = GetRequiredProperties(type);
-            if (requiredProperties.Any()) {
+            if (requiredProperties.Count != 0) {
                 schema["required"] = requiredProperties;
             }
         }
@@ -125,5 +138,5 @@ public static class JsonSchemaGenerator {
 
     private static bool IsNullableReferenceType(PropertyInfo prop)
         => !prop.PropertyType.IsValueType &&
-            prop.GetCustomAttribute<NullableAttribute>()?.NullableFlags?[0] == 2;
+            prop.GetCustomAttribute<NullableAttribute>()?.NullableFlags[0] == 2;
 }

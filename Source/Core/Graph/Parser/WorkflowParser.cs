@@ -108,7 +108,7 @@ public sealed class WorkflowParser {
         var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
         var retry = _services.GetService<IRetryPolicy>() ?? RetryPolicy.Default;
-        return new ActionNode(tag!, actionName, _services) {
+        return new ActionNode(tag, actionName, _services) {
             Token = token,
             Retry = retry,
         };
@@ -120,7 +120,7 @@ public sealed class WorkflowParser {
         var tag = GetValueOrDefault(TokenType.Tag);
         var predicateName = GetValue(TokenType.Identifier);
         Ensure(TokenType.EndOfLine);
-        var node = new IfNode(tag!, predicateName, _services) {
+        var node = new IfNode(tag, predicateName, _services) {
             Token = token,
             Then = ParseBlock(),
             Else = ParseElse(),
@@ -145,7 +145,7 @@ public sealed class WorkflowParser {
         var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
 
-        var node = new CaseNode(tag!, selector, _services) { Token = token };
+        var node = new CaseNode(tag, selector, _services) { Token = token };
         foreach ((var key, var choice) in ParseChoices())
             node.Choices.Add(key, choice);
         return node;
@@ -191,7 +191,7 @@ public sealed class WorkflowParser {
         var tag = GetValueOrDefault(TokenType.Tag);
         Ensure(TokenType.EndOfLine);
 
-        return new ExitNode(tag!, exitCode, _services) { Token = token };
+        return new ExitNode(tag, exitCode, _services) { Token = token };
     }
 
     private INode ParseJumpTo() {

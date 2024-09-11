@@ -27,13 +27,17 @@ internal static partial class JobInputHelper {
     private static string[] ExtractKeys(string template)
         => MatchInputKey.Matches(template).Select(m => m.Groups[1].Value).Distinct().ToArray();
 
-    private static string FindValue(object input, string key, IReadOnlyDictionary<Type, Func<object, string>> converters)
-        => input switch {
-            IEnumerable<KeyValuePair<string, object>> map when map.Any(x => x.Key == key) => ConvertInput(map.First(x => x.Key == key).Value, converters),
-            IEnumerable<KeyValuePair<string, object>> => throw new KeyNotFoundException($"Key '{key}' not found in the input."),
-            _ when input.GetType().GetProperty(key) is { } prop => ConvertInput(prop.GetValue(input), converters),
-            _ => throw new MissingMemberException($"Property '{key}' not found in the input object."),
-        };
+    private static string FindValue(object input, string key, IReadOnlyDictionary<Type, Func<object, string>> converters) {
+        switch (input) {
+            case IEnumerable<KeyValuePair<string, object>> dict when Map.FromMap(dict).TryGetValue(key, out var value):
+                return ConvertInput(value, converters);
+            case IEnumerable<KeyValuePair<string, object>>:
+                throw new KeyNotFoundException($"Key '{key}' not found in the input.");
+            case var _ when input.GetType().GetProperty(key) is { } prop:
+                return ConvertInput(prop.GetValue(input), converters);
+            default: throw new MissingMemberException($"Property '{key}' not found in the input object.");
+        }
+    }
 
     private static string ConvertInput(object? input, IReadOnlyDictionary<Type, Func<object, string>> converters) {
         if (input is null) return string.Empty;

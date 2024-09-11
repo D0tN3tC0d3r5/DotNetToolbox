@@ -23,7 +23,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MaxByAsync_WithTransformation_ReturnsMax() {
-        var result = await _repo.MaxByAsync(x => x.Name.Length, x => $"{x!.Name}^");
+        var result = await _repo.MaxByAsync(x => x.Name.Length, x => $"{x.Name}^");
         result.Should().Be("CCC^");
     }
 
@@ -55,7 +55,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MaxByAsync_WithComparerAndTransformation_ReturnsMax() {
-        var result = await _repo.MaxByAsync(x => x.Name.Length, Comparer<int>.Default, x => $"{x!.Name}^");
+        var result = await _repo.MaxByAsync(x => x.Name.Length, Comparer<int>.Default, x => $"{x.Name}^");
         result.Should().Be("CCC^");
     }
 

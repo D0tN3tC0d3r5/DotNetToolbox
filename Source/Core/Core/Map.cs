@@ -3,6 +3,42 @@
 public class Map(IEnumerable<KeyValuePair<string, object>>? source = null)
     : Map<object>(source),
       IMap {
+    public static Map Empty() => [];
+    public static Map<TValue> Empty<TValue>()
+        where TValue : notnull
+        => [];
+
+    public static Map FromMap(IEnumerable<KeyValuePair<string, object>> dict)
+        => new(dict);
+    public static Map<TValue> FromMap<TValue>(IEnumerable<KeyValuePair<string, TValue>> dict)
+        where TValue : notnull
+        => new(dict);
+    public static Map FromList(IEnumerable<object> list, Func<object, string> keySelector)
+        => new(list.ToDictionary(keySelector));
+    public static Map<TValue> FromList<TValue>(IEnumerable<TValue> list, Func<TValue, string> keySelector)
+        where TValue : notnull
+        => new(list.ToDictionary(keySelector));
+    public static Map<Map<string>> FromTable(IEnumerable<IEnumerable<string>> table) {
+        var rows = table.ToArray(r => r.ToArray());
+        if (rows.Length < 2 || rows[0].Length == 0) return Empty<Map<string>>();
+        var result = new Map<Map<string>>();
+        var headers = new Map<string>();
+        foreach (var col in rows[0]) {
+            var header = col.Split(':');
+            headers[header[0]] = header.Length > 1 ? header[1] : string.Empty;
+        }
+        result["Header"] = FromMap(headers);
+        for (var row = 1; row < rows.Length; row++) {
+            var rowMap = new Map<string>();
+            for (var col = 0; col < rows[row].Length; col++) {
+                var cell = rows[row][col];
+                var header = headers.ElementAtOrDefault(col).Key;
+                rowMap[header] = cell;
+            }
+            result[row.ToString()] = rowMap;
+        }
+        return result;
+    }
     public TValue GetValue<TValue>(string key, TValue defaultValue)
         where TValue : notnull
         => TryGetValueAs<TValue>(key, out var value)

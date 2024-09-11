@@ -1,4 +1,6 @@
-﻿namespace DotNetToolbox.AI.Jobs;
+﻿using DotNetToolbox.AI.Personas;
+
+namespace DotNetToolbox.AI.Jobs;
 
 public class JobContext
     : Map, IJobContext {
@@ -14,17 +16,17 @@ public class JobContext
     }
 
     public object Input {
-        get => this[nameof(Input)]!;
+        get => this[nameof(Input)];
         set => this[nameof(Input)] = value;
     }
 
     public object Output {
-        get => this[nameof(Output)]!;
+        get => this[nameof(Output)];
         set => this[nameof(Output)] = value;
     }
 
     public required Model Model {
-        get => (Model)this[nameof(Model)]!;
+        get => (Model)this[nameof(Model)];
         init => this[nameof(Model)] = value;
     }
 
@@ -54,7 +56,7 @@ public class JobContext
     }
 
     public Persona Persona {
-        get => (Persona)this[nameof(Persona)]!;
+        get => (Persona)this[nameof(Persona)];
         init => this[nameof(Persona)] = value;
     }
 

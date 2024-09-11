@@ -1,8 +1,7 @@
 ﻿namespace DotNetToolbox.Environment;
 
 public interface IPromptBuilder
-    : ITextPromptBuilder<string> {
-}
+    : ITextPromptBuilder<string>;
 
 public interface ITextPromptBuilder<TValue> {
     TextPromptBuilder<TValue> For(string name);

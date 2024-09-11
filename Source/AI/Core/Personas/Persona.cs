@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Personas;
 
 public class Persona
     : Map, IValidatable {
@@ -38,19 +38,19 @@ public class Persona
         Other = [];
     }
     public uint Id {
-        get => (uint)this[nameof(Id)]!;
+        get => (uint)this[nameof(Id)];
         init => this[nameof(Id)] = value;
     }
     public string Name {
-        get => (string)this[nameof(Name)]!;
+        get => (string)this[nameof(Name)];
         init => this[nameof(Name)] = value;
     }
     public string Role {
-        get => (string)this[nameof(Role)]!;
+        get => (string)this[nameof(Role)];
         init => this[nameof(Role)] = value;
     }
     public List<string> Goals {
-        get => (List<string>)this[nameof(Goals)]!;
+        get => (List<string>)this[nameof(Goals)];
         init => this[nameof(Goals)] = value;
     }
     public string? Expertise {
@@ -58,19 +58,19 @@ public class Persona
         init => this[nameof(Expertise)] = value;
     }
     public List<string> Traits {
-        get => (List<string>)this[nameof(Traits)]!;
+        get => (List<string>)this[nameof(Traits)];
         init => this[nameof(Traits)] = value;
     }
     public List<string> Important {
-        get => (List<string>)this[nameof(Important)]!;
+        get => (List<string>)this[nameof(Important)];
         init => this[nameof(Important)] = value;
     }
     public List<string> Negative {
-        get => (List<string>)this[nameof(Negative)]!;
+        get => (List<string>)this[nameof(Negative)];
         init => this[nameof(Negative)] = value;
     }
     public List<string> Other {
-        get => (List<string>)this[nameof(Other)]!;
+        get => (List<string>)this[nameof(Other)];
         init => this[nameof(Other)] = value;
     }
 

@@ -22,7 +22,7 @@ public class AnthropicAgent(IServiceProvider services, ILogger<AnthropicAgent> l
     }
 
     private static MessagePart ToMessagePart(MessageContent content)
-        => new(ToMessageContentType(content.Type), ((object?)content.Text ?? content.Image)!);
+        => new(ToMessageContentType(content.Type), (object?)content.Text ?? content.Image);
 
     private static MessagePartContentType ToMessageContentType(string type) => type switch {
         "text" => MessagePartContentType.Text,

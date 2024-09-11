@@ -6,7 +6,7 @@ public partial class AsyncQueryableTests {
         IQueryable subject = new AsyncQueryable<TestEntity>([]);
 
         subject.Should().NotBeNull();
-        subject.ElementType.Should().Be(typeof(TestEntity));
+        subject.ElementType.Should().Be<TestEntity>();
         subject.Expression.Should().NotBeNull();
         subject.Provider.Should().NotBeNull();
     }

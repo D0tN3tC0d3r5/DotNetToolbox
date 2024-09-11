@@ -11,9 +11,9 @@ public class NullSequencer<TKey>
         set { }
     }
     TKey IEnumerator<TKey>.Current => Current;
-    object? IEnumerator.Current => Current;
+    object IEnumerator.Current => Current;
 
-    public void Dispose() { }
+    public void Dispose() => GC.SuppressFinalize(this);
     public bool MoveNext() => false;
     public void Reset() { }
     public void Set(TKey value, bool skip = false) { }

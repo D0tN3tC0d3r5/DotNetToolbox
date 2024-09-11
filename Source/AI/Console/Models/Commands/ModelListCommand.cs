@@ -34,9 +34,9 @@ public class ModelListCommand : Command<ModelListCommand> {
         table.Expand();
 
         // Add columns
-        table.AddColumn(new TableColumn("[yellow]Name[/]"));
-        table.AddColumn(new TableColumn("[yellow]Provider[/]"));
-        table.AddColumn(new TableColumn("[yellow]Id[/]"));
+        table.AddColumn(new("[yellow]Name[/]"));
+        table.AddColumn(new("[yellow]Provider[/]"));
+        table.AddColumn(new("[yellow]Id[/]"));
         table.AddColumn(new TableColumn("[yellow]Map Size[/]").RightAligned());
         table.AddColumn(new TableColumn("[yellow]Output Tokens[/]").RightAligned());
 

@@ -79,14 +79,14 @@ csharp_style_var_for_built_in_types = true:warning
 csharp_style_var_when_type_is_apparent = true:warning
 
 # Expression-bodied members
-csharp_style_expression_bodied_accessors = true:warning
-csharp_style_expression_bodied_constructors = false:none
-csharp_style_expression_bodied_indexers = true:warning
-csharp_style_expression_bodied_lambdas = true:warning
-csharp_style_expression_bodied_local_functions = true:warning
-csharp_style_expression_bodied_methods = true:warning
-csharp_style_expression_bodied_operators = true:warning
-csharp_style_expression_bodied_properties = true:warning
+csharp_style_expression_bodied_accessors = true:silent
+csharp_style_expression_bodied_constructors = false:silent
+csharp_style_expression_bodied_indexers = true:silent
+csharp_style_expression_bodied_lambdas = true:suggestion
+csharp_style_expression_bodied_local_functions = true:suggestion
+csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_operators = true:suggestion
+csharp_style_expression_bodied_properties = true:silent
 
 # Pattern matching preferences
 csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
@@ -106,12 +106,12 @@ csharp_style_prefer_readonly_struct = true:suggestion
 csharp_style_prefer_readonly_struct_member = true:suggestion
 
 # Code-block preferences
-csharp_prefer_braces = when_multiline:warning
-csharp_prefer_simple_using_statement = true:warning
-csharp_style_namespace_declarations = file_scoped:warning
-csharp_style_prefer_method_group_conversion = true:warning
-csharp_style_prefer_primary_constructors = true:warning
-csharp_style_prefer_top_level_statements = true:warning
+csharp_prefer_braces = when_multiline:silent
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_prefer_method_group_conversion = true:suggestion
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_prefer_top_level_statements = true:suggestion
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true:error
@@ -129,7 +129,7 @@ csharp_style_unused_value_assignment_preference = discard_variable:silent
 csharp_style_unused_value_expression_statement_preference = discard_variable:silent
 
 # 'using' directive preferences
-csharp_using_directive_placement = outside_namespace:warning
+csharp_using_directive_placement = outside_namespace:suggestion
 
 # New line preferences
 csharp_style_allow_blank_line_after_colon_in_constructor_initializer_experimental = false:warning
@@ -153,7 +153,7 @@ csharp_new_line_between_query_expression_clauses = true
 csharp_indent_block_contents = true
 csharp_indent_braces = false
 csharp_indent_case_contents = true
-csharp_indent_labels = one_less_than_current
+csharp_indent_labels = flush_left
 csharp_indent_switch_labels = true
 
 # Space preferences
@@ -3117,7 +3117,7 @@ resharper_multiple_resolve_candidates_in_text_highlighting = warning
 resharper_multiple_spaces_highlighting = none
 resharper_multiple_statements_on_one_line_highlighting = none
 resharper_multiple_type_members_on_one_line_highlighting = none
-resharper_must_use_return_value_highlighting = warning
+resharper_must_use_return_value_highlighting = suggestion
 resharper_mvc_action_not_resolved_highlighting = error
 resharper_mvc_area_not_resolved_highlighting = error
 resharper_mvc_controller_not_resolved_highlighting = error
@@ -3429,7 +3429,7 @@ resharper_return_of_using_variable_highlighting = warning
 resharper_return_type_can_be_enumerable_global_highlighting = hint
 resharper_return_type_can_be_enumerable_local_highlighting = hint
 resharper_return_type_can_be_not_nullable_highlighting = warning
-resharper_return_value_of_pure_method_is_not_used_highlighting = warning
+resharper_return_value_of_pure_method_is_not_used_highlighting = suggestion
 resharper_route_templates_action_route_prefix_can_be_extracted_to_controller_route_highlighting = hint
 resharper_route_templates_ambiguous_matching_constraint_constructor_highlighting = warning
 resharper_route_templates_constraint_argument_cannot_be_converted_highlighting = warning
@@ -3543,7 +3543,7 @@ resharper_unused_auto_property_accessor_local_highlighting = warning
 resharper_unused_import_clause_highlighting = warning
 resharper_unused_local_function_highlighting = warning
 resharper_unused_local_function_parameter_highlighting = warning
-resharper_unused_local_function_return_value_highlighting = warning
+resharper_unused_local_function_return_value_highlighting = suggestion
 resharper_unused_member_global_highlighting = suggestion
 resharper_unused_member_hierarchy_global_highlighting = suggestion
 resharper_unused_member_hierarchy_local_highlighting = warning
@@ -3551,12 +3551,12 @@ resharper_unused_member_in_super_global_highlighting = suggestion
 resharper_unused_member_in_super_local_highlighting = warning
 resharper_unused_member_local_highlighting = warning
 resharper_unused_method_return_value_global_highlighting = suggestion
-resharper_unused_method_return_value_local_highlighting = warning
+resharper_unused_method_return_value_local_highlighting = suggestion
 resharper_unused_nullable_directive_highlighting = warning
 resharper_unused_parameter_global_highlighting = suggestion
 resharper_unused_parameter_in_partial_method_highlighting = warning
 resharper_unused_parameter_local_highlighting = warning
-resharper_unused_tuple_component_in_return_value_highlighting = warning
+resharper_unused_tuple_component_in_return_value_highlighting = suggestion
 resharper_unused_type_global_highlighting = suggestion
 resharper_unused_type_local_highlighting = warning
 resharper_unused_type_parameter_highlighting = warning
@@ -3780,6 +3780,7 @@ dotnet_diagnostic.DV0001.severity = warning
 dotnet_diagnostic.DV1001.severity = warning
 dotnet_diagnostic.DV1002.severity = warning
 dotnet_diagnostic.DV1003.severity = warning
+csharp_prefer_system_threading_lock = true:suggestion
 
 [*.{appxmanifest,asax,ascx,aspx,axaml,axml,build,cc,ccm,cginc,compute,config,cshtml,csproj,cu,cuh,cxx,cxxm,dbml,discomap,dtd,fx,fxh,hlsl,hlsli,hlslinc,hpp,htm,html,hxx,inc,inl,ino,ipp,ixx,jsproj,lsproj,master,mpp,mq4,mq5,mqh,mxx,njsproj,nuspec,paml,proj,props,razor,resw,resx,skin,StyleCop,targets,tasks,tpp,usf,ush,vbproj,xaml,xamlx,xml,xoml,xsd}]
 indent_size = 2
@@ -3826,18 +3827,18 @@ dotnet_style_operator_placement_when_wrapping = beginning_of_line
 tab_width = 4
 indent_size = 4
 end_of_line = crlf
-dotnet_style_coalesce_expression = true:warning
-dotnet_style_null_propagation = true:warning
-dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
+dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
 dotnet_style_prefer_auto_properties = true:suggestion
-dotnet_style_object_initializer = true:warning
-dotnet_style_collection_initializer = true:warning
-dotnet_style_prefer_simplified_boolean_expressions = true:warning
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
 dotnet_style_prefer_conditional_expression_over_assignment = true:suggestion
 dotnet_style_prefer_conditional_expression_over_return = true:suggestion
-dotnet_style_explicit_tuple_names = true:warning
-dotnet_style_prefer_inferred_tuple_names = true:warning
-dotnet_style_prefer_inferred_anonymous_type_member_names = true:warning
+dotnet_style_explicit_tuple_names = true:suggestion
+dotnet_style_prefer_inferred_tuple_names = true:suggestion
+dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 dotnet_style_prefer_compound_assignment = false:suggestion
 dotnet_style_prefer_simplified_interpolation = true:suggestion
 dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion

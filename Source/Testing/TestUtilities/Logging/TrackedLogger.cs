@@ -12,6 +12,7 @@ public class TrackedLogger(ILogger logger, bool isEnable = true, bool forceCaptu
     : ITrackedLogger {
     private readonly List<Log> _logs = [];
     private readonly bool _forceCapture = forceCapture || logger is NullLogger;
+    private bool _isEnable = isEnable;
 
     public TrackedLogger(bool isEnable = true)
         : this(NullLogger.Instance, isEnable, true) {
@@ -22,9 +23,9 @@ public class TrackedLogger(ILogger logger, bool isEnable = true, bool forceCaptu
     public void Clear()
         => _logs.Clear();
     public void StartTracking()
-        => isEnable = true;
+        => _isEnable = true;
     public void StopTracking()
-        => isEnable = false;
+        => _isEnable = false;
 
     public void Log<TState>(LogLevel logLevel,
                             EventId eventId,
@@ -37,7 +38,7 @@ public class TrackedLogger(ILogger logger, bool isEnable = true, bool forceCaptu
     }
 
     public bool IsEnabled(LogLevel logLevel)
-        => isEnable && (_forceCapture || logger.IsEnabled(logLevel));
+        => _isEnable && (_forceCapture || logger.IsEnabled(logLevel));
 
     public IDisposable? BeginScope<TState>(TState state)
         where TState : notnull

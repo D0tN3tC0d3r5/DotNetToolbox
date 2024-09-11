@@ -260,11 +260,6 @@ public class EnsureTests {
             => isValid ? Result.Success() : Result.Invalid("Is not valid.", "Source");
     }
 
-    private sealed class ValidatableAsyncObject(bool isValid) : IValidatableAsync {
-        public Task<Result> Validate(IMap? context = null, CancellationToken token = default)
-            => isValid ? Result.SuccessTask() : Result.InvalidTask("Source", "Is not valid.");
-    }
-
     [Fact]
     public void IsValid_WhenInvalidValidatable_ThrowsValidationException() {
         // Arrange

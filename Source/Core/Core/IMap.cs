@@ -1,6 +1,7 @@
 ﻿namespace DotNetToolbox;
 
-public interface IMap : IMap<object> {
+public interface IMap
+    : IMap<object> {
     TValue GetRequiredValueAs<TValue>(string key);
     TValue GetValue<TValue>(string key, TValue defaultValue)
         where TValue : notnull;

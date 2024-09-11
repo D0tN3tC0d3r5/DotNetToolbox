@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal sealed class TestDateTimeProvider() : IDateTimeProvider {
+internal sealed class TestDateTimeProvider : IDateTimeProvider {
     public DateTimeOffset FromFileTime(long fileTime) => throw new NotImplementedException();
 
     public DateTimeOffset FromUnixTimeMilliseconds(long ms) => throw new NotImplementedException();
@@ -15,13 +15,13 @@ internal sealed class TestDateTimeProvider() : IDateTimeProvider {
 
     public bool TryParseExact(string s, string format, out DateTimeOffset result) => throw new NotImplementedException();
 
-    public DateTimeOffset Maximum { get; }
-    public DateTimeOffset Minimum { get; }
-    public DateTimeOffset Now { get; }
-    public TimeOnly TimeOfDay { get; }
-    public DateOnly Today { get; }
-    public DateTimeOffset UnixEpoch { get; }
-    public DateTimeOffset UtcNow { get; }
-    public TimeOnly UtcTimeOfDay { get; }
-    public DateOnly UtcToday { get; }
+    public DateTimeOffset Maximum { get; } = DateTimeOffset.MaxValue;
+    public DateTimeOffset Minimum { get; } = DateTimeOffset.MaxValue;
+    public DateTimeOffset Now { get; } = DateTimeOffset.MaxValue;
+    public TimeOnly TimeOfDay { get; } = TimeOnly.MaxValue;
+    public DateOnly Today { get; } = DateOnly.MaxValue;
+    public DateTimeOffset UnixEpoch { get; } = DateTimeOffset.MaxValue;
+    public DateTimeOffset UtcNow { get; } = DateTimeOffset.MaxValue;
+    public TimeOnly UtcTimeOfDay { get; } = TimeOnly.MaxValue;
+    public DateOnly UtcToday { get; } = DateOnly.MaxValue;
 }

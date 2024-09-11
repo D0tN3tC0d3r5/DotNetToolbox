@@ -57,21 +57,17 @@ public abstract class RetryPolicy<TPolicy>
                 ct.ThrowIfCancellationRequested();
                 if (await TryExecute(action, ctx, ct))
                     return;
-                HandleActionFailure();
+                if (MaxRetries != byte.MaxValue && attempts >= MaxRetries)
+                    throw new PolicyException($"The action failed to execute. Maximum number of allowed retries: {MaxRetries}.");
+
+                Thread.Sleep(Delays[attempts - 1]);
             }
             catch (OperationCanceledException) {
                 throw;
             }
             catch (Exception ex) {
-                HandleActionFailure(ex);
+                throw new PolicyException("The action failed to execute.", ex);
             }
-        }
-
-        void HandleActionFailure(Exception? ex = null) {
-            if (MaxRetries != byte.MaxValue && attempts >= MaxRetries)
-                throw new PolicyException($"The action failed to execute successfully. Maximum number of allowed retries: {MaxRetries}.", ex);
-
-            Thread.Sleep(Delays[attempts - 1]);
         }
     }
 

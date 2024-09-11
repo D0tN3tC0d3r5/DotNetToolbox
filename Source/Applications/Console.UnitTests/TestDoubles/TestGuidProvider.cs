@@ -1,6 +1,6 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal sealed class TestGuidProvider()
+internal sealed class TestGuidProvider
     : IGuidProvider {
     public Guid Create() => throw new NotImplementedException();
     public Guid Create(byte[] bytes) => throw new NotImplementedException();

@@ -7,8 +7,7 @@ public static partial class QueryableAsyncExtensions {
 
     public static async ValueTask<bool> AnyAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
         IsNotNull(predicate);
-        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
-        await foreach (var item in filteredSource)
+        await foreach (var _ in IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct))
             return true;
         return false;
     }

@@ -2,7 +2,7 @@
 
 public class Task
     : Map {
-    public static Task Default { get; } = new Task(0);
+    public static Task Default { get; } = new(0);
 
     public Task(uint id) {
         Id = id;

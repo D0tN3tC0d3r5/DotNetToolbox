@@ -5,24 +5,22 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings> : Appli
     where TApplication : ApplicationBase<TApplication, TBuilder, TSettings>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {
-    public ApplicationBase(string[] args, IServiceCollection services)
+    protected ApplicationBase(string[] args, IServiceCollection services)
         : base(args, services) {
-        services.AddSingleton<TApplication>((TApplication)this);
-        services.AddSingleton<Lazy<TApplication>>(_ => new Lazy<TApplication>(() => (TApplication)this));
+        services.AddSingleton((TApplication)this);
+        services.AddSingleton(_ => new Lazy<TApplication>(() => (TApplication)this));
     }
 
     public static TBuilder CreateBuilder(Action<IConfigurationBuilder>? setConfiguration = null)
         => CreateBuilder([], setConfiguration);
-    public static TBuilder CreateBuilder(string[] args, Action<IConfigurationBuilder>? setConfiguration = null) {
-        Action<IConfigurationBuilder> defaultAction = _ => { };
-        return InstanceFactory.Create<TBuilder>(args, setConfiguration ?? defaultAction);
-    }
+    public static TBuilder CreateBuilder(string[] args, Action<IConfigurationBuilder>? setConfiguration = null) => InstanceFactory.Create<TBuilder>(args, setConfiguration ?? DefaultAction);
+
+    private static void DefaultAction(IConfigurationBuilder _) { }
 
     public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder) {
         var builder = CreateBuilder(args, setConfiguration);
-        configureBuilder?.Invoke(builder);
-        var app = builder.Build();
-        return app;
+        configureBuilder(builder);
+        return builder.Build();
     }
 
     public static TApplication Create(Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder)
@@ -111,16 +109,15 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings> : Appli
                                            || c.Aliases.Contains(token));
 }
 
-public abstract class ApplicationBase<TSettings>
+public abstract partial class ApplicationBase<TSettings>
     : IApplication<TSettings>
     where TSettings : ApplicationSettings, new() {
     private readonly AsyncServiceScope _servicesScope;
 
-    private static Regex _versionRegex = new(@"\.([a-z]\S*)$", Compiled | IgnoreCase | Singleline);
     protected ApplicationBase(string[] args, IServiceCollection services) {
         Arguments = args;
         services.AddSingleton<IApplication>(this);
-        services.AddSingleton<Lazy<IApplication>>(_ => new Lazy<IApplication>(() => this));
+        services.AddSingleton<Lazy<IApplication>>(_ => new(() => this));
         var provider = services.BuildServiceProvider();
         _servicesScope = provider.CreateAsyncScope();
         Services = _servicesScope.ServiceProvider;
@@ -139,7 +136,7 @@ public abstract class ApplicationBase<TSettings>
         DisplayVersion = Environment.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? Version;
         var plusIndex = DisplayVersion.IndexOf('+');
         if (plusIndex > 0) DisplayVersion = DisplayVersion[..plusIndex];
-        DisplayVersion = _versionRegex.Replace(DisplayVersion, "-$1");
+        DisplayVersion = VersionPatch.Replace(DisplayVersion, "-$1");
 
         var ada = Environment.Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
         Description = ada ?? string.Empty;
@@ -246,4 +243,7 @@ public abstract class ApplicationBase<TSettings>
         where TParameter : Parameter<TParameter>, IParameter
         => NodeFactory.Create<TParameter>(this);
     public void AddParameter(IParameter parameter) => Children.Add(parameter);
+
+    [GeneratedRegex(@"\.([a-z]\S*)$", IgnoreCase | Compiled | Singleline)]
+    private static partial Regex VersionPatch { get; }
 }

@@ -274,7 +274,7 @@ public class ResultTests {
     [Fact]
     public void MapTo_WithoutError_ReturnsSuccess() {
         // Arrange & Act
-        var result = _successWithValue.MapTo(s => s is null ? default : int.Parse(s));
+        var result = _successWithValue.MapTo(int.Parse);
 
         // Assert
         result.Should().BeOfType<Result<int>>();
@@ -285,7 +285,7 @@ public class ResultTests {
     [Fact]
     public void MapTo_WithError_ReturnsInvalid() {
         // Arrange & Act
-        var result = _invalidWithValue.MapTo(s => s is null ? default : int.Parse(s));
+        var result = _invalidWithValue.MapTo(int.Parse);
 
         // Assert
         result.Should().BeOfType<Result<int>>();
@@ -296,7 +296,7 @@ public class ResultTests {
     [Fact]
     public void MapTo_WithException_ReturnsError() {
         // Arrange & Act
-        var result = _failureWithValue.MapTo(s => s is null ? (int?)null : int.Parse(s));
+        var result = _failureWithValue.MapTo(int.Parse);
 
         // Assert
         result.Should().BeOfType<Result<int?>>();
@@ -394,7 +394,7 @@ public class ResultTests {
         // Act
         Exception? exception = _successWithValue;
         ValidationErrors errors = _successWithValue;
-        string? value = _successWithValue;
+        string value = _successWithValue;
 
         // Assert
         exception.Should().BeNull();
@@ -408,7 +408,7 @@ public class ResultTests {
         Exception? exception = _failureWithValue;
         ValidationErrors errors = _failureWithValue;
         ValidationError[] array = _failureWithValue;
-        string? value = _failureWithValue;
+        string value = _failureWithValue;
 
         // Assert
         exception.Should().NotBeNull();
@@ -423,7 +423,7 @@ public class ResultTests {
         Exception? exception = _invalidWithValue;
         ValidationErrors errors = _invalidWithValue;
         ValidationError[] array = _invalidWithValue;
-        string? value = _invalidWithValue;
+        string value = _invalidWithValue;
 
         // Assert
         exception.Should().BeNull();
@@ -547,7 +547,7 @@ public class ResultTests {
         static int MappingFunction(string _) => throw new InvalidOperationException();
 
         // Act
-        var mappedResult = result.MapTo(MappingFunction!);
+        var mappedResult = result.MapTo(MappingFunction);
 
         // Assert
         mappedResult.Should().BeOfType<Result<int>>();

@@ -282,6 +282,16 @@ public class RunOnceApplicationTests {
         await app.RunAsync();
 
         // Assert
+        dateTimeProvider.Maximum.Should().Be(DateTime.MaxValue);
+        dateTimeProvider.Minimum.Should().Be(DateTime.MaxValue);
+        dateTimeProvider.Now.Should().Be(DateTime.MaxValue);
+        dateTimeProvider.TimeOfDay.Should().Be(TimeOnly.MaxValue);
+        dateTimeProvider.Today.Should().Be(DateOnly.MaxValue);
+        dateTimeProvider.UnixEpoch.Should().Be(DateTime.MaxValue);
+        dateTimeProvider.UtcNow.Should().Be(DateTime.MaxValue);
+        dateTimeProvider.UtcTimeOfDay.Should().Be(TimeOnly.MaxValue);
+        dateTimeProvider.UtcToday.Should().Be(DateOnly.MaxValue);
+
         app.Should().BeOfType<RunOnceApplication>();
         output.ToString().Should().Be(expectedOutput);
     }

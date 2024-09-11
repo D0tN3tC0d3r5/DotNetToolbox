@@ -6,8 +6,8 @@ public static partial class Ensure {
     public static TArgument? IsNotEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where TArgument : IEnumerable
         => argument switch {
-            ICollection { Count: 0 } => throw new ArgumentException(CollectionCannotBeEmpty, paramName),
-            not null when !argument.Cast<object>().Any() => throw new ArgumentException(CollectionCannotBeEmpty, paramName),
+            ICollection { Count: 0 } => throw new ArgumentException(string.Format(null, InvertMessage(CollectionMustBeEmpty)), paramName),
+            not null when !argument.Cast<object>().Any() => throw new ArgumentException(string.Format(null, InvertMessage(CollectionMustBeEmpty)), paramName),
             _ => argument,
         };
 

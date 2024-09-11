@@ -23,7 +23,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MinByAsync_WithTransformation_ReturnsMin() {
-        var result = await _repo.MinByAsync(x => x.Name.Length, x => $"{x!.Name}^");
+        var result = await _repo.MinByAsync(x => x.Name.Length, x => $"{x.Name}^");
         result.Should().Be("A^");
     }
 
@@ -55,7 +55,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MinByAsync_WithComparerAndTransformation_ReturnsMin() {
-        var result = await _repo.MinByAsync(x => x.Name.Length, Comparer<int>.Default, x => $"{x!.Name}^");
+        var result = await _repo.MinByAsync(x => x.Name.Length, Comparer<int>.Default, x => $"{x.Name}^");
         result.Should().Be("A^");
     }
 

@@ -15,8 +15,8 @@ public class ProviderListCommand(IHasChildren parent, IProviderHandler providerH
         }
 
         var table = new Table();
-        table.AddColumn(new TableColumn("[yellow]Id[/]"));
-        table.AddColumn(new TableColumn("[yellow]Name[/]"));
+        table.AddColumn(new("[yellow]Id[/]"));
+        table.AddColumn(new("[yellow]Name[/]"));
 
         foreach (var provider in providers) {
             table.AddRow(provider.Key.ToString(), provider.Name);

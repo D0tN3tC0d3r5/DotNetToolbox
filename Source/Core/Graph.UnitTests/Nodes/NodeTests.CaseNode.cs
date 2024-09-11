@@ -37,7 +37,7 @@ public partial class NodeTests {
                                                  ["key2"] = null,
                                                  ["key3"] = null,
                                              },
-                                             CreateFactory().CreateAction("o", ctx => { }));
+                                             CreateFactory().CreateAction("o", _ => { }));
 
             node.Should().BeOfType<CaseNode>();
             var branchingNode = (CaseNode)node;

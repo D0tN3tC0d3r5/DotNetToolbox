@@ -21,7 +21,7 @@ public static partial class Ensure {
         var result = validate(IsNotNull(argument, paramName));
         return result.IsSuccess
             ? argument
-            : throw new ValidationException(ValueIsNotValid, paramName!);
+            : throw new ValidationException(string.Format(null, InvertMessage(ValueIsValid)), paramName!);
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
@@ -34,7 +34,7 @@ public static partial class Ensure {
     public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => isValid(IsNotNull(argument, paramName))
                ? argument
-               : throw new ValidationException(ValueIsNotValid, paramName!);
+               : throw new ValidationException(string.Format(null, InvertMessage(ValueIsValid)), paramName!);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue = default)

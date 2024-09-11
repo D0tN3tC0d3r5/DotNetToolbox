@@ -58,9 +58,9 @@ public class ConsoleOutput
     public virtual void Write(StringBuilder? builder)
         => AnsiConsole.Markup(builder?.ToString() ?? string.Empty);
     public virtual void Write(char[]? buffer)
-        => AnsiConsole.Markup(new string(buffer));
+        => AnsiConsole.Markup(new(buffer));
     public virtual void Write(char[] buffer, int index, int count)
-        => AnsiConsole.Markup(new string(buffer), index, count);
+        => AnsiConsole.Markup(new(buffer), index, count);
 
     public virtual void WritePrompt()
         => AnsiConsole.Markup(Prompt);
@@ -97,9 +97,9 @@ public class ConsoleOutput
     public virtual void WriteLine(StringBuilder? builder)
         => AnsiConsole.MarkupLine(builder?.ToString() ?? string.Empty);
     public virtual void WriteLine(char[]? buffer)
-        => AnsiConsole.MarkupLine(new string(buffer));
+        => AnsiConsole.MarkupLine(new(buffer));
     public virtual void WriteLine(char[] buffer, int index, int count)
-        => AnsiConsole.MarkupLine(new string(buffer), index, count);
+        => AnsiConsole.MarkupLine(new(buffer), index, count);
 
     public virtual void WriteOnANewLine(bool value) {
         WriteLine();
@@ -177,7 +177,7 @@ public class ConsoleOutput
         WriteLine();
     }
 
-    public virtual void WriteError(Exception exception, string? message = null) {
+    public virtual void WriteError(Exception exception, string message) {
         WriteLine();
         WriteLine($"[bold red]Error! {IsNotNullOrWhiteSpace(message)}[/]");
         AnsiConsole.WriteException(exception, _exceptionFormat);

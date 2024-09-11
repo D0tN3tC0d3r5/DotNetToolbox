@@ -1,4 +1,5 @@
-﻿namespace System;
+﻿// ReSharper disable once CheckNamespace
+namespace System;
 
 public static partial class Ensure {
     public static Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, IMap? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
@@ -17,7 +18,7 @@ public static partial class Ensure {
         var result = await validate(IsNotNull(argument, paramName));
         return result.IsSuccess
                    ? argument
-                   : throw new ValidationException(ValueIsNotValid, paramName!);
+                   : throw new ValidationException(string.Format(null, InvertMessage(ValueIsValid)), paramName!);
     }
 
     public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<Result>> validate, TArgument? defaultValue = default)
@@ -28,7 +29,7 @@ public static partial class Ensure {
     public static async Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         => await isValid(IsNotNull(argument, paramName))
                ? argument
-               : throw new ValidationException(ValueIsNotValid, paramName!);
+               : throw new ValidationException(string.Format(null, InvertMessage(ValueIsValid)), paramName!);
 
     public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, TArgument? defaultValue = default)
         => await isValid(argument) && argument is not null

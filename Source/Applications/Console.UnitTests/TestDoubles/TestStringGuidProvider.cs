@@ -2,7 +2,7 @@
 
 namespace DotNetToolbox.ConsoleApplication.TestDoubles;
 
-internal sealed class TestStringGuidProvider()
+internal sealed class TestStringGuidProvider
     : IStringGuidProvider {
     public string Create() => throw new NotImplementedException();
     public string Create(byte[] bytes) => throw new NotImplementedException();

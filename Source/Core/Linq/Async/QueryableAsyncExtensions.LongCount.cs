@@ -8,8 +8,7 @@ public static partial class QueryableAsyncExtensions {
     public static async ValueTask<long> LongCountAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct = default) {
         IsNotNull(predicate);
         var count = 0L;
-        var filteredSource = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
-        await foreach (var item in filteredSource)
+        await foreach (var _ in IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct))
             count++;
         return count;
     }

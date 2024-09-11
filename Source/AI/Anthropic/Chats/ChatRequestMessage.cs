@@ -8,8 +8,8 @@ public class ChatRequestMessage
             case Message c:
                 Role = RoleToString(c.Role);
                 Content = c.Count == 1
-                              ? (string)c[0].Content
-                              : c.ToArray(p => new MessageContent(p.Content));
+                              ? (string)c[0].Content!
+                              : c.ToArray(p => new MessageContent(p.Content!));
                 break;
             default:
                 throw new NotSupportedException();

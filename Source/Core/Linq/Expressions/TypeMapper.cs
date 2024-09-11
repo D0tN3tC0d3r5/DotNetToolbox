@@ -16,13 +16,14 @@ public record TypeMapper {
         Convert = convert is null ? null : s => s is null ? null : convert(s);
     }
 
-    public Type SourceType { get; init; }
-    public Type TargetType { get; init; }
-    public Func<object?, object?>? Convert { get; init; }
+    public Type SourceType { get; }
+    public Type TargetType { get; }
+    public Func<object?, object?>? Convert { get; }
 
     public virtual bool Equals(TypeMapper? other)
-        => SourceType == other?.SourceType
-        && TargetType == other?.TargetType;
+        => other is not null
+        && SourceType == other.SourceType
+        && TargetType == other.TargetType;
     public override int GetHashCode()
         => HashCode.Combine(SourceType, TargetType);
 

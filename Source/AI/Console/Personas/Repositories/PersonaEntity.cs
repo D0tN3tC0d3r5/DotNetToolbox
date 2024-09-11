@@ -1,4 +1,6 @@
-﻿namespace AI.Sample.Personas.Repositories;
+﻿using DotNetToolbox.AI.Personas;
+
+namespace AI.Sample.Personas.Repositories;
 
 public class PersonaEntity
     : Entity<PersonaEntity, uint> {

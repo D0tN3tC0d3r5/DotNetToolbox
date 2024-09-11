@@ -10,7 +10,7 @@ public static partial class QueryableAsyncExtensions {
         => FindFirstOrDefault(source, predicate, default, ct);
 
     public static ValueTask<TItem?> FirstOrDefaultAsync<TItem>(this IQueryable<TItem> source, TItem? defaultValue, CancellationToken ct = default)
-        => FindFirstOrDefault(source, _ => true, defaultValue, ct)!;
+        => FindFirstOrDefault(source, _ => true, defaultValue, ct);
 
     public static ValueTask<TItem?> FirstOrDefaultAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, TItem? defaultValue, CancellationToken ct = default)
         => FindFirstOrDefault(source, predicate, defaultValue, ct);

@@ -1,3 +1,3 @@
-﻿namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Chats;
 
 public interface IChatResponse;

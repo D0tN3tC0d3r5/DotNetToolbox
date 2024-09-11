@@ -31,7 +31,7 @@ internal sealed class TestOutput : IOutput {
 
     public void ResetColor() => throw new NotImplementedException();
     public void Write(string value) {
-        var lines = (value ?? string.Empty).Split(System.Environment.NewLine);
+        var lines = value.Split(System.Environment.NewLine);
         if (lines.Length == 0) return;
         if (Lines.Count == 0) Lines.Add(lines[0]);
         else Lines[^1] += lines[0];
@@ -100,6 +100,6 @@ internal sealed class TestOutput : IOutput {
     public void WriteOnANewLine(object? value) => throw new NotImplementedException();
     public void WriteOnANewLine(StringBuilder? builder) => throw new NotImplementedException();
     public void WriteError(Exception exception) => throw new NotImplementedException();
-    public void WriteError(Exception exception, string? message = null) => throw new NotImplementedException();
+    public void WriteError(Exception exception, string message) => throw new NotImplementedException();
     public void WriteError(string message) => throw new NotImplementedException();
 }

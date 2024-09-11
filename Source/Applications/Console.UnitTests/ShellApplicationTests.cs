@@ -533,7 +533,7 @@ public sealed class ShellApplicationTests {
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private sealed class TestShellApp(string[] args, IServiceCollection services)
         : ShellApplication<TestShellApp, ApplicationSettings>(args, services) {
-        protected override Task<Result> OnStart(CancellationToken ct)
+        protected override Task<Result> OnStart(CancellationToken ct = default)
             => Result.InvalidTask("Some error.");
     }
 

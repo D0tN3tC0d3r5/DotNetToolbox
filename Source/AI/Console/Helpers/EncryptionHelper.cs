@@ -1,5 +1,3 @@
-using System.Buffers.Text;
-
 namespace AI.Sample.Helpers;
 
 public interface IEncryptionHelper {
@@ -7,14 +5,14 @@ public interface IEncryptionHelper {
     string? Decrypt(string? cipherText);
 }
 
-public class EncryptionHelper : IEncryptionHelper {
+public sealed class EncryptionHelper : IEncryptionHelper {
     private static IEncryptionHelper? _instance;
     private readonly byte[] _secretKey;
     private readonly byte[] _initVector;
 
     private EncryptionHelper(IConfiguration configuration) {
-        _secretKey = Convert.FromBase64String(IsNotNull(configuration?["Encryption:SecretKey"]));
-        _initVector = Convert.FromBase64String(IsNotNull(configuration?["Encryption:InitVector"]));
+        _secretKey = Convert.FromBase64String(IsNotNull(configuration["Encryption:SecretKey"]));
+        _initVector = Convert.FromBase64String(IsNotNull(configuration["Encryption:InitVector"]));
     }
 
     public static void Initialize(IConfiguration configuration) {

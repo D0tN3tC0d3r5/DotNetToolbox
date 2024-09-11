@@ -1,4 +1,5 @@
-﻿namespace DotNetToolbox;
+﻿// ReSharper disable once CheckNamespace
+namespace DotNetToolbox;
 
 public sealed class AzureSecretReader
     : IAzureSecretReader {

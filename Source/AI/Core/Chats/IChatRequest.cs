@@ -1,4 +1,4 @@
-﻿namespace DotNetToolbox.AI.Agents;
+﻿namespace DotNetToolbox.AI.Chats;
 
 public interface IChatRequest {
     string Model { get; }

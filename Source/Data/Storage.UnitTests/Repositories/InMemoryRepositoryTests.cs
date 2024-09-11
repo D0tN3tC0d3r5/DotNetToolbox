@@ -18,8 +18,8 @@ public partial class InMemoryRepositoryTests {
     private readonly InMemoryRepository<TestEntity, int> _updatableRepo = [new("A"), new("BB"), new("CCC")];
 
     private sealed class DummyRepository : Repository<DummyRepositoryStrategy, TestEntity, int>;
-    private sealed class DummyRepositoryStrategy()
-        : RepositoryStrategy<DummyRepositoryStrategy, DummyRepository, TestEntity, int>();
+    private sealed class DummyRepositoryStrategy
+        : RepositoryStrategy<DummyRepositoryStrategy, DummyRepository, TestEntity, int>;
     private static readonly DummyRepository _dummyRepository = [];
 
     [Fact]
@@ -27,7 +27,7 @@ public partial class InMemoryRepositoryTests {
         var subject = new InMemoryRepository<TestEntity>();
 
         subject.Should().NotBeNull();
-        subject.ElementType.Should().Be(typeof(TestEntity));
+        subject.ElementType.Should().BeOfType<TestEntity>();
         subject.Expression.Should().NotBeNull();
         subject.Provider.Should().NotBeNull();
         subject.AsyncProvider.Should().NotBeNull();

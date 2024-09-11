@@ -1,19 +1,14 @@
 ﻿namespace DotNetToolbox.Results;
 
-public class ValidationException
+public sealed class ValidationException
     : Exception {
     public const string DefaultMessage = "Validation failed.";
 
-    public ValidationError[] Errors { get; init; } = [];
+    public ValidationError[] Errors { get; }
 
-    public ValidationException()
-        : base(DefaultMessage) {
-        Errors = [new(ValidationError.DefaultErrorMessage)];
-    }
-
-    public ValidationException(string message)
-        : base(message) {
-        Errors = [new(ValidationError.DefaultErrorMessage)];
+    public ValidationException(string? message = null)
+        : base(message ?? DefaultMessage) {
+        Errors = [new(message ?? DefaultMessage)];
     }
 
     public ValidationException(Exception innerException)
@@ -32,7 +27,7 @@ public class ValidationException
         : this(message, string.Empty, innerException) {
     }
 
-    public ValidationException(string message, ValidationError error, Exception? innerException = null)
+    private ValidationException(string message, ValidationError error, Exception? innerException = null)
         : this(message, string.Empty, error, innerException) {
     }
 

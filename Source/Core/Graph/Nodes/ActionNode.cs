@@ -29,7 +29,7 @@ public sealed class ActionNode : ActionNode<ActionNode> {
 
     private readonly Func<Map, CancellationToken, Task> _execute;
 
-    protected override Task Execute(Map context, CancellationToken ct)
+    protected override Task Execute(Map context, CancellationToken ct = default)
         => _execute(context, ct);
 
     public static TNode Create<TNode>(IServiceProvider services, params object[] args)
@@ -50,11 +50,11 @@ public abstract class ActionNode<TNode>(string? tag, IServiceProvider services)
     public IRetryPolicy Retry { get; set; } = services.GetService<IRetryPolicy>()
                                            ?? RetryPolicy.Default;
 
-    protected sealed override Task<INode?> SelectPath(Map context, CancellationToken ct)
+    protected sealed override Task<INode?> SelectPath(Map context, CancellationToken ct = default)
         => Task.FromResult(Next);
 
-    protected sealed override Task UpdateState(Map context, CancellationToken ct)
+    protected sealed override Task UpdateState(Map context, CancellationToken ct = default)
         => Retry.Execute(Execute, context, ct);
 
-    protected abstract Task Execute(Map context, CancellationToken ct);
+    protected abstract Task Execute(Map context, CancellationToken ct = default);
 }

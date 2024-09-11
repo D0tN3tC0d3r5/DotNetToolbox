@@ -77,7 +77,7 @@ public abstract class JsonFilePerTypeRepositoryStrategy<TRepository, TItem, TKey
         => Repository.Data.AsQueryable().FirstOrDefault(predicate);
 
     private void Save() {
-        var json = JsonSerializer.Serialize(Repository?.Data ?? [], _jsonOptions);
+        var json = JsonSerializer.Serialize(Repository.Data, _jsonOptions);
         System.IO.File.WriteAllText(_filePath, json);
     }
 

@@ -1,7 +1,7 @@
 namespace DotNetToolbox.Data.Strategies;
 
-public class RepositoryStrategy<TStrategy, TRepository, TItem, TKey>()
-    : RepositoryStrategy<TStrategy, TRepository, TItem>()
+public class RepositoryStrategy<TStrategy, TRepository, TItem, TKey>
+    : RepositoryStrategy<TStrategy, TRepository, TItem>
     , IRepositoryStrategy<TItem, TKey>
     where TStrategy : RepositoryStrategy<TStrategy, TRepository, TItem, TKey>
     where TRepository : class, IQueryableRepository<TItem>
@@ -94,7 +94,7 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem, TKey>()
     #endregion
 }
 
-public class RepositoryStrategy<TStrategy, TRepository, TItem>()
+public class RepositoryStrategy<TStrategy, TRepository, TItem>
     : IRepositoryStrategy<TItem>
     where TStrategy : RepositoryStrategy<TStrategy, TRepository, TItem>
     where TRepository : class, IQueryableRepository<TItem> {
@@ -104,6 +104,7 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem>()
         if (!_disposed) {
             await DisposeAsyncCore().ConfigureAwait(false);
             _disposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 

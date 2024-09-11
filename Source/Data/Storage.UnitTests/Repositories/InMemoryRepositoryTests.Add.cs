@@ -9,7 +9,7 @@ public partial class InMemoryRepositoryTests {
 
     [Fact]
     public async Task AddAsync_BaseStrategy_ShouldThrow() {
-        var action = () => _dummyRepository.AddAsync((TestEntity)new("D"));
+        var action = () => _dummyRepository.AddAsync(new("D"));
         await action.Should().ThrowAsync<NotImplementedException>();
     }
 
@@ -21,7 +21,7 @@ public partial class InMemoryRepositoryTests {
 
     [Fact]
     public async Task AddAsync_AddsItem() {
-        await _updatableRepo.AddAsync((TestEntity)new("D"));
+        await _updatableRepo.AddAsync(new("D"));
         _updatableRepo.Count().Should().Be(4);
     }
 }

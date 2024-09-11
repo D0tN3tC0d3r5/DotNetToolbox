@@ -14,7 +14,7 @@ public readonly partial record struct UrlSafeBase64String {
         Bytes = input.ToByteArray();
     }
 
-    public UrlSafeBase64String(string input) {
+    public UrlSafeBase64String(string? input) {
         input = input?.Trim() ?? string.Empty;
         Bytes = _safeBase64String.IsMatch(input)
             ? ToBytes(input)
