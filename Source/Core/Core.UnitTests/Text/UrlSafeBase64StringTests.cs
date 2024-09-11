@@ -36,7 +36,7 @@ public class UrlSafeBase64StringTests {
     [Fact]
     public void ConstructorWithNullString_ReturnsBase64Guid() {
         // Act
-        var result = new UrlSafeBase64String(default(string)!);
+        var result = new UrlSafeBase64String(default(string));
 
         // Assert
         result.Bytes.Should().BeEmpty();
@@ -125,6 +125,7 @@ public class UrlSafeBase64StringTests {
         result.IsGuid.Should().BeFalse();
         result.Invoking(s => s.Guid).Should().Throw<FormatException>();
         result.Text.Should().Be("\u05a8m\u0019Ū\u0006O\u05a8m\u0019Ū\u0006O\u05a8m\u0019Ū\u0006O");
+        // ReSharper disable once StringLiteralTypo
         result.Base64.Should().Be("1qhtGcWqBk_WqG0ZxaoGT9aobRnFqgZP");
         result.Bytes.Should().BeEquivalentTo(input);
     }
