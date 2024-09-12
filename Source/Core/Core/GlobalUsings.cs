@@ -27,6 +27,8 @@ global using Microsoft.Extensions.Logging.Abstractions;
 
 global using NUlid;
 
+global using RadLine;
+
 global using Spectre.Console;
 
 global using static System.Ensure;

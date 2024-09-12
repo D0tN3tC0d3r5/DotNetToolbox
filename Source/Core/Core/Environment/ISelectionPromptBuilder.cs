@@ -8,4 +8,5 @@ public interface ISelectionPromptBuilder<TValue>
     SelectionPromptBuilder<TValue> AddChoices(params TValue[] otherChoices);
     SelectionPromptBuilder<TValue> ShowResult();
     TValue Show();
+    Task<TValue> ShowAsync(CancellationToken ct = default);
 }

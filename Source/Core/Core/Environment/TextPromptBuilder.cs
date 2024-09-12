@@ -96,7 +96,9 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
             return ValidationResult.Error(errors.ToString());
         };
 
-    public TValue Show() {
+    public TValue Show() => ShowAsync().GetAwaiter().GetResult();
+
+    public Task<TValue> ShowAsync(CancellationToken ct = default) {
         _prompt = $"[teal]{_prompt}[/]";
         if (!_isRequired) _prompt = $"[green][[Optional]][/] {_prompt}";
         if (_addLineBreak) _prompt += $"{output.NewLine}{output.Prompt}";
@@ -117,7 +119,7 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         if (_converter is not null) prompt.Converter = _converter;
         if (_validator is not null) prompt.Validator = BuildValidator();
 
-        return AnsiConsole.Prompt(prompt);
+        return prompt.ShowAsync(AnsiConsole.Console, ct);
     }
 
     public static implicit operator TValue(TextPromptBuilder<TValue> promptBuilder) => promptBuilder.Show();

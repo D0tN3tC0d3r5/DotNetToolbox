@@ -14,4 +14,5 @@ public interface ITextPromptBuilder<TValue> {
     TextPromptBuilder<TValue> Validate(Func<TValue, Result> validate);
     TextPromptBuilder<TValue> Validate(Func<TValue, bool> validate, string errorMessage);
     TValue Show();
+    Task<TValue> ShowAsync(CancellationToken ct = default);
 }

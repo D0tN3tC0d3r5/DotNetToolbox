@@ -38,7 +38,9 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
         return this;
     }
 
-    public TValue Show() {
+    public TValue Show() => ShowAsync().GetAwaiter().GetResult();
+
+    public async Task<TValue> ShowAsync(CancellationToken ct = default) {
         var prompt = new SelectionPrompt<TValue>();
         if (_converter is not null) prompt.UseConverter(_converter);
         prompt.AddChoices(_choices);
@@ -46,7 +48,7 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
         var isQuestion = _prompt.EndsWith('?');
         _prompt = HasDefault ? $"{_prompt} [blue]({defaultText})[/]" : _prompt;
         prompt.Title(_prompt);
-        var result = AnsiConsole.Prompt(prompt);
+        var result = await prompt.ShowAsync(AnsiConsole.Console, ct);
         var resultText = prompt.Converter?.Invoke(result) ?? string.Empty;
         var separator = isQuestion ? string.Empty : ":";
         if (_showResult) output.WriteLine($"{_prompt}{separator} [green]{resultText}[/]");

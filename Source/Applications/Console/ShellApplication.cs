@@ -76,9 +76,7 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
     protected virtual Task<Result> ProcessInteraction(CancellationToken ct = default) {
         Output.Write(GetPrePromptText());
         Output.WritePrompt();
-        var input = AllowMultiLine
-                        ? Input.ReadText(Enter, Control)
-                        : Input.ReadLine() ?? string.Empty;
+        var input = (AllowMultiLine ? Input.ReadText() : Input.ReadLine()) ?? string.Empty;
         return ProcessUserInput(input, ct);
     }
 

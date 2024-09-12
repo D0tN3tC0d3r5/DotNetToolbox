@@ -3,7 +3,8 @@
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper for Console functionality.")]
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global - Used for externally.
 public class ConsoleInput()
-    : HasDefault<ConsoleInput>, IInput {
+    : HasDefault<ConsoleInput>,
+      IInput {
     private readonly IOutput _output = new ConsoleOutput();
 
     public ConsoleInput(IOutput output) : this() {
@@ -22,157 +23,182 @@ public class ConsoleInput()
     public virtual ConsoleKeyInfo ReadKey(bool intercept = false) => Console.ReadKey(intercept);
     public virtual string? ReadLine() => Reader.ReadLine(); // ReadLine is only null when the stream is closed.
 
-    public virtual string ReadText(ConsoleKey submitKey = ConsoleKey.Enter, ConsoleModifiers submitKeyModifiers = ConsoleModifiers.None) {
-        var promptLength = Console.CursorLeft;
-        var currentLine = new StringBuilder();
-        var lines = new List<string>();
-        for (var key = ReadKey(intercept: true); !IsSubmitKey(key, submitKey, submitKeyModifiers); key = ReadKey(intercept: true)) {
-            if (TryProcessLineBreak(key, currentLine, lines)) continue;
-            if (TryProcessBackspace(key, currentLine, lines, promptLength: promptLength)) continue;
-            if (TryProcessSpecialKeys(key)) continue;
-            TryAddCharacter(key, currentLine);
-        }
-
-        AddLineBreak(currentLine);
-        lines.Add(currentLine.ToString());
-        return string.Join(_output.NewLine, lines);
-    }
-
-    private static bool TryProcessSpecialKeys(ConsoleKeyInfo keyInfo)
-        => keyInfo.Key is ConsoleKey.LeftArrow or ConsoleKey.RightArrow or ConsoleKey.Home or ConsoleKey.End or ConsoleKey.PageUp or ConsoleKey.PageDown;
-
-    private bool TryProcessBackspace(ConsoleKeyInfo keyInfo, StringBuilder currentLine, List<string> lines, int promptLength) {
-        if (keyInfo.Key != ConsoleKey.Backspace) return false;
-        if (currentLine.Length > 0) {
-            currentLine.Remove(currentLine.Length - 1, 1);
-            _output.Write("\b \b");
-            return true;
-        }
-
-        if (lines.Count == 0) return true;
-
-        currentLine.Append(lines[^1][..^_output.NewLine.Length]);
-        lines.RemoveAt(lines.Count - 1);
-        Console.CursorTop--;
-        Console.CursorLeft = currentLine.Length + (lines.Count == 0 ? promptLength : 0);
-        return true;
-    }
-
-    private bool TryProcessLineBreak(ConsoleKeyInfo keyInfo, StringBuilder currentLine, List<string> lines) {
-        if (!IsLineBreakKey(keyInfo)) return false;
-        AddLineBreak(currentLine);
-        lines.Add(currentLine.ToString());
-        currentLine.Clear();
-        return true;
-    }
-
-    private static bool IsLineBreakKey(ConsoleKeyInfo keyInfo)
-        => keyInfo.Key == ConsoleKey.Enter;
-
-    private static bool IsSubmitKey(ConsoleKeyInfo keyInfo, ConsoleKey submitKey, ConsoleModifiers submitKeyModifiers)
-        => keyInfo.Key == submitKey && keyInfo.Modifiers.HasFlag(submitKeyModifiers);
-
-    private bool TryAddCharacter(ConsoleKeyInfo keyInfo, StringBuilder inputBuilder) {
-        if (char.IsControl(keyInfo.KeyChar)) return false;
-        _output.Write(keyInfo.KeyChar);
-        inputBuilder.Append(keyInfo.KeyChar);
-        return true;
-    }
-
-    private void AddLineBreak(StringBuilder inputBuilder) {
-        _output.WriteLine();
-        inputBuilder.AppendLine();
-    }
-
-    public virtual TValue Ask<TValue>(string prompt, params TValue[] choices) {
-        var builder = new TextPromptBuilder<TValue>(prompt, _output);
-        if (choices.Length > 0) builder.AddChoices(choices);
-        return builder.Show();
-    }
-    public virtual TValue Ask<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices) {
-        var builder = new TextPromptBuilder<TValue>(prompt, _output);
-        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, .. otherChoices]);
-        builder.WithDefault(defaultChoice);
-        return builder.Show();
-    }
-    public virtual string Ask(string prompt, params string[] choices) {
-        var builder = new TextPromptBuilder<string>(prompt, _output);
-        if (choices.Length > 0) builder.AddChoices(choices);
-        return builder.Show();
-    }
-    public virtual string Ask(string prompt, string defaultChoice, params string[] otherChoices) {
-        var builder = new TextPromptBuilder<string>(prompt, _output);
-        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, .. otherChoices]);
-        builder.WithDefault(defaultChoice);
-        return builder.Show();
-    }
-    public virtual TValue AskRequired<TValue>(string prompt, params TValue[] choices) {
-        var builder = new TextPromptBuilder<TValue>(prompt, _output);
-        builder.AsRequired();
-        if (choices.Length > 0) builder.AddChoices(choices);
-        return builder.Show();
-    }
-    public virtual string AskRequired(string prompt, params string[] choices) {
-        var builder = new TextPromptBuilder<string>(prompt, _output);
-        builder.AsRequired();
-        if (choices.Length > 0) builder.AddChoices(choices);
-        return builder.Show();
-    }
-
-    public virtual bool Confirm(string prompt, bool defaultChoice = true) {
-        var builder = new TextPromptBuilder<bool>(prompt, _output);
-        builder.AddChoices(true, false);
-        builder.ConvertWith(value => value ? "y" : "n");
-        builder.WithDefault(defaultChoice);
-        return builder.Show();
-    }
-
+    public virtual MultilinePromptBuilder BuildMultilinePrompt(string prompt)
+        => new(prompt, _output);
     public virtual TextPromptBuilder<TValue> BuildTextPrompt<TValue>(string prompt)
         => new(prompt, _output);
-
     public virtual SelectionPromptBuilder<TValue> BuildSelectionPrompt<TValue>(string prompt)
         where TValue : notnull
         => new(prompt, _output);
 
+    public virtual string? ReadText()
+        => ReadTextAsync().GetAwaiter().GetResult();
+
+    public virtual Task<string?> ReadTextAsync(CancellationToken ct = default) {
+        var builder = new MultilinePromptBuilder(_output);
+        return builder.ShowAsync(ct);
+    }
+
+    public virtual string Prompt(string prompt)
+        => PromptAsync(prompt).GetAwaiter().GetResult();
+
+    public virtual async Task<string> PromptAsync(string prompt, CancellationToken ct = default) {
+        _output.WriteLine($"[teal]{prompt}[/]");
+        var builder = new MultilinePromptBuilder(_output);
+        return await builder.ShowAsync(ct) ?? string.Empty;
+    }
+
+    public virtual TValue Ask<TValue>(string prompt, params TValue[] choices)
+        => AskAsync(prompt, choices).GetAwaiter().GetResult();
+    public virtual TValue Ask<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices)
+        => AskAsync(prompt, defaultChoice, otherChoices).GetAwaiter().GetResult();
+    public virtual string Ask(string prompt, params string[] choices)
+        => AskAsync(prompt, choices).GetAwaiter().GetResult();
+    public virtual string Ask(string prompt, string defaultChoice, params string[] otherChoices)
+        => AskAsync(prompt, defaultChoice, otherChoices).GetAwaiter().GetResult();
+    public virtual TValue AskRequired<TValue>(string prompt, params TValue[] choices)
+        => AskRequiredAsync(prompt, choices).GetAwaiter().GetResult();
+    public virtual string AskRequired(string prompt, params string[] choices)
+        => AskRequiredAsync(prompt, choices).GetAwaiter().GetResult();
+
+    public virtual bool Confirm(string prompt, bool defaultChoice = true)
+        => ConfirmAsync(prompt, defaultChoice).GetAwaiter().GetResult();
+
     public virtual TValue Select<TValue>(string prompt, params TValue[] choices)
-        where TValue : notnull {
-        var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
-        if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
-        builder.AddChoices(choices);
-        return builder.Show();
-    }
+        where TValue : notnull
+        => SelectAsync(prompt, choices).GetAwaiter().GetResult();
     public virtual TValue Select<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices)
-        where TValue : notnull {
-        var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
-        builder.WithDefault(defaultChoice);
-        if (otherChoices.Length < 1) throw new ArgumentException("At least two choices must be provided.", nameof(otherChoices));
-        builder.AddChoices([defaultChoice, .. otherChoices]);
-        return builder.Show();
-    }
-    public virtual string Select(string prompt, params string[] choices) {
-        var builder = new SelectionPromptBuilder<string>(prompt, _output);
-        if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
-        builder.AddChoices(choices);
-        return builder.Show();
-    }
-    public virtual string Select(string prompt, string defaultChoice, params string[] otherChoices) {
-        var builder = new SelectionPromptBuilder<string>(prompt, _output);
-        builder.WithDefault(defaultChoice);
-        if (otherChoices.Length < 1) throw new ArgumentException("At least two choices must be provided.", nameof(otherChoices));
-        builder.AddChoices([defaultChoice, .. otherChoices]);
-        return builder.Show();
-    }
+        where TValue : notnull
+        => SelectAsync(prompt, defaultChoice, otherChoices).GetAwaiter().GetResult();
+    public virtual string Select(string prompt, params string[] choices)
+        => SelectAsync(prompt, choices).GetAwaiter().GetResult();
+    public virtual string Select(string prompt, string defaultChoice, params string[] otherChoices)
+        => SelectAsync(prompt, defaultChoice, otherChoices).GetAwaiter().GetResult();
     public virtual TValue SelectRequired<TValue>(string prompt, params TValue[] choices)
+        where TValue : notnull
+        => SelectRequiredAsync(prompt, choices).GetAwaiter().GetResult();
+    public virtual string SelectRequired(string prompt, params string[] choices)
+        => SelectRequiredAsync(prompt, choices).GetAwaiter().GetResult();
+
+    public virtual Task<TValue> AskAsync<TValue>(string prompt, CancellationToken ct = default)
+        => AskAsync<TValue>(prompt, [], ct);
+
+    public virtual Task<TValue> AskAsync<TValue>(string prompt, TValue defaultChoice, CancellationToken ct = default)
+        => AskAsync(prompt, defaultChoice, [], ct);
+    public virtual Task<string> AskAsync(string prompt, CancellationToken ct = default)
+        => AskAsync(prompt, [], ct);
+    public virtual Task<string> AskAsync(string prompt, string defaultChoice, CancellationToken ct = default)
+        => AskAsync(prompt, defaultChoice, [], ct);
+    public virtual Task<TValue> AskRequiredAsync<TValue>(string prompt, CancellationToken ct = default)
+        => AskRequiredAsync<TValue>(prompt, [], ct);
+    public virtual Task<string> AskRequiredAsync(string prompt, CancellationToken ct = default)
+        => AskRequiredAsync(prompt, [], ct);
+
+    public virtual Task<TValue> SelectAsync<TValue>(string prompt, CancellationToken ct = default)
+        where TValue : notnull
+        => SelectAsync<TValue>(prompt, [], ct);
+    public virtual Task<TValue> SelectAsync<TValue>(string prompt, TValue defaultChoice, CancellationToken ct = default)
+        where TValue : notnull
+        => SelectAsync(prompt, defaultChoice, [], ct);
+    public virtual Task<string> SelectAsync(string prompt, CancellationToken ct = default)
+        => SelectAsync(prompt, [], ct);
+    public virtual Task<string> SelectAsync(string prompt, string defaultChoice, CancellationToken ct = default)
+        => SelectAsync(prompt, defaultChoice, [], ct);
+    public virtual Task<TValue> SelectRequiredAsync<TValue>(string prompt, CancellationToken ct = default)
+        where TValue : notnull
+        => SelectRequiredAsync<TValue>(prompt, [], ct);
+    public virtual Task<string> SelectRequiredAsync(string prompt, CancellationToken ct = default)
+        => SelectRequiredAsync(prompt, [], ct);
+
+    public virtual Task<TValue> AskAsync<TValue>(string prompt, TValue[] choices, CancellationToken ct = default) {
+        var builder = new TextPromptBuilder<TValue>(prompt, _output);
+        if (choices.Length > 0) builder.AddChoices(choices);
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<TValue> AskAsync<TValue>(string prompt, TValue defaultChoice, TValue[] otherChoices, CancellationToken ct = default) {
+        var builder = new TextPromptBuilder<TValue>(prompt, _output);
+        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, .. otherChoices]);
+        builder.WithDefault(defaultChoice);
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<string> AskAsync(string prompt, string[] choices, CancellationToken ct = default) {
+        var builder = new TextPromptBuilder<string>(prompt, _output);
+        if (choices.Length > 0) builder.AddChoices(choices);
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<string> AskAsync(string prompt, string defaultChoice, string[] otherChoices, CancellationToken ct = default) {
+        var builder = new TextPromptBuilder<string>(prompt, _output);
+        if (otherChoices.Length > 0) builder.AddChoices([defaultChoice, .. otherChoices]);
+        builder.WithDefault(defaultChoice);
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<TValue> AskRequiredAsync<TValue>(string prompt, TValue[] choices, CancellationToken ct = default) {
+        var builder = new TextPromptBuilder<TValue>(prompt, _output);
+        builder.AsRequired();
+        if (choices.Length > 0) builder.AddChoices(choices);
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<string> AskRequiredAsync(string prompt, string[] choices, CancellationToken ct = default) {
+        var builder = new TextPromptBuilder<string>(prompt, _output);
+        builder.AsRequired();
+        if (choices.Length > 0) builder.AddChoices(choices);
+        return builder.ShowAsync(ct);
+    }
+
+    public virtual Task<bool> ConfirmAsync(string prompt, CancellationToken ct = default) {
+        var builder = new TextPromptBuilder<bool>(prompt, _output);
+        builder.AddChoices(true, false);
+        builder.ConvertWith(value => value ? "y" : "n");
+        return builder.ShowAsync(ct);
+    }
+
+    public virtual Task<bool> ConfirmAsync(string prompt, bool defaultChoice, CancellationToken ct = default) {
+        var builder = new TextPromptBuilder<bool>(prompt, _output);
+        builder.AddChoices(true, false);
+        builder.ConvertWith(value => value ? "y" : "n");
+        builder.WithDefault(defaultChoice);
+        return builder.ShowAsync(ct);
+    }
+
+    public virtual Task<TValue> SelectAsync<TValue>(string prompt, TValue[] choices, CancellationToken ct = default)
         where TValue : notnull {
         var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
         if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
         builder.AddChoices(choices);
-        return builder.Show();
+        return builder.ShowAsync(ct);
     }
-    public virtual string SelectRequired(string prompt, params string[] choices) {
+    public virtual Task<TValue> SelectAsync<TValue>(string prompt, TValue defaultChoice, TValue[] otherChoices, CancellationToken ct = default)
+        where TValue : notnull {
+        var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
+        builder.WithDefault(defaultChoice);
+        if (otherChoices.Length < 1) throw new ArgumentException("At least two choices must be provided.", nameof(otherChoices));
+        builder.AddChoices([defaultChoice, .. otherChoices]);
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<string> SelectAsync(string prompt, string[] choices, CancellationToken ct = default) {
         var builder = new SelectionPromptBuilder<string>(prompt, _output);
         if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
         builder.AddChoices(choices);
-        return builder.Show();
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<string> SelectAsync(string prompt, string defaultChoice, string[] otherChoices, CancellationToken ct = default) {
+        var builder = new SelectionPromptBuilder<string>(prompt, _output);
+        builder.WithDefault(defaultChoice);
+        if (otherChoices.Length < 1) throw new ArgumentException("At least two choices must be provided.", nameof(otherChoices));
+        builder.AddChoices([defaultChoice, .. otherChoices]);
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<TValue> SelectRequiredAsync<TValue>(string prompt, TValue[] choices, CancellationToken ct = default)
+        where TValue : notnull {
+        var builder = new SelectionPromptBuilder<TValue>(prompt, _output);
+        if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
+        builder.AddChoices(choices);
+        return builder.ShowAsync(ct);
+    }
+    public virtual Task<string> SelectRequiredAsync(string prompt, string[] choices, CancellationToken ct = default) {
+        var builder = new SelectionPromptBuilder<string>(prompt, _output);
+        if (choices.Length < 2) throw new ArgumentException("At least two choices must be provided.", nameof(choices));
+        builder.AddChoices(choices);
+        return builder.ShowAsync(ct);
     }
 }
