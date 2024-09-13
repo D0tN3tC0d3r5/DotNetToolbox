@@ -11,11 +11,11 @@ internal sealed class HelpCommand
         AddParameter("Target", string.Empty);
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+    protected override Result Execute() {
         var target = Map.GetValueAs<string>("Target");
         var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? _parent;
         Output.WriteLine(node.ToHelp());
-        return SuccessTask();
+        return Success();
     }
 }

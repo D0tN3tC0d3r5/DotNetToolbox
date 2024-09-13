@@ -9,8 +9,8 @@ public class ProviderViewCommand : Command<ProviderViewCommand> {
         Description = "Display the Provider.";
     }
 
-    protected override Result Execute() {
-        var provider = this.EntitySelectionPrompt(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+        var provider = await this.SelectEntityAsync(_handler.List(), "show", "Settings", m => m.Key, m => m.Name, ct);
         if (provider is null) {
             Logger.LogInformation("No provider selected.");
             return Result.Success();
@@ -22,5 +22,5 @@ public class ProviderViewCommand : Command<ProviderViewCommand> {
         Output.WriteLine();
 
         return Result.Success();
-    }
+    }, "Error displaying the provider.", ct);
 }

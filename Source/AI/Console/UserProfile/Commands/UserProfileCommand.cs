@@ -10,14 +10,15 @@ public class UserProfileCommand
         AddCommand<HelpCommand>();
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
-        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
-                          .ConvertWith(MapTo)
-                          .AddChoices("Info",
-                                      "Set",
-                                      "Help",
-                                      "Back",
-                                      "Exit").Show();
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+        var choice = await Input.BuildSelectionPrompt<string>("What would you like to do?")
+                                .ConvertWith(MapTo)
+                                .AddChoices("Info",
+                                            "Set",
+                                            "Help",
+                                            "Back",
+                                            "Exit")
+                                .ShowAsync(ct);
 
         var userHandler = Application.Services.GetRequiredService<IUserProfileHandler>();
         var command = choice switch {
@@ -27,10 +28,9 @@ public class UserProfileCommand
             "Exit" => new ExitCommand(this),
             _ => (ICommand?)null,
         };
-        var result = command?.Execute([], ct) ?? Result.SuccessTask();
-        Output.WriteLine();
-
-        return result;
+        return command is null
+            ? Result.Success()
+            : await command.Execute([], ct);
 
         static string MapTo(string choice) => choice switch {
             "Info" => "View User Profile",
@@ -40,5 +40,5 @@ public class UserProfileCommand
             "Exit" => "Exit",
             _ => string.Empty,
         };
-    }
+    }, "Error displaying the user profile menu.", ct);
 }

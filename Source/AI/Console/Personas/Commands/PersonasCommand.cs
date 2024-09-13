@@ -13,7 +13,7 @@ public class PersonasCommand : Command<PersonasCommand> {
         AddCommand<HelpCommand>();
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
         var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
                           .ConvertWith(MapTo)
                           .AddChoices("List",
@@ -38,7 +38,9 @@ public class PersonasCommand : Command<PersonasCommand> {
             "Exit" => new ExitCommand(this),
             _ => (ICommand?)null,
         };
-        return command?.Execute([], ct) ?? Result.SuccessTask();
+        return command is null
+            ? Result.Success()
+            : await command.Execute([], ct);
 
         static string MapTo(string choice) => choice switch {
             "List" => "List Personas",
@@ -52,5 +54,5 @@ public class PersonasCommand : Command<PersonasCommand> {
             "Exit" => "Exit",
             _ => string.Empty,
         };
-    }
+    }, "Error displaying the persona menu.");
 }

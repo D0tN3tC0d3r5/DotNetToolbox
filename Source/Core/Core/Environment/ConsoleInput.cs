@@ -31,10 +31,10 @@ public class ConsoleInput()
         where TValue : notnull
         => new(prompt, _output);
 
-    public virtual string? ReadText()
+    public virtual string ReadText()
         => ReadTextAsync().GetAwaiter().GetResult();
 
-    public virtual Task<string?> ReadTextAsync(CancellationToken ct = default) {
+    public virtual Task<string> ReadTextAsync(CancellationToken ct = default) {
         var builder = new MultilinePromptBuilder(_output);
         return builder.ShowAsync(ct);
     }
@@ -42,10 +42,9 @@ public class ConsoleInput()
     public virtual string Prompt(string prompt)
         => PromptAsync(prompt).GetAwaiter().GetResult();
 
-    public virtual async Task<string> PromptAsync(string prompt, CancellationToken ct = default) {
+    public virtual Task<string> PromptAsync(string prompt, CancellationToken ct = default) {
         _output.WriteLine($"[teal]{prompt}[/]");
-        var builder = new MultilinePromptBuilder(_output);
-        return await builder.ShowAsync(ct) ?? string.Empty;
+        return ReadTextAsync(ct);
     }
 
     public virtual TValue Ask<TValue>(string prompt, params TValue[] choices)

@@ -9,7 +9,7 @@ public class ModelSelectCommand : Command<ModelSelectCommand> {
         Description = "Select the default model.";
     }
 
-    protected override Result Execute() {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
         var models = _handler.List();
 
         if (models.Length == 0) {
@@ -19,23 +19,15 @@ public class ModelSelectCommand : Command<ModelSelectCommand> {
             return Result.Success();
         }
 
-        var selected = Input.BuildSelectionPrompt<ModelEntity>("Select an model:")
-                            .AddChoices(models)
-                            .ConvertWith(c => c.Name)
-                            .Show();
+        var selected = await Input.BuildSelectionPrompt<ModelEntity>("Select an model:")
+                                    .AddChoices(models)
+                                    .ConvertWith(c => c.Name)
+                                    .ShowAsync(ct);
 
-        try {
-            _handler.Select(selected.Key);
-            Output.WriteLine($"[green]Settings '{selected.Key}' selected successfully.[/]");
-            Output.WriteLine();
+        _handler.Select(selected.Key);
+        Output.WriteLine($"[green]Settings '{selected.Key}' selected successfully.[/]");
+        Output.WriteLine();
 
-            return Result.Success();
-        }
-        catch (Exception ex) {
-            Output.WriteError("Error selecting an model.");
-            Output.WriteLine();
-
-            return Result.Error(ex);
-        }
-    }
+        return Result.Success();
+    }, "Error selecting a model.", ct);
 }

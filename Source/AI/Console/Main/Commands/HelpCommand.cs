@@ -11,14 +11,14 @@ public class HelpCommand : Command<HelpCommand> {
         AddParameter("Target", string.Empty);
     }
 
-    protected override Result Execute() {
+    protected override Result Execute() => this.HandleCommand(() => {
         var target = Map.GetValueAs<string>("Target");
         var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? _parent;
         var helpText = GetHelp(node);
         Output.Write(helpText);
         return Result.Success();
-    }
+    }, "Error displaying the help information.");
 
     private static string GetHelp(IHasChildren node) {
         var builder = new StringBuilder();

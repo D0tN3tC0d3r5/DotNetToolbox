@@ -9,14 +9,14 @@ public class PersonaListCommand : Command<PersonaListCommand> {
         Description = "List all personas or personas for a specific provider.";
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+    protected override Result Execute() => this.HandleCommand(() => {
         var personas = _personaHandler.List();
 
         if (personas.Length == 0) {
             Output.WriteLine("[yellow]No personas found.[/]");
             Output.WriteLine();
 
-            return Result.SuccessTask();
+            return Result.Success();
         }
 
         var sortedPersonas = personas.OrderBy(m => m.Name);
@@ -39,6 +39,6 @@ public class PersonaListCommand : Command<PersonaListCommand> {
 
         Output.Write(table);
         Output.WriteLine();
-        return Result.SuccessTask();
-    }
+        return Result.Success();
+    }, "Error listing personas.");
 }

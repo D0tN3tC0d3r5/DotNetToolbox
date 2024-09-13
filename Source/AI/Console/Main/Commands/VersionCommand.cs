@@ -6,9 +6,9 @@ public class VersionCommand : Command<VersionCommand> {
         Description = "Display the current version of Lola.";
     }
 
-    protected override Result Execute() {
+    protected override Result Execute() => this.HandleCommand(() => {
         Output.WriteLine($"[bold]Lola version:[/] {Application.Version}");
-
         return Result.Success();
-    }
+    }, "Error displaying the application version.");
+
 }

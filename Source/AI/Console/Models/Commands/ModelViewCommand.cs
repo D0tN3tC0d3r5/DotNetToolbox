@@ -11,8 +11,8 @@ public class ModelViewCommand : Command<ModelViewCommand> {
         Description = "Display detailed information about a model.";
     }
 
-    protected override Result Execute() {
-        var model = this.EntitySelectionPrompt(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+        var model = await this.SelectEntityAsync(_handler.List(), "show", "Settings", m => m.Key, m => m.Name, ct);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             return Result.Success();
@@ -31,5 +31,5 @@ public class ModelViewCommand : Command<ModelViewCommand> {
         Output.WriteLine();
 
         return Result.Success();
-    }
+    }, "Error displaying the model information.", ct);
 }

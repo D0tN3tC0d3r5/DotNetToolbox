@@ -4,7 +4,7 @@ public class ProviderListCommand(IHasChildren parent, IProviderHandler providerH
     : Command<ProviderListCommand>(parent, "List", ["ls"]) {
     private readonly IProviderHandler _providerHandler = providerHandler;
 
-    protected override Result Execute() {
+    protected override Result Execute() => this.HandleCommand(() => {
         var providers = _providerHandler.List();
         if (providers.Length == 0) {
             Output.WriteLine("[yellow]No providers found.[/]");
@@ -27,5 +27,5 @@ public class ProviderListCommand(IHasChildren parent, IProviderHandler providerH
         Output.WriteLine();
 
         return Result.Success();
-    }
+    }, "Error listing the providers.");
 }

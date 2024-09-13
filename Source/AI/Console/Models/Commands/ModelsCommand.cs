@@ -12,18 +12,19 @@ public class ModelsCommand : Command<ModelsCommand> {
         AddCommand<HelpCommand>();
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
-        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
-                          .ConvertWith(MapTo)
-                          .AddChoices("List",
-                                      "Create",
-                                      "Info",
-                                      "Select",
-                                      "Update",
-                                      "Remove",
-                                      "Help",
-                                      "Back",
-                                      "Exit").Show();
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+        var choice = await Input.BuildSelectionPrompt<string>("What would you like to do?")
+                                .ConvertWith(MapTo)
+                                .AddChoices("List",
+                                            "Create",
+                                            "Info",
+                                            "Select",
+                                            "Update",
+                                            "Remove",
+                                            "Help",
+                                            "Back",
+                                            "Exit")
+                                .ShowAsync(ct);
 
         var providerHandler = Application.Services.GetRequiredService<IProviderHandler>();
         var modelHandler = Application.Services.GetRequiredService<IModelHandler>();
@@ -38,7 +39,9 @@ public class ModelsCommand : Command<ModelsCommand> {
             "Exit" => new ExitCommand(this),
             _ => (ICommand?)null,
         };
-        return command?.Execute([], ct) ?? Result.SuccessTask();
+        return command is null
+            ? Result.Success()
+            : await command.Execute([], ct);
 
         static string MapTo(string choice) => choice switch {
             "List" => "List Models",
@@ -52,5 +55,5 @@ public class ModelsCommand : Command<ModelsCommand> {
             "Exit" => "Exit",
             _ => string.Empty,
         };
-    }
+    }, "Error displaying model's menu.", ct);
 }

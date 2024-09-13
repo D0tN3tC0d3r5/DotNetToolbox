@@ -1,4 +1,6 @@
-﻿namespace AI.Sample.Models.Commands;
+﻿using Task = System.Threading.Tasks.Task;
+
+namespace AI.Sample.Models.Commands;
 
 public class ModelUpdateCommand : Command<ModelUpdateCommand> {
     private readonly IModelHandler _handler;
@@ -11,62 +13,71 @@ public class ModelUpdateCommand : Command<ModelUpdateCommand> {
         Description = "Update an existing model.";
     }
 
-    protected override Result Execute() {
-        var model = this.EntitySelectionPrompt(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+        var model = await this.SelectEntityAsync(_handler.List(), "show", "Settings", m => m.Key, m => m.Name, ct);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             Output.WriteLine();
-
             return Result.Success();
         }
 
-        model.Key = Input.BuildTextPrompt<string>("Enter the new identifier for the model")
-                         .For("identifier").WithDefault(model.Key).AsRequired();
+        await SetUpAsync(model, ct);
 
-        model.Name = Input.BuildTextPrompt<string>("Enter the new name for the model")
-                          .For("name").WithDefault(model.Name).AsRequired();
+        _handler.Update(model);
+        Logger.LogInformation("Settings '{ModelKey}:{ModelName}' updated successfully.", model.Key, model.Name);
+        Output.WriteLine("[green]Settings updated successfully.[/]");
+        Output.WriteLine();
 
-        var currentProvider = _providerHandler.GetByKey(model.ProviderKey);
-        var provider = Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
-                            .ConvertWith(p => $"{p.Key}: {p.Name}")
-                            .WithDefault(currentProvider!).AddChoices(_providerHandler.List())
-                            .Show();
-        model.ProviderKey = provider.Key;
+        return Result.Success();
+    }, "Error updating the model.", ct);
 
-        model.MaximumContextSize = Input.BuildTextPrompt<uint>("Enter the new maximum context size")
-                                        .For("maximum context size").WithDefault(model.MaximumContextSize)
-                                        .Validate(size => size > 0, "Maximum context size must be greater than 0.");
+    private async Task SetUpAsync(ModelEntity model, CancellationToken ct) {
+            model.Key = await Input.BuildTextPrompt<string>("Enter the new identifier for the model")
+                                   .For("identifier").WithDefault(model.Key)
+                                   .AsRequired()
+                                   .ShowAsync(ct);
 
-        model.MaximumOutputTokens = Input.BuildTextPrompt<uint>("Enter the new maximum output tokens")
-                                         .For("maximum output tokens").WithDefault(model.MaximumOutputTokens)
-                                         .Validate(tokens => tokens > 0, "Maximum output tokens must be greater than 0.");
+            model.Name = await Input.BuildTextPrompt<string>("Enter the new name for the model")
+                                    .For("name").WithDefault(model.Name)
+                                    .AsRequired()
+                                    .ShowAsync(ct);
 
-        model.InputCostPerMillionTokens = Input.BuildTextPrompt<decimal>("Enter the new input cost per million tokens")
-                                               .For("input cost per million tokens").WithDefault(model.InputCostPerMillionTokens)
-                                               .Validate(cost => cost >= 0, "Cost must be non-negative.");
+            var currentProvider = _providerHandler.GetByKey(model.ProviderKey);
+            var provider = await Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
+                                      .ConvertWith(p => $"{p.Key}: {p.Name}")
+                                      .WithDefault(currentProvider!)
+                                      .AddChoices(_providerHandler.List())
+                                      .ShowAsync(ct);
+            model.ProviderKey = provider.Key;
 
-        model.OutputCostPerMillionTokens = Input.BuildTextPrompt<decimal>("Enter the new output cost per million tokens")
-                                                .For("output cost per million tokens").WithDefault(model.OutputCostPerMillionTokens)
-                                                .Validate(cost => cost >= 0, "Cost must be non-negative.");
+            model.MaximumContextSize = await Input.BuildTextPrompt<uint>("Enter the new maximum context size")
+                                                  .For("maximum context size")
+                                                  .WithDefault(model.MaximumContextSize)
+                                                  .Validate(size => size > 0, "Maximum context size must be greater than 0.")
+                                                  .ShowAsync(ct);
 
-        model.TrainingDataCutOff = Input.BuildTextPrompt<DateOnly>("Enter the new training cut-off date (YYYY-MM-DD)")
-                                        .For("training cut-off date").WithDefault(model.TrainingDataCutOff)
-                                        .Validate(date => date <= DateOnly.FromDateTime(DateTime.Now), "Cut-off date cannot be in the future.");
+            model.MaximumOutputTokens = await Input.BuildTextPrompt<uint>("Enter the new maximum output tokens")
+                                                   .For("maximum output tokens")
+                                                   .WithDefault(model.MaximumOutputTokens)
+                                                   .Validate(tokens => tokens > 0, "Maximum output tokens must be greater than 0.")
+                                                   .ShowAsync(ct);
 
-        try {
-            _handler.Update(model);
-            Logger.LogInformation("Settings '{ModelKey}:{ModelName}' updated successfully.", model.Key, model.Name);
-            Output.WriteLine("[green]Settings updated successfully.[/]");
-            Output.WriteLine();
+            model.InputCostPerMillionTokens = await Input.BuildTextPrompt<decimal>("Enter the new input cost per million tokens")
+                                                         .For("input cost per million tokens")
+                                                         .WithDefault(model.InputCostPerMillionTokens)
+                                                         .Validate(cost => cost >= 0, "Cost must be non-negative.")
+                                                         .ShowAsync(ct);
 
-            return Result.Success();
-        }
-        catch (Exception ex) {
-            Logger.LogError(ex, "Error updating the model '{ModelKey}:{ModelName}'.", model.Key, model.Name);
-            Output.WriteError("Error updating the model.");
-            Output.WriteLine();
+            model.OutputCostPerMillionTokens = await Input.BuildTextPrompt<decimal>("Enter the new output cost per million tokens")
+                                                          .For("output cost per million tokens")
+                                                          .WithDefault(model.OutputCostPerMillionTokens)
+                                                          .Validate(cost => cost >= 0, "Cost must be non-negative.")
+                                                          .ShowAsync(ct);
 
-            return Result.Error(ex);
-        }
+            model.TrainingDataCutOff = await Input.BuildTextPrompt<DateOnly>("Enter the new training cut-off date (YYYY-MM-DD)")
+                                                  .For("training cut-off date")
+                                                  .WithDefault(model.TrainingDataCutOff)
+                                                  .Validate(date => date <= DateOnly.FromDateTime(DateTime.Now), "Cut-off date cannot be in the future.")
+                                                  .ShowAsync(ct);
     }
 }

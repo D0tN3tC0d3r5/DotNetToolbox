@@ -12,7 +12,7 @@ public class ModelListCommand : Command<ModelListCommand> {
         AddParameter("Provider", "");
     }
 
-    protected override Result Execute() {
+    protected override Result Execute() => this.HandleCommand(() => {
         var providerKeyStr = Map.GetValueAs<string>("Provider");
 
         var models = string.IsNullOrEmpty(providerKeyStr)
@@ -54,5 +54,5 @@ public class ModelListCommand : Command<ModelListCommand> {
         Output.Write(table);
         Output.WriteLine();
         return Result.Success();
-    }
+    }, "Error listing models.");
 }

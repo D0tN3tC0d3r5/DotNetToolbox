@@ -11,7 +11,7 @@ public class SettingsCommand : Command<SettingsCommand> {
         Description = "Display the current configuration of Lola.";
     }
 
-    protected override Result Execute() {
+    protected override Result Execute() => this.HandleCommand(() => {
         _logger.LogInformation("Executing Settings command...");
         var table = new Table();
         table.AddColumn("Setting");
@@ -22,5 +22,5 @@ public class SettingsCommand : Command<SettingsCommand> {
         Output.WriteLine();
 
         return Result.Success();
-    }
+    }, "Error displaying the settings.");
 }

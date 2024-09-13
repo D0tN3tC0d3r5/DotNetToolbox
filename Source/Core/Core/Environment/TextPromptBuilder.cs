@@ -121,6 +121,4 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
 
         return prompt.ShowAsync(AnsiConsole.Console, ct);
     }
-
-    public static implicit operator TValue(TextPromptBuilder<TValue> promptBuilder) => promptBuilder.Show();
 }

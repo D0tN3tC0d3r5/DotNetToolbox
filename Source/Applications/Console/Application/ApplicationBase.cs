@@ -1,6 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Application;
 
-public abstract class ApplicationBase<TApplication, TBuilder, TSettings> : ApplicationBase<TSettings>,
+public abstract class ApplicationBase<TApplication, TBuilder, TSettings>
+    : ApplicationBase<TSettings>,
       IApplication<TApplication, TBuilder, TSettings>
     where TApplication : ApplicationBase<TApplication, TBuilder, TSettings>
     where TBuilder : ApplicationBuilder<TApplication, TBuilder, TSettings>

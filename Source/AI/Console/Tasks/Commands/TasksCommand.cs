@@ -13,8 +13,8 @@ public class TasksCommand : Command<TasksCommand> {
         AddCommand<HelpCommand>();
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
-        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+        var choice = await Input.BuildSelectionPrompt<string>("What would you like to do?")
                           .ConvertWith(MapTo)
                           .AddChoices("List",
                                       //"Create",
@@ -24,7 +24,8 @@ public class TasksCommand : Command<TasksCommand> {
                                       //"Remove",
                                       "Help",
                                       "Back",
-                                      "Exit").Show();
+                                      "Exit")
+                                        .ShowAsync(ct);
 
         var taskHandler = Application.Services.GetRequiredService<ITaskHandler>();
         var command = choice switch {
@@ -38,7 +39,9 @@ public class TasksCommand : Command<TasksCommand> {
             "Exit" => new ExitCommand(this),
             _ => (ICommand?)null,
         };
-        return command?.Execute([], ct) ?? Result.SuccessTask();
+    return command is null
+            ? Result.Success()
+            : await command.Execute([], ct);
 
         static string MapTo(string choice) => choice switch {
             "List" => "List Tasks",
@@ -52,5 +55,5 @@ public class TasksCommand : Command<TasksCommand> {
             "Exit" => "Exit",
             _ => string.Empty,
         };
-    }
+    }, "Error displaying the tasks menu.", ct);
 }

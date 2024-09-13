@@ -9,8 +9,8 @@ public class ModelRemoveCommand : Command<ModelRemoveCommand> {
         Description = "Remove a model.";
     }
 
-    protected override Result Execute() {
-        var model = this.EntitySelectionPrompt(_handler.List(), "remove", "Settings", m => m.Key, m => m.Name);
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+        var model = await this.SelectEntityAsync(_handler.List(), "remove", "Settings", m => m.Key, m => m.Name, ct);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             Output.WriteLine();
@@ -18,24 +18,15 @@ public class ModelRemoveCommand : Command<ModelRemoveCommand> {
             return Result.Success();
         }
 
-        if (!Input.Confirm($"Are you sure you want to remove the model '{model.Name}' ({model.Key})?")) {
+        if (!await Input.ConfirmAsync($"Are you sure you want to remove the model '{model.Name}' ({model.Key})?", ct)) {
             Output.WriteLine();
 
             return Result.Invalid("Action cancelled.");
         }
 
-        try {
-            _handler.Remove(model.Key);
-            Output.WriteLine($"[green]Settings with key '{model.Name}' removed successfully.[/]");
-            Output.WriteLine();
-
-            return Result.Success();
-        }
-        catch (Exception ex) {
-            Output.WriteError("Error removing the model.");
-            Output.WriteLine();
-
-            return Result.Error(ex);
-        }
-    }
+        _handler.Remove(model.Key);
+        Output.WriteLine($"[green]Settings with key '{model.Name}' removed successfully.[/]");
+        Output.WriteLine();
+        return Result.Success();
+    }, "Error removing a model.", ct);
 }

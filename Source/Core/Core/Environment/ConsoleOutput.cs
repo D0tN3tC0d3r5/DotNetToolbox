@@ -164,29 +164,30 @@ public class ConsoleOutput
 
 #if DEBUG
     private const ExceptionFormats _exceptionFormat = ExceptionFormats.ShowLinks;
-# else
-    private const ExceptionFormats _exceptionFormat = ExceptionFormats.ShowLinks
-                                                    | ExceptionFormats.ShortenEverything
-                                                    | ExceptionFormats.NoStackTrace;
 #endif
 
     public virtual void WriteError(Exception exception) {
         WriteLine();
-        WriteLine("[bold red]Error! An internal error has occurred.[/]");
+#if DEBUG
         AnsiConsole.WriteException(exception, _exceptionFormat);
+#else
+        WriteLine($"[bold red]An error has occurred! {exception.Message}[/]");
+#endif
         WriteLine();
     }
 
     public virtual void WriteError(Exception exception, string message) {
         WriteLine();
-        WriteLine($"[bold red]Error! {IsNotNullOrWhiteSpace(message)}[/]");
+        WriteLine($"[bold red]An error has occurred!  {IsNotNullOrWhiteSpace(message)}[/]");
+#if DEBUG
         AnsiConsole.WriteException(exception, _exceptionFormat);
+#endif
         WriteLine();
     }
 
     public virtual void WriteError(string message) {
         WriteLine();
-        WriteLine($"[bold red]Error! {IsNotNullOrWhiteSpace(message)}[/]");
+        WriteLine($"[bold red]An error has occurred! {IsNotNullOrWhiteSpace(message)}[/]");
         WriteLine();
     }
 }

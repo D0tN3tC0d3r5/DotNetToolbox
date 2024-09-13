@@ -1,0 +1,3051 @@
+---------------------------------------------------------------------------------------- 
+GlobalUsings.cs 
+// Global using directives
+global using System;
+global using System.ComponentModel;
+global using System.ComponentModel.DataAnnotations;
+global using System.IO;
+global using System.Linq.Expressions;
+global using System.Reflection;
+global using System.Runtime.CompilerServices;
+global using System.Security.Cryptography;
+global using System.Text;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
+
+global using AI.Sample;
+global using AI.Sample.Agents.Handlers;
+global using AI.Sample.Helpers;
+global using AI.Sample.Main.Commands;
+global using AI.Sample.Models.Commands;
+global using AI.Sample.Models.Handlers;
+global using AI.Sample.Models.Repositories;
+global using AI.Sample.Personas.Commands;
+global using AI.Sample.Personas.Handlers;
+global using AI.Sample.Personas.Repositories;
+global using AI.Sample.Providers.Commands;
+global using AI.Sample.Providers.Handlers;
+global using AI.Sample.Providers.Repositories;
+global using AI.Sample.Tasks.Commands;
+global using AI.Sample.Tasks.Handlers;
+global using AI.Sample.Tasks.Repositories;
+global using AI.Sample.UserProfile.Commands;
+global using AI.Sample.UserProfile.Handlers;
+global using AI.Sample.UserProfile.Repositories;
+
+global using DotNetToolbox;
+global using DotNetToolbox.AI.Agents;
+global using DotNetToolbox.AI.Anthropic;
+global using DotNetToolbox.AI.Chats;
+global using DotNetToolbox.AI.Jobs;
+global using DotNetToolbox.AI.OpenAI;
+global using DotNetToolbox.ConsoleApplication;
+global using DotNetToolbox.ConsoleApplication.Application;
+global using DotNetToolbox.ConsoleApplication.Commands;
+global using DotNetToolbox.ConsoleApplication.Nodes;
+global using DotNetToolbox.Data.File;
+global using DotNetToolbox.Data.Repositories;
+global using DotNetToolbox.Data.Strategies;
+global using DotNetToolbox.Domain.Models;
+global using DotNetToolbox.Environment;
+global using DotNetToolbox.Results;
+
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+
+global using Serilog;
+
+global using Spectre.Console;
+
+global using static System.Ensure;
+ 
+---------------------------------------------------------------------------------------- 
+Lola.cs 
+﻿namespace AI.Sample;
+
+public class Lola
+        : ShellApplication<Lola, LolaSettings> {
+    private readonly Lazy<IUserProfileHandler> _userHandler;
+    private readonly ILogger<Lola> _logger;
+
+    public Lola(string[] args, IServiceCollection services, Lazy<IUserProfileHandler> userHandler, ILogger<Lola> logger)
+        : base(args, services) {
+        _userHandler = userHandler;
+        _logger = logger;
+        AddCommand<HelpCommand>();
+        AddCommand<SettingsCommand>();
+        AddCommand<ProvidersCommand>();
+        AddCommand<ModelsCommand>();
+        AddCommand<UserProfileCommand>();
+        AddCommand<PersonasCommand>();
+        AddCommand<TasksCommand>();
+    }
+
+    protected override async Task<Result> OnStart(CancellationToken ct = default) {
+        _logger.LogInformation("Starting Lola application...");
+        var header = new FigletText($"{Name} {DisplayVersion}").LeftJustified().Color(Color.Fuchsia);
+        Output.Write(header);
+
+        var user = _userHandler.Value.Get();
+        return user is not null ? SaluteUser(user) : await RegisterUser(ct);
+    }
+
+    protected override Result OnExit() {
+        AnsiConsole.MarkupLine("[green]Thank you for using Lola. Goodbye![/]");
+        return Result.Success();
+    }
+
+    private Result SaluteUser(UserProfileEntity user) {
+        Output.WriteLine($"[Green]Hi {user.Name}! Welcome back.[/]");
+        Output.WriteLine();
+        return Result.Success();
+    }
+
+    private Task<Result> RegisterUser(CancellationToken ct = default) {
+        Output.WriteLine($"[bold]Welcome to {Name}, your AI assisted shell![/]");
+        Output.WriteLine();
+        var command = new UserProfileSetCommand(this, _userHandler.Value);
+        Output.WriteLine("[bold][Yellow]Hi![/] It seems that is the first time that I see you around here.[/]");
+        return command.Execute([], ct);
+    }
+
+    protected override Task<Result> ProcessInteraction(CancellationToken ct = default) {
+        _logger.LogInformation("Executing default command...");
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
+                          .ConvertWith(MapTo)
+                          .AddChoices("Providers",
+                                      "Models",
+                                      "Personas",
+                                      "Tasks",
+                                      "UserProfile",
+                                      "Settings",
+                                      "Help",
+                                      "Exit").Show();
+
+        return ProcessCommand(choice, ct);
+
+        static string MapTo(string choice) => choice switch {
+            "Providers" => "Manage Providers",
+            "Models" => "Manage Models",
+            "Personas" => "Manage Personas",
+            "Tasks" => "Manage Tasks",
+            "UserProfile" => "Manage User Profile",
+            "Settings" => "Settings",
+            "Help" => "Help",
+            "Exit" => "Exit",
+            _ => string.Empty,
+        };
+    }
+
+    protected override Task<Result> ProcessCommand(string[] input, CancellationToken ct) {
+        _logger.LogInformation("Processing command: '{Command}'...", string.Join(" ", input));
+        return base.ProcessCommand(input, ct);
+    }
+
+    protected override bool HandleException<TException>(TException ex) {
+        _logger.LogError(ex, "An error occurred while executing the app.");
+        return base.HandleException(ex);
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+LolaSettings.cs 
+﻿namespace AI.Sample;
+
+public class LolaSettings
+    : ApplicationSettings {
+    public string DefaultAIProvider { get; set; } = string.Empty;
+    public string[] AvailableModels { get; set; } = [];
+    public string CurrentAgentKey { get; set; } = string.Empty;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Program.cs 
+﻿var app = Lola.Create(args, cb => {
+    cb.AddAppSettings(); // This will add the values from appsettings.json to the context
+    cb.AddUserSecrets<Program>(); // This will add the values from the user secrets to the context
+}, ab => {
+    ab.ConfigureLogging((loggingBuilder) => {
+        var logPath = Path.Combine("logs", "lola-.log");
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(ab.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.File(logPath,
+                fileSizeLimitBytes: 5 * 1024 * 1024,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 7) // 5MB file size limit
+            .CreateLogger();
+
+        loggingBuilder.AddSerilog(dispose: true);
+    });
+    ab.SetOutputHandler(new ConsoleOutput());
+    ab.SetInputHandler(new ConsoleInput());
+    ab.Services.Configure<LolaSettings>(ab.Configuration.GetSection("Lola"));
+    ab.Services.AddOptions<LolaSettings>();
+
+    ab.Services.AddOpenAI();
+    ab.Services.AddAnthropic();
+
+    ab.Services.AddScoped<IHttpConnectionHandler, HttpConnectionHandler>();
+    ab.Services.AddScoped(p => new Lazy<IHttpConnectionHandler>(p.GetRequiredService<IHttpConnectionHandler>));
+
+    ab.Services.AddSingleton<IUserProfileRepositoryStrategy, UserProfileRepositoryStrategy>();
+    ab.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+    ab.Services.AddScoped<IUserProfileHandler, UserProfileHandler>();
+    ab.Services.AddScoped(p => new Lazy<IUserProfileRepository>(p.GetRequiredService<IUserProfileRepository>));
+    ab.Services.AddScoped(p => new Lazy<IUserProfileHandler>(p.GetRequiredService<IUserProfileHandler>));
+
+    ab.Services.AddSingleton<IProviderRepositoryStrategy, ProviderRepositoryStrategy>();
+    ab.Services.AddScoped<IProviderRepository, ProviderRepository>();
+    ab.Services.AddScoped<IProviderHandler, ProviderHandler>();
+    ab.Services.AddScoped(p => new Lazy<IProviderRepository>(p.GetRequiredService<IProviderRepository>));
+    ab.Services.AddScoped(p => new Lazy<IProviderHandler>(p.GetRequiredService<IProviderHandler>));
+
+    ab.Services.AddSingleton<IModelRepositoryStrategy, ModelRepositoryStrategy>();
+    ab.Services.AddScoped<IModelRepository, ModelRepository>();
+    ab.Services.AddScoped<IModelHandler, ModelHandler>();
+    ab.Services.AddScoped(p => new Lazy<IModelRepository>(p.GetRequiredService<IModelRepository>));
+    ab.Services.AddScoped(p => new Lazy<IModelHandler>(p.GetRequiredService<IModelHandler>));
+
+    ab.Services.AddSingleton<IPersonaRepositoryStrategy, PersonaRepositoryStrategy>();
+    ab.Services.AddScoped<IPersonaRepository, PersonaRepository>();
+    ab.Services.AddScoped<IPersonaHandler, PersonaHandler>();
+    ab.Services.AddScoped(p => new Lazy<IPersonaRepository>(p.GetRequiredService<IPersonaRepository>));
+    ab.Services.AddScoped(p => new Lazy<IPersonaHandler>(p.GetRequiredService<IPersonaHandler>));
+
+    ab.Services.AddSingleton<ITaskRepositoryStrategy, TaskRepositoryStrategy>();
+    ab.Services.AddScoped<ITaskRepository, TaskRepository>();
+    ab.Services.AddScoped<ITaskHandler, TaskHandler>();
+    ab.Services.AddScoped(p => new Lazy<ITaskRepository>(p.GetRequiredService<ITaskRepository>));
+    ab.Services.AddScoped(p => new Lazy<ITaskHandler>(p.GetRequiredService<ITaskHandler>));
+});
+
+try {
+    await app.RunAsync();
+}
+finally {
+    Log.CloseAndFlush();
+}
+ 
+---------------------------------------------------------------------------------------- 
+appsettings.json 
+{
+  "Lola": {
+    "DefaultAIProvider": "Anthropic",
+    "AvailableModels": [
+      "claude-3-5-sonnet-20240620",
+      "claude-3-haiku-20240307"
+    ]
+  },
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Warning",
+        "System": "Warning"
+      }
+    },
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],
+    "Properties": {
+      "Application": "Lola"
+    }
+  },
+  "HttpClient": {
+    "Anthropic": {
+      "BaseAddress": "https://api.anthropic.com",
+      "Endpoints": {
+        "Chat": "/v1/messages"
+      },
+      "Authentication": {
+        "Type": "ApiKey"
+      },
+      "CustomHeaders": {
+        "anthropic-version": [ "2023-06-01" ]
+      }
+    },
+    "OpenAI": {
+      "BaseAddress": "https://api.openai.com",
+      "Endpoints": {
+        "Chat": "/v1/chat/completions"
+      },
+      "Authentication": {
+        "Type": "ApiKey"
+      }
+    }
+  }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Agents\Handlers\HttpConnectionHandler.cs 
+﻿namespace AI.Sample.Agents.Handlers;
+
+public class HttpConnectionHandler(IModelHandler modelHandler, IAgentAccessor httpConnectionAccessor)
+    : IHttpConnectionHandler {
+    public IAgent GetInternal() {
+        var model = modelHandler.Internal ?? throw new InvalidOperationException("No internal model found.");
+        return httpConnectionAccessor.GetFor(model.Provider!.Name);
+    }
+
+    public IAgent Get(string modelKey) {
+        var model = modelHandler.GetByKey(modelKey) ?? throw new InvalidOperationException("Model not found.");
+        return httpConnectionAccessor.GetFor(model.Provider!.Name);
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Agents\Handlers\IHttpConnectionHandler.cs 
+﻿namespace AI.Sample.Agents.Handlers;
+
+public interface IHttpConnectionHandler {
+    IAgent GetInternal();
+    IAgent Get(string modelKey);
+}
+ 
+---------------------------------------------------------------------------------------- 
+data\personas.json 
+[
+  {
+    "Expertise": "AI capabilities, roles, and effective prompt engineering",
+    "Goals": [
+      "create detailed, accurate, and tailored descriptions for various AI agents"
+    ],
+    "Important": [
+      "always prioritize clarity and specificity in your agent descriptions.",
+      "include both capabilities and limitations in every agent description.",
+      "ensure that the descriptions you create are ethically sound and promote responsible AI use."
+    ],
+    "Internal": true,
+    "Key": 1,
+    "Name": "Agent Creator",
+    "Negative": [
+      "create descriptions for AI agents that could be used for harmful or illegal purposes",
+      "misrepresent an AI agent\u0027s capabilities or limitations",
+      "use ambiguous or vague language in your descriptions"
+    ],
+    "Other": [
+      "You have extensive knowledge of various AI models and their capabilities.",
+      "You understand the importance of ethical AI behavior and incorporate this into your descriptions.",
+      "You are familiar with different domains and can tailor agent descriptions to specific fields."
+    ],
+    "Questions": [],
+    "Role": "AI Agent Description Specialist",
+    "Traits": [
+      "You carefully break down requirements and information to create comprehensive agent descriptions.",
+      "You can create descriptions for a wide range of AI agent types and purposes.",
+      "You ensure all aspects of an agent\u0027s role and capabilities are highly detailed and clearly defined.",
+      "You can come up with unique and effective ways to describe AI agents\u0027 functions and limitations.",
+      "You prioritize clear, concise, and unambiguous language in your descriptions.",
+      "You are able to adapt your descriptions to different contexts and requirements."
+    ]
+  }
+] 
+---------------------------------------------------------------------------------------- 
+data\tasks.json 
+[
+  {
+    "Assumptions": [
+      "The user has already provided a Name, Role, and list of Goals for the AI agent",
+      "The user may not be an expert in AI or agent design, so questions should be clear and avoid overly technical jargon",
+      "The questions generated will be used in a subsequent step to create a full agent description",
+      "The Agent is an AI agent so, it is limited to the capabilities of a AI agent.",
+      "The Agent will only interact with the USER and the tools he have available to execute the task."
+    ],
+    "Constraints": [
+      "make assumptions about the agent's capabilities beyond what is explicitly stated in the provided information",
+      "generate questions about technical implementation details that the average user wouldn't be able to answer",
+      "include questions that have already been answered by the provided Name, Role, and Goals",
+      "include questions that were already answered by the user in a previous interaction"
+    ],
+    "Examples": [
+      "Input:\nName: EcoAdvise\nRole: Environmental Sustainability Consultant\nGoals:\n1. Provide personalized advice on reducing carbon footprint\n2. Educate users on environmental issues\n3. Suggest eco-friendly alternatives for daily activities\n\nResponse:\n{\"Questions\":[{\"Question\":\"What level of expertise should EcoAdvise have? (e.g., general knowledge, academic-level, or industry-expert level)\",\"Explanation\":\"This will help determine the depth and complexity of advice the agent can provide.\"}]}",
+      "Input:\nName: CodeCraft\nRole: Programming Assistant\nGoals:\n1. Help users debug their code\n2. Explain programming concepts\n3. Suggest optimizations for code efficiency\nPrevious Questions:\nQ: What programming languages should CodeCraft be proficient in?\nThis will define the scope of the agent's expertise and ensure it can assist with relevant languages.\nA: C# .NET\n\nResponse:\n{\"Questions\":[{\"Question\":\"Should CodeCraft be able to generate code snippets or complete functions, or only provide guidance?\",\"Explanation\":\"This will clarify the extent of the agent's coding capabilities and set appropriate user expectations.\"}]}"
+    ],
+    "Guidelines": [
+      "Begin by carefully analyzing the provided Name, Role, and Goals to understand the general direction of the agent.",
+      "Generate questions that cover different aspects of the agent, such as:\n- Specific capabilities within the given role;\n- Intended user interaction style;\n- Ethical guidelines and limitations;\n- Knowledge base and areas of expertise; and\n- Personality traits or communication style;",
+      "Ensure questions are open-ended to encourage detailed responses.",
+      "Frame questions in a way that helps users think deeply about their agent's design.",
+      "Include a mix of questions about both capabilities and limitations."
+    ],
+    "Goals": [
+      "generate insightful and relevant questions that will help users further define the characteristics, capabilities, and limitations of the AI agent they want to create",
+      "analyze the provided Name, Role, and Goals of the prospective AI agent",
+      "identify areas where more information is needed to create a comprehensive agent description",
+      "generate clear, specific questions that will elicit useful information from the user",
+      "ensure that the questions cover a wide range of agent characteristics, including capabilities, limitations, ethical considerations, and interaction style",
+      "adapt the questions based on the context provided by the initial input"
+    ],
+    "InputTemplate": "Name: <<Name>>\nMain Role: <<Role>>\nGoals:\n<<Goals>>\nPrevious Questions:\n<<Questions>>\n",
+    "Internal": true,
+    "Key": 1,
+    "Name": "Ask Questions about the AI Agent",
+    "Scope": [
+      "generating questions based solely on the Name, Role, and Goals provided by the user",
+      "focusing on aspects of the agent that are not fully clear from the initial information",
+      "covering various aspects of agent design, including but not limited to: knowledge base, interaction style, ethical guidelines, specific capabilities, and limitations"
+    ],
+    "Requirements": [
+      "generate ONE question per request",
+      "generate questions directly relevant to the provided Name, Role, and Goals",
+      "generate questions designed to elicit specific, actionable information for agent creation",
+      "generate an output that is a valid JSON file following strictly the schema defined in the prompt"
+    ],
+    "ResponseSchema": "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"properties\":{\"Questions\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"Question\":{\"type\":\"string\"},\"Explanation\":{\"type\":\"string\"}},\"required\":[\"Explanation\",\"Question\"]}}}}",
+    "ResponseType": "Json",
+    "Validations": [
+      "Ensuring each question is directly relevant to the provided Name, Role, and Goals",
+      "Checking that the set of questions covers a diverse range of agent characteristics",
+      "Verifying that each question is clear, concise, and likely to elicit useful information",
+      "Confirming that the questions do not make unwarranted assumptions about the agent",
+      "Reviewing the brief explanations to ensure they clearly convey why each question is important"
+    ]
+  },
+  {
+    "Assumptions": [
+      "The user has provided a Name, Role, and list of Goals for the AI agent",
+      "The user has answered additional questions about the AI agent",
+      "All provided information is relevant to the Persona creation",
+      "The Agent is an AI agent so, it is limited to the capabilities of a AI agent.",
+      "The Agent will only interact with the USER and the tools he have available to execute the task."
+    ],
+    "Constraints": [
+      "introduce new information that isn't derived from the user's input or question responses",
+      "generate properties that contradict the provided Name, Role, Goals or Answered Questions",
+      "include traits in multiple categories (e.g., a trait shouldn't appear in both Traits and Important lists)"
+    ],
+    "Examples": [
+      "Input:\nName: EcoAdvise\nRole: Environmental Sustainability Consultant\nGoals:\n1. Provide personalised advice at reducing carbon footprint\n2. Educate the users on environmental issues\n3. Suggest eco-friendly alternative for daiyl activities\nQuestions:\nQ: What level of expertise should EcoAdvise have?\nThis question will help identify the scope and depth of the knowledge that the agent have.\nA: EcoAdvise should have industry-expert level knowledge.\nQ: How should EcoAdvise balance between providing scientific facts and motivating users?\nThis question will help define the type of answer the user is expecting.\nA: EcoAdvise should use a 70-30 split, with 70% focus on scientific facts and 30% on motivation.\n\nOutput:\n{\"Role\":\"Environmental Sustainability Consultant\",\"Goals\":[\"Provide personalized advice on reducing carbon footprint\",\"Educate the user on environmental issues\",\"Suggest eco-friendly alternatives for daily activities\"],\"Expertise\":\"Advanced environmental science with a focus on sustainability and carbon footprint reduction\",\"Traits\":[\"Broadly Knowlegeable: Knowledgeable about global and local environmental issues\",\"Excellent Communicator: Able to communicate complex scientific concepts clearly\",\"Data-Driven: Data-driven in approach to sustainability\"],\"Important\":[\"You MUST provide accurate, up-to-date environmental information\",\"ALWAYS respects user privacy when handling location data\",\"You MUST balances scientific facts with motivational encouragement\"],\"Negative\":[\"be alarmist or overly pessimistic about environmental issues\",\"recommend unsustainable or unethical practices\",\"ignore local context in sustainability advice\"],\"Other\":[\"Uses a 70-30 split between scientific facts and motivation in communications\",\"Capable of tailoring advice to specific geographic locations\",\"Stays updated on the latest environmental research and sustainability practices\"]}\n"
+    ],
+    "Guidelines": [
+      "Begin by carefully analyzing all provided information: Name, Role, Goals, and question responses",
+      "For Expertise, identify the core area of knowledge or skill central to the Persona's role and goals",
+      "For Traits, identify characteristics that support the Persona's role and goals but aren't crucial",
+      "For Important, identify crucial characteristics without which the Persona couldn't fulfill its role or achieve its goals",
+      "For Negative, identify traits or behaviors that would hinder the Persona's effectiveness or contradict its purpose",
+      "For Other, include any relevant information that doesn't fit into the above categories but adds depth to the Persona",
+      "Ensure all generated properties align with the Persona's Name, Role, and Goals",
+      "Provide clear, concise explanations for each generated property"
+    ],
+    "Goals": [
+      "generate the Expertise, Traits, Important, Negative, and Other properties of the Persona",
+      "ensure that the generated properties are consistent with the initial input and question responses",
+      "create a comprehensive and coherent Persona description",
+      "provide explanations for each generated property to justify its relevance to the Persona"
+    ],
+    "InputTemplate": "Name: <<Name>>\nMain Role: <<Role>>\nGoals:\n<<Goals>>\nQuestions:\n<<Questions>>\n",
+    "Internal": true,
+    "Key": 2,
+    "Name": "Generate AI Agent Persona",
+    "Scope": [
+      "generating the Expertise, Traits, Important, Negative, and Other properties based solely on the provided information",
+      "ensuring all generated properties align with the Persona's Name, Role, and Goals",
+      "focusing on creating a well-rounded and consistent Persona description"
+    ],
+    "Requirements": [
+      "generate all five properties: Expertise, Traits, Important, Negative, and Other",
+      "rewrite the Role and Goals properties with correct English without changing their intended contents",
+      "ensure the Role property is a text that is a continuation of: 'You are a highly capable and versatile {Role}'",
+      "ensure that each Goal is a simple phrase that is a continuation of: 'Your goal is {Goal}'",
+      "ensure the Expertise property is a text describing list of skills the agent and is a continuation of 'You are an expert in {Expertise}'",
+      "ensure the Traits, Important, Negative, and Other properties are lists of strings",
+      "ensure that each Trait also include a short explanation of their intent. For example:\n Highly Analytical: You meticulously break down complex programming problems and user requirements to provide comprehensive solutions and explanations.\n Excellent Communicator: You explain complex technical concepts and code structures in clear, accessible language tailored to the USER's level of understanding.",
+      "ensure that the Important and Negative lists do not contradict each other",
+      "ensure that each Important item is written in an imperative way as continuation of the text: '**IMPORTANT, ** {Important_Item}'. They should normally start with 'You MUST ' or 'ALWAYS '.",
+      "ensure that each Negative item is written as their POSITIVE version as a continuation of the text: '**NEVER, IN ANY CIRCUMSTANCE, ** {Negative_Item}'",
+      "provide a brief explanation for each generated property, justifying its relevance to the Persona"
+    ],
+    "ResponseSchema": "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"properties\":{\"Role\":{\"type\":\"string\"},\"Goals\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Expertise\":{\"type\":\"string\"},\"Traits\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Important\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Negative\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Other\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"Role\",\"Goals\",\"Expertise\",\"Traits\",\"Important\",\"Negative\",\"Other\"]}",
+    "ResponseType": "Json",
+    "Validations": [
+      "ensuring each generated property is directly relevant to and consistent with the provided information",
+      "checking that the Expertise aligns closely with the Role and Goals",
+      "verifying that Traits and Important lists contain distinct items that don't contradict each other",
+      "confirming that Negative traits are genuinely detrimental to the Persona's purpose",
+      "reviewing the Other list to ensure it adds value without redundancy",
+      "validating that clear, concise explanations are provided for each generated property"
+    ]
+  }
+]
+ 
+---------------------------------------------------------------------------------------- 
+data\users.json 
+[
+  {
+    "Internal": true,
+    "Name": "User",
+    "Key": 0
+  }
+] 
+---------------------------------------------------------------------------------------- 
+Helpers\CommandHelpers.cs 
+﻿namespace AI.Sample.Helpers;
+
+public static class CommandHelpers {
+    private sealed class ListItem<TItem, TKey>(object? key, string text, TItem? item)
+        where TItem : class, IEntity<TKey>
+        where TKey : notnull {
+        public object? Key { get; } = key;
+        public string Text { get; } = text;
+        public TItem? Item { get; } = item;
+    }
+
+    public static TItem? SelectEntity<TItem, TKey>(this ICommand command,
+                                                   IEnumerable<TItem> entities,
+                                                   string action,
+                                                   string name,
+                                                   Func<TItem, TKey> itemKey,
+                                                   Func<TItem, string> itemText)
+        where TItem : class, IEntity<TKey>
+        where TKey : notnull {
+        var items = IsNotNull(entities).ToArray();
+        if (items.Length == 0) {
+            command.Output.WriteLine($"[yellow]No {IsNotNullOrWhiteSpace(name)} available to {IsNotNullOrWhiteSpace(action)}.[/]");
+            return null;
+        }
+
+        var choices = items.Select(e => new ListItem<TItem, TKey>(IsNotNull(itemKey)(e), IsNotNull(itemText)(e), e)).ToList();
+        var cancelOption = new ListItem<TItem, TKey>(null, "Cancel", null);
+        choices.Add(cancelOption);
+
+        var prompt = $"Select {IndefiniteArticleFor(name[0])} {name} to {action} (or cancel):";
+        return command.Input.BuildSelectionPrompt<ListItem<TItem, TKey>>(prompt)
+                      .AddChoices([.. choices])
+                      .ConvertWith(e => e.Key is null ? $"[yellow bold]{e.Text}[/]" : e.Text)
+                      .Show().Item;
+
+        static string IndefiniteArticleFor(char c) => c is 'a' or 'e' or 'i' or 'o' or 'u' ? "an" : "a";
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Helpers\EncryptionHelper.cs 
+namespace AI.Sample.Helpers;
+
+public interface IEncryptionHelper {
+    string? Encrypt(string? plainText);
+    string? Decrypt(string? cipherText);
+}
+
+public sealed class EncryptionHelper : IEncryptionHelper {
+    private static IEncryptionHelper? _instance;
+    private readonly byte[] _secretKey;
+    private readonly byte[] _initVector;
+
+    private EncryptionHelper(IConfiguration configuration) {
+        _secretKey = Convert.FromBase64String(IsNotNull(configuration["Encryption:SecretKey"]));
+        _initVector = Convert.FromBase64String(IsNotNull(configuration["Encryption:InitVector"]));
+    }
+
+    public static void Initialize(IConfiguration configuration) {
+        if (_instance != null) return;
+        _instance = new EncryptionHelper(configuration);
+    }
+
+    public static IEncryptionHelper Instance
+        => _instance
+        ?? throw new InvalidOperationException("EncryptionHelper has not been initialized.");
+
+    public string? Encrypt(string? plainText) {
+        if (plainText is null) return null;
+        if (plainText.Length == 0) return string.Empty;
+        using var aesAlg = Aes.Create();
+        aesAlg.Key = _secretKey;
+        aesAlg.IV = _initVector;
+
+        var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+        using var msEncrypt = new MemoryStream();
+        using var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
+        using var swEncrypt = new StreamWriter(csEncrypt);
+        swEncrypt.Write(plainText);
+
+        return Convert.ToBase64String(msEncrypt.ToArray());
+    }
+
+    public string? Decrypt(string? cipherText) {
+        try {
+            if (cipherText is null) return null;
+            if (cipherText.Length == 0) return string.Empty;
+            var cipherBytes = Convert.FromBase64String(cipherText);
+
+            using var aesAlg = Aes.Create();
+            aesAlg.Key = _secretKey;
+            aesAlg.IV = _initVector;
+
+            var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+            using var msDecrypt = new MemoryStream(cipherBytes);
+            using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+            using var srDecrypt = new StreamReader(csDecrypt);
+
+            return srDecrypt.ReadToEnd();
+        }
+        catch (FormatException) {
+            return null;
+        }
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Helpers\JsonSchemaGenerator.cs 
+namespace AI.Sample.Helpers;
+
+public static class JsonSchemaGenerator {
+    public static string GenerateSchemaFor<T>()
+        where T : class
+        => GenerateSchema(typeof(T));
+
+    private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+
+    public static string GenerateSchema(Type type) {
+        var schema = new Dictionary<string, object> {
+            ["$schema"] = "https://json-schema.org/draft/2020-12/schema",
+            ["type"] = GetJsonType(type)
+        };
+
+        if (GetJsonType(type) == "object") {
+            schema["properties"] = GenerateProperties(type);
+            var requiredProperties = GetRequiredProperties(type);
+            if (requiredProperties.Count != 0) {
+                schema["required"] = requiredProperties;
+            }
+        }
+        else if (GetJsonType(type) == "array") {
+            schema["items"] = GenerateArrayItems(type);
+        }
+
+        return JsonSerializer.Serialize(schema, _jsonOptions);
+    }
+
+    private static Dictionary<string, object> GenerateArrayItems(Type type) {
+        var elementType = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
+        return elementType == null
+            ? new() { ["type"] = "object" }
+            : GenerateSchemaForType(elementType);
+    }
+
+    private static string GetJsonType(Type type) => type switch {
+        not null when type == typeof(string) => "string",
+        not null when type == typeof(DateTime)
+                   || type == typeof(DateTimeOffset)
+                   || type == typeof(TimeSpan)
+                   || type == typeof(Guid)
+                   || type == typeof(Uri)
+                   || type == typeof(Version) => "string",
+        not null when type.IsEnum => "string",
+        not null when type == typeof(int)
+                   || type == typeof(long)
+                   || type == typeof(float)
+                   || type == typeof(double)
+                   || type == typeof(decimal)
+                   || type == typeof(short)
+                   || type == typeof(ushort)
+                   || type == typeof(uint)
+                   || type == typeof(ulong)
+                   || type == typeof(byte)
+                   || type == typeof(sbyte) => "number",
+        not null when type == typeof(bool) => "boolean",
+        not null when type.IsArray
+                   || (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(List<>)
+                                           || type.GetGenericTypeDefinition() == typeof(IEnumerable<>))) => "array",
+        not null when type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) => GetJsonType(Nullable.GetUnderlyingType(type)!),
+        not null when type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>) => "object",
+        _ => "object",
+    };
+    private static Dictionary<string, object> GenerateProperties(Type type) {
+        var properties = new Dictionary<string, object>();
+
+        foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+            properties[prop.Name] = GenerateSchemaForType(prop.PropertyType);
+            AddAttributeInfo((Dictionary<string, object>)properties[prop.Name], prop);
+        }
+
+        return properties;
+    }
+
+    private static Dictionary<string, object> GenerateSchemaForType(Type type) {
+        var schema = new Dictionary<string, object> {
+            ["type"] = GetJsonType(type)
+        };
+
+        if (type.IsEnum) {
+            schema["enum"] = Enum.GetNames(type);
+        }
+        else if (GetJsonType(type) == "object") {
+            schema["properties"] = GenerateProperties(type);
+            var requiredProperties = GetRequiredProperties(type);
+            if (requiredProperties.Count != 0) {
+                schema["required"] = requiredProperties;
+            }
+        }
+        else if (GetJsonType(type) == "array") {
+            schema["items"] = GenerateArrayItems(type);
+        }
+
+        return schema;
+    }
+
+    private static void AddAttributeInfo(Dictionary<string, object> schema, PropertyInfo prop) {
+        var descriptionAttribute = prop.GetCustomAttribute<DescriptionAttribute>();
+        if (descriptionAttribute != null) {
+            schema["description"] = descriptionAttribute.Description;
+        }
+
+        if (prop.PropertyType == typeof(DateTime) || prop.PropertyType == typeof(DateTimeOffset)) {
+            schema["format"] = "date-time";
+        }
+        else if (prop.PropertyType == typeof(Guid)) {
+            schema["format"] = "uuid";
+        }
+
+        var rangeAttribute = prop.GetCustomAttribute<RangeAttribute>();
+        if (rangeAttribute != null) {
+            schema["minimum"] = rangeAttribute.Minimum;
+            schema["maximum"] = rangeAttribute.Maximum;
+        }
+
+        var stringLengthAttribute = prop.GetCustomAttribute<StringLengthAttribute>();
+        if (stringLengthAttribute != null) {
+            if (stringLengthAttribute.MinimumLength > 0)
+                schema["minLength"] = stringLengthAttribute.MinimumLength;
+            schema["maxLength"] = stringLengthAttribute.MaximumLength;
+        }
+
+        var regexAttribute = prop.GetCustomAttribute<RegularExpressionAttribute>();
+        if (regexAttribute != null) {
+            schema["pattern"] = regexAttribute.Pattern;
+        }
+    }
+
+    private static List<string> GetRequiredProperties(Type type)
+        => type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+               .Where(p => (Nullable.GetUnderlyingType(p.PropertyType) == null
+                        && p.PropertyType.IsValueType
+                     && !IsNullableReferenceType(p))
+                     || p.GetCustomAttribute<RequiredAttribute>() != null)
+            .Select(p => p.Name)
+            .ToList();
+
+    private static bool IsNullableReferenceType(PropertyInfo prop)
+        => !prop.PropertyType.IsValueType &&
+            prop.GetCustomAttribute<NullableAttribute>()?.NullableFlags[0] == 2;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Main\Commands\HelpCommand.cs 
+﻿namespace AI.Sample.Main.Commands;
+
+public class HelpCommand : Command<HelpCommand> {
+    private const int _indentSize = 4;
+    private readonly IHasChildren _parent;
+
+    public HelpCommand(IHasChildren parent)
+        : base(parent, "Help", ["?"]) {
+        _parent = IsNotNull(parent);
+        Description = "Display this help information.";
+        AddParameter("Target", string.Empty);
+    }
+
+    protected override Result Execute() {
+        var target = Map.GetValueAs<string>("Target");
+        var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+        var node = command ?? _parent;
+        var helpText = GetHelp(node);
+        Output.Write(helpText);
+        return Result.Success();
+    }
+
+    private static string GetHelp(IHasChildren node) {
+        var builder = new StringBuilder();
+        AppendNodeDescription(builder, node);
+        AppendUsage(builder, node);
+        AppendAliases(builder, node);
+        AppendItems(builder, "Options", node.Options);
+        AppendItems(builder, "Parameters", node.Parameters);
+        AppendItems(builder, "Commands", node.Commands);
+        return builder.ToString();
+    }
+
+    private static void AppendNodeDescription(StringBuilder builder, INode node) {
+        if (node is IApplication app) builder.AppendLine(app.FullName);
+        if (string.IsNullOrWhiteSpace(node.Description)) return;
+        builder.AppendLine(node.Description.Trim());
+    }
+
+    private static void AppendUsage(StringBuilder builder, IHasChildren node) {
+        if (builder.Length != 0) builder.AppendLine();
+        builder.AppendLine("Usage:");
+        AppendDefaultUsage(builder, node);
+        AppendUsageWithParameters(builder, node);
+    }
+
+    private static void AppendDefaultUsage(StringBuilder builder, IHasChildren node) {
+        if (node.Commands.Length == 0 && node.Parameters.Length != 0) return;
+        builder.Append(' ', _indentSize).Append(node.Path);
+        if (node.Options.Length != 0) builder.Append(" [[Options]]");
+        if (node.Commands.Length != 0) builder.Append(" [[Commands]]");
+        builder.AppendLine();
+    }
+
+    private static void AppendUsageWithParameters(StringBuilder builder, IHasChildren node) {
+        if (node.Parameters.Length == 0) return;
+        builder.Append(' ', _indentSize).Append(node.Path);
+        if (node.Options.Length != 0) builder.Append(" [[Options]]");
+        foreach (var parameter in node.Parameters) {
+            if (parameter.IsRequired) builder.Append($" <{parameter.Name}>");
+            else builder.Append($" [<{parameter.Name}>]");
+        }
+        builder.AppendLine();
+    }
+
+    private static void AppendAliases(StringBuilder builder, IHasChildren node) {
+        if (node.Aliases.Length == 0) return;
+        builder.AppendLine();
+        builder.Append("Aliases: ").AppendJoin(", ", node.Aliases).AppendLine();
+    }
+
+    private static void AppendItems(StringBuilder builder, string section, IReadOnlyCollection<INode> items) {
+        if (items.Count == 0) return;
+        builder.AppendLine();
+        builder.AppendLine($"{section}:");
+        foreach (var item in items)
+            AppendItem(builder, item);
+    }
+
+    private static void AppendItem(StringBuilder builder, INode node) {
+        builder.Append(' ', _indentSize);
+        var ids = GetIds(node);
+        builder.Append(ids);
+        AppendNodeDescription(builder, node, ids.Length + _indentSize);
+    }
+
+    private static string GetIds(INode node) {
+        string[] ids = node is IArgument _
+                           ? [$"--{node.Name.ToLowerInvariant()}", .. node.Aliases.Select(a => $"-{a}")]
+                           : [node.Name, .. node.Aliases];
+        return string.Join(", ", ids);
+    }
+
+    private static void AppendNodeDescription(StringBuilder builder, INode node, int length) {
+        var lines = node.Description.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (lines.Length == 0) {
+            builder.AppendLine();
+            return;
+        }
+        builder.Append(' ', 30 - length).AppendLine(lines[0]);
+        foreach (var line in lines.Skip(1)) builder.Append(' ', 30).AppendLine(line);
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Main\Commands\SettingsCommand.cs 
+﻿namespace AI.Sample.Main.Commands;
+
+public class SettingsCommand : Command<SettingsCommand> {
+    private readonly LolaSettings _settings;
+    private readonly ILogger<SettingsCommand> _logger;
+
+    public SettingsCommand(IHasChildren parent, IOptions<LolaSettings> settings, ILogger<SettingsCommand> logger)
+        : base(parent, "Settings", ["set"]) {
+        _logger = logger;
+        _settings = settings.Value;
+        Description = "Display the current configuration of Lola.";
+    }
+
+    protected override Result Execute() {
+        _logger.LogInformation("Executing Settings command...");
+        var table = new Table();
+        table.AddColumn("Setting");
+        table.AddColumn("Value");
+        table.AddRow("Default AI Provider", _settings.DefaultAIProvider);
+        table.AddRow("Available Models", string.Join(", ", _settings.AvailableModels));
+        Output.Write(table);
+        Output.WriteLine();
+
+        return Result.Success();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Main\Commands\VersionCommand.cs 
+namespace AI.Sample.Main.Commands;
+
+public class VersionCommand : Command<VersionCommand> {
+    public VersionCommand(IHasChildren parent)
+        : base(parent, "Version") {
+        Description = "Display the current version of Lola.";
+    }
+
+    protected override Result Execute() {
+        Output.WriteLine($"[bold]Lola version:[/] {Application.Version}");
+
+        return Result.Success();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Commands\ModelAddCommand.cs 
+﻿namespace AI.Sample.Models.Commands;
+
+public class ModelAddCommand : Command<ModelAddCommand> {
+    private readonly IModelHandler _modelHandler;
+    private readonly IProviderHandler _providerHandler;
+
+    public ModelAddCommand(IHasChildren parent, IModelHandler modelHandler, IProviderHandler providerHandler)
+        : base(parent, "Create", ["add", "new"]) {
+        _modelHandler = modelHandler;
+        _providerHandler = providerHandler;
+        Description = "Create a new model.";
+    }
+
+    protected override Result Execute() {
+        try {
+            var providers = _providerHandler.List();
+            if (providers.Length == 0) {
+                Output.WriteLine("[yellow bold]No providers available. Please add a provider first.[/]");
+                Logger.LogInformation("No providers available. Create model action cancelled.");
+                return Result.Invalid("No providers available.");
+            }
+
+            var provider = Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
+                                .ConvertWith(p => $"{p.Key}: {p.Name}")
+                                .AddChoices(providers)
+                                .Show();
+            var model = _modelHandler.Create(m => SetUp(m, provider));
+
+            _modelHandler.Register(model);
+            Output.WriteLine($"[green]Settings '{model.Name}' added successfully.[/]");
+            Logger.LogInformation("Settings '{ModelKey}:{ModelName}' added successfully.", model.Key, model.Name);
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Output.WriteError("Error adding the new model.");
+            Logger.LogError(ex, "Error adding the new model.");
+            Output.WriteLine();
+
+            return Result.Error(ex);
+        }
+    }
+
+    private void SetUp(ModelEntity model, ProviderEntity provider) {
+        model.Key = Input.BuildTextPrompt<string>("Enter the model identifier:")
+                         .For("Identifier")
+                         .AsRequired()
+                         .Show();
+        model.Name = Input.BuildTextPrompt<string>("Enter the model name:")
+                          .For("name")
+                          .AsRequired()
+                          .Show();
+        model.ProviderKey = provider.Key;
+        model.MaximumContextSize = Input.BuildTextPrompt<uint>("Enter the maximum context size:")
+                                        .For("maximum context size")
+                                        .AsRequired()
+                                        .Validate(size => size > 0, "Maximum context size must be greater than 0.")
+                                        .Show();
+        model.MaximumOutputTokens = Input.BuildTextPrompt<uint>("Enter the maximum output tokens:")
+                                         .For("maximum output tokens")
+                                         .AsRequired()
+                                         .Validate(tokens => tokens > 0, "Maximum output tokens must be greater than 0.")
+                                         .Show();
+        model.InputCostPerMillionTokens = Input.BuildTextPrompt<decimal>("Enter the input cost per million tokens:")
+                                               .For("input cost per million tokens")
+                                               .Validate(cost => cost >= 0, "Cost must be non-negative.")
+                                               .Show();
+        model.OutputCostPerMillionTokens = Input.BuildTextPrompt<decimal>("Enter the output cost per million tokens:")
+                                                .For("output cost per million tokens")
+                                                .Validate(cost => cost >= 0, "Cost must be non-negative.")
+                                                .Show();
+        model.TrainingDataCutOff = Input.BuildTextPrompt<DateOnly>("Enter the training data cut-off date (YYYY-MM-DD):")
+                                        .For("training data cut-off date")
+                                        .Validate(date => date <= DateOnly.FromDateTime(DateTime.Now), "Cut-off date cannot be in the future.")
+                                        .Show();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Commands\ModelListCommand.cs 
+﻿namespace AI.Sample.Models.Commands;
+
+public class ModelListCommand : Command<ModelListCommand> {
+    private readonly IModelHandler _modelHandler;
+    private readonly IProviderHandler _providerHandler;
+
+    public ModelListCommand(IHasChildren parent, IModelHandler modelHandler, IProviderHandler providerHandler)
+        : base(parent, "List", ["ls"]) {
+        _modelHandler = modelHandler;
+        _providerHandler = providerHandler;
+        Description = "List all models or models for a specific provider.";
+        AddParameter("Provider", "");
+    }
+
+    protected override Result Execute() {
+        var providerKeyStr = Map.GetValueAs<string>("Provider");
+
+        var models = string.IsNullOrEmpty(providerKeyStr)
+            ? _modelHandler.List()
+            : _modelHandler.ListByProvider(providerKeyStr);
+
+        if (models.Length == 0) {
+            Output.WriteLine("[yellow]No models found.[/]");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        var sortedModels = models
+                .OrderBy(m => m.Provider!.Name)
+                .ThenBy(m => m.Name);
+
+        var table = new Table();
+        table.Expand();
+
+        // Add columns
+        table.AddColumn(new("[yellow]Name[/]"));
+        table.AddColumn(new("[yellow]Provider[/]"));
+        table.AddColumn(new("[yellow]Id[/]"));
+        table.AddColumn(new TableColumn("[yellow]Map Size[/]").RightAligned());
+        table.AddColumn(new TableColumn("[yellow]Output Tokens[/]").RightAligned());
+
+        foreach (var model in sortedModels) {
+            var provider = _providerHandler.GetByKey(model.ProviderKey)!;
+            table.AddRow(
+                model.Name,
+                provider.Name,
+                model.Key,
+                $"{model.MaximumContextSize:#,##0}",
+                $"{model.MaximumOutputTokens:#,##0}"
+            );
+        }
+
+        Output.Write(table);
+        Output.WriteLine();
+        return Result.Success();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Commands\ModelRemoveCommand.cs 
+﻿namespace AI.Sample.Models.Commands;
+
+public class ModelRemoveCommand : Command<ModelRemoveCommand> {
+    private readonly IModelHandler _handler;
+
+    public ModelRemoveCommand(IHasChildren parent, IModelHandler handler)
+        : base(parent, "Remove", ["delete", "del"]) {
+        _handler = handler;
+        Description = "Remove a model.";
+    }
+
+    protected override async Task<Result> ExecuteAsync(CancellationToken ct = default) {
+        var model = this.SelectEntity(_handler.List(), "remove", "Settings", m => m.Key, m => m.Name);
+        if (model is null) {
+            Logger.LogInformation("No model selected.");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        if (!await Input.ConfirmAsync($"Are you sure you want to remove the model '{model.Name}' ({model.Key})?", ct)) {
+            Output.WriteLine();
+
+            return Result.Invalid("Action cancelled.");
+        }
+
+        try {
+            _handler.Remove(model.Key);
+            Output.WriteLine($"[green]Settings with key '{model.Name}' removed successfully.[/]");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Output.WriteError("Error removing the model.");
+            Output.WriteLine();
+
+            return Result.Error(ex);
+        }
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Commands\ModelsCommand.cs 
+﻿namespace AI.Sample.Models.Commands;
+
+public class ModelsCommand : Command<ModelsCommand> {
+    public ModelsCommand(IHasChildren parent) : base(parent, "Models", []) {
+        Description = "Manage AI Models.";
+
+        AddCommand<ModelListCommand>();
+        AddCommand<ModelAddCommand>();
+        AddCommand<ModelUpdateCommand>();
+        AddCommand<ModelRemoveCommand>();
+        AddCommand<ModelViewCommand>();
+        AddCommand<HelpCommand>();
+    }
+
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
+                          .ConvertWith(MapTo)
+                          .AddChoices("List",
+                                      "Create",
+                                      "Info",
+                                      "Select",
+                                      "Update",
+                                      "Remove",
+                                      "Help",
+                                      "Back",
+                                      "Exit").Show();
+
+        var providerHandler = Application.Services.GetRequiredService<IProviderHandler>();
+        var modelHandler = Application.Services.GetRequiredService<IModelHandler>();
+        var command = choice switch {
+            "List" => new ModelListCommand(this, modelHandler, providerHandler),
+            "Create" => new ModelAddCommand(this, modelHandler, providerHandler),
+            "Info" => new ModelViewCommand(this, modelHandler, providerHandler),
+            "Select" => new ModelSelectCommand(this, modelHandler),
+            "Update" => new ModelUpdateCommand(this, modelHandler, providerHandler),
+            "Remove" => new ModelRemoveCommand(this, modelHandler),
+            "Help" => new HelpCommand(this),
+            "Exit" => new ExitCommand(this),
+            _ => (ICommand?)null,
+        };
+        return command?.Execute([], ct) ?? Result.SuccessTask();
+
+        static string MapTo(string choice) => choice switch {
+            "List" => "List Models",
+            "Create" => "Add a New Model",
+            "Info" => "View the Details of a Model",
+            "Select" => "Select the Default Model",
+            "Update" => "Update a Model",
+            "Remove" => "Delete a Model",
+            "Help" => "Help",
+            "Back" => "Back",
+            "Exit" => "Exit",
+            _ => string.Empty,
+        };
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Commands\ModelSelectCommand.cs 
+﻿namespace AI.Sample.Models.Commands;
+
+public class ModelSelectCommand : Command<ModelSelectCommand> {
+    private readonly IModelHandler _handler;
+
+    public ModelSelectCommand(IHasChildren parent, IModelHandler handler)
+        : base(parent, "Select", ["sel"]) {
+        _handler = handler;
+        Description = "Select the default model.";
+    }
+
+    protected override Result Execute() {
+        var models = _handler.List();
+
+        if (models.Length == 0) {
+            Output.WriteLine("[yellow]No models available. Please add a model before proceeding.[/]");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        var selected = Input.BuildSelectionPrompt<ModelEntity>("Select an model:")
+                            .AddChoices(models)
+                            .ConvertWith(c => c.Name)
+                            .Show();
+
+        try {
+            _handler.Select(selected.Key);
+            Output.WriteLine($"[green]Settings '{selected.Key}' selected successfully.[/]");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Output.WriteError("Error selecting an model.");
+            Output.WriteLine();
+
+            return Result.Error(ex);
+        }
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Commands\ModelUpdateCommand.cs 
+﻿namespace AI.Sample.Models.Commands;
+
+public class ModelUpdateCommand : Command<ModelUpdateCommand> {
+    private readonly IModelHandler _handler;
+    private readonly IProviderHandler _providerHandler;
+
+    public ModelUpdateCommand(IHasChildren parent, IModelHandler handler, IProviderHandler providerHandler)
+        : base(parent, "Update", ["edit"]) {
+        _handler = handler;
+        _providerHandler = providerHandler;
+        Description = "Update an existing model.";
+    }
+
+    protected override Result Execute() {
+        var model = this.SelectEntity(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
+        if (model is null) {
+            Logger.LogInformation("No model selected.");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        model.Key = Input.BuildTextPrompt<string>("Enter the new identifier for the model")
+                         .For("identifier").WithDefault(model.Key)
+                         .AsRequired()
+                         .Show();
+
+        model.Name = Input.BuildTextPrompt<string>("Enter the new name for the model")
+                          .For("name").WithDefault(model.Name)
+                          .AsRequired()
+                          .Show();
+
+        var currentProvider = _providerHandler.GetByKey(model.ProviderKey);
+        var provider = Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
+                            .ConvertWith(p => $"{p.Key}: {p.Name}")
+                            .WithDefault(currentProvider!).AddChoices(_providerHandler.List())
+                            .Show();
+        model.ProviderKey = provider.Key;
+
+        model.MaximumContextSize = Input.BuildTextPrompt<uint>("Enter the new maximum context size")
+                                        .For("maximum context size")
+                                        .WithDefault(model.MaximumContextSize)
+                                        .Validate(size => size > 0, "Maximum context size must be greater than 0.")
+                                        .Show();
+
+        model.MaximumOutputTokens = Input.BuildTextPrompt<uint>("Enter the new maximum output tokens")
+                                         .For("maximum output tokens")
+                                         .WithDefault(model.MaximumOutputTokens)
+                                         .Validate(tokens => tokens > 0, "Maximum output tokens must be greater than 0.")
+                                         .Show();
+
+        model.InputCostPerMillionTokens = Input.BuildTextPrompt<decimal>("Enter the new input cost per million tokens")
+                                               .For("input cost per million tokens")
+                                               .WithDefault(model.InputCostPerMillionTokens)
+                                               .Validate(cost => cost >= 0, "Cost must be non-negative.")
+                                               .Show();
+
+        model.OutputCostPerMillionTokens = Input.BuildTextPrompt<decimal>("Enter the new output cost per million tokens")
+                                                .For("output cost per million tokens")
+                                                .WithDefault(model.OutputCostPerMillionTokens)
+                                                .Validate(cost => cost >= 0, "Cost must be non-negative.")
+                                                .Show();
+
+        model.TrainingDataCutOff = Input.BuildTextPrompt<DateOnly>("Enter the new training cut-off date (YYYY-MM-DD)")
+                                        .For("training cut-off date")
+                                        .WithDefault(model.TrainingDataCutOff)
+                                        .Validate(date => date <= DateOnly.FromDateTime(DateTime.Now), "Cut-off date cannot be in the future.")
+                                        .Show();
+
+        try {
+            _handler.Update(model);
+            Logger.LogInformation("Settings '{ModelKey}:{ModelName}' updated successfully.", model.Key, model.Name);
+            Output.WriteLine("[green]Settings updated successfully.[/]");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Logger.LogError(ex, "Error updating the model '{ModelKey}:{ModelName}'.", model.Key, model.Name);
+            Output.WriteError("Error updating the model.");
+            Output.WriteLine();
+
+            return Result.Error(ex);
+        }
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Commands\ModelViewCommand.cs 
+﻿namespace AI.Sample.Models.Commands;
+
+public class ModelViewCommand : Command<ModelViewCommand> {
+    private readonly IModelHandler _handler;
+    private readonly IProviderHandler _providerHandler;
+
+    public ModelViewCommand(IHasChildren parent, IModelHandler handler, IProviderHandler providerHandler)
+        : base(parent, "Info", ["i"]) {
+        _handler = handler;
+        _providerHandler = providerHandler;
+        Description = "Display detailed information about a model.";
+    }
+
+    protected override Result Execute() {
+        var model = this.SelectEntity(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
+        if (model is null) {
+            Logger.LogInformation("No model selected.");
+            return Result.Success();
+        }
+        model.Provider = _providerHandler.GetByKey(model.ProviderKey)!;
+
+        Output.WriteLine("[yellow]Model Information:[/]");
+        Output.WriteLine($"[blue]Id:[/] {model.Key}{(model.Selected ? " [green](default)[/]" : "")}");
+        Output.WriteLine($"[blue]Name:[/] {model.Name}");
+        Output.WriteLine($"[blue]Provider:[/] {model.Provider!.Name}");
+        Output.WriteLine($"[blue]Maximum Map Size:[/] {model.MaximumContextSize}");
+        Output.WriteLine($"[blue]Maximum Output Tokens:[/] {model.MaximumOutputTokens}");
+        Output.WriteLine($"[blue]Input Cost per MTok:[/] {model.InputCostPerMillionTokens:C}");
+        Output.WriteLine($"[blue]Output Cost per MTok:[/] {model.OutputCostPerMillionTokens:C}");
+        Output.WriteLine($"[blue]Training Date Cut-Off:[/] {model.TrainingDataCutOff:MMM yyyy}");
+        Output.WriteLine();
+
+        return Result.Success();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Handlers\IModelHandler.cs 
+﻿namespace AI.Sample.Models.Handlers;
+
+public interface IModelHandler {
+    ModelEntity[] List();
+    ModelEntity? GetByKey(string key);
+    ModelEntity Create(Action<ModelEntity> setUp);
+    void Register(ModelEntity model);
+    void Update(ModelEntity model);
+    void Remove(string key);
+    ModelEntity[] ListByProvider(string provider);
+    void RemoveByProvider(string provider);
+
+    void Select(string key);
+    ModelEntity? Internal { get; }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Handlers\ModelHandler.cs 
+﻿namespace AI.Sample.Models.Handlers;
+
+public class ModelHandler(IApplication application, IModelRepository repository, ILogger<ModelHandler> logger)
+    : IModelHandler {
+    private const string _applicationModelKey = "ApplicationModel";
+
+    private ModelEntity? _selected;
+
+    public ModelEntity? Internal {
+        get => GetSelected();
+        private set => SetSelected(IsNotNull(value));
+    }
+
+    private ModelEntity? GetSelected() {
+        var cachedValue = application.Map.GetValueAs<ModelEntity>(_applicationModelKey);
+        _selected = cachedValue ?? repository.GetSelected();
+        if (_selected is null) return null;
+        if (cachedValue is null) application.Map[_applicationModelKey] = _selected;
+        return _selected; // Should only return null if the storage is empty or there is no selected model in the storage.
+    }
+
+    private void SetSelected(ModelEntity value) {
+        if (value.Key == _selected?.Key) return;
+        _selected = value;
+
+        // Ensure record uniqueness in storage
+        var oldSelectedModel = repository.FirstOrDefault(m => m.Selected);
+        if (oldSelectedModel is not null && oldSelectedModel.Key != _selected.Key) {
+            oldSelectedModel.Selected = false;
+            repository.Update(oldSelectedModel);
+        }
+        _selected.Selected = true;
+        repository.Update(_selected);
+
+        // Update cached value
+        application.Map[_applicationModelKey] = _selected;
+    }
+
+    public ModelEntity[] List()
+        => [.. repository.GetAll().OrderBy(m => m.Name)];
+
+    public ModelEntity? GetByKey(string key)
+        => repository.FindByKey(key);
+
+    public ModelEntity Create(Action<ModelEntity> setUp) {
+        var model = new ModelEntity();
+        setUp(model);
+        return model;
+    }
+
+    public void Register(ModelEntity model) {
+        if (repository.FindByKey(model.Key) is not null)
+            throw new InvalidOperationException($"A model with the key '{model.Key}' already exists.");
+        if (_selected is null) model.Selected = true;
+        repository.Add(model);
+        _selected = model;
+        logger.LogInformation("Added new model: {ModelKey} => {ModelName}", model.Key, model.Name);
+    }
+
+    public void Update(ModelEntity model) {
+        if (repository.FindByKey(model.Key) == null)
+            throw new InvalidOperationException($"Settings with key '{model.Key}' not found.");
+        repository.Update(model);
+        logger.LogInformation("Updated model: {ModelKey} => {ModelName}", model.Key, model.Name);
+    }
+
+    public void Remove(string key) {
+        var model = repository.FindByKey(key, false) ?? throw new InvalidOperationException($"Settings with key '{key}' not found.");
+
+        repository.Remove(key);
+        logger.LogInformation("Removed model: {ModelKey} => {ModelName}", model.Key, model.Name);
+    }
+
+    public ModelEntity[] ListByProvider(string provider) => repository.GetFromProvider(provider);
+
+    public void RemoveByProvider(string provider) {
+        foreach (var model in repository.GetFromProvider(provider)) {
+            repository.Remove(model.Key);
+            logger.LogInformation("Removed model associated with provider {Provider}: {ModelKey} => {ModelName}", provider, model.Key, model.Name);
+        }
+    }
+
+    public void Select(string key) {
+        var model = repository.FindByKey(key)
+                 ?? throw new InvalidOperationException($"Settings '{key}' not found.");
+        Internal = model;
+        logger.LogInformation("Settings '{ModelKey} => {ModelName}' selected : ", model.Key, model.Name);
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Repositories\IModelRepository.cs 
+﻿namespace AI.Sample.Models.Repositories;
+
+public interface IModelRepository : IRepository<ModelEntity, string> {
+    ModelEntity? GetSelected();
+    ModelEntity[] GetFromProvider(string provider);
+    ModelEntity[] GetAll(Expression<Func<ModelEntity, bool>>? predicate = null, bool includeProviders = true);
+    ModelEntity? FindByKey(string key, bool includeProvider = true);
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Repositories\IModelRepositoryStrategy.cs 
+﻿namespace AI.Sample.Models.Repositories;
+
+public interface IModelRepositoryStrategy
+    : IRepositoryStrategy<ModelEntity, string>;
+ 
+---------------------------------------------------------------------------------------- 
+Models\Repositories\ModelEntity.cs 
+﻿using Model = DotNetToolbox.AI.Models.Model;
+
+namespace AI.Sample.Models.Repositories;
+
+public class ModelEntity : Entity<ModelEntity, string> {
+    public uint ProviderKey { get; set; }
+    [JsonIgnore]
+    public ProviderEntity? Provider { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public uint MaximumContextSize { get; set; }
+    public uint MaximumOutputTokens { get; set; }
+    public decimal InputCostPerMillionTokens { get; set; }
+    public decimal OutputCostPerMillionTokens { get; set; }
+    public DateOnly TrainingDataCutOff { get; set; }
+    public bool Selected { get; set; }
+
+    public override Result Validate(IMap? context = null) {
+        var result = base.Validate(context);
+        if (string.IsNullOrWhiteSpace(Name))
+            result += new ValidationError("Name is required.", nameof(Name));
+        if (MaximumContextSize == 0)
+            result += new ValidationError("MaximumContextSize must be greater than 0.", nameof(MaximumContextSize));
+        if (MaximumOutputTokens == 0)
+            result += new ValidationError("MaximumOutputTokens must be greater than 0.", nameof(MaximumOutputTokens));
+        return result;
+    }
+
+    public static implicit operator Model(ModelEntity entity) => new(entity.Key) {
+        Provider = entity.Provider!.Name,
+        Name = entity.Name,
+        MaximumContextSize = entity.MaximumContextSize,
+        MaximumOutputTokens = entity.MaximumOutputTokens,
+        TrainingDataCutOff = entity.TrainingDataCutOff,
+    };
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Repositories\ModelRepository.cs 
+﻿namespace AI.Sample.Models.Repositories;
+
+public class ModelRepository(IModelRepositoryStrategy strategy, Lazy<IProviderRepository> providers)
+    : Repository<IModelRepositoryStrategy, ModelEntity, string>(strategy),
+      IModelRepository {
+    public ModelEntity[] GetFromProvider(string provider) {
+        if (uint.TryParse(provider, out var key))
+            return GetAll(m => m.ProviderKey == key);
+
+        var entity = providers.Value.Find(p => p.Name == provider);
+        return entity is null
+            ? []
+            : GetAll(m => m.ProviderKey == entity.Key);
+    }
+
+    public ModelEntity[] GetAll(Expression<Func<ModelEntity, bool>>? predicate = null, bool includeProviders = true) {
+        var models = base.GetAll(predicate);
+        if (!includeProviders) return models;
+        var providers1 = providers.Value.GetAll();
+        foreach (var model in models)
+            model.Provider = providers1.FirstOrDefault(p => p.Key == model.ProviderKey);
+        return models;
+    }
+
+    public ModelEntity? GetSelected() {
+        var model = Find(m => m.Selected);
+        if (model is null) return null;
+        model.Provider = providers.Value.FindByKey(model.ProviderKey);
+        return model;
+    }
+
+    public ModelEntity? FindByKey(string key, bool includeProvider = true) {
+        var model = base.FindByKey(key);
+        if (model is null) return null;
+        if (!includeProvider) return model;
+        model.Provider = providers.Value.FindByKey(model.ProviderKey);
+        return model;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Models\Repositories\ModelRepositoryStrategy.cs 
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace AI.Sample.Models.Repositories;
+
+public class ModelRepositoryStrategy(IConfigurationRoot configuration)
+    : JsonFilePerTypeRepositoryStrategy<IModelRepository, ModelEntity, string>("models", configuration),
+      IModelRepositoryStrategy {
+    protected override bool TryGenerateNextKey([MaybeNullWhen(false)] out string next) {
+        next = default;
+        return false;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Commands\PersonaCreateCommand.cs 
+﻿namespace AI.Sample.Personas.Commands;
+
+public class PersonaCreateCommand : Command<PersonaCreateCommand> {
+    private readonly IPersonaHandler _personaHandler;
+    private const int _maxQuestions = 10;
+
+    public PersonaCreateCommand(IHasChildren parent, IPersonaHandler personaHandler)
+        : base(parent, "Generate", ["gen"]) {
+        _personaHandler = personaHandler;
+        Description = "Generate a new agent persona using AI assistance.";
+    }
+
+    protected override async Task<Result> ExecuteAsync(CancellationToken ct = default) {
+        try {
+            var name = await Input.BuildTextPrompt<string>("How would you like to call the Agent:")
+                                  .AsRequired()
+                                  .ShowAsync(ct);
+            var role = await Input.BuildTextPrompt<string>($"What is the [white]{name}[/] primary role:")
+                                  .AnswerOnANewLine()
+                                  .AsRequired()
+                                  .ShowAsync(ct);
+            var persona = new PersonaEntity {
+                Name = name,
+                Role = role,
+            };
+            var goal = await Input.BuildMultilinePrompt($"What is the Main Goal for the [white]{name}[/]: ")
+                                  .ShowAsync(ct);
+            persona.Goals.AddRange(goal.Replace("\r", "").Split("\n"));
+            var addAnotherGoal = await Input.ConfirmAsync("Would you like to add another goal?", ct);
+            while (addAnotherGoal) {
+                goal = await Input.BuildMultilinePrompt("Additional goal: ")
+                            .ShowAsync(ct);
+                persona.Goals.AddRange(goal.Replace("\r", "").Split("\n"));
+                addAnotherGoal = await Input.ConfirmAsync("Would you like to add another goal?", ct);
+            }
+
+            for (var questionCount = 0; questionCount < _maxQuestions; questionCount++) {
+                Output.WriteLine("[yellow]Let me see if I have more questions...[/]");
+                Output.WriteLine("[grey](You can skip the questions by typing 'proceed' at any time.)[/]");
+
+                var queries = await _personaHandler.GeneratePersonaCreationQuestion(persona);
+                if (queries.Length == 0) {
+                    Output.WriteLine("[green]I've gathered sufficient information to generate the agent's persona.[/]");
+                    break;
+                }
+                var proceed = false;
+                foreach (var query in queries) {
+                    query.Answer = await Input.BuildMultilinePrompt($"Question {questionCount + 1}: {query.Question}")
+                                        .ShowAsync(ct);
+                    if (query.Answer.Equals("proceed", StringComparison.OrdinalIgnoreCase)) {
+                        proceed = true;
+                        break;
+                    }
+                    persona.Questions.Add(query);
+                }
+
+                if (!proceed) continue;
+                Output.WriteLine("[green]Ok. Let's proceed with the Agent's Persona generation.[/]");
+                break;
+            }
+
+            await _personaHandler.UpdateCreatedPersona(persona);
+
+            Output.WriteLine();
+            Output.WriteLine("[yellow]Here is generated Agent Persona:[/]");
+            Output.WriteLine($"[teal]Name:[/] {persona.Name}");
+            Output.WriteLine($"[teal]Role:[/] {persona.Role}");
+            Output.WriteLine("[teal]Goals:[/]");
+            Output.WriteLine(string.Join("\n", persona.Goals.Select(i => $" - {i}")));
+            Output.WriteLine("[teal]Expertise:[/]");
+            Output.WriteLine(persona.Expertise);
+            Output.WriteLine("[teal]Traits:[/]");
+            Output.WriteLine(string.Join("\n", persona.Traits.Select(i => $" - {i}")));
+            Output.WriteLine("[teal]Requirements:[/]");
+            Output.WriteLine(string.Join("\n", persona.Important.Select(i => $" - {i}")));
+            Output.WriteLine("[teal]Restrictions:[/]");
+            Output.WriteLine(string.Join("\n", persona.Negative.Select(i => $" - {i}")));
+            Output.WriteLine("[teal]Other:[/]");
+            Output.WriteLine(string.Join("\n", persona.Other.Select(i => $" - {i}")));
+            Output.WriteLine();
+
+            Output.WriteLine($"[green]Persona '{persona.Name}' generated successfully.[/]");
+            Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' generated successfully.", persona.Key, persona.Name);
+
+            var savePersona = await Input.ConfirmAsync("Are you ok with the Agent Persona above?", ct);
+            if (savePersona) {
+                _personaHandler.Add(persona);
+                Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' added successfully.", persona.Key, persona.Name);
+            }
+
+            Output.WriteLine();
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Output.WriteError($"Error generating persona: {ex.Message}");
+            Logger.LogError(ex, "Error generating the new persona.");
+            Output.WriteLine();
+
+            return Result.Error(ex.Message);
+        }
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Commands\PersonaListCommand.cs 
+﻿namespace AI.Sample.Personas.Commands;
+
+public class PersonaListCommand : Command<PersonaListCommand> {
+    private readonly IPersonaHandler _personaHandler;
+
+    public PersonaListCommand(IHasChildren parent, IPersonaHandler personaHandler)
+        : base(parent, "List", ["ls"]) {
+        _personaHandler = personaHandler;
+        Description = "List all personas or personas for a specific provider.";
+    }
+
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+        var personas = _personaHandler.List();
+
+        if (personas.Length == 0) {
+            Output.WriteLine("[yellow]No personas found.[/]");
+            Output.WriteLine();
+
+            return Result.SuccessTask();
+        }
+
+        var sortedPersonas = personas.OrderBy(m => m.Name);
+
+        var table = new Table();
+        table.Expand();
+
+        // Add columns
+        table.AddColumn(new("[yellow]Name[/]"));
+        table.AddColumn(new("[yellow]Role[/]"));
+        table.AddColumn(new("[yellow]Main Goal[/]"));
+
+        foreach (var persona in sortedPersonas) {
+            table.AddRow(
+                persona.Name,
+                persona.Role,
+                persona.Goals[0]
+            );
+        }
+
+        Output.Write(table);
+        Output.WriteLine();
+        return Result.SuccessTask();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Commands\PersonasCommand.cs 
+﻿namespace AI.Sample.Personas.Commands;
+
+public class PersonasCommand : Command<PersonasCommand> {
+    public PersonasCommand(IHasChildren parent)
+        : base(parent, "Personas", []) {
+        Description = "Manage AI Personas.";
+
+        AddCommand<PersonaListCommand>();
+        AddCommand<PersonaCreateCommand>();
+        //AddCommand<PersonaUpdateCommand>();
+        //AddCommand<PersonaRemoveCommand>();
+        //AddCommand<PersonaViewCommand>();
+        AddCommand<HelpCommand>();
+    }
+
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
+                          .ConvertWith(MapTo)
+                          .AddChoices("List",
+                                      "Create",
+                                      //"Info",
+                                      //"Select",
+                                      //"Update",
+                                      //"Remove",
+                                      "Help",
+                                      "Back",
+                                      "Exit").Show();
+
+        var personaHandler = Application.Services.GetRequiredService<IPersonaHandler>();
+        var command = choice switch {
+            "List" => new PersonaListCommand(this, personaHandler),
+            "Create" => new PersonaCreateCommand(this, personaHandler),
+            //"Info" => new PersonaViewCommand(this, personaHandler, providerHandler),
+            //"Select" => new PersonaSelectCommand(this, personaHandler),
+            //"Update" => new PersonaUpdateCommand(this, personaHandler, providerHandler),
+            //"Remove" => new PersonaRemoveCommand(this, personaHandler),
+            "Help" => new HelpCommand(this),
+            "Exit" => new ExitCommand(this),
+            _ => (ICommand?)null,
+        };
+        return command?.Execute([], ct) ?? Result.SuccessTask();
+
+        static string MapTo(string choice) => choice switch {
+            "List" => "List Personas",
+            "Create" => "Create a Persona",
+            //"Info" => "View the Details of a Persona",
+            //"Select" => "Select the Default Persona",
+            //"Update" => "Update a Persona",
+            //"Remove" => "Delete a Persona",
+            "Help" => "Help",
+            "Back" => "Back",
+            "Exit" => "Exit",
+            _ => string.Empty,
+        };
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Handlers\IPersonaHandler.cs 
+﻿using Task = System.Threading.Tasks.Task;
+
+namespace AI.Sample.Personas.Handlers;
+
+public interface IPersonaHandler {
+    PersonaEntity[] List();
+    PersonaEntity? GetByKey(uint key);
+    PersonaEntity? GetByName(string name);
+    PersonaEntity Create(Action<PersonaEntity> setUp);
+    void Add(PersonaEntity persona);
+    void Update(PersonaEntity persona);
+    void Remove(uint key);
+
+    Task<Query[]> GeneratePersonaCreationQuestion(PersonaEntity persona);
+    Task UpdateCreatedPersona(PersonaEntity persona);
+}
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Handlers\PersonaHandler.cs 
+﻿using DotNetToolbox.AI.Personas;
+
+using Task = System.Threading.Tasks.Task;
+
+namespace AI.Sample.Personas.Handlers;
+
+public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> logger)
+    : IPersonaHandler {
+    private readonly IModelHandler _modelHandler = services.GetRequiredService<IModelHandler>();
+    private readonly IUserProfileHandler _userHandler = services.GetRequiredService<IUserProfileHandler>();
+    private readonly IPersonaRepository _repository = services.GetRequiredService<IPersonaRepository>();
+    private readonly ITaskHandler _taskHandler = services.GetRequiredService<ITaskHandler>();
+    private readonly IAgentAccessor _connectionAccessor = services.GetRequiredService<IAgentAccessor>();
+
+    public PersonaEntity[] List() => _repository.GetAll();
+
+    public PersonaEntity? GetByKey(uint key) => _repository.FindByKey(key);
+    public PersonaEntity? GetByName(string name) => _repository.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+    public PersonaEntity Create(Action<PersonaEntity> setUp)
+        => _repository.Create(setUp);
+
+    public void Add(PersonaEntity persona) {
+        if (_repository.FindByKey(persona.Key) != null)
+            throw new InvalidOperationException($"A persona with the key '{persona.Key}' already exists.");
+
+        _repository.Add(persona);
+        logger.LogInformation("Added new persona: {PersonaKey} => {PersonaName}", persona.Name, persona.Key);
+    }
+
+    public void Update(PersonaEntity persona) {
+        if (_repository.FindByKey(persona.Key) == null)
+            throw new InvalidOperationException($"Persona with key '{persona.Key}' not found.");
+
+        _repository.Update(persona);
+        logger.LogInformation("Updated persona: {PersonaKey} => {PersonaName}", persona.Name, persona.Key);
+    }
+
+    public void Remove(uint key) {
+        var persona = _repository.FindByKey(key)
+                     ?? throw new InvalidOperationException($"Persona with key '{key}' not found.");
+
+        _repository.Remove(key);
+        logger.LogInformation("Removed persona: {PersonaKey} => {PersonaName}", persona.Name, persona.Key);
+    }
+
+    public async Task<Query[]> GeneratePersonaCreationQuestion(PersonaEntity persona) {
+        try {
+            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
+            var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
+            var userProfileEntity = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
+            var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
+            var taskEntity = _taskHandler.GetByKey(1) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
+            var context = new JobContext {
+                Model = appModel,
+                Agent = httpConnection,
+                UserProfile = userProfileEntity,
+                Persona = personaEntity,
+                Task = taskEntity,
+                Input = persona,
+            };
+            var job = new Job(context);
+            job.Converters.Add(typeof(List<Query>),
+                               v => {
+                                   var list = (List<Query>)v;
+                                   if (list.Count == 0) return string.Empty;
+                                   var sb = new StringBuilder();
+                                   foreach (var item in list) {
+                                       sb.AppendLine($"Q: {item.Question}");
+                                       sb.AppendLine($"{item.Explanation}");
+                                       sb.AppendLine($"A: {item.Answer}");
+                                   }
+                                   return sb.ToString();
+                               });
+            var result = await job.Execute(CancellationToken.None);
+            if (result.HasException) throw new("Failed to generate next question: " + result.Exception.Message);
+            var response = context.OutputAsMap.GetList<Map>("Questions");
+            return response.ToArray(i => new Query {
+                Question = i.GetRequiredValueAs<string>(nameof(Query.Question)),
+                Explanation = i.GetRequiredValueAs<string>(nameof(Query.Explanation)),
+            });
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "Error generating next question for persona {PersonaName}", persona.Name);
+            throw;
+        }
+    }
+
+    public async Task UpdateCreatedPersona(PersonaEntity persona) {
+        try {
+            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
+            var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
+            var userProfileEntity = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
+            var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
+            var taskEntity = _taskHandler.GetByKey(2) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
+            var context = new JobContext {
+                Model = appModel,
+                Agent = httpConnection,
+                UserProfile = userProfileEntity,
+                Persona = personaEntity,
+                Task = taskEntity,
+                Input = persona,
+            };
+            var job = new Job(context);
+            job.Converters.Add(typeof(List<Query>),
+                               v => {
+                                   var list = (List<Query>)v;
+                                   if (list.Count == 0) return string.Empty;
+                                   var sb = new StringBuilder();
+                                   foreach (var item in list) {
+                                       sb.AppendLine($"Q: {item.Question}");
+                                       sb.AppendLine($"{item.Explanation}");
+                                       sb.AppendLine($"A: {item.Answer}");
+                                   }
+                                   return sb.ToString();
+                               });
+            var result = await job.Execute(CancellationToken.None);
+            if (result.HasException) throw new("Failed to generate next question: " + result.Exception.Message);
+            persona.Role = context.OutputAsMap.GetRequiredValueAs<string>(nameof(Persona.Role));
+            persona.Goals = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Goals));
+            persona.Expertise = context.OutputAsMap.GetRequiredValueAs<string>(nameof(Persona.Expertise));
+            persona.Traits = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Traits));
+            persona.Important = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Important));
+            persona.Negative = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Negative));
+            persona.Other = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Other));
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "Error generating next question for persona {PersonaName}", persona.Name);
+            throw;
+        }
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Repositories\IPersonaRepository.cs 
+﻿namespace AI.Sample.Personas.Repositories;
+
+public interface IPersonaRepository
+    : IRepository<PersonaEntity, uint>;
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Repositories\IPersonaRepositoryStrategy.cs 
+﻿namespace AI.Sample.Personas.Repositories;
+
+public interface IPersonaRepositoryStrategy
+    : IRepositoryStrategy<PersonaEntity, uint>;
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Repositories\PersonaEntity.cs 
+﻿using DotNetToolbox.AI.Personas;
+
+namespace AI.Sample.Personas.Repositories;
+
+public class PersonaEntity
+    : Entity<PersonaEntity, uint> {
+    public string Name { get; init; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public List<string> Goals { get; set; } = [];
+
+    public List<Query> Questions { get; init; } = [];
+
+    public string Expertise { get; set; } = string.Empty;
+    public List<string> Traits { get; set; } = [];
+    public List<string> Important { get; set; } = [];
+    public List<string> Negative { get; set; } = [];
+    public List<string> Other { get; set; } = [];
+
+    public override Result Validate(IMap? context = null) {
+        var result = base.Validate(context);
+        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("The name is required.", nameof(Name));
+        if (string.IsNullOrWhiteSpace(Role)) result += new ValidationError("The primary role is required.", nameof(Role));
+        if (Goals.Count == 0) result += new ValidationError("At least one goal is required.", nameof(Goals));
+        return result;
+    }
+
+    public static implicit operator Map(PersonaEntity entity)
+        => new() {
+            ["Name"] = entity.Name,
+            ["Role"] = entity.Role,
+            ["Goals"] = entity.Goals,
+            ["Questions"] = entity.Questions,
+        };
+
+    public static implicit operator Persona(PersonaEntity entity)
+        => new(entity.Key) {
+            Name = entity.Name,
+            Role = entity.Role,
+            Goals = entity.Goals,
+            Expertise = entity.Expertise,
+            Traits = entity.Traits,
+            Important = entity.Important,
+            Negative = entity.Negative,
+            Other = entity.Other,
+        };
+}
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Repositories\PersonaRepository.cs 
+﻿namespace AI.Sample.Personas.Repositories;
+
+public class PersonaRepository(IPersonaRepositoryStrategy strategy)
+    : Repository<IPersonaRepositoryStrategy, PersonaEntity, uint>(strategy),
+      IPersonaRepository;
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Repositories\PersonaRepositoryStrategy.cs 
+﻿namespace AI.Sample.Personas.Repositories;
+
+public class PersonaRepositoryStrategy(IConfigurationRoot configuration)
+    : JsonFilePerTypeRepositoryStrategy<IPersonaRepository, PersonaEntity, uint>("personas", configuration),
+      IPersonaRepositoryStrategy {
+    protected override uint FirstKey { get; } = 1;
+
+    protected override bool TryGenerateNextKey(out uint next) {
+        next = LastUsedKey == default ? FirstKey : ++LastUsedKey;
+        return true;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Personas\Repositories\Query.cs 
+﻿namespace AI.Sample.Personas.Repositories;
+
+public class Query {
+    public string Question { get; set; } = string.Empty;
+    public string Explanation { get; set; } = string.Empty;
+    public string Answer { get; set; } = string.Empty;
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Commands\ProviderAddCommand.cs 
+﻿namespace AI.Sample.Providers.Commands;
+
+public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
+    : Command<ProviderAddCommand>(parent, "Create", ["add", "new"]) {
+    protected override Result Execute() {
+        try {
+            var provider = handler.Create(SetUp);
+            handler.Add(provider);
+            Output.WriteLine($"[green]Provider '{provider.Name}' added successfully.[/]");
+            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' added successfully.", provider.Key, provider.Name);
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Output.WriteError("Error adding the new provider.");
+            Logger.LogError(ex, "Error adding the new provider.");
+            Output.WriteLine();
+
+            return Result.Error(ex);
+        }
+    }
+
+    private void SetUp(ProviderEntity provider)
+        => provider.Name = Input.BuildTextPrompt<string>("Enter the provider name:")
+                                .For("name")
+                                .AsRequired()
+                                .Show();
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Commands\ProviderListCommand.cs 
+﻿namespace AI.Sample.Providers.Commands;
+
+public class ProviderListCommand(IHasChildren parent, IProviderHandler providerHandler)
+    : Command<ProviderListCommand>(parent, "List", ["ls"]) {
+    private readonly IProviderHandler _providerHandler = providerHandler;
+
+    protected override Result Execute() {
+        var providers = _providerHandler.List();
+        if (providers.Length == 0) {
+            Output.WriteLine("[yellow]No providers found.[/]");
+            Logger.LogInformation("No providers found. List providers action cancelled.");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        var table = new Table();
+        table.AddColumn(new("[yellow]Id[/]"));
+        table.AddColumn(new("[yellow]Name[/]"));
+
+        foreach (var provider in providers) {
+            table.AddRow(provider.Key.ToString(), provider.Name);
+        }
+
+        Output.Write(table);
+        Logger.LogInformation("Providers listed.");
+        Output.WriteLine();
+
+        return Result.Success();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Commands\ProviderRemoveCommand.cs 
+﻿namespace AI.Sample.Providers.Commands;
+
+public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler, IModelHandler modelHandler)
+    : Command<ProviderRemoveCommand>(parent, "Remove", ["delete", "del"]) {
+    protected override Result Execute() {
+        var provider = this.SelectEntity(handler.List(), "remove", "Provider", m => m.Key, m => m.Name);
+        if (provider is null) {
+            Logger.LogInformation("Provider remove action cancelled.");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        var associatedModels = modelHandler.ListByProvider($"{provider.Key}");
+
+        if (associatedModels.Length > 0) {
+            Output.WriteLine($"[yellow]The provider '{provider.Name}' has associated models:[/]");
+            var table = new Table();
+            table.AddColumn("Settings Key");
+            table.AddColumn("Settings Name");
+            foreach (var model in associatedModels) {
+                table.AddRow(model.Key, model.Name);
+            }
+            Output.Write(table);
+            Output.WriteLine("[yellow]Removing this provider will also remove all associated models.[/]");
+        }
+
+        if (!Input.Confirm($"Are you sure you want to remove the provider '{provider.Name}' ({provider.Key})?")) {
+            Logger.LogInformation("Provider remove action cancelled.");
+            return Result.Success();
+        }
+
+        try {
+            handler.Remove(provider.Key);
+            Output.WriteLine($"[green]Provider with key '{provider.Name}' removed successfully.[/]");
+            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' removed successfully.", provider.Key, provider.Name);
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Output.WriteError("Error removing the provider.");
+            Logger.LogError(ex, "Error removing the provider '{ProviderKey}:{ProviderName}'.", provider.Key, provider.Name);
+            Output.WriteLine();
+
+            return Result.Error(ex);
+        }
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Commands\ProvidersCommand.cs 
+﻿namespace AI.Sample.Providers.Commands;
+
+public class ProvidersCommand
+    : Command<ProvidersCommand> {
+    public ProvidersCommand(IHasChildren parent)
+        : base(parent, "Providers", []) {
+        Description = "Manage AI Providers.";
+
+        AddCommand<ProviderListCommand>();
+        AddCommand<ProviderAddCommand>();
+        AddCommand<ProviderUpdateCommand>();
+        AddCommand<ProviderRemoveCommand>();
+        AddCommand<HelpCommand>();
+        AddCommand<ExitCommand>();
+    }
+
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
+                          .ConvertWith(MapTo)
+                          .AddChoices("List",
+                                      "Create",
+                                      "Update",
+                                      "Remove",
+                                      "Help",
+                                      "Back",
+                                      "Exit").Show();
+
+        var providerHandler = Application.Services.GetRequiredService<IProviderHandler>();
+        var modelHandler = Application.Services.GetRequiredService<IModelHandler>();
+        var command = choice switch {
+            "List" => new ProviderListCommand(this, providerHandler),
+            "Create" => new ProviderAddCommand(this, providerHandler),
+            "Update" => new ProviderUpdateCommand(this, providerHandler),
+            "Remove" => new ProviderRemoveCommand(this, providerHandler, modelHandler),
+            "Help" => new HelpCommand(this),
+            "Exit" => new ExitCommand(this),
+            _ => (ICommand?)null,
+        };
+        return command?.Execute([], ct) ?? Result.SuccessTask();
+
+        static string MapTo(string choice) => choice switch {
+            "List" => "List Providers",
+            "Create" => "Add a New Provider",
+            "Update" => "Update a Provider",
+            "Remove" => "Exclude a Provider",
+            "Help" => "Help",
+            "Back" => "Back",
+            "Exit" => "Exit",
+            _ => string.Empty,
+        };
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Commands\ProviderUpdateCommand.cs 
+﻿namespace AI.Sample.Providers.Commands;
+
+public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler)
+    : Command<ProviderUpdateCommand>(parent, "Update", ["edit"]) {
+    private readonly IProviderHandler _handler = handler;
+
+    protected override Result Execute() {
+        var provider = this.SelectEntity(_handler.List(), "update", "Provider", m => m.Key, m => m.Name);
+        if (provider is null) {
+            Logger.LogInformation("Provider updated action cancelled.");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        provider.Name = Input.BuildTextPrompt<string>("Enter the new name for the provider")
+                             .For("name").WithDefault(provider.Name)
+                             .AsRequired()
+                             .Show();
+
+        try {
+            _handler.Update(provider);
+            Output.WriteLine($"[green]Provider '{provider.Name}' updated successfully.[/]");
+            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' updated successfully.", provider.Key, provider.Name);
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Output.WriteError("Error updating the provider.");
+            Logger.LogError(ex, "Error updating the provider '{ProviderKey}:{ProviderName}'.", provider.Key, provider.Name);
+            Output.WriteLine();
+
+            return Result.Invalid(ex.Message);
+        }
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Commands\ProviderViewCommand.cs 
+﻿namespace AI.Sample.Providers.Commands;
+
+public class ProviderViewCommand : Command<ProviderViewCommand> {
+    private readonly IProviderHandler _handler;
+
+    public ProviderViewCommand(IHasChildren parent, IProviderHandler handler)
+        : base(parent, "Info", ["i"]) {
+        _handler = handler;
+        Description = "Display the Provider.";
+    }
+
+    protected override Result Execute() {
+        var provider = this.SelectEntity(_handler.List(), "show", "Settings", m => m.Key, m => m.Name);
+        if (provider is null) {
+            Logger.LogInformation("No provider selected.");
+            return Result.Success();
+        }
+
+        Output.WriteLine("[yellow]Provider Information:[/]");
+        Output.WriteLine($"[blue]Name:[/] {provider.Name}");
+        Output.WriteLine($"[blue]API Key:[/] {provider.ApiKey ?? "[red]Not Set[/]"}");
+        Output.WriteLine();
+
+        return Result.Success();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Handlers\IProviderHandler.cs 
+﻿namespace AI.Sample.Providers.Handlers;
+
+public interface IProviderHandler {
+    ProviderEntity[] List();
+    ProviderEntity? GetByKey(uint key);
+    ProviderEntity? GetByName(string name);
+    ProviderEntity Create(Action<ProviderEntity> setUp);
+    void Add(ProviderEntity provider);
+    void Update(ProviderEntity provider);
+    void Remove(uint key);
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Handlers\ProviderHandler.cs 
+﻿namespace AI.Sample.Providers.Handlers;
+
+public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler> modelHandler, ILogger<ProviderHandler> logger)
+    : IProviderHandler {
+    private readonly IProviderRepository _repository = repository;
+    private readonly Lazy<IModelHandler> _modelHandler = modelHandler;
+    private readonly ILogger<ProviderHandler> _logger = logger;
+    public ProviderEntity[] List() => _repository.GetAll();
+
+    public ProviderEntity? GetByKey(uint key) => _repository.FindByKey(key);
+    public ProviderEntity? GetByName(string name) => _repository.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+    public ProviderEntity Create(Action<ProviderEntity> setUp)
+        => _repository.Create(setUp);
+
+    public void Add(ProviderEntity provider) {
+        if (_repository.FindByKey(provider.Key) != null)
+            throw new InvalidOperationException($"A provider with the key '{provider.Key}' already exists.");
+
+        _repository.Add(provider);
+        _logger.LogInformation("Added new provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
+    }
+
+    public void Update(ProviderEntity provider) {
+        if (_repository.FindByKey(provider.Key) == null)
+            throw new InvalidOperationException($"Provider with key '{provider.Key}' not found.");
+
+        _repository.Update(provider);
+        _logger.LogInformation("Updated provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
+    }
+
+    public void Remove(uint key) {
+        var provider = _repository.FindByKey(key)
+                     ?? throw new InvalidOperationException($"Provider with key '{key}' not found.");
+
+        _modelHandler.Value.RemoveByProvider(provider.Name);
+        _logger.LogInformation("Removed all models associated with provider: {ProviderKey}", key);
+
+        _repository.Remove(key);
+        _logger.LogInformation("Removed provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Repositories\IProviderRepository.cs 
+﻿namespace AI.Sample.Providers.Repositories;
+
+public interface IProviderRepository
+    : IRepository<ProviderEntity, uint>;
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Repositories\IProviderRepositoryStrategy.cs 
+﻿namespace AI.Sample.Providers.Repositories;
+
+public interface IProviderRepositoryStrategy
+    : IRepositoryStrategy<ProviderEntity, uint>;
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Repositories\ProviderEntity.cs 
+﻿namespace AI.Sample.Providers.Repositories;
+
+public class ProviderEntity
+    : Entity<ProviderEntity, uint> {
+    public string Name { get; set; } = string.Empty;
+
+    public string? ApiKey { get; set; }
+
+    public override Result Validate(IMap? context = null) {
+        var result = base.Validate(context);
+        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("Name is required.", nameof(Name));
+        return result;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Repositories\ProviderRepository.cs 
+﻿namespace AI.Sample.Providers.Repositories;
+
+public class ProviderRepository(IProviderRepositoryStrategy strategy)
+    : Repository<IProviderRepositoryStrategy, ProviderEntity, uint>(strategy),
+      IProviderRepository;
+ 
+---------------------------------------------------------------------------------------- 
+Providers\Repositories\ProviderRepositoryStrategy.cs 
+﻿namespace AI.Sample.Providers.Repositories;
+
+public class ProviderRepositoryStrategy(IConfigurationRoot configuration)
+    : JsonFilePerTypeRepositoryStrategy<IProviderRepository, ProviderEntity, uint>("providers", configuration),
+      IProviderRepositoryStrategy {
+    protected override uint FirstKey { get; } = 1;
+
+    protected override bool TryGenerateNextKey(out uint next) {
+        next = LastUsedKey == default ? FirstKey : ++LastUsedKey;
+        return true;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+saved\agents.json 
+[] 
+---------------------------------------------------------------------------------------- 
+saved\models.json 
+[
+  {
+    "ProviderKey": 1,
+    "Name": "GPT-4o",
+    "MaximumContextSize": 128000,
+    "MaximumOutputTokens": 4096,
+    "InputCostPerMillionTokens": 5,
+    "OutputCostPerMillionTokens": 15,
+    "TrainingDataCutOff": "2023-10-01",
+    "Selected": false,
+    "Key": "gpt-4o"
+  },
+  {
+    "ProviderKey": 2,
+    "Name": "Claude 3.5 Sonnet",
+    "MaximumContextSize": 200000,
+    "MaximumOutputTokens": 8192,
+    "InputCostPerMillionTokens": 3,
+    "OutputCostPerMillionTokens": 15,
+    "TrainingDataCutOff": "2024-04-01",
+    "Selected": true,
+    "Key": "claude-3-5-sonnet-20240620"
+  }
+] 
+---------------------------------------------------------------------------------------- 
+saved\personas.json 
+[
+  {
+    "Name": "Agent Creator",
+    "Role": "AI Agent Description Specialist",
+    "Goals": [
+      "create detailed, accurate, and tailored descriptions for various AI agents"
+    ],
+    "Questions": [],
+    "Expertise": "AI capabilities, roles, and effective prompt engineering",
+    "Traits": [
+      "You carefully break down requirements and information to create comprehensive agent descriptions.",
+      "You can create descriptions for a wide range of AI agent types and purposes.",
+      "You ensure all aspects of an agent\u0027s role and capabilities are highly detailed and clearly defined.",
+      "You can come up with unique and effective ways to describe AI agents\u0027 functions and limitations.",
+      "You prioritize clear, concise, and unambiguous language in your descriptions.",
+      "You are able to adapt your descriptions to different contexts and requirements."
+    ],
+    "Important": [
+      "always prioritize clarity and specificity in your agent descriptions.",
+      "include both capabilities and limitations in every agent description.",
+      "ensure that the descriptions you create are ethically sound and promote responsible AI use."
+    ],
+    "Negative": [
+      "create descriptions for AI agents that could be used for harmful or illegal purposes",
+      "misrepresent an AI agent\u0027s capabilities or limitations",
+      "use ambiguous or vague language in your descriptions"
+    ],
+    "Other": [
+      "You have extensive knowledge of various AI models and their capabilities.",
+      "You understand the importance of ethical AI behavior and incorporate this into your descriptions.",
+      "You are familiar with different domains and can tailor agent descriptions to specific fields."
+    ],
+    "Key": 1
+  },
+  {
+    "Name": "Master Coder",
+    "Role": "Senior .NET C# Full-Stack Developer",
+    "Goals": [
+      "Produce high-quality software according to the USER\u0027s requirements using the best coding practices."
+    ],
+    "Questions": [
+      {
+        "Question": "What specific areas of .NET and C# development should Master Coder specialize in? (e.g., ASP.NET Core, WPF, Xamarin, Entity Framework, etc.)",
+        "Explanation": "This will help define the agent\u0027s expertise within the .NET ecosystem and ensure it can provide targeted assistance in relevant technologies.",
+        "Answer": "All of them. He should have expertise in all of the C# .Net platform."
+      }
+    ],
+    "Expertise": "You are an expert in all aspects of the C# .NET platform, including but not limited to ASP.NET Core, WPF, Xamarin, Entity Framework, and other related technologies.",
+    "Traits": [
+      "Versatile: You are proficient in multiple technologies within the .NET ecosystem, allowing you to tackle diverse programming challenges.",
+      "Detail-oriented: You pay close attention to code quality, structure, and performance optimizations.",
+      "Problem-solver: You excel at breaking down complex software requirements into manageable components and finding effective solutions.",
+      "Continuous learner: You stay updated with the latest developments in .NET and C# technologies to maintain your expertise."
+    ],
+    "Important": [
+      "**IMPORTANT,** You MUST always prioritize writing clean, maintainable, and efficient code.",
+      "**IMPORTANT,** ALWAYS adhere to best coding practices and design patterns appropriate for .NET and C# development.",
+      "**IMPORTANT,** You MUST provide clear explanations and justifications for your code design decisions.",
+      "**IMPORTANT,** ALWAYS consider scalability, security, and performance in your software solutions."
+    ],
+    "Negative": [
+      "**NEVER, IN ANY CIRCUMSTANCE,** produce code that is insecure, inefficient, or fails to meet the USER\u0027s requirements.",
+      "**NEVER, IN ANY CIRCUMSTANCE,** ignore or dismiss best practices in software development and .NET programming.",
+      "**NEVER, IN ANY CIRCUMSTANCE,** provide outdated or deprecated solutions without explicitly mentioning their status.",
+      "**NEVER, IN ANY CIRCUMSTANCE,** skip proper error handling and input validation in your code examples or suggestions."
+    ],
+    "Other": [
+      "Familiar with agile development methodologies",
+      "Capable of providing guidance on software architecture and system design",
+      "Knowledgeable about database design and optimization for .NET applications",
+      "Experienced in integrating third-party APIs and services into .NET applications"
+    ],
+    "Key": 2
+  }
+] 
+---------------------------------------------------------------------------------------- 
+saved\providers.json 
+[
+  {
+    "Name": "OpenAI",
+    "Key": 1
+  },
+  {
+    "Name": "Anthropic",
+    "Key": 2
+  }
+] 
+---------------------------------------------------------------------------------------- 
+saved\tasks.json 
+[
+  {
+    "Assumptions": [
+      "The user has already provided a Name, Role, and list of Goals for the AI agent",
+      "The user may not be an expert in AI or agent design, so questions should be clear and avoid overly technical jargon",
+      "The questions generated will be used in a subsequent step to create a full agent description",
+      "The Agent is an AI agent so, it is limited to the capabilities of a AI agent.",
+      "The Agent will only interact with the USER and the tools he have available to execute the task."
+    ],
+    "Constraints": [
+      "make assumptions about the agent's capabilities beyond what is explicitly stated in the provided information",
+      "generate questions about technical implementation details that the average user wouldn't be able to answer",
+      "include questions that have already been answered by the provided Name, Role, and Goals",
+      "include questions that were already answered by the user in a previous interaction"
+    ],
+    "Examples": [
+      "Input:\nName: EcoAdvise\nRole: Environmental Sustainability Consultant\nGoals:\n1. Provide personalized advice on reducing carbon footprint\n2. Educate users on environmental issues\n3. Suggest eco-friendly alternatives for daily activities\n\nResponse:\n{\"Questions\":[{\"Question\":\"What level of expertise should EcoAdvise have? (e.g., general knowledge, academic-level, or industry-expert level)\",\"Explanation\":\"This will help determine the depth and complexity of advice the agent can provide.\"}]}",
+      "Input:\nName: CodeCraft\nRole: Programming Assistant\nGoals:\n1. Help users debug their code\n2. Explain programming concepts\n3. Suggest optimizations for code efficiency\nPrevious Questions:\nQ: What programming languages should CodeCraft be proficient in?\nThis will define the scope of the agent's expertise and ensure it can assist with relevant languages.\nA: C# .NET\n\nResponse:\n{\"Questions\":[{\"Question\":\"Should CodeCraft be able to generate code snippets or complete functions, or only provide guidance?\",\"Explanation\":\"This will clarify the extent of the agent's coding capabilities and set appropriate user expectations.\"}]}"
+    ],
+    "Guidelines": [
+      "Begin by carefully analyzing the provided Name, Role, and Goals to understand the general direction of the agent.",
+      "Generate questions that cover different aspects of the agent, such as:\n- Specific capabilities within the given role;\n- Intended user interaction style;\n- Ethical guidelines and limitations;\n- Knowledge base and areas of expertise; and\n- Personality traits or communication style;",
+      "Ensure questions are open-ended to encourage detailed responses.",
+      "Frame questions in a way that helps users think deeply about their agent's design.",
+      "Include a mix of questions about both capabilities and limitations."
+    ],
+    "Goals": [
+      "generate insightful and relevant questions that will help users further define the characteristics, capabilities, and limitations of the AI agent they want to create",
+      "analyze the provided Name, Role, and Goals of the prospective AI agent",
+      "identify areas where more information is needed to create a comprehensive agent description",
+      "generate clear, specific questions that will elicit useful information from the user",
+      "ensure that the questions cover a wide range of agent characteristics, including capabilities, limitations, ethical considerations, and interaction style",
+      "adapt the questions based on the context provided by the initial input"
+    ],
+    "InputTemplate": "Name: <<Name>>\nMain Role: <<Role>>\nGoals:\n<<Goals>>\nPrevious Questions:\n<<Questions>>\n",
+    "Internal": true,
+    "Key": 1,
+    "Name": "Ask Questions about the AI Agent",
+    "Scope": [
+      "generating questions based solely on the Name, Role, and Goals provided by the user",
+      "focusing on aspects of the agent that are not fully clear from the initial information",
+      "covering various aspects of agent design, including but not limited to: knowledge base, interaction style, ethical guidelines, specific capabilities, and limitations"
+    ],
+    "Requirements": [
+      "generate ONE question per request",
+      "generate questions directly relevant to the provided Name, Role, and Goals",
+      "generate questions designed to elicit specific, actionable information for agent creation",
+      "generate an output that is a valid JSON file following strictly the schema defined in the prompt"
+    ],
+    "ResponseSchema": "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"properties\":{\"Questions\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"Question\":{\"type\":\"string\"},\"Explanation\":{\"type\":\"string\"}},\"required\":[\"Explanation\",\"Question\"]}}}}",
+    "ResponseType": "Json",
+    "Validations": [
+      "Ensuring each question is directly relevant to the provided Name, Role, and Goals",
+      "Checking that the set of questions covers a diverse range of agent characteristics",
+      "Verifying that each question is clear, concise, and likely to elicit useful information",
+      "Confirming that the questions do not make unwarranted assumptions about the agent",
+      "Reviewing the brief explanations to ensure they clearly convey why each question is important"
+    ]
+  },
+  {
+    "Assumptions": [
+      "The user has provided a Name, Role, and list of Goals for the AI agent",
+      "The user has answered additional questions about the AI agent",
+      "All provided information is relevant to the Persona creation",
+      "The Agent is an AI agent so, it is limited to the capabilities of a AI agent.",
+      "The Agent will only interact with the USER and the tools he have available to execute the task."
+    ],
+    "Constraints": [
+      "introduce new information that isn't derived from the user's input or question responses",
+      "generate properties that contradict the provided Name, Role, Goals or Answered Questions",
+      "include traits in multiple categories (e.g., a trait shouldn't appear in both Traits and Important lists)"
+    ],
+    "Examples": [
+      "Input:\nName: EcoAdvise\nRole: Environmental Sustainability Consultant\nGoals:\n1. Provide personalised advice at reducing carbon footprint\n2. Educate the users on environmental issues\n3. Suggest eco-friendly alternative for daiyl activities\nQuestions:\nQ: What level of expertise should EcoAdvise have?\nThis question will help identify the scope and depth of the knowledge that the agent have.\nA: EcoAdvise should have industry-expert level knowledge.\nQ: How should EcoAdvise balance between providing scientific facts and motivating users?\nThis question will help define the type of answer the user is expecting.\nA: EcoAdvise should use a 70-30 split, with 70% focus on scientific facts and 30% on motivation.\n\nOutput:\n{\"Role\":\"Environmental Sustainability Consultant\",\"Goals\":[\"Provide personalized advice on reducing carbon footprint\",\"Educate the user on environmental issues\",\"Suggest eco-friendly alternatives for daily activities\"],\"Expertise\":\"Advanced environmental science with a focus on sustainability and carbon footprint reduction\",\"Traits\":[\"Broadly Knowlegeable: Knowledgeable about global and local environmental issues\",\"Excellent Communicator: Able to communicate complex scientific concepts clearly\",\"Data-Driven: Data-driven in approach to sustainability\"],\"Important\":[\"You MUST provide accurate, up-to-date environmental information\",\"ALWAYS respects user privacy when handling location data\",\"You MUST balances scientific facts with motivational encouragement\"],\"Negative\":[\"be alarmist or overly pessimistic about environmental issues\",\"recommend unsustainable or unethical practices\",\"ignore local context in sustainability advice\"],\"Other\":[\"Uses a 70-30 split between scientific facts and motivation in communications\",\"Capable of tailoring advice to specific geographic locations\",\"Stays updated on the latest environmental research and sustainability practices\"]}\n"
+    ],
+    "Guidelines": [
+      "Begin by carefully analyzing all provided information: Name, Role, Goals, and question responses",
+      "For Expertise, identify the core area of knowledge or skill central to the Persona's role and goals",
+      "For Traits, identify characteristics that support the Persona's role and goals but aren't crucial",
+      "For Important, identify crucial characteristics without which the Persona couldn't fulfill its role or achieve its goals",
+      "For Negative, identify traits or behaviors that would hinder the Persona's effectiveness or contradict its purpose",
+      "For Other, include any relevant information that doesn't fit into the above categories but adds depth to the Persona",
+      "Ensure all generated properties align with the Persona's Name, Role, and Goals",
+      "Provide clear, concise explanations for each generated property"
+    ],
+    "Goals": [
+      "generate the Expertise, Traits, Important, Negative, and Other properties of the Persona",
+      "ensure that the generated properties are consistent with the initial input and question responses",
+      "create a comprehensive and coherent Persona description",
+      "provide explanations for each generated property to justify its relevance to the Persona"
+    ],
+    "InputTemplate": "Name: <<Name>>\nMain Role: <<Role>>\nGoals:\n<<Goals>>\nQuestions:\n<<Questions>>\n",
+    "Internal": true,
+    "Key": 2,
+    "Name": "Generate AI Agent Persona",
+    "Scope": [
+      "generating the Expertise, Traits, Important, Negative, and Other properties based solely on the provided information",
+      "ensuring all generated properties align with the Persona's Name, Role, and Goals",
+      "focusing on creating a well-rounded and consistent Persona description"
+    ],
+    "Requirements": [
+      "generate all five properties: Expertise, Traits, Important, Negative, and Other",
+      "rewrite the Role and Goals properties with correct English without changing their intended contents",
+      "ensure the Role property is a text that is a continuation of: 'You are a highly capable and versatile {Role}'",
+      "ensure that each Goal is a simple phrase that is a continuation of: 'Your goal is {Goal}'",
+      "ensure the Expertise property is a text describing list of skills the agent and is a continuation of 'You are an expert in {Expertise}'",
+      "ensure the Traits, Important, Negative, and Other properties are lists of strings",
+      "ensure that each Trait also include a short explanation of their intent. For example:\n Highly Analytical: You meticulously break down complex programming problems and user requirements to provide comprehensive solutions and explanations.\n Excellent Communicator: You explain complex technical concepts and code structures in clear, accessible language tailored to the USER's level of understanding.",
+      "ensure that the Important and Negative lists do not contradict each other",
+      "ensure that each Important item is written in an imperative way as continuation of the text: '**IMPORTANT, ** {Important_Item}'. They should normally start with 'You MUST ' or 'ALWAYS '.",
+      "ensure that each Negative item is written as their POSITIVE version as a continuation of the text: '**NEVER, IN ANY CIRCUMSTANCE, ** {Negative_Item}'",
+      "provide a brief explanation for each generated property, justifying its relevance to the Persona"
+    ],
+    "ResponseSchema": "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"properties\":{\"Role\":{\"type\":\"string\"},\"Goals\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Expertise\":{\"type\":\"string\"},\"Traits\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Important\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Negative\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Other\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"Role\",\"Goals\",\"Expertise\",\"Traits\",\"Important\",\"Negative\",\"Other\"]}",
+    "ResponseType": "Json",
+    "Validations": [
+      "ensuring each generated property is directly relevant to and consistent with the provided information",
+      "checking that the Expertise aligns closely with the Role and Goals",
+      "verifying that Traits and Important lists contain distinct items that don't contradict each other",
+      "confirming that Negative traits are genuinely detrimental to the Persona's purpose",
+      "reviewing the Other list to ensure it adds value without redundancy",
+      "validating that clear, concise explanations are provided for each generated property"
+    ]
+  }
+]
+ 
+---------------------------------------------------------------------------------------- 
+saved\users.json 
+[
+  {
+    "Internal": true,
+    "Name": "User",
+    "Key": 0
+  },
+  {
+    "Internal": false,
+    "Name": "Argus",
+    "Key": 1
+  }
+] 
+---------------------------------------------------------------------------------------- 
+Tasks\Commands\TaskListCommand.cs 
+﻿namespace AI.Sample.Tasks.Commands;
+
+public class TaskListCommand : Command<TaskListCommand> {
+    private readonly ITaskHandler _taskHandler;
+
+    public TaskListCommand(IHasChildren parent, ITaskHandler taskHandler)
+        : base(parent, "List", ["ls"]) {
+        _taskHandler = taskHandler;
+        Description = "List all tasks or tasks for a specific provider.";
+    }
+
+    protected override Result Execute() {
+        var tasks = _taskHandler.List();
+
+        if (tasks.Length == 0) {
+            Output.WriteLine("[yellow]No tasks found.[/]");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        var sortedTasks = tasks.OrderBy(m => m.Name);
+
+        var table = new Table();
+        table.Expand();
+
+        // Add columns
+        table.AddColumn(new("[yellow]Name[/]"));
+        table.AddColumn(new("[yellow]Main Goal[/]"));
+
+        foreach (var task in sortedTasks) {
+            table.AddRow(
+                task.Name,
+                task.Goals[0]
+            );
+        }
+
+        Output.Write(table);
+        Output.WriteLine();
+        return Result.Success();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Tasks\Commands\TasksCommand.cs 
+﻿namespace AI.Sample.Tasks.Commands;
+
+public class TasksCommand : Command<TasksCommand> {
+    public TasksCommand(IHasChildren parent)
+        : base(parent, "Tasks", []) {
+        Description = "Manage AI Tasks.";
+
+        AddCommand<TaskListCommand>();
+        //AddCommand<TaskCreateCommand>();
+        //AddCommand<TaskUpdateCommand>();
+        //AddCommand<TaskRemoveCommand>();
+        //AddCommand<TaskViewCommand>();
+        AddCommand<HelpCommand>();
+    }
+
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
+                          .ConvertWith(MapTo)
+                          .AddChoices("List",
+                                      //"Create",
+                                      //"Info",
+                                      //"Select",
+                                      //"Update",
+                                      //"Remove",
+                                      "Help",
+                                      "Back",
+                                      "Exit").Show();
+
+        var taskHandler = Application.Services.GetRequiredService<ITaskHandler>();
+        var command = choice switch {
+            "List" => new TaskListCommand(this, taskHandler),
+            //"Create" => new TaskCreateCommand(this, taskHandler, aiService),
+            //"Info" => new TaskViewCommand(this, taskHandler, providerHandler),
+            //"Select" => new TaskSelectCommand(this, taskHandler),
+            //"Update" => new TaskUpdateCommand(this, taskHandler, providerHandler),
+            //"Remove" => new TaskRemoveCommand(this, taskHandler),
+            "Help" => new HelpCommand(this),
+            "Exit" => new ExitCommand(this),
+            _ => (ICommand?)null,
+        };
+        return command?.Execute([], ct) ?? Result.SuccessTask();
+
+        static string MapTo(string choice) => choice switch {
+            "List" => "List Tasks",
+            "Create" => "Add a New Task",
+            //"Info" => "View the Details of a Task",
+            //"Select" => "Select the Default Task",
+            //"Update" => "Update a Task",
+            //"Remove" => "Delete a Task",
+            "Help" => "Help",
+            "Back" => "Back",
+            "Exit" => "Exit",
+            _ => string.Empty,
+        };
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Tasks\Handlers\ITaskHandler.cs 
+namespace AI.Sample.Tasks.Handlers;
+
+public interface ITaskHandler {
+    TaskEntity[] List();
+    TaskEntity? GetByKey(uint key);
+    TaskEntity? GetByName(string name);
+    TaskEntity Create(Action<TaskEntity> setUp);
+    void Add(TaskEntity task);
+    void Update(TaskEntity task);
+    void Remove(uint key);
+}
+ 
+---------------------------------------------------------------------------------------- 
+Tasks\Handlers\TaskHandler.cs 
+﻿namespace AI.Sample.Tasks.Handlers;
+
+public class TaskHandler(ITaskRepository repository, ILogger<TaskHandler> logger) : ITaskHandler {
+    private readonly ITaskRepository _repository = repository;
+    private readonly ILogger<TaskHandler> _logger = logger;
+
+    public TaskEntity[] List() => _repository.GetAll();
+
+    public TaskEntity? GetByKey(uint key) => _repository.FindByKey(key);
+    public TaskEntity? GetByName(string name) => _repository.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+    public TaskEntity Create(Action<TaskEntity> setUp)
+        => _repository.Create(setUp);
+
+    public void Add(TaskEntity task) {
+        if (_repository.FindByKey(task.Key) != null)
+            throw new InvalidOperationException($"A task with the key '{task.Key}' already exists.");
+
+        _repository.Add(task);
+        _logger.LogInformation("Added new task: {TaskKey} => {TaskName}", task.Name, task.Key);
+    }
+
+    public void Update(TaskEntity task) {
+        if (_repository.FindByKey(task.Key) == null)
+            throw new InvalidOperationException($"Task with key '{task.Key}' not found.");
+
+        _repository.Update(task);
+        _logger.LogInformation("Updated task: {TaskKey} => {TaskName}", task.Name, task.Key);
+    }
+
+    public void Remove(uint key) {
+        var task = _repository.FindByKey(key)
+                     ?? throw new InvalidOperationException($"Task with key '{key}' not found.");
+
+        _repository.Remove(key);
+        _logger.LogInformation("Removed task: {TaskKey} => {TaskName}", task.Name, task.Key);
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+Tasks\Repositories\ITaskRepository.cs 
+﻿namespace AI.Sample.Tasks.Repositories;
+
+public interface ITaskRepository
+    : IRepository<TaskEntity, uint>;
+ 
+---------------------------------------------------------------------------------------- 
+Tasks\Repositories\ITaskRepositoryStrategy.cs 
+﻿namespace AI.Sample.Tasks.Repositories;
+
+public interface ITaskRepositoryStrategy
+    : IRepositoryStrategy<TaskEntity, uint>;
+ 
+---------------------------------------------------------------------------------------- 
+Tasks\Repositories\TaskEntity.cs 
+﻿using Task = DotNetToolbox.AI.Jobs.Task;
+
+namespace AI.Sample.Tasks.Repositories;
+
+public class TaskEntity
+    : Entity<TaskEntity, uint> {
+    public string Name { get; init; } = string.Empty;
+    public List<string> Goals { get; init; } = [];
+    public List<string> Scope { get; init; } = [];
+    public List<string> Requirements { get; init; } = [];
+    public List<string> Assumptions { get; init; } = [];
+    public List<string> Constraints { get; init; } = [];
+    public List<string> Examples { get; init; } = [];
+    public List<string> Guidelines { get; init; } = [];
+    public List<string> Validations { get; init; } = [];
+
+    public string InputTemplate { get; init; } = string.Empty;
+    public TaskResponseType ResponseType { get; init; }
+    public string ResponseSchema { get; init; } = string.Empty;
+
+    public override Result Validate(IMap? context = null) {
+        var result = base.Validate(context);
+        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("The name is required.", nameof(Name));
+        if (Goals.Count == 0) result += new ValidationError("At least one goal is required.", nameof(Goals));
+        return result;
+    }
+
+    public static implicit operator Task(TaskEntity entity)
+        => new(entity.Key) {
+            Name = entity.Name,
+            Goals = entity.Goals,
+            Scope = entity.Scope,
+            Requirements = entity.Requirements,
+            Assumptions = entity.Assumptions,
+            Constraints = entity.Constraints,
+            Examples = entity.Examples,
+            Guidelines = entity.Guidelines,
+            Validations = entity.Validations,
+            InputTemplate = entity.InputTemplate,
+            ResponseType = entity.ResponseType,
+            ResponseSchema = entity.ResponseSchema,
+        };
+}
+ 
+---------------------------------------------------------------------------------------- 
+Tasks\Repositories\TaskRepository.cs 
+﻿namespace AI.Sample.Tasks.Repositories;
+
+public class TaskRepository(ITaskRepositoryStrategy strategy)
+    : Repository<ITaskRepositoryStrategy, TaskEntity, uint>(strategy),
+      ITaskRepository;
+ 
+---------------------------------------------------------------------------------------- 
+Tasks\Repositories\TaskRepositoryStrategy.cs 
+﻿namespace AI.Sample.Tasks.Repositories;
+
+public class TaskRepositoryStrategy(IConfigurationRoot configuration)
+    : JsonFilePerTypeRepositoryStrategy<ITaskRepository, TaskEntity, uint>("tasks", configuration),
+      ITaskRepositoryStrategy {
+    protected override uint FirstKey { get; } = 1;
+
+    protected override bool TryGenerateNextKey(out uint next) {
+        next = LastUsedKey == default ? FirstKey : ++LastUsedKey;
+        return true;
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Commands\UserProfileCommand.cs 
+﻿namespace AI.Sample.UserProfile.Commands;
+
+public class UserProfileCommand
+    : Command<UserProfileCommand> {
+    public UserProfileCommand(IHasChildren parent)
+        : base(parent, "UserProfile", []) {
+        Description = "Manage User Profile.";
+
+        AddCommand<UserProfileSetCommand>();
+        AddCommand<HelpCommand>();
+    }
+
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) {
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
+                          .ConvertWith(MapTo)
+                          .AddChoices("Info",
+                                      "Set",
+                                      "Help",
+                                      "Back",
+                                      "Exit").Show();
+
+        var userHandler = Application.Services.GetRequiredService<IUserProfileHandler>();
+        var command = choice switch {
+            "Info" => new UserProfileViewCommand(this, userHandler),
+            "Set" => new UserProfileSetCommand(this, userHandler),
+            "Help" => new HelpCommand(this),
+            "Exit" => new ExitCommand(this),
+            _ => (ICommand?)null,
+        };
+        var result = command?.Execute([], ct) ?? Result.SuccessTask();
+        Output.WriteLine();
+
+        return result;
+
+        static string MapTo(string choice) => choice switch {
+            "Info" => "View User Profile",
+            "Set" => "Set User Profile",
+            "Help" => "Help",
+            "Back" => "Back",
+            "Exit" => "Exit",
+            _ => string.Empty,
+        };
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Commands\UserProfileSetCommand.cs 
+﻿namespace AI.Sample.UserProfile.Commands;
+
+public class UserProfileSetCommand(IHasChildren parent, IUserProfileHandler handler)
+    : Command<UserProfileSetCommand>(parent, "Change", ["set"]) {
+    protected override Result Execute() {
+        try {
+            var user = handler.Get() ?? handler.Create();
+            SetUp(user);
+            handler.Set(user);
+
+            Output.WriteLine("[green]User profile set successfully.[/]");
+            Logger.LogInformation("User profile set successfully.");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            Output.WriteError("Error setting the user profile.");
+            Logger.LogError(ex, "Error setting the user profile.");
+            Output.WriteLine();
+
+            return Result.Error(ex.Message);
+        }
+    }
+
+    private void SetUp(UserProfileEntity user)
+        => user.Name = Input.BuildTextPrompt<string>("How would you like me to call you?")
+                            .For("name").WithDefault("Temp")
+                            .AsRequired()
+                            .Show();
+}
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Commands\UserProfileViewCommand.cs 
+﻿namespace AI.Sample.UserProfile.Commands;
+
+public class UserProfileViewCommand : Command<UserProfileViewCommand> {
+    private readonly IUserProfileHandler _handler;
+
+    public UserProfileViewCommand(IHasChildren parent, IUserProfileHandler handler)
+        : base(parent, "Info", ["i"]) {
+        _handler = handler;
+        Description = "Display the User Profile.";
+    }
+
+    protected override Result Execute() {
+        var user = _handler.Get();
+        if (user is null) {
+            Logger.LogInformation("No user selected.");
+            Output.WriteLine();
+
+            return Result.Success();
+        }
+
+        Output.WriteLine("[yellow]User Information:[/]");
+        Output.WriteLine($"[blue]Name:[/] {user.Name}");
+        Output.WriteLine($"[blue]Preffered Language:[/] {user.Language}");
+        Output.WriteLine();
+
+        return Result.Success();
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Handlers\IUserProfileHandler.cs 
+﻿namespace AI.Sample.UserProfile.Handlers;
+
+public interface IUserProfileHandler {
+    UserProfileEntity Create(Action<UserProfileEntity>? setUp = null);
+    UserProfileEntity? Get();
+    void Set(UserProfileEntity user);
+}
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Handlers\UserProfileHandler.cs 
+﻿namespace AI.Sample.UserProfile.Handlers;
+
+public class UserProfileHandler(IUserProfileRepository repository, ILogger<UserProfileHandler> logger)
+    : IUserProfileHandler {
+    private readonly IUserProfileRepository _repository = repository;
+    private readonly ILogger<UserProfileHandler> _logger = logger;
+
+    public UserProfileEntity Create(Action<UserProfileEntity>? setUp = null)
+        => _repository.Create(setUp);
+    public UserProfileEntity? Get()
+        => _repository.FirstOrDefault(i => !i.Internal);
+    public void Set(UserProfileEntity user) {
+        if (_repository.Any()) _repository.Update(user);
+        else _repository.Add(user);
+        _logger.LogInformation("User profile set.");
+    }
+}
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Repositories\IUserProfileRepository.cs 
+﻿namespace AI.Sample.UserProfile.Repositories;
+
+public interface IUserProfileRepository
+    : IRepository<UserProfileEntity, uint>;
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Repositories\IUserProfileRepositoryStrategy.cs 
+﻿namespace AI.Sample.UserProfile.Repositories;
+
+public interface IUserProfileRepositoryStrategy
+    : IRepositoryStrategy<UserProfileEntity, uint>;
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Repositories\UserProfileEntity.cs 
+﻿using AIUserProfile = DotNetToolbox.AI.Jobs.UserProfile;
+
+namespace AI.Sample.UserProfile.Repositories;
+
+public class UserProfileEntity
+    : Entity<UserProfileEntity, uint> {
+    public bool Internal { get; init; }
+    public string Name { get; set; } = string.Empty;
+    public string Language { get; set; } = "English";
+    public List<string> Facts { get; } = [];
+
+    public override Result Validate(IMap? context = null) {
+        var result = base.Validate(context);
+        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("Name is required.", nameof(Name));
+        return result;
+    }
+
+    public static implicit operator AIUserProfile(UserProfileEntity entity)
+        => new(entity.Key) {
+            Name = entity.Name,
+            Language = entity.Language,
+            Facts = entity.Facts,
+        };
+}
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Repositories\UserProfileRepository.cs 
+﻿namespace AI.Sample.UserProfile.Repositories;
+
+public class UserProfileRepository(IUserProfileRepositoryStrategy strategy)
+    : Repository<IUserProfileRepositoryStrategy, UserProfileEntity, uint>(strategy),
+      IUserProfileRepository;
+ 
+---------------------------------------------------------------------------------------- 
+UserProfile\Repositories\UserProfileRepositoryStrategy.cs 
+﻿namespace AI.Sample.UserProfile.Repositories;
+
+public class UserProfileRepositoryStrategy(IConfigurationRoot configuration)
+    : JsonFilePerTypeRepositoryStrategy<IUserProfileRepository, UserProfileEntity, uint>("users", configuration),
+      IUserProfileRepositoryStrategy {
+    protected override uint FirstKey { get; } = 1;
+
+    protected override bool TryGenerateNextKey(out uint next) {
+        next = LastUsedKey == default ? FirstKey : LastUsedKey + 1;
+        LastUsedKey = next;
+        return true;
+    }
+}
+ 

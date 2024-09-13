@@ -2,6 +2,6 @@
 
 public interface IUserProfileHandler {
     UserProfileEntity Create(Action<UserProfileEntity>? setUp = null);
-    UserProfileEntity? Get();
+    UserProfileEntity? CurrentUser { get; }
     void Set(UserProfileEntity user);
 }

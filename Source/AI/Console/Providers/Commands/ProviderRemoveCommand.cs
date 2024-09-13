@@ -2,8 +2,8 @@
 
 public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler, IModelHandler modelHandler)
     : Command<ProviderRemoveCommand>(parent, "Remove", ["delete", "del"]) {
-    protected override Result Execute() {
-        var provider = this.EntitySelectionPrompt(handler.List(), "remove", "Provider", m => m.Key, m => m.Name);
+    protected override Task<Result> ExecuteAsync(CancellationToken ct) => this.HandleCommandAsync(async (ct) => {
+        var provider = await this.SelectEntityAsync(handler.List(), "remove", "Provider", m => m.Key, m => m.Name, ct);
         if (provider is null) {
             Logger.LogInformation("Provider remove action cancelled.");
             Output.WriteLine();
@@ -30,20 +30,11 @@ public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler
             return Result.Success();
         }
 
-        try {
-            handler.Remove(provider.Key);
-            Output.WriteLine($"[green]Provider with key '{provider.Name}' removed successfully.[/]");
-            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' removed successfully.", provider.Key, provider.Name);
-            Output.WriteLine();
+        handler.Remove(provider.Key);
+        Output.WriteLine($"[green]Provider with key '{provider.Name}' removed successfully.[/]");
+        Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' removed successfully.", provider.Key, provider.Name);
+        Output.WriteLine();
 
-            return Result.Success();
-        }
-        catch (Exception ex) {
-            Output.WriteError("Error removing the provider.");
-            Logger.LogError(ex, "Error removing the provider '{ProviderKey}:{ProviderName}'.", provider.Key, provider.Name);
-            Output.WriteLine();
-
-            return Result.Error(ex);
-        }
-    }
+        return Result.Success();
+    }, "Error removing the provider.", ct);
 }

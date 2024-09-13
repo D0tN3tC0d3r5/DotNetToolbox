@@ -25,7 +25,7 @@ public abstract class Node<TNode>
     public IInput Input => Environment.OperatingSystem.Input;
     public IOutput Output => Environment.OperatingSystem.Output;
 
-    protected ILogger<TNode> Logger { get; }
+    public ILogger Logger { get; }
 
     public override string ToString() {
         string[] aliases = [Name, .. Aliases];

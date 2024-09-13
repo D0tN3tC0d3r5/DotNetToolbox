@@ -1,4 +1,9 @@
-﻿namespace AI.Sample.Helpers;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using ILogger = Microsoft.Extensions.Logging.ILogger;
+using Task = System.Threading.Tasks.Task;
+
+namespace AI.Sample.Helpers;
 
 public static class CommandHelpers {
     private sealed class ListItem<TItem, TKey>(object? key, string text, TItem? item)
@@ -9,14 +14,13 @@ public static class CommandHelpers {
         public TItem? Item { get; } = item;
     }
 
-    public static TItem? EntitySelectionPrompt<TItem, TKey>(this ICommand command,
-                                                      IEnumerable<TItem> entities,
-                                                      string action,
-                                                      string name,
-                                                      Func<TItem, TKey> itemKey,
-                                                      Func<TItem, string> itemText,
-                                                      object? cancelKey = null,
-                                                      string? cancelText = null)
+    public static async Task<TItem?> SelectEntityAsync<TItem, TKey>(this ICommand command,
+                                                                     IEnumerable<TItem> entities,
+                                                                     string action,
+                                                                     string name,
+                                                                     Func<TItem, TKey> itemKey,
+                                                                     Func<TItem, string> itemText,
+                                                                     CancellationToken ct = default)
         where TItem : class, IEntity<TKey>
         where TKey : notnull {
         var items = IsNotNull(entities).ToArray();
@@ -26,16 +30,40 @@ public static class CommandHelpers {
         }
 
         var choices = items.Select(e => new ListItem<TItem, TKey>(IsNotNull(itemKey)(e), IsNotNull(itemText)(e), e)).ToList();
-        var cancelOption = new ListItem<TItem, TKey>(cancelKey, cancelText ?? "Cancel", null);
+        var cancelOption = new ListItem<TItem, TKey>(null, "Cancel", null);
         choices.Add(cancelOption);
 
         var prompt = $"Select {IndefiniteArticleFor(name[0])} {name} to {action} (or cancel):";
-        return command.Input.BuildSelectionPrompt<ListItem<TItem, TKey>>(prompt)
-                      .AddChoices([.. choices])
-                      .ConvertWith(e => IsCancel(e) ? $"[yellow bold]{e.Text}[/]" : e.Text)
-                      .Show().Item;
+        return (await command.Input.BuildSelectionPrompt<ListItem<TItem, TKey>>(prompt)
+                                   .AddChoices([.. choices])
+                                   .ConvertWith(e => e.Key is null ? $"[yellow bold]{e.Text}[/]" : e.Text)
+                                   .ShowAsync(ct)).Item;
 
-        bool IsCancel(ListItem<TItem, TKey> item) => item.Key?.Equals(cancelKey) ?? cancelKey is null;
         static string IndefiniteArticleFor(char c) => c is 'a' or 'e' or 'i' or 'o' or 'u' ? "an" : "a";
+    }
+
+    public static Result HandleCommand(this ICommand command, Func<Result> execute, string errorMessage) {
+        try {
+            return execute();
+        }
+        catch (Exception ex) {
+            return command.HandleException(ex, errorMessage);
+        }
+    }
+
+    public static Task<Result> HandleCommandAsync(this ICommand command, Func<CancellationToken, Task<Result>> execute, string errorMessage, CancellationToken ct = default) {
+        try {
+            return execute(ct);
+        }
+        catch (Exception ex) {
+            return Task.FromResult(command.HandleException(ex, errorMessage));
+        }
+    }
+
+    private static Result HandleException(this ICommand command, Exception ex, [StringSyntax("CompositeFormat")] string message, params object[] args) {
+        command.Logger.LogError(ex, message, args);
+        command.Output.WriteError(ex, string.Format(message, args));
+        command.Output.WriteLine();
+        return Result.Error(ex);
     }
 }

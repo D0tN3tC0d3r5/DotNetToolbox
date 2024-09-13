@@ -54,6 +54,4 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
         if (_showResult) output.WriteLine($"{_prompt}{separator} [green]{resultText}[/]");
         return result;
     }
-
-    public static implicit operator TValue(SelectionPromptBuilder<TValue> promptBuilder) => promptBuilder.Show();
 }

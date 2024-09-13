@@ -10,6 +10,7 @@ public interface INode {
 
     IInput Input { get; }
     IOutput Output { get; }
+    ILogger Logger { get; }
 
     public string Path => this switch {
         IApplication app => app.AssemblyName,

@@ -8,8 +8,8 @@ public interface IInput {
     ConsoleKeyInfo ReadKey(bool intercept = false);
     string? ReadLine();
 
-    string? ReadText();
-    Task<string?> ReadTextAsync(CancellationToken ct = default);
+    string ReadText();
+    Task<string> ReadTextAsync(CancellationToken ct = default);
 
     string Prompt(string prompt);
     Task<string> PromptAsync(string prompt, CancellationToken ct = default);

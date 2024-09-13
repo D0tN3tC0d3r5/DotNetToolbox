@@ -1,29 +1,25 @@
-﻿namespace AI.Sample.UserProfile.Commands;
+﻿using Task = System.Threading.Tasks.Task;
+
+namespace AI.Sample.UserProfile.Commands;
 
 public class UserProfileSetCommand(IHasChildren parent, IUserProfileHandler handler)
     : Command<UserProfileSetCommand>(parent, "Change", ["set"]) {
-    protected override Result Execute() {
-        try {
-            var user = handler.Get() ?? handler.Create();
-            SetUp(user);
-            handler.Set(user);
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+        var user = handler.CurrentUser ?? handler.Create();
+        await SetUpAsync(user, ct);
+        handler.Set(user);
 
-            Output.WriteLine("[green]User profile set successfully.[/]");
-            Logger.LogInformation("User profile set successfully.");
-            Output.WriteLine();
+        Output.WriteLine("[green]User profile set successfully.[/]");
+        Logger.LogInformation("User profile set successfully.");
+        Output.WriteLine();
 
-            return Result.Success();
-        }
-        catch (Exception ex) {
-            Output.WriteError("Error setting the user profile.");
-            Logger.LogError(ex, "Error setting the user profile.");
-            Output.WriteLine();
+        return Result.Success();
+    }, "Error setting the user profile.", ct);
 
-            return Result.Error(ex.Message);
-        }
-    }
+    private async Task SetUpAsync(UserProfileEntity user, CancellationToken ct)
+        => user.Name = await Input.BuildTextPrompt<string>("How would you like me to call you?")
+                            .For("name").WithDefault("Temp")
+                            .AsRequired()
+                            .ShowAsync(ct);
 
-    private void SetUp(UserProfileEntity user)
-        => user.Name = Input.BuildTextPrompt<string>("How would you like me to call you?")
-                                .For("name").WithDefault("Temp").AsRequired();
 }
