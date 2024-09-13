@@ -1,23 +1,19 @@
 ﻿namespace AI.Sample.Models.Commands;
 
-public class ModelListCommand : Command<ModelListCommand> {
-    private readonly IModelHandler _modelHandler;
-    private readonly IProviderHandler _providerHandler;
-
-    public ModelListCommand(IHasChildren parent, IModelHandler modelHandler, IProviderHandler providerHandler)
-        : base(parent, "List", ["ls"]) {
-        _modelHandler = modelHandler;
-        _providerHandler = providerHandler;
-        Description = "List all models or models for a specific provider.";
-        AddParameter("Provider", "");
-    }
-
+public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, IProviderHandler providerHandler)
+    : Command<ModelListCommand>(parent, "List", n => {
+        n.Aliases = ["ls"];
+        n.Description = "List models.";
+        n.Help = "List all the models or those from a specific LLM provider.";
+        n.AddParameter("Provider", "The provider key to filter the models by.");
+    }) {
     protected override Result Execute() => this.HandleCommand(() => {
+        Logger.LogInformation("Executing Models->List command...");
         var providerKeyStr = Map.GetValueAs<string>("Provider");
 
         var models = string.IsNullOrEmpty(providerKeyStr)
-            ? _modelHandler.List()
-            : _modelHandler.ListByProvider(providerKeyStr);
+            ? modelHandler.List()
+            : modelHandler.ListByProvider(providerKeyStr);
 
         if (models.Length == 0) {
             Output.WriteLine("[yellow]No models found.[/]");
@@ -41,7 +37,7 @@ public class ModelListCommand : Command<ModelListCommand> {
         table.AddColumn(new TableColumn("[yellow]Output Tokens[/]").RightAligned());
 
         foreach (var model in sortedModels) {
-            var provider = _providerHandler.GetByKey(model.ProviderKey)!;
+            var provider = providerHandler.GetByKey(model.ProviderKey)!;
             table.AddRow(
                 model.Name,
                 provider.Name,

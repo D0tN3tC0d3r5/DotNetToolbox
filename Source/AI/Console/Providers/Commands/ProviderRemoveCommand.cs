@@ -1,9 +1,11 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
 public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler, IModelHandler modelHandler)
-    : Command<ProviderRemoveCommand>(parent, "Remove", ["delete", "del"]) {
-    protected override Task<Result> ExecuteAsync(CancellationToken ct) => this.HandleCommandAsync(async (ct) => {
-        var provider = await this.SelectEntityAsync(handler.List(), "remove", "Provider", m => m.Key, m => m.Name, ct);
+    : Command<ProviderRemoveCommand>(parent, "Remove", n => n.Aliases = ["delete", "del"]) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        Logger.LogInformation("Executing Providers->Remove command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
+        var provider = await this.SelectEntityAsync(handler.List(), "remove", "Provider", m => m.Key, m => m.Name, cts.Token);
         if (provider is null) {
             Logger.LogInformation("Provider remove action cancelled.");
             Output.WriteLine();

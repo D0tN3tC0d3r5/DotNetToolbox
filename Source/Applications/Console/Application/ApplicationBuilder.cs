@@ -17,6 +17,8 @@ public class ApplicationBuilder<TApplication, TBuilder, TSettings>
     private IFileSystemAccessor? _fileSystem;
     private IOutput? _output;
     private IInput? _input;
+    private string _description = string.Empty;
+    private string _help = string.Empty;
 
     public ApplicationBuilder(string[] args, Action<IConfigurationBuilder>? configure = null) {
         _args = args;
@@ -46,6 +48,10 @@ public class ApplicationBuilder<TApplication, TBuilder, TSettings>
         => _dateTimeProvider = IsNotNull(dateTimeProvider);
     public void ConfigureLogging(Action<ILoggingBuilder> configure)
         => _setLogging = IsNotNull(configure);
+    public void SetDescription(string description)
+        => _description = IsNotNullOrWhiteSpace(description);
+    public void SetHelp(string help)
+        => _help = IsNotNullOrWhiteSpace(help);
 
     public TApplication Build() {
         Services.SetEnvironment(_environment,
@@ -57,12 +63,14 @@ public class ApplicationBuilder<TApplication, TBuilder, TSettings>
                                 _output);
         Services.TryAddSingleton(Configuration);
         Services.TryAddSingleton<IConfiguration>(Configuration);
-        Services.TryAddSingleton<IPromptFactory, PromptFactory>();
         AddLogging(Configuration);
         Services.Configure<TSettings>(Configuration.GetSection(nameof(ApplicationBase<TSettings>.Settings)));
 
         var serviceProvider = Services.BuildServiceProvider();
-        return InstanceFactory.Create<TApplication>(serviceProvider, _args, Services);
+        var app = InstanceFactory.Create<TApplication>(serviceProvider, _args, Services);
+        app.Description = _description;
+        app.Help = _help;
+        return app;
     }
 
     private void AddLogging(IConfiguration configuration)

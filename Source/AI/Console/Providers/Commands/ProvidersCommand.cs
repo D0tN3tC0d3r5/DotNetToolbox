@@ -3,53 +3,31 @@
 public class ProvidersCommand
     : Command<ProvidersCommand> {
     public ProvidersCommand(IHasChildren parent)
-        : base(parent, "Providers", []) {
-        Description = "Manage AI Providers.";
-
-        AddCommand<ProviderListCommand>();
-        AddCommand<ProviderAddCommand>();
-        AddCommand<ProviderUpdateCommand>();
-        AddCommand<ProviderRemoveCommand>();
-        AddCommand<HelpCommand>();
-        AddCommand<ExitCommand>();
+        : base(parent, "Providers", n => {
+            n.Description = "Manage AI Providers.";
+            n.Help = "Register, update, or remove AI providers to use with your AI agents.";
+            n.AddCommand<ProviderListCommand>();
+            n.AddCommand<ProviderAddCommand>();
+            n.AddCommand<ProviderUpdateCommand>();
+            n.AddCommand<ProviderRemoveCommand>();
+            n.AddCommand<HelpCommand>();
+            n.AddCommand<ExitCommand>();
+        }) {
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        Logger.LogInformation("Executing Providers command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
         var choice = await Input.BuildSelectionPrompt<string>("What would you like to do?")
                                 .ConvertWith(MapTo)
-                                .AddChoices("List",
-                                            "Create",
-                                            "Update",
-                                            "Remove",
-                                            "Help",
-                                            "Back",
-                                            "Exit")
-                                .ShowAsync(ct);
+                                .AddChoices(Commands.ToArray(c => c.Name))
+                                .ShowAsync(cts.Token);
 
-        var providerHandler = Application.Services.GetRequiredService<IProviderHandler>();
-        var modelHandler = Application.Services.GetRequiredService<IModelHandler>();
-        var command = choice switch {
-            "List" => new ProviderListCommand(this, providerHandler),
-            "Create" => new ProviderAddCommand(this, providerHandler),
-            "Update" => new ProviderUpdateCommand(this, providerHandler),
-            "Remove" => new ProviderRemoveCommand(this, providerHandler, modelHandler),
-            "Help" => new HelpCommand(this),
-            "Exit" => new ExitCommand(this),
-            _ => (ICommand?)null,
-        };
+        var command = Commands.FirstOrDefault(i => i.Name == choice);
         return command is null
             ? Result.Success()
-            : await command.Execute([], ct);
+            : await command.Execute([], cts.Token);
 
-        static string MapTo(string choice) => choice switch {
-            "List" => "List Providers",
-            "Create" => "Add a New Provider",
-            "Update" => "Update a Provider",
-            "Remove" => "Exclude a Provider",
-            "Help" => "Help",
-            "Back" => "Back",
-            "Exit" => "Exit",
-            _ => string.Empty,
-        };
+        string MapTo(string choice) => Commands.FirstOrDefault(i => i.Name == choice)?.Description ?? string.Empty;
     }, "Error displaying provider's menu.", ct);
 }

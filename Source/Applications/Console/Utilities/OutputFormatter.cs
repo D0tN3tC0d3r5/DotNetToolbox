@@ -29,8 +29,8 @@ internal static class OutputFormatter {
 
     private static void AppendNodeDescription(StringBuilder builder, INode node) {
         if (node is IApplication app) builder.AppendLine(app.FullName);
-        if (string.IsNullOrWhiteSpace(node.Description)) return;
-        builder.AppendLine(node.Description.Trim());
+        if (string.IsNullOrWhiteSpace(node.Help)) return;
+        builder.AppendLine(node.Help.Trim());
     }
 
     private static void AppendUsage(StringBuilder builder, IHasChildren node) {
@@ -116,7 +116,7 @@ internal static class OutputFormatter {
     }
 
     private static void AppendNodeDescription(StringBuilder builder, INode node, int length) {
-        var lines = node.Description.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var lines = node.Help.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (lines.Length == 0) {
             builder.AppendLine();
             return;

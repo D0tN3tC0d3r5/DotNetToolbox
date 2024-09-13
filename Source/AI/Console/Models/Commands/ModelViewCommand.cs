@@ -1,23 +1,19 @@
 ﻿namespace AI.Sample.Models.Commands;
 
-public class ModelViewCommand : Command<ModelViewCommand> {
-    private readonly IModelHandler _handler;
-    private readonly IProviderHandler _providerHandler;
-
-    public ModelViewCommand(IHasChildren parent, IModelHandler handler, IProviderHandler providerHandler)
-        : base(parent, "Info", ["i"]) {
-        _handler = handler;
-        _providerHandler = providerHandler;
-        Description = "Display detailed information about a model.";
-    }
-
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
-        var model = await this.SelectEntityAsync(_handler.List(), "show", "Settings", m => m.Key, m => m.Name, ct);
+public class ModelViewCommand(IHasChildren parent, IModelHandler handler, IProviderHandler providerHandler)
+    : Command<ModelViewCommand>(parent, "Info", n => {
+        n.Aliases = ["i"];
+        n.Description = "Display detailed information about a model.";
+    }) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        Logger.LogInformation("Executing Models->Info command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
+        var model = await this.SelectEntityAsync(handler.List(), "show", "Settings", m => m.Key, m => m.Name, cts.Token);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             return Result.Success();
         }
-        model.Provider = _providerHandler.GetByKey(model.ProviderKey)!;
+        model.Provider = providerHandler.GetByKey(model.ProviderKey)!;
 
         Output.WriteLine("[yellow]Model Information:[/]");
         Output.WriteLine($"[blue]Id:[/] {model.Key}{(model.Selected ? " [green](default)[/]" : "")}");

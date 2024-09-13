@@ -1,16 +1,13 @@
 ﻿namespace AI.Sample.Tasks.Commands;
 
-public class TaskListCommand : Command<TaskListCommand> {
-    private readonly ITaskHandler _taskHandler;
-
-    public TaskListCommand(IHasChildren parent, ITaskHandler taskHandler)
-        : base(parent, "List", ["ls"]) {
-        _taskHandler = taskHandler;
-        Description = "List all tasks or tasks for a specific provider.";
-    }
-
-    protected override Result Execute() {
-        var tasks = _taskHandler.List();
+public class TaskListCommand(IHasChildren parent, ITaskHandler taskHandler)
+    : Command<TaskListCommand>(parent, "List", n => {
+        n.Aliases = ["ls"];
+        n.Description = "List the existing tasks.";
+    }) {
+    protected override Result Execute() => this.HandleCommand(() => {
+        Logger.LogInformation("Executing Tasks->List command...");
+        var tasks = taskHandler.List();
 
         if (tasks.Length == 0) {
             Output.WriteLine("[yellow]No tasks found.[/]");
@@ -38,5 +35,5 @@ public class TaskListCommand : Command<TaskListCommand> {
         Output.Write(table);
         Output.WriteLine();
         return Result.Success();
-    }
+    }, "Error listing the tasks.");
 }

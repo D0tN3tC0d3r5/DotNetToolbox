@@ -1,48 +1,31 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public sealed class Command : Command<Command> {
-    internal Command(IHasChildren parent, string name, Func<Command, CancellationToken, Task<Result>> executeAsync)
-        : this(parent, name, [], executeAsync) {
+public sealed class Command(IHasChildren parent,
+                            string name,
+                            Action<Command>? configure = null,
+                            Func<Command, CancellationToken, Task<Result>>? executeAsync = null)
+    : Command<Command>(parent, name, configure, executeAsync) {
+    public Command(IHasChildren parent, string name, Func<Command, Result> execute)
+        : this(parent, name, null, (cmd, ct) => Task.Run(() => execute(cmd), ct)) {
     }
-    internal Command(IHasChildren parent, string name, Func<Command, Result> execute)
-        : this(parent, name, [], execute) {
-    }
-    internal Command(IHasChildren parent, string name, string[] aliases, Func<Command, CancellationToken, Task<Result>> executeAsync)
-        : base(parent, name, aliases, executeAsync) {
-    }
-    internal Command(IHasChildren parent, string name, string[] aliases, Func<Command, Result> execute)
-        : base(parent, name, aliases, execute) {
-    }
-    internal Command(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, name, aliases) {
+    public Command(IHasChildren parent, string name, Action<Command>? configure, Func<Command, Result> execute)
+        : this(parent, name, configure, (cmd, ct) => Task.Run(() => execute(cmd), ct)) {
     }
 }
 
-public class Command<TCommand>
-    : Node<TCommand>,
+public class Command<TCommand>(IHasChildren parent,
+                               string name,
+                               Action<TCommand>? configure = null,
+                               Func<TCommand, CancellationToken, Task<Result>>? executeAsync = null)
+    : Node<TCommand>(parent, name, configure),
       ICommand
     where TCommand : Command<TCommand> {
-    private readonly Func<TCommand, CancellationToken, Task<Result>>? _executeAsync;
-
-    public Command(IHasChildren parent, string name, Func<TCommand, CancellationToken, Task<Result>> executeAsync)
-        : this(parent, name, [], executeAsync) {
-    }
-
     public Command(IHasChildren parent, string name, Func<TCommand, Result> execute)
-        : this(parent, name, [], execute) {
+        : this(parent, name, null, (cmd, ct) => Task.Run(() => execute(cmd), ct)) {
     }
 
-    public Command(IHasChildren parent, string name, string[] aliases, Func<TCommand, CancellationToken, Task<Result>> executeAsync)
-        : base(parent, name, aliases) {
-        _executeAsync = executeAsync;
-    }
-
-    public Command(IHasChildren parent, string name, string[] aliases, Func<TCommand, Result> execute)
-        : this(parent, name, aliases, (cmd, ct) => Task.Run(() => execute(cmd), ct)) {
-    }
-
-    public Command(IHasChildren parent, string name, params string[] aliases)
-        : base(parent, name, aliases) {
+    public Command(IHasChildren parent, string name, Action<TCommand> configure, Func<TCommand, Result> execute)
+        : this(parent, name, configure, (cmd, ct) => Task.Run(() => execute(cmd), ct)) {
     }
 
     public IMap Map { get; } = new Map();
@@ -52,14 +35,11 @@ public class Command<TCommand>
     public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
     public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
 
-    protected virtual Task<Result> Prepare(IReadOnlyList<string> args, CancellationToken ct = default)
-        => ArgumentsParser.Parse(this, args, ct);
-
     protected virtual Task<Result> ExecuteAsync(CancellationToken ct = default)
-        => _executeAsync?.Invoke((TCommand)this, ct) ?? Task.Run(Execute, ct);
+        => executeAsync?.Invoke((TCommand)this, ct) ?? Task.Run(Execute, ct);
     protected virtual Result Execute() => Success();
     public async Task<Result> Execute(IReadOnlyList<string> args, CancellationToken ct = default) {
-        var result = await Prepare(args, ct);
+        var result = await ArgumentsParser.Parse(this, args, ct);
         return result.IsSuccess ? await ExecuteAsync(ct) : result;
     }
 

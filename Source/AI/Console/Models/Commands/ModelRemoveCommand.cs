@@ -1,16 +1,14 @@
 ﻿namespace AI.Sample.Models.Commands;
 
-public class ModelRemoveCommand : Command<ModelRemoveCommand> {
-    private readonly IModelHandler _handler;
-
-    public ModelRemoveCommand(IHasChildren parent, IModelHandler handler)
-        : base(parent, "Remove", ["delete", "del"]) {
-        _handler = handler;
-        Description = "Remove a model.";
-    }
-
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
-        var model = await this.SelectEntityAsync(_handler.List(), "remove", "Settings", m => m.Key, m => m.Name, ct);
+public class ModelRemoveCommand(IHasChildren parent, IModelHandler handler)
+    : Command<ModelRemoveCommand>(parent, "Remove", n => {
+        n.Aliases = ["delete", "del"];
+        n.Description = "Remove a model.";
+    }) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        Logger.LogInformation("Executing Models->Remove command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
+        var model = await this.SelectEntityAsync(handler.List(), "remove", "Settings", m => m.Key, m => m.Name, cts.Token);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             Output.WriteLine();
@@ -18,13 +16,13 @@ public class ModelRemoveCommand : Command<ModelRemoveCommand> {
             return Result.Success();
         }
 
-        if (!await Input.ConfirmAsync($"Are you sure you want to remove the model '{model.Name}' ({model.Key})?", ct)) {
+        if (!await Input.ConfirmAsync($"Are you sure you want to remove the model '{model.Name}' ({model.Key})?", cts.Token)) {
             Output.WriteLine();
 
             return Result.Invalid("Action cancelled.");
         }
 
-        _handler.Remove(model.Key);
+        handler.Remove(model.Key);
         Output.WriteLine($"[green]Settings with key '{model.Name}' removed successfully.[/]");
         Output.WriteLine();
         return Result.Success();

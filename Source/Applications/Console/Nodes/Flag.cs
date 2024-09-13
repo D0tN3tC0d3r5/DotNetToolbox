@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public sealed class Flag(IHasChildren parent, string name, string[] aliases, Func<Flag, CancellationToken, Task<Result>>? execute = null)
-    : Flag<Flag>(parent, name, aliases, execute);
+public sealed class Flag(IHasChildren parent, string name, Action<Flag>? configure = null, Func<Flag, CancellationToken, Task<Result>>? execute = null)
+    : Flag<Flag>(parent, name, configure, execute);
 
-public abstract class Flag<TFlag>(IHasChildren parent, string name, string[] aliases, Func<TFlag, CancellationToken, Task<Result>>? execute = null)
-    : Node<TFlag>(parent, name, aliases), IFlag
+public abstract class Flag<TFlag>(IHasChildren parent, string name, Action<TFlag>? configure = null, Func<TFlag, CancellationToken, Task<Result>>? execute = null)
+    : Node<TFlag>(parent, name, configure), IFlag
     where TFlag : Flag<TFlag> {
     Task<Result> IFlag.Read(IMap context, CancellationToken ct) {
         context[Name] = bool.TrueString;

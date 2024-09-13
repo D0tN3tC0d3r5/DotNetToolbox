@@ -2,57 +2,30 @@
 
 public class PersonasCommand : Command<PersonasCommand> {
     public PersonasCommand(IHasChildren parent)
-        : base(parent, "Personas", []) {
-        Description = "Manage AI Personas.";
-
-        AddCommand<PersonaListCommand>();
-        AddCommand<PersonaCreateCommand>();
-        //AddCommand<PersonaUpdateCommand>();
-        //AddCommand<PersonaRemoveCommand>();
-        //AddCommand<PersonaViewCommand>();
-        AddCommand<HelpCommand>();
+        : base(parent, "Personas", n => {
+            n.Description = "Manage AI Personas.";
+            n.AddCommand<PersonaListCommand>();
+            n.AddCommand<PersonaCreateCommand>();
+            //n.AddCommand<PersonaUpdateCommand>();
+            //n.AddCommand<PersonaRemoveCommand>();
+            //AddCommand<PersonaViewCommand>();
+            n.AddCommand<HelpCommand>();
+        }) {
     }
 
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
-        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
-                          .ConvertWith(MapTo)
-                          .AddChoices("List",
-                                      "Create",
-                                      //"Info",
-                                      //"Select",
-                                      //"Update",
-                                      //"Remove",
-                                      "Help",
-                                      "Back",
-                                      "Exit").Show();
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        Logger.LogInformation("Executing Personas->Main command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
+        var choice = await Input.BuildSelectionPrompt<string>("What would you like to do?")
+                                .ConvertWith(MapTo)
+                                .AddChoices(Commands.ToArray(c => c.Name))
+                                .ShowAsync(cts.Token);
 
-        var personaHandler = Application.Services.GetRequiredService<IPersonaHandler>();
-        var command = choice switch {
-            "List" => new PersonaListCommand(this, personaHandler),
-            "Create" => new PersonaCreateCommand(this, personaHandler),
-            //"Info" => new PersonaViewCommand(this, personaHandler, providerHandler),
-            //"Select" => new PersonaSelectCommand(this, personaHandler),
-            //"Update" => new PersonaUpdateCommand(this, personaHandler, providerHandler),
-            //"Remove" => new PersonaRemoveCommand(this, personaHandler),
-            "Help" => new HelpCommand(this),
-            "Exit" => new ExitCommand(this),
-            _ => (ICommand?)null,
-        };
+        var command = Commands.FirstOrDefault(i => i.Name == choice);
         return command is null
             ? Result.Success()
-            : await command.Execute([], ct);
+            : await command.Execute([], cts.Token);
 
-        static string MapTo(string choice) => choice switch {
-            "List" => "List Personas",
-            "Create" => "Create a Persona",
-            //"Info" => "View the Details of a Persona",
-            //"Select" => "Select the Default Persona",
-            //"Update" => "Update a Persona",
-            //"Remove" => "Delete a Persona",
-            "Help" => "Help",
-            "Back" => "Back",
-            "Exit" => "Exit",
-            _ => string.Empty,
-        };
-    }, "Error displaying the persona menu.");
+        string MapTo(string choice) => Commands.FirstOrDefault(i => i.Name == choice)?.Description ?? string.Empty;
+    }, "Error displaying the persona menu.", ct);
 }

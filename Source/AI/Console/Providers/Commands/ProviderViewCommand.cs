@@ -1,16 +1,14 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
-public class ProviderViewCommand : Command<ProviderViewCommand> {
-    private readonly IProviderHandler _handler;
-
-    public ProviderViewCommand(IHasChildren parent, IProviderHandler handler)
-        : base(parent, "Info", ["i"]) {
-        _handler = handler;
-        Description = "Display the Provider.";
-    }
-
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
-        var provider = await this.SelectEntityAsync(_handler.List(), "show", "Settings", m => m.Key, m => m.Name, ct);
+public class ProviderViewCommand(IHasChildren parent, IProviderHandler handler)
+    : Command<ProviderViewCommand>(parent, "Info", n => {
+        n.Aliases = ["i"];
+        n.Description = "Display the Provider.";
+        n.Help = "Display the detailed information about a Provider.";
+    }) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
+        var provider = await this.SelectEntityAsync(handler.List(), "show", "Settings", m => m.Key, m => m.Name, cts.Token);
         if (provider is null) {
             Logger.LogInformation("No provider selected.");
             return Result.Success();

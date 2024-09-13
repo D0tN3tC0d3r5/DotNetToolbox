@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-using Shell = DotNetToolbox.ConsoleApplication.ShellApplication;
+﻿using Shell = DotNetToolbox.ConsoleApplication.ShellApplication;
 
 namespace DotNetToolbox.ConsoleApplication;
 
@@ -596,9 +594,9 @@ public sealed class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", n => n.Aliases = ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", n => n.DefaultValue = "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", n => n.Aliases = ["f"]);
 }

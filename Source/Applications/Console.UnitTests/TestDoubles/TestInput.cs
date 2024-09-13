@@ -17,9 +17,9 @@ internal sealed class TestInput(IOutput output, params string[] inputs)
     }
 
     public string ReadText() => string.Empty;
-    public Task<string?> ReadTextAsync(CancellationToken ct = default) => Task.FromResult<string?>(string.Empty);
+    public Task<string> ReadTextAsync(CancellationToken ct = default) => Task.FromResult(string.Empty);
     public string Prompt(string prompt) => string.Empty;
-    public Task<string> PromptAsync(string prompt, CancellationToken ct = default) => Task.FromResult<string>(string.Empty);
+    public Task<string> PromptAsync(string prompt, CancellationToken ct = default) => Task.FromResult(string.Empty);
 
     public MultilinePromptBuilder BuildMultilinePrompt(string prompt) => throw new NotImplementedException();
 

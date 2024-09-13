@@ -1,10 +1,10 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public sealed class Option(IHasChildren parent, string name, params string[] aliases)
-        : Option<Option>(parent, name, aliases);
+public sealed class Option(IHasChildren parent, string name, Action<Option>? configure = null)
+        : Option<Option>(parent, name, configure);
 
-public abstract class Option<TOption>(IHasChildren parent, string name, params string[] aliases)
-    : Node<TOption>(parent, name, aliases), IOption
+public abstract class Option<TOption>(IHasChildren parent, string name, Action<TOption>? configure = null)
+    : Node<TOption>(parent, name, configure), IOption
     where TOption : Option<TOption> {
     Task<Result> IOption.Read(string? value, IMap context, CancellationToken ct) {
         context[Name] = value switch {

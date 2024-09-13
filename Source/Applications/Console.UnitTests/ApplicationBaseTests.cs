@@ -1,8 +1,4 @@
-﻿using DotNetToolbox.ConsoleApplication.Questions;
-
-using Microsoft.Extensions.DependencyInjection;
-
-using IConfigurationBuilder = DotNetToolbox.ConsoleApplication.Application.IConfigurationBuilder;
+﻿using IConfigurationBuilder = DotNetToolbox.ConsoleApplication.Application.IConfigurationBuilder;
 
 namespace DotNetToolbox.ConsoleApplication;
 
@@ -44,7 +40,7 @@ public class ApplicationBaseTests {
         app.Name.Should().Be("My App");
         app.AssemblyName.Should().Be("TestApp");
         app.Version.Should().Be("1.0");
-        app.Description.Should().Be("Some description.");
+        app.Help.Should().Be("Some description.");
     }
 
     [Fact]
@@ -141,10 +137,10 @@ public class ApplicationBaseTests {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
         var app = new TestApplication([], serviceProvider) {
-            Description = "This is a test Application.",
+            Help = "This is a test Application.",
         };
 
-        var expectedToString = $"TestApplication: {app.Name} v{app.Version} => {app.Description}";
+        var expectedToString = $"TestApplication: {app.Name} v{app.Version} => {app.Help}";
 
         // Act
         var actualToString = app.ToString();
@@ -560,7 +556,7 @@ public class ApplicationBaseTests {
     private sealed class TestCommand
         : Command<TestCommand> {
         public TestCommand(IHasChildren app)
-            : base(app, "Command", ["c"]) {
+            : base(app, "Command", c => c.Aliases = ["c"]) {
             Description = "Test command.";
         }
 
@@ -571,11 +567,11 @@ public class ApplicationBaseTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", n => n.Aliases = ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", n => n.DefaultValue = "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", n => n.Aliases = ["f"]);
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
     private IServiceCollection CreateFakeServiceProvider() {
@@ -588,7 +584,6 @@ public class ApplicationBaseTests {
         assembly.Version.Returns(new Version(1, 0));
         var services = new ServiceCollection();
         services.AddSingleton(Substitute.For<IConfigurationRoot>());
-        services.AddSingleton(Substitute.For<IPromptFactory>());
         services.AddKeyedSingleton("TestApp", _assemblyDescriptor);
         services.AddKeyedSingleton("TestApp", Substitute.For<IDateTimeProvider>());
         services.AddKeyedSingleton("TestApp", Substitute.For<IGuidProvider>());

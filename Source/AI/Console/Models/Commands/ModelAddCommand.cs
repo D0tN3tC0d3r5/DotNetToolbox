@@ -2,19 +2,16 @@
 
 namespace AI.Sample.Models.Commands;
 
-public class ModelAddCommand : Command<ModelAddCommand> {
-    private readonly IModelHandler _modelHandler;
-    private readonly IProviderHandler _providerHandler;
-
-    public ModelAddCommand(IHasChildren parent, IModelHandler modelHandler, IProviderHandler providerHandler)
-        : base(parent, "Create", ["add", "new"]) {
-        _modelHandler = modelHandler;
-        _providerHandler = providerHandler;
-        Description = "Create a new model.";
-    }
-
-    protected override Task<Result> ExecuteAsync(CancellationToken ct) => this.HandleCommandAsync(async (ct) => {
-        var providers = _providerHandler.List();
+public class ModelAddCommand(IHasChildren parent, IModelHandler modelHandler, IProviderHandler providerHandler)
+    : Command<ModelAddCommand>(parent, "Create", c => {
+        c.Aliases = ["add", "new"];
+        c.Description = "Add a new model.";
+        c.Help = "Register a new model from a specific LLM provider.";
+    }) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        Logger.LogInformation("Executing Models->Add command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
+        var providers = providerHandler.List();
         if (providers.Length == 0) {
             Output.WriteLine("[yellow bold]No providers available. Please add a provider first.[/]");
             Logger.LogInformation("No providers available. Create model action cancelled.");
@@ -22,12 +19,12 @@ public class ModelAddCommand : Command<ModelAddCommand> {
         }
 
         var provider = await Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
-                            .ConvertWith(p => $"{p.Key}: {p.Name}")
-                            .AddChoices(providers)
-                            .ShowAsync(ct);
-        var model = _modelHandler.Create(async m => await SetUpAsync(m, provider, ct));
+                                  .ConvertWith(p => $"{p.Key}: {p.Name}")
+                                  .AddChoices(providers)
+                                  .ShowAsync(ct);
+        var model = modelHandler.Create(async m => await SetUpAsync(m, provider, cts.Token));
 
-        _modelHandler.Register(model);
+        modelHandler.Register(model);
         Output.WriteLine($"[green]Settings '{model.Name}' added successfully.[/]");
         Logger.LogInformation("Settings '{ModelKey}:{ModelName}' added successfully.", model.Key, model.Name);
         Output.WriteLine();

@@ -2,6 +2,7 @@
 global using System;
 global using System.ComponentModel;
 global using System.ComponentModel.DataAnnotations;
+global using System.Diagnostics.CodeAnalysis;
 global using System.IO;
 global using System.Linq.Expressions;
 global using System.Reflection;
@@ -34,7 +35,6 @@ global using AI.Sample.UserProfile.Repositories;
 global using DotNetToolbox;
 global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Anthropic;
-global using DotNetToolbox.AI.Chats;
 global using DotNetToolbox.AI.Jobs;
 global using DotNetToolbox.AI.OpenAI;
 global using DotNetToolbox.ConsoleApplication;

@@ -1,9 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-using ILogger = Microsoft.Extensions.Logging.ILogger;
-using Task = System.Threading.Tasks.Task;
-
-namespace AI.Sample.Helpers;
+﻿namespace AI.Sample.Helpers;
 
 public static class CommandHelpers {
     private sealed class ListItem<TItem, TKey>(object? key, string text, TItem? item)
@@ -51,17 +46,19 @@ public static class CommandHelpers {
         }
     }
 
-    public static Task<Result> HandleCommandAsync(this ICommand command, Func<CancellationToken, Task<Result>> execute, string errorMessage, CancellationToken ct = default) {
+    public static async Task<Result> HandleCommandAsync(this ICommand command, Func<CancellationToken, Task<Result>> execute, string errorMessage, CancellationToken ct = default) {
         try {
-            return execute(ct);
+            return await execute(ct);
         }
         catch (Exception ex) {
-            return Task.FromResult(command.HandleException(ex, errorMessage));
+            return command.HandleException(ex, errorMessage);
         }
     }
 
-    private static Result HandleException(this ICommand command, Exception ex, [StringSyntax("CompositeFormat")] string message, params object[] args) {
+    private static Result HandleException(this INode command, Exception ex, [StringSyntax("CompositeFormat")] string message, params object[] args) {
+#pragma warning disable CA2254
         command.Logger.LogError(ex, message, args);
+#pragma warning restore CA2254
         command.Output.WriteError(ex, string.Format(message, args));
         command.Output.WriteLine();
         return Result.Error(ex);

@@ -2,7 +2,7 @@
 
 public class SayCommand : Command<SayCommand> {
     public SayCommand(IHasChildren parent)
-        : base(parent, "Say", ["s"]) {
+        : base(parent, "Say", n => n.Aliases = ["s"]) {
         AddOption("My");
         AddParameter("Info", "Color");
     }

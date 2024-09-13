@@ -1,20 +1,22 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public sealed class Parameter(IHasChildren parent, string name, string? defaultValue = null)
-        : Parameter<Parameter>(parent, name, defaultValue);
+public sealed class Parameter(IHasChildren parent, string name, Action<Parameter>? configure = null)
+        : Parameter<Parameter>(parent, name, configure);
 
-public abstract class Parameter<TParameter>
-    : Node<TParameter>, IParameter
+public abstract class Parameter<TParameter>(IHasChildren parent, string name, Action<TParameter>? configure = null)
+    : Node<TParameter>(parent, name, configure), IParameter
     where TParameter : Parameter<TParameter> {
-    protected Parameter(IHasChildren parent, string name, string? defaultValue = default)
-        : base(parent, name) {
-        DefaultValue = defaultValue;
-        parent.Map[Name] = DefaultValue!;
-        Order = parent.Children.OfType<IParameter>().Count();
+    private string _defaultValue = default!;
+
+    public string DefaultValue {
+        get => _defaultValue;
+        set {
+            _defaultValue = value;
+            Parent.Map[Name] = _defaultValue;
+        }
     }
 
-    public int Order { get; }
-    public string? DefaultValue { get; }
+    public int Order { get; } = parent.Children.OfType<IParameter>().Count();
     public bool IsRequired => DefaultValue is null;
     public bool IsSet { get; private set; }
 

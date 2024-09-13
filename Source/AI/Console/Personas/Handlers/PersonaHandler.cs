@@ -48,7 +48,7 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
         try {
             var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
-            var userProfileEntity = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
+            var userProfileEntity = _userHandler.CurrentUser ?? throw new InvalidOperationException("No user found.");
             var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
             var taskEntity = _taskHandler.GetByKey(1) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
             var context = new JobContext {
@@ -90,7 +90,7 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
         try {
             var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
-            var userProfileEntity = _userHandler.Get() ?? throw new InvalidOperationException("No user found.");
+            var userProfileEntity = _userHandler.CurrentUser ?? throw new InvalidOperationException("No user found.");
             var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
             var taskEntity = _taskHandler.GetByKey(2) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
             var context = new JobContext {

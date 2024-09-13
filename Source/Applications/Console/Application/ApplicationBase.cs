@@ -46,7 +46,7 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>
         => Create([], null!, null!);
 
     public override string ToString()
-        => $"{GetType().Name}: {Name} v{Version} => {Description}";
+        => $"{GetType().Name}: {Name} v{Version} => {Help}";
 
     public int Run() => RunAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -114,6 +114,7 @@ public abstract partial class ApplicationBase<TSettings>
     : IApplication<TSettings>
     where TSettings : ApplicationSettings, new() {
     private readonly AsyncServiceScope _servicesScope;
+    private string _description = string.Empty;
 
     protected ApplicationBase(string[] args, IServiceCollection services) {
         Arguments = args;
@@ -125,7 +126,6 @@ public abstract partial class ApplicationBase<TSettings>
         Logger = Services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType().Name);
         Environment = Services.GetRequiredService<IApplicationEnvironment>();
         Configuration = Services.GetRequiredService<IConfigurationRoot>();
-        PromptFactory = Services.GetRequiredService<IPromptFactory>();
 
         AssemblyName = Environment.Assembly.Name;
         var ata = Environment.Assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
@@ -163,10 +163,17 @@ public abstract partial class ApplicationBase<TSettings>
     public string Version { get; }
     public string DisplayVersion { get; }
     public string FullName => $"{Name} v{DisplayVersion}";
-    public string Description { get; init; }
+    public string Description {
+        get => _description;
+        set {
+            _description = value;
+            if (string.IsNullOrWhiteSpace(Help)) Help = _description;
+        }
+    }
+    public string Help { get; set; } = string.Empty;
     public TSettings Settings { get; init; }
 
-    public ILogger Logger { get; init; }
+    public ILogger Logger { get; }
 
     public IServiceProvider Services { get; }
     public IConfigurationRoot Configuration { get; }
@@ -177,8 +184,6 @@ public abstract partial class ApplicationBase<TSettings>
     protected IAssemblyDescriptor Assembly => Environment.Assembly;
     protected IDateTimeProvider DateTime => Environment.OperatingSystem.DateTime;
     protected IGuidProvider Guid => Environment.OperatingSystem.Guid;
-    public IPromptFactory PromptFactory { get; }
-
     public IMap Map { get; } = new Map();
 
     public ICollection<INode> Children { get; } = [];

@@ -1,11 +1,11 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
 public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler)
-    : Command<ProviderUpdateCommand>(parent, "Update", ["edit"]) {
-    private readonly IProviderHandler _handler = handler;
-
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
-        var provider = await this.SelectEntityAsync(_handler.List(), "update", "Provider", m => m.Key, m => m.Name, ct);
+    : Command<ProviderUpdateCommand>(parent, "Update", n => n.Aliases = ["edit"]) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        Logger.LogInformation("Executing Providers->Update command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
+        var provider = await this.SelectEntityAsync(handler.List(), "update", "Provider", m => m.Key, m => m.Name, cts.Token);
         if (provider is null) {
             Logger.LogInformation("Provider updated action cancelled.");
             Output.WriteLine();
@@ -16,9 +16,9 @@ public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler
         provider.Name = await Input.BuildTextPrompt<string>("Enter the new name for the provider")
                                    .For("name").WithDefault(provider.Name)
                                    .AsRequired()
-                                   .ShowAsync(ct);
+                                   .ShowAsync(cts.Token);
 
-        _handler.Update(provider);
+        handler.Update(provider);
         Output.WriteLine($"[green]Provider '{provider.Name}' updated successfully.[/]");
         Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' updated successfully.", provider.Key, provider.Name);
         Output.WriteLine();

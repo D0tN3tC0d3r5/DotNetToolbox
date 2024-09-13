@@ -3,10 +3,16 @@
 namespace AI.Sample.UserProfile.Commands;
 
 public class UserProfileSetCommand(IHasChildren parent, IUserProfileHandler handler)
-    : Command<UserProfileSetCommand>(parent, "Change", ["set"]) {
-    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async (ct) => {
+    : Command<UserProfileSetCommand>(parent, "Change", n => {
+        n.Aliases = ["set"];
+        n.Description = "Update your profile.";
+        n.Description = "Change the current user profile.";
+    }) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
+        Logger.LogInformation("Executing UserProfile->Set command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
         var user = handler.CurrentUser ?? handler.Create();
-        await SetUpAsync(user, ct);
+        await SetUpAsync(user, cts.Token);
         handler.Set(user);
 
         Output.WriteLine("[green]User profile set successfully.[/]");
@@ -21,5 +27,4 @@ public class UserProfileSetCommand(IHasChildren parent, IUserProfileHandler hand
                             .For("name").WithDefault("Temp")
                             .AsRequired()
                             .ShowAsync(ct);
-
 }

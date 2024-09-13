@@ -15,6 +15,7 @@ public sealed class NodeTests {
 
         // Assert
         node.Name.Should().Be("node");
+        node.Help.Should().Be("Some description.");
         node.Description.Should().Be("Some description.");
         node.Aliases.Should().BeEquivalentTo("n");
         node.Parent.Should().Be(app);
@@ -29,15 +30,18 @@ public sealed class NodeTests {
         var serviceProvider = CreateFakeServiceProvider();
         app.Services.Returns(serviceProvider);
         var node = new TestNode(app, "node", ["n"]) {
+            Help = "Some help.",
             Description = "Some description.",
         };
-        var expectedToString = $"TestNode: {node.Name}, {node.Aliases[0]} => {node.Description}";
+        var expectedToString = $"TestNode: {node.Name}, {node.Aliases[0]} => {node.Help}";
 
         // Act
         var actualToString = node.ToString();
 
         // Assert
         actualToString.Should().Be(expectedToString);
+        node.Help.Should().Be("Some help.");
+        node.Description.Should().Be("Some description.");
     }
 
     private sealed class InvalidCommandDelegates : TheoryData<Delegate> {
@@ -464,7 +468,7 @@ public sealed class NodeTests {
     private sealed class TestCommand
         : Command<TestCommand> {
         public TestCommand(IHasChildren app)
-            : base(app, "Command", ["c"]) {
+            : base(app, "Command", n => n.Aliases = ["c"]) {
             Description = "Test command.";
         }
 
@@ -475,11 +479,11 @@ public sealed class NodeTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", n => n.Aliases = ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", n => n.DefaultValue = "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", n => n.Aliases = ["f"]);
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
     private readonly IAssemblyAccessor _assemblyAccessor = Substitute.For<IAssemblyAccessor>();
@@ -503,5 +507,5 @@ public sealed class NodeTests {
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
     private sealed class TestNode(IHasChildren parent, string name, params string[] aliases)
-        : Command<TestNode>(parent, name, aliases);
+        : Command<TestNode>(parent, name, n => n.Aliases = aliases);
 }

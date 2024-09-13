@@ -1,16 +1,14 @@
 ﻿namespace AI.Sample.Personas.Commands;
 
-public class PersonaListCommand : Command<PersonaListCommand> {
-    private readonly IPersonaHandler _personaHandler;
-
-    public PersonaListCommand(IHasChildren parent, IPersonaHandler personaHandler)
-        : base(parent, "List", ["ls"]) {
-        _personaHandler = personaHandler;
-        Description = "List all personas or personas for a specific provider.";
-    }
-
+public class PersonaListCommand(IHasChildren parent, IPersonaHandler personaHandler)
+    : Command<PersonaListCommand>(parent, "List", n => {
+        n.Aliases = ["ls"];
+        n.Description = "List personas.";
+        n.Help = "List all the agent's personas.";
+    }) {
     protected override Result Execute() => this.HandleCommand(() => {
-        var personas = _personaHandler.List();
+        Logger.LogInformation("Executing Personas->List command...");
+        var personas = personaHandler.List();
 
         if (personas.Length == 0) {
             Output.WriteLine("[yellow]No personas found.[/]");

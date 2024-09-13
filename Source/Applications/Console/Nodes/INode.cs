@@ -1,16 +1,16 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
 public interface INode {
-    string Name { get; }
-    string[] Aliases { get; }
-    string Description { get; }
     IApplication Application { get; }
     IApplicationEnvironment Environment { get; }
-    IPromptFactory PromptFactory { get; }
-
     IInput Input { get; }
     IOutput Output { get; }
     ILogger Logger { get; }
+
+    string Name { get; }
+    string[] Aliases { get; }
+    string Description { get; }
+    string Help { get; }
 
     public string Path => this switch {
         IApplication app => app.AssemblyName,

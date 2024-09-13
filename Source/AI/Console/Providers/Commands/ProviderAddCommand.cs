@@ -3,9 +3,15 @@
 namespace AI.Sample.Providers.Commands;
 
 public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
-    : Command<ProviderAddCommand>(parent, "Create", ["add", "new"]) {
-    protected override Task<Result> ExecuteAsync(CancellationToken ct) => this.HandleCommandAsync((ct) => {
-        var provider = handler.Create(async p => await SetUpAsync(p, ct));
+    : Command<ProviderAddCommand>(parent, "Add", n => {
+        n.Aliases = ["new"];
+        n.Description = "Add a new LLM provider.";
+        n.Help = "Register a new LLM provider to use with your AI agents.";
+    }) {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(lt => {
+        Logger.LogInformation("Executing Providers->Add command...");
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
+        var provider = handler.Create(p => SetUpAsync(p, cts.Token).GetAwaiter().GetResult());
         handler.Add(provider);
         Output.WriteLine($"[green]Provider '{provider.Name}' added successfully.[/]");
         Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' added successfully.", provider.Key, provider.Name);

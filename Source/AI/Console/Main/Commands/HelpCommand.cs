@@ -2,23 +2,28 @@
 
 public class HelpCommand : Command<HelpCommand> {
     private const int _indentSize = 4;
-    private readonly IHasChildren _parent;
 
     public HelpCommand(IHasChildren parent)
-        : base(parent, "Help", ["?"]) {
-        _parent = IsNotNull(parent);
-        Description = "Display this help information.";
+        : base(parent, "Help", n => {
+            n.Aliases = ["?"];
+            n.Description = "Display this help information.";
+        }) {
         AddParameter("Target", string.Empty);
     }
 
     protected override Result Execute() => this.HandleCommand(() => {
-        var target = Map.GetValueAs<string>("Target");
-        var command = _parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
-        var node = command ?? _parent;
-        var helpText = GetHelp(node);
-        Output.Write(helpText);
+        Logger.LogInformation("Executing Help command...");
+        ShowHelp();
         return Result.Success();
     }, "Error displaying the help information.");
+
+    private void ShowHelp() {
+        var target = Map.GetValueAs<string>("Target");
+        var command = Parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+        var node = command ?? Parent;
+        var helpText = GetHelp(node);
+        Output.Write(helpText);
+    }
 
     private static string GetHelp(IHasChildren node) {
         var builder = new StringBuilder();
@@ -33,8 +38,8 @@ public class HelpCommand : Command<HelpCommand> {
 
     private static void AppendNodeDescription(StringBuilder builder, INode node) {
         if (node is IApplication app) builder.AppendLine(app.FullName);
-        if (string.IsNullOrWhiteSpace(node.Description)) return;
-        builder.AppendLine(node.Description.Trim());
+        if (string.IsNullOrWhiteSpace(node.Help)) return;
+        builder.AppendLine(node.Help.Trim());
     }
 
     private static void AppendUsage(StringBuilder builder, IHasChildren node) {
@@ -92,7 +97,7 @@ public class HelpCommand : Command<HelpCommand> {
     }
 
     private static void AppendNodeDescription(StringBuilder builder, INode node, int length) {
-        var lines = node.Description.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var lines = node.Help.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (lines.Length == 0) {
             builder.AppendLine();
             return;

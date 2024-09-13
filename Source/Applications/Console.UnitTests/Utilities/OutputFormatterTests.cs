@@ -69,7 +69,7 @@ public class OutputFormatterTests {
         var node = Substitute.For<IHasChildren>();
         node.Name.Returns("test-command");
         node.Path.Returns("test-command");
-        node.Description.Returns("Test command description.");
+        node.Help.Returns("Test command description.");
         const string expectedResult = """
                                       Test command description.
 
@@ -113,18 +113,18 @@ public class OutputFormatterTests {
         var node = Substitute.For<IHasChildren>();
         node.Name.Returns("test-command");
         node.Path.Returns("test-command");
-        node.Description.Returns("Test command description.");
+        node.Help.Returns("Test command description.");
         var option = Substitute.For<IOption>();
         option.Name.Returns("option");
-        option.Description.Returns("Description for option.");
+        option.Help.Returns("Description for option.");
         node.Options.Returns([option]);
         var parameter = Substitute.For<IParameter>();
         parameter.Name.Returns("parameter");
-        parameter.Description.Returns($"Description for parameter.{System.Environment.NewLine}");
+        parameter.Help.Returns($"Description for parameter.{System.Environment.NewLine}");
         node.Parameters.Returns([parameter]);
         var command = Substitute.For<ICommand>();
         command.Name.Returns("subcommand");
-        command.Description.Returns($"Description for subcommand line1.{System.Environment.NewLine}Description for subcommand line2.{System.Environment.NewLine}");
+        command.Help.Returns($"Description for subcommand line1.{System.Environment.NewLine}Description for subcommand line2.{System.Environment.NewLine}");
         node.Commands.Returns([command]);
         node.Children.Returns([option, parameter, command]);
 
@@ -160,7 +160,7 @@ public class OutputFormatterTests {
         var node = Substitute.For<IHasChildren>();
         node.Name.Returns("test-command");
         node.Path.Returns("test-command");
-        node.Description.Returns("Test command description.");
+        node.Help.Returns("Test command description.");
         node.Options.Returns([]);
         node.Parameters.Returns([]);
         node.Commands.Returns([]);
@@ -187,19 +187,19 @@ public class OutputFormatterTests {
         node.FullName.Returns("TestApp v1.0");
         node.AssemblyName.Returns("test-command");
         node.Path.Returns("test-command");
-        node.Description.Returns("Test command description.");
+        node.Help.Returns("Test command description.");
         var option = Substitute.For<IOption>();
         option.Name.Returns("option");
-        option.Description.Returns("Description for option.");
+        option.Help.Returns("Description for option.");
         node.Options.Returns([option]);
         var parameter = Substitute.For<IParameter>();
         parameter.Name.Returns("parameter");
         parameter.IsRequired.Returns(true);
-        parameter.Description.Returns("Description for parameter.");
+        parameter.Help.Returns("Description for parameter.");
         node.Parameters.Returns([parameter]);
         var command = Substitute.For<ICommand>();
         command.Name.Returns("subcommand");
-        command.Description.Returns("Description for subcommand.");
+        command.Help.Returns("Description for subcommand.");
         node.Commands.Returns([command]);
         node.Children.Returns([option, parameter, command]);
 
@@ -252,7 +252,7 @@ public class OutputFormatterTests {
         node.Path.Returns("test-command");
         node.Name.Returns("test-command");
         node.Aliases.Returns(["t", "test"]);
-        node.Description.Returns("Test command with aliases.");
+        node.Help.Returns("Test command with aliases.");
         const string expectedResult = """
                                   Test command with aliases.
 
@@ -275,7 +275,7 @@ public class OutputFormatterTests {
         // Arrange
         var app = Substitute.For<IApplication>();
         app.FullName.Returns("TestApp");
-        app.Description.Returns("Application description.");
+        app.Help.Returns("Application description.");
         app.Path.Returns("TestApp");
         const string expectedResult = """
                                   TestApp
@@ -298,7 +298,7 @@ public class OutputFormatterTests {
         // Arrange
         var node = Substitute.For<IHasChildren>();
         node.Path.Returns("test-command");
-        node.Description.Returns("  Test command with leading and trailing whitespace.  ");
+        node.Help.Returns("  Test command with leading and trailing whitespace.  ");
         const string expectedResult = """
                                   Test command with leading and trailing whitespace.
 
@@ -319,7 +319,7 @@ public class OutputFormatterTests {
         // Arrange
         var node = Substitute.For<IHasChildren>();
         node.Path.Returns("test-command");
-        node.Description.Returns("");
+        node.Help.Returns("");
         const string expectedResult = """
                                   Usage:
                                       test-command

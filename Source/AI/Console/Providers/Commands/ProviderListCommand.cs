@@ -1,11 +1,10 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
 public class ProviderListCommand(IHasChildren parent, IProviderHandler providerHandler)
-    : Command<ProviderListCommand>(parent, "List", ["ls"]) {
-    private readonly IProviderHandler _providerHandler = providerHandler;
-
+    : Command<ProviderListCommand>(parent, "List", n => n.Aliases = ["ls"]) {
     protected override Result Execute() => this.HandleCommand(() => {
-        var providers = _providerHandler.List();
+        Logger.LogInformation("Executing Providers->List command...");
+        var providers = providerHandler.List();
         if (providers.Length == 0) {
             Output.WriteLine("[yellow]No providers found.[/]");
             Logger.LogInformation("No providers found. List providers action cancelled.");

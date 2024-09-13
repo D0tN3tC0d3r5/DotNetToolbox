@@ -2,7 +2,7 @@
 
 internal sealed class SayCommand : Command<SayCommand> {
     public SayCommand(IHasChildren node)
-        : base(node, "Say", []) {
+        : base(node, "Say") {
         AddParameter("Text");
     }
 
