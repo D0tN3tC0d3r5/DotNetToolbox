@@ -3,7 +3,8 @@
 public class ExitCommand(IHasChildren parent)
     : Command<ExitCommand>(parent, "Exit", n => {
         n.Aliases = ["quit"];
-        n.Description = "Exit the application.";
+        n.Description = "Exit";
+        n.Help = "Exit the application.";
     }) {
     protected override Result Execute() {
         Application.Exit();

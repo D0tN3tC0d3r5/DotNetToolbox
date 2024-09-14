@@ -5,7 +5,8 @@ namespace AI.Sample.Models.Commands;
 public class ModelUpdateCommand(IHasChildren parent, IModelHandler handler, IProviderHandler providerHandler)
     : Command<ModelUpdateCommand>(parent, "Update", n => {
         n.Aliases = ["edit"];
-        n.Description = "Update an existing model.";
+        n.Description = "Update model";
+        n.Help = "Update an existing model.";
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->Update command...");

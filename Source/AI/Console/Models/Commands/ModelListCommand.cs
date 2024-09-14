@@ -3,7 +3,7 @@
 public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, IProviderHandler providerHandler)
     : Command<ModelListCommand>(parent, "List", n => {
         n.Aliases = ["ls"];
-        n.Description = "List models.";
+        n.Description = "List models";
         n.Help = "List all the models or those from a specific LLM provider.";
         n.AddParameter("Provider", "The provider key to filter the models by.");
     }) {

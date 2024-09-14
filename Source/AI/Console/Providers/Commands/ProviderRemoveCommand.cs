@@ -1,7 +1,11 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
 public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler, IModelHandler modelHandler)
-    : Command<ProviderRemoveCommand>(parent, "Remove", n => n.Aliases = ["delete", "del"]) {
+    : Command<ProviderRemoveCommand>(parent, "Remove", n => {
+        n.Aliases = ["delete", "del"];
+        n.Description = "Remove provider";
+        n.Help = "Remove a LLM provider.";
+    }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Providers->Remove command...");
         var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);

@@ -3,7 +3,8 @@
 public class SettingsCommand(IHasChildren parent, IOptions<LolaSettings> settings)
     : Command<SettingsCommand>(parent, "Settings", n => {
         n.Aliases = ["set"];
-        n.Description = "Display the current configuration of Lola.";
+        n.Description = "Show settings";
+        n.Help = "Display the current configuration of Lola.";
     }) {
     private readonly LolaSettings _settings = settings.Value;
 

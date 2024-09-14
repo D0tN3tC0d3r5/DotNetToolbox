@@ -3,7 +3,8 @@
 public class ModelRemoveCommand(IHasChildren parent, IModelHandler handler)
     : Command<ModelRemoveCommand>(parent, "Remove", n => {
         n.Aliases = ["delete", "del"];
-        n.Description = "Remove a model.";
+        n.Description = "Remove a model";
+        n.Help = "Remove a model.";
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->Remove command...");

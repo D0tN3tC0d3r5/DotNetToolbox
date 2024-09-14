@@ -1,20 +1,18 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
-public class ProvidersCommand
-    : Command<ProvidersCommand> {
-    public ProvidersCommand(IHasChildren parent)
-        : base(parent, "Providers", n => {
-            n.Description = "Manage AI Providers.";
-            n.Help = "Register, update, or remove AI providers to use with your AI agents.";
-            n.AddCommand<ProviderListCommand>();
-            n.AddCommand<ProviderAddCommand>();
-            n.AddCommand<ProviderUpdateCommand>();
-            n.AddCommand<ProviderRemoveCommand>();
-            n.AddCommand<HelpCommand>();
-            n.AddCommand<ExitCommand>();
-        }) {
-    }
-
+public class ProvidersCommand(IHasChildren parent)
+    : Command<ProvidersCommand>(parent, "Providers", n => {
+        n.Description = "Manage AI Providers.";
+        n.Help = "Register, update, or remove AI providers to use with your AI agents.";
+        n.AddCommand<ProviderListCommand>();
+        n.AddCommand<ProviderAddCommand>();
+        n.AddCommand<ProviderViewCommand>();
+        n.AddCommand<ProviderUpdateCommand>();
+        n.AddCommand<ProviderRemoveCommand>();
+        n.AddCommand<HelpCommand>();
+        n.AddCommand<BackCommand>();
+        n.AddCommand<ExitCommand>();
+    }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Providers command...");
         var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
@@ -25,9 +23,9 @@ public class ProvidersCommand
 
         var command = Commands.FirstOrDefault(i => i.Name == choice);
         return command is null
-            ? Result.Success()
-            : await command.Execute([], cts.Token);
+                   ? Result.Success()
+                   : await command.Execute([], cts.Token);
 
-        string MapTo(string choice) => Commands.FirstOrDefault(i => i.Name == choice)?.Description ?? string.Empty;
+        string MapTo(string item) => Commands.FirstOrDefault(i => i.Name == item)?.Description ?? string.Empty;
     }, "Error displaying provider's menu.", ct);
 }

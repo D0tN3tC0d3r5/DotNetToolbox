@@ -1,7 +1,11 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
 public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler)
-    : Command<ProviderUpdateCommand>(parent, "Update", n => n.Aliases = ["edit"]) {
+    : Command<ProviderUpdateCommand>(parent, "Update", n => {
+        n.Aliases = ["edit"];
+        n.Description = "Update provider";
+        n.Help = "Update a LLM provider.";
+    }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Providers->Update command...");
         var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);

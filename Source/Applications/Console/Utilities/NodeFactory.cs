@@ -1,24 +1,26 @@
 namespace DotNetToolbox.ConsoleApplication.Utilities;
 
 public static class NodeFactory {
-    internal static TChild Create<TChild>(IHasChildren parent, string name, string[] aliases, Delegate? action)
+    internal static TChild Create<TChild>(IHasChildren parent, string name, Delegate? configure, Delegate? action)
         where TChild : class, IHasParent {
-        var actionWrapper = ConvertToActionWrapper<TChild>(action);
-        var child = InstanceFactory.Create<TChild>(parent, name, aliases, actionWrapper);
+        var configureWrapper = ConvertToAction<TChild>(configure);
+        var actionWrapper = ConvertToTask<TChild>(action);
+        var child = InstanceFactory.Create<TChild>(parent, name, configureWrapper, actionWrapper);
         parent.Children.Add(child);
         return child;
     }
 
-    internal static TChild Create<TChild>(IHasChildren parent, string name, string? defaultValue)
+    internal static TChild Create<TChild>(IHasChildren parent, string name, Delegate? configure)
         where TChild : class, IHasParent {
-        var child = InstanceFactory.Create<TChild>(parent, name, defaultValue!);
+        var configureWrapper = ConvertToAction<TChild>(configure);
+        var child = InstanceFactory.Create<TChild>(parent, name, configureWrapper);
         parent.Children.Add(child);
         return child;
     }
 
-    internal static TChild Create<TChild>(IHasChildren parent, string name, string[] aliases)
+    internal static TChild Create<TChild>(IHasChildren parent, string name)
         where TChild : class, IHasParent {
-        var child = InstanceFactory.Create<TChild>(parent, name, aliases);
+        var child = InstanceFactory.Create<TChild>(parent, name);
         parent.Children.Add(child);
         return child;
     }
@@ -30,7 +32,16 @@ public static class NodeFactory {
         return child;
     }
 
-    internal static Func<TNode, CancellationToken, Task<Result>> ConvertToActionWrapper<TNode>(Delegate? action)
+    private static Action<TNode> ConvertToAction<TNode>(Delegate? action)
+        => action switch {
+            null => _ => { }
+            ,
+            Action func => _ => func(),
+            Action<TNode> func => n => func(n),
+            _ => throw new ArgumentException("Unsupported delegate type of configuration action", nameof(action)),
+        };
+
+    private static Func<TNode, CancellationToken, Task<Result>> ConvertToTask<TNode>(Delegate? action)
         => action switch {
             null => (_, _) => SuccessTask(),
             Action func => (_, ct) => Task.Run(() => func(), ct).ContinueWith(_ => Success(), ct, TaskContinuationOptions.NotOnFaulted, TaskScheduler.Current),

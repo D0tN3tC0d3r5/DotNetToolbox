@@ -3,7 +3,8 @@
 public class ModelSelectCommand(IHasChildren parent, IModelHandler handler)
     : Command<ModelSelectCommand>(parent, "Select", n => {
         n.Aliases = ["sel"];
-        n.Description = "Select the default model.";
+        n.Description = "Select default model.";
+        n.Help = "Select the default model.";
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->Select default model command...");

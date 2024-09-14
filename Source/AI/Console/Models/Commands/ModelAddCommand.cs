@@ -5,7 +5,7 @@ namespace AI.Sample.Models.Commands;
 public class ModelAddCommand(IHasChildren parent, IModelHandler modelHandler, IProviderHandler providerHandler)
     : Command<ModelAddCommand>(parent, "Create", c => {
         c.Aliases = ["add", "new"];
-        c.Description = "Add a new model.";
+        c.Description = "Add a new model";
         c.Help = "Register a new model from a specific LLM provider.";
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {

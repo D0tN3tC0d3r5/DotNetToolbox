@@ -1,7 +1,11 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
 public class ProviderListCommand(IHasChildren parent, IProviderHandler providerHandler)
-    : Command<ProviderListCommand>(parent, "List", n => n.Aliases = ["ls"]) {
+    : Command<ProviderListCommand>(parent, "List", n => {
+        n.Aliases = ["ls"];
+        n.Description = "List providers";
+        n.Help = "List all LLM providers.";
+    }) {
     protected override Result Execute() => this.HandleCommand(() => {
         Logger.LogInformation("Executing Providers->List command...");
         var providers = providerHandler.List();

@@ -48,7 +48,7 @@ public class Command<TCommand>(IHasChildren parent,
     public ICommand AddCommand(string name, string alias, Delegate action)
         => AddCommand(name, [alias], action);
     public ICommand AddCommand(string name, string[] aliases, Delegate action)
-        => NodeFactory.Create<Command>(this, name, aliases, action);
+        => NodeFactory.Create<Command>(this, name, (Action<Parameter>)(n => n.Aliases = aliases), action);
     public ICommand AddCommand<TChildCommand>()
         where TChildCommand : Command<TChildCommand>, ICommand
         => NodeFactory.Create<TChildCommand>(this);
@@ -59,7 +59,7 @@ public class Command<TCommand>(IHasChildren parent,
     public IFlag AddFlag(string name, string alias, Delegate? action = null)
         => AddFlag(name, [alias], action);
     public IFlag AddFlag(string name, string[] aliases, Delegate? action = null)
-        => NodeFactory.Create<Flag>(this, name, aliases, action);
+        => NodeFactory.Create<Flag>(this, name, (Action<Parameter>)(n => n.Aliases = aliases), action);
     public IFlag AddFlag<TFlag>()
         where TFlag : Flag<TFlag>, IFlag
         => NodeFactory.Create<TFlag>(this);
@@ -70,7 +70,7 @@ public class Command<TCommand>(IHasChildren parent,
     public IOption AddOption(string name, string alias)
         => AddOption(name, [alias]);
     public IOption AddOption(string name, string[] aliases)
-        => NodeFactory.Create<Option>(this, name, aliases);
+        => NodeFactory.Create<Option>(this, name, (Action<Parameter>)(n => n.Aliases = aliases));
     public IOption AddOption<TOption>()
         where TOption : Option<TOption>, IOption
         => NodeFactory.Create<TOption>(this);
@@ -79,7 +79,7 @@ public class Command<TCommand>(IHasChildren parent,
     public IParameter AddParameter(string name)
         => AddParameter(name, null);
     public IParameter AddParameter(string name, string? defaultValue)
-        => NodeFactory.Create<Parameter>(this, name, defaultValue);
+        => NodeFactory.Create<Parameter>(this, name, (Action<Parameter>)(n => n.DefaultValue = IsNotNull(defaultValue)));
     public IParameter AddParameter<TParameter>()
         where TParameter : Parameter<TParameter>, IParameter
         => NodeFactory.Create<TParameter>(this);

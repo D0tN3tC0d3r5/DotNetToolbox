@@ -1,15 +1,13 @@
 ﻿namespace AI.Sample.Main.Commands;
 
-public class HelpCommand : Command<HelpCommand> {
+public class HelpCommand(IHasChildren parent)
+    : Command<HelpCommand>(parent, "Help", n => {
+        n.Aliases = ["?"];
+        n.Description = "Show help";
+        n.Help = "Display this help information.";
+        n.AddParameter("Target", string.Empty);
+    }) {
     private const int _indentSize = 4;
-
-    public HelpCommand(IHasChildren parent)
-        : base(parent, "Help", n => {
-            n.Aliases = ["?"];
-            n.Description = "Display this help information.";
-        }) {
-        AddParameter("Target", string.Empty);
-    }
 
     protected override Result Execute() => this.HandleCommand(() => {
         Logger.LogInformation("Executing Help command...");

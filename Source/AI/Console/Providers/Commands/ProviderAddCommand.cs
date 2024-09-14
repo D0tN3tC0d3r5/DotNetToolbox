@@ -5,7 +5,7 @@ namespace AI.Sample.Providers.Commands;
 public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
     : Command<ProviderAddCommand>(parent, "Add", n => {
         n.Aliases = ["new"];
-        n.Description = "Add a new LLM provider.";
+        n.Description = "Add provider";
         n.Help = "Register a new LLM provider to use with your AI agents.";
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(lt => {

@@ -4,15 +4,16 @@ public sealed class Parameter(IHasChildren parent, string name, Action<Parameter
         : Parameter<Parameter>(parent, name, configure);
 
 public abstract class Parameter<TParameter>(IHasChildren parent, string name, Action<TParameter>? configure = null)
-    : Node<TParameter>(parent, name, configure), IParameter
+    : Node<TParameter>(parent, name, configure),
+      IParameter
     where TParameter : Parameter<TParameter> {
-    private string _defaultValue = default!;
+    private string? _defaultValue;
 
-    public string DefaultValue {
+    public string? DefaultValue {
         get => _defaultValue;
         set {
             _defaultValue = value;
-            Parent.Map[Name] = _defaultValue;
+            Parent.Map[Name] = _defaultValue!;
         }
     }
 

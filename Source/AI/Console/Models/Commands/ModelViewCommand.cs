@@ -3,7 +3,8 @@
 public class ModelViewCommand(IHasChildren parent, IModelHandler handler, IProviderHandler providerHandler)
     : Command<ModelViewCommand>(parent, "Info", n => {
         n.Aliases = ["i"];
-        n.Description = "Display detailed information about a model.";
+        n.Description = "View model";
+        n.Help = "Display detailed information about a model.";
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->Info command...");

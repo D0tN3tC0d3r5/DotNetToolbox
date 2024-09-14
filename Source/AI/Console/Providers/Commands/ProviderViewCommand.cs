@@ -3,7 +3,7 @@
 public class ProviderViewCommand(IHasChildren parent, IProviderHandler handler)
     : Command<ProviderViewCommand>(parent, "Info", n => {
         n.Aliases = ["i"];
-        n.Description = "Display the Provider.";
+        n.Description = "View provider";
         n.Help = "Display the detailed information about a Provider.";
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
