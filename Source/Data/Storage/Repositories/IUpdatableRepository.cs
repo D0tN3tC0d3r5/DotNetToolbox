@@ -33,7 +33,8 @@ public interface IUpdatableRepository<TItem>
 
     Task<Result> SeedAsync(IEnumerable<TItem> seed, bool preserveContent = false, IMap? validationContext = null, CancellationToken ct = default);
 
-    Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default);
+    Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap validationContext, CancellationToken ct = default);
+    Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default);
     Task<Result> AddAsync(TItem newItem, IMap? validationContext = null, CancellationToken ct = default);
     Task<Result> AddManyAsync(IEnumerable<TItem> newItems, IMap? validationContext = null, CancellationToken ct = default);
 

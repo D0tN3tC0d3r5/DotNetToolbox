@@ -12,10 +12,10 @@ public class ModelHandler(IApplication application, IModelRepository repository,
     }
 
     private ModelEntity? GetSelected() {
-        var cachedValue = application.Map.GetValueAs<ModelEntity>(_applicationModelKey);
+        var cachedValue = application.Context.GetValueAs<ModelEntity>(_applicationModelKey);
         _selected = cachedValue ?? repository.GetSelected();
         if (_selected is null) return null;
-        if (cachedValue is null) application.Map[_applicationModelKey] = _selected;
+        if (cachedValue is null) application.Context[_applicationModelKey] = _selected;
         return _selected; // Should only return null if the storage is empty or there is no selected model in the storage.
     }
 
@@ -33,7 +33,7 @@ public class ModelHandler(IApplication application, IModelRepository repository,
         repository.Update(_selected);
 
         // Update cached value
-        application.Map[_applicationModelKey] = _selected;
+        application.Context[_applicationModelKey] = _selected;
     }
 
     public ModelEntity[] List()

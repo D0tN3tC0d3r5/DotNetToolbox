@@ -163,10 +163,17 @@ public class InMemoryRepositoryStrategy<TRepository, TItem, TKey>
     public override ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default)
         => FindAsync(x => x.Key.Equals(key), ct);
 
-    public override async Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default) {
+    public override async Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap validationContext, CancellationToken ct = default) {
         var item = new TItem();
         await setItem(item, ct);
-        return Result.Success(item);
+        var result = Result.Success(item);
+        return result += item.Validate(validationContext);
+    }
+
+    public override async Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default) {
+        var item = new TItem();
+        await setItem(item, ct);
+        return item;
     }
 
     public override async Task<Result> AddAsync(TItem newItem, IMap? validationContext = null, CancellationToken ct = default) {

@@ -12,7 +12,7 @@ public class RunOnceApplicationTests {
         app.Environment.Name.Should().Be("");
         app.AssemblyName.Should().Be("testhost");
         app.Children.Should().HaveCount(3);
-        app.Map.Should().BeEmpty();
+        app.Context.Should().BeEmpty();
         app.Logger.Should().NotBeNull();
     }
 

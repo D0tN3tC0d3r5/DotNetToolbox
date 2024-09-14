@@ -13,7 +13,7 @@ public abstract class Parameter<TParameter>(IHasChildren parent, string name, Ac
         get => _defaultValue;
         set {
             _defaultValue = value;
-            Parent.Map[Name] = _defaultValue!;
+            Parent.Context[Name] = _defaultValue!;
         }
     }
 

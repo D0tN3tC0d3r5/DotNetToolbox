@@ -28,7 +28,7 @@ public class Command<TCommand>(IHasChildren parent,
         : this(parent, name, configure, (cmd, ct) => Task.Run(() => execute(cmd), ct)) {
     }
 
-    public IMap Map { get; } = new Map();
+    public IMap Context { get; } = new Map();
 
     public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];

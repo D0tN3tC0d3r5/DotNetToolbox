@@ -182,7 +182,9 @@ public class RepositoryStrategy<TStrategy, TRepository, TItem>
     public virtual ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public virtual Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap validationContext, CancellationToken ct = default)
+        => throw new NotImplementedException();
+    public virtual Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
         => throw new NotImplementedException();
     public virtual Task<Result> AddAsync(TItem newItem, IMap? validationContext = null, CancellationToken ct = default)
         => throw new NotImplementedException();

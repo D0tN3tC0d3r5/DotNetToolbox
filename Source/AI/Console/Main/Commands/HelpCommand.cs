@@ -16,7 +16,7 @@ public class HelpCommand(IHasChildren parent)
     }, "Error displaying the help information.");
 
     private void ShowHelp() {
-        var target = Map.GetValueAs<string>("Target");
+        var target = Context.GetValueAs<string>("Target");
         var command = Parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? Parent;
         var helpText = GetHelp(node);

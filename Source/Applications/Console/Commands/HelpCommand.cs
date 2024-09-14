@@ -7,7 +7,7 @@ internal sealed class HelpCommand(IHasChildren parent)
         n.AddParameter("Target", string.Empty);
     }) {
     protected override Result Execute() {
-        var target = Map.GetValueAs<string>("Target");
+        var target = Context.GetValueAs<string>("Target");
         var command = Parent.Commands.FirstOrDefault(i => i.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
         var node = command ?? Parent;
         Output.WriteLine(node.ToHelp());

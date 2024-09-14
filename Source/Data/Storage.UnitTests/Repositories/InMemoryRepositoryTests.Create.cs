@@ -8,6 +8,12 @@ public partial class InMemoryRepositoryTests {
     }
 
     [Fact]
+    public async Task CreateAsync_WithValidationContext_ShouldThrow() {
+        var action = () => _dummyRepository.CreateAsync((_, _) => Task.CompletedTask, Map.Empty());
+        await action.Should().ThrowAsync<NotImplementedException>();
+    }
+
+    [Fact]
     public async Task CreateAsync_BaseStrategy_ShouldThrow() {
         var action = () => _dummyRepository.CreateAsync((_, _) => Task.CompletedTask);
         await action.Should().ThrowAsync<NotImplementedException>();
@@ -26,6 +32,15 @@ public partial class InMemoryRepositoryTests {
             s.Name = "Z";
             return Task.CompletedTask;
         });
+        result.Should().BeOfType<TestEntity>();
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithValidationContext_CreatesItem() {
+        var result = await _updatableRepo.CreateAsync((s, _) => {
+            s.Name = "Z";
+            return Task.CompletedTask;
+        }, Map.Empty());
         result.IsSuccess.Should().BeTrue();
         result.Value.Name.Should().Be("Z");
     }

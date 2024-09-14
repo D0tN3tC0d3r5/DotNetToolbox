@@ -8,6 +8,9 @@ public class Map(IEnumerable<KeyValuePair<string, object>>? source = null)
         where TValue : notnull
         => [];
 
+    public static Map FromValue(string key, object value)
+        => new() { [key] = value };
+
     public static Map FromMap(IEnumerable<KeyValuePair<string, object>> dict)
         => new(dict);
     public static Map<TValue> FromMap<TValue>(IEnumerable<KeyValuePair<string, TValue>> dict)

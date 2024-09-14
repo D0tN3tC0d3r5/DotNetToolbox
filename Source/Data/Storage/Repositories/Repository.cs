@@ -222,8 +222,11 @@ public class Repository<TStrategy, TItem>
         => Strategy?.FindAsync(predicate, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
-    public virtual Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
+    public virtual Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap validationContext, CancellationToken ct = default)
         => Strategy?.CreateAsync(setItem, validationContext, ct)
+        ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
+    public virtual Task<TItem> CreateAsync(Func<TItem, CancellationToken, Task> setItem, CancellationToken ct = default)
+        => Strategy?.CreateAsync(setItem, ct)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
     public virtual Task<Result> AddAsync(TItem newItem, IMap? validationContext = null, CancellationToken ct = default)
         => Strategy?.AddAsync(newItem, validationContext, ct)

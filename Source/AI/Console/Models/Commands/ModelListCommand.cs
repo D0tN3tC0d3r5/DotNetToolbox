@@ -9,7 +9,7 @@ public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, I
     }) {
     protected override Result Execute() => this.HandleCommand(() => {
         Logger.LogInformation("Executing Models->List command...");
-        var providerKeyStr = Map.GetValueAs<string>("Provider");
+        var providerKeyStr = Context.GetValueAs<string>("Provider");
 
         var models = string.IsNullOrEmpty(providerKeyStr)
             ? modelHandler.List()

@@ -1,4 +1,7 @@
-﻿namespace AI.Sample.Providers.Handlers;
+﻿using Task = System.Threading.Tasks.Task;
+using ValidationException = DotNetToolbox.Results.ValidationException;
+
+namespace AI.Sample.Providers.Handlers;
 
 public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler> modelHandler, ILogger<ProviderHandler> logger)
     : IProviderHandler {
@@ -10,28 +13,37 @@ public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler>
     public ProviderEntity? GetByKey(uint key) => _repository.FindByKey(key);
     public ProviderEntity? GetByName(string name) => _repository.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-    public ProviderEntity Create(Action<ProviderEntity> setUp)
-        => _repository.Create(setUp);
+    public Task<ProviderEntity> Create(Func<ProviderEntity, CancellationToken, Task> setUp, CancellationToken ct = default)
+        => _repository.CreateAsync((p, t) => setUp(p, t), ct);
 
     public void Add(ProviderEntity provider) {
-        if (_repository.FindByKey(provider.Key) != null)
-            throw new InvalidOperationException($"A provider with the key '{provider.Key}' already exists.");
+        if (GetByKey(provider.Key) != null)
+            throw new ValidationException($"A provider with the key '{provider.Key}' already exists.");
 
-        _repository.Add(provider);
+        var context = Map.FromValue(nameof(ProviderHandler), this);
+        var result = provider.Validate(context);
+        if (!result.IsSuccess)
+            throw new ValidationException(result.Errors);
+
+        _repository.Update(provider);
         _logger.LogInformation("Added new provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
     }
 
     public void Update(ProviderEntity provider) {
-        if (_repository.FindByKey(provider.Key) == null)
-            throw new InvalidOperationException($"Provider with key '{provider.Key}' not found.");
+        if (GetByKey(provider.Key) is null)
+            throw new ValidationException($"Provider with key '{provider.Key}' not found.");
+
+        var context = Map.FromValue(nameof(ProviderHandler), this);
+        var result = provider.Validate(context);
+        if (!result.IsSuccess)
+            throw new ValidationException(result.Errors);
 
         _repository.Update(provider);
         _logger.LogInformation("Updated provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
     }
 
     public void Remove(uint key) {
-        var provider = _repository.FindByKey(key)
-                     ?? throw new InvalidOperationException($"Provider with key '{key}' not found.");
+        var provider = GetByKey(key) ?? throw new ValidationException($"Provider with key '{key}' not found.");
 
         _modelHandler.Value.RemoveByProvider(provider.Name);
         _logger.LogInformation("Removed all models associated with provider: {ProviderKey}", key);

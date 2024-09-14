@@ -15,7 +15,7 @@ public sealed class ShellApplicationTests {
         app.Environment.Name.Should().Be("");
         app.AssemblyName.Should().Be("testhost");
         app.Children.Should().HaveCount(6);
-        app.Map.Should().BeEmpty();
+        app.Context.Should().BeEmpty();
         app.Logger.Should().NotBeNull();
     }
 

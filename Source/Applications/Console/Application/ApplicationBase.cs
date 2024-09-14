@@ -54,7 +54,7 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>
         try {
             IsRunning = true;
             var taskRun = new CancellationTokenSource();
-            if (Map.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen is true)
+            if (Context.TryGetValue("ClearScreenOnStart", out var clearScreen) && clearScreen is true)
                 Output.ClearScreen();
             if (await TryParseArguments(taskRun.Token).ConfigureAwait(false))
                 return IApplication.DefaultErrorCode;
@@ -184,7 +184,7 @@ public abstract partial class ApplicationBase<TSettings>
     protected IAssemblyDescriptor Assembly => Environment.Assembly;
     protected IDateTimeProvider DateTime => Environment.OperatingSystem.DateTime;
     protected IGuidProvider Guid => Environment.OperatingSystem.Guid;
-    public IMap Map { get; } = new Map();
+    public IMap Context { get; } = new Map();
 
     public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
