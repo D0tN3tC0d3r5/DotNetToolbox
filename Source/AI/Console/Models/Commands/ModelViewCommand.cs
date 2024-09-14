@@ -1,6 +1,6 @@
 ﻿namespace AI.Sample.Models.Commands;
 
-public class ModelViewCommand(IHasChildren parent, IModelHandler handler, IProviderHandler providerHandler)
+public class ModelViewCommand(IHasChildren parent, Handlers.IModelHandler handler, Providers.Handlers.IProviderHandler providerHandler)
     : Command<ModelViewCommand>(parent, "Info", n => {
         n.Aliases = ["i"];
         n.Description = "View model";
@@ -9,7 +9,7 @@ public class ModelViewCommand(IHasChildren parent, IModelHandler handler, IProvi
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->Info command...");
         var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
-        var model = await this.SelectEntityAsync(handler.List(), "show", "Settings", m => m.Key, m => m.Name, cts.Token);
+        var model = await this.SelectEntityAsync<ModelEntity, string>(handler.List(), m => m.Name, cts.Token);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             return Result.Success();
@@ -24,7 +24,7 @@ public class ModelViewCommand(IHasChildren parent, IModelHandler handler, IProvi
         Output.WriteLine($"[blue]Maximum Output Tokens:[/] {model.MaximumOutputTokens}");
         Output.WriteLine($"[blue]Input Cost per MTok:[/] {model.InputCostPerMillionTokens:C}");
         Output.WriteLine($"[blue]Output Cost per MTok:[/] {model.OutputCostPerMillionTokens:C}");
-        Output.WriteLine($"[blue]Training Date Cut-Off:[/] {model.TrainingDataCutOff:MMM yyyy}");
+        Output.WriteLine($"[blue]Training Date Cut-Off:[/] {model.TrainingDateCutOff:MMM yyyy}");
         Output.WriteLine();
 
         return Result.Success();

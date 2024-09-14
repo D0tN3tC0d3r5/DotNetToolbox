@@ -36,19 +36,16 @@ public class ModelHandler(IApplication application, IModelRepository repository,
         application.Context[_applicationModelKey] = _selected;
     }
 
-    public ModelEntity[] List()
-        => [.. repository.GetAll().OrderBy(m => m.Name)];
+    public ModelEntity[] List(uint providerKey = 0)
+        => [.. repository.GetAll(m => m.ProviderKey == 0 || m.ProviderKey == providerKey).OrderBy(m => m.Name)];
 
     public ModelEntity? GetByKey(string key)
         => repository.FindByKey(key);
 
-    public ModelEntity Create(Action<ModelEntity> setUp) {
-        var model = new ModelEntity();
-        setUp(model);
-        return model;
-    }
+    public ModelEntity? GetByName(string name)
+        => repository.Find(i => i.Name == name);
 
-    public void Register(ModelEntity model) {
+    public void Add(ModelEntity model) {
         if (repository.FindByKey(model.Key) is not null)
             throw new InvalidOperationException($"A model with the key '{model.Key}' already exists.");
         if (_selected is null) model.Selected = true;
@@ -71,14 +68,7 @@ public class ModelHandler(IApplication application, IModelRepository repository,
         logger.LogInformation("Removed model: {ModelKey} => {ModelName}", model.Key, model.Name);
     }
 
-    public ModelEntity[] ListByProvider(string provider) => repository.GetFromProvider(provider);
-
-    public void RemoveByProvider(string provider) {
-        foreach (var model in repository.GetFromProvider(provider)) {
-            repository.Remove(model.Key);
-            logger.LogInformation("Removed model associated with provider {Provider}: {ModelKey} => {ModelName}", provider, model.Key, model.Name);
-        }
-    }
+    public ModelEntity[] ListByProvider(uint providerKey) => repository.GetAll(m => m.ProviderKey == providerKey);
 
     public void Select(string key) {
         var model = repository.FindByKey(key)

@@ -34,15 +34,15 @@
 
     ab.Services.AddSingleton<IProviderRepositoryStrategy, ProviderRepositoryStrategy>();
     ab.Services.AddScoped<IProviderRepository, ProviderRepository>();
-    ab.Services.AddScoped<IProviderHandler, ProviderHandler>();
+    ab.Services.AddScoped<AI.Sample.Providers.Handlers.IProviderHandler, ProviderHandler>();
     ab.Services.AddScoped(p => new Lazy<IProviderRepository>(p.GetRequiredService<IProviderRepository>));
-    ab.Services.AddScoped(p => new Lazy<IProviderHandler>(p.GetRequiredService<IProviderHandler>));
+    ab.Services.AddScoped(p => new Lazy<AI.Sample.Providers.Handlers.IProviderHandler>(p.GetRequiredService<AI.Sample.Providers.Handlers.IProviderHandler>));
 
     ab.Services.AddSingleton<IModelRepositoryStrategy, ModelRepositoryStrategy>();
     ab.Services.AddScoped<IModelRepository, ModelRepository>();
-    ab.Services.AddScoped<IModelHandler, ModelHandler>();
+    ab.Services.AddScoped<AI.Sample.Models.Handlers.IModelHandler, ModelHandler>();
     ab.Services.AddScoped(p => new Lazy<IModelRepository>(p.GetRequiredService<IModelRepository>));
-    ab.Services.AddScoped(p => new Lazy<IModelHandler>(p.GetRequiredService<IModelHandler>));
+    ab.Services.AddScoped(p => new Lazy<AI.Sample.Models.Handlers.IModelHandler>(p.GetRequiredService<AI.Sample.Models.Handlers.IModelHandler>));
 
     ab.Services.AddSingleton<IPersonaRepositoryStrategy, PersonaRepositoryStrategy>();
     ab.Services.AddScoped<IPersonaRepository, PersonaRepository>();

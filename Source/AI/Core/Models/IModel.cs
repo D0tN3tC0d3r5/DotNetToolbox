@@ -6,5 +6,5 @@ public interface IModel {
     string Name { get; }
     uint MaximumContextSize { get; }
     uint MaximumOutputTokens { get; }
-    DateOnly TrainingDataCutOff { get; }
+    DateOnly? TrainingDataCutOff { get; }
 }

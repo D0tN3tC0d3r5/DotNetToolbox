@@ -1,32 +1,38 @@
-﻿namespace AI.Sample.Providers.Commands;
+﻿using Task = System.Threading.Tasks.Task;
+using ValidationException = DotNetToolbox.Results.ValidationException;
 
-public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler)
+namespace AI.Sample.Providers.Commands;
+
+public class ProviderUpdateCommand(IHasChildren parent, Handlers.IProviderHandler handler)
     : Command<ProviderUpdateCommand>(parent, "Update", n => {
         n.Aliases = ["edit"];
         n.Description = "Update provider";
         n.Help = "Update a LLM provider.";
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
-        Logger.LogInformation("Executing Providers->Update command...");
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
-        var provider = await this.SelectEntityAsync(handler.List(), "update", "Provider", m => m.Key, m => m.Name, cts.Token);
-        if (provider is null) {
-            Logger.LogInformation("Provider updated action cancelled.");
-            Output.WriteLine();
+        try {
+            Logger.LogInformation("Executing Providers->Update command...");
+            var provider = await this.SelectEntityAsync<ProviderEntity, uint>(handler.List(), m => m.Name, lt);
+            if (provider is null) {
+                Logger.LogInformation("Provider updated action cancelled.");
+                return Result.Success();
+            }
+            await SetUpAsync(provider, lt);
 
+            handler.Update(provider);
+            Output.WriteLine($"[green]Provider '{provider.Name}' updated successfully.[/]");
+            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' updated successfully.", provider.Key, provider.Name);
             return Result.Success();
+        } catch (ValidationException ex) {
+            var errors = string.Join("\n", ex.Errors.Select(e => $" - {e.Source}: {e.Message}"));
+            Logger.LogWarning("Error updating the provider. Validation errors:\n{Errors}", errors);
+            Output.WriteLine($"[red]We found some problems while updating the provider. Please correct the following errors and try again:\n{errors}[/]");
+            return Result.Invalid(ex.Errors);
         }
-
-        provider.Name = await Input.BuildTextPrompt<string>("Enter the new name for the provider")
-                                   .For("name").WithDefault(provider.Name)
-                                   .AsRequired()
-                                   .ShowAsync(cts.Token);
-
-        handler.Update(provider);
-        Output.WriteLine($"[green]Provider '{provider.Name}' updated successfully.[/]");
-        Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' updated successfully.", provider.Key, provider.Name);
-        Output.WriteLine();
-
-        return Result.Success();
     }, "Error updating the provider.", ct);
+
+    private async Task SetUpAsync(ProviderEntity provider, CancellationToken ct)
+        => provider.Name = await Input.BuildTextPrompt<string>("Enter the new name for the provider")
+                                .Validate(name => ProviderEntity.ValidateName(name, handler))
+                                .ShowAsync(ct);
 }

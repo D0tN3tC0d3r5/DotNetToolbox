@@ -3,7 +3,7 @@ using ValidationException = DotNetToolbox.Results.ValidationException;
 
 namespace AI.Sample.Providers.Commands;
 
-public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
+public class ProviderAddCommand(IHasChildren parent, Handlers.IProviderHandler handler)
     : Command<ProviderAddCommand>(parent, "Add", n => {
         n.Aliases = ["new"];
         n.Description = "Add provider";
@@ -12,15 +12,16 @@ public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         try {
             Logger.LogInformation("Executing Providers->Add command...");
-            var provider = await handler.Create(SetUpAsync, lt);
+            var provider = new ProviderEntity();
+            await SetUpAsync(provider, lt);
             handler.Add(provider);
             Output.WriteLine($"[green]Provider '{provider.Name}' added successfully.[/]");
             Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' added successfully.", provider.Key, provider.Name);
-            Output.WriteLine();
             return Result.Success();
         } catch (ValidationException ex) {
-            Logger.LogWarning("Error adding the new provider. Validation errors:\n{Errors}", string.Join("\n", ex.Errors.Select(e => $" - {e.Source}: {e.Message}")));
-            Output.WriteLine($"[red]The provider is invalid. Please correct the following errors and try again:\n{string.Join("\n", ex.Errors.Select(e => $" - {e.Source}: {e.Message}"))}[/]");
+            var errors = string.Join("\n", ex.Errors.Select(e => $" - {e.Source}: {e.Message}"));
+            Logger.LogWarning("Error adding the new provider. Validation errors:\n{Errors}", errors);
+            Output.WriteLine($"[red]We found some problems while adding the provider. Please correct the following errors and try again:\n{errors}[/]");
             return Result.Invalid(ex.Errors);
         }
     }, "Error adding the new provider.", ct);

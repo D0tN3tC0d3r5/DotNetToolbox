@@ -13,9 +13,6 @@ public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler>
     public ProviderEntity? GetByKey(uint key) => _repository.FindByKey(key);
     public ProviderEntity? GetByName(string name) => _repository.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-    public Task<ProviderEntity> Create(Func<ProviderEntity, CancellationToken, Task> setUp, CancellationToken ct = default)
-        => _repository.CreateAsync((p, t) => setUp(p, t), ct);
-
     public void Add(ProviderEntity provider) {
         if (GetByKey(provider.Key) != null)
             throw new ValidationException($"A provider with the key '{provider.Key}' already exists.");
@@ -45,8 +42,11 @@ public class ProviderHandler(IProviderRepository repository, Lazy<IModelHandler>
     public void Remove(uint key) {
         var provider = GetByKey(key) ?? throw new ValidationException($"Provider with key '{key}' not found.");
 
-        _modelHandler.Value.RemoveByProvider(provider.Name);
-        _logger.LogInformation("Removed all models associated with provider: {ProviderKey}", key);
+        var models = _modelHandler.Value.List(provider.Key);
+        foreach (var model in models) {
+            _modelHandler.Value.Remove(model.Key);
+        }
+        _logger.LogInformation("Removed all models from provider: {ProviderKey}", key);
 
         _repository.Remove(key);
         _logger.LogInformation("Removed provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);

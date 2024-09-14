@@ -11,12 +11,12 @@ public class ProviderEntity
         return result;
     }
 
-    public static Result ValidateName(string? name, IProviderHandler handler) {
+    public static Result ValidateName(string? name, Handlers.IProviderHandler handler) {
         var result = Result.Success();
         if (string.IsNullOrWhiteSpace(name))
             result += new ValidationError("The name is required.", nameof(Name));
         else if (handler.GetByName(name) is not null)
-            result += new ValidationError("A provider with that name is already registered.", nameof(Name));
+            result += new ValidationError("A provider with this name is already registered.", nameof(Name));
         return result;
     }
 

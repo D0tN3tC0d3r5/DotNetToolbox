@@ -13,20 +13,16 @@ public class ModelSelectCommand(IHasChildren parent, IModelHandler handler)
 
         if (models.Length == 0) {
             Output.WriteLine("[yellow]No models available. Please add a model before proceeding.[/]");
-            Output.WriteLine();
-
             return Result.Success();
         }
 
         var selected = await Input.BuildSelectionPrompt<ModelEntity>("Select an model:")
-                                    .AddChoices(models)
-                                    .ConvertWith(c => c.Name)
-                                    .ShowAsync(cts.Token);
+                                  .AddChoices(models)
+                                  .ConvertWith(c => c.Name)
+                                  .ShowAsync(cts.Token);
 
         handler.Select(selected.Key);
         Output.WriteLine($"[green]Settings '{selected.Key}' selected successfully.[/]");
-        Output.WriteLine();
-
         return Result.Success();
     }, "Error selecting a model.", ct);
 }

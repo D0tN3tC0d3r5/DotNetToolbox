@@ -1,6 +1,6 @@
 ﻿namespace AI.Sample.Providers.Commands;
 
-public class ProviderListCommand(IHasChildren parent, IProviderHandler providerHandler)
+public class ProviderListCommand(IHasChildren parent, Handlers.IProviderHandler providerHandler)
     : Command<ProviderListCommand>(parent, "List", n => {
         n.Aliases = ["ls"];
         n.Description = "List providers";
@@ -12,23 +12,23 @@ public class ProviderListCommand(IHasChildren parent, IProviderHandler providerH
         if (providers.Length == 0) {
             Output.WriteLine("[yellow]No providers found.[/]");
             Logger.LogInformation("No providers found. List providers action cancelled.");
-            Output.WriteLine();
-
             return Result.Success();
         }
 
+        ShowDetails(providers);
+
+        Logger.LogInformation("Providers listed.");
+        return Result.Success();
+    }, "Error listing the providers.");
+
+    private void ShowDetails(ProviderEntity[] providers) {
         var table = new Table();
         table.AddColumn(new("[yellow]Id[/]"));
         table.AddColumn(new("[yellow]Name[/]"));
-
         foreach (var provider in providers) {
             table.AddRow(provider.Key.ToString(), provider.Name);
         }
 
         Output.Write(table);
-        Logger.LogInformation("Providers listed.");
-        Output.WriteLine();
-
-        return Result.Success();
-    }, "Error listing the providers.");
+    }
 }

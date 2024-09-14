@@ -7,5 +7,5 @@ public class Model(string id)
     public string Name { get; init; } = string.Empty;
     public uint MaximumContextSize { get; init; }
     public uint MaximumOutputTokens { get; init; }
-    public DateOnly TrainingDataCutOff { get; init; }
+    public DateOnly? TrainingDataCutOff { get; init; }
 }

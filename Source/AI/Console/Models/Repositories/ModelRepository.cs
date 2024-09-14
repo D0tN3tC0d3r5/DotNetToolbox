@@ -3,16 +3,6 @@
 public class ModelRepository(IModelRepositoryStrategy strategy, Lazy<IProviderRepository> providers)
     : Repository<IModelRepositoryStrategy, ModelEntity, string>(strategy),
       IModelRepository {
-    public ModelEntity[] GetFromProvider(string provider) {
-        if (uint.TryParse(provider, out var key))
-            return GetAll(m => m.ProviderKey == key);
-
-        var entity = providers.Value.Find(p => p.Name == provider);
-        return entity is null
-            ? []
-            : GetAll(m => m.ProviderKey == entity.Key);
-    }
-
     public ModelEntity[] GetAll(Expression<Func<ModelEntity, bool>>? predicate = null, bool includeProviders = true) {
         var models = base.GetAll(predicate);
         if (!includeProviders) return models;

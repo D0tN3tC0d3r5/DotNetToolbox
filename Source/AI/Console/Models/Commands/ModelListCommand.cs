@@ -5,20 +5,27 @@ public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, I
         n.Aliases = ["ls"];
         n.Description = "List models";
         n.Help = "List all the models or those from a specific LLM provider.";
-        n.AddParameter("Provider", "The provider key to filter the models by.");
     }) {
-    protected override Result Execute() => this.HandleCommand(() => {
+    protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->List command...");
-        var providerKeyStr = Context.GetValueAs<string>("Provider");
-
-        var models = string.IsNullOrEmpty(providerKeyStr)
+        var providers = providerHandler.List();
+        if (providers.Length == 0) {
+            Output.WriteLine("[yellow bold]No providers available. Please add a provider first.[/]");
+            Logger.LogInformation("No providers available. List models action cancelled.");
+            return Result.Invalid("No providers available.");
+        }
+        var choices = providers.ToList(p => new ListItem<ProviderEntity, uint>(p.Key, p.Name, p));
+        var cancelOption = new ListItem<ProviderEntity, uint>(0, "All", null);
+        choices.Insert(0, cancelOption);
+        var selectedChoice = await Input.BuildSelectionPrompt<ListItem<ProviderEntity, uint>>("Select a provider:")
+                                    .ConvertWith(p => p.Text)
+                                    .AddChoices([..choices])
+                                    .ShowAsync(ct);
+        var models = selectedChoice.Key == default
             ? modelHandler.List()
-            : modelHandler.ListByProvider(providerKeyStr);
-
+            : modelHandler.List(selectedChoice.Item!.Key);
         if (models.Length == 0) {
             Output.WriteLine("[yellow]No models found.[/]");
-            Output.WriteLine();
-
             return Result.Success();
         }
 
@@ -26,16 +33,19 @@ public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, I
                 .OrderBy(m => m.Provider!.Name)
                 .ThenBy(m => m.Name);
 
+        ShowList(sortedModels, providerHandler);
+
+        return Result.Success();
+    }, "Error listing models.", ct);
+
+    private void ShowList(IOrderedEnumerable<ModelEntity> sortedModels, IProviderHandler providerHandler) {
         var table = new Table();
         table.Expand();
-
-        // Add columns
         table.AddColumn(new("[yellow]Name[/]"));
         table.AddColumn(new("[yellow]Provider[/]"));
         table.AddColumn(new("[yellow]Id[/]"));
         table.AddColumn(new TableColumn("[yellow]Map Size[/]").RightAligned());
         table.AddColumn(new TableColumn("[yellow]Output Tokens[/]").RightAligned());
-
         foreach (var model in sortedModels) {
             var provider = providerHandler.GetByKey(model.ProviderKey)!;
             table.AddRow(
@@ -46,9 +56,6 @@ public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, I
                 $"{model.MaximumOutputTokens:#,##0}"
             );
         }
-
         Output.Write(table);
-        Output.WriteLine();
-        return Result.Success();
-    }, "Error listing models.");
+    }
 }
