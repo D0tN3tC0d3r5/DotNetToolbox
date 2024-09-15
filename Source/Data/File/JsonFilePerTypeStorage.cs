@@ -1,11 +1,11 @@
 ﻿namespace DotNetToolbox.Data.File;
 
 public abstract class JsonFilePerTypeStorage<TItem, TKey>
-    : Storage<JsonFilePerTypeStorage<TItem, TKey>, TItem, TKey>
+    : Storage<JsonFilePerTypeStorage<TItem, TKey>, TItem, TKey>,
+      IJsonFilePerTypeStorage<TItem, TKey>
     where TItem : class, IEntity<TKey>
     where TKey : notnull {
     private const string _defaultBaseFolder = "data";
-    private readonly string _filePath;
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
     protected JsonFilePerTypeStorage(string name, IConfiguration configuration, IList<TItem>? data = null)
@@ -13,20 +13,23 @@ public abstract class JsonFilePerTypeStorage<TItem, TKey>
         var baseFolder = configuration.GetValue<string>("Data:BaseFolder")
                       ?? configuration.GetValue<string>($"Data:{name}:BaseFolder")
                       ?? _defaultBaseFolder;
-        _filePath = Path.Combine(baseFolder, $"{name}.json");
+        FilePath = Path.Combine(baseFolder, $"{name}.json");
         EnsureFileExists(baseFolder);
     }
+
+    public string FilePath { get; }
+
     private void EnsureFileExists(string baseFolder) {
-        if (Path.Exists(_filePath)) return;
+        if (Path.Exists(FilePath)) return;
         Directory.CreateDirectory(baseFolder);
         Save();
     }
 
     public override Result Load() {
-        if (Data.Count != 0) return Result.Success();
-        var json = System.IO.File.ReadAllText(_filePath);
-        var items = JsonSerializer.Deserialize<TItem[]>(json, _jsonOptions) ?? [];
-        foreach (var item in items) Data.Add(item);
+        Data.Clear();
+        var json = System.IO.File.ReadAllText(FilePath);
+        var items = JsonSerializer.Deserialize<TItem[]>(json, _jsonOptions)!;
+        Data.AddRange(items);
         LoadLastUsedKey();
         return Result.Success();
     }
@@ -48,42 +51,45 @@ public abstract class JsonFilePerTypeStorage<TItem, TKey>
     private static IQueryable<TItem> ApplyFilter(IQueryable<TItem> query, Expression<Func<TItem, bool>>? filterBy = null)
      => filterBy is null ? query : query.Where(filterBy);
 
+    private static IComparer<TItem> GetSortingComparer(PropertyInfo property)
+        => Comparer<TItem>.Create((x, y) => {
+            var xValue = property.GetValue(x);
+            var yValue = property.GetValue(y);
+            return Comparer.Default.Compare(xValue, yValue);
+        });
+
     private static IQueryable<TItem> ApplySorting(IQueryable<TItem> query, HashSet<SortClause>? orderBy = null) {
         if (orderBy is null) return query;
         IOrderedQueryable<TItem>? orderedQuery = null;
 
-        foreach (var clause in orderBy) {
-            if (typeof(TItem).GetProperty(clause.PropertyName) is null)
-                throw new ArgumentException($"Property {clause.PropertyName} not found on {typeof(TItem).Name}.", nameof(orderBy));
-
-            var parameter = Expression.Parameter(typeof(TItem), "x");
-            var property = Expression.Property(parameter, clause.PropertyName);
-            var lambda = Expression.Lambda<Func<TItem, object>>(property, parameter);
+        foreach (var clause in orderBy.Reverse()) {
+            var property = typeof(TItem).GetProperty(clause.PropertyName)
+                        ?? throw new ArgumentException($"Property {clause.PropertyName} not found on {typeof(TItem).Name}.", nameof(orderBy));
             orderedQuery = orderedQuery is null
-                ? clause.Direction is SortDirection.Ascending
-                    ? query.OrderBy(lambda)
-                    : query.OrderByDescending(lambda)
-                : clause.Direction is SortDirection.Ascending
-                    ? orderedQuery.ThenBy(lambda)
-                    : orderedQuery.ThenByDescending(lambda);
+                ? clause.Direction == SortDirection.Ascending
+                    ? query.Order(GetSortingComparer(property))
+                    : query.OrderDescending(GetSortingComparer(property))
+                : clause.Direction == SortDirection.Ascending
+                    ? orderedQuery.Order(GetSortingComparer(property))
+                    : orderedQuery.OrderDescending(GetSortingComparer(property));
         }
         return orderedQuery ?? query;
     }
 
     public override TItem? FindByKey(TKey key)
-        => Data.FirstOrDefault(item => item.Key.Equals(key));
+        => Data.Find(item => item.Key.Equals(key));
 
     public override TItem? Find(Expression<Func<TItem, bool>> predicate)
         => Data.AsQueryable().FirstOrDefault(predicate);
 
     private void Save() {
         var json = JsonSerializer.Serialize(Data, _jsonOptions);
-        System.IO.File.WriteAllText(_filePath, json);
+        System.IO.File.WriteAllText(FilePath, json);
     }
 
     public override Result<TItem> Create(Action<TItem>? setItem = null, IMap? validationContext = null) {
         var item = InstanceFactory.Create<TItem>();
-        if (TryGetNextKey(out var next)) item.Key = next;
+        // Create does not consume a key to avoid consuming it into a record that might not be saved.
         setItem?.Invoke(item);
         var result = Result.Success(item);
         result += item.Validate(validationContext);

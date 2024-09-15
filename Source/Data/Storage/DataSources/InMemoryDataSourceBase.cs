@@ -7,7 +7,7 @@ public abstract class InMemoryDataSourceBase<TRepository, TItem, TKey>
     where TKey : notnull {
     protected InMemoryDataSourceBase(IEnumerable<TItem>? records = null)
         : base(records) {
-        Strategy = new(Records);
+        Storage = new(Records);
     }
 }
 
@@ -16,6 +16,6 @@ public abstract class InMemoryDataSourceBase<TRepository, TItem>
     where TRepository : InMemoryDataSourceBase<TRepository, TItem> {
     protected InMemoryDataSourceBase(IEnumerable<TItem>? records = null)
         : base(records) {
-        Strategy = new(Records);
+        Storage = new(Records);
     }
 }

@@ -2,6 +2,6 @@
 
 namespace Lola.Personas.Repositories;
 
-public class PersonaDataSource(IPersonaStorage strategy)
-    : DataSource<IPersonaStorage, PersonaEntity, uint>(strategy),
+public class PersonaDataSource(IPersonaStorage storage)
+    : DataSource<IPersonaStorage, PersonaEntity, uint>(storage),
       IPersonaDataSource;

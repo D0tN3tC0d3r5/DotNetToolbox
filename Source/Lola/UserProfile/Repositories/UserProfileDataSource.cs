@@ -2,6 +2,6 @@
 
 namespace Lola.UserProfile.Repositories;
 
-public class UserProfileDataSource(IUserProfileStorage strategy)
-    : DataSource<IUserProfileStorage, UserProfileEntity, uint>(strategy),
+public class UserProfileDataSource(IUserProfileStorage storage)
+    : DataSource<IUserProfileStorage, UserProfileEntity, uint>(storage),
       IUserProfileDataSource;

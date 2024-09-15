@@ -9,7 +9,7 @@ public interface IStorage<TItem>
     : IStorage,
       IReadOnlyDataSource<TItem>,
       IUpdatableDataSource<TItem> {
-    IList<TItem> Data { get; }
+    List<TItem> Data { get; }
 }
 
 public interface IStorage<TItem, in TKey>

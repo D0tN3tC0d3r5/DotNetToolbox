@@ -93,7 +93,7 @@ public abstract class Storage<TStorage, TItem, TKey>(IList<TItem>? data = null)
     #endregion
 }
 
-public abstract class Storage<TStrategy, TItem>(IList<TItem>? data = null)
+public abstract class Storage<TStrategy, TItem>(IEnumerable<TItem>? data = null)
     : IStorage<TItem>
     where TStrategy : Storage<TStrategy, TItem> {
     private bool _disposed;
@@ -108,7 +108,7 @@ public abstract class Storage<TStrategy, TItem>(IList<TItem>? data = null)
 
     protected virtual ValueTask DisposeAsyncCore() => ValueTask.CompletedTask;
 
-    public IList<TItem> Data { get; } = data ?? [];
+    public List<TItem> Data { get; } = data?.ToList() ?? [];
 
     #region Blocking
 

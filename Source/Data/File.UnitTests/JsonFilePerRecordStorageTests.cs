@@ -1,12 +1,11 @@
 ﻿namespace DotNetToolbox.Data.File;
 
-public sealed class JsonFilePerTypeStorageTests : IDisposable {
+public sealed class JsonFilePerRecordStorageTests : IDisposable {
     private readonly IConfigurationRoot _configuration;
     private readonly string _testDirectory;
-    private readonly string _filePath;
-    private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+    private readonly string _baseFolder;
 
-    public JsonFilePerTypeStorageTests() {
+    public JsonFilePerRecordStorageTests() {
         // Set up test directory
         _testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(_testDirectory);
@@ -21,7 +20,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
                         .Build();
 #pragma warning restore CS8620
 
-        _filePath = Path.Combine(_testDirectory, "TestData.json");
+        _baseFolder = Path.Combine(_testDirectory, "TestData");
     }
 
     // Dispose the test directory after tests
@@ -40,51 +39,49 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
     }
 
     [Fact]
-    public void Constructor_WhenFileDoesNotExist_CreatesEmptyJsonFile() {
+    public void Constructor_WhenFolderDoesNotExist_CreatesEmptyFolder() {
         // Arrange & Act
         _ = new TestJsonStorage("TestData", _configuration);
 
         // Assert
-        System.IO.File.Exists(_filePath).Should().BeTrue();
-        var content = System.IO.File.ReadAllText(_filePath);
-        content.Should().Be("[]");
+        Directory.Exists(_baseFolder).Should().BeTrue();
+        var files = Directory.EnumerateFiles(_baseFolder);
+        files.Should().HaveCount(0);
     }
 
     [Fact]
-    public void Constructor_WhenFileExists_DoesNotOverwriteFile() {
+    public void Constructor_WhenFolderExists_DoesNotOverwriteFile() {
         // Arrange
-        System.IO.File.WriteAllText(_filePath, "[{\"Key\":1,\"Name\":\"TestItem\"}]");
+        Directory.CreateDirectory(_baseFolder);
+        System.IO.File.WriteAllText($"{_baseFolder}\\1.json", "{\"Key\":1,\"Name\":\"TestItem\",\"Value\":10}");
 
         // Act
         _ = new TestJsonStorage("TestData", _configuration);
 
         // Assert
-        var content = System.IO.File.ReadAllText(_filePath);
-        content.Should().Contain("\"Key\":1");
-        content.Should().Contain("\"Name\":\"TestItem\"");
+        var files = Directory.EnumerateFiles(_baseFolder).ToArray();
+        files.Should().BeEquivalentTo($"{_baseFolder}\\1.json");
     }
 
     [Fact]
     public void Constructor_WhenBaseFolderNotInConfig_UsesDefaultBaseFolder() {
         // Arrange
         var emptyConfig = new ConfigurationBuilder().Build();
-        var expectedPath = Path.Combine("data", "TestData.json");
+        var expectedPath = Path.Combine("data", "TestData");
 
         // Act
         var storage = new TestJsonStorage("TestData", emptyConfig);
 
         // Assert
-        storage.FilePath.Should().Be(expectedPath);
+        storage.BaseFolderPath.Should().Be(expectedPath);
     }
 
     [Fact]
     public void Load_WhenFileHasData_LoadsDataIntoRepository() {
         // Arrange
-        var jsonData = JsonSerializer.Serialize(new[] {
-            new TestItem { Key = 1, Name = "Item1" },
-            new TestItem { Key = 2, Name = "Item2" },
-        }, _jsonOptions);
-        System.IO.File.WriteAllText(_filePath, jsonData);
+        Directory.CreateDirectory(_baseFolder);
+        System.IO.File.WriteAllText($"{_baseFolder}\\1.json", "{\"Key\":1,\"Name\":\"Item1\",\"Value\":10}");
+        System.IO.File.WriteAllText($"{_baseFolder}\\2.json", "{\"Key\":2,\"Name\":\"Item2\",\"Value\":7}");
 
         var storage = new TestJsonStorage("TestData", _configuration);
 
@@ -97,24 +94,12 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         storage.Data.Should().ContainSingle(i => i.Key == 1 && i.Name == "Item1");
         storage.Data.Should().ContainSingle(i => i.Key == 2 && i.Name == "Item2");
     }
-    [Fact]
-    public void Load_WhenFileHasAnEmptyArray_LoadsNoData() {
-        // Arrange
-        System.IO.File.WriteAllText(_filePath, "[]");
-        var storage = new TestJsonStorage("TestData", _configuration);
-
-        // Act
-        var result = storage.Load();
-
-        // Assert
-        result.IsSuccess.Should().BeTrue();
-        storage.Data.Should().BeEmpty();
-    }
 
     [Fact]
     public void Load_WhenFileContainsInvalidJson_ThrowsJsonException() {
         // Arrange
-        System.IO.File.WriteAllText(_filePath, "Invalid JSON Content");
+        Directory.CreateDirectory(_baseFolder);
+        System.IO.File.WriteAllText($"{_baseFolder}\\1.json", "Invalid JSON Content");
         var storage = new TestJsonStorage("TestData", _configuration);
 
         // Act
@@ -126,12 +111,10 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
     [Fact]
     public void LoadLastUsedKey_WhenRepositoryHasData_SetsLastUsedKey() {
         // Arrange
-        var jsonData = JsonSerializer.Serialize(new[] {
-            new TestItem { Key = 1, Name = "Item1" },
-            new TestItem { Key = 3, Name = "Item3" },
-            new TestItem { Key = 2, Name = "Item2" },
-        }, _jsonOptions);
-        System.IO.File.WriteAllText(_filePath, jsonData);
+        Directory.CreateDirectory(_baseFolder);
+        System.IO.File.WriteAllText($"{_baseFolder}\\1.json", "{\"Key\":1,\"Name\":\"Item1\",\"Value\":10}");
+        System.IO.File.WriteAllText($"{_baseFolder}\\3.json", "{\"Key\":3,\"Name\":\"Item3\",\"Value\":7}");
+        System.IO.File.WriteAllText($"{_baseFolder}\\2.json", "{\"Key\":2,\"Name\":\"Item2\",\"Value\":5}");
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
 
@@ -146,7 +129,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
     [Fact]
     public void LoadLastUsedKey_WhenRepositoryIsEmpty_LastUsedKeyIsDefault() {
         // Arrange
-        System.IO.File.WriteAllText(_filePath, "[]");
+        Directory.CreateDirectory(_baseFolder);
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
 
@@ -201,7 +184,8 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Assert
         result.IsSuccess.Should().BeTrue();
         storage.Data.Should().ContainSingle(i => i.Name == "NewItem");
-        var content = System.IO.File.ReadAllText(_filePath);
+        var filePath = Path.Combine(_baseFolder, $"{newItem.Key}.json");
+        var content = System.IO.File.ReadAllText(filePath);
         content.Should().Contain("\"Name\": \"NewItem\"");
     }
 
@@ -257,7 +241,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         storage.Load();
         storage.Add(new() { Key = 1, Name = "Charlie" });
         storage.Add(new() { Key = 2, Name = "Bravo" });
-        storage.Add(new() { Key = 2, Name = "Alpha" });
+        storage.Add(new() { Key = 3, Name = "Alpha" });
 
         var sortClauses = new HashSet<SortClause> {
             new SortClause<string>("Name", SortDirection.Ascending),
@@ -280,7 +264,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         storage.Load();
         storage.Add(new() { Key = 1, Name = "Charlie" });
         storage.Add(new() { Key = 2, Name = "Bravo" });
-        storage.Add(new() { Key = 2, Name = "Alpha" });
+        storage.Add(new() { Key = 3, Name = "Alpha" });
 
         var sortClauses = new HashSet<SortClause>();
 
@@ -322,11 +306,10 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         storage.Add(new() { Key = 1, Name = "ItemA", Value = 5 });
         storage.Add(new() { Key = 2, Name = "ItemA", Value = 10 });
         storage.Add(new() { Key = 3, Name = "ItemB", Value = 7 });
-        var orderBy = new HashSet<SortClause>
-                      {
-                          new SortClause<string>("Name", SortDirection.Ascending),
-                          new SortClause<int>("Value", SortDirection.Descending),
-                      };
+        var orderBy = new HashSet<SortClause> {
+            new SortClause<string>("Name", SortDirection.Ascending),
+            new SortClause<int>("Value", SortDirection.Descending),
+        };
 
         // Act
         var result = storage.GetAll(orderBy: orderBy);
@@ -346,11 +329,10 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         storage.Add(new() { Key = 4, Name = "ItemB", Value = 1 });
         storage.Add(new() { Key = 5, Name = "ItemA", Value = 2 });
         storage.Add(new() { Key = 6, Name = "ItemB", Value = 3 });
-        var orderBy = new HashSet<SortClause>
-                      {
-                          new SortClause<string>("Name", SortDirection.Ascending),
-                          new SortClause<int>("Value", SortDirection.Descending),
-                      };
+        var orderBy = new HashSet<SortClause> {
+            new SortClause<string>("Name", SortDirection.Ascending),
+            new SortClause<int>("Value", SortDirection.Descending),
+        };
 
         // Act
         var result = storage.GetAll(orderBy: orderBy);
@@ -370,11 +352,10 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         storage.Add(new() { Key = 4, Name = "ItemB", Value = 1 });
         storage.Add(new() { Key = 5, Name = "ItemA", Value = 2 });
         storage.Add(new() { Key = 6, Name = "ItemB", Value = 3 });
-        var orderBy = new HashSet<SortClause>
-                      {
-                          new SortClause<string>("Name", SortDirection.Descending),
-                          new SortClause<int>("Value", SortDirection.Ascending),
-                      };
+        var orderBy = new HashSet<SortClause> {
+            new SortClause<string>("Name", SortDirection.Descending),
+            new SortClause<int>("Value", SortDirection.Ascending),
+        };
 
         // Act
         var result = storage.GetAll(orderBy: orderBy);
@@ -506,8 +487,23 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Assert
         result.IsSuccess.Should().BeTrue();
         storage.Data.Should().BeEmpty();
-        var content = System.IO.File.ReadAllText(_filePath);
-        content.Should().Be("[]");
+        System.IO.File.Exists($"{_baseFolder}\\1.json").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Remove_WithExistingKey_ButNoFile_RemovesItem() {
+        // Arrange
+        var storage = new TestJsonStorage("TestData", _configuration);
+        storage.Load();
+        storage.Data.Add(new() { Key = 1, Name = "ItemToRemove" });
+
+        // Act
+        var result = storage.Remove(1);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        storage.Data.Should().BeEmpty();
+        System.IO.File.Exists($"{_baseFolder}\\1.json").Should().BeFalse();
     }
 
     [Fact]
@@ -537,7 +533,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
     }
 
     private sealed class TestJsonStorage(string name, IConfiguration configuration)
-        : JsonFilePerTypeStorage<TestItem, uint>(name, configuration, []) {
+        : JsonFilePerRecordStorage<TestItem, uint>(name, configuration, []) {
         public uint GetLastUsedKey => LastUsedKey;
 
         public Result<uint> CallLoadLastUsedKey() => LoadLastUsedKey();

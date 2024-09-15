@@ -354,7 +354,7 @@ public class InMemoryStorage<TItem>(IList<TItem>? data = null)
             validItems.Add(newItem);
         }
 
-        foreach (var validItem in validItems) Data.Add(validItem);
+        Data.AddRange(validItems);
         return result;
     }
 

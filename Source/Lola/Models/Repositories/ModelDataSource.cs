@@ -2,8 +2,8 @@
 
 namespace Lola.Models.Repositories;
 
-public class ModelDataSource(IModelStorage strategy, Lazy<IProviderDataSource> providers)
-    : DataSource<IModelStorage, ModelEntity, string>(strategy),
+public class ModelDataSource(IModelStorage storage, Lazy<IProviderDataSource> providers)
+    : DataSource<IModelStorage, ModelEntity, string>(storage),
       IModelDataSource {
     public ModelEntity[] GetAll(Expression<Func<ModelEntity, bool>>? predicate = null, bool includeProviders = true) {
         var models = base.GetAll(predicate);

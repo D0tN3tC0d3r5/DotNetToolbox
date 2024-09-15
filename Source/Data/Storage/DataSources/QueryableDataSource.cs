@@ -4,7 +4,7 @@ public abstract class QueryableDataSource<TItem>(IEnumerable<TItem>? records = n
     : IQueryableDataSource<TItem> {
     internal string Id { get; } = $"|>Data[{typeof(TItem).Name}]_{GuidProvider.Default.CreateSortable():N}<|";
 
-    public List<TItem> Records { get; } = records?.ToList() ?? [];
+    public List<TItem> Records { get; protected init; } = records?.ToList() ?? [];
     public Type ElementType => Query.ElementType;
     public Expression Expression => Query.Expression;
 

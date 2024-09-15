@@ -1,5 +1,6 @@
 global using System.Text.Json;
 
+global using DotNetToolbox.Data.DataSources;
 global using DotNetToolbox.Domain.Models;
 global using DotNetToolbox.Results;
 
