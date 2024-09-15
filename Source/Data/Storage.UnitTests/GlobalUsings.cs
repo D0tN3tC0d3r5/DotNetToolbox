@@ -1,6 +1,5 @@
 global using System.Collections;
 
-global using DotNetToolbox.Data.Strategies;
 global using DotNetToolbox.Domain.Models;
 global using DotNetToolbox.Pagination;
 

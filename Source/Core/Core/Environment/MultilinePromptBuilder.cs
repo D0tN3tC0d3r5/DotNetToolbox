@@ -3,20 +3,17 @@ namespace DotNetToolbox.Environment;
 public class MultilinePromptBuilder(string prompt, IOutput output)
     : IMultilinePromptBuilder {
     private string _prompt = prompt;
-    private Func<string, CancellationToken, Task<Result>>? _validator;
+    private Func<string, Result>? _validator;
 
     public MultilinePromptBuilder(IOutput output)
         : this(string.Empty, output) {
     }
 
-    public MultilinePromptBuilder Validate(Func<string, Result> validate)
-        => Validate((value, ct) => Task.FromResult(validate(value)));
-
-    public MultilinePromptBuilder Validate(Func<string, CancellationToken, Task<Result>> validate) {
+    public MultilinePromptBuilder Validate(Func<string, Result> validate) {
         var oldValidator = _validator;
-        _validator = async (value, ct) => {
-            var result = oldValidator is null ? Result.Success() : await oldValidator(value, ct);
-            result += await validate(value, ct);
+        _validator = value => {
+            var result = oldValidator?.Invoke(value) ?? Result.Success();
+            result += validate(value);
             return result;
         };
         return this;
@@ -25,9 +22,7 @@ public class MultilinePromptBuilder(string prompt, IOutput output)
     public string Show() => ShowAsync().GetAwaiter().GetResult();
 
     public async Task<string> ShowAsync(CancellationToken ct = default) {
-        var isValid = false;
-        var result = string.Empty;
-        while (!isValid) {
+        while (true) {
             _prompt = $"[teal]{_prompt}[/]";
             output.WriteLine(_prompt);
             output.WriteLine("[gray]Press ENTER to insert a new line and CTRL+ENTER to submit.[/]");
@@ -40,12 +35,14 @@ public class MultilinePromptBuilder(string prompt, IOutput output)
             editor.KeyBindings.Add<NewLineCommand>(ConsoleKey.Enter);
             editor.KeyBindings.Add<SubmitCommand>(ConsoleKey.Enter, ConsoleModifiers.Control);
 
-            result = await editor.ReadLine(ct) ?? string.Empty;
+            var result = await editor.ReadLine(ct) ?? string.Empty;
             if (_validator is null) return result;
-            var validationResult = await _validator(result, ct);
+            var validationResult = _validator(result);
             if (validationResult.IsSuccess) return result;
-            output.WriteLine(validationResult.ToString());
+            foreach (var validationResultError in validationResult.Errors)
+                output.WriteLine($"[red]{validationResultError.Message}[/]");
+            output.WriteLine("[yellow]Please try again.[/]");
+            output.WriteLine();
         }
-        return result;
     }
 }

@@ -111,7 +111,7 @@ public class ConsoleInput()
 
     public virtual Task<TValue> AskAsync<TValue>(string prompt, TValue[] choices, CancellationToken ct = default) {
         var builder = new TextPromptBuilder<TValue>(prompt, _output);
-        if (choices.Length > 0) builder.AddChoices(choices);
+        if (choices.Length > 0) builder.AddChoices(choices.AsEnumerable());
         return builder.ShowAsync(ct);
     }
     public virtual Task<TValue> AskAsync<TValue>(string prompt, TValue defaultChoice, TValue[] otherChoices, CancellationToken ct = default) {
