@@ -15,13 +15,14 @@ public class ProviderListCommand(IHasChildren parent, Handlers.IProviderHandler 
             return Result.Success();
         }
 
-        ShowDetails(providers);
+        var sortedList = providers.OrderBy(p => p.Name);
+        ShowList(sortedList);
 
         Logger.LogInformation("Providers listed.");
         return Result.Success();
     }, "Error listing the providers.");
 
-    private void ShowDetails(ProviderEntity[] providers) {
+    private void ShowList(IEnumerable<ProviderEntity> providers) {
         var table = new Table();
         table.AddColumn(new("[yellow]Id[/]"));
         table.AddColumn(new("[yellow]Name[/]"));

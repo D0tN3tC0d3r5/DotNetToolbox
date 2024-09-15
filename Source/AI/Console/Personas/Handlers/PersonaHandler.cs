@@ -44,7 +44,7 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
         logger.LogInformation("Removed persona: {PersonaKey} => {PersonaName}", persona.Name, persona.Key);
     }
 
-    public async Task<Query[]> GeneratePersonaCreationQuestion(PersonaEntity persona) {
+    public async Task<Query[]> GenerateQuestion(PersonaEntity persona) {
         try {
             var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);

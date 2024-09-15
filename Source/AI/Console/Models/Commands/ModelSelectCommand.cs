@@ -8,18 +8,16 @@ public class ModelSelectCommand(IHasChildren parent, IModelHandler handler)
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->Select default model command...");
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
         var models = handler.List();
-
         if (models.Length == 0) {
             Output.WriteLine("[yellow]No models available. Please add a model before proceeding.[/]");
             return Result.Success();
         }
 
         var selected = await Input.BuildSelectionPrompt<ModelEntity>("Select an model:")
-                                  .AddChoices(models)
+                                  .AddChoices(models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name))
                                   .ConvertWith(c => c.Name)
-                                  .ShowAsync(cts.Token);
+                                  .ShowAsync(lt);
 
         handler.Select(selected.Key);
         Output.WriteLine($"[green]Settings '{selected.Key}' selected successfully.[/]");

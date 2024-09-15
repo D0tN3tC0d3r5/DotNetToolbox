@@ -8,14 +8,25 @@ public class ModelViewCommand(IHasChildren parent, Handlers.IModelHandler handle
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->Info command...");
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
-        var model = await this.SelectEntityAsync<ModelEntity, string>(handler.List(), m => m.Name, cts.Token);
+        var models = handler.List();
+        if (models.Length == 0) {
+            Output.WriteLine("[yellow]No models found.[/]");
+            Logger.LogInformation("No models found. View model action cancelled.");
+            return Result.Success();
+        }
+        var model = await this.SelectEntityAsync<ModelEntity, string>(models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name), m => m.Name, lt);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             return Result.Success();
         }
         model.Provider = providerHandler.GetByKey(model.ProviderKey)!;
 
+        ShowDetails(model);
+
+        return Result.Success();
+    }, "Error displaying the model information.", ct);
+
+    private void ShowDetails(ModelEntity model) {
         Output.WriteLine("[yellow]Model Information:[/]");
         Output.WriteLine($"[blue]Id:[/] {model.Key}{(model.Selected ? " [green](default)[/]" : "")}");
         Output.WriteLine($"[blue]Name:[/] {model.Name}");
@@ -26,7 +37,5 @@ public class ModelViewCommand(IHasChildren parent, Handlers.IModelHandler handle
         Output.WriteLine($"[blue]Output Cost per MTok:[/] {model.OutputCostPerMillionTokens:C}");
         Output.WriteLine($"[blue]Training Date Cut-Off:[/] {model.TrainingDateCutOff:MMM yyyy}");
         Output.WriteLine();
-
-        return Result.Success();
-    }, "Error displaying the model information.", ct);
+    }
 }

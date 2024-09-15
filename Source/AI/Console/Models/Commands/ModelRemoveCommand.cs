@@ -8,14 +8,19 @@ public class ModelRemoveCommand(IHasChildren parent, IModelHandler handler)
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Models->Remove command...");
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
-        var model = await this.SelectEntityAsync<ModelEntity, string>(handler.List(), m => m.Name, cts.Token);
+        var models = handler.List();
+        if (models.Length == 0) {
+            Output.WriteLine("[yellow]No models found.[/]");
+            Logger.LogInformation("No models found. Remove model action cancelled.");
+            return Result.Success();
+        }
+        var model = await this.SelectEntityAsync<ModelEntity, string>(models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name), m => m.Name, lt);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             return Result.Success();
         }
 
-        if (!await Input.ConfirmAsync($"Are you sure you want to remove the model '{model.Name}' ({model.Key})?", cts.Token)) {
+        if (!await Input.ConfirmAsync($"Are you sure you want to remove the model '{model.Name}' ({model.Key})?", lt)) {
             return Result.Invalid("Action cancelled.");
         }
 

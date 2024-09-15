@@ -10,17 +10,16 @@ public class UserProfileViewCommand(IHasChildren parent, IUserProfileHandler han
         var user = handler.CurrentUser;
         if (user is null) {
             Logger.LogInformation("No user selected.");
-            Output.WriteLine();
-
             return Result.Success();
         }
 
-        Output.WriteLine("[yellow]User Information:[/]");
-        Output.WriteLine($"[blue]Name:[/] {user.Name}");
-        Output.WriteLine($"[blue]Preferred Language:[/] {user.Language}");
-        Output.WriteLine();
-
+        ShowDetails(user);
         return Result.Success();
     }, "Error displaying the user profile.");
 
+    private void ShowDetails(UserProfileEntity user) {
+        Output.WriteLine("[yellow]User Information:[/]");
+        Output.WriteLine($"[blue]Name:[/] {user.Name}");
+        Output.WriteLine($"[blue]Preferred Language:[/] {user.Language}");
+    }
 }

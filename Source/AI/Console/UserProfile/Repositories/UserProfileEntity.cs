@@ -11,7 +11,7 @@ public class UserProfileEntity
 
     public override Result Validate(IMap? context = null) {
         var result = base.Validate(context);
-        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("Name is required.", nameof(Name));
+        result += ValidateName(Name);
         return result;
     }
 
@@ -21,4 +21,11 @@ public class UserProfileEntity
             Language = entity.Language,
             Facts = entity.Facts,
         };
+
+    public static Result ValidateName(string? name) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(name))
+            result += new ValidationError("Soory yout name cannot be empty or only white spaces.", nameof(Name));
+        return result;
+    }
 }

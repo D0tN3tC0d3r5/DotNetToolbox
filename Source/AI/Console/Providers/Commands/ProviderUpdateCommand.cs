@@ -12,7 +12,13 @@ public class ProviderUpdateCommand(IHasChildren parent, Handlers.IProviderHandle
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         try {
             Logger.LogInformation("Executing Providers->Update command...");
-            var provider = await this.SelectEntityAsync<ProviderEntity, uint>(handler.List(), m => m.Name, lt);
+            var providers = handler.List();
+            if (providers.Length == 0) {
+                Output.WriteLine("[yellow]No providers found.[/]");
+                Logger.LogInformation("No providers found. Remove provider action cancelled.");
+                return Result.Success();
+            }
+            var provider = await this.SelectEntityAsync<ProviderEntity, uint>(providers.OrderBy(p => p.Name), m => m.Name, lt);
             if (provider is null) {
                 Logger.LogInformation("Provider updated action cancelled.");
                 return Result.Success();

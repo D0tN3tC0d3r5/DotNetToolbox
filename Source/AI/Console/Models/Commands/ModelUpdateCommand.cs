@@ -12,7 +12,13 @@ public class ModelUpdateCommand(IHasChildren parent, IModelHandler modelHandler,
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         try {
             Logger.LogInformation("Executing Models->Update command...");
-            var model = await this.SelectEntityAsync<ModelEntity, string>(modelHandler.List(), m => m.Name, lt);
+            var models = modelHandler.List();
+            if (models.Length == 0) {
+                Output.WriteLine("[yellow]No models found.[/]");
+                Logger.LogInformation("No models found. Remove model action cancelled.");
+                return Result.Success();
+            }
+            var model = await this.SelectEntityAsync<ModelEntity, string>(models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name), m => m.Name, lt);
             if (model is null) {
                 Logger.LogInformation("No model selected.");
                 return Result.Success();

@@ -30,8 +30,6 @@ public static class CommandHelpers {
                                    .AddChoices([.. choices])
                                    .ConvertWith(e => e.Key is null ? $"[yellow bold]{e.Text}[/]" : e.Text)
                                    .ShowAsync(ct)).Item;
-
-        static string IndefiniteArticleFor(char c) => c is 'a' or 'e' or 'i' or 'o' or 'u' ? "an" : "a";
     }
 
     public static Result HandleCommand(this ICommand command, Func<Result> execute, string errorMessage) {

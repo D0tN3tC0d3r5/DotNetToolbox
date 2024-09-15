@@ -1,7 +1,10 @@
-﻿namespace AI.Sample.Personas.Commands;
+﻿using Task = System.Threading.Tasks.Task;
+using ValidationException = DotNetToolbox.Results.ValidationException;
 
-public class PersonaCreateCommand(IHasChildren parent, IPersonaHandler personaHandler)
-    : Command<PersonaCreateCommand>(parent, "Generate", n => {
+namespace AI.Sample.Personas.Commands;
+
+public class PersonaGenerateCommand(IHasChildren parent, IPersonaHandler personaHandler)
+    : Command<PersonaGenerateCommand>(parent, "Generate", n => {
         n.Aliases = ["gen"];
         n.Description = "Create a new persona.";
         n.Help = "Generate a new agent persona using AI assistance.";
@@ -9,35 +12,60 @@ public class PersonaCreateCommand(IHasChildren parent, IPersonaHandler personaHa
     private const int _maxQuestions = 10;
 
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
-        Logger.LogInformation("Executing Personas->Generate command...");
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
-        var name = await Input.BuildTextPrompt<string>("How would you like to call the Agent:")
-                              .AsRequired()
-                              .ShowAsync(cts.Token);
-        var role = await Input.BuildTextPrompt<string>($"What is the [white]{name}[/] primary role:")
-                              .AnswerOnANewLine()
-                              .AsRequired()
-                              .ShowAsync(cts.Token);
-        var persona = new PersonaEntity {
-            Name = name,
-            Role = role,
-        };
-        var goal = await Input.BuildMultilinePrompt($"What is the Main Goal for the [white]{name}[/]: ")
-                              .ShowAsync(cts.Token);
-        persona.Goals.AddRange(goal.Replace("\r", "").Split("\n"));
-        var addAnotherGoal = await Input.ConfirmAsync("Would you like to add another goal?", cts.Token);
-        while (addAnotherGoal) {
-            goal = await Input.BuildMultilinePrompt("Additional goal: ")
-                              .ShowAsync(cts.Token);
-            persona.Goals.AddRange(goal.Replace("\r", "").Split("\n"));
-            addAnotherGoal = await Input.ConfirmAsync("Would you like to add another goal?", cts.Token);
-        }
+        try {
+            Logger.LogInformation("Executing Personas->Generate command...");
+            var persona = new PersonaEntity();
+            await SetUpAsync(persona, lt);
+            await AskAdditiionalQuestions(persona, lt);
+            await personaHandler.UpdateCreatedPersona(persona);
 
+            Output.WriteLine($"[green]Agent persona '{persona.Name}' generated successfully.[/]");
+            Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' generated successfully.", persona.Key, persona.Name);
+
+            ShowResult(persona);
+
+            var savePersona = await Input.ConfirmAsync("Are you ok with the generated Agent above?", lt);
+            if (savePersona) {
+                personaHandler.Add(persona);
+                Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' added successfully.", persona.Key, persona.Name);
+                return Result.Success();
+            }
+
+            Output.WriteLine($"[yellow]Please review the provided data and try afain.[/]");
+            return Result.Success();
+        } catch (ValidationException ex) {
+            var errors = string.Join("\n", ex.Errors.Select(e => $" - {e.Source}: {e.Message}"));
+            Logger.LogWarning("Error generating the new persona. Validation errors:\n{Errors}", errors);
+            Output.WriteLine($"[red]We found some problems while generating the new persona.\nPlease correct the following errors and try again.\n{errors}[/]");
+            return Result.Invalid(ex.Errors);
+        }
+    }, "Error generating the new persona.", ct);
+
+    private void ShowResult(PersonaEntity persona) {
+        Output.WriteLine();
+        Output.WriteLine($"[teal]Name:[/] {persona.Name}");
+        Output.WriteLine($"[teal]Role:[/] {persona.Role}");
+        Output.WriteLine("[teal]Goals:[/]");
+        Output.WriteLine(string.Join("\n", persona.Goals.Select(i => $" - {i}")));
+        Output.WriteLine("[teal]Expertise:[/] [green](auto-generated)[/]");
+        Output.WriteLine(persona.Expertise);
+        Output.WriteLine("[teal]Traits:[/] [green](auto-generated)[/]");
+        Output.WriteLine(string.Join("\n", persona.Traits.Select(i => $" - {i}")));
+        Output.WriteLine("[teal]Requirements:[/] [green](auto-generated)[/]");
+        Output.WriteLine(string.Join("\n", persona.Important.Select(i => $" - {i}")));
+        Output.WriteLine("[teal]Restrictions:[/] [green](auto-generated)[/]");
+        Output.WriteLine(string.Join("\n", persona.Negative.Select(i => $" - {i}")));
+        Output.WriteLine("[teal]Other:[/] [green](auto-generated)[/]");
+        Output.WriteLine(string.Join("\n", persona.Other.Select(i => $" - {i}")));
+        Output.WriteLine();
+    }
+
+    private async Task AskAdditiionalQuestions(PersonaEntity persona, CancellationToken lt) {
         for (var questionCount = 0; questionCount < _maxQuestions; questionCount++) {
             Output.WriteLine("[yellow]Let me see if I have more questions...[/]");
             Output.WriteLine("[grey](You can skip the questions by typing 'proceed' at any time.)[/]");
 
-            var queries = await personaHandler.GeneratePersonaCreationQuestion(persona);
+            var queries = await personaHandler.GenerateQuestion(persona);
             if (queries.Length == 0) {
                 Output.WriteLine("[green]I've gathered sufficient information to generate the agent's persona.[/]");
                 break;
@@ -45,7 +73,7 @@ public class PersonaCreateCommand(IHasChildren parent, IPersonaHandler personaHa
             var proceed = false;
             foreach (var query in queries) {
                 query.Answer = await Input.BuildMultilinePrompt($"Question {questionCount + 1}: {query.Question}")
-                                          .ShowAsync(cts.Token);
+                                          .ShowAsync(lt);
                 if (query.Answer.Equals("proceed", StringComparison.OrdinalIgnoreCase)) {
                     proceed = true;
                     break;
@@ -57,37 +85,27 @@ public class PersonaCreateCommand(IHasChildren parent, IPersonaHandler personaHa
             Output.WriteLine("[green]Ok. Let's proceed with the Agent's Persona generation.[/]");
             break;
         }
+    }
 
-        await personaHandler.UpdateCreatedPersona(persona);
+    private async Task SetUpAsync(PersonaEntity persona, CancellationToken ct) {
+        persona.Name = await Input.BuildTextPrompt<string>("How would you like to call the Agent?")
+                                  .Validate(name => PersonaEntity.ValidateName(name, personaHandler))
+                                  .ShowAsync(ct);
+        persona.Role = await Input.BuildTextPrompt<string>($"What is the [white]{persona.Name}[/] primary role?")
+                                  .Validate(PersonaEntity.ValidateRole)
+                                  .ShowAsync(ct);
 
-        Output.WriteLine();
-        Output.WriteLine("[yellow]Here is generated Agent Persona:[/]");
-        Output.WriteLine($"[teal]Name:[/] {persona.Name}");
-        Output.WriteLine($"[teal]Role:[/] {persona.Role}");
-        Output.WriteLine("[teal]Goals:[/]");
-        Output.WriteLine(string.Join("\n", persona.Goals.Select(i => $" - {i}")));
-        Output.WriteLine("[teal]Expertise:[/]");
-        Output.WriteLine(persona.Expertise);
-        Output.WriteLine("[teal]Traits:[/]");
-        Output.WriteLine(string.Join("\n", persona.Traits.Select(i => $" - {i}")));
-        Output.WriteLine("[teal]Requirements:[/]");
-        Output.WriteLine(string.Join("\n", persona.Important.Select(i => $" - {i}")));
-        Output.WriteLine("[teal]Restrictions:[/]");
-        Output.WriteLine(string.Join("\n", persona.Negative.Select(i => $" - {i}")));
-        Output.WriteLine("[teal]Other:[/]");
-        Output.WriteLine(string.Join("\n", persona.Other.Select(i => $" - {i}")));
-        Output.WriteLine();
-
-        Output.WriteLine($"[green]Persona '{persona.Name}' generated successfully.[/]");
-        Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' generated successfully.", persona.Key, persona.Name);
-
-        var savePersona = await Input.ConfirmAsync("Are you ok with the Agent Persona above?", cts.Token);
-        if (savePersona) {
-            personaHandler.Add(persona);
-            Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' added successfully.", persona.Key, persona.Name);
+        var goal = await Input.BuildMultilinePrompt($"What is the Main Goal for the [white]{persona.Name}[/]?")
+                              .Validate(PersonaEntity.ValidateGoal)
+                              .ShowAsync(ct);
+        persona.Goals.AddRange(goal.Replace("\r", "").Split("\n"));
+        var addAnotherGoal = await Input.ConfirmAsync("Would you like to add another goal?", ct);
+        while (addAnotherGoal) {
+            goal = await Input.BuildMultilinePrompt("Additional goal: ")
+                              .Validate(PersonaEntity.ValidateGoal)
+                              .ShowAsync(ct);
+            persona.Goals.AddRange(goal.Replace("\r", "").Split("\n"));
+            addAnotherGoal = await Input.ConfirmAsync("Would you like to add another goal?", ct);
         }
-
-        Output.WriteLine();
-        return Result.Success();
-    }, "Error generating the new persona.", ct);
+    }
 }

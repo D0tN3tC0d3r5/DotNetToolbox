@@ -83,7 +83,7 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
             var oldValidator = _validator;
             _validator = async (value, ct) => {
                 var result = oldValidator is null ? Result.Success() : await oldValidator(value, ct);
-                if (!_choices.Contains(value)) result += new ValidationError($"The entry must be one of the given choices.");
+                if (!_choices.Contains(value)) result += new ValidationError($"The ent must be one of the given choices.");
                 return result;
             };
         }

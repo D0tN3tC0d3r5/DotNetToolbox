@@ -5,7 +5,7 @@ public class PersonasCommand : Command<PersonasCommand> {
         : base(parent, "Personas", n => {
             n.Description = "Manage AI Personas.";
             n.AddCommand<PersonaListCommand>();
-            n.AddCommand<PersonaCreateCommand>();
+            n.AddCommand<PersonaGenerateCommand>();
             //n.AddCommand<PersonaUpdateCommand>();
             //n.AddCommand<PersonaRemoveCommand>();
             //AddCommand<PersonaViewCommand>();

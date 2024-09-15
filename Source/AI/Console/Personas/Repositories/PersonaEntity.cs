@@ -1,10 +1,8 @@
-﻿using DotNetToolbox.AI.Personas;
-
-namespace AI.Sample.Personas.Repositories;
+﻿namespace AI.Sample.Personas.Repositories;
 
 public class PersonaEntity
     : Entity<PersonaEntity, uint> {
-    public string Name { get; init; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public List<string> Goals { get; set; } = [];
 
@@ -18,9 +16,9 @@ public class PersonaEntity
 
     public override Result Validate(IMap? context = null) {
         var result = base.Validate(context);
-        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("The name is required.", nameof(Name));
-        if (string.IsNullOrWhiteSpace(Role)) result += new ValidationError("The primary role is required.", nameof(Role));
-        if (Goals.Count == 0) result += new ValidationError("At least one goal is required.", nameof(Goals));
+        result += ValidateName(Name, IsNotNull(context).GetRequiredValueAs<IPersonaHandler>(nameof(PersonaHandler)));
+        result += ValidateRole(Role);
+        result += ValidateGoals(Goals);
         return result;
     }
 
@@ -43,4 +41,36 @@ public class PersonaEntity
             Negative = entity.Negative,
             Other = entity.Other,
         };
+
+    public static Result ValidateName(string? name, IPersonaHandler handler) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(name))
+            result += new ValidationError("The name is required.", nameof(Name));
+        else if (handler.GetByName(name) is not null)
+            result += new ValidationError("A persona with this name is already registered.", nameof(Name));
+        return result;
+    }
+
+    public static Result ValidateRole(string? name) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(name))
+            result += new ValidationError("The name is required.", nameof(Name));
+        return result;
+    }
+
+    public static Result ValidateGoal(string? goal) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(goal))
+            result += new ValidationError("The goal cannot be null or empty.", nameof(Goals));
+        return result;
+    }
+
+    public static Result ValidateGoals(List<string> goals) {
+        var result = Result.Success();
+        if (goals.Count == 0)
+            result += new ValidationError("At least one goal is required.", nameof(Goals));
+        foreach (var goal in goals)
+            result += ValidateGoal(goal);
+        return result;
+    }
 }

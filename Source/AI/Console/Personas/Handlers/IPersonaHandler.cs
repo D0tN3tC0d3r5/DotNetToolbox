@@ -11,6 +11,6 @@ public interface IPersonaHandler {
     void Update(PersonaEntity persona);
     void Remove(uint key);
 
-    Task<Query[]> GeneratePersonaCreationQuestion(PersonaEntity persona);
+    Task<Query[]> GenerateQuestion(PersonaEntity persona);
     Task UpdateCreatedPersona(PersonaEntity persona);
 }

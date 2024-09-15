@@ -84,19 +84,24 @@ public record Result : ResultBase<ResultType> {
     public static Result<TValue> Success<TValue>(TValue value) => new(value);
     public static Result<TValue> Invalid<TValue>(TValue value, string message, string? source = null) => Invalid(value, new ValidationError(message, source));
     public static Result<TValue> Invalid<TValue>(TValue value, Result result) => new(value, result.Errors);
+    public static Result<TValue> Invalid<TValue>(string message, string? source = null) => Invalid<TValue>(new ValidationError(message, source));
+    public static Result<TValue> Invalid<TValue>(Result result) => new(default!, result.Errors);
     public static Result<TValue> Error<TValue>(string message) => Error<TValue>(new Exception(message));
-    public static Result<TValue> Error<TValue>(Exception exception)
-        => new(exception);
+    public static Result<TValue> Error<TValue>(Exception exception) => new(exception);
 
     public static Task<Result<TValue>> SuccessTask<TValue>(TValue value) => Task.FromResult(Success(value));
     public static Task<Result<TValue>> InvalidTask<TValue>(TValue value, string message, string? source = null) => InvalidTask(value, new ValidationError(message, source));
     public static Task<Result<TValue>> InvalidTask<TValue>(TValue value, Result result) => Task.FromResult(Invalid(value, result));
+    public static Task<Result<TValue>> InvalidTask<TValue>(string message, string? source = null) => InvalidTask<TValue>(new ValidationError(message, source));
+    public static Task<Result<TValue>> InvalidTask<TValue>(Result result) => Task.FromResult(Invalid<TValue>(result));
     public static Task<Result<TValue>> ErrorTask<TValue>(string message) => ErrorTask<TValue>(new Exception(message));
     public static Task<Result<TValue>> ErrorTask<TValue>(Exception exception)
         => Task.FromResult(Error<TValue>(exception));
 }
 
-public record Result<TValue> : Result, IResult<ResultType, TValue> {
+public record Result<TValue>
+    : Result,
+      IResult<ResultType, TValue> {
     internal Result(Exception exception)
         : base(exception) {
     }

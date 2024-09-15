@@ -37,6 +37,7 @@ global using DotNetToolbox.AI.Agents;
 global using DotNetToolbox.AI.Anthropic;
 global using DotNetToolbox.AI.Jobs;
 global using DotNetToolbox.AI.OpenAI;
+global using DotNetToolbox.AI.Personas;
 global using DotNetToolbox.ConsoleApplication;
 global using DotNetToolbox.ConsoleApplication.Application;
 global using DotNetToolbox.ConsoleApplication.Commands;

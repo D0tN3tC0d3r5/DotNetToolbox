@@ -29,11 +29,9 @@ public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, I
             return Result.Success();
         }
 
-        var sortedModels = models
-                .OrderBy(m => m.Provider!.Name)
-                .ThenBy(m => m.Name);
+        var sortedList = models.OrderBy(m => m.Provider!.Name).ThenBy(m => m.Name);
 
-        ShowList(sortedModels, providerHandler);
+        ShowList(sortedList, providerHandler);
 
         return Result.Success();
     }, "Error listing models.", ct);

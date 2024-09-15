@@ -28,13 +28,13 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
         return this;
     }
 
-    public SelectionPromptBuilder<TValue> AddChoice(TValue choice) {
-        _choices.Add(choice);
+    public SelectionPromptBuilder<TValue> AddChoices(IEnumerable<TValue> choices) {
+        _choices.AddRange(choices);
         return this;
     }
 
-    public SelectionPromptBuilder<TValue> AddChoices(params TValue[] otherChoices) {
-        if (otherChoices.Length > 0) _choices.AddRange(otherChoices);
+    public SelectionPromptBuilder<TValue> AddChoices(TValue choice, params TValue[] otherChoices) {
+        _choices.AddRange([choice, ..otherChoices]);
         return this;
     }
 

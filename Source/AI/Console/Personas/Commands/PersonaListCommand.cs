@@ -17,26 +17,21 @@ public class PersonaListCommand(IHasChildren parent, IPersonaHandler personaHand
             return Result.Success();
         }
 
-        var sortedPersonas = personas.OrderBy(m => m.Name);
+        var sortedList = personas.OrderBy(p => p.Name);
+        ShowList(sortedList);
 
+        return Result.Success();
+    }, "Error listing personas.");
+
+    private void ShowList(IEnumerable<PersonaEntity> personas) {
+        var sortedPersonas = personas.OrderBy(m => m.Name);
         var table = new Table();
         table.Expand();
-
-        // Add columns
         table.AddColumn(new("[yellow]Name[/]"));
         table.AddColumn(new("[yellow]Role[/]"));
         table.AddColumn(new("[yellow]Main Goal[/]"));
-
-        foreach (var persona in sortedPersonas) {
-            table.AddRow(
-                persona.Name,
-                persona.Role,
-                persona.Goals[0]
-            );
-        }
-
+        foreach (var persona in sortedPersonas)
+            table.AddRow(persona.Name, persona.Role, persona.Goals.FirstOrDefault() ?? "[red][Undefined][/]");
         Output.Write(table);
-        Output.WriteLine();
-        return Result.Success();
-    }, "Error listing personas.");
+    }
 }
