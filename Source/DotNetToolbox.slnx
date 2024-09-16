@@ -33,6 +33,7 @@
     <Project Path="AI\Core\DotNetToolbox.AI.csproj" />
     <Project Path="AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
     <Project Path="AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
+    <Project Path="Applications\Lola\Lola.csproj" />
   </Folder>
   <Folder Name="/2 Tests/1 Core/">
     <Project Path="Core.Unit.UnitTests\DotNetToolbox.Core.UnitTests.csproj" />
@@ -61,6 +62,7 @@
     <Project Path="AI\Core.UnitTests\DotNetToolbox.AI.UnitTests.csproj" />
     <Project Path="AI\Anthropic.UnitTests\DotNetToolbox.AI.Anthropic.UnitTests.csproj" />
     <Project Path="AI\OpenAI.UnitTests\DotNetToolbox.AI.OpenAI.UnitTests.csproj" />
+    <Project Path="Applications\Lola.UnitTests\Lola.UnitTests.csproj" />
   </Folder>
   <Folder Name="/3 Samples/2 Console/">
     <Project Path="Applications\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj" />

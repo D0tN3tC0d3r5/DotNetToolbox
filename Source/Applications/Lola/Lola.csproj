@@ -17,12 +17,12 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <ProjectReference Include="..\Applications\Console\DotNetToolbox.Console.csproj" />
-    <ProjectReference Include="..\AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
-    <ProjectReference Include="..\AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
-    <ProjectReference Include="..\AI\Core\DotNetToolbox.AI.csproj" />
-    <ProjectReference Include="..\Data\Storage\DotNetToolbox.Data.csproj" />
-    <ProjectReference Include="..\Data\File\DotNetToolbox.Data.File.csproj" />
+    <ProjectReference Include="..\Console\DotNetToolbox.Console.csproj" />
+    <ProjectReference Include="..\..\AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
+    <ProjectReference Include="..\..\AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
+    <ProjectReference Include="..\..\AI\Core\DotNetToolbox.AI.csproj" />
+    <ProjectReference Include="..\..\Data\Storage\DotNetToolbox.Data.csproj" />
+    <ProjectReference Include="..\..\Data\File\DotNetToolbox.Data.File.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
