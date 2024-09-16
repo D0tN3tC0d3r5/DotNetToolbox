@@ -1,6 +1,6 @@
 ﻿namespace Lola.Providers.Repositories;
 
-public class ProviderStorage(IConfiguration configuration)
+public sealed class ProviderStorage(IConfiguration configuration)
     : JsonFilePerTypeStorage<ProviderEntity, uint>("providers", configuration),
       IProviderStorage {
     protected override uint FirstKey { get; } = 1;

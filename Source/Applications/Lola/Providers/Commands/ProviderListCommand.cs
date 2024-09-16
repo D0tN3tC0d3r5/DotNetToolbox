@@ -1,6 +1,6 @@
 ﻿namespace Lola.Providers.Commands;
 
-public class ProviderListCommand(IHasChildren parent, Handlers.IProviderHandler providerHandler)
+public class ProviderListCommand(IHasChildren parent, IProviderHandler providerHandler)
     : Command<ProviderListCommand>(parent, "List", n => {
         n.Aliases = ["ls"];
         n.Description = "List providers";

@@ -10,9 +10,9 @@ public abstract class JsonFilePerTypeStorage<TItem, TKey>
 
     protected JsonFilePerTypeStorage(string name, IConfiguration configuration, IList<TItem>? data = null)
         : base(data) {
-        var baseFolder = configuration.GetValue<string>("Data:BaseFolder")
-                      ?? configuration.GetValue<string>($"Data:{name}:BaseFolder")
-                      ?? _defaultBaseFolder;
+        var baseFolder = configuration.GetValue<string>($"Data:{name}:BaseFolder");
+        if (string.IsNullOrWhiteSpace(baseFolder)) baseFolder = configuration.GetValue<string>("Data:BaseFolder");
+        if (string.IsNullOrWhiteSpace(baseFolder)) baseFolder = _defaultBaseFolder;
         FilePath = Path.Combine(baseFolder, $"{name}.json");
         EnsureFileExists(baseFolder);
     }
@@ -97,9 +97,9 @@ public abstract class JsonFilePerTypeStorage<TItem, TKey>
     }
 
     public override Result Add(TItem newItem, IMap? validationContext = null) {
-        if (TryGetNextKey(out var next)) newItem.Key = next;
         var result = newItem.Validate(validationContext);
         if (!result.IsSuccess) return result;
+        if (TryGetNextKey(out var next)) newItem.Key = next;
         Data.Add(newItem);
         Save();
         return result;

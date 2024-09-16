@@ -1,6 +1,6 @@
 ﻿namespace Lola.Providers.Commands;
 
-public class ProviderRemoveCommand(IHasChildren parent, Handlers.IProviderHandler handler, Models.Handlers.IModelHandler modelHandler)
+public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler, IModelHandler modelHandler)
     : Command<ProviderRemoveCommand>(parent, "Remove", n => {
         n.Aliases = ["delete", "del"];
         n.Description = "Remove provider";

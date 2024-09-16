@@ -11,7 +11,7 @@ public class ProviderEntity
         return result;
     }
 
-    public static Result ValidateName(string? name, Handlers.IProviderHandler handler) {
+    public static Result ValidateName(string? name, IProviderHandler handler) {
         var result = Result.Success();
         if (string.IsNullOrWhiteSpace(name))
             result += new ValidationError("The name is required.", nameof(Name));

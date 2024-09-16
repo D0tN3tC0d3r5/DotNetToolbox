@@ -18,13 +18,10 @@ public class ModelEntity : Entity<ModelEntity, string> {
         var result = base.Validate(context);
         result += ValidateKey(Key, IsNotNull(context).GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)));
         result += ValidateName(Name, IsNotNull(context).GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)));
+        result += ValidateProvider(ProviderKey, IsNotNull(context).GetRequiredValueAs<IProviderHandler>(nameof(ProviderHandler)));
         result += ValidateInputCost(InputCostPerMillionTokens);
         result += ValidateOutputCost(OutputCostPerMillionTokens);
         result += ValidateDateCutOff(TrainingDateCutOff);
-        if (MaximumContextSize == 0)
-            result += new ValidationError("MaximumContextSize must be greater than 0.", nameof(MaximumContextSize));
-        if (MaximumOutputTokens == 0)
-            result += new ValidationError("MaximumOutputTokens must be greater than 0.", nameof(MaximumOutputTokens));
         return result;
     }
 
@@ -43,6 +40,13 @@ public class ModelEntity : Entity<ModelEntity, string> {
             result += new ValidationError("The name is required.", nameof(Name));
         else if (handler.GetByName(name) is not null)
             result += new ValidationError("A model with this name is already registered.", nameof(Name));
+        return result;
+    }
+
+    public static Result ValidateProvider(uint providerKey, IProviderHandler handler) {
+        var result = Result.Success();
+        if (handler.GetByKey(providerKey) is null)
+            result += new ValidationError("The provider does not exist.", nameof(ProviderKey));
         return result;
     }
 

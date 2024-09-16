@@ -8,12 +8,17 @@
     <RootNamespace>Lola</RootNamespace>
     <AssemblyName>lola</AssemblyName>
     <AssemblyTitle>Lola</AssemblyTitle>
-    <Description>This a sample shell application.</Description>
+    <Authors>Andre Vianna</Authors>
+    <Company>D0tN3tC0d3r5</Company>
+    <Copyright>© Andre Vianna 2024</Copyright>
+    <Description>AI assisted console application.</Description>
     <InformationalVersion>0.1.alpha</InformationalVersion>
     <AssemblyVersion>0.1.*</AssemblyVersion>
     <Deterministic>false</Deterministic>
     <NoWarn>$(NoWarn);DV2001;DV2002;CS7035</NoWarn>
     <UserSecretsId>0453e4b5-0554-42b5-a904-36f2e1ea3686</UserSecretsId>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug'">

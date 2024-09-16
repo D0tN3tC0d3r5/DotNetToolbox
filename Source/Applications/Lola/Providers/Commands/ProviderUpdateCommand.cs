@@ -3,7 +3,7 @@ using ValidationException = DotNetToolbox.Results.ValidationException;
 
 namespace Lola.Providers.Commands;
 
-public class ProviderUpdateCommand(IHasChildren parent, Handlers.IProviderHandler handler)
+public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler)
     : Command<ProviderUpdateCommand>(parent, "Update", n => {
         n.Aliases = ["edit"];
         n.Description = "Update provider";

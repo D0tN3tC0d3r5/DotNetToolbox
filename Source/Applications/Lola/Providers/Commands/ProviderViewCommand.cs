@@ -1,6 +1,6 @@
 ﻿namespace Lola.Providers.Commands;
 
-public class ProviderViewCommand(IHasChildren parent, Handlers.IProviderHandler handler)
+public class ProviderViewCommand(IHasChildren parent, IProviderHandler handler)
     : Command<ProviderViewCommand>(parent, "Info", n => {
         n.Aliases = ["i"];
         n.Description = "View provider";

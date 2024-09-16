@@ -51,10 +51,10 @@ public class PersonaEntity
         return result;
     }
 
-    public static Result ValidateRole(string? name) {
+    public static Result ValidateRole(string? role) {
         var result = Result.Success();
-        if (string.IsNullOrWhiteSpace(name))
-            result += new ValidationError("The name is required.", nameof(Name));
+        if (string.IsNullOrWhiteSpace(role))
+            result += new ValidationError("The role is required.", nameof(Name));
         return result;
     }
 
@@ -69,8 +69,6 @@ public class PersonaEntity
         var result = Result.Success();
         if (goals.Count == 0)
             result += new ValidationError("At least one goal is required.", nameof(Goals));
-        foreach (var goal in goals)
-            result += ValidateGoal(goal);
-        return result;
+        return goals.Aggregate(result, (current, goal) => current + ValidateGoal(goal));
     }
 }

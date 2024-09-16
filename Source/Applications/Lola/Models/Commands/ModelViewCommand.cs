@@ -1,6 +1,6 @@
 ﻿namespace Lola.Models.Commands;
 
-public class ModelViewCommand(IHasChildren parent, Handlers.IModelHandler handler, Providers.Handlers.IProviderHandler providerHandler)
+public class ModelViewCommand(IHasChildren parent, IModelHandler handler, IProviderHandler providerHandler)
     : Command<ModelViewCommand>(parent, "Info", n => {
         n.Aliases = ["i"];
         n.Description = "View model";
