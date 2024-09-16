@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Data.DataSources;
-
-namespace Lola.Models.Repositories;
+﻿namespace Lola.Models.Repositories;
 
 public interface IModelDataSource : IDataSource<ModelEntity, string> {
     ModelEntity? GetSelected();

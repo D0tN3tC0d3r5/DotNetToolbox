@@ -1,6 +1,4 @@
-﻿using DotNetToolbox.Data.DataSources;
-
-namespace Lola.Models.Repositories;
+﻿namespace Lola.Models.Repositories;
 
 public class ModelDataSource(IModelStorage storage, Lazy<IProviderDataSource> providers)
     : DataSource<IModelStorage, ModelEntity, string>(storage),
