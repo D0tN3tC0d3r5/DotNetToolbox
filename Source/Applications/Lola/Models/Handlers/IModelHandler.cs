@@ -9,5 +9,5 @@ public interface IModelHandler {
     void Remove(string key);
 
     void Select(string key);
-    ModelEntity? Internal { get; }
+    ModelEntity? Selected { get; }
 }

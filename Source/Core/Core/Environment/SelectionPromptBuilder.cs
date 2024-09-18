@@ -34,7 +34,7 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
     }
 
     public SelectionPromptBuilder<TValue> AddChoices(TValue choice, params TValue[] otherChoices) {
-        _choices.AddRange([choice, ..otherChoices]);
+        _choices.AddRange([choice, .. otherChoices]);
         return this;
     }
 

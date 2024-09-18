@@ -1,4 +1,4 @@
-﻿namespace Lola.Agents.Handlers;
+﻿namespace Lola.Utilities.HttpConnection.Handlers;
 
 public interface IHttpConnectionHandler {
     IAgent GetInternal();

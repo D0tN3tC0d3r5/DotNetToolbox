@@ -6,7 +6,7 @@ namespace Lola.Personas.Commands;
 public class PersonaGenerateCommand(IHasChildren parent, IPersonaHandler personaHandler)
     : Command<PersonaGenerateCommand>(parent, "Generate", n => {
         n.Aliases = ["gen"];
-        n.Description = "Create a new persona.";
+        n.Description = "Generate a new persona";
         n.Help = "Generate a new agent persona using AI assistance.";
     }) {
     private const int _maxQuestions = 10;

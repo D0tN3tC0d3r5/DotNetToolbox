@@ -6,7 +6,7 @@ public class ModelHandler(IApplication application, IModelDataSource dataSource,
 
     private ModelEntity? _selected;
 
-    public ModelEntity? Internal {
+    public ModelEntity? Selected {
         get => GetSelected();
         private set => SetSelected(IsNotNull(value));
     }
@@ -73,7 +73,7 @@ public class ModelHandler(IApplication application, IModelDataSource dataSource,
     public void Select(string key) {
         var model = dataSource.FindByKey(key)
                  ?? throw new InvalidOperationException($"Settings '{key}' not found.");
-        Internal = model;
+        Selected = model;
         logger.LogInformation("Settings '{ModelKey} => {ModelName}' selected : ", model.Key, model.Name);
     }
 }

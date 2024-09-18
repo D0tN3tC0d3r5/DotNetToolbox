@@ -1,4 +1,4 @@
-﻿namespace Lola.Helpers;
+﻿namespace Lola.Utilities;
 
 internal sealed class ListItem<TItem, TKey>(TKey key, string text, TItem? item)
     where TItem : class, IEntity<TKey>

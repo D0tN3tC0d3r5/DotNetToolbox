@@ -21,6 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetToolbox.FluentAssertions" Version="9.0.0-alpha1" />
+    <PackageReference Include="DotNetToolbox.TestUtilities" Version="9.0.0-alpha1" />
     <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.4" />
     <PackageReference Include="FluentAssertions.Analyzers" Version="0.33.0">
       <PrivateAssets>all</PrivateAssets>

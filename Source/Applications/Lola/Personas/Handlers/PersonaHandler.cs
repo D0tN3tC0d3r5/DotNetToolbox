@@ -44,7 +44,7 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
 
     public async Task<Query[]> GenerateQuestion(PersonaEntity persona) {
         try {
-            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
+            var appModel = _modelHandler.Selected ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
             var userProfileEntity = _userHandler.CurrentUser ?? throw new InvalidOperationException("No user found.");
             var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
@@ -86,7 +86,7 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
 
     public async Task UpdateCreatedPersona(PersonaEntity persona) {
         try {
-            var appModel = _modelHandler.Internal ?? throw new InvalidOperationException("No default AI model selected.");
+            var appModel = _modelHandler.Selected ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
             var userProfileEntity = _userHandler.CurrentUser ?? throw new InvalidOperationException("No user found.");
             var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");

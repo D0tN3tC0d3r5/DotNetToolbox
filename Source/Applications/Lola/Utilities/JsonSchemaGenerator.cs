@@ -1,4 +1,4 @@
-namespace Lola.Helpers;
+namespace Lola.Utilities;
 
 public static class JsonSchemaGenerator {
     public static string GenerateSchemaFor<T>()

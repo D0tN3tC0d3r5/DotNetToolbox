@@ -1,4 +1,4 @@
-namespace Lola.Helpers;
+namespace Lola.Utilities;
 
 public interface IEncryptionHelper {
     string? Encrypt(string? plainText);

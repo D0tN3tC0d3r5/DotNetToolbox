@@ -1,9 +1,9 @@
-﻿namespace Lola.Agents.Handlers;
+﻿namespace Lola.Utilities.HttpConnection.Handlers;
 
 public class HttpConnectionHandler(IModelHandler modelHandler, IAgentAccessor httpConnectionAccessor)
     : IHttpConnectionHandler {
     public IAgent GetInternal() {
-        var model = modelHandler.Internal ?? throw new InvalidOperationException("No internal model found.");
+        var model = modelHandler.Selected ?? throw new InvalidOperationException("No internal model found.");
         return httpConnectionAccessor.GetFor(model.Provider!.Name);
     }
 

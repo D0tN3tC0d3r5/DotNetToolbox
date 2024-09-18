@@ -28,9 +28,9 @@ public abstract class ShellApplication<TApplication, TBuilder, TSettings>
     where TSettings : ApplicationSettings, new() {
     protected ShellApplication(string[] args, IServiceCollection services)
         : base(args, services) {
-        AddCommand<ExitCommand>();
         AddCommand<ClearScreenCommand>();
         if (Settings.UseDefaultHelp) AddCommand<HelpCommand>();
+        AddCommand<ExitCommand>();
     }
     protected bool AllowMultiLine { get; set; }
 

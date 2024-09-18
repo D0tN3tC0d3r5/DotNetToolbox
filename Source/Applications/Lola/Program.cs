@@ -5,13 +5,13 @@
     ab.ConfigureLogging((loggingBuilder) => {
         var logPath = Path.Combine("logs", "lola-.log");
         Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(ab.Configuration)
-            .Enrich.FromLogContext()
-            .WriteTo.File(logPath,
-                fileSizeLimitBytes: 5 * 1024 * 1024,
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 7) // 5MB file size limit
-            .CreateLogger();
+                    .ReadFrom.Configuration(ab.Configuration)
+                    .Enrich.FromLogContext()
+                    .WriteTo.File(logPath,
+                                  fileSizeLimitBytes: 5 * 1024 * 1024,
+                                  rollingInterval: RollingInterval.Day,
+                                  retainedFileCountLimit: 7) // 5MB file size limit
+                    .CreateLogger();
 
         loggingBuilder.AddSerilog(dispose: true);
     });

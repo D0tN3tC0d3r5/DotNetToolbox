@@ -93,6 +93,23 @@ public class ModelDataSourceTests {
     }
 
     [Fact]
+    public void GetSelected_WithInvalidKey_ReturnsNull() {
+        // Arrange
+        var mockStorage = Substitute.For<IModelStorage>();
+        var mockProviderDataSource = Substitute.For<IProviderDataSource>();
+        var mockProviders = new Lazy<IProviderDataSource>(() => mockProviderDataSource);
+        var subject = new ModelDataSource(mockStorage, mockProviders);
+
+        mockStorage.Find(Arg.Any<Expression<Func<ModelEntity, bool>>>()).Returns((ModelEntity?)null);
+
+        // Act
+        var result = subject.GetSelected();
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
     public void FindByKey_WithIncludeProvider_ShouldReturnModelWithProvider() {
         // Arrange
         var mockStorage = Substitute.For<IModelStorage>();
@@ -131,5 +148,22 @@ public class ModelDataSourceTests {
         // Assert
         result.Should().BeEquivalentTo(model);
         result.Provider.Should().BeNull();
+    }
+
+    [Fact]
+    public void FindByKey_WithInvalidKey_ReturnsNull() {
+        // Arrange
+        var mockStorage = Substitute.For<IModelStorage>();
+        var mockProviderDataSource = Substitute.For<IProviderDataSource>();
+        var mockProviders = new Lazy<IProviderDataSource>(() => mockProviderDataSource);
+        var subject = new ModelDataSource(mockStorage, mockProviders);
+
+        mockStorage.Find(Arg.Any<Expression<Func<ModelEntity, bool>>>()).Returns((ModelEntity?)null);
+
+        // Act
+        var result = subject.FindByKey("invalid");
+
+        // Assert
+        result.Should().BeNull();
     }
 }

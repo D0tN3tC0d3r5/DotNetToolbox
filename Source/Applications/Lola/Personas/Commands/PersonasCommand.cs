@@ -2,13 +2,15 @@
 
 public class PersonasCommand(IHasChildren parent)
     : Command<PersonasCommand>(parent, "Personas", n => {
-        n.Description = "Manage AI Personas.";
+        n.Description = "Manage Agent Personas.";
         n.AddCommand<PersonaListCommand>();
         n.AddCommand<PersonaGenerateCommand>();
-        //n.AddCommand<PersonaUpdateCommand>();
-        //n.AddCommand<PersonaRemoveCommand>();
-        //n.AddCommand<PersonaViewCommand>();
+        n.AddCommand<PersonaViewCommand>();
+        n.AddCommand<PersonaUpdateCommand>();
+        n.AddCommand<PersonaRemoveCommand>();
         n.AddCommand<HelpCommand>();
+        n.AddCommand<BackCommand>();
+        n.AddCommand<ExitCommand>();
     }) {
     protected override Task<Result> ExecuteAsync(CancellationToken ct = default) => this.HandleCommandAsync(async lt => {
         Logger.LogInformation("Executing Personas->Main command...");

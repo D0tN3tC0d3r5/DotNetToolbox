@@ -28,8 +28,6 @@ global using DotNetToolbox.Environment;
 global using DotNetToolbox.Results;
 
 global using Lola;
-global using Lola.Agents.Handlers;
-global using Lola.Helpers;
 global using Lola.Main.Commands;
 global using Lola.Models.Commands;
 global using Lola.Models.Handlers;
@@ -46,6 +44,8 @@ global using Lola.Tasks.Repositories;
 global using Lola.UserProfile.Commands;
 global using Lola.UserProfile.Handlers;
 global using Lola.UserProfile.Repositories;
+global using Lola.Utilities;
+global using Lola.Utilities.HttpConnection.Handlers;
 
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;

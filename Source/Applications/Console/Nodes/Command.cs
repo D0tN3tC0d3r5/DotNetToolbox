@@ -32,8 +32,8 @@ public class Command<TCommand>(IHasChildren parent,
 
     public ICollection<INode> Children { get; } = [];
     public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
-    public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
-    public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
+    public IArgument[] Options => [.. Children.OfType<IArgument>()];
+    public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>()];
 
     protected virtual Task<Result> ExecuteAsync(CancellationToken ct = default)
         => executeAsync?.Invoke((TCommand)this, ct) ?? Task.Run(Execute, ct);
