@@ -29,9 +29,9 @@ public class ModelEntity : Entity<ModelEntity, uint> {
     public static Result ValidateKey(string? key, IModelHandler handler) {
         var result = Result.Success();
         if (string.IsNullOrWhiteSpace(key))
-            result += new ValidationError("The identifier is required.", nameof(Key));
+            result += new ValidationError("The key is required.", nameof(Key));
         else if (handler.GetByKey(key) is not null)
-            result += new ValidationError("A model with this identifier is already registered.", nameof(Key));
+            result += new ValidationError("A model with this key is already registered.", nameof(Key));
         return result;
     }
 

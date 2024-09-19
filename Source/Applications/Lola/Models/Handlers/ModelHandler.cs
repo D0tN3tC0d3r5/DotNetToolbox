@@ -51,10 +51,7 @@ public class ModelHandler(IApplication application, IModelDataSource dataSource,
         => dataSource.Find(i => i.Name == name);
 
     public void Add(ModelEntity model) {
-        if (dataSource.FindById(model.Id) is not null)
-            throw new InvalidOperationException($"A model with the key '{model.Key}' already exists.");
         if (_selected is null) model.Selected = true;
-
         var context = Map.FromMap([new(nameof(ModelHandler), this), new(nameof(ProviderHandler), providerHandler.Value)]);
         var result = dataSource.Add(model, context);
         if (!result.IsSuccess)
@@ -65,7 +62,7 @@ public class ModelHandler(IApplication application, IModelDataSource dataSource,
 
     public void Update(ModelEntity model) {
         if (dataSource.FindById(model.Id) == null)
-            throw new InvalidOperationException($"Settings with key '{model.Key}' not found.");
+            throw new InvalidOperationException($"Model with id '{model.Id}' not found.");
 
         var context = Map.FromMap([new(nameof(ModelHandler), this), new(nameof(ProviderHandler), providerHandler.Value)]);
         var result = dataSource.Update(model, context);
@@ -75,7 +72,7 @@ public class ModelHandler(IApplication application, IModelDataSource dataSource,
     }
 
     public void Remove(uint id) {
-        var model = dataSource.FindById(id, false) ?? throw new InvalidOperationException($"Settings with key '{id}' not found.");
+        var model = dataSource.FindById(id, false) ?? throw new InvalidOperationException($"Model with id '{id}' not found.");
 
         dataSource.Remove(id);
         logger.LogInformation("Removed model: {ModelKey} => {ModelName}", model.Key, model.Name);
@@ -85,8 +82,8 @@ public class ModelHandler(IApplication application, IModelDataSource dataSource,
 
     public void Select(uint id) {
         var model = dataSource.FindById(id)
-                 ?? throw new InvalidOperationException($"Settings '{id}' not found.");
+                 ?? throw new InvalidOperationException($"Model '{id}' not found.");
         Selected = model;
-        logger.LogInformation("Settings '{ModelKey} => {ModelName}' selected : ", model.Key, model.Name);
+        logger.LogInformation("Model '{ModelKey} => {ModelName}' selected : ", model.Key, model.Name);
     }
 }

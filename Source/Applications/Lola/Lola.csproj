@@ -33,11 +33,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="data\models.json" />
-    <None Remove="data\providers.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="lola.ico" />
   </ItemGroup>
 

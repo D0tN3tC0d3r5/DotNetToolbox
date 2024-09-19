@@ -1,3 +1,5 @@
+using DotNetToolbox.Results;
+
 namespace Lola.Models.Handlers;
 
 public class ModelHandlerTests {
@@ -64,7 +66,7 @@ public class ModelHandlerTests {
     public void GetByKey_ShouldReturnCorrectModel() {
         // Arrange
         var expectedModel = new ModelEntity { Id = 1, Key = "model1", Name = "Test Model" };
-        _mockDataSource.FindByKey(1).Returns(expectedModel);
+        _mockDataSource.FindById(1).Returns(expectedModel);
 
         // Act
         var result = _handler.GetById(1);
@@ -90,25 +92,27 @@ public class ModelHandlerTests {
     public void Add_WhenModelAlreadyExists_ShouldThrowException() {
         // Arrange
         var model = new ModelEntity { Id = 1, Key = "model1", Name = "Test Model" };
-        _mockDataSource.FindByKey(1).Returns(model);
+        _mockDataSource.FindById(1).Returns(model);
+        _mockDataSource.Add(Arg.Any<ModelEntity>(), Arg.Any<IMap?>()).Returns(Result.Invalid("A model with the key 'model1' already exists."));
 
         // Act & Assert
         _handler.Invoking(h => h.Add(model))
-            .Should().Throw<InvalidOperationException>()
-            .WithMessage("A model with the key 'model1' already exists.");
+            .Should().Throw<ValidationException>()
+            .WithMessage("Validation failed.");
     }
 
     [Fact]
     public void Add_WhenModelIsNew_ShouldAddModelAndSetSelected() {
         // Arrange
         var model = new ModelEntity { Id = 1, Key = "model1", Name = "Test Model" };
-        _mockDataSource.FindByKey(1).Returns((ModelEntity?)null);
+        _mockDataSource.FindById(1).Returns((ModelEntity?)null);
+        _mockDataSource.Add(Arg.Any<ModelEntity>(), Arg.Any<IMap?>()).Returns(Result.Success());
 
         // Act
         _handler.Add(model);
 
         // Assert
-        _mockDataSource.Received(1).Add(model);
+        _mockDataSource.Received(1).Add(model, Arg.Any<IMap?>());
         model.Selected.Should().BeTrue();
         _mockLogger.Logs.Should().ContainSingle(log => log.Level == LogLevel.Information
                                                     && log.Message.Contains(model.Key)
@@ -119,25 +123,26 @@ public class ModelHandlerTests {
     public void Update_WhenModelDoesNotExist_ShouldThrowException() {
         // Arrange
         var model = new ModelEntity { Id = 1, Key = "model1", Name = "Test Model" };
-        _mockDataSource.FindByKey(1).Returns((ModelEntity?)null);
+        _mockDataSource.FindById(1).Returns((ModelEntity?)null);
 
         // Act & Assert
         _handler.Invoking(h => h.Update(model))
             .Should().Throw<InvalidOperationException>()
-            .WithMessage("Settings with key 'model1' not found.");
+            .WithMessage("Model with id '1' not found.");
     }
 
     [Fact]
     public void Update_WhenModelExists_ShouldUpdateModel() {
         // Arrange
         var model = new ModelEntity { Id = 1, Key = "model1", Name = "Test Model" };
-        _mockDataSource.FindByKey(1).Returns(model);
+        _mockDataSource.FindById(1).Returns(model);
+        _mockDataSource.Update(Arg.Any<ModelEntity>(), Arg.Any<IMap?>()).Returns(Result.Success());
 
         // Act
         _handler.Update(model);
 
         // Assert
-        _mockDataSource.Received(1).Update(model);
+        _mockDataSource.Received(1).Update(model, Arg.Any<IMap?>());
         _mockLogger.Logs.Should().ContainSingle(log => log.Level == LogLevel.Information
                                                     && log.Message.Contains(model.Key)
                                                     && log.Message.Contains(model.Name));
@@ -151,7 +156,7 @@ public class ModelHandlerTests {
         // Act & Assert
         _handler.Invoking(h => h.Remove(1))
             .Should().Throw<InvalidOperationException>()
-            .WithMessage("Settings with key 'model1' not found.");
+            .WithMessage("Model with id '1' not found.");
     }
 
     [Fact]
@@ -190,12 +195,12 @@ public class ModelHandlerTests {
     [Fact]
     public void Select_WhenModelDoesNotExist_ShouldThrowException() {
         // Arrange
-        _mockDataSource.FindByKey(1).Returns((ModelEntity?)null);
+        _mockDataSource.FindById(1).Returns((ModelEntity?)null);
 
         // Act & Assert
         _handler.Invoking(h => h.Select(1))
             .Should().Throw<InvalidOperationException>()
-            .WithMessage("Settings 'model1' not found.");
+            .WithMessage("Model '1' not found.");
     }
 
     [Fact]
@@ -203,7 +208,7 @@ public class ModelHandlerTests {
         // Arrange
         var model = new ModelEntity { Id = 1, Key = "model1", Name = "Test Model" };
         _records.Add(model);
-        _mockDataSource.FindByKey(1).Returns(model);
+        _mockDataSource.FindById(1).Returns(model);
         _mockDataSource.GetSelected().Returns(model);
 
         // Act

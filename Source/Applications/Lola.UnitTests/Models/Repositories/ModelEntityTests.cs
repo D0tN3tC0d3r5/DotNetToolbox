@@ -39,9 +39,9 @@ public class ModelEntityTests {
     }
 
     [Theory]
-    [InlineData(null, "The identifier is required.")]
-    [InlineData("", "The identifier is required.")]
-    [InlineData(" ", "The identifier is required.")]
+    [InlineData(null, "The key is required.")]
+    [InlineData("", "The key is required.")]
+    [InlineData(" ", "The key is required.")]
     public void ValidateKey_WithInvalidKey_ShouldReturnError(string? key, string expectedError) {
         // Act
         var result = ModelEntity.ValidateKey(key, _mockModelHandler);
@@ -55,14 +55,14 @@ public class ModelEntityTests {
     public void ValidateKey_WithExistingKey_ShouldReturnError() {
         // Arrange
         const string key = "existingKey";
-        _mockModelHandler.GetById(Arg.Any<uint>()).Returns(new ModelEntity { Key = key });
+        _mockModelHandler.GetByKey(Arg.Any<string>()).Returns(new ModelEntity { Key = key });
 
         // Act
         var result = ModelEntity.ValidateKey(key, _mockModelHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
-        result.Errors.Should().Contain(e => e.Message == "A model with this identifier is already registered.");
+        result.Errors.Should().Contain(e => e.Message == "A model with this key is already registered.");
     }
 
     [Theory]
