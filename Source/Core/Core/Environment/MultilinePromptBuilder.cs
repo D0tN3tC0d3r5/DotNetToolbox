@@ -3,10 +3,17 @@ namespace DotNetToolbox.Environment;
 public class MultilinePromptBuilder(string prompt, IOutput output)
     : IMultilinePromptBuilder {
     private string _prompt = prompt;
+    private string _defaultValue = string.Empty;
     private Func<string, Result>? _validator;
 
     public MultilinePromptBuilder(IOutput output)
         : this(string.Empty, output) {
+    }
+
+    public MultilinePromptBuilder WithDefault(string? defaultValue) {
+        if (string.IsNullOrEmpty(defaultValue)) return this;
+        _defaultValue = defaultValue;
+        return this;
     }
 
     public MultilinePromptBuilder Validate(Func<string, Result> validate) {
@@ -25,10 +32,11 @@ public class MultilinePromptBuilder(string prompt, IOutput output)
         while (true) {
             _prompt = $"[teal]{_prompt}[/]";
             output.WriteLine(_prompt);
-            output.WriteLine("[gray]Press ENTER to insert a new line and CTRL+ENTER to submit.[/]");
+            output.WriteLine("[gray]Press ENTER to insert a new line, CTRL+ENTER to submit, and ESCAPE to cancel.[/]");
             var editor = new LineEditor {
                 MultiLine = true,
                 Prompt = new LineEditorPrompt("[yellow]>[/]", "[yellow]|[/]"),
+                Text = _defaultValue,
             };
             editor.KeyBindings.Remove(ConsoleKey.Enter);
             editor.KeyBindings.Remove(ConsoleKey.Enter, ConsoleModifiers.Control);

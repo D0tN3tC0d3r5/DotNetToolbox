@@ -6,5 +6,5 @@ public interface IEntity<TKey>
     : IEntity,
       IValidatable
     where TKey : notnull {
-    TKey Key { get; set; }
+    TKey Id { get; set; }
 }

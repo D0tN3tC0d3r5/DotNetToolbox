@@ -30,7 +30,7 @@ internal static partial class JobInputHelper {
     private static string FindValue(object input, string key, IReadOnlyDictionary<Type, Func<object, string>> converters)
         => input switch {
             IEnumerable<KeyValuePair<string, object>> dict when Map.FromMap(dict).TryGetValue(key, out var value) => ConvertInput(value, converters),
-            IEnumerable<KeyValuePair<string, object>> => throw new KeyNotFoundException($"Key '{key}' not found in the input."),
+            IEnumerable<KeyValuePair<string, object>> => throw new KeyNotFoundException($"Id '{key}' not found in the input."),
             _ when input.GetType().GetProperty(key) is { } prop => ConvertInput(prop.GetValue(input), converters),
             _ => throw new MissingMemberException($"Property '{key}' not found in the input object."),
         };

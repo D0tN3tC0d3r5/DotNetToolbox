@@ -12,7 +12,7 @@ public class ModelDataSourceTests {
 
         // Assert
         subject.Should().BeAssignableTo<IModelDataSource>();
-        subject.Should().BeAssignableTo<DataSource<IModelStorage, ModelEntity, string>>();
+        subject.Should().BeAssignableTo<DataSource<IModelStorage, ModelEntity, uint>>();
     }
 
     [Fact]
@@ -24,8 +24,8 @@ public class ModelDataSourceTests {
 
         var models = new[]
         {
-            new ModelEntity { Key = "model1", ProviderKey = 1 },
-            new ModelEntity { Key = "model2", ProviderKey = 2 },
+            new ModelEntity { Id = 1, Key = "model1", ProviderId = 1 },
+            new ModelEntity { Id = 2, Key = "model2", ProviderId = 2 },
         };
 
         mockStorage.GetAll(Arg.Any<Expression<Func<ModelEntity, bool>>?>()).Returns(models);
@@ -48,14 +48,14 @@ public class ModelDataSourceTests {
 
         var models = new[]
         {
-            new ModelEntity { Key = "model1", ProviderKey = 1 },
-            new ModelEntity { Key = "model2", ProviderKey = 2 },
+            new ModelEntity { Id = 1, Key = "model1", ProviderId = 1 },
+            new ModelEntity { Id = 2, Key = "model2", ProviderId = 2 },
         };
 
         var providers = new[]
         {
-            new ProviderEntity { Key = 1, Name = "Provider1" },
-            new ProviderEntity { Key = 2, Name = "Provider2" },
+            new ProviderEntity { Id = 1, Name = "Provider1" },
+            new ProviderEntity { Id = 2, Name = "Provider2" },
         };
 
         mockStorage.GetAll(Arg.Any<Expression<Func<ModelEntity, bool>>?>()).Returns(models);
@@ -78,8 +78,8 @@ public class ModelDataSourceTests {
         var mockProviders = new Lazy<IProviderDataSource>(() => mockProviderDataSource);
         var subject = new ModelDataSource(mockStorage, mockProviders);
 
-        var selectedModel = new ModelEntity { Key = "selected", ProviderKey = 1, Selected = true };
-        var provider = new ProviderEntity { Key = 1, Name = "Provider1" };
+        var selectedModel = new ModelEntity { Id = 1, Key = "selected", ProviderId = 1, Selected = true };
+        var provider = new ProviderEntity { Id = 1, Name = "Provider1" };
 
         mockStorage.Find(Arg.Any<Expression<Func<ModelEntity, bool>>>()).Returns(selectedModel);
         mockProviderDataSource.FindByKey(1u).Returns(provider);
@@ -117,14 +117,14 @@ public class ModelDataSourceTests {
         var mockProviders = new Lazy<IProviderDataSource>(() => mockProviderDataSource);
         var subject = new ModelDataSource(mockStorage, mockProviders);
 
-        var model = new ModelEntity { Key = "model1", ProviderKey = 1 };
-        var provider = new ProviderEntity { Key = 1, Name = "Provider1" };
+        var model = new ModelEntity { Id = 1, Key = "model1", ProviderId = 1 };
+        var provider = new ProviderEntity { Id = 1, Name = "Provider1" };
 
-        mockStorage.FindByKey("model1").Returns(model);
+        mockStorage.FindByKey(1).Returns(model);
         mockProviderDataSource.FindByKey(1u).Returns(provider);
 
         // Act
-        var result = subject.FindByKey("model1", includeProvider: true);
+        var result = subject.FindById(1, includeProvider: true);
 
         // Assert
         result.Should().BeEquivalentTo(model);
@@ -138,12 +138,12 @@ public class ModelDataSourceTests {
         var mockProviders = new Lazy<IProviderDataSource>(() => Substitute.For<IProviderDataSource>());
         var subject = new ModelDataSource(mockStorage, mockProviders);
 
-        var model = new ModelEntity { Key = "model1", ProviderKey = 1 };
+        var model = new ModelEntity { Id = 1, Key = "model1", ProviderId = 1 };
 
-        mockStorage.FindByKey("model1").Returns(model);
+        mockStorage.FindByKey(1).Returns(model);
 
         // Act
-        var result = subject.FindByKey("model1", includeProvider: false);
+        var result = subject.FindById(1, includeProvider: false);
 
         // Assert
         result.Should().BeEquivalentTo(model);
@@ -161,7 +161,7 @@ public class ModelDataSourceTests {
         mockStorage.Find(Arg.Any<Expression<Func<ModelEntity, bool>>>()).Returns((ModelEntity?)null);
 
         // Act
-        var result = subject.FindByKey("invalid");
+        var result = subject.FindByKey(13);
 
         // Assert
         result.Should().BeNull();

@@ -16,7 +16,7 @@ public class UserProfileEntity
     }
 
     public static implicit operator AIUserProfile(UserProfileEntity entity)
-        => new(entity.Key) {
+        => new(entity.Id) {
             Name = entity.Name,
             Language = entity.Language,
             Facts = entity.Facts,

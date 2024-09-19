@@ -133,13 +133,13 @@ public class ConsoleInput()
     }
     public virtual Task<TValue> AskRequiredAsync<TValue>(string prompt, TValue[] choices, CancellationToken ct = default) {
         var builder = new TextPromptBuilder<TValue>(prompt, _output);
-        builder.AsRequired();
+        builder.ShowOptionalFlag();
         if (choices.Length > 0) builder.AddChoices(choices);
         return builder.ShowAsync(ct);
     }
     public virtual Task<string> AskRequiredAsync(string prompt, string[] choices, CancellationToken ct = default) {
         var builder = new TextPromptBuilder<string>(prompt, _output);
-        builder.AsRequired();
+        builder.ShowOptionalFlag();
         if (choices.Length > 0) builder.AddChoices(choices);
         return builder.ShowAsync(ct);
     }

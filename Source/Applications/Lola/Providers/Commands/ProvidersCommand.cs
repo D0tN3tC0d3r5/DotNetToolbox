@@ -2,7 +2,7 @@
 
 public class ProvidersCommand(IHasChildren parent)
     : Command<ProvidersCommand>(parent, "Providers", n => {
-        n.Description = "Manage LLM Providers.";
+        n.Description = "Manage LLM Providers";
         n.Help = "Register, update, or remove LLM providers.";
         n.AddCommand<ProviderListCommand>();
         n.AddCommand<ProviderAddCommand>();

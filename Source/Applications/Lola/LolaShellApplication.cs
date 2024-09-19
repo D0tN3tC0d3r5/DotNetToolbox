@@ -32,21 +32,20 @@ public class LolaShellApplication
         return Result.Success();
     }
 
-    protected override async Task<Result> ProcessInteraction(CancellationToken ct = default) {
+    protected override Task<Result> ProcessInteraction(CancellationToken ct = default) {
         _logger.LogInformation("Executing default command...");
-        var choice = await Input.BuildSelectionPrompt<string>("What would you like to do?")
-                                .ConvertWith(MapTo)
-                                .AddChoices("Providers",
-                                            "Models",
-                                            "Personas",
-                                            "Tasks",
-                                            "UserProfile",
-                                            "Settings",
-                                            "Help",
-                                            "Exit")
-                                .ShowAsync(ct);
+        var choice = Input.BuildSelectionPrompt<string>("What would you like to do?")
+                          .ConvertWith(MapTo)
+                          .AddChoices("Providers",
+                                      "Models",
+                                      "Personas",
+                                      "Tasks",
+                                      "UserProfile",
+                                      "Settings",
+                                      "Help",
+                                      "Exit").Show();
 
-        return await ProcessCommand(choice, ct);
+        return ProcessCommand(choice, ct);
 
         string MapTo(string item) => Commands.FirstOrDefault(i => i.Name == item)?.Description ?? string.Empty;
     }

@@ -16,7 +16,7 @@ public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
             await SetUpAsync(provider, lt);
             handler.Add(provider);
             Output.WriteLine($"[green]Provider '{provider.Name}' added successfully.[/]");
-            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' added successfully.", provider.Key, provider.Name);
+            Logger.LogInformation("Provider '{ProviderId}:{ProviderName}' added successfully.", provider.Id, provider.Name);
             return Result.Success();
         }
         catch (ValidationException ex) {

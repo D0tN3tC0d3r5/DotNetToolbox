@@ -2,7 +2,7 @@
 
 public class PersonasCommand(IHasChildren parent)
     : Command<PersonasCommand>(parent, "Personas", n => {
-        n.Description = "Manage Agent Personas.";
+        n.Description = "Manage Agent's Personas";
         n.AddCommand<PersonaListCommand>();
         n.AddCommand<PersonaGenerateCommand>();
         n.AddCommand<PersonaViewCommand>();
@@ -17,7 +17,7 @@ public class PersonasCommand(IHasChildren parent)
         var cts = CancellationTokenSource.CreateLinkedTokenSource(lt, ct);
         var choice = await Input.BuildSelectionPrompt<string>("What would you like to do?")
                                 .ConvertWith(MapTo)
-                                .AddChoices(Commands.ToArray(c => c.Name))
+                                .AddChoices(Commands.AsIndexed().OrderBy(i => i.Index).ToArray(c => c.Value.Name))
                                 .ShowAsync(cts.Token);
 
         var command = Commands.FirstOrDefault(i => i.Name == choice);

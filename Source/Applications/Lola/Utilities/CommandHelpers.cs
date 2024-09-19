@@ -21,7 +21,7 @@ public static class CommandHelpers {
             return null;
         }
 
-        var choices = items.ToList(e => new ListItem<TItem, TKey>(e.Key, IsNotNull(mapText)(e), e));
+        var choices = items.ToList(e => new ListItem<TItem, TKey>(e.Id, IsNotNull(mapText)(e), e));
         var cancelOption = new ListItem<TItem, TKey>(default!, "Cancel", null);
         choices.Add(cancelOption);
 

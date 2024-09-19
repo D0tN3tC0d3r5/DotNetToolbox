@@ -11,32 +11,34 @@
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <Copyright>© Andre Vianna 2024</Copyright>
-    <Description>AI assisted console application.</Description>
+    <Description>AI-Assisted Workflow Management</Description>
     <InformationalVersion>0.1.alpha</InformationalVersion>
     <AssemblyVersion>0.1.*</AssemblyVersion>
     <Deterministic>false</Deterministic>
     <NoWarn>$(NoWarn);DV2001;DV2002;CS7035</NoWarn>
     <UserSecretsId>0453e4b5-0554-42b5-a904-36f2e1ea3686</UserSecretsId>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Lola.snk</AssemblyOriginatorKeyFile>
+    <ApplicationIcon>lola.ico</ApplicationIcon>
+    <ErrorReport>none</ErrorReport>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <ProjectReference Include="..\Console\DotNetToolbox.Console.csproj" />
-    <ProjectReference Include="..\..\AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
-    <ProjectReference Include="..\..\AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
-    <ProjectReference Include="..\..\AI\Core\DotNetToolbox.AI.csproj" />
-    <ProjectReference Include="..\..\Data\Storage\DotNetToolbox.Data.csproj" />
-    <ProjectReference Include="..\..\Data\File\DotNetToolbox.Data.File.csproj" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="data\models.json" />
+    <None Remove="data\providers.json" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.AI" Version="9.0.0-alpha1" />
-    <PackageReference Include="DotNetToolbox.AI.Anthropic" Version="9.0.0-alpha1" />
-    <PackageReference Include="DotNetToolbox.AI.OpenAI" Version="9.0.0-alpha1" />
-    <PackageReference Include="DotNetToolbox.Console" Version="9.0.0-alpha1" />
-    <PackageReference Include="DotNetToolbox.Data" Version="9.0.0-alpha1" />
-    <PackageReference Include="DotNetToolbox.Data.File" Version="9.0.0-alpha1" />
+  <ItemGroup>
+    <Content Include="lola.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +49,12 @@
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.2" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="DotNetToolbox.AI" Version="9.0.0-alpha1" />
+    <PackageReference Include="DotNetToolbox.AI.Anthropic" Version="9.0.0-alpha1" />
+    <PackageReference Include="DotNetToolbox.AI.OpenAI" Version="9.0.0-alpha1" />
+    <PackageReference Include="DotNetToolbox.Console" Version="9.0.0-alpha1" />
+    <PackageReference Include="DotNetToolbox.Data" Version="9.0.0-alpha1" />
+    <PackageReference Include="DotNetToolbox.Data.File" Version="9.0.0-alpha1" />
   </ItemGroup>
 
   <ItemGroup>

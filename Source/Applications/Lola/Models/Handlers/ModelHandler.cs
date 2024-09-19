@@ -1,6 +1,8 @@
-﻿namespace Lola.Models.Handlers;
+﻿using ValidationException = DotNetToolbox.Results.ValidationException;
 
-public class ModelHandler(IApplication application, IModelDataSource dataSource, ILogger<ModelHandler> logger)
+namespace Lola.Models.Handlers;
+
+public class ModelHandler(IApplication application, IModelDataSource dataSource, Lazy<IProviderHandler> providerHandler, ILogger<ModelHandler> logger)
     : IModelHandler {
     private const string _applicationModelKey = "ApplicationModel";
 
@@ -37,42 +39,53 @@ public class ModelHandler(IApplication application, IModelDataSource dataSource,
     }
 
     public ModelEntity[] List(uint providerKey = 0)
-        => [.. dataSource.GetAll(m => m.ProviderKey == 0 || m.ProviderKey == providerKey).OrderBy(m => m.Name)];
+        => [.. dataSource.GetAll(m => m.ProviderId == 0 || m.ProviderId == providerKey).OrderBy(m => m.Name)];
+
+    public ModelEntity? GetById(uint id)
+        => dataSource.FindById(id);
 
     public ModelEntity? GetByKey(string key)
-        => dataSource.FindByKey(key);
+        => dataSource.Find(i => i.Key == key);
 
     public ModelEntity? GetByName(string name)
         => dataSource.Find(i => i.Name == name);
 
     public void Add(ModelEntity model) {
-        if (dataSource.FindByKey(model.Key) is not null)
+        if (dataSource.FindById(model.Id) is not null)
             throw new InvalidOperationException($"A model with the key '{model.Key}' already exists.");
         if (_selected is null) model.Selected = true;
-        dataSource.Add(model);
+
+        var context = Map.FromMap([new(nameof(ModelHandler), this), new(nameof(ProviderHandler), providerHandler.Value)]);
+        var result = dataSource.Add(model, context);
+        if (!result.IsSuccess)
+            throw new ValidationException(result.Errors);
         _selected = model;
         logger.LogInformation("Added new model: {ModelKey} => {ModelName}", model.Key, model.Name);
     }
 
     public void Update(ModelEntity model) {
-        if (dataSource.FindByKey(model.Key) == null)
+        if (dataSource.FindById(model.Id) == null)
             throw new InvalidOperationException($"Settings with key '{model.Key}' not found.");
-        dataSource.Update(model);
+
+        var context = Map.FromMap([new(nameof(ModelHandler), this), new(nameof(ProviderHandler), providerHandler.Value)]);
+        var result = dataSource.Update(model, context);
+        if (!result.IsSuccess)
+            throw new ValidationException(result.Errors);
         logger.LogInformation("Updated model: {ModelKey} => {ModelName}", model.Key, model.Name);
     }
 
-    public void Remove(string key) {
-        var model = dataSource.FindByKey(key, false) ?? throw new InvalidOperationException($"Settings with key '{key}' not found.");
+    public void Remove(uint id) {
+        var model = dataSource.FindById(id, false) ?? throw new InvalidOperationException($"Settings with key '{id}' not found.");
 
-        dataSource.Remove(key);
+        dataSource.Remove(id);
         logger.LogInformation("Removed model: {ModelKey} => {ModelName}", model.Key, model.Name);
     }
 
-    public ModelEntity[] ListByProvider(uint providerKey) => dataSource.GetAll(m => m.ProviderKey == providerKey);
+    public ModelEntity[] ListByProvider(uint providerKey) => dataSource.GetAll(m => m.ProviderId == providerKey);
 
-    public void Select(string key) {
-        var model = dataSource.FindByKey(key)
-                 ?? throw new InvalidOperationException($"Settings '{key}' not found.");
+    public void Select(uint id) {
+        var model = dataSource.FindById(id)
+                 ?? throw new InvalidOperationException($"Settings '{id}' not found.");
         Selected = model;
         logger.LogInformation("Settings '{ModelKey} => {ModelName}' selected : ", model.Key, model.Name);
     }

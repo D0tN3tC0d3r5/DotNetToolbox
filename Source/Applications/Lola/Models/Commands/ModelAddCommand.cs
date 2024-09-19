@@ -20,7 +20,7 @@ public class ModelAddCommand(IHasChildren parent, IModelHandler modelHandler, IP
             }
 
             var provider = await Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
-                                      .ConvertWith(p => $"{p.Key}: {p.Name}")
+                                      .ConvertWith(p => $"{p.Id}: {p.Name}")
                                       .AddChoices(providers)
                                       .ShowAsync(ct);
             var model = new ModelEntity();
@@ -46,7 +46,7 @@ public class ModelAddCommand(IHasChildren parent, IModelHandler modelHandler, IP
         model.Name = await Input.BuildTextPrompt<string>("Enter the model name:")
                                 .AddValidation(name => ModelEntity.ValidateName(name, modelHandler))
                                 .ShowAsync(ct);
-        model.ProviderKey = provider.Key;
+        model.ProviderId = provider.Id;
         model.MaximumContextSize = await Input.BuildTextPrompt<uint>("Enter the maximum context size:")
                                               .ShowAsync(ct);
         model.MaximumOutputTokens = await Input.BuildTextPrompt<uint>("Enter the maximum output tokens:")

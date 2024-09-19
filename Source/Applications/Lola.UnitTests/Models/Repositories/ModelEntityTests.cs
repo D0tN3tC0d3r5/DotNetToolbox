@@ -21,15 +21,15 @@ public class ModelEntityTests {
         var entity = new ModelEntity {
             Key = "model1",
             Name = "Test Model",
-            ProviderKey = 1,
+            ProviderId = 1,
             InputCostPerMillionTokens = 0.1m,
             OutputCostPerMillionTokens = 0.2m,
             TrainingDateCutOff = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)),
         };
 
-        _mockModelHandler.GetByKey(entity.Key).Returns((ModelEntity?)null);
+        _mockModelHandler.GetById(entity.Id).Returns((ModelEntity?)null);
         _mockModelHandler.GetByName(entity.Name).Returns((ModelEntity?)null);
-        _mockProviderHandler.GetByKey(entity.ProviderKey).Returns(new ProviderEntity());
+        _mockProviderHandler.GetById(entity.ProviderId).Returns(new ProviderEntity());
 
         // Act
         var result = entity.Validate(_mockContext);
@@ -55,7 +55,7 @@ public class ModelEntityTests {
     public void ValidateKey_WithExistingKey_ShouldReturnError() {
         // Arrange
         const string key = "existingKey";
-        _mockModelHandler.GetByKey(key).Returns(new ModelEntity());
+        _mockModelHandler.GetById(Arg.Any<uint>()).Returns(new ModelEntity { Key = key });
 
         // Act
         var result = ModelEntity.ValidateKey(key, _mockModelHandler);
@@ -96,7 +96,7 @@ public class ModelEntityTests {
     public void ValidateProvider_WithNonExistentProvider_ShouldReturnError() {
         // Arrange
         const uint providerKey = 999;
-        _mockProviderHandler.GetByKey(providerKey).Returns((ProviderEntity)null!);
+        _mockProviderHandler.GetById(providerKey).Returns((ProviderEntity)null!);
 
         // Act
         var result = ModelEntity.ValidateProvider(providerKey, _mockProviderHandler);
@@ -160,9 +160,10 @@ public class ModelEntityTests {
     public void ImplicitConversion_ToModel_ShouldConvertCorrectly() {
         // Arrange
         var entity = new ModelEntity {
+            Id = 1,
             Key = "model1",
             Name = "Test Model",
-            ProviderKey = 1,
+            ProviderId = 1,
             Provider = new() { Name = "Test Provider" },
             MaximumContextSize = 4096,
             MaximumOutputTokens = 1000,
@@ -173,7 +174,8 @@ public class ModelEntityTests {
         Model model = entity;
 
         // Assert
-        model.Id.Should().Be(entity.Key);
+        model.Id.Should().Be(entity.Id);
+        model.Key.Should().Be(entity.Key);
         model.Provider.Should().Be(entity.Provider.Name);
         model.Name.Should().Be(entity.Name);
         model.MaximumContextSize.Should().Be(entity.MaximumContextSize);

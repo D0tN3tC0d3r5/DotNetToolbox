@@ -4,50 +4,43 @@ namespace Lola.Providers.Handlers;
 
 public class ProviderHandler(IProviderDataSource dataSource, Lazy<IModelHandler> modelHandler, ILogger<ProviderHandler> logger)
     : IProviderHandler {
-    private readonly IProviderDataSource _dataSource = dataSource;
-    private readonly Lazy<IModelHandler> _modelHandler = modelHandler;
-    private readonly ILogger<ProviderHandler> _logger = logger;
-    public ProviderEntity[] List() => _dataSource.GetAll();
+    public ProviderEntity[] List() => dataSource.GetAll();
 
-    public ProviderEntity? GetByKey(uint key) => _dataSource.FindByKey(key);
-    public ProviderEntity? GetByName(string name) => _dataSource.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+    public ProviderEntity? GetById(uint id) => dataSource.FindByKey(id);
+    public ProviderEntity? GetByName(string name) => dataSource.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
     public void Add(ProviderEntity provider) {
-        if (GetByKey(provider.Key) != null)
-            throw new ValidationException($"A provider with the key '{provider.Key}' already exists.");
+        if (GetById(provider.Id) != null)
+            throw new ValidationException($"A provider with the id '{provider.Id}' already exists.");
 
         var context = Map.FromValue(nameof(ProviderHandler), this);
-        var result = provider.Validate(context);
+        var result = dataSource.Add(provider, context);
         if (!result.IsSuccess)
             throw new ValidationException(result.Errors);
-
-        _dataSource.Update(provider);
-        _logger.LogInformation("Added new provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
+        logger.LogInformation("Added new provider: {ProviderId} => {ProviderName}", provider.Name, provider.Id);
     }
 
     public void Update(ProviderEntity provider) {
-        if (GetByKey(provider.Key) is null)
-            throw new ValidationException($"Provider with key '{provider.Key}' not found.");
+        if (GetById(provider.Id) is null)
+            throw new ValidationException($"Provider with id '{provider.Id}' not found.");
 
         var context = Map.FromValue(nameof(ProviderHandler), this);
-        var result = provider.Validate(context);
+        var result = dataSource.Update(provider, context);
         if (!result.IsSuccess)
             throw new ValidationException(result.Errors);
-
-        _dataSource.Update(provider);
-        _logger.LogInformation("Updated provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
+        logger.LogInformation("Updated provider: {ProviderId} => {ProviderName}", provider.Name, provider.Id);
     }
 
-    public void Remove(uint key) {
-        var provider = GetByKey(key) ?? throw new ValidationException($"Provider with key '{key}' not found.");
+    public void Remove(uint id) {
+        var provider = GetById(id) ?? throw new ValidationException($"Provider with id '{id}' not found.");
 
-        var models = _modelHandler.Value.List(provider.Key);
+        var models = modelHandler.Value.List(provider.Id);
         foreach (var model in models) {
-            _modelHandler.Value.Remove(model.Key);
+            modelHandler.Value.Remove(model.Id);
         }
-        _logger.LogInformation("Removed all models from provider: {ProviderKey}", key);
+        logger.LogInformation("Removed all models from provider: {ProviderId}", id);
 
-        _dataSource.Remove(key);
-        _logger.LogInformation("Removed provider: {ProviderKey} => {ProviderName}", provider.Name, provider.Key);
+        dataSource.Remove(id);
+        logger.LogInformation("Removed provider: {ProviderId} => {ProviderName}", provider.Name, provider.Id);
     }
 }

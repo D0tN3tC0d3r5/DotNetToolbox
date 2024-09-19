@@ -14,9 +14,9 @@ public class ProviderEntityTests {
     public void Validate_WithValidEntity_ShouldReturnSuccess() {
         // Arrange
         var entity = new ProviderEntity {
-            Key = 1,
+            Id = 1,
             Name = "Test Provider",
-            ApiKey = "valid-api-key",
+            ApiKey = "valid-api-id",
         };
 
         _mockProviderHandler.GetByName(entity.Name).Returns((ProviderEntity?)null);
@@ -56,9 +56,9 @@ public class ProviderEntityTests {
     }
 
     [Theory]
-    [InlineData(null, "The API Key is required.")]
-    [InlineData("", "The API Key is required.")]
-    [InlineData(" ", "The API Key is required.")]
+    [InlineData(null, "The API Id is required.")]
+    [InlineData("", "The API Id is required.")]
+    [InlineData(" ", "The API Id is required.")]
     public void ValidateApiKey_WithInvalidApiKey_ShouldReturnError(string? apiKey, string expectedError) {
         // Act
         var result = ProviderEntity.ValidateApiKey(apiKey);
@@ -71,7 +71,7 @@ public class ProviderEntityTests {
     [Fact]
     public void ValidateApiKey_WithValidApiKey_ShouldReturnSuccess() {
         // Arrange
-        const string apiKey = "valid-api-key";
+        const string apiKey = "valid-api-id";
 
         // Act
         var result = ProviderEntity.ValidateApiKey(apiKey);

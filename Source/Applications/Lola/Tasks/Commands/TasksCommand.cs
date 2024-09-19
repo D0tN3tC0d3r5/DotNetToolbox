@@ -2,7 +2,7 @@
 
 public class TasksCommand(IHasChildren parent)
     : Command<TasksCommand>(parent, "Tasks", n => {
-        n.Description = "Manage Tasks.";
+        n.Description = "Manage Tasks";
         n.AddCommand<TaskListCommand>();
         //n.AddCommand<TaskCreateCommand>();
         //n.AddCommand<TaskUpdateCommand>();

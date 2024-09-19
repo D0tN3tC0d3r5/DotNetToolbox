@@ -1,10 +1,12 @@
 ﻿namespace Lola.Models.Repositories;
 
 public class ModelStorage(IConfiguration configuration)
-    : JsonFilePerTypeStorage<ModelEntity, string>("models", configuration),
+    : JsonFilePerTypeStorage<ModelEntity, uint>("models", configuration),
       IModelStorage {
-    protected override bool TryGenerateNextKey([MaybeNullWhen(false)] out string next) {
-        next = default;
-        return false;
+    protected override uint FirstKey { get; } = 1;
+
+    protected override bool TryGenerateNextKey(out uint next) {
+        next = LastUsedKey == default ? FirstKey : ++LastUsedKey;
+        return true;
     }
 }

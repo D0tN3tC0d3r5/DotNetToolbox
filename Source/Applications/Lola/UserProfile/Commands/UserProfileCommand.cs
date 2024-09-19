@@ -2,7 +2,7 @@
 
 public class UserProfileCommand(IHasChildren parent)
     : Command<UserProfileCommand>(parent, "UserProfile", n => {
-        n.Description = "Manage User Profile.";
+        n.Description = "Manage Your Profile";
         n.AddCommand<UserProfileSetCommand>();
         n.AddCommand<HelpCommand>();
     }) {

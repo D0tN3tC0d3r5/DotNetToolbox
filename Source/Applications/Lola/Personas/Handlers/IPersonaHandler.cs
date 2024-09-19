@@ -4,12 +4,11 @@ namespace Lola.Personas.Handlers;
 
 public interface IPersonaHandler {
     PersonaEntity[] List();
-    PersonaEntity? GetByKey(uint key);
+    PersonaEntity? GetById(uint id);
     PersonaEntity? GetByName(string name);
-    PersonaEntity Create(Action<PersonaEntity> setUp);
     void Add(PersonaEntity persona);
     void Update(PersonaEntity persona);
-    void Remove(uint key);
+    void Remove(uint id);
 
     Task<Query[]> GenerateQuestion(PersonaEntity persona);
     Task UpdateCreatedPersona(PersonaEntity persona);

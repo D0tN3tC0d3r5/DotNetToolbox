@@ -35,7 +35,7 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
 
     protected override Result<TKey?> LoadLastUsedKey() {
         LastUsedKey = Data.Count != 0
-            ? Data.Max(item => item.Key)
+            ? Data.Max(item => item.Id)
             : default;
         return Result.Success(LastUsedKey);
     }
@@ -76,7 +76,7 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
     }
 
     public override TItem? FindByKey(TKey key)
-        => Data.Find(item => item.Key.Equals(key));
+        => Data.Find(item => item.Id.Equals(key));
 
     public override TItem? Find(Expression<Func<TItem, bool>> predicate)
         => Data.AsQueryable().FirstOrDefault(predicate);
@@ -85,7 +85,7 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
 
     private void SaveItem(TItem item) {
         var json = JsonSerializer.Serialize(item, _jsonOptions);
-        var filePath = GetFilePath(item.Key);
+        var filePath = GetFilePath(item.Id);
         System.IO.File.WriteAllText(filePath, json);
     }
 
@@ -99,7 +99,7 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
     }
 
     public override Result Add(TItem newItem, IMap? validationContext = null) {
-        if (TryGetNextKey(out var next)) newItem.Key = next;
+        if (TryGetNextKey(out var next)) newItem.Id = next;
         var result = newItem.Validate(validationContext);
         if (!result.IsSuccess) return result;
         Data.Add(newItem);
@@ -108,8 +108,8 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
     }
 
     public override Result Update(TItem updatedItem, IMap? validationContext = null) {
-        var entry = Data.Index().FirstOrDefault(i => i.Item.Key.Equals(updatedItem.Key));
-        if (entry.Item is null) return new ValidationError($"Item '{updatedItem.Key}' not found", nameof(updatedItem));
+        var entry = Data.Index().FirstOrDefault(i => i.Item.Id.Equals(updatedItem.Id));
+        if (entry.Item is null) return new ValidationError($"Item '{updatedItem.Id}' not found", nameof(updatedItem));
         var result = updatedItem.Validate(validationContext);
         if (!result.IsSuccess) return result;
         Data[entry.Index] = updatedItem;
@@ -118,7 +118,7 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
     }
 
     public override Result Remove(TKey key) {
-        var entry = Data.Index().FirstOrDefault(i => i.Item.Key.Equals(key));
+        var entry = Data.Index().FirstOrDefault(i => i.Item.Id.Equals(key));
         if (entry.Item is null) return new ValidationError($"Item '{key}' not found", nameof(key));
         Data.RemoveAt(entry.Index);
 

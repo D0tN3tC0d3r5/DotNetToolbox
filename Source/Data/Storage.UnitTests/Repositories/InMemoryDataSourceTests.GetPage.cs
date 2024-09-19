@@ -15,7 +15,7 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public void GetPage_GetsAPage() {
-        var firstItem = new TestEntity("0") { Key = 1 };
+        var firstItem = new TestEntity("0") { Id = 1 };
         var result = _readOnlyRepo.GetPage();
         result.Should().BeOfType<Page<TestEntity>>();
         result.Items.Count.Should().Be(20);
@@ -24,7 +24,7 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public async Task GetPageAsync_GetAPage() {
-        var firstItem = new TestEntity("0") { Key = 1 };
+        var firstItem = new TestEntity("0") { Id = 1 };
         var result = await _readOnlyRepo.GetPageAsync();
         result.Should().BeOfType<Page<TestEntity>>();
         result.Items.Count.Should().Be(20);
@@ -33,7 +33,7 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public void GetPage_WithIndex_GetsAPage() {
-        var firstItem = new TestEntity("20") { Key = 21 };
+        var firstItem = new TestEntity("20") { Id = 21 };
         var result = _readOnlyRepo.GetPage(1);
         result.Should().BeOfType<Page<TestEntity>>();
         result.Items.Count.Should().Be(20);
@@ -42,7 +42,7 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public async Task GetPageAsync_WithIndex_GetAPage() {
-        var firstItem = new TestEntity("20") { Key = 21 };
+        var firstItem = new TestEntity("20") { Id = 21 };
         var result = await _readOnlyRepo.GetPageAsync(1);
         result.Should().BeOfType<Page<TestEntity>>();
         result.Items.Count.Should().Be(20);
@@ -51,7 +51,7 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public void GetLastPage_GetsAPage() {
-        var firstItem = new TestEntity("80") { Key = 81 };
+        var firstItem = new TestEntity("80") { Id = 81 };
         var result = _readOnlyRepo.GetPage(4);
         result.Should().BeOfType<Page<TestEntity>>();
         result.Items.Count.Should().Be(10);
@@ -60,7 +60,7 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public async Task GetLastPageAsync_GetAPage() {
-        var firstItem = new TestEntity("80") { Key = 81 };
+        var firstItem = new TestEntity("80") { Id = 81 };
         var result = await _readOnlyRepo.GetPageAsync(4);
         result.Should().BeOfType<Page<TestEntity>>();
         result.Items.Count.Should().Be(10);

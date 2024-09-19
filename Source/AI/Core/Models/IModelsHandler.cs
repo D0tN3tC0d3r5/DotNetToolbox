@@ -11,9 +11,9 @@ public interface IModelsHandler {
     /// Gets a list of models ids of the specified type.
     /// </summary>
     /// <param name="type">The type of the models to get.</param>
-    /// <returns>An array of strings with the ids of models of the specified type.</returns>
+    /// <returns>An array of unsigned integers with the ids of models of the specified type.</returns>
     /// <remarks>
     /// This method gets a list of model's id of the specified type from the OpenAI API.
     /// </remarks>
-    Task<string[]> GetIds(string? type = null);
+    Task<uint[]> GetIds(string? type = null);
 }

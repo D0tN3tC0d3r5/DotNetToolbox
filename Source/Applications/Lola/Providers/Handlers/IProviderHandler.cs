@@ -2,9 +2,9 @@
 
 public interface IProviderHandler {
     ProviderEntity[] List();
-    ProviderEntity? GetByKey(uint key);
+    ProviderEntity? GetById(uint id);
     ProviderEntity? GetByName(string name);
     void Add(ProviderEntity provider);
     void Update(ProviderEntity provider);
-    void Remove(uint key);
+    void Remove(uint id);
 }

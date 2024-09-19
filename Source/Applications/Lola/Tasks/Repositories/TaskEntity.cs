@@ -26,7 +26,7 @@ public class TaskEntity
     }
 
     public static implicit operator Task(TaskEntity entity)
-        => new(entity.Key) {
+        => new(entity.Id) {
             Name = entity.Name,
             Goals = entity.Goals,
             Scope = entity.Scope,

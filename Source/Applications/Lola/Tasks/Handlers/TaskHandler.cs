@@ -6,33 +6,33 @@ public class TaskHandler(ITaskDataSource dataSource, ILogger<TaskHandler> logger
 
     public TaskEntity[] List() => _dataSource.GetAll();
 
-    public TaskEntity? GetByKey(uint key) => _dataSource.FindByKey(key);
+    public TaskEntity? GetById(uint id) => _dataSource.FindByKey(id);
     public TaskEntity? GetByName(string name) => _dataSource.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
     public TaskEntity Create(Action<TaskEntity> setUp)
         => _dataSource.Create(setUp);
 
     public void Add(TaskEntity task) {
-        if (_dataSource.FindByKey(task.Key) != null)
-            throw new InvalidOperationException($"A task with the key '{task.Key}' already exists.");
+        if (_dataSource.FindByKey(task.Id) != null)
+            throw new InvalidOperationException($"A task with the id '{task.Id}' already exists.");
 
         _dataSource.Add(task);
-        _logger.LogInformation("Added new task: {TaskKey} => {TaskName}", task.Name, task.Key);
+        _logger.LogInformation("Added new task: {TaskId} => {TaskName}", task.Name, task.Id);
     }
 
     public void Update(TaskEntity task) {
-        if (_dataSource.FindByKey(task.Key) == null)
-            throw new InvalidOperationException($"Task with key '{task.Key}' not found.");
+        if (_dataSource.FindByKey(task.Id) == null)
+            throw new InvalidOperationException($"Task with id '{task.Id}' not found.");
 
         _dataSource.Update(task);
-        _logger.LogInformation("Updated task: {TaskKey} => {TaskName}", task.Name, task.Key);
+        _logger.LogInformation("Updated task: {TaskId} => {TaskName}", task.Name, task.Id);
     }
 
-    public void Remove(uint key) {
-        var task = _dataSource.FindByKey(key)
-                     ?? throw new InvalidOperationException($"Task with key '{key}' not found.");
+    public void Remove(uint id) {
+        var task = _dataSource.FindByKey(id)
+                     ?? throw new InvalidOperationException($"Task with id '{id}' not found.");
 
-        _dataSource.Remove(key);
-        _logger.LogInformation("Removed task: {TaskKey} => {TaskName}", task.Name, task.Key);
+        _dataSource.Remove(id);
+        _logger.LogInformation("Removed task: {TaskId} => {TaskName}", task.Name, task.Id);
     }
 }

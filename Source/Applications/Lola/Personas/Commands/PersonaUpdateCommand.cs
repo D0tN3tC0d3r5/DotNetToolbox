@@ -28,7 +28,7 @@ public class PersonaUpdateCommand(IHasChildren parent, IPersonaHandler handler)
 
             handler.Update(persona);
             Output.WriteLine($"[green]Persona '{persona.Name}' updated successfully.[/]");
-            Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' updated successfully.", persona.Key, persona.Name);
+            Logger.LogInformation("Persona '{PersonaId}:{PersonaName}' updated successfully.", persona.Id, persona.Name);
             return Result.Success();
         }
         catch (ValidationException ex) {
@@ -41,92 +41,112 @@ public class PersonaUpdateCommand(IHasChildren parent, IPersonaHandler handler)
 
     private async Task SetUpAsync(PersonaEntity persona, CancellationToken ct) {
         // Update Name
-        var newName = await Input.BuildTextPrompt<string>($"Current Name: {persona.Name}\nEnter the new name for the persona (or press Enter to keep current):")
+        persona.Name = await Input.BuildTextPrompt<string>("- Name (ENTER to keep current):")
+                                  .WithDefault(persona.Name)
+                                  .ShowOptionalFlag()
                                   .AddValidation(name => PersonaEntity.ValidateName(name, handler))
                                   .ShowAsync(ct);
-        if (!string.IsNullOrEmpty(newName)) {
-            persona.Name = newName;
-        }
 
         // Update Role
-        var newRole = await Input.BuildTextPrompt<string>($"Current Role: {persona.Role}\nEnter the new role for the persona (or press Enter to keep current):")
+        persona.Role = await Input.BuildTextPrompt<string>("- Role (ENTER to keep current):")
+                                  .WithDefault(persona.Role)
+                                  .ShowOptionalFlag()
                                   .AddValidation(PersonaEntity.ValidateRole)
                                   .ShowAsync(ct);
-        if (!string.IsNullOrEmpty(newRole)) {
-            persona.Role = newRole;
-        }
 
         // Update Goals
-        Output.WriteLine("Current Goals:");
-        foreach (var goal in persona.Goals) {
-            Output.WriteLine($" - {goal}");
+        Output.WriteLine($"This persona has currently {persona.Goals.Count} goals.");
+        var goalCount = 0;
+        while (goalCount < persona.Goals.Count) {
+            persona.Goals[goalCount] = await Input.BuildMultilinePrompt($"- Goal {goalCount + 1}:")
+                                                  .WithDefault(persona.Goals[goalCount])
+                                                  .Validate(PersonaEntity.ValidateGoal)
+                                                  .ShowAsync(ct);
+            goalCount++;
         }
-        var updateGoals = await Input.ConfirmAsync("Would you like to update the goals?", ct);
-        if (updateGoals) {
-            persona.Goals.Clear();
-            var goal = await Input.BuildMultilinePrompt("Enter the new goals for the persona (separate multiple goals with new lines):")
-                                  .Validate(PersonaEntity.ValidateGoal)
-                                  .ShowAsync(ct);
-            persona.Goals.AddRange(goal.Replace("\r", "").Split("\n"));
+        var addGoal = await Input.ConfirmAsync("Would you like to add another goal?", ct);
+        while (addGoal) {
+            persona.Goals[goalCount] = await Input.BuildMultilinePrompt($"- Goal {goalCount + 1}:")
+                                                  .Validate(PersonaEntity.ValidateGoal)
+                                                  .ShowAsync(ct);
+            addGoal = await Input.ConfirmAsync("Would you like to add another goal?", ct);
         }
 
         // Update Expertise
-        var newExpertise = await Input.BuildTextPrompt<string>($"Current Expertise: {persona.Expertise}\nEnter the new expertise for the persona (or press Enter to keep current):")
+        persona.Expertise = await Input.BuildMultilinePrompt("- Agent Expertise:")
+                                       .WithDefault(persona.Expertise)
                                        .ShowAsync(ct);
-        if (!string.IsNullOrEmpty(newExpertise)) {
-            persona.Expertise = newExpertise;
+
+        // Update traits
+        Output.WriteLine($"This persona has currently {persona.Characteristics.Count} characteristics.");
+        var characteristicCount = 0;
+        while (characteristicCount < persona.Characteristics.Count) {
+            persona.Characteristics[characteristicCount] = await Input.BuildMultilinePrompt($"- Characteristic {characteristicCount + 1}:")
+                                                   .WithDefault(persona.Characteristics[characteristicCount])
+                                                   .Validate(PersonaEntity.ValidateCharacteristic)
+                                                   .ShowAsync(ct);
+            characteristicCount++;
+        }
+        var addCharacteristic = await Input.ConfirmAsync("Would you like to add another characteristic?", ct);
+        while (addCharacteristic) {
+            persona.Characteristics[characteristicCount] = await Input.BuildMultilinePrompt($"- Characteristic {characteristicCount + 1}:")
+                                                   .Validate(PersonaEntity.ValidateCharacteristic)
+                                                   .ShowAsync(ct);
+            addCharacteristic = await Input.ConfirmAsync("Would you like to add another characteristic?", ct);
+        }
+
+        // Update Requirements
+        Output.WriteLine($"This persona has currently {persona.Requirements.Count} requirements.");
+        var requirementCount = 0;
+        while (requirementCount < persona.Requirements.Count) {
+            persona.Requirements[requirementCount] = await Input.BuildMultilinePrompt($"- Requirement {requirementCount + 1}:")
+                                                   .WithDefault(persona.Requirements[requirementCount])
+                                                   .Validate(PersonaEntity.ValidateRequirement)
+                                                   .ShowAsync(ct);
+            requirementCount++;
+        }
+        var addRequirement = await Input.ConfirmAsync("Would you like to add another requirement?", ct);
+        while (addRequirement) {
+            persona.Requirements[requirementCount] = await Input.BuildMultilinePrompt($"- Requirement {requirementCount + 1}:")
+                                                   .Validate(PersonaEntity.ValidateRequirement)
+                                                   .ShowAsync(ct);
+            addRequirement = await Input.ConfirmAsync("Would you like to add another requirement?", ct);
+        }
+
+        // Update Restrictions
+        Output.WriteLine($"This persona has currently {persona.Restrictions.Count} restrictions.");
+        var restrictionCount = 0;
+        while (restrictionCount < persona.Restrictions.Count) {
+            persona.Restrictions[restrictionCount] = await Input.BuildMultilinePrompt($"- Restriction {restrictionCount + 1}:")
+                                                         .WithDefault(persona.Restrictions[restrictionCount])
+                                                         .Validate(PersonaEntity.ValidateRestriction)
+                                                         .ShowAsync(ct);
+            restrictionCount++;
+        }
+        var addRestriction = await Input.ConfirmAsync("Would you like to add another restriction?", ct);
+        while (addRestriction) {
+            persona.Restrictions[restrictionCount] = await Input.BuildMultilinePrompt($"- Restriction {restrictionCount + 1}:")
+                                                         .Validate(PersonaEntity.ValidateRestriction)
+                                                         .ShowAsync(ct);
+            addRestriction = await Input.ConfirmAsync("Would you like to add another restriction?", ct);
         }
 
         // Update Traits
-        Output.WriteLine("Current Traits:");
-        foreach (var trait in persona.Traits) {
-            Output.WriteLine($" - {trait}");
+        Output.WriteLine($"This persona has currently {persona.Traits.Count} traits.");
+        var traitCount = 0;
+        while (traitCount < persona.Traits.Count) {
+            persona.Traits[traitCount] = await Input.BuildMultilinePrompt($"- Traits {traitCount + 1}:")
+                                                                .WithDefault(persona.Traits[traitCount])
+                                                                .Validate(PersonaEntity.ValidateTrait)
+                                                                .ShowAsync(ct);
+            traitCount++;
         }
-        var updateTraits = await Input.ConfirmAsync("Would you like to update the traits?", ct);
-        if (updateTraits) {
-            persona.Traits.Clear();
-            var traits = await Input.BuildMultilinePrompt("Enter the new traits for the persona (separate multiple traits with new lines):")
-                                    .ShowAsync(ct);
-            persona.Traits.AddRange(traits.Replace("\r", "").Split("\n"));
-        }
-
-        // Update Important
-        Output.WriteLine("Current Important Requirements:");
-        foreach (var important in persona.Important) {
-            Output.WriteLine($" - {important}");
-        }
-        var updateImportant = await Input.ConfirmAsync("Would you like to update the important requirements?", ct);
-        if (updateImportant) {
-            persona.Important.Clear();
-            var importantItems = await Input.BuildMultilinePrompt("Enter the new important requirements (separate multiple items with new lines):")
-                                            .ShowAsync(ct);
-            persona.Important.AddRange(importantItems.Replace("\r", "").Split("\n"));
-        }
-
-        // Update Negative
-        Output.WriteLine("Current Negative Restrictions:");
-        foreach (var negative in persona.Negative) {
-            Output.WriteLine($" - {negative}");
-        }
-        var updateNegative = await Input.ConfirmAsync("Would you like to update the negative restrictions?", ct);
-        if (updateNegative) {
-            persona.Negative.Clear();
-            var negativeItems = await Input.BuildMultilinePrompt("Enter the new negative restrictions (separate multiple items with new lines):")
-                                           .ShowAsync(ct);
-            persona.Negative.AddRange(negativeItems.Replace("\r", "").Split("\n"));
-        }
-
-        // Update Other
-        Output.WriteLine("Current Other Information:");
-        foreach (var other in persona.Other) {
-            Output.WriteLine($" - {other}");
-        }
-        var updateOther = await Input.ConfirmAsync("Would you like to update the other information?", ct);
-        if (updateOther) {
-            persona.Other.Clear();
-            var otherItems = await Input.BuildMultilinePrompt("Enter the new other information (separate multiple items with new lines):")
-                                        .ShowAsync(ct);
-            persona.Other.AddRange(otherItems.Replace("\r", "").Split("\n"));
+        var addTrait = await Input.ConfirmAsync("Would you like to add another trait?", ct);
+        while (addTrait) {
+            persona.Traits[traitCount] = await Input.BuildMultilinePrompt($"- Traits {traitCount + 1}:")
+                                                                .Validate(PersonaEntity.ValidateTrait)
+                                                                .ShowAsync(ct);
+            addTrait = await Input.ConfirmAsync("Would you like to add another trait?", ct);
         }
     }
 }

@@ -1,7 +1,9 @@
 [
   {
-    "Internal": true,
-    "Name": "User",
+    "Internal": false,
+    "Name": "Argus",
+    "Language": "English",
+    "Facts": [],
     "Key": 0
   }
 ]

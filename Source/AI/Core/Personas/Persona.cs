@@ -12,7 +12,7 @@ public class Persona
         Expertise = """
             general knowledge, problem-solving, and clear communication. You have a broad base of information across many subjects.
             """;
-        Traits = [
+        Characteristics = [
             "You are respectful, patient, and professional in all interactions.",
             "You strive for clarity and conciseness in your responses.",
             "You're capable of understanding and generating content in multiple languages.",
@@ -23,19 +23,19 @@ public class Persona
             "You try to stay neutral on controversial topics and present balanced viewpoints.",
             "You encourage critical thinking and provide resources for further learning when relevant.",
         ];
-        Important = [
+        Requirements = [
             "always prioritize the user's safety and well-being in your responses",
             "provide accurate information to the best of your knowledge and clearly state when you are unsure",
             "maintain user privacy and never share or ask for personal information without explicit permission",
             "always be willing to help and assist the user in a positive and constructive manner",
             "approach each interaction with enthusiasm and a commitment to providing the best possible assistance",
         ];
-        Negative = [
+        Restrictions = [
             "Give any advice or help the USER engage in illegal, harmful, or unethical behavior.",
             "Give any advice or information to the USER that you know is false, misleading, or dangerous to the USER or others.",
             "pretend to be a human or claim capabilities you don't have",
         ];
-        Other = [];
+        Traits = [];
     }
     public uint Id {
         get => (uint)this[nameof(Id)];
@@ -57,21 +57,21 @@ public class Persona
         get => (string?)this[nameof(Expertise)]!;
         init => this[nameof(Expertise)] = value;
     }
+    public List<string> Characteristics {
+        get => (List<string>)this[nameof(Characteristics)];
+        init => this[nameof(Characteristics)] = value;
+    }
+    public List<string> Requirements {
+        get => (List<string>)this[nameof(Requirements)];
+        init => this[nameof(Requirements)] = value;
+    }
+    public List<string> Restrictions {
+        get => (List<string>)this[nameof(Restrictions)];
+        init => this[nameof(Restrictions)] = value;
+    }
     public List<string> Traits {
         get => (List<string>)this[nameof(Traits)];
         init => this[nameof(Traits)] = value;
-    }
-    public List<string> Important {
-        get => (List<string>)this[nameof(Important)];
-        init => this[nameof(Important)] = value;
-    }
-    public List<string> Negative {
-        get => (List<string>)this[nameof(Negative)];
-        init => this[nameof(Negative)] = value;
-    }
-    public List<string> Other {
-        get => (List<string>)this[nameof(Other)];
-        init => this[nameof(Other)] = value;
     }
 
     public string Prompt {
@@ -90,25 +90,25 @@ public class Persona
                     break;
             }
             if (!string.IsNullOrWhiteSpace(Expertise)) sb.AppendLine($"You are an expert in {Expertise}.");
-            if (Traits.Count != 0) {
+            if (Characteristics.Count != 0) {
                 sb.AppendLine();
-                sb.AppendLine("## Your Key Traits:");
-                foreach (var trait in Traits) sb.AppendLine($"- {trait}");
+                sb.AppendLine("## Your Key Characteristics:");
+                foreach (var trait in Characteristics) sb.AppendLine($"- {trait}");
             }
-            if (Important.Count != 0) {
+            if (Requirements.Count != 0) {
                 sb.AppendLine();
-                sb.AppendLine("## Important Information:");
-                foreach (var info in Important) sb.AppendLine($"**IMPORTANT!** {info}");
+                sb.AppendLine("## Requirements Information:");
+                foreach (var info in Requirements) sb.AppendLine($"**IMPORTANT!** {info}");
             }
-            if (Negative.Count != 0) {
+            if (Restrictions.Count != 0) {
                 sb.AppendLine();
                 sb.AppendLine("## Never:");
-                foreach (var neg in Negative) sb.AppendLine($"**NEVER, IN ANY CIRCUMSTANCES!** {neg}");
+                foreach (var neg in Restrictions) sb.AppendLine($"**NEVER, IN ANY CIRCUMSTANCES!** {neg}");
             }
-            if (Other.Count != 0) {
+            if (Traits.Count != 0) {
                 sb.AppendLine();
                 sb.AppendLine("## Additional Information:");
-                foreach (var other in Other) sb.AppendLine(other);
+                foreach (var other in Traits) sb.AppendLine(other);
             }
             return sb.ToString().TrimEnd();
         }

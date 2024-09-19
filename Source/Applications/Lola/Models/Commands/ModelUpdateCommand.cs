@@ -18,7 +18,7 @@ public class ModelUpdateCommand(IHasChildren parent, IModelHandler modelHandler,
                 Logger.LogInformation("No models found. Remove model action cancelled.");
                 return Result.Success();
             }
-            var model = await this.SelectEntityAsync<ModelEntity, string>(models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name), m => m.Name, lt);
+            var model = await this.SelectEntityAsync<ModelEntity, uint>(models.OrderBy(m => m.ProviderId).ThenBy(m => m.Name), m => m.Name, lt);
             if (model is null) {
                 Logger.LogInformation("No model selected.");
                 return Result.Success();
@@ -39,31 +39,38 @@ public class ModelUpdateCommand(IHasChildren parent, IModelHandler modelHandler,
     }, "Error updating the model.", ct);
 
     private async Task SetUpAsync(ModelEntity model, CancellationToken ct) {
-        var currentProvider = providerHandler.GetByKey(model.ProviderKey);
+        var currentProvider = providerHandler.GetById(model.ProviderId);
         var provider = await Input.BuildSelectionPrompt<ProviderEntity>("Select a provider:")
-                                  .ConvertWith(p => $"{p.Key}: {p.Name}")
+                                  .ConvertWith(p => $"{p.Id}: {p.Name}")
                                   .WithDefault(currentProvider!)
                                   .AddChoices(providerHandler.List())
                                   .ShowAsync(ct);
-        model.ProviderKey = provider.Key;
+        model.ProviderId = provider.Id;
+
         model.Key = await Input.BuildTextPrompt<string>("Enter the model identifier:")
+                               .WithDefault(model.Key)
                                .AddValidation(key => ModelEntity.ValidateKey(key, modelHandler))
                                .ShowAsync(ct);
         model.Name = await Input.BuildTextPrompt<string>("Enter the model name:")
+                                .WithDefault(model.Name)
                                 .AddValidation(name => ModelEntity.ValidateName(name, modelHandler))
                                 .ShowAsync(ct);
-        model.ProviderKey = provider.Key;
         model.MaximumContextSize = await Input.BuildTextPrompt<uint>("Enter the maximum context size:")
+                                              .WithDefault(model.MaximumContextSize)
                                               .ShowAsync(ct);
         model.MaximumOutputTokens = await Input.BuildTextPrompt<uint>("Enter the maximum output tokens:")
+                                               .WithDefault(model.MaximumOutputTokens)
                                                .ShowAsync(ct);
         model.InputCostPerMillionTokens = await Input.BuildTextPrompt<decimal>("Enter the input cost per million tokens:")
+                                                     .WithDefault(model.InputCostPerMillionTokens)
                                                      .AddValidation(ModelEntity.ValidateInputCost)
                                                      .ShowAsync(ct);
         model.OutputCostPerMillionTokens = await Input.BuildTextPrompt<decimal>("Enter the output cost per million tokens:")
+                                                      .WithDefault(model.OutputCostPerMillionTokens)
                                                       .AddValidation(ModelEntity.ValidateOutputCost)
                                                       .ShowAsync(ct);
         model.TrainingDateCutOff = await Input.BuildTextPrompt<DateOnly?>("Enter the training data cut-off date (YYYY-MM-DD):")
+                                              .WithDefault(model.TrainingDateCutOff)
                                               .AddValidation(ModelEntity.ValidateDateCutOff)
                                               .ShowAsync(ct);
     }

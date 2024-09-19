@@ -57,7 +57,7 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public void Update_WithEntity_UpdatedItem() {
-        _updatableRepo.Update(new("Z") { Key = 2 });
+        _updatableRepo.Update(new("Z") { Id = 2 });
         _updatableRepo.Count().Should().Be(3);
         _updatableRepo.FirstOrDefault(s => s.Name == "BB").Should().BeNull();
         _updatableRepo.FirstOrDefault(s => s.Name == "Z").Should().NotBeNull();
@@ -65,14 +65,14 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public void Update_WithEntity_ForInvalidItem_UpdatedItem() {
-        _updatableRepo.Update(new("K") { Key = 99 });
+        _updatableRepo.Update(new("K") { Id = 99 });
         _updatableRepo.Count().Should().Be(3);
         _updatableRepo.FirstOrDefault(s => s.Name == "K").Should().BeNull();
     }
 
     [Fact]
     public async Task UpdateAsync_WithEntity_UpdatesItem() {
-        await _updatableRepo.UpdateAsync(new("Z") { Key = 2 });
+        await _updatableRepo.UpdateAsync(new("Z") { Id = 2 });
         _updatableRepo.Count().Should().Be(3);
         _updatableRepo.FirstOrDefault(s => s.Name == "BB").Should().BeNull();
         _updatableRepo.FirstOrDefault(s => s.Name == "Z").Should().NotBeNull();
@@ -80,7 +80,7 @@ public partial class InMemoryDataSourceTests {
 
     [Fact]
     public async Task UpdateAsync_WithEntity_ForInvalidItem_UpdatesItem() {
-        await _updatableRepo.UpdateAsync(new("K") { Key = 99 });
+        await _updatableRepo.UpdateAsync(new("K") { Id = 99 });
         _updatableRepo.Count().Should().Be(3);
         _updatableRepo.FirstOrDefault(s => s.Name == "K").Should().BeNull();
     }

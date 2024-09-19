@@ -20,14 +20,14 @@ public class PersonaGenerateCommand(IHasChildren parent, IPersonaHandler persona
             await personaHandler.UpdateCreatedPersona(persona);
 
             Output.WriteLine($"[green]Agent persona '{persona.Name}' generated successfully.[/]");
-            Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' generated successfully.", persona.Key, persona.Name);
+            Logger.LogInformation("Persona '{PersonaId}:{PersonaName}' generated successfully.", persona.Id, persona.Name);
 
             ShowResult(persona);
 
             var savePersona = await Input.ConfirmAsync("Are you ok with the generated Agent above?", lt);
             if (savePersona) {
                 personaHandler.Add(persona);
-                Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' added successfully.", persona.Key, persona.Name);
+                Logger.LogInformation("Persona '{PersonaId}:{PersonaName}' added successfully.", persona.Id, persona.Name);
                 return Result.Success();
             }
 
@@ -50,14 +50,14 @@ public class PersonaGenerateCommand(IHasChildren parent, IPersonaHandler persona
         Output.WriteLine(string.Join("\n", persona.Goals.Select(i => $" - {i}")));
         Output.WriteLine("[teal]Expertise:[/] [green](auto-generated)[/]");
         Output.WriteLine(persona.Expertise);
-        Output.WriteLine("[teal]Traits:[/] [green](auto-generated)[/]");
-        Output.WriteLine(string.Join("\n", persona.Traits.Select(i => $" - {i}")));
+        Output.WriteLine("[teal]Characteristics:[/] [green](auto-generated)[/]");
+        Output.WriteLine(string.Join("\n", persona.Characteristics.Select(i => $" - {i}")));
         Output.WriteLine("[teal]Requirements:[/] [green](auto-generated)[/]");
-        Output.WriteLine(string.Join("\n", persona.Important.Select(i => $" - {i}")));
+        Output.WriteLine(string.Join("\n", persona.Requirements.Select(i => $" - {i}")));
         Output.WriteLine("[teal]Restrictions:[/] [green](auto-generated)[/]");
-        Output.WriteLine(string.Join("\n", persona.Negative.Select(i => $" - {i}")));
-        Output.WriteLine("[teal]Other:[/] [green](auto-generated)[/]");
-        Output.WriteLine(string.Join("\n", persona.Other.Select(i => $" - {i}")));
+        Output.WriteLine(string.Join("\n", persona.Restrictions.Select(i => $" - {i}")));
+        Output.WriteLine("[teal]Traits:[/] [green](auto-generated)[/]");
+        Output.WriteLine(string.Join("\n", persona.Characteristics.Select(i => $" - {i}")));
         Output.WriteLine();
     }
 

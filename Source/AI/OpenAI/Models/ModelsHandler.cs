@@ -4,13 +4,13 @@ public class ModelsHandler(IHttpClientProvider httpClientProvider, ILogger<Model
         : IModelsHandler {
     private readonly HttpClient _httpClient = httpClientProvider.GetHttpClient();
 
-    public async Task<string[]> GetIds(string? type = null) {
+    public async Task<uint[]> GetIds(string? type = null) {
         try {
             logger.LogDebug("Getting list of models...");
             type ??= "chat";
             var models = await GetModelsAsync().ConfigureAwait(false);
             var result = models
-                        .Where(m => GetModelType(m.Id) == type)
+                        .Where(m => GetModelType(m.Key) == type)
                         .Select(m => m.Id)
                         .ToArray();
             logger.LogDebug("A list of {NumberOfModels} models of type {Type} was found.", result.Length, type);
@@ -29,8 +29,8 @@ public class ModelsHandler(IHttpClientProvider httpClientProvider, ILogger<Model
         return result!.Data;
     }
 
-    public static string GetModelType(string id) {
-        var name = id.StartsWith("ft:") ? id[3..] : id;
+    public static string GetModelType(string key) {
+        var name = key.StartsWith("ft:") ? key[3..] : key;
         return name switch {
             _ when name.StartsWith("dall-e") => "image",
             _ when name.StartsWith("whisper") => "stt",

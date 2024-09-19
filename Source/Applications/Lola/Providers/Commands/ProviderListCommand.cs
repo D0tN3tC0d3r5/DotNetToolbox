@@ -27,7 +27,7 @@ public class ProviderListCommand(IHasChildren parent, IProviderHandler providerH
         table.AddColumn(new("[yellow]Id[/]"));
         table.AddColumn(new("[yellow]Name[/]"));
         foreach (var provider in providers) {
-            table.AddRow(provider.Key.ToString(), provider.Name);
+            table.AddRow(provider.Id.ToString(), provider.Name);
         }
 
         Output.Write(table);

@@ -11,7 +11,7 @@ public class ModelStorageTests {
 
         // Assert
         subject.Should().BeAssignableTo<IModelStorage>();
-        subject.Should().BeAssignableTo<JsonFilePerTypeStorage<ModelEntity, string>>();
+        subject.Should().BeAssignableTo<JsonFilePerTypeStorage<ModelEntity, uint>>();
     }
 
     [Fact]
@@ -20,11 +20,11 @@ public class ModelStorageTests {
         var mockConfiguration = Substitute.For<IConfiguration>();
         var modelHandler = Substitute.For<IModelHandler>();
         var providerHandler = Substitute.For<IProviderHandler>();
-        providerHandler.GetByKey(Arg.Any<uint>()).Returns(new ProviderEntity());
+        providerHandler.GetById(Arg.Any<uint>()).Returns(new ProviderEntity());
         var context = new Map { ["ModelHandler"] = modelHandler, ["ProviderHandler"] = providerHandler };
         var subject = new ModelStorage(mockConfiguration);
-        var entity1 = new ModelEntity { Key = "alpha", Name = "Alpha", ProviderKey = 1 };
-        var entity2 = new ModelEntity { Key = "bravo", Name = "Bravo", ProviderKey = 1 };
+        var entity1 = new ModelEntity { Id = 1, Key = "alpha", Name = "Alpha", ProviderId = 1 };
+        var entity2 = new ModelEntity { Id = 2, Key = "bravo", Name = "Bravo", ProviderId = 1 };
 
         // Act
         subject.Add(entity1, context);
@@ -41,11 +41,11 @@ public class ModelStorageTests {
         var mockConfiguration = Substitute.For<IConfiguration>();
         var modelHandler = Substitute.For<IModelHandler>();
         var providerHandler = Substitute.For<IProviderHandler>();
-        providerHandler.GetByKey(Arg.Any<uint>()).Returns(new ProviderEntity());
+        providerHandler.GetById(Arg.Any<uint>()).Returns(new ProviderEntity());
         var context = new Map { ["ModelHandler"] = modelHandler, ["ProviderHandler"] = providerHandler };
         var subject = new ModelStorage(mockConfiguration);
-        var entity1 = new ModelEntity { Key = "alpha", Name = "Alpha", ProviderKey = 1 };
-        var entity2 = new ModelEntity { Key = "bravo", Name = "Bravo", ProviderKey = 1 };
+        var entity1 = new ModelEntity { Id = 1, Key = "alpha", Name = "Alpha", ProviderId = 1 };
+        var entity2 = new ModelEntity { Id = 2, Key = "bravo", Name = "Bravo", ProviderId = 1 };
 
         // Act
         subject.Add(entity1, context);

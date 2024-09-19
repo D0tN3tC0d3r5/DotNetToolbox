@@ -27,7 +27,7 @@ public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler
 
             handler.Update(provider);
             Output.WriteLine($"[green]Provider '{provider.Name}' updated successfully.[/]");
-            Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' updated successfully.", provider.Key, provider.Name);
+            Logger.LogInformation("Provider '{ProviderId}:{ProviderName}' updated successfully.", provider.Id, provider.Name);
             return Result.Success();
         }
         catch (ValidationException ex) {

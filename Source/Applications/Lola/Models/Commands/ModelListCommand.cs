@@ -14,7 +14,7 @@ public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, I
             Logger.LogInformation("No providers available. List models action cancelled.");
             return Result.Invalid("No providers available.");
         }
-        var choices = providers.ToList(p => new ListItem<ProviderEntity, uint>(p.Key, p.Name, p));
+        var choices = providers.ToList(p => new ListItem<ProviderEntity, uint>(p.Id, p.Name, p));
         var cancelOption = new ListItem<ProviderEntity, uint>(0, "All", null);
         choices.Insert(0, cancelOption);
         var selectedChoice = await Input.BuildSelectionPrompt<ListItem<ProviderEntity, uint>>("Select a provider:")
@@ -23,7 +23,7 @@ public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, I
                                     .ShowAsync(lt);
         var models = selectedChoice.Key == default
             ? modelHandler.List()
-            : modelHandler.List(selectedChoice.Item!.Key);
+            : modelHandler.List(selectedChoice.Item!.Id);
         if (models.Length == 0) {
             Output.WriteLine("[yellow]No models found.[/]");
             return Result.Success();
@@ -45,7 +45,7 @@ public class ModelListCommand(IHasChildren parent, IModelHandler modelHandler, I
         table.AddColumn(new TableColumn("[yellow]Map Size[/]").RightAligned());
         table.AddColumn(new TableColumn("[yellow]Output Tokens[/]").RightAligned());
         foreach (var model in sortedModels) {
-            var provider = providerHandler.GetByKey(model.ProviderKey)!;
+            var provider = providerHandler.GetById(model.ProviderId)!;
             table.AddRow(
                 model.Name,
                 provider.Name,

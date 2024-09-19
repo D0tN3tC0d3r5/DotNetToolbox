@@ -1,7 +1,7 @@
 ﻿namespace Lola.Models.Repositories;
 
-public interface IModelDataSource : IDataSource<ModelEntity, string> {
+public interface IModelDataSource : IDataSource<ModelEntity, uint> {
     ModelEntity? GetSelected();
     ModelEntity[] GetAll(Expression<Func<ModelEntity, bool>>? predicate = null, bool includeProviders = true);
-    ModelEntity? FindByKey(string key, bool includeProvider = true);
+    ModelEntity? FindById(uint id, bool includeProvider = true);
 }

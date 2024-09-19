@@ -20,14 +20,14 @@ public class PersonaRemoveCommand(IHasChildren parent, IPersonaHandler handler)
             return Result.Success();
         }
 
-        if (!await Input.ConfirmAsync($"Are you sure you want to remove the persona '{persona.Name}' ({persona.Key})?", lt)) {
+        if (!await Input.ConfirmAsync($"Are you sure you want to remove the persona '{persona.Name}' ({persona.Id})?", lt)) {
             Logger.LogInformation("Persona removal cancelled by user.");
             return Result.Invalid("Action cancelled.");
         }
 
-        handler.Remove(persona.Key);
+        handler.Remove(persona.Id);
         Output.WriteLine($"[green]Persona '{persona.Name}' removed successfully.[/]");
-        Logger.LogInformation("Persona '{PersonaKey}:{PersonaName}' removed successfully.", persona.Key, persona.Name);
+        Logger.LogInformation("Persona '{PersonaId}:{PersonaName}' removed successfully.", persona.Id, persona.Name);
         return Result.Success();
     }, "Error removing the persona.", ct);
 }

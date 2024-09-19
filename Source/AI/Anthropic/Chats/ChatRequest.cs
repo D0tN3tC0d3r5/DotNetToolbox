@@ -7,7 +7,7 @@ public class ChatRequest(IAgent connection, IModel model, IChat chat)
     IEnumerable<IChatRequestMessage> IChatRequest.Messages => [.. Messages];
 
     [JsonPropertyName("model")]
-    public string Model { get; } = model.Id;
+    public string Model { get; } = model.Key;
 
     [JsonPropertyName("system")]
     public string System { get; } = SetContext(chat);

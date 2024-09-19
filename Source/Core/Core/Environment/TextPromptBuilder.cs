@@ -5,13 +5,13 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
     private readonly List<TValue> _choices = [];
     private string _prompt = IsNotNullOrWhiteSpace(prompt);
     private bool _addLineBreak;
-    private bool _isRequired;
+    private bool _isRequired = true;
     private Func<TValue, Result>? _validator;
     private Func<TValue, string>? _converter;
     private char? _maskChar;
-    private TValue? _defaultChoice;
+    private TValue? _defaultValue;
 
-    [MemberNotNullWhen(true, nameof(_defaultChoice))]
+    [MemberNotNullWhen(true, nameof(_defaultValue))]
     private bool HasDefault { get; set; }
 
     public TextPromptBuilder<TValue> ConvertWith(Func<TValue, string> converter) {
@@ -21,9 +21,9 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
 
     public TextPromptBuilder<TValue> WithDefault(TValue defaultValue) {
         if (defaultValue is null) return this;
-        _defaultChoice = defaultValue;
-        HasDefault = _defaultChoice is not null
-                  && (_defaultChoice is not string text || !string.IsNullOrEmpty(text));
+        _defaultValue = defaultValue;
+        HasDefault = _defaultValue is not null
+                  && (_defaultValue is not string text || !string.IsNullOrEmpty(text));
         return this;
     }
 
@@ -47,9 +47,8 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         return this;
     }
 
-    public TextPromptBuilder<TValue> AsRequired() {
-        _isRequired = true;
-        AddValidation(ValidateRequired);
+    public TextPromptBuilder<TValue> ShowOptionalFlag() {
+        _isRequired = false;
         return this;
     }
 
@@ -82,7 +81,7 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         var prompt = new TextPrompt<TValue>(_prompt);
         prompt.AllowEmpty().ChoicesStyle(new(foreground: Color.Blue));
         if (_maskChar is not null) prompt = prompt.Secret(_maskChar);
-        if (HasDefault) prompt.DefaultValue(_defaultChoice);
+        if (HasDefault) prompt.DefaultValue(_defaultValue);
         if (_choices.Count > 0) {
             prompt.AddChoices(_choices);
             prompt.ShowChoices();
@@ -94,15 +93,8 @@ public class TextPromptBuilder<TValue>(string prompt, IOutput output)
         return prompt.ShowAsync(AnsiConsole.Console, ct);
     }
 
-    private Result ValidateRequired(TValue? value)
-        => value is null
-               ? Result.Invalid("The answer is required.")
-               : value is string text && string.IsNullOrWhiteSpace(text)
-                   ? Result.Invalid("The answer cannot be empty or blank.")
-                   : Result.Success();
-
     private Result ValidateChoices(TValue value)
         => _choices.Count == 0 || _choices.Contains(value)
                ? Result.Success()
-               : Result.Invalid("The answer must be one of the given choices.");
+               : Result.Invalid("Please select one of the available options");
 }

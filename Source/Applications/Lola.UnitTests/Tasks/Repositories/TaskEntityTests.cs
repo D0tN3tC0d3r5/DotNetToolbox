@@ -7,7 +7,7 @@ public class TaskEntityTests {
     public void Validate_WithValidEntity_ShouldReturnSuccess() {
         // Arrange
         var entity = new TaskEntity {
-            Key = 1,
+            Id = 1,
             Name = "Test Task",
             Goals = ["Goal 1"],
         };
@@ -23,7 +23,7 @@ public class TaskEntityTests {
     public void Validate_WithEmptyName_ShouldReturnError() {
         // Arrange
         var entity = new TaskEntity {
-            Key = 1,
+            Id = 1,
             Name = "",
             Goals = ["Goal 1"],
         };
@@ -40,7 +40,7 @@ public class TaskEntityTests {
     public void Validate_WithEmptyGoals_ShouldReturnError() {
         // Arrange
         var entity = new TaskEntity {
-            Key = 1,
+            Id = 1,
             Name = "Test Task",
             Goals = [],
         };
@@ -57,7 +57,7 @@ public class TaskEntityTests {
     public void Validate_WithEmptyNameAndGoals_ShouldReturnMultipleErrors() {
         // Arrange
         var entity = new TaskEntity {
-            Key = 1,
+            Id = 1,
             Name = "",
             Goals = [],
         };
@@ -75,7 +75,7 @@ public class TaskEntityTests {
     public void ImplicitConversion_ToTask_ShouldConvertCorrectly() {
         // Arrange
         var entity = new TaskEntity {
-            Key = 1,
+            Id = 1,
             Name = "Test Task",
             Goals = ["Goal 1", "Goal 2"],
             Scope = ["Scope 1"],
@@ -94,7 +94,7 @@ public class TaskEntityTests {
         DotNetToolbox.AI.Jobs.Task task = entity;
 
         // Assert
-        task.Id.Should().Be(entity.Key);
+        task.Id.Should().Be(entity.Id);
         task.Name.Should().Be(entity.Name);
         task.Goals.Should().BeEquivalentTo(entity.Goals);
         task.Scope.Should().BeEquivalentTo(entity.Scope);

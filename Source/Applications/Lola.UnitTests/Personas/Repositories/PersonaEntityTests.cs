@@ -14,7 +14,7 @@ public class PersonaEntityTests {
     public void Validate_WithValidEntity_ShouldReturnSuccess() {
         // Arrange
         var entity = new PersonaEntity {
-            Key = 1,
+            Id = 1,
             Name = "Test Persona",
             Role = "Test Role",
             Goals = ["Goal 1"],
@@ -129,29 +129,29 @@ public class PersonaEntityTests {
     public void ImplicitConversion_ToPersona_ShouldConvertCorrectly() {
         // Arrange
         var entity = new PersonaEntity {
-            Key = 1,
+            Id = 1,
             Name = "Test Persona",
             Role = "Test Role",
             Goals = ["Goal 1", "Goal 2"],
             Expertise = "Test Expertise",
-            Traits = ["Trait 1", "Trait 2"],
-            Important = ["Important 1"],
-            Negative = ["Negative 1"],
-            Other = ["Other 1"],
+            Characteristics = ["Characteristic 1", "Characteristic 2"],
+            Requirements = ["Requirement 1"],
+            Restrictions = ["Restriction 1"],
+            Traits = ["Traits 1"],
         };
 
         // Act
         DotNetToolbox.AI.Personas.Persona persona = entity;
 
         // Assert
-        persona.Id.Should().Be(entity.Key);
+        persona.Id.Should().Be(entity.Id);
         persona.Name.Should().Be(entity.Name);
         persona.Role.Should().Be(entity.Role);
         persona.Goals.Should().BeEquivalentTo(entity.Goals);
         persona.Expertise.Should().Be(entity.Expertise);
+        persona.Characteristics.Should().BeEquivalentTo(entity.Characteristics);
+        persona.Requirements.Should().BeEquivalentTo(entity.Requirements);
+        persona.Restrictions.Should().BeEquivalentTo(entity.Restrictions);
         persona.Traits.Should().BeEquivalentTo(entity.Traits);
-        persona.Important.Should().BeEquivalentTo(entity.Important);
-        persona.Negative.Should().BeEquivalentTo(entity.Negative);
-        persona.Other.Should().BeEquivalentTo(entity.Other);
     }
 }

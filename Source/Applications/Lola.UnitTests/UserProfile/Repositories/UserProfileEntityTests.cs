@@ -1,13 +1,13 @@
 using AIUserProfile = DotNetToolbox.AI.Jobs.UserProfile;
 
-namespace Lola.Tasks.Repositories;
+namespace Lola.UserProfile.Repositories;
 
 public class UserProfileEntityTests {
     [Fact]
     public void Validate_WithValidEntity_ShouldReturnSuccess() {
         // Arrange
         var entity = new UserProfileEntity {
-            Key = 1,
+            Id = 1,
             Name = "Test User",
             Language = "English",
         };
@@ -26,7 +26,7 @@ public class UserProfileEntityTests {
     public void Validate_WithInvalidName_ShouldReturnError(string? name) {
         // Arrange
         var entity = new UserProfileEntity {
-            Key = 1,
+            Id = 1,
             Name = name!,
             Language = "English",
         };
@@ -68,7 +68,7 @@ public class UserProfileEntityTests {
     public void ImplicitConversion_ToAIUserProfile_ShouldConvertCorrectly() {
         // Arrange
         var entity = new UserProfileEntity {
-            Key = 1,
+            Id = 1,
             Internal = true,
             Name = "Test User",
             Language = "French",
@@ -80,7 +80,7 @@ public class UserProfileEntityTests {
         AIUserProfile profile = entity;
 
         // Assert
-        profile.Id.Should().Be(entity.Key);
+        profile.Id.Should().Be(entity.Id);
         profile.Name.Should().Be(entity.Name);
         profile.Language.Should().Be(entity.Language);
         profile.Facts.Should().BeEquivalentTo(entity.Facts);

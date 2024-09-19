@@ -10,15 +10,9 @@
     <AssemblyName>Lola.UnitTests</AssemblyName>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Lola.snk</AssemblyOriginatorKeyFile>
     <NoWarn>$(NoWarn);DV2001;DV2002;xUnit1044;xUnit1045</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Personas\NewFolder\**" />
-    <EmbeddedResource Remove="Personas\NewFolder\**" />
-    <None Remove="Personas\NewFolder\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DotNetToolbox.FluentAssertions" Version="9.0.0-alpha1" />

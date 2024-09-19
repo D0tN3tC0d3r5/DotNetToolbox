@@ -19,7 +19,7 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
 
     protected override Result LoadLastUsedKey() {
         LastUsedKey = Data.Count != 0
-            ? Data.Max(item => item.Key)
+            ? Data.Max(item => item.Id)
             : default;
         return Result.Success(LastUsedKey);
     }
@@ -34,11 +34,11 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
     public override TItem? Find(Expression<Func<TItem, bool>> predicate)
         => _keylessStrategy.Find(predicate);
     public override TItem? FindByKey(TKey key)
-        => Find(x => x.Key.Equals(key));
+        => Find(x => x.Id.Equals(key));
 
     public override Result<TItem> Create(Action<TItem>? setItem = null, IMap? validationContext = null) {
         var item = new TItem();
-        item.Key = TryGetNextKey(out var next) ? next : item.Key;
+        item.Id = TryGetNextKey(out var next) ? next : item.Id;
         setItem?.Invoke(item);
         var result = Result.Success(item);
         result += _keylessStrategy.Add(item, validationContext);
@@ -46,7 +46,7 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
     }
 
     public override Result Add(TItem newItem, IMap? validationContext = null) {
-        newItem.Key = TryGetNextKey(out var next) ? next : newItem.Key;
+        newItem.Id = TryGetNextKey(out var next) ? next : newItem.Id;
         return _keylessStrategy.Add(newItem, validationContext);
     }
 
@@ -54,17 +54,17 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
         => _keylessStrategy.Update(predicate, updatedItem, validationContext);
 
     public override Result Update(TItem updatedItem, IMap? validationContext = null)
-        => Update(x => x.Key.Equals(updatedItem.Key), updatedItem, validationContext);
+        => Update(x => x.Id.Equals(updatedItem.Id), updatedItem, validationContext);
 
     public override Result Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IMap? validationContext = null)
         => _keylessStrategy.Patch(predicate, setItem, validationContext);
     public override Result Patch(TKey key, Action<TItem> setItem, IMap? validationContext = null)
-        => Patch(x => x.Key.Equals(key), setItem, validationContext);
+        => Patch(x => x.Id.Equals(key), setItem, validationContext);
 
     public override Result Remove(Expression<Func<TItem, bool>> predicate)
         => _keylessStrategy.Remove(predicate);
     public override Result Remove(TKey key)
-        => Remove(x => x.Key.Equals(key));
+        => Remove(x => x.Id.Equals(key));
 
     public override Result AddMany(IEnumerable<TItem> newItems, IMap? validationContext = null)
         => _keylessStrategy.AddMany(newItems, validationContext);
@@ -97,7 +97,7 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
     public override Result AddOrUpdate(TItem updatedItem, IMap? validationContext = null) {
         var result = updatedItem.Validate(validationContext);
         if (!result.IsSuccess) return result;
-        result += Remove(updatedItem.Key);
+        result += Remove(updatedItem.Id);
         return !result.IsSuccess
             ? result
             : _keylessStrategy.Add(updatedItem, validationContext);
@@ -137,7 +137,7 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
 
     protected override async Task<Result> LoadLastUsedKeyAsync(CancellationToken ct = default) {
         LastUsedKey = await Data.AsAsyncQueryable().AnyAsync(ct)
-            ? await Data.AsAsyncQueryable().MaxAsync(item => item.Key, ct)
+            ? await Data.AsAsyncQueryable().MaxAsync(item => item.Id, ct)
             : default;
         return Result.Success(LastUsedKey);
     }
@@ -160,7 +160,7 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
     public override ValueTask<TItem?> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => _keylessStrategy.FindAsync(predicate, ct);
     public override ValueTask<TItem?> FindByKeyAsync(TKey key, CancellationToken ct = default)
-        => FindAsync(x => x.Key.Equals(key), ct);
+        => FindAsync(x => x.Id.Equals(key), ct);
 
     public override async Task<Result<TItem>> CreateAsync(Func<TItem, CancellationToken, Task> setItem, IMap validationContext, CancellationToken ct = default) {
         var item = new TItem();
@@ -177,24 +177,24 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
     }
 
     public override async Task<Result> AddAsync(TItem newItem, IMap? validationContext = null, CancellationToken ct = default) {
-        newItem.Key = await GetNextKeyAsync(ct);
+        newItem.Id = await GetNextKeyAsync(ct);
         return await _keylessStrategy.AddAsync(newItem, validationContext, ct);
     }
 
     public override Task<Result> UpdateAsync(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IMap? validationContext = null, CancellationToken ct = default)
         => _keylessStrategy.UpdateAsync(predicate, updatedItem, validationContext, ct);
     public override Task<Result> UpdateAsync(TItem updatedItem, IMap? validationContext = null, CancellationToken ct = default)
-        => UpdateAsync(x => x.Key.Equals(updatedItem.Key), updatedItem, validationContext, ct);
+        => UpdateAsync(x => x.Id.Equals(updatedItem.Id), updatedItem, validationContext, ct);
 
     public override Task<Result> PatchAsync(Expression<Func<TItem, bool>> predicate, Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
         => _keylessStrategy.PatchAsync(predicate, setItem, validationContext, ct);
     public override Task<Result> PatchAsync(TKey key, Func<TItem, CancellationToken, Task> setItem, IMap? validationContext = null, CancellationToken ct = default)
-        => PatchAsync(x => x.Key.Equals(key), setItem, validationContext, ct);
+        => PatchAsync(x => x.Id.Equals(key), setItem, validationContext, ct);
 
     public override Task<Result> RemoveAsync(Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
         => _keylessStrategy.RemoveAsync(predicate, ct);
     public override Task<Result> RemoveAsync(TKey key, CancellationToken ct = default)
-        => RemoveAsync(x => x.Key.Equals(key), ct);
+        => RemoveAsync(x => x.Id.Equals(key), ct);
 
     public override Task<Result> AddManyAsync(IEnumerable<TItem> newItems, IMap? validationContext = null, CancellationToken ct = default)
         => _keylessStrategy.AddManyAsync(newItems, validationContext, ct);
@@ -223,7 +223,7 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
     public override async Task<Result> AddOrUpdateAsync(TItem updatedItem, IMap? validationContext = null, CancellationToken ct = default) {
         var result = updatedItem.Validate(validationContext);
         if (!result.IsSuccess) return result;
-        result += await RemoveAsync(updatedItem.Key, ct);
+        result += await RemoveAsync(updatedItem.Id, ct);
         return !result.IsSuccess
             ? result
             : await AddAsync(updatedItem, validationContext, ct);

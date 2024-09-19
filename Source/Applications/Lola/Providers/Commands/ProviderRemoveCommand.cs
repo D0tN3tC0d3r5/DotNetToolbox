@@ -12,20 +12,20 @@ public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler
         if (!result.IsSuccess) return result;
         var provider = result.Value;
 
-        var models = modelHandler.List(provider.Key);
+        var models = modelHandler.List(provider.Id);
         if (models.Length > 0) {
             Output.WriteLine("[yellow bold]The following model(s) will also be deleted.[/]");
             ShowList(models);
         }
 
-        if (!Input.Confirm($"Are you sure you want to delete '{provider.Name}' ({provider.Key})?")) {
+        if (!Input.Confirm($"Are you sure you want to delete '{provider.Name}' ({provider.Id})?")) {
             Logger.LogInformation("Provider remove action cancelled.");
             return Result.Success();
         }
 
-        handler.Remove(provider.Key);
-        Output.WriteLine($"[green]Provider with key '{provider.Name}' removed successfully.[/]");
-        Logger.LogInformation("Provider '{ProviderKey}:{ProviderName}' removed successfully.", provider.Key, provider.Name);
+        handler.Remove(provider.Id);
+        Output.WriteLine($"[green]Provider with id '{provider.Name}' removed successfully.[/]");
+        Logger.LogInformation("Provider '{ProviderId}:{ProviderName}' removed successfully.", provider.Id, provider.Name);
         return Result.Success();
     }, "Error removing the provider.", ct);
 
@@ -46,10 +46,11 @@ public class ProviderRemoveCommand(IHasChildren parent, IProviderHandler handler
 
     private void ShowList(ModelEntity[] models) {
         var table = new Table();
-        table.AddColumn("Settings Key");
-        table.AddColumn("Settings Name");
+        table.AddColumn("Id");
+        table.AddColumn("Key");
+        table.AddColumn("Name");
         foreach (var model in models) {
-            table.AddRow(model.Key, model.Name);
+            table.AddRow($"{model.Id}", model.Key, model.Name);
         }
         Output.Write(table);
     }

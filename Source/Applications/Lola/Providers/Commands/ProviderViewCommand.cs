@@ -28,6 +28,6 @@ public class ProviderViewCommand(IHasChildren parent, IProviderHandler handler)
     private void ShowDetails(ProviderEntity provider) {
         Output.WriteLine("[yellow]Provider Information:[/]");
         Output.WriteLine($"[blue]Name:[/] {provider.Name}");
-        Output.WriteLine($"[blue]API Key:[/] {provider.ApiKey ?? "[red]Not Set[/]"}");
+        Output.WriteLine($"[blue]API Id:[/] {provider.ApiKey ?? "[red]Not Set[/]"}");
     }
 }

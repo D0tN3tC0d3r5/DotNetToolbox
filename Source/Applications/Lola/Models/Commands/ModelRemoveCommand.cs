@@ -14,7 +14,7 @@ public class ModelRemoveCommand(IHasChildren parent, IModelHandler handler)
             Logger.LogInformation("No models found. Remove model action cancelled.");
             return Result.Success();
         }
-        var model = await this.SelectEntityAsync<ModelEntity, string>(models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name), m => m.Name, lt);
+        var model = await this.SelectEntityAsync<ModelEntity, uint>(models.OrderBy(m => m.ProviderId).ThenBy(m => m.Name), m => m.Name, lt);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             return Result.Success();
@@ -24,7 +24,7 @@ public class ModelRemoveCommand(IHasChildren parent, IModelHandler handler)
             return Result.Invalid("Action cancelled.");
         }
 
-        handler.Remove(model.Key);
+        handler.Remove(model.Id);
         Output.WriteLine($"[green]Settings with key '{model.Name}' removed successfully.[/]");
         return Result.Success();
     }, "Error removing a model.", ct);

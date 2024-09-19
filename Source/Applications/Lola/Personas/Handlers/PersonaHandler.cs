@@ -1,4 +1,5 @@
 ﻿using Task = System.Threading.Tasks.Task;
+using ValidationException = DotNetToolbox.Results.ValidationException;
 
 namespace Lola.Personas.Handlers;
 
@@ -12,34 +13,37 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
 
     public PersonaEntity[] List() => _dataSource.GetAll();
 
-    public PersonaEntity? GetByKey(uint key) => _dataSource.FindByKey(key);
+    public PersonaEntity? GetById(uint id) => _dataSource.FindByKey(id);
     public PersonaEntity? GetByName(string name) => _dataSource.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-    public PersonaEntity Create(Action<PersonaEntity> setUp)
-        => _dataSource.Create(setUp);
-
     public void Add(PersonaEntity persona) {
-        if (_dataSource.FindByKey(persona.Key) != null)
-            throw new InvalidOperationException($"A persona with the key '{persona.Key}' already exists.");
+        if (_dataSource.FindByKey(persona.Id) != null)
+            throw new InvalidOperationException($"A persona with the id '{persona.Id}' already exists.");
 
-        _dataSource.Add(persona);
-        logger.LogInformation("Added new persona: {PersonaKey} => {PersonaName}", persona.Name, persona.Key);
+        var context = Map.FromValue(nameof(PersonaHandler), this);
+        var result = _dataSource.Add(persona, context);
+        if (!result.IsSuccess)
+            throw new ValidationException(result.Errors);
+        logger.LogInformation("Added new persona: {PersonaId} => {PersonaName}", persona.Name, persona.Id);
     }
 
     public void Update(PersonaEntity persona) {
-        if (_dataSource.FindByKey(persona.Key) == null)
-            throw new InvalidOperationException($"Persona with key '{persona.Key}' not found.");
+        if (_dataSource.FindByKey(persona.Id) == null)
+            throw new InvalidOperationException($"Persona with id '{persona.Id}' not found.");
 
-        _dataSource.Update(persona);
-        logger.LogInformation("Updated persona: {PersonaKey} => {PersonaName}", persona.Name, persona.Key);
+        var context = Map.FromValue(nameof(PersonaHandler), this);
+        var result = _dataSource.Update(persona, context);
+        if (!result.IsSuccess)
+            throw new ValidationException(result.Errors);
+        logger.LogInformation("Updated persona: {PersonaId} => {PersonaName}", persona.Name, persona.Id);
     }
 
-    public void Remove(uint key) {
-        var persona = _dataSource.FindByKey(key)
-                     ?? throw new InvalidOperationException($"Persona with key '{key}' not found.");
+    public void Remove(uint id) {
+        var persona = _dataSource.FindByKey(id)
+                     ?? throw new InvalidOperationException($"Persona with id '{id}' not found.");
 
-        _dataSource.Remove(key);
-        logger.LogInformation("Removed persona: {PersonaKey} => {PersonaName}", persona.Name, persona.Key);
+        _dataSource.Remove(id);
+        logger.LogInformation("Removed persona: {PersonaId} => {PersonaName}", persona.Name, persona.Id);
     }
 
     public async Task<Query[]> GenerateQuestion(PersonaEntity persona) {
@@ -47,8 +51,8 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
             var appModel = _modelHandler.Selected ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
             var userProfileEntity = _userHandler.CurrentUser ?? throw new InvalidOperationException("No user found.");
-            var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
-            var taskEntity = _taskHandler.GetByKey(1) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
+            var personaEntity = GetById(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
+            var taskEntity = _taskHandler.GetById(1) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
             var context = new JobContext {
                 Model = appModel,
                 Agent = httpConnection,
@@ -89,8 +93,8 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
             var appModel = _modelHandler.Selected ?? throw new InvalidOperationException("No default AI model selected.");
             var httpConnection = _connectionAccessor.GetFor(appModel.Provider!.Name);
             var userProfileEntity = _userHandler.CurrentUser ?? throw new InvalidOperationException("No user found.");
-            var personaEntity = GetByKey(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
-            var taskEntity = _taskHandler.GetByKey(2) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
+            var personaEntity = GetById(1) ?? throw new InvalidOperationException("Required persona not found. Name: 'Agent Creator'.");
+            var taskEntity = _taskHandler.GetById(2) ?? throw new InvalidOperationException("Required task not found. Name: 'Ask Questions about the AI Agent'.");
             var context = new JobContext {
                 Model = appModel,
                 Agent = httpConnection,
@@ -117,10 +121,10 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
             persona.Role = context.OutputAsMap.GetRequiredValueAs<string>(nameof(Persona.Role));
             persona.Goals = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Goals));
             persona.Expertise = context.OutputAsMap.GetRequiredValueAs<string>(nameof(Persona.Expertise));
-            persona.Traits = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Traits));
-            persona.Important = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Important));
-            persona.Negative = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Negative));
-            persona.Other = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Other));
+            persona.Characteristics = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Characteristics));
+            persona.Requirements = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Requirements));
+            persona.Restrictions = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Restrictions));
+            persona.Characteristics = context.OutputAsMap.GetRequiredList<string>(nameof(Persona.Traits));
         }
         catch (Exception ex) {
             logger.LogError(ex, "Error generating next question for persona {PersonaName}", persona.Name);

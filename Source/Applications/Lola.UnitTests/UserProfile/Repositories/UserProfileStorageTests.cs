@@ -15,7 +15,7 @@ public class UserProfileStorageTests {
     }
 
     [Fact]
-    public void Add_ShouldAssignIncrementalKeys() {
+    public void Add_ShouldAssignIncrementalIds() {
         // Arrange
         var mockConfiguration = Substitute.For<IConfiguration>();
         var userprofileHandler = Substitute.For<IUserProfileHandler>();
@@ -29,12 +29,12 @@ public class UserProfileStorageTests {
         subject.Add(entity2, context);
 
         // Assert
-        entity1.Key.Should().Be(1u);
-        entity2.Key.Should().Be(2u);
+        entity1.Id.Should().Be(1u);
+        entity2.Id.Should().Be(2u);
     }
 
     [Fact]
-    public void GetAll_ShouldReturnEntitiesWithCorrectKeys() {
+    public void GetAll_ShouldReturnEntitiesWithCorrectIds() {
         // Arrange
         var mockConfiguration = Substitute.For<IConfiguration>();
         var userprofileHandler = Substitute.For<IUserProfileHandler>();
@@ -50,7 +50,7 @@ public class UserProfileStorageTests {
 
         // Assert
         allEntities.Should().HaveCount(2);
-        allEntities[0].Key.Should().Be(1u);
-        allEntities[1].Key.Should().Be(2u);
+        allEntities[0].Id.Should().Be(1u);
+        allEntities[1].Id.Should().Be(2u);
     }
 }

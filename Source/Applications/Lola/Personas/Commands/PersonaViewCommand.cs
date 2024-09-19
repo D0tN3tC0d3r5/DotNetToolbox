@@ -34,20 +34,20 @@ public class PersonaViewCommand(IHasChildren parent, IPersonaHandler handler)
         }
         Output.WriteLine("[blue]Expertise:[/]");
         Output.WriteLine(persona.Expertise);
-        Output.WriteLine("[blue]Traits:[/]");
-        foreach (var trait in persona.Traits) {
+        Output.WriteLine("[blue]Characteristics:[/]");
+        foreach (var trait in persona.Characteristics) {
             Output.WriteLine($" - {trait}");
         }
         Output.WriteLine("[blue]Important:[/]");
-        foreach (var important in persona.Important) {
+        foreach (var important in persona.Requirements) {
             Output.WriteLine($" - {important}");
         }
         Output.WriteLine("[blue]Negative:[/]");
-        foreach (var negative in persona.Negative) {
+        foreach (var negative in persona.Restrictions) {
             Output.WriteLine($" - {negative}");
         }
-        Output.WriteLine("[blue]Other:[/]");
-        foreach (var other in persona.Other) {
+        Output.WriteLine("[blue]Traits:[/]");
+        foreach (var other in persona.Characteristics) {
             Output.WriteLine($" - {other}");
         }
         Output.WriteLine();

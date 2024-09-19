@@ -53,14 +53,14 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
     [Fact]
     public void Constructor_WhenFileExists_DoesNotOverwriteFile() {
         // Arrange
-        System.IO.File.WriteAllText(_filePath, "[{\"Key\":1,\"Name\":\"TestItem\"}]");
+        System.IO.File.WriteAllText(_filePath, "[{\"Id\":1,\"Name\":\"TestItem\"}]");
 
         // Act
         _ = new TestJsonStorage("TestData", _configuration);
 
         // Assert
         var content = System.IO.File.ReadAllText(_filePath);
-        content.Should().Contain("\"Key\":1");
+        content.Should().Contain("\"Id\":1");
         content.Should().Contain("\"Name\":\"TestItem\"");
     }
 
@@ -81,8 +81,8 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
     public void Load_WhenFileHasData_LoadsDataIntoRepository() {
         // Arrange
         var jsonData = JsonSerializer.Serialize(new[] {
-            new TestItem { Key = 1, Name = "Item1" },
-            new TestItem { Key = 2, Name = "Item2" },
+            new TestItem { Id = 1, Name = "Item1" },
+            new TestItem { Id = 2, Name = "Item2" },
         }, _jsonOptions);
         System.IO.File.WriteAllText(_filePath, jsonData);
 
@@ -94,8 +94,8 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Assert
         result.IsSuccess.Should().BeTrue();
         storage.Data.Should().HaveCount(2);
-        storage.Data.Should().ContainSingle(i => i.Key == 1 && i.Name == "Item1");
-        storage.Data.Should().ContainSingle(i => i.Key == 2 && i.Name == "Item2");
+        storage.Data.Should().ContainSingle(i => i.Id == 1 && i.Name == "Item1");
+        storage.Data.Should().ContainSingle(i => i.Id == 2 && i.Name == "Item2");
     }
     [Fact]
     public void Load_WhenFileHasAnEmptyArray_LoadsNoData() {
@@ -127,9 +127,9 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
     public void LoadLastUsedKey_WhenRepositoryHasData_SetsLastUsedKey() {
         // Arrange
         var jsonData = JsonSerializer.Serialize(new[] {
-            new TestItem { Key = 1, Name = "Item1" },
-            new TestItem { Key = 3, Name = "Item3" },
-            new TestItem { Key = 2, Name = "Item2" },
+            new TestItem { Id = 1, Name = "Item1" },
+            new TestItem { Id = 3, Name = "Item3" },
+            new TestItem { Id = 2, Name = "Item2" },
         }, _jsonOptions);
         System.IO.File.WriteAllText(_filePath, jsonData);
         var storage = new TestJsonStorage("TestData", _configuration);
@@ -163,14 +163,14 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "ExistingItem" });
+        storage.Add(new() { Id = 1, Name = "ExistingItem" });
 
         // Act
         var result = storage.Create(item => item.Name = "NewItem");
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Key.Should().Be(0);
+        result.Value.Id.Should().Be(0);
         result.Value.Name.Should().Be("NewItem");
     }
 
@@ -224,8 +224,8 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "Item1" });
-        storage.Add(new() { Key = 2, Name = "Item2" });
+        storage.Add(new() { Id = 1, Name = "Item1" });
+        storage.Add(new() { Id = 2, Name = "Item2" });
 
         // Act
         var items = storage.GetAll();
@@ -239,8 +239,8 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "Apple" });
-        storage.Add(new() { Key = 2, Name = "Banana" });
+        storage.Add(new() { Id = 1, Name = "Apple" });
+        storage.Add(new() { Id = 2, Name = "Banana" });
 
         // Act
         var items = storage.GetAll(item => item.Name.StartsWith('A'));
@@ -255,9 +255,9 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "Charlie" });
-        storage.Add(new() { Key = 2, Name = "Bravo" });
-        storage.Add(new() { Key = 2, Name = "Alpha" });
+        storage.Add(new() { Id = 1, Name = "Charlie" });
+        storage.Add(new() { Id = 2, Name = "Bravo" });
+        storage.Add(new() { Id = 2, Name = "Alpha" });
 
         var sortClauses = new HashSet<SortClause> {
             new SortClause<string>("Name", SortDirection.Ascending),
@@ -278,9 +278,9 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "Charlie" });
-        storage.Add(new() { Key = 2, Name = "Bravo" });
-        storage.Add(new() { Key = 2, Name = "Alpha" });
+        storage.Add(new() { Id = 1, Name = "Charlie" });
+        storage.Add(new() { Id = 2, Name = "Bravo" });
+        storage.Add(new() { Id = 2, Name = "Alpha" });
 
         var sortClauses = new HashSet<SortClause>();
 
@@ -299,7 +299,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "Item1" });
+        storage.Add(new() { Id = 1, Name = "Item1" });
 
         var sortClauses = new HashSet<SortClause> {
             new SortClause<string>("InvalidProperty", SortDirection.Ascending),
@@ -319,9 +319,9 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "ItemA", Value = 5 });
-        storage.Add(new() { Key = 2, Name = "ItemA", Value = 10 });
-        storage.Add(new() { Key = 3, Name = "ItemB", Value = 7 });
+        storage.Add(new() { Id = 1, Name = "ItemA", Value = 5 });
+        storage.Add(new() { Id = 2, Name = "ItemA", Value = 10 });
+        storage.Add(new() { Id = 3, Name = "ItemB", Value = 7 });
         var orderBy = new HashSet<SortClause>
                       {
                           new SortClause<string>("Name", SortDirection.Ascending),
@@ -332,7 +332,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         var result = storage.GetAll(orderBy: orderBy);
 
         // Assert
-        result.Select(i => i.Key).Should().ContainInOrder(2, 1, 3);
+        result.Select(i => i.Id).Should().ContainInOrder(2, 1, 3);
     }
 
     [Fact]
@@ -340,12 +340,12 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "ItemA", Value = 1 });
-        storage.Add(new() { Key = 2, Name = "ItemA", Value = 3 });
-        storage.Add(new() { Key = 3, Name = "ItemB", Value = 2 });
-        storage.Add(new() { Key = 4, Name = "ItemB", Value = 1 });
-        storage.Add(new() { Key = 5, Name = "ItemA", Value = 2 });
-        storage.Add(new() { Key = 6, Name = "ItemB", Value = 3 });
+        storage.Add(new() { Id = 1, Name = "ItemA", Value = 1 });
+        storage.Add(new() { Id = 2, Name = "ItemA", Value = 3 });
+        storage.Add(new() { Id = 3, Name = "ItemB", Value = 2 });
+        storage.Add(new() { Id = 4, Name = "ItemB", Value = 1 });
+        storage.Add(new() { Id = 5, Name = "ItemA", Value = 2 });
+        storage.Add(new() { Id = 6, Name = "ItemB", Value = 3 });
         var orderBy = new HashSet<SortClause>
                       {
                           new SortClause<string>("Name", SortDirection.Ascending),
@@ -356,7 +356,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         var result = storage.GetAll(orderBy: orderBy);
 
         // Assert
-        result.Select(i => i.Key).Should().ContainInOrder(2, 5, 1, 6, 3, 4);
+        result.Select(i => i.Id).Should().ContainInOrder(2, 5, 1, 6, 3, 4);
     }
 
     [Fact]
@@ -364,12 +364,12 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "ItemA", Value = 1 });
-        storage.Add(new() { Key = 2, Name = "ItemA", Value = 3 });
-        storage.Add(new() { Key = 3, Name = "ItemB", Value = 2 });
-        storage.Add(new() { Key = 4, Name = "ItemB", Value = 1 });
-        storage.Add(new() { Key = 5, Name = "ItemA", Value = 2 });
-        storage.Add(new() { Key = 6, Name = "ItemB", Value = 3 });
+        storage.Add(new() { Id = 1, Name = "ItemA", Value = 1 });
+        storage.Add(new() { Id = 2, Name = "ItemA", Value = 3 });
+        storage.Add(new() { Id = 3, Name = "ItemB", Value = 2 });
+        storage.Add(new() { Id = 4, Name = "ItemB", Value = 1 });
+        storage.Add(new() { Id = 5, Name = "ItemA", Value = 2 });
+        storage.Add(new() { Id = 6, Name = "ItemB", Value = 3 });
         var orderBy = new HashSet<SortClause>
                       {
                           new SortClause<string>("Name", SortDirection.Descending),
@@ -380,7 +380,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         var result = storage.GetAll(orderBy: orderBy);
 
         // Assert
-        result.Select(i => i.Key).Should().ContainInOrder(4, 3, 6, 1, 5, 2);
+        result.Select(i => i.Id).Should().ContainInOrder(4, 3, 6, 1, 5, 2);
     }
 
     [Fact]
@@ -388,7 +388,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        var testItem = new TestItem { Key = 1, Name = "Item1" };
+        var testItem = new TestItem { Id = 1, Name = "Item1" };
         storage.Add(testItem);
 
         // Act
@@ -417,7 +417,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        var existingItem = new TestItem { Key = 1, Name = "ExistingItem" };
+        var existingItem = new TestItem { Id = 1, Name = "ExistingItem" };
         storage.Add(existingItem);
 
         // Act
@@ -446,10 +446,10 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        var existingItem = new TestItem { Key = 1, Name = "OldName" };
+        var existingItem = new TestItem { Id = 1, Name = "OldName" };
         storage.Add(existingItem);
 
-        var updatedItem = new TestItem { Key = 1, Name = "NewName" };
+        var updatedItem = new TestItem { Id = 1, Name = "NewName" };
 
         // Act
         var result = storage.Update(updatedItem);
@@ -466,7 +466,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        var updatedItem = new TestItem { Key = 99, Name = "NewName" };
+        var updatedItem = new TestItem { Id = 99, Name = "NewName" };
 
         // Act
         var result = storage.Update(updatedItem);
@@ -481,9 +481,9 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        var existingItem = new TestItem { Key = 1, Name = "ValidName" };
+        var existingItem = new TestItem { Id = 1, Name = "ValidName" };
         storage.Add(existingItem);
-        var invalidItem = new TestItem { Key = 1, Name = "" }; // Invalid Name
+        var invalidItem = new TestItem { Id = 1, Name = "" }; // Invalid Name
 
         // Act
         var result = storage.Update(invalidItem);
@@ -498,7 +498,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
         // Arrange
         var storage = new TestJsonStorage("TestData", _configuration);
         storage.Load();
-        storage.Add(new() { Key = 1, Name = "ItemToRemove" });
+        storage.Add(new() { Id = 1, Name = "ItemToRemove" });
 
         // Act
         var result = storage.Remove(1);
@@ -525,7 +525,7 @@ public sealed class JsonFilePerTypeStorageTests : IDisposable {
     }
 
     private sealed class TestItem : IEntity<uint> {
-        public uint Key { get; set; }
+        public uint Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public int Value { get; set; }
 

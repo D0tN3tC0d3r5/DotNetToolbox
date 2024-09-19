@@ -27,14 +27,16 @@ public sealed class ModelsHandlerTests : IDisposable {
         // Arrange
         var response = new ModelsResponse {
             Data = [
-                new("ft:model1") {
+                new(1) {
+                    Key = "ft:model1",
                     Name = "Settings 1",
                     MaximumContextSize = 32000,
                     MaximumOutputTokens = 2048,
                     TrainingDataCutOff = DateOnly.Parse("2020-01-01"),
                     Provider = "user1",
                 },
-                new("model2") {
+                new(2) {
+                    Key = "model2",
                     Name = "Settings 2",
                     MaximumContextSize = 32000,
                     MaximumOutputTokens = 2048,
@@ -50,8 +52,8 @@ public sealed class ModelsHandlerTests : IDisposable {
 
         // Assert
         result.Should().HaveCount(2);
-        result[0].Should().Be("ft:model1");
-        result[1].Should().Be("model2");
+        result[0].Should().Be(1);
+        result[1].Should().Be(2);
         _logger.Should().Have(1).LogsWith(LogLevel.Debug, "Getting list of models...");
         _logger.Should().Have(1).LogsWith(LogLevel.Debug, "A list of 2 models of type chat was found.");
     }

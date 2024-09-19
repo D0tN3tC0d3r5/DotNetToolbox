@@ -10,7 +10,7 @@ public partial class InMemoryDataSourceTests {
         public TestEntity(string name) : this() {
             Name = name;
         }
-        public int Key { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
 
         public Result Validate(IMap? context = null) => Result.Success();

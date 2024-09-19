@@ -14,12 +14,12 @@ public class ModelViewCommand(IHasChildren parent, IModelHandler handler, IProvi
             Logger.LogInformation("No models found. View model action cancelled.");
             return Result.Success();
         }
-        var model = await this.SelectEntityAsync<ModelEntity, string>(models.OrderBy(m => m.ProviderKey).ThenBy(m => m.Name), m => m.Name, lt);
+        var model = await this.SelectEntityAsync<ModelEntity, uint>(models.OrderBy(m => m.ProviderId).ThenBy(m => m.Name), m => m.Name, lt);
         if (model is null) {
             Logger.LogInformation("No model selected.");
             return Result.Success();
         }
-        model.Provider = providerHandler.GetByKey(model.ProviderKey)!;
+        model.Provider = providerHandler.GetById(model.ProviderId)!;
 
         ShowDetails(model);
 

@@ -2,10 +2,11 @@
 
 namespace Lola.Models.Repositories;
 
-public class ModelEntity : Entity<ModelEntity, string> {
-    public uint ProviderKey { get; set; }
+public class ModelEntity : Entity<ModelEntity, uint> {
+    public uint ProviderId { get; set; }
     [JsonIgnore]
     public ProviderEntity? Provider { get; set; }
+    public string Key { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public uint MaximumContextSize { get; set; }
     public uint MaximumOutputTokens { get; set; }
@@ -18,7 +19,7 @@ public class ModelEntity : Entity<ModelEntity, string> {
         var result = base.Validate(context);
         result += ValidateKey(Key, IsNotNull(context).GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)));
         result += ValidateName(Name, IsNotNull(context).GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)));
-        result += ValidateProvider(ProviderKey, IsNotNull(context).GetRequiredValueAs<IProviderHandler>(nameof(ProviderHandler)));
+        result += ValidateProvider(ProviderId, IsNotNull(context).GetRequiredValueAs<IProviderHandler>(nameof(ProviderHandler)));
         result += ValidateInputCost(InputCostPerMillionTokens);
         result += ValidateOutputCost(OutputCostPerMillionTokens);
         result += ValidateDateCutOff(TrainingDateCutOff);
@@ -43,10 +44,10 @@ public class ModelEntity : Entity<ModelEntity, string> {
         return result;
     }
 
-    public static Result ValidateProvider(uint providerKey, IProviderHandler handler) {
+    public static Result ValidateProvider(uint providerId, IProviderHandler handler) {
         var result = Result.Success();
-        if (handler.GetByKey(providerKey) is null)
-            result += new ValidationError("The provider does not exist.", nameof(ProviderKey));
+        if (handler.GetById(providerId) is null)
+            result += new ValidationError("The provider does not exist.", nameof(ProviderId));
         return result;
     }
 
@@ -73,8 +74,9 @@ public class ModelEntity : Entity<ModelEntity, string> {
         return result;
     }
 
-    public static implicit operator Model(ModelEntity entity) => new(entity.Key) {
+    public static implicit operator Model(ModelEntity entity) => new(entity.Id) {
         Provider = entity.Provider!.Name,
+        Key = entity.Key,
         Name = entity.Name,
         MaximumContextSize = entity.MaximumContextSize,
         MaximumOutputTokens = entity.MaximumOutputTokens,
