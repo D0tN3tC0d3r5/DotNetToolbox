@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "Name": "OpenAI",
+    "Id": 1
+  },
+  {
+    "Name": "Anthropic",
+    "Id": 2
+  }
+]

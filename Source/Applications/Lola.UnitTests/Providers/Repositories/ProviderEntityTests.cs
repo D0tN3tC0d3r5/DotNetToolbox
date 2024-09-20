@@ -19,7 +19,7 @@ public class ProviderEntityTests {
             ApiKey = "valid-api-id",
         };
 
-        _mockProviderHandler.GetByName(entity.Name).Returns((ProviderEntity?)null);
+        _mockProviderHandler.Find(Arg.Any<Expression<Func<ProviderEntity, bool>>>()).Returns((ProviderEntity?)null);
 
         // Act
         var result = entity.Validate(_mockContext);
@@ -34,7 +34,7 @@ public class ProviderEntityTests {
     [InlineData(" ", "The name is required.")]
     public void ValidateName_WithInvalidName_ShouldReturnError(string? name, string expectedError) {
         // Act
-        var result = ProviderEntity.ValidateName(name, _mockProviderHandler);
+        var result = ProviderEntity.ValidateName(1, name, _mockProviderHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -45,10 +45,10 @@ public class ProviderEntityTests {
     public void ValidateName_WithExistingName_ShouldReturnError() {
         // Arrange
         const string name = "Existing Provider";
-        _mockProviderHandler.GetByName(name).Returns(new ProviderEntity());
+        _mockProviderHandler.Find(Arg.Any<Expression<Func<ProviderEntity, bool>>>()).Returns(new ProviderEntity());
 
         // Act
-        var result = ProviderEntity.ValidateName(name, _mockProviderHandler);
+        var result = ProviderEntity.ValidateName(1, name, _mockProviderHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();

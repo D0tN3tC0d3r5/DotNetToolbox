@@ -20,7 +20,7 @@ public class PersonaEntityTests {
             Goals = ["Goal 1"],
         };
 
-        _mockPersonaHandler.GetByName(entity.Name).Returns((PersonaEntity?)null);
+        _mockPersonaHandler.Find(Arg.Any<Expression<Func<PersonaEntity, bool>>>()).Returns((PersonaEntity?)null);
 
         // Act
         var result = entity.Validate(_mockContext);
@@ -35,7 +35,7 @@ public class PersonaEntityTests {
     [InlineData(" ", "The name is required.")]
     public void ValidateName_WithInvalidName_ShouldReturnError(string? name, string expectedError) {
         // Act
-        var result = PersonaEntity.ValidateName(name, _mockPersonaHandler);
+        var result = PersonaEntity.ValidateName(1, name, _mockPersonaHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -46,10 +46,10 @@ public class PersonaEntityTests {
     public void ValidateName_WithExistingName_ShouldReturnError() {
         // Arrange
         const string name = "Existing Persona";
-        _mockPersonaHandler.GetByName(name).Returns(new PersonaEntity());
+        _mockPersonaHandler.Find(Arg.Any<Expression<Func<PersonaEntity, bool>>>()).Returns(new PersonaEntity());
 
         // Act
-        var result = PersonaEntity.ValidateName(name, _mockPersonaHandler);
+        var result = PersonaEntity.ValidateName(1, name, _mockPersonaHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();

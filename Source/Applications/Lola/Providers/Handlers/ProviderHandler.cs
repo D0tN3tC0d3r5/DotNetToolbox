@@ -7,7 +7,7 @@ public class ProviderHandler(IProviderDataSource dataSource, Lazy<IModelHandler>
     public ProviderEntity[] List() => dataSource.GetAll();
 
     public ProviderEntity? GetById(uint id) => dataSource.FindByKey(id);
-    public ProviderEntity? GetByName(string name) => dataSource.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+    public ProviderEntity? Find(Expression<Func<ProviderEntity, bool>> predicate) => dataSource.Find(predicate);
 
     public void Add(ProviderEntity provider) {
         if (GetById(provider.Id) != null)

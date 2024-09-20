@@ -5,7 +5,7 @@ namespace Lola.Personas.Handlers;
 public interface IPersonaHandler {
     PersonaEntity[] List();
     PersonaEntity? GetById(uint id);
-    PersonaEntity? GetByName(string name);
+    PersonaEntity? Find(Expression<Func<PersonaEntity, bool>> predicate);
     void Add(PersonaEntity persona);
     void Update(PersonaEntity persona);
     void Remove(uint id);

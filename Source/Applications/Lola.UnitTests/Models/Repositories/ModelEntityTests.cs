@@ -27,9 +27,8 @@ public class ModelEntityTests {
             TrainingDateCutOff = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)),
         };
 
-        _mockModelHandler.GetById(entity.Id).Returns((ModelEntity?)null);
-        _mockModelHandler.GetByName(entity.Name).Returns((ModelEntity?)null);
-        _mockProviderHandler.GetById(entity.ProviderId).Returns(new ProviderEntity());
+        _mockModelHandler.Find(Arg.Any<Expression<Func<ModelEntity, bool>>>()).Returns((ModelEntity?)null);
+        _mockProviderHandler.GetById(Arg.Any<uint>()).Returns(new ProviderEntity());
 
         // Act
         var result = entity.Validate(_mockContext);
@@ -44,7 +43,7 @@ public class ModelEntityTests {
     [InlineData(" ", "The key is required.")]
     public void ValidateKey_WithInvalidKey_ShouldReturnError(string? key, string expectedError) {
         // Act
-        var result = ModelEntity.ValidateKey(key, _mockModelHandler);
+        var result = ModelEntity.ValidateKey(1, key, _mockModelHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -55,10 +54,10 @@ public class ModelEntityTests {
     public void ValidateKey_WithExistingKey_ShouldReturnError() {
         // Arrange
         const string key = "existingKey";
-        _mockModelHandler.GetByKey(Arg.Any<string>()).Returns(new ModelEntity { Key = key });
+        _mockModelHandler.Find(Arg.Any<Expression<Func<ModelEntity, bool>>>()).Returns(new ModelEntity());
 
         // Act
-        var result = ModelEntity.ValidateKey(key, _mockModelHandler);
+        var result = ModelEntity.ValidateKey(1, key, _mockModelHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -71,7 +70,7 @@ public class ModelEntityTests {
     [InlineData(" ", "The name is required.")]
     public void ValidateName_WithInvalidName_ShouldReturnError(string? name, string expectedError) {
         // Act
-        var result = ModelEntity.ValidateName(name, _mockModelHandler);
+        var result = ModelEntity.ValidateName(1, name, _mockModelHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -82,10 +81,10 @@ public class ModelEntityTests {
     public void ValidateName_WithExistingName_ShouldReturnError() {
         // Arrange
         const string name = "Existing Name";
-        _mockModelHandler.GetByName(name).Returns(new ModelEntity());
+        _mockModelHandler.Find(Arg.Any<Expression<Func<ModelEntity, bool>>>()).Returns(new ModelEntity());
 
         // Act
-        var result = ModelEntity.ValidateName(name, _mockModelHandler);
+        var result = ModelEntity.ValidateName(1, name, _mockModelHandler);
 
         // Assert
         result.IsInvalid.Should().BeTrue();

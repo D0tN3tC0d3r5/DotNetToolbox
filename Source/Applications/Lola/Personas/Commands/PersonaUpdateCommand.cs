@@ -44,7 +44,7 @@ public class PersonaUpdateCommand(IHasChildren parent, IPersonaHandler handler)
         persona.Name = await Input.BuildTextPrompt<string>("- Name (ENTER to keep current):")
                                   .WithDefault(persona.Name)
                                   .ShowOptionalFlag()
-                                  .AddValidation(name => PersonaEntity.ValidateName(name, handler))
+                                  .AddValidation(name => PersonaEntity.ValidateName(persona.Id, name, handler))
                                   .ShowAsync(ct);
 
         // Update Role

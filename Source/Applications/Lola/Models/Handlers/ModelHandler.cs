@@ -44,15 +44,12 @@ public class ModelHandler(IApplication application, IModelDataSource dataSource,
     public ModelEntity? GetById(uint id)
         => dataSource.FindById(id);
 
-    public ModelEntity? GetByKey(string key)
-        => dataSource.Find(i => i.Key == key);
-
-    public ModelEntity? GetByName(string name)
-        => dataSource.Find(i => i.Name == name);
+    public ModelEntity? Find(Expression<Func<ModelEntity, bool>> predicate)
+        => dataSource.Find(predicate);
 
     public void Add(ModelEntity model) {
         if (_selected is null) model.Selected = true;
-        var context = Map.FromMap([new(nameof(ModelHandler), this), new(nameof(ProviderHandler), providerHandler.Value)]);
+        var context = Map.FromMap([new("EntityAction", "Add"), new(nameof(ModelHandler), this), new(nameof(ProviderHandler), providerHandler.Value)]);
         var result = dataSource.Add(model, context);
         if (!result.IsSuccess)
             throw new ValidationException(result.Errors);

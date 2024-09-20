@@ -7,15 +7,27 @@ public class ProviderEntity
 
     public override Result Validate(IMap? context = null) {
         var result = base.Validate(context);
-        result += ValidateName(Name, IsNotNull(context).GetRequiredValueAs<IProviderHandler>(nameof(ProviderHandler)));
+        var action = IsNotNull(context).GetRequiredValueAs<EntityAction>(nameof(EntityAction));
+        result += action == EntityAction.Insert
+                      ? ValidateNewName(Name, context.GetRequiredValueAs<IProviderHandler>(nameof(ProviderHandler)))
+                      : ValidateName(Id, Name, context.GetRequiredValueAs<IProviderHandler>(nameof(ProviderHandler)));
         return result;
     }
 
-    public static Result ValidateName(string? name, IProviderHandler handler) {
+    public static Result ValidateNewName(string? name, IProviderHandler handler) {
         var result = Result.Success();
         if (string.IsNullOrWhiteSpace(name))
             result += new ValidationError("The name is required.", nameof(Name));
-        else if (handler.GetByName(name) is not null)
+        else if (handler.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is not null)
+            result += new ValidationError("A provider with this name is already registered.", nameof(Name));
+        return result;
+    }
+
+    public static Result ValidateName(uint id, string? name, IProviderHandler handler) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(name))
+            result += new ValidationError("The name is required.", nameof(Name));
+        else if (handler.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && p.Id != id) is not null)
             result += new ValidationError("A provider with this name is already registered.", nameof(Name));
         return result;
     }

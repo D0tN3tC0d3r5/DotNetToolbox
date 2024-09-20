@@ -49,11 +49,11 @@ public class ModelUpdateCommand(IHasChildren parent, IModelHandler modelHandler,
 
         model.Key = await Input.BuildTextPrompt<string>("Enter the model identifier:")
                                .WithDefault(model.Key)
-                               .AddValidation(key => ModelEntity.ValidateKey(key, modelHandler))
+                               .AddValidation(key => ModelEntity.ValidateKey(model.Id, key, modelHandler))
                                .ShowAsync(ct);
         model.Name = await Input.BuildTextPrompt<string>("Enter the model name:")
                                 .WithDefault(model.Name)
-                                .AddValidation(name => ModelEntity.ValidateName(name, modelHandler))
+                                .AddValidation(name => ModelEntity.ValidateName(model.Id, name, modelHandler))
                                 .ShowAsync(ct);
         model.MaximumContextSize = await Input.BuildTextPrompt<uint>("Enter the maximum context size:")
                                               .WithDefault(model.MaximumContextSize)

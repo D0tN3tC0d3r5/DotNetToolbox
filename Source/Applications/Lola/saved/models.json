@@ -1,6 +1,7 @@
 [
   {
-    "ProviderKey": 1,
+    "Id": 1,
+    "ProviderId": 1,
     "Name": "GPT-4o",
     "MaximumContextSize": 128000,
     "MaximumOutputTokens": 4096,
@@ -11,7 +12,8 @@
     "Key": "gpt-4o"
   },
   {
-    "ProviderKey": 2,
+    "Id": 2,
+    "ProviderId": 2,
     "Name": "Claude 3.5 Sonnet",
     "MaximumContextSize": 200000,
     "MaximumOutputTokens": 8192,

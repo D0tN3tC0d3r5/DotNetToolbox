@@ -19,7 +19,10 @@ public class ProviderStorageTests {
         // Arrange
         var mockConfiguration = Substitute.For<IConfiguration>();
         var providerHandler = Substitute.For<IProviderHandler>();
-        var context = new Map { ["ProviderHandler"] = providerHandler };
+        var context = new Map {
+            [nameof(EntityAction)] = EntityAction.Insert,
+            [nameof(ProviderHandler)] = providerHandler,
+        };
         var subject = new ProviderStorage(mockConfiguration);
         var entity1 = new ProviderEntity { Name = "Alpha" };
         var entity2 = new ProviderEntity { Name = "Bravo" };
@@ -38,7 +41,10 @@ public class ProviderStorageTests {
         // Arrange
         var mockConfiguration = Substitute.For<IConfiguration>();
         var providerHandler = Substitute.For<IProviderHandler>();
-        var context = new Map { ["ProviderHandler"] = providerHandler };
+        var context = new Map {
+            [nameof(EntityAction)] = EntityAction.Insert,
+            [nameof(ProviderHandler)] = providerHandler,
+        };
         var subject = new ProviderStorage(mockConfiguration);
         var entity1 = new ProviderEntity { Name = "Alpha" };
         var entity2 = new ProviderEntity { Name = "Bravo" };

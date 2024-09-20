@@ -3,6 +3,15 @@ using TaskResponseType = DotNetToolbox.AI.Jobs.TaskResponseType;
 namespace Lola.Tasks.Repositories;
 
 public class TaskEntityTests {
+    private readonly ITaskHandler _mockTaskHandler;
+    private readonly IMap _mockContext;
+
+    public TaskEntityTests() {
+        _mockTaskHandler = Substitute.For<ITaskHandler>();
+        _mockContext = Substitute.For<IMap>();
+        _mockContext.GetRequiredValueAs<ITaskHandler>(nameof(TaskHandler)).Returns(_mockTaskHandler);
+    }
+
     [Fact]
     public void Validate_WithValidEntity_ShouldReturnSuccess() {
         // Arrange
@@ -13,7 +22,7 @@ public class TaskEntityTests {
         };
 
         // Act
-        var result = entity.Validate();
+        var result = entity.Validate(_mockContext);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -29,7 +38,7 @@ public class TaskEntityTests {
         };
 
         // Act
-        var result = entity.Validate();
+        var result = entity.Validate(_mockContext);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -46,7 +55,7 @@ public class TaskEntityTests {
         };
 
         // Act
-        var result = entity.Validate();
+        var result = entity.Validate(_mockContext);
 
         // Assert
         result.IsInvalid.Should().BeTrue();
@@ -63,7 +72,7 @@ public class TaskEntityTests {
         };
 
         // Act
-        var result = entity.Validate();
+        var result = entity.Validate(_mockContext);
 
         // Assert
         result.IsInvalid.Should().BeTrue();

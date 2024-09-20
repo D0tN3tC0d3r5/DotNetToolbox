@@ -21,7 +21,11 @@ public class ModelStorageTests {
         var modelHandler = Substitute.For<IModelHandler>();
         var providerHandler = Substitute.For<IProviderHandler>();
         providerHandler.GetById(Arg.Any<uint>()).Returns(new ProviderEntity());
-        var context = new Map { ["ModelHandler"] = modelHandler, ["ProviderHandler"] = providerHandler };
+        var context = new Map {
+            [nameof(EntityAction)] = EntityAction.Insert,
+            [nameof(ModelHandler)] = modelHandler,
+            [nameof(ProviderHandler)] = providerHandler,
+        };
         var subject = new ModelStorage(mockConfiguration);
         var entity1 = new ModelEntity { Id = 1, Key = "alpha", Name = "Alpha", ProviderId = 1 };
         var entity2 = new ModelEntity { Id = 2, Key = "bravo", Name = "Bravo", ProviderId = 1 };
@@ -42,7 +46,11 @@ public class ModelStorageTests {
         var modelHandler = Substitute.For<IModelHandler>();
         var providerHandler = Substitute.For<IProviderHandler>();
         providerHandler.GetById(Arg.Any<uint>()).Returns(new ProviderEntity());
-        var context = new Map { ["ModelHandler"] = modelHandler, ["ProviderHandler"] = providerHandler };
+        var context = new Map {
+            [nameof(EntityAction)] = EntityAction.Insert,
+            [nameof(ModelHandler)] = modelHandler,
+            [nameof(ProviderHandler)] = providerHandler,
+        };
         var subject = new ModelStorage(mockConfiguration);
         var entity1 = new ModelEntity { Id = 1, Key = "alpha", Name = "Alpha", ProviderId = 1 };
         var entity2 = new ModelEntity { Id = 2, Key = "bravo", Name = "Bravo", ProviderId = 1 };

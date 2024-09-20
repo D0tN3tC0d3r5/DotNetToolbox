@@ -1,10 +1,10 @@
 [
   {
     "Name": "OpenAI",
-    "Key": 1
+    "Id": 1
   },
   {
     "Name": "Anthropic",
-    "Key": 2
+    "Id": 2
   }
 ]

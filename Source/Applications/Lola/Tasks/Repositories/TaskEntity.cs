@@ -20,8 +20,29 @@ public class TaskEntity
 
     public override Result Validate(IMap? context = null) {
         var result = base.Validate(context);
-        if (string.IsNullOrWhiteSpace(Name)) result += new ValidationError("The name is required.", nameof(Name));
+        var action = IsNotNull(context).GetRequiredValueAs<EntityAction>(nameof(EntityAction));
+        result += action == EntityAction.Insert
+                      ? ValidateNewName(Name, context.GetRequiredValueAs<ITaskHandler>(nameof(TaskHandler)))
+                      : ValidateName(Id, Name, context.GetRequiredValueAs<ITaskHandler>(nameof(TaskHandler)));
         if (Goals.Count == 0) result += new ValidationError("At least one goal is required.", nameof(Goals));
+        return result;
+    }
+
+    public static Result ValidateNewName(string? name, ITaskHandler handler) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(name))
+            result += new ValidationError("The name is required.", nameof(Name));
+        else if (handler.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is not null)
+            result += new ValidationError("A task with this name is already registered.", nameof(Name));
+        return result;
+    }
+
+    public static Result ValidateName(uint id, string? name, ITaskHandler handler) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(name))
+            result += new ValidationError("The name is required.", nameof(Name));
+        else if (handler.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && p.Id != id) is not null)
+            result += new ValidationError("A task with this name is already registered.", nameof(Name));
         return result;
     }
 

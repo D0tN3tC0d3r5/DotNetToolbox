@@ -1,5 +1,3 @@
-using DotNetToolbox.Results;
-
 namespace Lola.Models.Handlers;
 
 public class ModelHandlerTests {
@@ -76,13 +74,13 @@ public class ModelHandlerTests {
     }
 
     [Fact]
-    public void GetByName_ShouldReturnCorrectModel() {
+    public void Find_ShouldReturnCorrectModel() {
         // Arrange
         var expectedModel = new ModelEntity { Id = 1, Key = "model1", Name = "Test Model" };
         _mockDataSource.Find(Arg.Any<Expression<Func<ModelEntity, bool>>>()).Returns(expectedModel);
 
         // Act
-        var result = _handler.GetByName("Test Model");
+        var result = _handler.Find(m => m.Name == "Test Model");
 
         // Assert
         result.Should().BeEquivalentTo(expectedModel);

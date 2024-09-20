@@ -29,6 +29,6 @@ public class ProviderAddCommand(IHasChildren parent, IProviderHandler handler)
 
     private async Task SetUpAsync(ProviderEntity provider, CancellationToken ct)
         => provider.Name = await Input.BuildTextPrompt<string>("What is the name of the LLM provider?")
-                                .AddValidation(name => ProviderEntity.ValidateName(name, handler))
+                                .AddValidation(name => ProviderEntity.ValidateNewName(name, handler))
                                 .ShowAsync(ct);
 }

@@ -36,7 +36,7 @@ public class UserProfileEntityTests {
 
         // Assert
         result.IsInvalid.Should().BeTrue();
-        result.Errors.Should().Contain(e => e.Message == "Soory yout name cannot be empty or only white spaces.");
+        result.Errors.Should().Contain(e => e.Message == "The name cannot be blank.");
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class UserProfileEntityTests {
 
         // Assert
         result.IsInvalid.Should().BeTrue();
-        result.Errors.Should().Contain(e => e.Message == "Soory yout name cannot be empty or only white spaces.");
+        result.Errors.Should().Contain(e => e.Message == "The name cannot be blank.");
     }
 
     [Fact]

@@ -10,7 +10,7 @@
       "ensure that the descriptions you create are ethically sound and promote responsible AI use."
     ],
     "Internal": true,
-    "Key": 1,
+    "Id": 1,
     "Name": "Agent Creator",
     "Restrictions": [
       "create descriptions for AI agents that could be used for harmful or illegal purposes",

@@ -90,7 +90,7 @@ public class PersonaGenerateCommand(IHasChildren parent, IPersonaHandler persona
 
     private async Task SetUpAsync(PersonaEntity persona, CancellationToken ct) {
         persona.Name = await Input.BuildTextPrompt<string>("How would you like to call the Agent?")
-                                  .AddValidation(name => PersonaEntity.ValidateName(name, personaHandler))
+                                  .AddValidation(name => PersonaEntity.ValidateNewName(name, personaHandler))
                                   .ShowAsync(ct);
         persona.Role = await Input.BuildTextPrompt<string>($"What is the [white]{persona.Name}[/] primary role?")
                                   .AddValidation(PersonaEntity.ValidateRole)

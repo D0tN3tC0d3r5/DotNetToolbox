@@ -30,7 +30,7 @@
       "You understand the importance of ethical AI behavior and incorporate this into your descriptions.",
       "You are familiar with different domains and can tailor agent descriptions to specific fields."
     ],
-    "Key": 1
+    "Id": 1
   },
   {
     "Name": "Master Coder",
@@ -70,6 +70,6 @@
       "Knowledgeable about database design and optimization for .NET applications",
       "Experienced in integrating third-party APIs and services into .NET applications"
     ],
-    "Key": 2
+    "Id": 2
   }
 ]

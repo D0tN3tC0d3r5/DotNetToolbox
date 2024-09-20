@@ -2,5 +2,5 @@
 
 public interface ITrackChange {
     DateTimeOffset DateTime { get; }
-    ChangeType Type { get; }
+    EntityAction Action { get; }
 }

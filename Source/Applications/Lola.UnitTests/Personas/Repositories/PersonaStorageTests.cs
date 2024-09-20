@@ -19,7 +19,10 @@ public class PersonaStorageTests {
         // Arrange
         var mockConfiguration = Substitute.For<IConfiguration>();
         var personaHandler = Substitute.For<IPersonaHandler>();
-        var context = new Map { ["PersonaHandler"] = personaHandler };
+        var context = new Map {
+            [nameof(EntityAction)] = EntityAction.Insert,
+            [nameof(PersonaHandler)] = personaHandler,
+        };
         var subject = new PersonaStorage(mockConfiguration);
         var entity1 = new PersonaEntity { Name = "Alpha", Role = "Boss", Goals = ["Some goal."] };
         var entity2 = new PersonaEntity { Name = "Bravo", Role = "Assistant", Goals = ["Some goal."] };
@@ -38,7 +41,10 @@ public class PersonaStorageTests {
         // Arrange
         var mockConfiguration = Substitute.For<IConfiguration>();
         var personaHandler = Substitute.For<IPersonaHandler>();
-        var context = new Map { ["PersonaHandler"] = personaHandler };
+        var context = new Map {
+            [nameof(EntityAction)] = EntityAction.Insert,
+            [nameof(PersonaHandler)] = personaHandler,
+        };
         var subject = new PersonaStorage(mockConfiguration);
         var entity1 = new PersonaEntity { Name = "Alpha", Role = "Boss", Goals = ["Some goal."] };
         var entity2 = new PersonaEntity { Name = "Bravo", Role = "Assistant", Goals = ["Some goal."] };

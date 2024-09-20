@@ -25,7 +25,7 @@ public class UserProfileEntity
     public static Result ValidateName(string? name) {
         var result = Result.Success();
         if (string.IsNullOrWhiteSpace(name))
-            result += new ValidationError("Soory yout name cannot be empty or only white spaces.", nameof(Name));
+            result += new ValidationError("The name cannot be blank.", nameof(Name));
         return result;
     }
 }

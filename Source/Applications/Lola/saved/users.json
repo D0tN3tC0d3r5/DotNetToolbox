@@ -2,11 +2,11 @@
   {
     "Internal": true,
     "Name": "User",
-    "Key": 0
+    "Id": 0
   },
   {
     "Internal": false,
     "Name": "Argus",
-    "Key": 1
+    "Id": 1
   }
 ]

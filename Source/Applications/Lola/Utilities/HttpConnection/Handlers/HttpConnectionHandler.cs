@@ -8,7 +8,7 @@ public class HttpConnectionHandler(IModelHandler modelHandler, IAgentAccessor ht
     }
 
     public IAgent Get(string modelKey) {
-        var model = modelHandler.GetByKey(modelKey) ?? throw new InvalidOperationException("Model not found.");
+        var model = modelHandler.Find(m => m.Key == modelKey) ?? throw new InvalidOperationException("Model not found.");
         return httpConnectionAccessor.GetFor(model.Provider!.Name);
     }
 }

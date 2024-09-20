@@ -34,7 +34,7 @@
     ],
     "InputTemplate": "Name: <<Name>>\nMain Role: <<Role>>\nGoals:\n<<Goals>>\nPrevious Questions:\n<<Questions>>\n",
     "Internal": true,
-    "Key": 1,
+    "Id": 1,
     "Name": "Ask Questions about the AI Agent",
     "Scope": [
       "generating questions based solely on the Name, Role, and Goals provided by the user",

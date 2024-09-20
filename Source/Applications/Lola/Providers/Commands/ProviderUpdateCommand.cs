@@ -40,6 +40,6 @@ public class ProviderUpdateCommand(IHasChildren parent, IProviderHandler handler
 
     private async Task SetUpAsync(ProviderEntity provider, CancellationToken ct)
         => provider.Name = await Input.BuildTextPrompt<string>("Enter the new name for the provider")
-                                .AddValidation(name => ProviderEntity.ValidateName(name, handler))
+                                .AddValidation(name => ProviderEntity.ValidateName(provider.Id, name, handler))
                                 .ShowAsync(ct);
 }

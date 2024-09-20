@@ -1,9 +1,16 @@
 [
   {
+    "Internal": true,
+    "Name": "User",
+    "Language": "English",
+    "Facts": [],
+    "Id": 0
+  },
+  {
     "Internal": false,
     "Name": "Argus",
     "Language": "English",
     "Facts": [],
-    "Key": 0
+    "Id": 1
   }
 ]

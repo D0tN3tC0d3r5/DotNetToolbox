@@ -17,29 +17,53 @@ public class ModelEntity : Entity<ModelEntity, uint> {
 
     public override Result Validate(IMap? context = null) {
         var result = base.Validate(context);
-        result += ValidateKey(Key, IsNotNull(context).GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)));
-        result += ValidateName(Name, IsNotNull(context).GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)));
-        result += ValidateProvider(ProviderId, IsNotNull(context).GetRequiredValueAs<IProviderHandler>(nameof(ProviderHandler)));
+        var action = IsNotNull(context).GetRequiredValueAs<EntityAction>(nameof(EntityAction));
+        result += action == EntityAction.Insert
+                      ? ValidateNewKey(Key, context.GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)))
+                      : ValidateKey(Id, Key, context.GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)));
+        result += action == EntityAction.Insert
+                      ? ValidateNewName(Name, context.GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)))
+                      : ValidateName(Id, Name, context.GetRequiredValueAs<IModelHandler>(nameof(ModelHandler)));
+
+        result += ValidateProvider(ProviderId, context.GetRequiredValueAs<IProviderHandler>(nameof(ProviderHandler)));
         result += ValidateInputCost(InputCostPerMillionTokens);
         result += ValidateOutputCost(OutputCostPerMillionTokens);
         result += ValidateDateCutOff(TrainingDateCutOff);
         return result;
     }
 
-    public static Result ValidateKey(string? key, IModelHandler handler) {
+    public static Result ValidateNewKey(string? key, IModelHandler handler) {
         var result = Result.Success();
         if (string.IsNullOrWhiteSpace(key))
             result += new ValidationError("The key is required.", nameof(Key));
-        else if (handler.GetByKey(key) is not null)
+        else if (handler.Find(m => m.Key.Equals(key, StringComparison.OrdinalIgnoreCase)) is not null)
             result += new ValidationError("A model with this key is already registered.", nameof(Key));
         return result;
     }
 
-    public static Result ValidateName(string? name, IModelHandler handler) {
+    public static Result ValidateKey(uint id, string? key, IModelHandler handler) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(key))
+            result += new ValidationError("The key is required.", nameof(Key));
+        else if (handler.Find(m => m.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && m.Id != id) is not null)
+            result += new ValidationError("A model with this key is already registered.", nameof(Key));
+        return result;
+    }
+
+    public static Result ValidateNewName(string? name, IModelHandler handler) {
         var result = Result.Success();
         if (string.IsNullOrWhiteSpace(name))
             result += new ValidationError("The name is required.", nameof(Name));
-        else if (handler.GetByName(name) is not null)
+        else if (handler.Find(m => m.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is not null)
+            result += new ValidationError("A model with this name is already registered.", nameof(Name));
+        return result;
+    }
+
+    public static Result ValidateName(uint id, string? name, IModelHandler handler) {
+        var result = Result.Success();
+        if (string.IsNullOrWhiteSpace(name))
+            result += new ValidationError("The name is required.", nameof(Name));
+        else if (handler.Find(m => m.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && m.Id != id) is not null)
             result += new ValidationError("A model with this name is already registered.", nameof(Name));
         return result;
     }

@@ -41,10 +41,10 @@ public class ModelAddCommand(IHasChildren parent, IModelHandler modelHandler, IP
 
     private async Task SetUpAsync(ModelEntity model, ProviderEntity provider, CancellationToken ct) {
         model.Key = await Input.BuildTextPrompt<string>("Enter the model identifier:")
-                               .AddValidation(key => ModelEntity.ValidateKey(key, modelHandler))
+                               .AddValidation(key => ModelEntity.ValidateNewKey(key, modelHandler))
                                .ShowAsync(ct);
         model.Name = await Input.BuildTextPrompt<string>("Enter the model name:")
-                                .AddValidation(name => ModelEntity.ValidateName(name, modelHandler))
+                                .AddValidation(name => ModelEntity.ValidateNewName(name, modelHandler))
                                 .ShowAsync(ct);
         model.ProviderId = provider.Id;
         model.MaximumContextSize = await Input.BuildTextPrompt<uint>("Enter the maximum context size:")

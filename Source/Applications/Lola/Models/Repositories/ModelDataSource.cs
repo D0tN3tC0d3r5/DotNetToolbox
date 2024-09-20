@@ -20,7 +20,7 @@ public class ModelDataSource(IModelStorage storage, Lazy<IProviderDataSource> pr
     }
 
     public ModelEntity? FindById(uint id, bool includeProvider = true) {
-        var model = base.FindByKey(id);
+        var model = FindByKey(id);
         if (model is null) return null;
         if (!includeProvider) return model;
         model.Provider = providers.Value.FindByKey(model.ProviderId);

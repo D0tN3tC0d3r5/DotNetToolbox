@@ -14,7 +14,8 @@ public class PersonaHandler(IServiceProvider services, ILogger<PersonaHandler> l
     public PersonaEntity[] List() => _dataSource.GetAll();
 
     public PersonaEntity? GetById(uint id) => _dataSource.FindByKey(id);
-    public PersonaEntity? GetByName(string name) => _dataSource.Find(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+    public PersonaEntity? Find(Expression<Func<PersonaEntity, bool>> predicate)
+        => _dataSource.Find(predicate);
 
     public void Add(PersonaEntity persona) {
         if (_dataSource.FindByKey(persona.Id) != null)
