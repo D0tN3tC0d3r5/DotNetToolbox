@@ -21,8 +21,8 @@ public class DataSource<TStorage, TItem, TKey>
                ? throw new NotImplementedException("The method implementation is required when the strategy is not defined.")
                : Storage.FindByKey(key);
 
-    public Result Update(TItem updatedItem, IMap? validationContext = null)
-        => Storage?.Update(updatedItem, validationContext)
+    public Result Update(TItem updatedItem, IMap? context = null)
+        => Storage?.Update(updatedItem, context)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
     public Result UpdateMany(IEnumerable<TItem> updatedItems, IMap? validationContext = null)
@@ -154,8 +154,8 @@ public class DataSource<TStorage, TItem>
     public virtual Result<TItem> Create(Action<TItem>? setItem = null, IMap? validationContext = null)
         => Storage?.Create(setItem, validationContext)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
-    public virtual Result Add(TItem newItem, IMap? validationContext = null)
-        => Storage?.Add(newItem, validationContext)
+    public virtual Result Add(TItem newItem, IMap? context = null)
+        => Storage?.Add(newItem, context)
         ?? throw new NotImplementedException("The method implementation is required when the strategy is not defined.");
 
     public virtual Result AddMany(IEnumerable<TItem> newItems, IMap? validationContext = null)

@@ -45,16 +45,16 @@ public class InMemoryStorage<TItem, TKey>(IList<TItem>? data = null)
         return result;
     }
 
-    public override Result Add(TItem newItem, IMap? validationContext = null) {
+    public override Result Add(TItem newItem, IMap? context = null) {
         newItem.Id = TryGetNextKey(out var next) ? next : newItem.Id;
-        return _keylessStrategy.Add(newItem, validationContext);
+        return _keylessStrategy.Add(newItem, context);
     }
 
     public override Result Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IMap? validationContext = null)
         => _keylessStrategy.Update(predicate, updatedItem, validationContext);
 
-    public override Result Update(TItem updatedItem, IMap? validationContext = null)
-        => Update(x => x.Id.Equals(updatedItem.Id), updatedItem, validationContext);
+    public override Result Update(TItem updatedItem, IMap? context = null)
+        => Update(x => x.Id.Equals(updatedItem.Id), updatedItem, context);
 
     public override Result Patch(Expression<Func<TItem, bool>> predicate, Action<TItem> setItem, IMap? validationContext = null)
         => _keylessStrategy.Patch(predicate, setItem, validationContext);
@@ -333,10 +333,10 @@ public class InMemoryStorage<TItem>(IList<TItem>? data = null)
         return result;
     }
 
-    public override Result Add(TItem newItem, IMap? validationContext = null) {
+    public override Result Add(TItem newItem, IMap? context = null) {
         var result = Result.Success();
         result = newItem is IValidatable validatable
-            ? result + validatable.Validate(validationContext)
+            ? result + validatable.Validate(context)
             : result;
         if (result.IsSuccess) Data.Add(newItem);
         return result;

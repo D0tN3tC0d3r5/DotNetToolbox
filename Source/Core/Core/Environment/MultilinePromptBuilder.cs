@@ -4,6 +4,7 @@ public class MultilinePromptBuilder(string prompt, IOutput output)
     : IMultilinePromptBuilder {
     private string _prompt = prompt;
     private string _defaultValue = string.Empty;
+    private bool _singleLine;
     private Func<string, Result>? _validator;
 
     public MultilinePromptBuilder(IOutput output)
@@ -16,7 +17,7 @@ public class MultilinePromptBuilder(string prompt, IOutput output)
         return this;
     }
 
-    public MultilinePromptBuilder Validate(Func<string, Result> validate) {
+    public MultilinePromptBuilder AddValidation(Func<string, Result> validate) {
         var oldValidator = _validator;
         _validator = value => {
             var result = oldValidator?.Invoke(value) ?? Result.Success();
@@ -26,31 +27,48 @@ public class MultilinePromptBuilder(string prompt, IOutput output)
         return this;
     }
 
+    public MultilinePromptBuilder AsSingleLine() {
+        _singleLine = true;
+        return this;
+    }
+
     public string Show() => ShowAsync().GetAwaiter().GetResult();
 
     public async Task<string> ShowAsync(CancellationToken ct = default) {
         while (true) {
             _prompt = $"[teal]{_prompt}[/]";
             output.WriteLine(_prompt);
-            output.WriteLine("[gray]Press ENTER to insert a new line, CTRL+ENTER to submit, and ESCAPE to cancel.[/]");
+            output.WriteLine(_singleLine
+                                 ? "[gray]Press ENTER to submit and ESCAPE to cancel.[/]"
+                                 : "[gray]Press ENTER to insert a new line, CTRL+ENTER to submit, and ESCAPE to cancel.[/]");
             var editor = new LineEditor {
-                MultiLine = true,
+                MultiLine = !_singleLine,
                 Prompt = new LineEditorPrompt("[yellow]>[/]", "[yellow]|[/]"),
                 Text = _defaultValue,
+                Validator = BuildValidator(),
             };
-            editor.KeyBindings.Remove(ConsoleKey.Enter);
-            editor.KeyBindings.Remove(ConsoleKey.Enter, ConsoleModifiers.Control);
-            editor.KeyBindings.Add<NewLineCommand>(ConsoleKey.Enter);
-            editor.KeyBindings.Add<SubmitCommand>(ConsoleKey.Enter, ConsoleModifiers.Control);
+            if (!_singleLine) {
+                editor.KeyBindings.Add<NewLineCommand>(ConsoleKey.Enter);
+                editor.KeyBindings.Add<SubmitCommand>(ConsoleKey.Enter, ConsoleModifiers.Control);
+            }
 
             var result = await editor.ReadLine(ct) ?? string.Empty;
-            if (_validator is null) return result;
-            var validationResult = _validator(result);
-            if (validationResult.IsSuccess) return result;
-            foreach (var validationResultError in validationResult.Errors)
-                output.WriteLine($"[red]{validationResultError.Message}[/]");
+            if (editor.Result != ExitState.Invalid) return result;
+            output.WriteLine(editor.ErrorMessage);
             output.WriteLine("[yellow]Please try again.[/]");
             output.WriteLine();
         }
     }
+
+    private Func<string, ValidationResult>? BuildValidator()
+        => _validator is null ? null : value => {
+            var result = _validator(value);
+            if (result.IsSuccess) return ValidationResult.Success();
+            if (result.Errors.Count == 1) return ValidationResult.Error($"[red]{result.Errors[0].Message}[/]");
+            var errors = new StringBuilder();
+            errors.AppendLine("[red]The input value is invalid.[/]");
+            foreach (var item in result.Errors)
+                errors.AppendLine($"[red] - {item.Message}[/]");
+            return ValidationResult.Error(errors.ToString());
+        };
 }

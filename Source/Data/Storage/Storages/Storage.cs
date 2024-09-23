@@ -26,7 +26,7 @@ public abstract class Storage<TStorage, TItem, TKey>(IList<TItem>? data = null)
     public virtual TItem? FindByKey(TKey key)
         => throw new NotImplementedException();
 
-    public virtual Result Update(TItem updatedItem, IMap? validationContext = null)
+    public virtual Result Update(TItem updatedItem, IMap? context = null)
         => throw new NotImplementedException();
     public virtual Result UpdateMany(IEnumerable<TItem> updatedItems, IMap? validationContext = null)
         => throw new NotImplementedException();
@@ -129,7 +129,7 @@ public abstract class Storage<TStrategy, TItem>(IEnumerable<TItem>? data = null)
 
     public virtual Result<TItem> Create(Action<TItem>? setItem = null, IMap? validationContext = null)
         => throw new NotImplementedException();
-    public virtual Result Add(TItem newItem, IMap? validationContext = null)
+    public virtual Result Add(TItem newItem, IMap? context = null)
         => throw new NotImplementedException();
 
     public virtual Result AddMany(IEnumerable<TItem> newItems, IMap? validationContext = null)

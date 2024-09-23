@@ -10,7 +10,7 @@ public interface IUpdatableDataSource<TItem>
 
     Result Seed(IEnumerable<TItem> seed, bool preserveContent = false, IMap? validationContext = null);
 
-    Result Add(TItem newItem, IMap? validationContext = null);
+    Result Add(TItem newItem, IMap? context = null);
     Result AddMany(IEnumerable<TItem> newItems, IMap? validationContext = null);
 
     Result Update(Expression<Func<TItem, bool>> predicate, TItem updatedItem, IMap? validationContext = null);
@@ -62,7 +62,7 @@ public interface IUpdatableDataSource<TItem, in TKey>
     where TKey : notnull {
     #region Blocking
 
-    Result Update(TItem updatedItem, IMap? validationContext = null);
+    Result Update(TItem updatedItem, IMap? context = null);
     Result UpdateMany(IEnumerable<TItem> updatedItems, IMap? validationContext = null);
 
     Result AddOrUpdate(TItem updatedItem, IMap? validationContext = null);

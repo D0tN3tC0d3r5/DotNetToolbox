@@ -98,19 +98,23 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
         return result;
     }
 
-    public override Result Add(TItem newItem, IMap? validationContext = null) {
+    public override Result Add(TItem newItem, IMap? context = null) {
+        context ??= new Map();
+        context[nameof(EntityAction)] = EntityAction.Insert;
         if (TryGetNextKey(out var next)) newItem.Id = next;
-        var result = newItem.Validate(validationContext);
+        var result = newItem.Validate(context);
         if (!result.IsSuccess) return result;
         Data.Add(newItem);
         SaveItem(newItem);
         return result;
     }
 
-    public override Result Update(TItem updatedItem, IMap? validationContext = null) {
+    public override Result Update(TItem updatedItem, IMap? context = null) {
+        context ??= new Map();
+        context[nameof(EntityAction)] = EntityAction.Update;
         var entry = Data.Index().FirstOrDefault(i => i.Item.Id.Equals(updatedItem.Id));
         if (entry.Item is null) return new ValidationError($"Item '{updatedItem.Id}' not found", nameof(updatedItem));
-        var result = updatedItem.Validate(validationContext);
+        var result = updatedItem.Validate(context);
         if (!result.IsSuccess) return result;
         Data[entry.Index] = updatedItem;
         SaveItem(updatedItem);
