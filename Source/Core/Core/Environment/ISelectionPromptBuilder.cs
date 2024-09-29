@@ -1,12 +1,23 @@
 ﻿namespace DotNetToolbox.Environment;
 
-public interface ISelectionPromptBuilder<TValue>
-    where TValue : notnull {
-    SelectionPromptBuilder<TValue> WithDefault(TValue defaultValue);
-    SelectionPromptBuilder<TValue> ConvertWith(Func<TValue, string> converter);
-    SelectionPromptBuilder<TValue> AddChoices(IEnumerable<TValue> choices);
-    SelectionPromptBuilder<TValue> AddChoices(TValue choice, params TValue[] otherChoices);
-    SelectionPromptBuilder<TValue> ShowResult();
-    TValue Show();
-    Task<TValue> ShowAsync(CancellationToken ct = default);
+public interface ISelectionPromptBuilder :
+    ISelectionPromptBuilder<string, uint>;
+
+public interface ISelectionPromptBuilder<TValue> :
+    ISelectionPromptBuilder<TValue, object>;
+
+public interface ISelectionPromptBuilder<TValue, TKey>
+    where TKey : notnull {
+    SelectionPromptBuilder<TValue, TKey> DisplayAs(Func<TValue, string> displayAs);
+    SelectionPromptBuilder<TValue, TKey> SetAsDefault(TKey defaultKey);
+    SelectionPromptBuilder<TValue, TKey> AddDefaultChoice(TKey key, string text, ChoicePosition position = ChoicePosition.Sorted);
+    SelectionPromptBuilder<TValue, TKey> AddDefaultChoice(TKey key, TValue choice, ChoicePosition position = ChoicePosition.Sorted);
+    SelectionPromptBuilder<TValue, TKey> AddDefaultChoice(TValue choice, ChoicePosition position = ChoicePosition.Sorted);
+    SelectionPromptBuilder<TValue, TKey> AddChoice(TKey key, string text, ChoicePosition position = ChoicePosition.Sorted);
+    SelectionPromptBuilder<TValue, TKey> AddChoice(TKey key, TValue choice, ChoicePosition position = ChoicePosition.Sorted);
+    SelectionPromptBuilder<TValue, TKey> AddChoice(TValue choice, ChoicePosition position = ChoicePosition.Sorted);
+    SelectionPromptBuilder<TValue, TKey> AddChoices(IEnumerable<TValue> choices, ChoicePosition position = ChoicePosition.Sorted);
+    SelectionPromptBuilder<TValue, TKey> ShowResult();
+    TValue? Show();
+    Task<TValue?> ShowAsync(CancellationToken ct = default);
 }

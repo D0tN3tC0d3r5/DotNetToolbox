@@ -59,17 +59,18 @@ internal sealed class TestInput(IOutput output, params string[] inputs)
     public bool Confirm(string prompt, bool defaultChoice = true) => throw new NotImplementedException();
     public Task<bool> ConfirmAsync(string prompt, CancellationToken ct = default) => throw new NotImplementedException();
 
-    public SelectionPromptBuilder<TValue> BuildSelectionPrompt<TValue>(string prompt)
-        where TValue : notnull
+    public SelectionPromptBuilder BuildSelectionPrompt(string prompt)
         => throw new NotImplementedException();
-    public TValue Select<TValue>(string prompt, TValue defaultChoice, params TValue[] otherChoices)
-        where TValue : notnull
+    public SelectionPromptBuilder<TValue> BuildSelectionPrompt<TValue>(string prompt, Func<TValue, object> selectKey)
         => throw new NotImplementedException();
-    public TValue Select<TValue>(string prompt, params TValue[] choices)
-        where TValue : notnull
+    public SelectionPromptBuilder<TValue, TKey> BuildSelectionPrompt<TValue, TKey>(string prompt, Func<TValue, TKey> selectKey)
+        where TKey : notnull
         => throw new NotImplementedException();
-    public TValue SelectRequired<TValue>(string prompt, params TValue[] choices)
-        where TValue : notnull
+    public TValue Select<TValue>(string prompt, Func<TValue, object> selectKey, TValue defaultChoice, params TValue[] otherChoices)
+        => throw new NotImplementedException();
+    public TValue Select<TValue>(string prompt, Func<TValue, object> selectKey, params TValue[] choices)
+        => throw new NotImplementedException();
+    public TValue SelectRequired<TValue>(string prompt, Func<TValue, object> selectKey, params TValue[] choices)
         => throw new NotImplementedException();
     public string Select(string prompt, string defaultChoice, params string[] otherChoices)
         => throw new NotImplementedException();
@@ -78,37 +79,31 @@ internal sealed class TestInput(IOutput output, params string[] inputs)
     public string SelectRequired(string prompt, params string[] choices)
         => throw new NotImplementedException();
 
-    public Task<TValue> SelectAsync<TValue>(string prompt, TValue defaultChoice, CancellationToken ct = default)
-        where TValue : notnull
+    public Task<TValue?> SelectAsync<TValue>(string prompt, Func<TValue, object> selectKey, TValue defaultChoice, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public Task<TValue> SelectAsync<TValue>(string prompt, CancellationToken ct = default)
-        where TValue : notnull
+    public Task<TValue?> SelectAsync<TValue>(string prompt, Func<TValue, object> selectKey, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public Task<TValue> SelectAsync<TValue>(string prompt, TValue defaultChoice, TValue[] otherChoices, CancellationToken ct = default)
-        where TValue : notnull
+    public Task<TValue?> SelectAsync<TValue>(string prompt, Func<TValue, object> selectKey, TValue defaultChoice, TValue[] otherChoices, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public Task<TValue> SelectAsync<TValue>(string prompt, TValue[] choices, CancellationToken ct = default)
-        where TValue : notnull
+    public Task<TValue?> SelectAsync<TValue>(string prompt, Func<TValue, object> selectKey, TValue[] choices, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public Task<TValue> SelectRequiredAsync<TValue>(string prompt, CancellationToken ct = default)
-        where TValue : notnull
+    public Task<TValue> SelectRequiredAsync<TValue>(string prompt, Func<TValue, object> selectKey, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public Task<TValue> SelectRequiredAsync<TValue>(string prompt, TValue[] choices, CancellationToken ct = default)
-        where TValue : notnull
+    public Task<TValue> SelectRequiredAsync<TValue>(string prompt, Func<TValue, object> selectKey, TValue[] choices, CancellationToken ct = default)
         => throw new NotImplementedException();
 
-    public Task<string> SelectAsync(string prompt, string defaultChoice, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<string?> SelectAsync(string prompt, string defaultChoice, CancellationToken ct = default) => throw new NotImplementedException();
 
-    public Task<string> SelectAsync(string prompt, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<string?> SelectAsync(string prompt, CancellationToken ct = default) => throw new NotImplementedException();
 
-    public Task<string> SelectAsync(string prompt, string defaultChoice, string[] otherChoices, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<string?> SelectAsync(string prompt, string defaultChoice, string[] otherChoices, CancellationToken ct = default) => throw new NotImplementedException();
 
-    public Task<string> SelectAsync(string prompt, string[] choices, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<string?> SelectAsync(string prompt, string[] choices, CancellationToken ct = default) => throw new NotImplementedException();
 
     public Task<string> SelectRequiredAsync(string prompt, CancellationToken ct = default) => throw new NotImplementedException();
 

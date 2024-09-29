@@ -1,5 +1,16 @@
 ﻿namespace DotNetToolbox.Data.File;
 
+public abstract class JsonFilePerTypeStorage<TItem>(string name, IConfiguration configuration, IList<TItem>? data = null)
+    : JsonFilePerTypeStorage<TItem, uint>(name, configuration, data)
+    where TItem : class, IEntity<uint> {
+    protected override uint FirstKey { get; } = 1;
+
+    protected override bool TryGenerateNextKey(out uint next) {
+        next = LastUsedKey == default ? FirstKey : ++LastUsedKey;
+        return true;
+    }
+}
+
 public abstract class JsonFilePerTypeStorage<TItem, TKey>
     : Storage<JsonFilePerTypeStorage<TItem, TKey>, TItem, TKey>,
       IJsonFilePerTypeStorage<TItem, TKey>

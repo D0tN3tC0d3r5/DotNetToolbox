@@ -1,50 +1,100 @@
 ﻿namespace DotNetToolbox.Environment;
 
-public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
-    : ISelectionPromptBuilder<TValue>
-    where TValue : notnull {
-    private readonly List<TValue> _choices = [];
+public class SelectionPromptBuilder(string prompt, IOutput output)
+    : SelectionPromptBuilder<string, string>(prompt, value => value, output);
+
+public class SelectionPromptBuilder<TValue>(string prompt, Func<TValue, object> selectKey, IOutput output)
+    : SelectionPromptBuilder<TValue, object>(prompt, selectKey, output);
+
+public class SelectionPromptBuilder<TValue, TKey>(string prompt, Func<TValue, TKey> selectKey, IOutput output)
+    : ISelectionPromptBuilder<TValue, TKey>
+    where TKey : notnull {
+    private record Choice(TValue? Value, TKey Key, string Text, ChoicePosition Position);
+
     private string _prompt = prompt;
-    private Func<TValue, string>? _converter;
-    private TValue? _defaultValue;
+    private readonly Func<TValue, TKey> _selectKey = IsNotNull(selectKey);
+    private readonly List<Choice> _choices = [];
+
+    private Func<TValue, string> _displayAs = v => v?.ToString() ?? string.Empty;
+    private TKey _defaultKey = default!;
     private bool _showResult;
 
-    [MemberNotNullWhen(true, nameof(_defaultValue))]
+    [MemberNotNullWhen(true, nameof(_defaultKey))]
     private bool HasDefault { get; set; }
 
-    public SelectionPromptBuilder<TValue> ConvertWith(Func<TValue, string> converter) {
-        _converter = converter;
+    public SelectionPromptBuilder<TValue, TKey> DisplayAs(Func<TValue, string>? displayAs = null) {
+        _displayAs = displayAs ?? _displayAs;
         return this;
     }
 
-    public SelectionPromptBuilder<TValue> ShowResult() {
+    public SelectionPromptBuilder<TValue, TKey> ShowResult() {
         _showResult = true;
         return this;
     }
 
-    public SelectionPromptBuilder<TValue> WithDefault(TValue defaultValue) {
-        _defaultValue = IsNotNull(defaultValue);
+    public SelectionPromptBuilder<TValue, TKey> SetAsDefault(TKey defaultKey) {
+        if (!_choices.Any(c => c.Key.Equals(defaultKey))) throw new InvalidOperationException($"Choice with key '{defaultKey}' not found.");
+        _defaultKey = IsNotNull(defaultKey);
         HasDefault = true;
         return this;
     }
 
-    public SelectionPromptBuilder<TValue> AddChoices(IEnumerable<TValue> choices) {
-        _choices.AddRange(choices);
+    private SelectionPromptBuilder<TValue, TKey> AddChoice(TValue? choice, TKey key, string? text, bool isDefault, ChoicePosition position = ChoicePosition.Sorted) {
+        if (_choices.Any(c => c.Key.Equals(IsNotNull(key)))) throw new InvalidOperationException("Choice key must be unique.");
+        text ??= string.Empty;
+        if (_choices.Any(c => c.Text.Equals(text, StringComparison.Ordinal))) throw new InvalidOperationException("Choice text must be unique.");
+        var choiceIndex = position switch {
+            ChoicePosition.AtEnd => _choices.Count,
+            ChoicePosition.AtStart => 0,
+            _ => GetInsertIndex(),
+        };
+        _choices.Insert(choiceIndex, new(choice, key, text, position));
+        if (!isDefault) return this;
+        if (HasDefault) throw new InvalidOperationException("Default choice is already set.");
+        _defaultKey = key;
+        HasDefault = true;
+        return this;
+
+        int GetInsertIndex() {
+            var start = _choices.FindIndex(c => c.Position == ChoicePosition.Sorted);
+            if (start == -1) start = _choices.Count;
+            var sortedChoices = _choices.Where(c => c.Position == ChoicePosition.Sorted).ToList();
+            var insertAt = sortedChoices.FindIndex(c => string.CompareOrdinal(c.Text, text) > 0);
+            return insertAt == -1 ? start + sortedChoices.Count : start + insertAt;
+        }
+    }
+
+    public SelectionPromptBuilder<TValue, TKey> AddDefaultChoice(TKey key, string text, ChoicePosition position = ChoicePosition.Sorted)
+        => AddChoice(default, key, text, isDefault: true, position);
+
+    public SelectionPromptBuilder<TValue, TKey> AddDefaultChoice(TKey key, TValue choice, ChoicePosition position = ChoicePosition.Sorted)
+        => AddChoice(choice, key, _displayAs(choice), isDefault: true, position);
+
+    public SelectionPromptBuilder<TValue, TKey> AddDefaultChoice(TValue choice, ChoicePosition position = ChoicePosition.Sorted)
+        => AddChoice(choice, _selectKey(choice), _displayAs(choice), isDefault: true, position);
+
+    public SelectionPromptBuilder<TValue, TKey> AddChoice(TKey key, string text, ChoicePosition position = ChoicePosition.Sorted)
+        => AddChoice(default, key, text, isDefault: false, position);
+
+    public SelectionPromptBuilder<TValue, TKey> AddChoice(TKey key, TValue choice, ChoicePosition position = ChoicePosition.Sorted)
+        => AddChoice(choice, key, _displayAs(choice), isDefault: false, position);
+
+    public SelectionPromptBuilder<TValue, TKey> AddChoice(TValue choice, ChoicePosition position = ChoicePosition.Sorted)
+        => AddChoice(choice, _selectKey(choice), _displayAs(choice), isDefault: false, position);
+
+    public SelectionPromptBuilder<TValue, TKey> AddChoices(IEnumerable<TValue> choices, ChoicePosition position = ChoicePosition.Sorted) {
+        choices = position == ChoicePosition.AtStart ? choices.Reverse() : choices;
+        foreach (var choice in choices) AddChoice(choice, position);
         return this;
     }
 
-    public SelectionPromptBuilder<TValue> AddChoices(TValue choice, params TValue[] otherChoices) {
-        _choices.AddRange([choice, .. otherChoices]);
-        return this;
-    }
+    public TValue? Show() => ShowAsync().GetAwaiter().GetResult();
 
-    public TValue Show() => ShowAsync().GetAwaiter().GetResult();
-
-    public async Task<TValue> ShowAsync(CancellationToken ct = default) {
-        var prompt = new SelectionPrompt<TValue>();
-        if (_converter is not null) prompt.UseConverter(_converter);
-        prompt.AddChoices(_choices);
-        var defaultText = _defaultValue is not null ? prompt.Converter?.Invoke(_defaultValue) : null;
+    public async Task<TValue?> ShowAsync(CancellationToken ct = default) {
+        var prompt = new SelectionPrompt<int>();
+        prompt.UseConverter(i => _choices[i].Text);
+        prompt.AddChoices(_choices.Select((_, i) => i));
+        var defaultText = _choices.First(i => i.Key.Equals(_defaultKey));
         var isQuestion = _prompt.EndsWith('?');
         _prompt = HasDefault ? $"{_prompt} [blue]({defaultText})[/]" : _prompt;
         prompt.Title(_prompt);
@@ -52,6 +102,6 @@ public class SelectionPromptBuilder<TValue>(string prompt, IOutput output)
         var resultText = prompt.Converter?.Invoke(result) ?? string.Empty;
         var separator = isQuestion ? string.Empty : ":";
         if (_showResult) output.WriteLine($"{_prompt}{separator} [green]{resultText}[/]");
-        return result;
+        return _choices[result].Value!;
     }
 }
