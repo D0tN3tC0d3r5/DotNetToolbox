@@ -25,7 +25,7 @@
       Stable release of DotNetToolbox.Data.File, a comprehensive utility .NET 8 library for handling data storage in local files.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Data.File</Product>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Data.File</AssemblyName>

@@ -1,36 +1,5 @@
 ﻿namespace DotNetToolbox.Results;
 
-public abstract record ResultBase
-    : IResultBase {
-    protected ResultBase(IEnumerable<Error>? errors = null) {
-        Errors = errors as HashSet<Error> ?? errors?.ToHashSet() ?? [];
-    }
-
-    /// <summary>
-    /// The collection of unique errors. If empty, the Result is considered a Success.
-    /// </summary>
-    public IReadOnlySet<Error> Errors { get; }
-
-    /// <summary>
-    /// True if the result has at least one error.
-    /// </summary>
-    public bool HasErrors => Errors.Count != 0;
-
-    /// <summary>
-    /// A Success result has no errors.
-    /// </summary>
-    public bool IsSuccessful => !HasErrors;
-
-    /// <summary>
-    /// A Failure result has at least one error.
-    /// </summary>
-    public bool IsFailure => HasErrors;
-
-    public void EnsureIsSuccess() {
-        if (IsFailure) throw new OperationFailureException(Errors);
-    }
-}
-
 public record Result
     : ResultBase
     , IResult
@@ -96,6 +65,14 @@ public record Result
     /// Creates a Failure result. The value is set to default.
     /// </summary>
     public static Result<TValue> Failure<TValue>(TValue value, Error error, params IEnumerable<Error> additionalErrors) {
+        ArgumentNullException.ThrowIfNull(error);
+        return Failure(value, [error, .. additionalErrors]);
+    }
+
+    /// <summary>
+    /// Creates a Failure result. The value is set to default.
+    /// </summary>
+    public static Result<string> Failure(string value, Error error, params IEnumerable<Error> additionalErrors) {
         ArgumentNullException.ThrowIfNull(error);
         return Failure(value, [error, .. additionalErrors]);
     }

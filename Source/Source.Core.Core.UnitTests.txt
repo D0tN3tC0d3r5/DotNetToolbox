@@ -1,0 +1,2409 @@
+<root name="Core"> 
+  <file name="ContextTests.cs"><![CDATA[ 
+namespace DotNetToolbox;
+
+public class ContextTests {
+    [Fact]
+    public void Constructor_WithNullSource_CreatesEmptyContext() {
+        // Act
+        var context = new Map();
+
+        // Assert
+        context.Should().NotBeNull();
+        context.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void Constructor_WithNonNullSource_CreatesContextWithSourceItems() {
+        // Arrange
+        var source = new Dictionary<string, object> { { "key1", "value1" }, { "key2", 2 } };
+
+        // Act
+        var context = new Map(source);
+
+        // Assert
+        context.Should().NotBeNull();
+        context.Count.Should().Be(2);
+        context["key1"].Should().Be("value1");
+        context["key2"].Should().Be(2);
+    }
+
+    [Fact]
+    public void Dispose_DisposesAllKeys() {
+        // Arrange
+        var source = new Dictionary<string, object> { { "key1", "value1" }, { "key2", 2 } };
+        var context = new Map(source);
+
+        // Act
+        context.Dispose();
+
+        // Assert
+        context.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void Dispose_SetsIsDisposedToTrue() {
+        // Arrange
+        var context = new Map();
+
+        // Act
+        context.Dispose();
+
+        // Assert
+        var isDisposedField = typeof(Map).GetField("_isDisposed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var isDisposed = (bool)isDisposedField?.GetValue(context)!;
+        isDisposed.Should().BeTrue();
+    }
+}
+  ]]></file> 
+  <file name="DotNetToolbox.Core.UnitTests.csproj"><![CDATA[ 
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>DotNetToolbox</RootNamespace>
+    <AssemblyName>DotNetToolbox.Core.UnitTests</AssemblyName>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);DV2001;DV2002;xUnit1044;xUnit1045</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="[7.2.0]" />
+    <PackageReference Include="FluentAssertions.Analyzers" Version="0.34.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.analyzers" Version="1.20.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\DotNetToolbox.Core.csproj" />
+  </ItemGroup>
+
+</Project>
+  ]]></file> 
+  <file name="GlobalSuppressions.cs"><![CDATA[ 
+﻿// This file is used by Code Analysis to maintain SuppressMessage
+// attributes that are applied to this project.
+// Project-level suppressions either have no target or are given
+// a specific target and scoped to a namespace, type, member, etc.
+
+[assembly: SuppressMessage("Reliability", "CA2012:Use ValueTasks correctly", Justification = "<Pending>")]
+  ]]></file> 
+  <file name="GlobalUsings.cs"><![CDATA[ 
+global using System.Collections;
+global using System.Collections.ObjectModel;
+global using System.Diagnostics.CodeAnalysis;
+global using System.Globalization;
+
+global using DotNetToolbox.Results;
+
+global using FluentAssertions;
+
+global using Microsoft.Extensions.DependencyInjection;
+
+global using NSubstitute;
+
+global using Xunit;
+
+global using static DotNetToolbox.Ensure;
+global using static DotNetToolbox.Pagination.PaginationSettings;
+
+global using static NSubstitute.Arg;
+global using static NSubstitute.Substitute;
+  ]]></file> 
+  <file name="MapTests.cs"><![CDATA[ 
+namespace DotNetToolbox;
+
+public class MapTests {
+    [Fact]
+    public void Constructor_WithNullSource_CreatesEmptyMap() {
+        // Act
+        var map = new Map();
+
+        // Assert
+        map.Should().NotBeNull();
+        map.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void Constructor_WithNonNullSource_CreatesMapWithSourceItems() {
+        // Arrange
+        var source = new Dictionary<string, object> { { "key1", "value1" }, { "key2", 2 } };
+
+        // Act
+        var map = new Map(source);
+
+        // Assert
+        map.Should().NotBeNull();
+        map.Count.Should().Be(2);
+        map["key1"].Should().Be("value1");
+        map["key2"].Should().Be(2);
+    }
+
+    [Fact]
+    public void GetValueAs_WithValidKeyAndCorrectType_ReturnsValue() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", 123 } });
+
+        // Act
+        var value = map.GetValueOrDefault("key", 0);
+
+        // Assert
+        value.Should().Be(123);
+    }
+
+    [Fact]
+    public void GetValueAs_WithValidKeyAndIncorrectType_ThrowsInvalidCastException() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", 123 } });
+
+        // Act
+        Action action = () => map.GetValueAs<string>("key");
+
+        // Assert
+        action.Should().Throw<InvalidCastException>();
+    }
+
+    [Fact]
+    public void GetValueAs_WithNullValueAndClassType_ReturnsDefault() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", null! } });
+
+        // Act
+        var value = map.GetValueAs<string>("key");
+
+        // Assert
+        value.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryGetValueAs_WithValidKeyAndCorrectType_ReturnsTrueAndValue() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", 123 } });
+
+        // Act
+        var result = map.TryGetValueAs<int>("key", out var value);
+
+        // Assert
+        result.Should().BeTrue();
+        value.Should().Be(123);
+    }
+
+    [Fact]
+    public void TryGetValueAs_WithValidKeyAndIncorrectType_ReturnsFalse() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", 123 } });
+
+        // Act
+        var result = map.TryGetValueAs<string>("key", out var value);
+
+        // Assert
+        result.Should().BeFalse();
+        value.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryGetValueAs_WithMissingKey_ReturnsFalse() {
+        // Arrange
+        var map = new Map();
+
+        // Act
+        var result = map.TryGetValueAs<int>("key", out var value);
+
+        // Assert
+        result.Should().BeFalse();
+        value.Should().Be(0);
+    }
+
+    [Fact]
+    public void Indexer_GetAndSet_WorksCorrectly() {
+        // Arrange
+#pragma warning disable IDE0028 // Simplify collection initialization
+        var map = new Map();
+#pragma warning restore IDE0028 // Simplify collection initialization
+
+        // Act
+        map["key"] = "value";
+        var value = map["key"];
+
+        // Assert
+        value.Should().Be("value");
+    }
+
+    [Fact]
+    public void Add_AddsItemToMap() {
+        // Arrange
+#pragma warning disable IDE0028 // Simplify collection initialization
+        var map = new Map();
+#pragma warning restore IDE0028 // Simplify collection initialization
+
+        // Act
+        map.Add("key", "value");
+
+        // Assert
+        map["key"].Should().Be("value");
+    }
+
+    [Fact]
+    public void Remove_RemovesItemFromMap() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", "value" } });
+
+        // Act
+        var result = map.Remove("key");
+
+        // Assert
+        result.Should().BeTrue();
+        map.ContainsKey("key").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Clear_RemovesAllItemsFromMap() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key1", "value1" }, { "key2", 2 } });
+
+        // Act
+        map.Clear();
+
+        // Assert
+        map.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void ContainsKey_ReturnsTrueIfKeyExists() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", "value" } });
+
+        // Act
+        var result = map.ContainsKey("key");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void TryGetValue_ReturnsTrueIfKeyExists() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", "value" } });
+
+        // Act
+        var result = map.TryGetValue("key", out var value);
+
+        // Assert
+        result.Should().BeTrue();
+        value.Should().Be("value");
+    }
+
+    [Fact]
+    public void Constructor_ForMapOfT_WithNullSource_CreatesEmptyMap() {
+        // Act
+        var map = new Map<int>();
+
+        // Assert
+        map.Should().NotBeNull();
+        map.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void Constructor_ForMapOfT_WithNonNullSource_CreatesMapWithSourceItems() {
+        // Arrange
+        var source = new Dictionary<string, int> { { "key1", 1 }, { "key2", 2 } };
+
+        // Act
+        var map = new Map<int>(source);
+
+        // Assert
+        map.Should().NotBeNull();
+        map.Count.Should().Be(2);
+        map["key1"].Should().Be(1);
+        map["key2"].Should().Be(2);
+    }
+
+    [Fact]
+    public void Indexer_ForMapOfT_GetAndSet_WorksCorrectly() {
+        // Arrange
+#pragma warning disable IDE0028 // Simplify collection initialization
+        var map = new Map<int>();
+#pragma warning restore IDE0028 // Simplify collection initialization
+
+        // Act
+        map["key"] = 1;
+        var value = map["key"];
+
+        // Assert
+        value.Should().Be(1);
+    }
+
+    [Fact]
+    public void Add_ForMapOfT_AddsItemToMap() {
+        // Arrange
+#pragma warning disable IDE0028 // Simplify collection initialization
+        var map = new Map<int>();
+#pragma warning restore IDE0028 // Simplify collection initialization
+
+        // Act
+        map.Add("key", 1);
+
+        // Assert
+        map["key"].Should().Be(1);
+    }
+
+    [Fact]
+    public void Remove_ForMapOfT_RemovesItemFromMap() {
+        // Arrange
+        var map = new Map<int>(new Dictionary<string, int> { { "key", 1 } });
+
+        // Act
+        var result = map.Remove("key");
+
+        // Assert
+        result.Should().BeTrue();
+        map.ContainsKey("key").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Clear_ForMapOfT_RemovesAllItemsFromMap() {
+        // Arrange
+        var map = new Map<int>(new Dictionary<string, int> { { "key1", 1 }, { "key2", 2 } });
+
+        // Act
+        map.Clear();
+
+        // Assert
+        map.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void ContainsKey_ForMapOfT_ReturnsTrueIfKeyExists() {
+        // Arrange
+        var map = new Map<int>(new Dictionary<string, int> { { "key", 1 } });
+
+        // Act
+        var result = map.ContainsKey("key");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void TryGetValue_ForMapOfT_ReturnsTrueIfKeyExists() {
+        // Arrange
+        var map = new Map<int>(new Dictionary<string, int> { { "key", 1 } });
+
+        // Act
+        var result = map.TryGetValue("key", out var value);
+
+        // Assert
+        result.Should().BeTrue();
+        value.Should().Be(1);
+    }
+
+    [Fact]
+    public void GetEnumerator_ForMapOfT_ReturnsAllItems() {
+        // Arrange
+        var source = new Dictionary<string, int> { { "key1", 1 }, { "key2", 2 } };
+        var map = new Map<int>(source);
+
+        // Act
+        var items = map.ToList();
+
+        // Assert
+        items.Should().HaveCount(2);
+        items.Should().Contain(new KeyValuePair<string, int>("key1", 1));
+        items.Should().Contain(new KeyValuePair<string, int>("key2", 2));
+    }
+}
+  ]]></file> 
+  <folder name="Collections"> 
+    <folder name="Generic"> 
+      <file name="EnumerableExtensionsTests.cs"><![CDATA[ 
+// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Collections.Generic;
+
+public class EnumerableExtensionsTests {
+    [Fact]
+    public void ToArray_FromNull_Throw() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToArray(i => i + 2);
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToArray_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToArray(i => i + 2);
+
+        // Assert
+        result.Should().BeOfType<int[]>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToArray_WithOutput_FromNull_GetsArray() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToArray(i => $"{i + 2}");
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToArray_WithOutput_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToArray(i => $"{i + 2}");
+
+        // Assert
+        result.Should().BeOfType<string[]>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToList_FromNull_Throw() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToList(i => i + 2);
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToList_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToList(i => i + 2);
+
+        // Assert
+        result.Should().BeOfType<List<int>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToList_WithOutput_FromNull_GetsArray() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToList(i => $"{i + 2}");
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToList_WithOutput_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToList(i => $"{i + 2}");
+
+        // Assert
+        result.Should().BeOfType<List<string>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToHashSet_FromNull_Throw() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToHashSet(i => i + 2);
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToHashSet_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToHashSet(i => i + 2);
+
+        // Assert
+        result.Should().BeOfType<HashSet<int>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToHashSet_WithOutput_FromNull_GetsArray() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToHashSet(i => $"{i + 2}");
+
+        // Assert
+        result.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ToHashSet_WithOutput_GetsArray() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToHashSet(i => $"{i + 2}");
+
+        // Assert
+        result.Should().BeOfType<HashSet<string>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToDictionary_WithTransformValue_GetsDictionary() {
+        // Arrange
+        var input = new Dictionary<string, int>() {
+            ["One"] = 1,
+            ["Two"] = 2,
+        };
+
+        // Act
+        var result = input.ToDictionary<string, int>(i => i * 2);
+
+        // Assert
+        result.Should().BeOfType<Dictionary<string, int>>();
+        result.Should().HaveCount(2);
+        result["One"].Should().Be(2);
+        result["Two"].Should().Be(4);
+    }
+
+    [Fact]
+    public void ToDictionary_WithTransformElement_GetsDictionary() {
+        // Arrange
+        var input = new List<int>() { 1, 2 };
+
+        // Act
+        var result = input.ToDictionary(i => $"Key{i}", i => i * 2);
+
+        // Assert
+        result.Should().BeOfType<Dictionary<string, int>>();
+        result.Should().HaveCount(2);
+        result["Key1"].Should().Be(2);
+        result["Key2"].Should().Be(4);
+    }
+
+    [Fact]
+    public void ToHashSet_GetsHashSet() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToHashSet(i => i + 2);
+
+        // Assert
+        result.Should().BeOfType<HashSet<int>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToHashSet_WithOutput_GetsHashSet() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToHashSet(i => $"{i + 2}");
+
+        // Assert
+        result.Should().BeOfType<HashSet<string>>();
+        result.Should().HaveCount(100);
+    }
+
+    [Fact]
+    public void ToIndexedItems_FromNull_Throw() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToIndexedList();
+
+        // Assert
+        result.Should().Throw<NullReferenceException>();
+    }
+
+    [Fact]
+    public void ToIndexedItems_GetsList() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToIndexedList();
+
+        // Assert
+        result.Should().BeOfType<List<IndexedItem<int>>>();
+        result.Should().HaveCount(100);
+        result[0].Should().Be(new IndexedItem<int>(0, 0, false));
+        result[99].Should().Be(new IndexedItem<int>(99, 99, true));
+    }
+
+    [Fact]
+    public void ToIndexedItems_WithOutput_FromNull_GetsArray() {
+        // Arrange
+        IEnumerable<int>? subject = default;
+
+        // Act
+        var result = () => subject!.ToIndexedList(i => $"{i + 2}");
+
+        // Assert
+        result.Should().Throw<NullReferenceException>();
+    }
+
+    [Fact]
+    public void ToIndexedItems_WithOutput_GetsList() {
+        // Act
+        var result = Enumerable.Range(0, 100).ToIndexedList(i => $"{i + 2}");
+
+        // Assert
+        result.Should().BeOfType<List<IndexedItem<string>>>();
+        result.Should().HaveCount(100);
+        result[0].Index.Should().Be(0);
+        result[0].Value.Should().Be("2");
+        result[0].IsFirst.Should().BeTrue();
+        result[0].IsLast.Should().BeFalse();
+        result[99].Index.Should().Be(99);
+        result[99].Value.Should().Be("101");
+        result[99].IsFirst.Should().BeFalse();
+        result[99].IsLast.Should().BeTrue();
+    }
+}
+      ]]></file> 
+    </folder> 
+  </folder> 
+  <folder name="Pagination"> 
+    <file name="ChunkTests.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Pagination;
+
+public class ChunkTests {
+    [Fact]
+    public void Constructor_WithParams_Passes() {
+        var subject = new Chunk<int>(items: [1, 2, 3, 4, 5],
+                                     size: 5);
+
+        subject.Items.Should().BeEquivalentTo([1, 2, 3, 4, 5]);
+        subject.Size.Should().Be(5);
+    }
+
+    [Fact]
+    public void ObjectInitializer_Passes() {
+        var subject = new Chunk<int>() {
+            Items = [1, 2, 3, 4],
+            Size = 4,
+        };
+
+        subject.Items.Should().BeEquivalentTo([1, 2, 3, 4]);
+        subject.Size.Should().Be(4);
+    }
+
+    [Fact]
+    public void DefaultConstructor_Passes() {
+        var subject = new Chunk<int>();
+
+        subject.Items.Should().BeEmpty();
+        subject.Size.Should().Be(DefaultBlockSize);
+    }
+}
+    ]]></file> 
+    <file name="PageTests.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Pagination;
+
+public class PageTests {
+    [Fact]
+    public void Constructor_WithParams_Passes() {
+        var subject = new Page<int>(items: [1, 2, 3, 4, 5],
+                                    index: 1,
+                                    size: 5,
+                                    totalCount: 12);
+
+        subject.TotalCount.Should().Be(12);
+        subject.Items.Should().BeEquivalentTo([1, 2, 3, 4, 5]);
+        subject.Index.Should().Be(1);
+        subject.Size.Should().Be(5);
+    }
+
+    [Fact]
+    public void ObjectInitializer_Passes() {
+        var subject = new Page<int>() {
+            Items = [1, 2, 3, 4],
+            Index = 5,
+            TotalCount = 100,
+        };
+
+        subject.Items.Should().BeEquivalentTo([1, 2, 3, 4]);
+        subject.Index.Should().Be(5);
+        subject.TotalCount.Should().Be(100);
+        subject.Size.Should().Be(DefaultBlockSize);
+    }
+
+    [Fact]
+    public void DefaultConstructor_Passes() {
+        var subject = new Page<int>();
+
+        subject.Items.Should().BeEmpty();
+        subject.Index.Should().Be(0);
+        subject.TotalCount.Should().Be(0);
+        subject.Size.Should().Be(DefaultBlockSize);
+    }
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Results"> 
+    <file name="ErrorTests.cs"><![CDATA[ 
+namespace DotNetToolbox.Results;
+
+public class ErrorTests {
+    [Fact]
+    public void WithSourceAndMessage_ReturnsFormattedMessage() {
+        // Arrange
+        var error1 = new Error("Some message.", "Field");
+
+        // Act
+        var error2 = error1 with { };
+
+        // Assert
+        error2.Should().NotBeSameAs(error1);
+        error1.Message.Should().Be("Some message.");
+        error1.Sources.Should().BeEquivalentTo("Field");
+        error1.ToString().Should().Be("Field: Some message.");
+    }
+
+    [Theory]
+    [InlineData("Some message 1.")]
+    [InlineData("Some message with 42.")]
+    public void FormattedMessage_WithoutSource_ReturnsMessage(string message) {
+        // Act
+        var error = new Error(message);
+
+        // Assert
+        error.Sources.Should().BeEquivalentTo(string.Empty);
+        error.Message.Should().Be(message);
+    }
+
+    [Fact]
+    public void Equality_ShouldReturnAsExpected() {
+        var subject = new Error("Break message data", "field");
+        var same = new Error("Break message data", "field");
+        var otherSource = new Error("Break message data", "otherField");
+        var otherMessage = new Error("Other message data", "field");
+
+        //Act
+        var resultForNull = subject == null!;
+        var resultForOtherSource = subject != otherSource;
+        var resultForOtherTemplate = subject != otherMessage;
+        var resultForSame = subject == same;
+
+        //Assert
+        resultForNull.Should().BeFalse();
+        resultForOtherSource.Should().BeTrue();
+        resultForOtherTemplate.Should().BeTrue();
+        resultForSame.Should().BeTrue();
+    }
+
+    [Fact]
+    public void GetHashCode_ShouldReturnAsExpected() {
+        // Arrange & Act
+        var errorSet = new HashSet<Error> {
+            new("Source 1", "Some message 1 42."),
+            new("Source 1", "Some message 1 42."),
+            new(" Source 1 ", "Some message 1 42."),
+            new("Source 1", "Some message 1 42."),
+            new("Source 2", "Some message 1 42."),
+            new("Source 1", "Some message 2 42."),
+            new("Source 1", "Some message 1 7."),
+        };
+
+        // Assert
+        errorSet.Should().BeEquivalentTo(new Error[] {
+            new("Source 1", "Some message 1 42."),
+            new("Source 2", "Some message 1 42."),
+            new("Source 1", "Some message 2 42."),
+            new("Source 1", "Some message 1 7."),
+        });
+    }
+}
+    ]]></file> 
+    <file name="OperationFailureExceptionTests.cs"><![CDATA[ 
+namespace DotNetToolbox.Results;
+
+public class OperationFailureExceptionTests {
+    [Fact]
+    public void Constructor_WithMessageOnly_CreatesException() {
+        // Arrange & Act
+        var exception = new OperationFailureException("Some error.");
+
+        // Assert
+        exception.Errors.Should().ContainSingle();
+        exception.Message.Should().Be("Some error.");
+        exception.InnerException.Should().BeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithMessageAndInnerException_CreatesException() {
+        // Arrange & Act
+        var exception = new OperationFailureException("Some error.", new InvalidOperationException());
+
+        // Assert
+        exception.Errors.Should().ContainSingle();
+        exception.Message.Should().Be("Some error.");
+        exception.InnerException.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithInnerException_CreatesException() {
+        // Arrange
+        var inner = new InvalidOperationException();
+
+        // Act
+        var exception = new OperationFailureException(inner);
+
+        // Assert
+        exception.Errors.Should().ContainSingle();
+        exception.Errors[0].Message.Should().Be("An error has occured.");
+        exception.Message.Should().Be("An error has occured.");
+        exception.InnerException.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithSourceAndMessage_CreatesException() {
+        // Arrange & Act
+        var exception = new OperationFailureException(new Error("Some error.", "Field1"));
+
+        // Assert
+        exception.Errors.Should().ContainSingle();
+        exception.Message.Should().Be("Some error.");
+        exception.Source.Should().Be("Field1");
+        exception.InnerException.Should().BeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithSourceAndMessageAndInnerException_CreatesException() {
+        // Arrange & Act
+        var exception = new OperationFailureException(new Error("Some error.", "Field1"), new InvalidOperationException());
+
+        // Assert
+        exception.Errors.Should().ContainSingle();
+        exception.Message.Should().Be("Some error.");
+        exception.Source.Should().Be("Field1");
+        exception.InnerException.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithOneError_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some error 42.");
+
+        // Act
+        var exception = new OperationFailureException(error1);
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1]);
+        exception.Message.Should().Be("Validation failed.");
+        exception.InnerException.Should().BeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithOneErrorAndException_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some error 42.");
+
+        // Act
+        var exception = new OperationFailureException(error1, new InvalidOperationException());
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1]);
+        exception.Message.Should().Be("Validation failed.");
+        exception.InnerException.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithErrorCollection_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some global error 42.");
+        var error2 = new Error("Some other error 13.", "Field1");
+
+        // Act
+        var exception = new OperationFailureException([error1, error2]);
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1, error2]);
+        exception.Message.Should().Be("Validation failed.");
+        exception.InnerException.Should().BeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithErrorCollectionAndException_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some global error 42.");
+        var error2 = new Error("Some other error 13.", "Field1");
+
+        // Act
+        var exception = new OperationFailureException([error1, error2], new InvalidOperationException());
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1, error2]);
+        exception.Message.Should().Be("Validation failed.");
+        exception.InnerException.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithAllButSingleError_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some global error 42.", "Field1");
+
+        // Act
+        var exception = new OperationFailureException("Some message.", error1);
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1]);
+        exception.Message.Should().Be("Some message.");
+        exception.Source.Should().Be("Field1");
+        exception.InnerException.Should().BeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithAllButSingleErrorAndException_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some global error 42.", "Field1");
+
+        // Act
+        var exception = new OperationFailureException("Some message.", error1, new InvalidOperationException());
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1]);
+        exception.Message.Should().Be("Some message.");
+        exception.Source.Should().Be("Field1");
+        exception.InnerException.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithAllArguments_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some global error 42.", "Field1");
+        var error2 = new Error("Some other error 13.", "Field1");
+
+        // Act
+        var exception = new OperationFailureException("Some message.", [error1, error2], new InvalidOperationException());
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1, error2]);
+        exception.Message.Should().Be("Some message.");
+        exception.Source.Should().Be("Field1");
+        exception.InnerException.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithNullSource_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some global error 42.");
+
+        // Act
+        var exception = new OperationFailureException("Some message.", error1);
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1]);
+        exception.Message.Should().Be("Some message.");
+        exception.InnerException.Should().BeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithNullSourceAndException_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some global error 42.");
+
+        // Act
+        var exception = new OperationFailureException("Some message.", error1, new InvalidOperationException());
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1]);
+        exception.Message.Should().Be("Some message.");
+        exception.InnerException.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Constructor_WithAllArgumentsAndNullSource_CreatesException() {
+        // Arrange
+        var error1 = new Error("Some global error 42.");
+        var error2 = new Error("Some other error 13.", "Field1");
+
+        // Act
+        var exception = new OperationFailureException("Some message.", [error1, error2], new InvalidOperationException());
+
+        // Assert
+        exception.Errors.Should().BeEquivalentTo([error1, error2]);
+        exception.Message.Should().Be("Some message.");
+        exception.InnerException.Should().NotBeNull();
+    }
+}
+    ]]></file> 
+    <file name="ResultTests.cs"><![CDATA[ 
+namespace DotNetToolbox.Results;
+
+public class ResultTests {
+    private static readonly Result _success = Result.Success();
+    private static readonly Result _invalid = Result.Failure("Some error.");
+    private static readonly Result _invalidWithSameError = Result.Failure("Some error.");
+    private static readonly Result _invalidWithOtherError = Result.Failure("Other error.");
+
+    private static readonly Result<string> _successWithValue = Result.Success("42");
+    private static readonly Result<string> _invalidWithValue = Result.Failure<string>("42", "Some error.");
+
+    [Fact]
+    public void Success_CreatesSuccess() {
+        // Act
+        var result = _success with { };
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.IsFailure.Should().BeFalse();
+        result.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationError_ReturnsFailure() {
+        // Act
+        Result result = new Error("Some error.", nameof(result));
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationErrorArray_ReturnsFailure() {
+        // Act
+        Result result = new[] { new Error("Some error.", nameof(result)) };
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationErrorList_ReturnsFailure() {
+        // Act
+        Result result = new List<Error> { new("Some error.", nameof(result)) };
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValidationErrorSet_ReturnsFailure() {
+        // Act
+        Result result = new HashSet<Error> { new("Some error.", nameof(result)) };
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void AddOperator_FromSuccess_WithInvalid_ReturnsException() {
+        // Arrange
+        var result = Result.Success();
+
+        // Act
+        result += Result.Success() + new Error("Some error.", "result");
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.IsFailure.Should().BeTrue();
+    }
+
+    private static Result? ToResult(string? result)
+        => result switch {
+            null => null,
+            nameof(_success) => _success,
+            nameof(_invalid) => _invalid,
+            nameof(_invalidWithSameError) => _invalidWithSameError,
+            nameof(_invalidWithOtherError) => _invalidWithOtherError,
+            _ => throw new ArgumentException($"Failure field name: {result}"),
+        };
+
+    private sealed class TestDataForEquality : TheoryData<string, string?, bool> {
+        public TestDataForEquality() {
+            Add(nameof(_success), null, false);
+            Add(nameof(_success), nameof(_success), true);
+            Add(nameof(_success), nameof(_invalid), false);
+            Add(nameof(_invalid), null, false);
+            Add(nameof(_invalid), nameof(_success), false);
+            Add(nameof(_invalid), nameof(_invalid), true);
+            Add(nameof(_invalid), nameof(_invalidWithSameError), true);
+            Add(nameof(_invalid), nameof(_invalidWithOtherError), false);
+        }
+    }
+
+    [Theory]
+    [ClassData(typeof(TestDataForEquality))]
+    public void Equals_ReturnsAsExpected(string subject, string? other, bool expectedResult) {
+        // Act
+        var result = ToResult(subject) == ToResult(other);
+
+        // Assert
+        result.Should().Be(expectedResult);
+    }
+
+    [Theory]
+    [ClassData(typeof(TestDataForEquality))]
+    public void NotEquals_ReturnsAsExpected(string subject, string? other, bool expectedResult) {
+        // Act
+        var result = ToResult(subject) != ToResult(other);
+
+        // Assert
+        result.Should().Be(!expectedResult);
+    }
+
+    [Fact]
+    public void GetHashCode_DifferentiatesAsExpected() {
+        var expectedResult = new HashSet<Result> {
+            _success,
+            _invalid,
+            _invalidWithOtherError,
+        };
+
+        // Act
+        var result = new HashSet<Result> {
+            Result.Success(),
+            Result.Success(),
+            _success,
+            _success,
+            _invalid,
+            _invalid,
+            _invalidWithSameError,
+            _invalidWithOtherError,
+        };
+
+        // Assert
+        result.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromValue_ReturnsSuccess() {
+        // Act
+        Result<string> subject = "Value";
+
+        // Assert
+        subject.Value.Should().Be("Value");
+        subject.IsSuccessful.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AddOperator_WithValueAndWithoutError_ReturnsInvalid() {
+        // Arrange
+        var result = _successWithValue;
+
+        // Act
+        result += Result.Success();
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.Value.Should().Be("42");
+    }
+
+    [Fact]
+    public void AddOperator_WithValueAndWithError_ReturnsInvalid() {
+        // Arrange
+        var result = _successWithValue;
+
+        // Act
+        result += new Error("Some error.", "result");
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.Value.Should().Be("42");
+    }
+
+    [Fact]
+    public void SuccessWithValue_CreatesSuccess() {
+        // Act
+        var result = _successWithValue with { };
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.IsFailure.Should().BeFalse();
+        result.Errors.Should().BeEmpty();
+        result.Value.Should().Be("42");
+    }
+
+    [Fact]
+    public void ImplicitConversion_FromString_ReturnsInvalidResultWithSingleError() {
+        // Act
+        Result result = (Error)"Test error";
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().ContainSingle(static e => e.Message == "Test error");
+    }
+
+    [Fact]
+    public void AddOperator_WithValue_FromSuccess_WithInvalid_ReturnsException() {
+        // Arrange
+        var result = Result.Success("42");
+
+        // Act
+        result += Result.Success() + new Error("Some error.", "result");
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.IsFailure.Should().BeTrue();
+        result.Value.Should().Be("42");
+    }
+
+    [Fact]
+    public void SuccessTValue_WithValue_SetsValueProperty() {
+        // Arrange
+        const string value = "Test value";
+
+        // Act
+        var result = Result.Success(value);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.Value.Should().Be(value);
+    }
+
+    [Fact]
+    public void InvalidTValue_WithValue_SetsValueAndErrors() {
+        // Arrange
+        const string value = "Test value";
+        const string message = "Test error";
+
+        // Act
+        var result = Result.Failure<string>(value, message);
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Value.Should().Be(value);
+        result.Errors.Should().ContainSingle(static e => e.Message == message);
+    }
+
+    // Additional tests for task-based factory methods
+    [Fact]
+    public async Task SuccessTask_ReturnsTaskWithSuccessResult() {
+        // Act
+        var task = Task.FromResult(Result.Success());
+
+        // Assert
+        var result = await task;
+        result.IsSuccessful.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvalidTask_ReturnsTaskWithInvalidResult() {
+        // Act
+        var task = Task.FromResult(Result.Failure("Test error"));
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().ContainSingle(static e => e.Message == "Test error");
+    }
+
+    [Fact]
+    public async Task InvalidTask_FromResult_ReturnsTaskWithInvalidResult() {
+        // Arrange
+        var original = Result.Failure("Test error");
+
+        // Act
+        var task = Task.FromResult(original);
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should()
+              .BeTrue();
+        result.Errors.Should()
+              .ContainSingle(static e => e.Message == "Test error");
+    }
+
+    [Fact]
+    public async Task InvalidTask_FromErrors_ReturnsTaskWithInvalidResult() {
+        // Arrange
+        var original = Result.Failure("Test error");
+
+        // Act
+        var task = Task.FromResult(Result.Failure(original.Errors));
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should()
+              .BeTrue();
+        result.Errors.Should()
+              .ContainSingle(static e => e.Message == "Test error");
+    }
+
+    [Fact]
+    public void Invalid_WithoutParameters_ReturnsInvalidResultWithDefaultError() {
+        // Act
+        var result = Result.Failure("Some value.", "Some error.");
+
+        // Assert
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void ResultTValue_Equals_WithDifferentResults_ReturnsFalse() {
+        // Arrange
+        var resultWithValue1 = Result.Success("Value1");
+        var resultWithValue2 = Result.Failure("Some error", "Value1");
+
+        // Act
+        var areEqual = resultWithValue1.Equals(resultWithValue2);
+
+        // Assert
+        areEqual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResultTValue_Equals_WithDifferentValues_ReturnsFalse() {
+        // Arrange
+        var resultWithValue1 = Result.Success("Value1");
+        var resultWithValue2 = Result.Success("Value2");
+
+        // Act
+        var areEqual = resultWithValue1.Equals(resultWithValue2);
+
+        // Assert
+        areEqual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResultTValue_Equals_WithSameValues_ReturnsTrue() {
+        // Arrange
+        var resultWithValue1 = Result.Success("Value1");
+        var resultWithValue2 = Result.Success("Value1");
+
+        // Act
+        var areEqual = resultWithValue1.Equals(resultWithValue2);
+
+        // Assert
+        areEqual.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ResultTValue_GetHashCode_WithDifferentValues_ProducesDifferentHashCodes() {
+        // Arrange
+        var resultWithValue1 = Result.Success("Value1");
+        var resultWithValue2 = Result.Success("Value2");
+
+        // Act
+        var hashCode1 = resultWithValue1.GetHashCode();
+        var hashCode2 = resultWithValue2.GetHashCode();
+
+        // Assert
+        hashCode1.Should().NotBe(hashCode2);
+    }
+
+    // Task-based factory methods tests for Result<TValue>
+    [Fact]
+    public async Task SuccessTaskTValue_ReturnsTaskWithSuccessResult() {
+        // Act
+        var task = Task.FromResult(Result.Success("Test value"));
+
+        // Assert
+        var result = await task;
+        result.IsSuccessful.Should().BeTrue();
+        result.Value.Should().Be("Test value");
+    }
+
+    [Fact]
+    public async Task InvalidTaskTValue_WithMessageAndSource_ReturnsTaskWithInvalidResult() {
+        // Act
+        var task = Task.FromResult(Result.Failure("Test value", "Test error", "Test source"));
+
+        // Assert
+        var result = await task;
+        result.HasErrors.Should().BeTrue();
+        result.Errors.Should().ContainSingle(static e => e.Message == "Test error" && e.Sources.Contains("Test source"));
+        result.Value.Should().Be("Test value");
+    }
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Singleton"> 
+    <file name="HasDefaultTests.cs"><![CDATA[ 
+﻿using DotNetToolbox.Singletons;
+
+namespace DotNetToolbox.Singleton;
+
+public class HasDefaultTests {
+    private sealed class ClassHasDefault
+        : IHasDefault<ClassHasDefault> {
+        public static ClassHasDefault Default => new();
+    }
+
+    [Fact]
+    public void Static_Default_ReturnsSingleton() {
+        // Arrange & Act
+        var instance1 = ClassHasDefault.Default;
+        var instance2 = ClassHasDefault.Default;
+
+        // Assert
+        instance1.Should().BeOfType<ClassHasDefault>();
+        instance1.Should().BeSameAs(instance2);
+    }
+}
+    ]]></file> 
+    <file name="HasEmptyTests.cs"><![CDATA[ 
+﻿using DotNetToolbox.Singletons;
+
+namespace DotNetToolbox.Singleton;
+
+public class HasEmptyTests {
+    private sealed class ClassWithEmpty
+        : IHasEmpty<ClassWithEmpty> {
+        public static ClassWithEmpty Empty { get; } = new();
+    }
+
+    [Fact]
+    public void Static_Empty_ReturnsSingleton() {
+        // Arrange & Act
+        var instance1 = ClassWithEmpty.Empty;
+        var instance2 = ClassWithEmpty.Empty;
+
+        // Assert
+        instance1.Should().BeOfType<ClassWithEmpty>();
+        instance1.Should().BeSameAs(instance2);
+    }
+}
+    ]]></file> 
+    <file name="HasInstanceTests.cs"><![CDATA[ 
+﻿using DotNetToolbox.Singletons;
+
+namespace DotNetToolbox.Singleton;
+
+public class HasInstanceTests {
+    private sealed class ClassWithInstance
+        : IHasInstance<ClassWithInstance> {
+        public static ClassWithInstance Instance { get; } = new();
+    }
+
+    [Fact]
+    public void Static_Instance_ReturnsSingleton() {
+        // Arrange & Act
+        var instance1 = ClassWithInstance.Instance;
+        var instance2 = ClassWithInstance.Instance;
+
+        // Assert
+        instance1.Should().BeOfType<ClassWithInstance>();
+        instance1.Should().BeSameAs(instance2);
+    }
+}
+    ]]></file> 
+    <file name="NamedOptionsTests.cs"><![CDATA[ 
+﻿using DotNetToolbox.Options;
+
+namespace DotNetToolbox.Singleton;
+
+public class NamedOptionsTests {
+    private sealed class TestOptions : NamedOptions<TestOptions>;
+    private sealed class SomeObject : NamedOptions<SomeObject>;
+
+    [Fact]
+    public void Static_Default_ReturnsSingleton() {
+        // Arrange & Act
+        var instance1 = TestOptions.Default;
+        var instance2 = TestOptions.Default;
+
+        // Assert
+        instance1.Should().BeOfType<TestOptions>();
+        instance1.Should().BeSameAs(instance2);
+    }
+
+    [Fact]
+    public void SectionName_ReturnsName() {
+        // Arrange & Act & Assert
+        TestOptions.SectionName.Should().Be("Test");
+        SomeObject.SectionName.Should().Be("SomeObject");
+    }
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Text"> 
+    <file name="UrlSafeBase64StringTests.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Text;
+
+public class UrlSafeBase64StringTests {
+    private static readonly Guid _guidValue = new("34333231-3635-3837-3930-313233343536");
+    private const string _stringValue = "1234567890123456";
+    private const string _base64Value = "MTIzNDU2Nzg5MDEyMzQ1Ng";
+    private static readonly byte[] _bytesValue = "1234567890123456"u8.ToArray();
+
+    [Fact]
+    public void DefaultConstructor_ReturnsBase64Guid() {
+        // Act
+        var result = new UrlSafeBase64String();
+
+        // Assert
+        result.Bytes.Should().BeEmpty();
+        result.Text.Should().Be(string.Empty);
+        result.Base64.Should().Be(string.Empty);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(Guid.Empty);
+    }
+
+    [Fact]
+    public void ConstructorWithNullBytes_ReturnsBase64Guid() {
+        // Act
+        var result = new UrlSafeBase64String(default(byte[]));
+
+        // Assert
+        result.Bytes.Should().BeEmpty();
+        result.Text.Should().Be(string.Empty);
+        result.Base64.Should().Be(string.Empty);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(Guid.Empty);
+    }
+
+    [Fact]
+    public void ConstructorWithNullString_ReturnsBase64Guid() {
+        // Act
+        var result = new UrlSafeBase64String(default(string));
+
+        // Assert
+        result.Bytes.Should().BeEmpty();
+        result.Text.Should().Be(string.Empty);
+        result.Base64.Should().Be(string.Empty);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(Guid.Empty);
+    }
+
+    [Fact]
+    public void GuidConstructor_ReturnsBase64Guid() {
+        // Act
+        var result = new UrlSafeBase64String(_guidValue);
+
+        // Assert
+        result.Bytes.Should().BeEquivalentTo(_bytesValue);
+        result.Text.Should().Be(_stringValue);
+        result.Base64.Should().Be(_base64Value);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(_guidValue);
+    }
+
+    [Fact]
+    public void StringConstructor_ReturnsBase64Guid() {
+        // Act
+        var result = new UrlSafeBase64String(_stringValue);
+
+        // Assert
+        result.Bytes.Should().BeEquivalentTo(_bytesValue);
+        result.Text.Should().Be(_stringValue);
+        result.Base64.Should().Be(_base64Value);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(_guidValue);
+    }
+
+    [Fact]
+    public void Base64Constructor_ReturnsBase64Guid() {
+        // Act
+        var result = new UrlSafeBase64String(_base64Value);
+
+        // Assert
+        result.Bytes.Should().BeEquivalentTo(_bytesValue);
+        result.Text.Should().Be(_stringValue);
+        result.Base64.Should().Be(_base64Value);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(_guidValue);
+    }
+
+    [Fact]
+    public void BytesConstructor_ReturnsBase64Guid() {
+        // Act
+        var result = new UrlSafeBase64String(_bytesValue);
+
+        // Assert
+        result.Bytes.Should().BeEquivalentTo(_bytesValue);
+        result.Text.Should().Be(_stringValue);
+        result.Base64.Should().Be(_base64Value);
+        result.IsGuid.Should().BeTrue();
+        result.Guid.Should().Be(_guidValue);
+    }
+
+    [Fact]
+    public void StringConstructor_InvalidBase64_ReturnsBase64Guid() {
+        // Act
+        var result = new UrlSafeBase64String("Not base 64.");
+
+        // Assert
+        result.IsGuid.Should().BeFalse();
+        result.Invoking(s => s.Guid).Should().Throw<FormatException>();
+        result.Text.Should().Be("Not base 64.");
+        result.Bytes.Should().BeEquivalentTo("Not base 64."u8.ToArray());
+    }
+
+    [Fact]
+    public void BytesConstructor_InvalidGuid_ReturnsBase64Guid() {
+        var input = new byte[] {
+            0xD6, 0xA8, 0x6D, 0x19, 0xC5, 0xAA, 0x06, 0x4F,
+            0xD6, 0xA8, 0x6D, 0x19, 0xC5, 0xAA, 0x06, 0x4F,
+            0xD6, 0xA8, 0x6D, 0x19, 0xC5, 0xAA, 0x06, 0x4F,
+        };
+
+        // Act
+        var result = new UrlSafeBase64String(input);
+
+        // Assert
+        result.IsGuid.Should().BeFalse();
+        result.Invoking(s => s.Guid).Should().Throw<FormatException>();
+        result.Text.Should().Be("\u05a8m\u0019Ū\u0006O\u05a8m\u0019Ū\u0006O\u05a8m\u0019Ū\u0006O");
+        // ReSharper disable once StringLiteralTypo
+        result.Base64.Should().Be("1qhtGcWqBk_WqG0ZxaoGT9aobRnFqgZP");
+        result.Bytes.Should().BeEquivalentTo(input);
+    }
+
+    [Fact]
+    public void ImplicitConversionTo_ReturnCorrectValues() {
+        // Act
+        var subject = new UrlSafeBase64String(_bytesValue);
+
+        // Act
+        string text = subject;
+        Guid guid = subject;
+        byte[] bytes = subject;
+
+        // Assert
+        subject.IsGuid.Should().BeTrue();
+        text.Should().Be(_base64Value);
+        guid.Should().Be(_guidValue);
+        bytes.Should().BeEquivalentTo(_bytesValue);
+    }
+
+    [Fact]
+    public void ImplicitConversionFrom_ReturnCorrectValues() {
+        // Act
+        UrlSafeBase64String value0 = _stringValue;
+        UrlSafeBase64String value1 = _base64Value;
+        UrlSafeBase64String value2 = _guidValue;
+        UrlSafeBase64String value3 = _bytesValue;
+
+        // Assert
+        value0.Text.Should().Be(_stringValue);
+        value1.Text.Should().Be(_stringValue);
+        value2.Text.Should().Be(_stringValue);
+        value3.Text.Should().Be(_stringValue);
+    }
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Utilities"> 
+    <file name="DisposableStateHolderTests.cs"><![CDATA[ 
+namespace DotNetToolbox.Utilities;
+
+public class DisposableStateHolderTests
+{
+    [Fact]
+    public void Dispose_ForDefaultStateType_CallsDisposeOnState() {
+        // Arrange
+        var disposable = For<IDisposable>();
+        var holder = new DisposableStateHolder(disposable);
+
+        // Act
+        holder.Dispose();
+
+        // Assert
+        disposable.Received(1).Dispose();
+    }
+
+    [Fact]
+    public void Dispose_WhenStateIsDisposable_CallsDisposeOnState()
+    {
+        // Arrange
+        var disposable = For<IDisposable>();
+        var holder = new DisposableStateHolder<IDisposable>(disposable);
+
+        // Act
+        holder.Dispose();
+
+        // Assert
+        disposable.Received(1).Dispose();
+    }
+
+    [Fact]
+    public void Dispose_WhenStateIsNotDisposable_DoesNotThrow()
+    {
+        // Arrange
+        var holder = new DisposableStateHolder<int>(42);
+
+        // Act
+        var act = holder.Dispose;
+
+        // Assert
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void State_WhenCalled_ReturnsInitialState()
+    {
+        // Arrange
+        const string state = "test";
+        var holder = new DisposableStateHolder<string>(state);
+
+        // Act
+        var result = holder.State;
+
+        // Assert
+        result.Should().Be(state);
+    }
+}
+    ]]></file> 
+    <file name="EnsureTests.cs"><![CDATA[ 
+using DotNetToolbox.Validation;
+
+namespace DotNetToolbox.Utilities;
+
+public class EnsureTests {
+    [Fact]
+    public void IsOfType_WhenArgumentIsOfWrongType_ThrowsArgumentNullException() {
+        // Arrange
+        const int input = 12;
+
+        // Act
+        var action = static () => IsOfType<string>(input);
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("Expected value to be of type 'String'. Found: 'Int32'. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void IsOfType_WhenArgumentIsOfRightType_ReturnsInput() {
+        // Arrange
+        const string input = "value";
+
+        // Act
+        var result = IsOfType<string>(input);
+
+        // Assert
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void NotNull_WhenArgumentIsNull_ThrowsArgumentNullException() {
+        // Arrange
+        const object? input = null;
+
+        // Act
+        var action = static () => IsNotNull(input);
+
+        // Assert
+        action.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void NotNull_WhenArgumentIsNotNull_ReturnsInput() {
+        // Arrange
+        var input = new object();
+
+        // Act
+        var result = IsNotNull(input);
+
+        // Assert
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void DoesNotHaveValue_WhenArgumentIsNullableValueType_ThrowsArgumentNullException() {
+        // Arrange
+        int? input = null;
+
+        // Act
+        var action = () => IsNotNull(input);
+
+        // Assert
+        action.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void DoesNotHaveValue_WhenArgumentIsNullableValueType_ReturnsInput() {
+        // Arrange
+        int? input = 3;
+
+        // Act
+        var result = IsNotNull(input);
+
+        // Assert
+        result.Should().Be(input);
+    }
+
+    [Fact]
+    public void NotNullOrEmpty_WhenStringIsNull_ThrowsArgumentException() {
+        // Arrange
+        string? input = null;
+
+        // Act
+        var action = () => IsNotNullOrEmpty(input);
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void NotNullOrEmpty_WhenStringIsEmpty_ThrowsArgumentException() {
+        // Arrange
+        var input = string.Empty;
+
+        // Act
+        var action = () => IsNotNullOrEmpty(input);
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be an empty string. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void NotNullOrEmpty_WhenStringIsNotEmpty_ReturnsInput() {
+        // Arrange
+        const string input = "Hello";
+
+        // Act
+        var result = IsNotNullOrEmpty(input);
+
+        // Assert
+        result.Should().Be(input);
+    }
+
+    [Fact]
+    public void NotNullOrWhiteSpace_WhenStringIsNull_ThrowsArgumentException() {
+        // Arrange
+        const string? input = null;
+
+        // Act
+        var action = static () => IsNotNullOrWhiteSpace(input);
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("Value cannot be null. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void NotNullOrWhiteSpace_WhenStringIsEmpty_ThrowsArgumentException() {
+        // Arrange
+        var input = string.Empty;
+
+        // Act
+        var action = () => IsNotNullOrWhiteSpace(input);
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be an empty string or composed entirely of whitespace. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void NotNullOrWhiteSpace_WhenStringIsWhiteSpace_ThrowsArgumentException() {
+        // Arrange
+        var input = " ";
+
+        // Act
+        var action = () => IsNotNullOrWhiteSpace(input);
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The value cannot be an empty string or composed entirely of whitespace. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void NotNullOrWhiteSpace_WhenStringIsNotEmpty_ReturnsInput() {
+        // Arrange
+        const string input = "Hello";
+
+        // Act
+        var result = IsNotNullOrWhiteSpace(input);
+
+        // Assert
+        result.Should().Be(input);
+    }
+
+    [Fact]
+    public void DoesNotHaveNull_WhenDoesNotHaveNull_ThrowsArgumentException() {
+        // Arrange
+        var input = new[] { default(int?) };
+
+        // Act
+        var action = () => ItemsAreNotNull(input);
+
+        // Assert
+        action.Should().Throw<OperationFailureException>().WithMessage("The collection cannot contain null element(s).");
+        action.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(input));
+    }
+
+    [Fact]
+    public void NotNullOrDoesNotHaveNull_WhenIsNotEmpty_ReturnsInput() {
+        // Arrange
+        var input = new[] { 1, 2, 3 };
+
+        // Act
+        var result = ItemsAreNotNull(input);
+
+        // Assert
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void NotNullOrEmpty_WhenIsNull_ThrowsArgumentException() {
+        // Arrange
+        const ICollection<int> input = default!;
+
+        // Act
+        var result = IsNotEmpty(input);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void NotNullOrEmpty_WhenIsEmpty_ThrowsArgumentException() {
+        // Arrange
+        var input = Array.Empty<int>();
+
+        // Act
+        var action = () => IsNotNullOrEmpty(input);
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The collection cannot be empty. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void NoEmpty_WhenIsEmpty_ThrowsArgumentException() {
+        // Arrange
+        var input = Array.Empty<int>();
+
+        // Act
+        var action = () => IsNotEmpty(input);
+
+        // Assert
+        action.Should().Throw<ArgumentException>().WithMessage("The collection cannot be empty. (Parameter 'input')");
+    }
+
+    [Fact]
+    public void NotNullOrEmpty_WhenIsNotEmpty_ReturnsInput() {
+        // Arrange
+        var input = new[] { 1, 2, 3 };
+
+        // Act
+        var result = IsNotEmpty(input);
+
+        // Assert
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void DoesNotHaveNulls_WhenDoesNotHaveNull_ThrowsArgumentException() {
+        // Arrange
+        var input = new[] { default(int?) };
+
+        // Act
+        var action = () => ItemsAreNotNull(input);
+
+        // Assert
+        action.Should().Throw<OperationFailureException>().WithMessage("The collection cannot contain null element(s).");
+        action.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(input));
+    }
+
+    [Fact]
+    public void DoesNotHaveNulls_WhenValid_ReturnsSame() {
+        // Arrange
+        var input = new[] { "hello" };
+
+        // Act
+        var result = ItemsAreNotNull(input);
+
+        // Assert
+        result.Should().BeSameAs(input);
+    }
+
+    private sealed class ValidatableObject(bool isValid) : IValidatable {
+        public Result Validate(IMap? context = null)
+            => isValid ? Result.Success() : Result.Failure("Is not valid.", "Source");
+    }
+
+    [Fact]
+    public void IsValid_WhenInvalidValidatable_ThrowsValidationException() {
+        // Arrange
+        var input = new ValidatableObject(isValid: false);
+
+        // Act
+        var result = () => IsValid(input);
+
+        // Assert
+        result.Should().Throw<OperationFailureException>();
+    }
+
+    [Fact]
+    public void IsValid_WhenValidValidatable_ReturnsSame() {
+        // Arrange
+        var input = new ValidatableObject(isValid: true);
+
+        // Act
+        var result = IsValid(input);
+
+        // Assert
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void IsValid_WhenValidSimpleObject_ReturnsSame() {
+        var input = new object();
+
+        // Act
+        var result = IsValid(input, static _ => Result.Success());
+
+        // Assert
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void IsValid_WhenInvalidSimpleObject_ReturnsSame() {
+        // Arrange
+        var input = new object();
+
+        // Act
+        var result = () => IsValid(input, _ => Result.Failure("Some error."));
+
+        // Assert
+        result.Should().Throw<OperationFailureException>();
+    }
+
+    [Fact]
+    public void IsValid_WhenValidSimpleObject_AndPredicate_ReturnsSame() {
+        // Arrange
+        var input = new object();
+
+        // Act
+        var result = IsValid(input, static _ => true);
+
+        // Assert
+        result.Should().BeSameAs(input);
+    }
+
+    [Fact]
+    public void IsValid_WhenInvalidSimpleObject_AndPredicate_ReturnsSame() {
+        // Arrange
+        var input = new object();
+
+        // Act
+        var result = () => IsValid(input, _ => false);
+
+        // Assert
+        result.Should().Throw<OperationFailureException>();
+    }
+
+    [Fact]
+    public void IsNotNullOrDefault_WhenArgumentIsNull_ReturnsDefault() {
+        // Arrange
+        const string? argument = null;
+        const string defaultValue = "default";
+
+        // Act
+        var result = DefaultIfNull(argument, defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsNotNullOrDefault_WhenArgumentIsNotNull_ReturnsArgument() {
+        // Arrange
+        const string argument = "test";
+        const string defaultValue = "default";
+
+        // Act
+        var result = DefaultIfNull(argument, defaultValue);
+
+        // Assert
+        result.Should().Be(argument);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenValidatableIsValid_ReturnsArgument() {
+        // Arrange
+        var argument = For<IValidatable>();
+        argument.Validate().Returns(Result.Success());
+
+        // Act
+        var result = DefaultIfNotValid(argument, defaultValue: argument);
+
+        // Assert
+        result.Should().Be(argument);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenValidatableIsInvalid_ReturnsDefault() {
+        // Arrange
+        var argument = new ValidatableObject(false);
+        var defaultValue = new ValidatableObject(true);
+
+        // Act
+        var result = DefaultIfNotValid(argument, defaultValue: defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenValidatableIsNull_ReturnsDefault() {
+        // Arrange
+        var argument = default(IValidatable);
+        var defaultValue = new ValidatableObject(true);
+
+        // Act
+        var result = DefaultIfNotValid(argument, defaultValue: defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenArgumentIsValid_ReturnsArgument() {
+        // Arrange
+        const string argument = "Valid";
+
+        // Act
+        var result = DefaultIfNotValid(argument, static _ => Result.Success(), argument);
+
+        // Assert
+        result.Should().Be(argument);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenArgumentIsInvalid_ReturnsDefault() {
+        // Arrange
+        const string argument = "Invalid";
+        const string defaultValue = "Valid";
+
+        // Act
+        var result = DefaultIfNotValid(argument, static _ => Result.Failure("ErrorWriter"), defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenArgumentIsNull_ReturnsDefault() {
+        // Arrange
+        const string argument = default!;
+        const string defaultValue = "Valid";
+
+        // Act
+        var result = DefaultIfNotValid(argument, static _ => Result.Success(), defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenIsValid_ReturnsArgument() {
+        // Arrange
+        const string argument = "Valid";
+
+        // Act
+        var result = DefaultIfNotValid(argument, static _ => true, argument);
+
+        // Assert
+        result.Should().Be(argument);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenIsInvalid_ReturnsDefault() {
+        // Arrange
+        const string argument = "Invalid";
+        const string defaultValue = "Valid";
+
+        // Act
+        var result = DefaultIfNotValid(argument, static _ => false, defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void IsValidOrDefault_WhenIsNull_ReturnsDefault() {
+        // Arrange
+        const string argument = default!;
+        const string defaultValue = "Valid";
+
+        // Act
+        var result = DefaultIfNotValid(argument, static _ => true, defaultValue);
+
+        // Assert
+        result.Should().Be(defaultValue);
+    }
+
+    [Fact]
+    public void DoesNotContainInvalidItems_WhenAllAreValidatableAndValid_ReturnsArgument() {
+        // Arrange
+        var argument = new List<ValidatableObject> { default!, new(true), new(true) };
+
+        // Act
+        var result = ItemsAreValid(argument);
+
+        // Assert
+        result.Should().BeEquivalentTo(argument);
+    }
+
+    [Fact]
+    public void DoesNotContainInvalidItems_WhenAllAreValidatableAndAnyIsInvalid_ThrowsValidationException() {
+        // Arrange
+        var argument = new List<ValidatableObject> { default!, new(true), new(false) };
+
+        // Act
+        Action act = () => ItemsAreValid(argument);
+
+        // Assert
+        act.Should().Throw<OperationFailureException>().WithMessage("The collection cannot have invalid element(s).");
+        act.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(argument));
+    }
+
+    [Fact]
+    public void DoesNotContainInvalidItems_WhenAllElementsAreValid_ReturnsArgument() {
+        // Arrange
+        var argument = new List<string> { default!, "Valid", "Valid" };
+
+        // Act
+        var result = ItemsAreValid<List<string>, string>(argument, static _ => Result.Success());
+
+        // Assert
+        result.Should().BeEquivalentTo(argument);
+    }
+
+    [Fact]
+    public void DoesNotContainInvalidItems_WhenAnyElementIsInvalid_ThrowsValidationException() {
+        // Arrange
+        var argument = new List<string> { default!, "Valid", "Invalid" };
+
+        // Act
+        Action act = () => ItemsAreValid<List<string>, string>(argument, _ => Result.Failure("ErrorWriter"));
+
+        // Assert
+        act.Should().Throw<OperationFailureException>().WithMessage("The collection cannot have invalid element(s).");
+        act.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(argument));
+    }
+
+    [Fact]
+    public void DoesNotContainInvalidItems_WhenArgumentIsNull_ReturnsArgument() {
+        // Act
+        Action act = static () => IsValid<string[]>(default, static _ => true);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithMessage("*default*");
+    }
+
+    [Fact]
+    public void DoesNotContainInvalidItems_WhenDoesNotContainInvalidItems_ReturnsArgument() {
+        // Arrange
+        string[] argument = [default!, "One", "Two"];
+
+        // Act
+        var result = IsValid(argument, static _ => true);
+
+        // Assert
+        result.Should().BeEquivalentTo(argument);
+    }
+
+    [Fact]
+    public void DoesNotContainInvalidItems_WhenAnyIsInvalid_ThrowsValidationException() {
+        // Arrange
+        string[] argument = [default!, "One", "Invalid"];
+
+        // Act
+        Action act = () => IsValid(argument, _ => false);
+
+        // Assert
+        act.Should().Throw<OperationFailureException>().WithMessage("The value is not valid.");
+        act.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(argument));
+    }
+}
+    ]]></file> 
+    <file name="InstanceFactoryTests.cs"><![CDATA[ 
+namespace DotNetToolbox.Utilities;
+
+public class InstanceFactoryTests {
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private sealed class TestClass;
+
+    [Fact]
+    public void Create_NoArgs_CreatesObjectOfTypeT() {
+        // Arrange & Act
+        var instance = InstanceFactory.Create<TestClass>();
+
+        // Assert
+        instance.Should().NotBeNull();
+        instance.Should().BeOfType<TestClass>();
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private sealed class TestClassWithArgs(string value) {
+        public string Value { get; } = value;
+    }
+
+    [Fact]
+    public void Create_WithArgs_CreatesObjectOfTypeTAndSetsValues() {
+        // Arrange
+        const string expectedValue = "Test";
+
+        // Act
+        var instance = InstanceFactory.Create<TestClassWithArgs>(expectedValue);
+
+        // Assert
+        instance.Should().NotBeNull();
+        var subject = instance.Should().BeOfType<TestClassWithArgs>().Subject;
+        subject.Value.Should().Be(expectedValue);
+    }
+
+    [Fact]
+    public void Create_WithWrongArgs_Throws() {
+        // Act
+        var action = () => InstanceFactory.Create<TestClassWithArgs>();
+
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void Create_WithProvider_CreatesObjectOfTypeT() {
+        // Arrange
+        var provider = For<IServiceProvider>();
+
+        // Act
+        var instance = InstanceFactory.Create<TestClass>(provider);
+
+        // Assert
+        instance.Should().NotBeNull();
+        instance.Should().BeOfType<TestClass>();
+    }
+
+    [Fact]
+    public void Create_WithProvider_WithWrongArgs_CreatesObjectOfTypeT() {
+        // Arrange
+        var provider = For<IServiceProvider>();
+
+        // Act
+        var action = () => InstanceFactory.Create<TestClassWithArgs>(provider);
+
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
+    }
+}
+    ]]></file> 
+  </folder> 
+</root> 

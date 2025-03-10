@@ -12,7 +12,7 @@ public class EnsureTests {
         var action = static () => IsOfType<string>(input);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithMessage("Expected value to be of type 'String'. Found: 'Int32'. (Parameter 'input')");
+        action.Should().Throw<ArgumentException>().WithMessage("'input' must be of type 'String'. (Parameter 'input')");
     }
 
     [Fact]
@@ -168,8 +168,8 @@ public class EnsureTests {
         var action = () => ItemsAreNotNull(input);
 
         // Assert
-        action.Should().Throw<OperationFailureException>().WithMessage("The collection cannot contain null element(s).");
-        action.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(input));
+        action.Should().Throw<OperationFailureException>().WithMessage("'input' cannot contain any null element.");
+        action.Should().Throw<OperationFailureException>().Which.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -187,7 +187,7 @@ public class EnsureTests {
     [Fact]
     public void NotNullOrEmpty_WhenIsNull_ThrowsArgumentException() {
         // Arrange
-        const ICollection<int> input = default!;
+        const ICollection<int> input = null!;
 
         // Act
         var result = IsNotEmpty(input);
@@ -205,7 +205,7 @@ public class EnsureTests {
         var action = () => IsNotNullOrEmpty(input);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithMessage("The collection cannot be empty. (Parameter 'input')");
+        action.Should().Throw<ArgumentException>().WithMessage("'input' cannot be empty. (Parameter 'input')");
     }
 
     [Fact]
@@ -217,7 +217,7 @@ public class EnsureTests {
         var action = () => IsNotEmpty(input);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithMessage("The collection cannot be empty. (Parameter 'input')");
+        action.Should().Throw<ArgumentException>().WithMessage("'input' cannot be empty. (Parameter 'input')");
     }
 
     [Fact]
@@ -241,8 +241,8 @@ public class EnsureTests {
         var action = () => ItemsAreNotNull(input);
 
         // Assert
-        action.Should().Throw<OperationFailureException>().WithMessage("The collection cannot contain null element(s).");
-        action.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(input));
+        action.Should().Throw<OperationFailureException>().WithMessage("'input' cannot contain any null element.");
+        action.Should().Throw<OperationFailureException>().Which.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -426,7 +426,7 @@ public class EnsureTests {
     [Fact]
     public void IsValidOrDefault_WhenArgumentIsNull_ReturnsDefault() {
         // Arrange
-        const string argument = default!;
+        const string argument = null!;
         const string defaultValue = "Valid";
 
         // Act
@@ -464,7 +464,7 @@ public class EnsureTests {
     [Fact]
     public void IsValidOrDefault_WhenIsNull_ReturnsDefault() {
         // Arrange
-        const string argument = default!;
+        const string argument = null!;
         const string defaultValue = "Valid";
 
         // Act
@@ -477,7 +477,7 @@ public class EnsureTests {
     [Fact]
     public void DoesNotContainInvalidItems_WhenAllAreValidatableAndValid_ReturnsArgument() {
         // Arrange
-        var argument = new List<ValidatableObject> { default!, new(true), new(true) };
+        var argument = new List<ValidatableObject> { null!, new(true), new(true) };
 
         // Act
         var result = ItemsAreValid(argument);
@@ -489,20 +489,20 @@ public class EnsureTests {
     [Fact]
     public void DoesNotContainInvalidItems_WhenAllAreValidatableAndAnyIsInvalid_ThrowsValidationException() {
         // Arrange
-        var argument = new List<ValidatableObject> { default!, new(true), new(false) };
+        var argument = new List<ValidatableObject> { null!, new(true), new(false) };
 
         // Act
-        Action act = () => ItemsAreValid(argument);
+        Action action = () => ItemsAreValid(argument);
 
         // Assert
-        act.Should().Throw<OperationFailureException>().WithMessage("The collection cannot have invalid element(s).");
-        act.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(argument));
+        action.Should().Throw<OperationFailureException>().WithMessage("'argument' contains invalid values.");
+        action.Should().Throw<OperationFailureException>().Which.Errors.Should().ContainSingle();
     }
 
     [Fact]
     public void DoesNotContainInvalidItems_WhenAllElementsAreValid_ReturnsArgument() {
         // Arrange
-        var argument = new List<string> { default!, "Valid", "Valid" };
+        var argument = new List<string> { null!, "Valid", "Valid" };
 
         // Act
         var result = ItemsAreValid<List<string>, string>(argument, static _ => Result.Success());
@@ -514,29 +514,20 @@ public class EnsureTests {
     [Fact]
     public void DoesNotContainInvalidItems_WhenAnyElementIsInvalid_ThrowsValidationException() {
         // Arrange
-        var argument = new List<string> { default!, "Valid", "Invalid" };
+        var argument = new List<string> { null!, "Valid", "Invalid" };
 
         // Act
-        Action act = () => ItemsAreValid<List<string>, string>(argument, _ => Result.Failure("ErrorWriter"));
+        Action action = () => ItemsAreValid<List<string>, string>(argument, static _ => Result.Failure("ErrorWriter"));
 
         // Assert
-        act.Should().Throw<OperationFailureException>().WithMessage("The collection cannot have invalid element(s).");
-        act.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(argument));
-    }
-
-    [Fact]
-    public void DoesNotContainInvalidItems_WhenArgumentIsNull_ReturnsArgument() {
-        // Act
-        Action act = static () => IsValid<string[]>(default, static _ => true);
-
-        // Assert
-        act.Should().Throw<ArgumentNullException>().WithMessage("*default*");
+        action.Should().Throw<OperationFailureException>().WithMessage("'argument' contains invalid values.");
+        action.Should().Throw<OperationFailureException>().Which.Errors.Should().HaveCount(3);
     }
 
     [Fact]
     public void DoesNotContainInvalidItems_WhenDoesNotContainInvalidItems_ReturnsArgument() {
         // Arrange
-        string[] argument = [default!, "One", "Two"];
+        string[] argument = [null!, "One", "Two"];
 
         // Act
         var result = IsValid(argument, static _ => true);
@@ -548,13 +539,13 @@ public class EnsureTests {
     [Fact]
     public void DoesNotContainInvalidItems_WhenAnyIsInvalid_ThrowsValidationException() {
         // Arrange
-        string[] argument = [default!, "One", "Invalid"];
+        string[] argument = [null!, "One", "Invalid"];
 
         // Act
-        Action act = () => IsValid(argument, _ => false);
+        Action action = () => IsValid(argument, static _ => false);
 
         // Assert
-        act.Should().Throw<OperationFailureException>().WithMessage("The value is not valid.");
-        act.Should().Throw<OperationFailureException>().Which.Source.Should().Be(nameof(argument));
+        action.Should().Throw<OperationFailureException>().WithMessage("'argument' is invalid.");
+        action.Should().Throw<OperationFailureException>().Which.Errors.Should().ContainSingle();
     }
 }

@@ -25,7 +25,7 @@
       Stable release of DotNetToolbox.Azure, a .NET 8 comprehensive utility library for handling Azure assets.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Azure</Product>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Azure</AssemblyName>

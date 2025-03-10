@@ -23,7 +23,7 @@
 
       Stable release of DotNetToolbox.Environment, a comprehensive utility library for handling the environment resources.
     </PackageReleaseNotes>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <IncludeSymbols>true</IncludeSymbols>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>

@@ -26,7 +26,7 @@
       Stable release of DotNetToolbox.Console, a .NET 8 with powerful tools to simplify the creating of CLI (Command-Line Interface) and Shell-like console applications.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Console</Product>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Console</AssemblyName>

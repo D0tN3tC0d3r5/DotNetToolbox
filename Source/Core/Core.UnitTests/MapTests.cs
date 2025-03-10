@@ -63,6 +63,32 @@ public class MapTests {
     }
 
     [Fact]
+    public void GetValueAs_WithNullValueAndNullableType_ReturnsDefault() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", null! } });
+
+        // Act
+        var value = map.GetValueAs<int?>("key");
+
+        // Assert
+        value.Should()
+             .BeNull();
+    }
+
+    [Fact]
+    public void GetValueAs_WithNullValueAndNonNullableType_Throws() {
+        // Arrange
+        var map = new Map(new Dictionary<string, object> { { "key", null! } });
+
+        // Act
+        var action = () => map.GetValueAs<int>("key");
+
+        // Assert
+        action.Should()
+              .Throw<InvalidCastException>();
+    }
+
+    [Fact]
     public void TryGetValueAs_WithValidKeyAndCorrectType_ReturnsTrueAndValue() {
         // Arrange
         var map = new Map(new Dictionary<string, object> { { "key", 123 } });

@@ -9,7 +9,7 @@ public sealed class OperationFailureException
 
     public OperationFailureException(string? message = null)
         : base(message ?? _defaultMessage) {
-        Errors = [new Error(message ?? _defaultMessage)];
+        Errors = [];
     }
 
     public OperationFailureException(Exception innerException)
@@ -17,7 +17,7 @@ public sealed class OperationFailureException
     }
 
     public OperationFailureException(Error error, Exception? innerException = null)
-        : this(error.Message, [error], innerException) {
+        : this(_defaultMessage, [error], innerException) {
     }
 
     public OperationFailureException(IEnumerable<Error> errors, Exception? innerException = null)

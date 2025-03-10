@@ -1,6 +1,18 @@
 namespace DotNetToolbox.Results;
 
 public class ErrorTests {
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("  ")]
+    public void WithEmptyMessage_Throws(string? message) {
+        // Act
+        var action = () => new Error(message!);
+
+        // Assert
+        action.Should().Throw<ArgumentException>();
+    }
+
     [Fact]
     public void WithSourceAndMessage_ReturnsFormattedMessage() {
         // Arrange
@@ -13,7 +25,7 @@ public class ErrorTests {
         error2.Should().NotBeSameAs(error1);
         error1.Message.Should().Be("Some message.");
         error1.Sources.Should().BeEquivalentTo("Field");
-        error1.ToString().Should().Be("Field: Some message.");
+        error1.ToString().Should().Be("{Message: Some message., Sources: [Field]}");
     }
 
     [Theory]
@@ -24,49 +36,48 @@ public class ErrorTests {
         var error = new Error(message);
 
         // Assert
-        error.Sources.Should().BeEquivalentTo(string.Empty);
+        error.Sources.Should().BeEmpty();
         error.Message.Should().Be(message);
     }
 
-    [Fact]
-    public void Equality_ShouldReturnAsExpected() {
-        var subject = new Error("Break message data", "field");
-        var same = new Error("Break message data", "field");
-        var otherSource = new Error("Break message data", "otherField");
-        var otherMessage = new Error("Other message data", "field");
+    [Theory]
+    [InlineData("Error message data", new[] { "field1", "field2" }, true)]
+    [InlineData("Other message data", new[] { "field1", "field2" }, false)]
+    [InlineData("Error message data", new[] { "field3", "field4" }, false)]
+    [InlineData("Error message data", new string[] { }, false)]
+    [InlineData("Error message data", new[] { "field1" }, false)]
+    [InlineData("Error message data", new[] { "field1", "field2", "field3" }, false)]
+    [InlineData("  Error message data ", new[] { "  ", "field1", null, "field2", "" }, true)]
+    public void Equality_ShouldReturnAsExpected(string message, string[] sources, bool expectedResult) {
+        var subject = new Error("Error message data", "field1", "field2");
+        var other = new Error(message, sources);
 
-        //Act
-        var resultForNull = subject == null!;
-        var resultForOtherSource = subject != otherSource;
-        var resultForOtherTemplate = subject != otherMessage;
-        var resultForSame = subject == same;
+        // Act
+        var result = subject == other;
 
-        //Assert
-        resultForNull.Should().BeFalse();
-        resultForOtherSource.Should().BeTrue();
-        resultForOtherTemplate.Should().BeTrue();
-        resultForSame.Should().BeTrue();
+        // Assert
+        result.Should().Be(expectedResult);
     }
 
     [Fact]
     public void GetHashCode_ShouldReturnAsExpected() {
         // Arrange & Act
         var errorSet = new HashSet<Error> {
-            new("Source 1", "Some message 1 42."),
-            new("Source 1", "Some message 1 42."),
-            new(" Source 1 ", "Some message 1 42."),
-            new("Source 1", "Some message 1 42."),
-            new("Source 2", "Some message 1 42."),
-            new("Source 1", "Some message 2 42."),
-            new("Source 1", "Some message 1 7."),
+            new("Some message 1.", "Field1"),
+            new("Some message 1.", "Field1"),
+            new("Some message 1.", "Field1"),
+            new(" Some message 1. ", "Field1"),
+            new("Some message 1.", " Field1 ", "  "),
+            new("Some message 1.", "Field2"),
+            new("Some message 2.", "Field1"),
+            new("Some message 1.", "Field1"),
         };
 
         // Assert
         errorSet.Should().BeEquivalentTo(new Error[] {
-            new("Source 1", "Some message 1 42."),
-            new("Source 2", "Some message 1 42."),
-            new("Source 1", "Some message 2 42."),
-            new("Source 1", "Some message 1 7."),
+            new("Some message 1.", "Field1"),
+            new("Some message 1.", "Field2"),
+            new("Some message 2.", "Field1"),
         });
     }
 }

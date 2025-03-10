@@ -25,7 +25,7 @@
       Stable release of DotNetToolbox.Security, a .NET 8 comprehensive utility library for hashing, encryption and decryption.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Security</Product>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Security</AssemblyName>

@@ -1,0 +1,2714 @@
+<root name="Core"> 
+  <file name="DisposableStateHolder.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System;
+
+public class DisposableStateHolder(object? state)
+    : DisposableStateHolder<object?>(state);
+
+public class DisposableStateHolder<TState>(TState state)
+    : IDisposable {
+    public TState State { get; } = state;
+    public void Dispose() {
+        if (State is IDisposable disposable)
+            disposable.Dispose();
+        GC.SuppressFinalize(this);
+    }
+}
+  ]]></file> 
+  <file name="DotNetToolbox.Core.csproj"><![CDATA[ 
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>DotNetToolbox</RootNamespace>
+    <PackageId>DotNetToolbox.Core</PackageId>
+    <Title>DotNetToolbox Core Library</Title>
+    <Version>9.0.0</Version>
+    <Authors>Andre Vianna</Authors>
+    <Company>D0tN3tC0d3r5</Company>
+    <PackageTags>DotNet;Toolbox;Core;Common;Library;Pagination;DateTime;FileSystem;Results;Validation;Azure;GUID</PackageTags>
+    <PackageProjectUrl>https://github.com/D0tN3tC0d3r5/DotNetToolbox</PackageProjectUrl>
+    <Description>A versatile C# library for .NET 8, designed to enhance development by providing a range of utilities and patterns. It simplifies complex tasks and improves code testability.</Description>
+    <Copyright>© Andre Vianna 2023</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>
+      DotNetToolbox.Core Version 9.0.0
+
+      Stable release of the DotNetToolbox.Core library, a comprehensive suite of utilities and patterns designed to enhance .NET 8 development. This library provides developers with a robust set of tools to simplify complex tasks, improve testability, and streamline everyday coding activities.
+    </PackageReleaseNotes>
+    <Product>DotNetToolbox.Core</Product>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <AssemblyName>DotNetToolbox.Core</AssemblyName>
+    <Deterministic>false</Deterministic>
+    <AssemblyVersion>9.0.0.*</AssemblyVersion>
+    <FileVersion>9.0.0</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <NoWarn>$(NoWarn);DV2001;DV2002;CS8002</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="pkgs\**" />
+    <EmbeddedResource Remove="pkgs\**" />
+    <None Remove="pkgs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\icon.png">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="README.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\..\LICENSE">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release'">
+    <PackageReference Include="DotNetToolbox.Core.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).UnitTests" PublicKey="00240000048000009400000006020000002400005253413100040000010001003d1638cec9e06e22b1e23f1d95d51a425705c4148223b9907aea57442c94edbac4002079cb033dac4db6fe167d36f0a2674bbd95b729eb3130456a967859a5f7b12aa661f1e91f7106524560014fbe3744d5aaba8102cf396bb3ff4481bf7f4b13dfc4259342e76d306dae2ebcd8df7bc170309cd9d69277090e05f513681daf" />
+  </ItemGroup>
+
+</Project>
+  ]]></file> 
+  <file name="Ensure.Collection.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public static partial class Ensure {
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? IsNotEmpty<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable
+        => argument switch {
+            ICollection { Count: 0 } => throw new ArgumentException(BuildMessage(paramName!, CannotBeEmpty), paramName),
+            not null when !argument.Cast<object>().Any() => throw new ArgumentException(BuildMessage(paramName!, CannotBeEmpty), paramName),
+            _ => argument,
+        };
+
+    [return: NotNull]
+    public static TArgument IsNotNullOrEmpty<TArgument>([NotNull] TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable
+        => IsNotEmpty(IsNotNull(argument, paramName), paramName);
+}
+  ]]></file> 
+  <file name="Ensure.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public static partial class Ensure;
+  ]]></file> 
+  <file name="Ensure.Items.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public static partial class Ensure {
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? ItemsAreNotNull<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable
+        => argument?.Cast<object?>().All(static i => i is not null) ?? true
+               ? argument
+               : throw new OperationFailureException(new Error(string.Format(null, BuildMessage(paramName!, CannotContainNulls)), paramName!));
+
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? ItemsAreValid<TArgument, TValue>(TArgument? argument, Func<TValue?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable<TValue?>
+        => argument?.All(isValid) ?? true
+                   ? argument
+                   : throw new OperationFailureException(new Error(string.Format(null, BuildMessage(paramName!, CannotContainInvalid)), paramName!));
+}
+  ]]></file> 
+  <file name="Ensure.Null.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public static partial class Ensure {
+    [return: NotNull]
+    public static TArgument IsNotNull<TArgument>([NotNull] TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        ArgumentNullException.ThrowIfNull(argument, paramName);
+        return argument;
+    }
+
+    [return: NotNull]
+    public static TArgument DefaultIfNull<TArgument>([NotNull] TArgument? argument, TArgument defaultValue) {
+        argument ??= IsNotNull(defaultValue);
+        return argument;
+    }
+}
+  ]]></file> 
+  <file name="Ensure.Range.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public static partial class Ensure {
+    public static TArgument? IsEqual<TArgument>(TArgument? argument, TArgument? requiredValue, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEquatable<TArgument?> {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(argument, requiredValue, paramName);
+        return argument;
+    }
+    public static TArgument? IsNotEqual<TArgument>(TArgument? argument, TArgument? forbiddenValue, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEquatable<TArgument?> {
+        ArgumentOutOfRangeException.ThrowIfEqual(argument, forbiddenValue, paramName);
+        return argument;
+    }
+    public static TArgument IsGreaterThan<TArgument>(TArgument argument, TArgument maximum, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(argument, maximum, paramName);
+        return argument;
+    }
+    public static TArgument IsLessThan<TArgument>(TArgument argument, TArgument minimum, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(argument, minimum, paramName);
+        return argument;
+    }
+    public static TArgument IsNotGreaterThan<TArgument>(TArgument argument, TArgument maximum, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(argument, maximum, paramName);
+        return argument;
+    }
+    public static TArgument IsNotLessThan<TArgument>(TArgument argument, TArgument minimum, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfLessThan(argument, minimum, paramName);
+        return argument;
+    }
+    public static TArgument IsZero<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(argument, TArgument.Zero, paramName);
+        return argument;
+    }
+    public static TArgument IsNotZero<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfZero(argument, paramName);
+        return argument;
+    }
+    // Does not include Zero
+    public static TArgument IsPositive<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument>, IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(argument, paramName);
+        return argument;
+    }
+    // Does not include Zero
+    public static TArgument IsNegative<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument>, IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(argument, TArgument.Zero, paramName);
+        return argument;
+    }
+    public static TArgument IsNotNegative<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument>, IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfNegative(argument, paramName);
+        return argument;
+    }
+    public static TArgument IsNotPositive<TArgument>(TArgument argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : INumberBase<TArgument>, IComparable<TArgument> {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(argument, TArgument.Zero, paramName);
+        return argument;
+    }
+}
+  ]]></file> 
+  <file name="Ensure.String.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public static partial class Ensure {
+    public static string IsNotNullOrEmpty([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        ArgumentException.ThrowIfNullOrEmpty(argument, paramName);
+        return argument;
+    }
+
+    public static string IsNotNullOrWhiteSpace([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(argument, paramName);
+        return argument;
+    }
+
+    [SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment", Justification = "Assignment is required.")]
+    public static string DefaultIfNullOrEmpty([NotNull] string? argument, string defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
+        argument = string.IsNullOrEmpty(argument) ? IsNotNullOrEmpty(defaultValue, paramName) : argument;
+        return argument;
+    }
+
+    [SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment", Justification = "Assignment is required.")]
+    public static string DefaultIfNullOrWhiteSpace([NotNull] string? argument, string defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
+        argument = string.IsNullOrWhiteSpace(argument) ? IsNotNullOrWhiteSpace(defaultValue, paramName) : argument;
+        return argument;
+    }
+
+    public static FormattableString IsNotNullOrEmpty([NotNull] FormattableString? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        ArgumentException.ThrowIfNullOrEmpty(argument?.Format, paramName);
+        return argument;
+    }
+
+    public static FormattableString IsNotNullOrWhiteSpace([NotNull] FormattableString? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(argument?.Format, paramName);
+        return argument;
+    }
+
+    [SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment", Justification = "Assignment is required.")]
+    public static FormattableString DefaultIfNullOrEmpty([NotNull] FormattableString? argument, FormattableString defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
+        argument = string.IsNullOrEmpty(argument?.Format) ? IsNotNullOrEmpty(defaultValue, paramName) : argument;
+        return argument;
+    }
+
+    [SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment", Justification = "Assignment is required.")]
+    public static FormattableString DefaultIfNullOrWhiteSpace([NotNull] FormattableString? argument, FormattableString defaultValue, [CallerArgumentExpression(nameof(defaultValue))] string? paramName = null) {
+        argument = string.IsNullOrWhiteSpace(argument?.Format) ? IsNotNullOrWhiteSpace(defaultValue, paramName) : argument;
+        return argument;
+    }
+}
+  ]]></file> 
+  <file name="Ensure.Type.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public static partial class Ensure {
+    [return: NotNull]
+    public static TArgument IsOfType<TArgument>([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => IsNotNull(argument, paramName) is TArgument result
+            ? result
+            : throw new ArgumentException(string.Format(null, MustBeOfType, typeof(TArgument).Name, argument.GetType().Name), paramName);
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static TArgument DefaultIfNotOfType<TArgument>(object? argument, TArgument? defaultValue = default)
+        => argument switch {
+            TArgument result => result,
+            _ => IsNotNull(defaultValue),
+        };
+}
+  ]]></file> 
+  <file name="Ensure.Validatable.cs"><![CDATA[ 
+﻿using static DotNetToolbox.Results.Result;
+
+namespace DotNetToolbox;
+
+public static partial class Ensure {
+    [return: NotNull]
+    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, IMap? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IValidatable
+        => IsValid(IsNotNull(argument, paramName), arg => arg.Validate(context), paramName);
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, IMap? context = null, TArgument? defaultValue = default)
+        where TArgument : IValidatable {
+        var result = argument?.Validate(context) ?? Success();
+        return result.IsSuccessful && argument is not null
+                   ? argument
+                   : defaultValue;
+    }
+
+    [return: NotNull]
+    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, Func<TArgument, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        var result = validate(IsNotNull(argument, paramName));
+        return result.IsSuccessful
+                   ? argument
+                   : throw new OperationFailureException(new Error(BuildMessage(paramName!, IsInvalid), paramName!));
+    }
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, Func<TArgument?, Result> validate, TArgument? defaultValue = default)
+        => validate(argument).IsSuccessful && argument is not null
+               ? argument
+               : defaultValue;
+
+    public static Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, IMap? context = null, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IAsyncValidatable
+        => IsValidAsync(IsNotNull(argument, paramName), arg => arg.ValidateAsync(context), paramName);
+
+    public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, IMap? context = null, TArgument? defaultValue = default)
+        where TArgument : IAsyncValidatable {
+        var result = await (argument?.ValidateAsync(context) ?? Task.FromResult(Success()));
+        return result.IsSuccessful && argument is not null
+                   ? argument
+                   : defaultValue;
+    }
+
+    public static async Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, Func<TArgument, Task<Result>> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null) {
+        var result = await validate(IsNotNull(argument, paramName));
+        return result.IsSuccessful
+                   ? argument
+                   : throw new OperationFailureException(new Error(BuildMessage(paramName!, IsInvalid), paramName!));
+    }
+
+    public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<IResult>> validate, TArgument? defaultValue = default)
+        => (await validate(argument)).IsSuccessful && argument is not null
+               ? argument
+               : defaultValue;
+
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? ItemsAreValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable<IValidatable>
+        => argument?.All(i => i.Validate().IsSuccessful) ?? true
+               ? argument
+               : throw new OperationFailureException(new Error(BuildMessage(paramName!, ContainsInvalid), paramName!));
+
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? ItemsAreValid<TArgument, TValue>(TArgument? argument, Func<TValue?, IResult> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable<TValue?>
+        => argument?.All(i => validate(i).IsSuccessful) ?? true
+               ? argument
+               : throw new OperationFailureException(new Error(BuildMessage(paramName!, ContainsInvalid), paramName!));
+
+    [return: NotNull]
+    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => isValid(IsNotNull(argument, paramName))
+               ? argument
+               : throw new OperationFailureException(new Error(BuildMessage(paramName!, IsInvalid), paramName!));
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue = default)
+        => isValid(argument)
+               ? argument ?? defaultValue
+               : defaultValue;
+
+    public static async Task<TArgument?> IsValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => await isValid(IsNotNull(argument, paramName))
+               ? argument
+               : throw new OperationFailureException(new Error(BuildMessage(paramName!, IsInvalid), paramName!));
+
+    public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<bool>> isValid, TArgument? defaultValue = default)
+        => await isValid(argument) && argument is not null
+               ? argument
+               : defaultValue;
+}
+  ]]></file> 
+  <file name="Error.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public record Error(string Message, params IReadOnlyList<string> Sources) {
+    public static implicit operator Error(string message) => new(message);
+
+    public void Deconstruct(out string message, out IReadOnlyList<string>? sources) {
+        message = Message;
+        sources = Sources;
+    }
+}
+
+public record Error<TCode>(TCode Code, string Message, params IReadOnlyList<string> Sources)
+    : Error(Message, Sources) {
+    public void Deconstruct(out TCode code, out string message, out IReadOnlyList<string>? sources) {
+        code = Code;
+        message = Message;
+        sources = Sources;
+    }
+
+    public void Deconstruct(out TCode code, out string message) {
+        code = Code;
+        message = Message;
+    }
+}
+  ]]></file> 
+  <file name="GlobalUsings.cs"><![CDATA[ 
+// Global using directives
+
+global using System.Collections;
+global using System.Collections.Async.Generic;
+global using System.Collections.Concurrent;
+global using System.Diagnostics.CodeAnalysis;
+global using System.Numerics;
+global using System.Reflection;
+global using System.Runtime.CompilerServices;
+global using System.Text;
+global using System.Text.Json;
+global using System.Text.RegularExpressions;
+
+global using DotNetToolbox.Results;
+global using DotNetToolbox.Singletons;
+global using DotNetToolbox.Validation;
+
+global using Microsoft.Extensions.DependencyInjection;
+
+global using static DotNetToolbox.Constants.Messages;
+global using static DotNetToolbox.Ensure;
+  ]]></file> 
+  <file name="IMap.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public interface IMap
+    : IMap<object> {
+    TValue GetValueAs<TValue>(string key);
+    TValue? GetValueAsOrDefault<TValue>(string key, TValue? defaultValue = default);
+    bool TryGetValueAs<TValue>(string key, [MaybeNullWhen(false)] out TValue value);
+}
+
+[SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "Is required")]
+[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "Does not apply")]
+public interface IMap<TValue>
+    : IDictionary<string, TValue>,
+      IDisposable {
+    bool Remove(string key, bool disposeValue = true);
+    TValue? GetValueOrDefault(string key, TValue? defaultValue = default);
+    TValue GetValue(string key);
+}
+  ]]></file> 
+  <file name="InstanceFactory.cs"><![CDATA[ 
+﻿using static System.Activator;
+using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
+using static Microsoft.Extensions.DependencyInjection.ActivatorUtilities;
+
+using Has = System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembersAttribute;
+
+// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System;
+
+public static class InstanceFactory {
+    private const BindingFlags _allConstructors = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance;
+
+    public static T? CreateOrDefault<[Has(PublicConstructors | NonPublicConstructors)] T>(params object[] args)
+        where T : class
+        => TryCreate<T>(out var result, args) ? result : null;
+
+    public static bool TryCreate<[Has(PublicConstructors | NonPublicConstructors)] T>([MaybeNullWhen(false)] out T instance, params object[] args)
+        where T : class {
+        try {
+            instance = (T)IsNotNull(CreateInstance(typeof(T), _allConstructors, null, args, null, null), typeof(T).Name);
+            return true;
+        }
+        catch {
+            instance = null;
+            return false;
+        }
+    }
+
+    [return: NotNull]
+    public static T Create<[Has(PublicConstructors | NonPublicConstructors)] T>(params object[] args)
+        where T : class {
+        try {
+            return (T)IsNotNull(CreateInstance(typeof(T), _allConstructors, null, args, null, null), typeof(T).Name);
+        }
+        catch (Exception ex) {
+            throw new InvalidOperationException($"Failed to create instance of type {typeof(T).Name}", ex);
+        }
+    }
+
+    public static T? CreateOrDefault<[Has(PublicConstructors | NonPublicConstructors)] T>(IServiceProvider services, params object[] args)
+        where T : class
+        => TryCreate<T>(services, out var result, args) ? result : null;
+
+    public static bool TryCreate<[Has(PublicConstructors)] T>(IServiceProvider services, [MaybeNullWhen(false)] out T instance, params object[] args)
+        where T : class {
+        try {
+            instance = CreateInstance<T>(services, args);
+            return true;
+        }
+        catch {
+            instance = null;
+            return false;
+        }
+    }
+
+    [return: NotNull]
+    public static T Create<[Has(PublicConstructors)] T>(IServiceProvider services, params object[] args)
+        where T : class {
+        try {
+            return CreateInstance<T>(services, args);
+        }
+        catch (Exception ex) {
+            throw new InvalidOperationException($"Failed to create instance of type {typeof(T).Name}", ex);
+        }
+    }
+}
+  ]]></file> 
+  <file name="IPack.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace
+namespace System;
+
+public interface IPack<out TFirst, out TSecond, out TThird>
+    : IPack<TFirst, TSecond> {
+    TThird Third { get; }
+}
+
+public interface IPack<out TFirst, out TSecond> {
+    TFirst First { get; }
+    TSecond Second { get; }
+}
+  ]]></file> 
+  <file name="Map.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public class Map(IEnumerable<KeyValuePair<string, object>>? source = null)
+    : Map<object>(source),
+      IMap {
+    public static Map Empty() => [];
+    public static Map<TValue> Empty<TValue>()
+        where TValue : notnull
+        => [];
+
+    public static Map FromValue(string key, object value)
+        => new() { [key] = value };
+
+    public static Map FromMap(IEnumerable<KeyValuePair<string, object>> dict)
+        => [.. dict];
+    public static Map<TValue> FromMap<TValue>(IEnumerable<KeyValuePair<string, TValue>> dict)
+        where TValue : notnull
+        => [.. dict];
+    public static Map FromList(IEnumerable<object> list, Func<object, string> keySelector)
+        => [.. list.ToDictionary(keySelector)];
+    public static Map<TValue> FromList<TValue>(IEnumerable<TValue> list, Func<TValue, string> keySelector)
+        where TValue : notnull
+        => [.. list.ToDictionary(keySelector)];
+    public static Map<Map<string>> FromTable(IEnumerable<IEnumerable<string>> table) {
+        var rows = table.ToArray(r => r.ToArray());
+        if (rows.Length < 2 || rows[0].Length == 0) return Empty<Map<string>>();
+        var result = new Map<Map<string>>();
+        var headers = new Map<string>();
+        foreach (var col in rows[0]) {
+            var header = col.Split(':');
+            headers[header[0]] = header.Length > 1 ? header[1] : string.Empty;
+        }
+        result["Header"] = FromMap(headers);
+        for (var row = 1; row < rows.Length; row++) {
+            var rowMap = new Map<string>();
+            for (var col = 0; col < rows[row].Length; col++) {
+                var cell = rows[row][col];
+                var header = headers.ElementAtOrDefault(col).Key;
+                rowMap[header] = cell;
+            }
+            result[row.ToString()] = rowMap;
+        }
+        return result;
+    }
+    public TValue? GetValueAsOrDefault<TValue>(string key, TValue? defaultValue = default)
+        => TryGetValueAs<TValue>(key, out var value)
+               ? value
+               : defaultValue;
+
+    public TValue GetValueAs<TValue>(string key)
+        => !TryGetValue(key, out var value)
+               ? throw new InvalidOperationException($"The value for key '{key}' was not found.")
+               : value switch {
+                   TValue result => result,
+                   not null when value.GetType().IsAssignableTo(typeof(TValue)) => (TValue)value,
+                   _ => throw new InvalidCastException($"The value for key '{key}' cannot be converted to '{typeof(TValue).Name}'."),
+               };
+
+    public bool TryGetValueAs<TValue>(string key, [MaybeNullWhen(false)] out TValue value) {
+        value = default;
+        if (!TryGetValue(key, out var obj)) return false;
+        switch (obj) {
+            case TValue result:
+                value = result;
+                return true;
+            case not null when obj.GetType().IsAssignableTo(typeof(TValue)):
+                value = (TValue)obj;
+                return true;
+            default: return false;
+        }
+    }
+}
+
+public class Map<TValue>
+    : MapBase,
+      IMap<TValue> {
+    private readonly ConcurrentDictionary<string, TValue> _data = [];
+
+    private readonly HashSet<string> _myKeys = [];
+    private bool _isDisposed;
+
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool isDisposing) {
+        if (_isDisposed) return;
+        if (isDisposing)
+            foreach (var key in _myKeys) Remove(key);
+        _isDisposed = true;
+    }
+
+    public Map(IEnumerable<KeyValuePair<string, TValue>>? source = null) {
+        _data = source switch {
+            Map<TValue> map => map._data,
+            not null => new(source),
+            _ => _data,
+        };
+        _myKeys.AddRange(_data.Keys);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
+    public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator() => _data.GetEnumerator();
+
+    public bool IsReadOnly => false;
+    public int Count => _data.Count;
+
+    [AllowNull]
+    public TValue this[string key] {
+        get => _data[key];
+        set {
+            lock (_data) {
+#pragma warning disable IDE0011 // Add braces
+                if (value is null) Remove(key);
+#pragma warning restore IDE0011 // Add braces
+                else {
+                    if (_data.TryGetValue(key, out var item) && item is IDisposable) Remove(key);
+                    _data[key] = value;
+                }
+            }
+        }
+    }
+
+    public TValue? GetValueOrDefault(string key, TValue? defaultValue = default)
+        => TryGetValue(key, out var value)
+               ? value
+               : defaultValue;
+    public TValue GetValue(string key)
+        => TryGetValue(key, out var value)
+               ? value
+               : throw new InvalidOperationException($"The value for key '{key}' was not found.");
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
+        => _data.TryGetValue(key, out value);
+
+    public ICollection<string> Keys => _data.Keys;
+    public ICollection<TValue> Values => _data.Values;
+    public void Clear() {
+        foreach (var myKey in _myKeys) Remove(myKey);
+    }
+
+    public void Add(string key, TValue value)
+        => _data.AddOrUpdate(key,
+                             k => {
+                                 if (!ContainsKey(k)) _myKeys.Add(k);
+                                 return this[k] = IsNotNull(value);
+                             },
+                             (k, _) => this[k] = IsNotNull(value));
+
+    public bool Remove(string key) => Remove(key, true);
+    public bool Remove(string key, bool disposeValue) {
+        lock (_data) {
+            var removed = _data.TryRemove(key, out var value);
+            if (!removed || !_myKeys.Contains(key)) return removed;
+            _myKeys.Remove(key);
+            if (disposeValue && value is IDisposable disposable) disposable.Dispose();
+            return removed;
+        }
+    }
+
+    public bool ContainsKey(string key)
+        => _data.ContainsKey(key);
+
+    public void Add(KeyValuePair<string, TValue> item) => Add(item.Key, item.Value);
+    bool ICollection<KeyValuePair<string, TValue>>.Contains(KeyValuePair<string, TValue> item)
+        => ContainsKey(item.Key)
+        && (this[item.Key]?.Equals(item.Value) ?? false);
+    bool ICollection<KeyValuePair<string, TValue>>.Remove(KeyValuePair<string, TValue> item)
+        => Remove(item.Key);
+
+    protected override void ToText(StringBuilder builder, string? name = null, uint level = 0) {
+        if (Keys.Count == 0) return;
+        var indent = new string(' ', (int)level * 4);
+        if (!string.IsNullOrWhiteSpace(name)) builder.Append($"{name}:");
+        if (Keys.Count == 0) builder.AppendLine(" [Empty]");
+        builder.AppendLine();
+        foreach (var key in Keys) {
+            var myKeyMarker = _myKeys.Contains(key) ? "*" : string.Empty;
+            builder.Append($"{indent}- {myKeyMarker}");
+            BuildItem(builder, key, this[key], level);
+        }
+    }
+
+    public override string ToString() {
+        var builder = new StringBuilder();
+        ToText(builder);
+        return builder.ToString();
+    }
+
+    void ICollection<KeyValuePair<string, TValue>>.CopyTo(KeyValuePair<string, TValue>[] array, int index)
+        => _data.ToArray().CopyTo(array, index);
+}
+  ]]></file> 
+  <file name="MapBase.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+public abstract class MapBase {
+    protected abstract void ToText(StringBuilder builder, string? name = null, uint level = 0);
+
+    protected static void BuildItem(StringBuilder builder, string key, object? value, uint level) {
+        switch (value) {
+            case null:
+                builder.AppendLine($"{key}: null");
+                return;
+            case MapBase contextBase:
+                contextBase.ToText(builder, key, level + 1);
+                return;
+            case string:
+                builder.AppendLine($"{key}: {value}");
+                return;
+            case IEnumerable items:
+                var counter = 1;
+                builder.AppendLine($"{key}:");
+                foreach (var item in items)
+                    BuildItem(builder, $"{counter++} => ", item, level);
+                return;
+            case not null when value.GetType().IsClass:
+                builder.AppendLine($"{key}: {JsonSerializer.Serialize(value)}");
+                return;
+            default:
+                builder.AppendLine($"{key}: {value}");
+                return;
+        }
+    }
+}
+  ]]></file> 
+  <file name="OperationFailureException.cs"><![CDATA[ 
+﻿namespace DotNetToolbox;
+
+// ReSharper disable once MemberCanBeInternal - Exposed for use in other projects
+public sealed class OperationFailureException
+    : InvalidOperationException {
+    private const string _defaultMessage = "An error has occured.";
+
+    public IReadOnlyList<Error> Errors { get; }
+
+    public OperationFailureException(string? message = null)
+        : base(message ?? _defaultMessage) {
+        Errors = [new Error(message ?? _defaultMessage)];
+    }
+
+    public OperationFailureException(Exception innerException)
+        : this(_defaultMessage, innerException) {
+    }
+
+    public OperationFailureException(Error error, Exception? innerException = null)
+        : this(error.Message, [error], innerException) {
+    }
+
+    public OperationFailureException(IEnumerable<Error> errors, Exception? innerException = null)
+        : this(_defaultMessage, errors, innerException) {
+    }
+
+    public OperationFailureException(string message, Exception? innerException = null)
+        : this(message, [], innerException) {
+    }
+
+    public OperationFailureException(string message, Error error, Exception? innerException = null)
+        : this(message, [error], innerException) {
+    }
+
+    public OperationFailureException(string message, IEnumerable<Error> errors, Exception? innerException = null)
+        : base(message, innerException) {
+        Errors = [.. errors.Distinct()];
+    }
+}
+  ]]></file> 
+  <file name="Pack.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace
+namespace System;
+
+public record Pack<TFirst, TSecond>(TFirst First, TSecond Second)
+    : IPack<TFirst, TSecond>;
+
+public record Pack<TFirst, TSecond, TThird>(TFirst First, TSecond Second, TThird Third)
+    : Pack<TFirst, TSecond>(First, Second), IPack<TFirst, TSecond, TThird>;
+  ]]></file> 
+  <file name="README.md"><![CDATA[ 
+## Core (DotNetToolbox.Core)
+
+### Introduction
+DotNetToolbox.Core is a versatile C# library for .NET 8, designed to enhance development by providing a range of utilities and patterns. It simplifies complex tasks and improves code testability.
+
+### Table of Contents
+1. [Installation](#installation)
+2. [Dependencies](#dependencies)
+3. [Result Pattern](#result-pattern)
+4. [System Utilities](#system-utilities)
+5. [Pagination Utilities](#pagination-utilities)
+6. [Singleton and Options Patterns](#singleton-and-options-patterns)
+7. [Extension Classes](#extension-classes)
+8. [Other Utilities](#other-utilities)
+
+### Installation
+```shell
+PM> Install-Package DotNetToolbox.Core
+```
+
+### Dependencies
+- .NET 8
+
+### Result Pattern
+
+The exploration of the `Result` class and its specialized forms, including `CrudResult`, `HttpResult`, and `SignInResult`, underscores the pattern's versatility and utility in diverse application domains. By providing a structured approach to operation outcome management, these patterns enhance the clarity, maintainability, and reliability of software, facilitating robust error handling and streamlined communication of operation results. 
+
+### ValidationError and ValidationErrors
+
+The `ValidationError` class encapsulates information about errors that occur during validation processes. It is designed as a sealed record for immutability and type safety, with a default error message indicating invalid values. This class supports initializing with custom messages and an optional source, enhancing error specificity and traceability.
+
+```csharp
+var error = new ValidationError("Custom error message", "FieldName");
+```
+
+An implicit conversion from string to `ValidationError` is provided, allowing for straightforward error creation:
+
+```csharp
+ValidationError error = "This is an error message";
+```
+
+`ValidationErrors` acts as a collection for `ValidationError` objects, implementing standard list and collection interfaces for easy manipulation. It supports initializing from various sources, including single errors, arrays, lists, and hash sets, each ensuring uniqueness of error entries:
+
+```csharp
+ValidationErrors errors = new ValidationError[] {
+    "Error 1",
+    new ValidationError("Error 2"),
+    "Error 3"
+};
+```
+
+This collection facilitates aggregating and handling multiple validation errors in a coherent and structured manner, streamlining error management in validation scenarios:
+
+```csharp
+if (errors.Any()) {
+    foreach (var err in errors) {
+        Console.WriteLine(err);
+    }
+}
+```
+
+These utilities serve as foundational elements within the Result Pattern, enabling detailed and flexible error reporting in validation operations.
+
+### Result Pattern Implementation
+
+The Result pattern is a robust framework feature designed to encapsulate the outcome of operations, offering a unified approach to error handling and validation. It provides a clear and consistent method for functions to return success or failure information, along with any relevant data or errors.
+
+#### IResult and Result Usage
+
+The `IResult` interface is the foundation of the Result pattern, defining a contract for operation outcomes. Implementing classes can specify more details, such as success status, error messages, or returned data. The `Result` class, deriving from `ResultBase`, offers a concrete implementation that can be used directly in applications:
+
+```csharp
+public Result DoSomething() {
+    try {
+        // Operation logic
+        return Result.Success();
+    } catch (Exception ex) {
+        return Result.Failure(ex.Message);
+    }
+}
+```
+
+#### Integrating Validation with IValidatable
+
+The `IValidatable` interface allows for the integration of custom validation logic into models or data transfer objects, returning a `Result` to indicate the validation outcome. This pattern ensures that validation logic can be encapsulated within the objects themselves, promoting a clean and maintainable codebase:
+
+```csharp
+public class MyModel : IValidatable {
+    public string Property { get; set; }
+
+    public Result Validate() {
+        if (string.IsNullOrEmpty(Property)) {
+            return Result.Failure("Property cannot be null or empty.");
+        }
+        return Result.Success();
+    }
+}
+```
+
+#### Handling Validation Errors
+
+When validation fails, a `ValidationException` can be thrown, leveraging the `Result` pattern for consistent error handling across the application. This exception specifically addresses validation failures, allowing for targeted catch blocks and error processing:
+
+```csharp
+try {
+    var model = new MyModel();
+    var result = model.Validate();
+    if (!result.IsSuccessful) {
+        throw new ValidationException(result.Errors);
+    }
+} catch (ValidationException ex) {
+    // Handle validation errors
+}
+```
+
+#### Result Types and Error Management
+
+The `ResultType` enum and `ResultBase` class support extending the Result pattern with custom outcomes and sophisticated error management strategies. Developers can define additional result types beyond the basic success and failure, accommodating complex business logic and operation outcomes:
+
+```csharp
+public enum MyCustomResultType : int {
+    CustomSuccess = 1,
+    CustomFailure = -1
+}
+
+public class MyCustomResult : ResultBase {
+    // Custom implementation
+}
+```
+
+### CrudResult Pattern for CRUD Operations
+
+The `CrudResult` class extends the foundational `Result` pattern specifically for CRUD (Create, Read, Update, Delete) operations, providing a clear and expressive way to communicate the outcomes of these common database or resource manipulation tasks.
+
+#### Understanding CrudResult Types
+
+At the heart of the `CrudResult` design is the `CrudResultType` enum, which categorizes the outcomes of CRUD operations into statuses like `Success`, `NotFound`, and `Conflict`. This detailed classification aids in handling the varied results of CRUD operations with precision:
+
+```csharp
+public enum CrudResultType {
+    Invalid, // The request validation failed.
+    NotFound, // The requested resource was not found.
+    Conflict, // A conflict has occured blocking the operation.
+    Success, // The operation was successful.
+    Error, // An internal error has occurred.
+}
+```
+
+#### Using CrudResult in Operations
+
+`CrudResult` simplifies returning detailed operation outcomes. For instance, when updating a resource, `CrudResult` can distinctly indicate whether the operation was successful, the target resource was not found, or a conflict occurred:
+
+```csharp
+public CrudResult UpdateResource(Resource resource) {
+    if (!ResourceExists(resource.Id)) {
+        return CrudResult.NotFound();
+    }
+    if (ResourceConflictExists(resource)) {
+        return CrudResult.Conflict();
+    }
+    // Update logic here
+    return CrudResult.Success();
+}
+```
+
+#### Leveraging Generic CrudResult
+
+For operations that return a value, such as retrieving a resource, `CrudResult<T>` comes into play, allowing the inclusion of the resource itself in the success case:
+
+```csharp
+public CrudResult<Resource> GetResource(int id) {
+    var resource = FindResourceById(id);
+    if (resource == null) {
+        return CrudResult<Resource>.NotFound();
+    }
+    return CrudResult<Resource>.Success(resource);
+}
+```
+
+#### Benefits of CrudResult
+
+The `CrudResult` class and its generic counterpart `CrudResult<T>` provide a robust, type-safe way to handle the outcomes of CRUD operations, enhancing code clarity and maintainability. By clearly communicating operation results, developers can implement more reliable and understandable error handling and response logic in applications dealing with data manipulation.
+
+
+### HttpResult for Web API Responses
+
+The `HttpResult` class is a specialized adaptation of the Result pattern, tailored specifically for handling the outcomes of web API operations. It provides a seamless way to align the internal operation results with the standardized semantics of HTTP responses.
+
+#### Overview of HttpResult
+
+`HttpResult` facilitates the expression of HTTP response statuses through its methods, which correspond to common HTTP status codes. This design allows developers to directly return HTTP responses from API operations, enhancing clarity and consistency:
+
+```csharp
+public enum HttpResultType {
+    Ok = HttpStatusCode.OK, // 200
+    Created = HttpStatusCode.Created, // 201
+
+    BadRequest = HttpStatusCode.BadRequest, // 400
+    Unauthorized = HttpStatusCode.Unauthorized, // 401
+    NotFound = HttpStatusCode.NotFound, // 404
+    Conflict = HttpStatusCode.Conflict, // 409
+
+    Error = HttpStatusCode.InternalServerError, // 500
+}
+```
+
+#### Utilizing HttpResult in APIs
+
+`HttpResult` can be employed to indicate the outcome of API operations succinctly, mapping directly to HTTP response codes. Here's how it can be used to return different responses based on operation results:
+
+```csharp
+public HttpResult GetUser(int id) {
+    var user = UserRepository.FindById(id);
+    if (user == null) {
+        return HttpResult.NotFound("User not found.");
+    }
+    return HttpResult.Ok(user);
+}
+```
+
+#### Including Data in Responses
+
+One of the key features of `HttpResult` is its ability to carry data along with the response status. This capability is particularly useful for returning entities or detailed error information in API responses:
+
+```csharp
+public HttpResult CreateUser(UserDto newUser) {
+    var validationResult = ValidateNewUser(newUser);
+    if (!validationResult.IsSuccessful) {
+        return HttpResult.BadRequest(validationResult.Errors);
+    }
+    var user = CreateUserFromDto(newUser);
+    return HttpResult.Created(user);
+}
+```
+
+#### Advantages of Using HttpResult
+
+Employing `HttpResult` in web API development offers several benefits:
+- **Consistency**: Ensures that API responses are standardized across different operations, facilitating easier consumption and integration.
+- **Type Safety**: Reduces the risk of returning incorrect HTTP status codes, as responses are defined through explicit methods.
+- **Simplicity**: Simplifies error handling and response construction, allowing developers to focus on the core logic of API operations.
+
+- **SignInResult**: Designed for authentication processes.
+
+### SignInResult for Authentication Outcomes
+
+The `SignInResult` class is specifically tailored to encapsulate the outcomes of authentication processes, providing a clear and nuanced way to indicate the success or specific reasons for failure of sign-in attempts. This specialized result type ensures that authentication logic is both expressive and consistent.
+
+```csharp
+public enum SignInResultType {
+    Error, // An internal error has occurred.
+    Invalid, // request validation failed. No attempt was made.
+    Failed, // attempt failed.
+    Blocked, // account is blocked. (8 | 4) Counts as Failed.
+    Locked, // account is locked. (16 | 4) Counts as Failed.
+    Success, // attempt succeeded.
+    ConfirmationPending, // attempt succeeded but email is not confirmed. (64 | 32).
+    TwoFactorRequired, // attempt succeeded, but requires 2-factor authentication. (128 | 32).
+}
+```
+
+#### Example Usage of SignInResult
+
+```csharp
+public SignInResult SignInUser(string username, string password) {
+    var user = FindUserByUsername(username);
+    if (user == null || !VerifyPassword(user, password)) {
+        return SignInResult.Failed();
+    }
+    if (user.IsLockedOut) {
+        return SignInResult.LockedOut();
+    }
+    // Additional sign-in logic here
+    return SignInResult.Success();
+}
+```
+
+#### Advantages of SignInResult
+
+- **Clarity and Precision**: Distinguishes between various outcomes of sign-in attempts, such as failure due to invalid credentials or account lockout, enhancing error handling and user feedback.
+- **Seamless Integration**: Fits neatly within the broader Result pattern framework, maintaining a consistent approach to handling operation outcomes across the application.
+- **Customization and Extension**: Allows for the introduction of additional `SignInResultType` values to cater to complex authentication scenarios, offering flexibility and adaptability.
+
+### System Utilities
+System utilities offer essential abstractions over system resources such as Date and Time, GUIDs, File System, Assembly Information, and Console Input/Output. By enabling dependency injection, these abstractions support the creation of testable code, allowing the substitution of system classes with mock objects during testing.
+
+- **DateTimeProvider**: Facilitates working with dates and times in a testable way by abstracting system-specific implementations.
+
+#### Examples:
+1. **Injecting DateTimeProvider into a service for testability:**
+    ```csharp
+    public class TimeSensitiveService {
+        private readonly DateTimeProvider _dateTimeProvider;
+
+        public TimeSensitiveService(DateTimeProvider dateTimeProvider) {
+            _dateTimeProvider = dateTimeProvider;
+        }
+
+        public bool IsBusinessHour() {
+            var currentHour = _dateTimeProvider.Now.Hour;
+            return currentHour >= 9 && currentHour < 17;
+        }
+    }
+    ```
+
+2. **Mocking DateTimeProvider for unit tests:**
+    ```csharp
+    var fixedDateTime = Substitute.For<DateTimeProvider>();
+    fixedDateTime.Now.Returns(new DateTimeOffset(2023, 1, 1, 12, 0, 0, TimeSpan.Zero));
+    
+    var service = new TimeSensitiveService(fixedDateTime);
+    var result = service.IsBusinessHour();
+    
+    result.Should().BeTrue(); // FluentAssertions used here
+    ```
+
+- **GuidProvider**: Allows generation of GUIDs that can be controlled in a testing environment.
+
+#### Examples:
+1. **Using GuidProvider to generate GUIDs in a service:**
+    ```csharp
+    public class IdentifierService {
+        private readonly GuidProvider _guidProvider;
+
+        public IdentifierService(GuidProvider guidProvider) {
+            _guidProvider = guidProvider;
+        }
+
+        public Guid GetUniqueIdentifier() {
+            return _guidProvider.New();
+        }
+    }
+    ```
+
+2. **Mocking GuidProvider in tests:**
+    ```csharp
+    var expectedGuid = Guid.NewGuid();
+    var fixedGuidProvider = Substitute.For<GuidProvider>();
+    fixedGuidProvider.New().Returns(expectedGuid);
+    
+    var service = new IdentifierService(fixedGuidProvider);
+    var id = service.GetUniqueIdentifier();
+    
+    id.Should().Be(expectedGuid); // Asserting that the ID is indeed a GUID
+    ```
+
+- **FileSystem**: Provides an abstraction over file system operations, enabling better testing of file-related functionality.
+
+#### Examples:
+1. **Injecting FileSystem into a component:**
+    ```csharp
+    public class FileManager {
+        private readonly FileSystem _fileSystem;
+
+        public FileManager(FileSystem fileSystem) {
+            _fileSystem = fileSystem;
+        }
+
+        public bool FileExists(string path) {
+            return _fileSystem.FileExists(path);
+        }
+    }
+    ```
+
+2. **Mocking FileSystem during testing:**
+    ```csharp
+    var mockedFileSystem = Substitute.For<FileSystem>();
+    mockedFileSystem.FileExists("test.txt").Returns(true);
+    
+    var fileManager = new FileManager(mockedFileSystem);
+    var exists = fileManager.FileExists("test.txt");
+    
+    exists.Should().BeTrue(); // Validate the expected behavior
+    ```
+
+- **Input** and **Output**: Utilities for input and output operations, making console interactions testable.
+
+#### Examples:
+1. **Using Output in a service to write messages:**
+    ```csharp
+    public class ConsoleService {
+        private readonly Input _input;
+        private readonly Output _output;
+
+        public ConsoleService(Input input, Output output) {
+            _input = input;
+            _output = output;
+        }
+
+        public string ReadUserInputOrEmpty() {
+            return _input.ReadLine() ?? string.Empty;
+        }
+
+        public void DisplayMessage(string target) {
+            _output.WriteLine($"Hello {target}!");
+        }
+    }
+    ```
+
+2. **Testing console input and output interactions:**
+    ```csharp
+    var mockedOutput = Substitute.For<Output>();
+    var mockedInput = Substitute.For<Input>();
+    var consoleService = new ConsoleService(mockedInput, mockedOutput);
+    mockedInput.ReadLine().Returns("Test")
+
+    var target = consoleService.ReadUserInputOrEmpty();
+    var consoleService.DisplayMessage(target);
+
+    outputMock.Received().WriteLine("Hello Test!"); // NSubstitute used to verify interaction
+    ```
+
+- **Assembly Information (AssemblyAccessor and AssemblyDescriptor)**: These utilities provide detailed access to assembly metadata, supporting a wide range of operations from version checking to attribute inspection.
+
+Here is the information available through the `IAssemblyDescriptor` interface:
+ - Name: The short name of the assembly.
+ - FullName: The full name of the assembly, including the version, culture, and public key token.
+ - Version: The version of the assembly.
+ - RuntimeVersion: The runtime version of the assembly.
+ - CultureInfo: The culture information of the assembly.
+ - PublicKey: The public key of the assembly.
+ - PublicKeyToken: The public key token of the assembly.
+ - Location: The location of the assembly file.
+ - EntryPoint: The entry point of the assembly.
+ - ManifestModule: The manifest module of the assembly.
+ - GetCustomAttributes() : Returns an array of all custom attributes applied to the assembly.
+ - GetCustomAttributes(Type attributeType) : Returns an array of custom attributes applied to the assembly and identified by the specified type.
+ - GetCustomAttributes<TAttribute>(): Returns an array of custom attributes applied to the assembly and identified by the specified type.
+ - GetCustomAttribute<TAttribute>(): Returns the custom attribute applied to the assembly and identified by the specified type.
+ - GetCustomAttribute(Type attributeType): Returns the custom attribute applied to the assembly and identified by the specified type.
+ - DefinedTypes: Returns a collection of types defined in the assembly.
+ - ExportedTypes: Returns a collection of types that are visible outside the assembly.
+ - Modules: Returns a collection of modules in the assembly.
+
+#### Examples:
+1. **Retrieving Assembly Version:**
+   ```csharp
+   public class VersionService {
+       private readonly IAssemblyAccessor _accessor;
+
+       public VersionService(IAssemblyAccessor accessor) {
+           _accessor = accessor;
+       }
+
+       public string GetCurrentAssemblyVersion() {
+           return _accessor.GetExecutingAssembly().Version.ToString();
+       }
+   }
+   ```
+
+- **Environment Abstraction (Environment)**: Offers a unified interface to access various system utilities, facilitating easy mocking and dependency management.
+
+#### Examples:
+1. **Accessing System Utilities through Environment:**
+   ```csharp
+   public class ApplicationService {
+       private readonly IEnvironment _environment;
+
+       public ApplicationService(IEnvironment environment) {
+           _environment = environment;
+       }
+
+       public void PerformOperation() {
+           var assemblyVersion = _environment.Assembly.Version.ToString();
+           var currentTime = _environment.DateTime.Now;
+           // Use other system utilities as needed
+       }
+   }
+   ```
+
+
+### Pagination Utilities
+Pagination utilities provide a standardized way to handle the slicing of large datasets into smaller, more manageable blocks or pages. These utilities can be used to define and access specific segments of data, often necessary when implementing APIs that support pagination.
+
+- **IBlock / Block**: Interfaces and classes that represent a contiguous block of items with a specific size and an offset that indicates the starting point or key item.
+
+- **IPage / Page**: Extends the concept of a block to include pagination-specific information, such as the total count of items, allowing for the calculation of the total number of pages.
+
+- **BlockSettings**: Provides constants related to pagination, such as default block size and maximum allowable values.
+
+#### Examples:
+1. **Creating a Block of items:**
+   ```csharp
+   var items = new List<string> { "Item1", "Item2", "Item3" };
+   var block = new Block<string>(items, "Item1");
+
+   // block now contains a block of items starting from "Item1"
+   ```
+
+2. **Creating a Page with total count information:**
+   ```csharp
+   var items = new List<string> { "Item1", "Item2", "Item3" };
+   var page = new Page<string>(items, 0, BlockSettings.DefaultBlockSize, 100);
+
+   // page now contains a page of items with information about the total count of items
+   ```
+
+### Singleton and Options Patterns
+Pattern utilities offer standardized ways to define and access special instances of classes, such as singleton, default, or empty instances. These utilities are designed to implement common design patterns in a consistent manner across your applications.
+
+- **IHasInstance / HasInstance**: Allows for defining and accessing a singleton instance of a class.
+
+- **IHasDefault / HasDefault**: Provides a way to access a default instance of a class.
+
+- **IHasEmpty / HasEmpty**: Enables defining an 'empty' instance, often representing the absence of a value.
+
+- **INamedOptions / NamedOptions**: Used for options classes with a standard way to define the section name used for configuration binding.
+
+#### Examples:
+1. **Accessing a singleton instance:**
+    ```csharp
+    public class SingletonService : HasInstance<SingletonService> {
+        // Service implementation
+    }
+
+    var instance = SingletonService.Instance;
+    ```
+
+2. **Defining default options:**
+    ```csharp
+    public class ServiceOptions : NamedOptions<ServiceOptions> {
+        public string ConnectionString { get; set; } = "DefaultConnectionString";
+    }
+
+    var defaultOptions = ServiceOptions.Default;
+    ```
+
+    Here is an example of the options class being used in a configuration binding scenario:
+
+    ```json
+    // In appsettings.json
+    {
+      // ...
+      "Service": {
+        "ConnectionString": "SomeConnectionString"
+      }
+      // ...
+    }
+    ```
+
+    ```csharp
+    public class Service {
+        private readonly ServiceOptions _options;
+
+        public Service(IOptions<ServiceOptions> options) {
+            _options = options.Value;
+        }
+
+        public string GetConnectionString() {
+            return _options.ConnectionString;
+        }
+    }
+
+    // In Startup.cs
+    services.Configure<ServiceOptions>(Configuration.GetSection("Service"));
+    ```
+
+3. **Using an empty instance:**
+    ```csharp
+    public class CommandResult : HasEmpty<CommandResult> {
+        public bool Success { get; set; }
+    }
+
+    var noResult = CommandResult.Empty;
+    ```
+
+### Extension Classes
+Extension classes provide additional methods to existing types, enhancing their capabilities and simplifying common operations.
+
+- **Enumerable Extensions**: Extends `IEnumerable<T>` to provide additional transformation and collection generation methods.
+
+#### Examples:
+1. **Transforming IEnumerable to Array with custom projection:**
+    ```csharp
+    IEnumerable<int> numbers = new[] { 1, 2, 3, 4 };
+    int[] squaredNumbers = numbers.ToArray(x => x * x);
+
+    // squaredNumbers would be [1, 4, 9, 16]
+    ```
+
+2. **Creating a Dictionary from another IDictionary with a value transformation:**
+    ```csharp
+    IDictionary<string, int>> original = new Dictionary<string, int> {
+        ["one"] = 1,
+        ["two"] = 2
+    };
+    var newDictionary = original.ToDictionary(v => v * 10); // Multiplies each value by 10
+
+    // newDictionary would have values [10, 20]
+    ```
+
+- **Queryable Extensions**: Provides projection and conversion extensions for `IQueryable<T>`.
+
+#### Examples:
+1. **Projecting IQueryable to Array:**
+    ```csharp
+    IQueryable<Person> people = GetPeopleQuery();
+    PersonDto[] dtos = people.ToArray(person => new PersonDto(person.Name, person.Age));
+
+    // dtos contains PersonDto objects projected from the Person source
+    ```
+
+2. **Transforming IQueryable into HashSet with projection:**
+    ```csharp
+    IQueryable<string> names = GetNamesQuery();
+    HashSet<string> upperCaseNames = names.ToHashSet(name => name.ToUpper());
+
+    // upperCaseNames contains upper case versions of the names from the source
+    ```
+
+- **Task Extensions**: Adds methods to `Task` and `ValueTask` to handle fire-and-forget scenarios with optional exception handling callbacks.
+
+#### Examples:
+1. **Using FireAndForget with a Task:**
+    ```csharp
+    Task someTask = DoWorkAsync();
+    someTask.FireAndForget(); // No need to await, exceptions will be ignored
+    ```
+
+2. **Handling exceptions with FireAndForget:**
+    ```csharp
+    async Task DoWorkAsync() {
+        // Simulate work
+        await Task.Delay(1000);
+        throw new InvalidOperationException("Something went wrong");
+    }
+
+    Task anotherTask = DoWorkAsync();
+    anotherTask.FireAndForget(
+        onException: ex => LogError(ex) // Log error if exception occurs
+    );
+    ```
+
+### Other Utilities
+Other utilities provide additional functionalities and helpers to extend existing concepts, making them more convenient and robust for everyday use.
+
+- **Ensure**: Offers a variety of methods to ensure arguments meet certain conditions, throwing exceptions if they do not. This utility is very useful for validating method inputs and maintaining contracts within the code.
+You can add the `Ensure` class as a static using to simplify the call. 
+
+#### Examples:
+1. **Using Ensure to validate arguments:**
+    ```csharp
+    public void ProcessData(string input) {
+        input = Ensure.IsNotNullOrWhiteSpace(input);
+        // Rest of the method logic
+    }
+    ```
+
+2. **Using Ensure as a static using:**
+    ```csharp
+    using static DotNetToolbox.Ensure;
+    
+    // class dedinition and other code
+    
+    public void ProcessList(IList<string> items) {
+        items = HasNoNullOrWhiteSpace(items);
+
+        // Rest of the method logic
+    }
+    ```
+
+- **CreateInstance**: Provides methods to dynamically create instances of types, which can be very helpful for creating types with non-public constructors or when types need to be created based on runtime data.
+
+#### Examples:
+1. **Creating an instance of a class with private constructor:**
+    ```csharp
+    var instance1 = CreateInstance.Of<SomeClassWithPrivateConstructor>();
+    var instance2 = CreateInstance.Of<SomeClassWithArguments>(arg1, arg2);
+    ```
+
+2. **Creating an instance using dependency injection:**
+    ```csharp
+    public class SomeClassWithArgumentsAndServices {
+        public SomeClassWithArgumentsAndServices(string arg1, string arg2, ILoggerFactory loggerFactory) {
+            // ...
+        }
+    }
+    
+    // ...
+    
+    var serviceProvider = // ... build your service provider
+    var instance = CreateInstance.Of<SomeClassWithArgumentsAndServices>(serviceProvider, arg1, arg2); // the injected services do not need to be added.
+    ```
+
+- **UrlSafeBase64String**: A record struct that represents a base64 encoded string safe for URL use. It can be used to encode and decode bytes, strings, and GUIDs to a URL-safe base64 format.
+
+#### Examples:
+1. **Encoding and decoding a URL-safe base64 string:**
+    ```csharp
+    byte[] original = { 0x1, 0x2, 0x3 };
+    UrlSafeBase64String encoded = original;
+    byte[] decoded = encoded;
+
+    encoded.Should().BeOfType<string>(); // Outputs URL-safe base64 string
+    decoded.Should().BeEquivalentTo(original); // Outputs True
+    ```
+
+2. **Working with GUIDs and base64 strings:**
+    ```csharp
+    Guid original = Guid.NewGuid();
+    UrlSafeBase64String encoded = original;
+    Guid decoded = encoded;
+
+    encoded.Should().BeOfType<string>(); // Outputs URL-safe base64 string
+    decoded.Should().Be(original); // Outputs True
+    ```
+
+- **IValidatable**: An interface that classes can implement to provide custom validation logic, returning a `Result` that indicates whether the validation was successful or not.
+
+#### Examples:
+1. **Implementing IValidatable in a class:**
+   ```csharp
+   using static DotNetToolbox.Result;
+
+   public class Person : IValidatable {
+       public string? Name { get; set; }
+       public int Age { get; set; }
+
+       public Result Validate(IDictionary<string, object?>? context = null) {
+           var result = Success();
+           if (string.IsNullOrWhiteSpace(Name)) {
+               result += InvalidData(nameof(Name), "Name cannot be empty or whitespace.");
+           }
+
+           if (Age < 0 || Age > 120) {
+               result += InvalidData(nameof(Age), "Age must be between 0 and 120.");
+           }
+
+           return result; // may return multiple errors
+       }
+   }
+   ```
+
+2. **Using Ensure to validate an IValidatable object:**
+   ```csharp
+   using static DotNetToolbox.Ensure;
+
+   public void ProcessPerson(Person person) {
+       person = IsValid(person); // throws ValidationException if validation fails.
+
+       // Rest of the method logic
+   }
+   ```
+
+- **DisposableStateHolder**: A utility designed to hold and manage the lifecycle of a disposable state. It ensures that if the state is disposable, it is properly disposed of, simplifying resource management and cleanup.
+
+#### Examples:
+1. **Using DisposableStateHolder with Disposable State:**
+   ```csharp
+   var disposableResource = new MemoryStream();
+   using var stateHolder = new DisposableStateHolder(disposableResource);
+   // The MemoryStream will be disposed of when stateHolder is disposed.
+   ```
+
+
+- **Indexed**: This struct pairs elements with their indices, enhancing the handling of sequences by keeping track of each element's position. It's invaluable for operations requiring index information alongside elements.
+
+#### Examples:
+1. **Enumerating Items with Indices:**
+   ```csharp
+   var items = new[] { "apple", "banana", "cherry" };
+   var indexedItems = items.Select((value, index) => new Indexed<string>(index, value));
+   foreach (var item in indexedItems) {
+       Console.WriteLine($"Item {item.Index}: {item.Value}");
+   }
+   ```
+  ]]></file> 
+  <folder name="Collections"> 
+    <file name="Indexed.cs"><![CDATA[ 
+﻿namespace System.Collections;
+
+public record Indexed<TValue> {
+    public Indexed(int index, TValue value) {
+        Index = index < 0 ? 0 : index;
+        Value = value;
+    }
+
+    public int Index { get; init; }
+    public TValue Value { get; init; }
+
+    public void Deconstruct(out int index, out TValue value) {
+        index = Index;
+        value = Value;
+    }
+}
+    ]]></file> 
+    <file name="IndexedItem.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Collections;
+
+public record IndexedItem<TValue> : Indexed<TValue> {
+    public IndexedItem(int index, TValue value, bool isLast)
+        : base(index, value) {
+        IsLast = isLast;
+    }
+
+    public bool IsFirst => Index == 0;
+    public bool IsLast { get; init; }
+
+    public void Deconstruct(out int index, out TValue value, out bool isLast) {
+        index = Index;
+        value = Value;
+        isLast = IsLast;
+    }
+}
+    ]]></file> 
+    <folder name="Async"> 
+      <folder name="Generic"> 
+        <file name="AsyncEnumerable.cs"><![CDATA[ 
+// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Collections.Async.Generic;
+
+public static class AsyncEnumerable {
+    public static IAsyncEnumerable<TItem> Empty<TItem>()
+        => new AsyncEnumerable<TItem>();
+}
+
+public class AsyncEnumerable<TItem>(IEnumerable<TItem>? data = null)
+    : IAsyncEnumerable<TItem> {
+    private readonly IEnumerable<TItem> _data = data ?? [];
+
+    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        => new AsyncEnumerator<TItem>(_data.GetEnumerator(), cancellationToken);
+}
+        ]]></file> 
+        <file name="AsyncEnumerator.cs"><![CDATA[ 
+// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Collections.Async.Generic;
+
+public static class AsyncEnumerator {
+    public static IAsyncEnumerator<TItem> Empty<TItem>()
+        => new AsyncEnumerator<TItem>(Enumerable.Empty<TItem>().GetEnumerator());
+}
+
+public sealed class AsyncEnumerator<TItem>(IEnumerator<TItem> enumerator, CancellationToken cancellationToken = default)
+    : IAsyncEnumerator<TItem> {
+    //object IAsyncEnumerator.Current => Current!;
+    public TItem Current => enumerator.Current;
+
+    public ValueTask<bool> MoveNextAsync()
+        => ValueTask.FromResult(!cancellationToken.IsCancellationRequested && enumerator.MoveNext());
+
+    public ValueTask DisposeAsync() {
+        enumerator.Dispose();
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
+    }
+
+    ~AsyncEnumerator()
+        => enumerator.Dispose();
+}
+        ]]></file> 
+      </folder> 
+    </folder> 
+    <folder name="Generic"> 
+      <file name="Dictionary.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace
+namespace System.Collections.Generic;
+
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "<Pending>")]
+[SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
+public static class Dictionary {
+    public static Dictionary<TKey, TValue> Empty<TKey, TValue>()
+        where TKey : notnull
+        => [];
+}
+      ]]></file> 
+      <file name="EnumerableExtensions.cs"><![CDATA[ 
+﻿namespace System.Collections.Generic;
+
+public static class EnumerableExtensions {
+    public static IAsyncEnumerable<TItem> ToAsyncEnumerable<TItem>(this IEnumerable<TItem> source)
+        => new AsyncEnumerable<TItem>(source);
+
+    public static IAsyncEnumerator<TItem> GetAsyncEnumerator<TItem>(this IEnumerable<TItem> source, CancellationToken cancellationToken = default)
+        => source.ToAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
+
+    #region Projections
+
+    public static IEnumerable<TItem> As<TItem>(this IEnumerable source)
+        => source.Cast<TItem>();
+    public static IEnumerable<TNewItem> As<TItem, TNewItem>(this IEnumerable source, Func<TItem, TNewItem> convertTo)
+        => source.As<TItem>().Select(convertTo);
+    public static TItem[] ToArray<TItem>(this IEnumerable source)
+        => [.. IsNotNull(source).As<TItem>()];
+    public static TNewItem[] ToArray<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static List<TItem> ToList<TItem>(this IEnumerable source)
+        => [.. IsNotNull(source).Cast<TItem>()];
+    public static List<TNewItem> ToList<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static HashSet<TItem> ToHashSet<TItem>(this IEnumerable source)
+        => [.. IsNotNull(source).Cast<TItem>()];
+    public static HashSet<TNewItem> ToHashSet<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
+        => [.. IsNotNull(source).Select(convertTo)];
+    public static Dictionary<TKey, TNewValue> ToDictionary<TKey, TValue, TNewValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Func<TValue, TNewValue> convertToValue)
+        where TKey : notnull
+        => IsNotNull(source).ToDictionary(i => i.Key, i => convertToValue(i.Value));
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Func<TValue, TValue> convertToValue)
+        where TKey : notnull
+        => IsNotNull(source).ToDictionary(i => i.Key, i => convertToValue(i.Value));
+
+    #endregion
+
+    #region Indexed
+
+    public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable source)
+        => source.Cast<TItem>().AsIndexed();
+    public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable<TItem> source)
+        => source.AsIndexed(i => i);
+    public static IEnumerable<Indexed<TNewItem>> AsIndexed<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
+        => source.Select((v, i) => new Indexed<TNewItem>(i, convertTo(v)));
+    public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IEnumerable source)
+        => source.Cast<TItem>().ToIndexedList();
+    public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IEnumerable<TItem> source)
+        => source.ToIndexedList(i => i);
+    public static List<IndexedItem<TNewItem>> ToIndexedList<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo) {
+        using var enumerator = source.GetEnumerator();
+        var list = new List<IndexedItem<TNewItem>>();
+        var index = 0;
+        var hasNext = enumerator.MoveNext();
+        while (hasNext) {
+            var value = convertTo(enumerator.Current);
+            hasNext = enumerator.MoveNext();
+            list.Add(new(index++, value, !hasNext));
+        }
+        return list;
+    }
+
+    #endregion
+
+    #region ForEach
+
+    public static void ForEach<TItem>(this IEnumerable source, Action<TItem> action) {
+        using var enumerator = source.Cast<TItem>().GetEnumerator();
+        while (enumerator.MoveNext())
+            action(enumerator.Current);
+    }
+
+    public static void ForEach<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, Action<TKey, TValue> action)
+        where TKey : notnull {
+        using var enumerator = source.GetEnumerator();
+        while (enumerator.MoveNext())
+            action(enumerator.Current.Key, enumerator.Current.Value);
+    }
+
+#endregion
+}
+      ]]></file> 
+      <file name="HashSetExtensions.cs"><![CDATA[ 
+﻿namespace System.Collections.Generic;
+
+public static class HashSetExtensions {
+    public static void AddRange<TValue>(this HashSet<TValue> source, IEnumerable<TValue> values) {
+        foreach (var value in values)
+            source.Add(value);
+    }
+}
+      ]]></file> 
+    </folder> 
+  </folder> 
+  <folder name="Constants"> 
+    <file name="Messages.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Constants;
+
+public static class Messages {
+    public static string Null => "null";
+    public static CompositeFormat Quotes { get; } = CompositeFormat.Parse("'{0}'");
+
+    public static CompositeFormat TheLengthOf { get; } = CompositeFormat.Parse("The length of '{0}'");
+    public static CompositeFormat TheElementCountOf { get; } = CompositeFormat.Parse("The element count of '{0}'");
+
+    public static CompositeFormat IsInvalid { get; } = CompositeFormat.Parse("The value of {0} is invalid.");
+    public static CompositeFormat ContainsInvalid { get; } = CompositeFormat.Parse("{0} contains invalid values.");
+
+    public static CompositeFormat MustBeNull { get; } = CompositeFormat.Parse("{0} must be null.");
+    public static CompositeFormat MustBeEmpty { get; } = CompositeFormat.Parse("{0} must be empty.");
+    public static CompositeFormat MustBeValid { get; } = CompositeFormat.Parse("{0} must be valid.");
+    public static CompositeFormat MustBeAnEmail { get; } = CompositeFormat.Parse("{0} must be a valid email.");
+    public static CompositeFormat MustBeAPassword { get; } = CompositeFormat.Parse("{0} must be a valid password.");
+
+    public static CompositeFormat MustBeAfter { get; } = CompositeFormat.Parse("{0} must be after {1}.");
+    public static CompositeFormat MustBeBefore { get; } = CompositeFormat.Parse("{0} must be before {1}.");
+    public static CompositeFormat MustBeEqualTo { get; } = CompositeFormat.Parse("{0} must be equal to {0}.");
+    public static CompositeFormat MustBeGraterThan { get; } = CompositeFormat.Parse("{0} must be greater than {1}.");
+    public static CompositeFormat MustBeGraterThanOrEqualTo { get; } = CompositeFormat.Parse("{0} must be greater than or equal to {1}.");
+    public static CompositeFormat MustBeLessThan { get; } = CompositeFormat.Parse("{0} must be less than {1}.");
+    public static CompositeFormat MustBeLessThanOrEqualTo { get; } = CompositeFormat.Parse("{0} must be less than or equal to {1}.");
+    public static CompositeFormat MustBeIn { get; } = CompositeFormat.Parse("{0} must be in {1}.");
+    public static CompositeFormat MustContain { get; } = CompositeFormat.Parse("{0} must contain {1}.");
+    public static CompositeFormat MustContainKey { get; } = CompositeFormat.Parse("{0} must contain {1} as a key.");
+    public static CompositeFormat MustBeOfType { get; } = CompositeFormat.Parse("{0} must be of type '{1}'.");
+
+    public static CompositeFormat CannotBeNull { get; } = CompositeFormat.Parse("{0} cannot be null.");
+    public static CompositeFormat CannotBeEmpty { get; } = CompositeFormat.Parse("{0} cannot be empty.");
+    public static CompositeFormat CannotBeNullOrEmpty { get; } = CompositeFormat.Parse("{0} cannot be null or empty.");
+    public static CompositeFormat CannotBeWhiteSpace { get; } = CompositeFormat.Parse("{0} cannot be white spaces only.");
+    public static CompositeFormat CannotBeNullOrWhiteSpace { get; } = CompositeFormat.Parse("{0} cannot be null or white spaces only.");
+    public static CompositeFormat CannotBeEmptyOrWhiteSpace { get; } = CompositeFormat.Parse("{0} cannot be empty or white spaces only.");
+
+    public static CompositeFormat CannotContainInvalid { get; } = CompositeFormat.Parse("{0} cannot contain any invalid element.");
+    public static CompositeFormat CannotContainNulls { get; } = CompositeFormat.Parse("{0} cannot contain any null element.");
+
+    public static CompositeFormat CannotBeAfter { get; } = CompositeFormat.Parse("{0} cannot be after {1}.");
+    public static CompositeFormat CannotBeBefore { get; } = CompositeFormat.Parse("{0} cannot be before {1}.");
+    public static CompositeFormat CannotBeEqualTo { get; } = CompositeFormat.Parse("{0} cannot be equal to {0}.");
+    public static CompositeFormat CannotBeGraterThan { get; } = CompositeFormat.Parse("{0} cannot be greater than {1}.");
+    public static CompositeFormat CannotBeGraterThanOrEqualTo { get; } = CompositeFormat.Parse("{0} cannot be greater than or equal to {1}.");
+    public static CompositeFormat CannotBeLessThan { get; } = CompositeFormat.Parse("{0} cannot be less than {1}.");
+    public static CompositeFormat CannotBeLessThanOrEqualTo { get; } = CompositeFormat.Parse("{0} cannot be less than or equal to {1}.");
+    public static CompositeFormat CannotBeIn { get; } = CompositeFormat.Parse("{0} cannot be in {1}.");
+    public static CompositeFormat CannotContain { get; } = CompositeFormat.Parse("{0} cannot contain {1}.");
+    public static CompositeFormat CannotContainKey { get; } = CompositeFormat.Parse("{0} cannot contain {1} as a key.");
+    public static CompositeFormat CannotBeOfType { get; } = CompositeFormat.Parse("{0} cannot be of type '{1}'.");
+
+    public static string Quoted(string name) => string.Format(null, Quotes, name);
+
+    public static string BuildMessage(CompositeFormat message, params IEnumerable<string> arguments)
+        => string.Format(null, message, arguments);
+
+    public static string BuildMessage(string target, CompositeFormat message, params IEnumerable<string> arguments)
+        => string.Format(null, message, [Quoted(target), .. arguments]);
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Options"> 
+    <file name="INamedOptions.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Options;
+
+public interface INamedOptions<out TOptions>
+    : IHasDefault<TOptions>
+    where TOptions : INamedOptions<TOptions> {
+    static abstract string SectionName { get; }
+}
+    ]]></file> 
+    <file name="NamedOptions.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Options;
+
+public class NamedOptions<TOptions>
+    : INamedOptions<TOptions>
+    where TOptions : NamedOptions<TOptions>, new() {
+    public static TOptions Default { get; } = new();
+
+    private const string _suffix = "Options";
+
+    // ReSharper disable once StaticMemberInGenericType
+    public static string SectionName {
+        get => field.EndsWith(_suffix)
+            && field.Length > _suffix.Length
+                    ? field[..^_suffix.Length]
+                    : field;
+    } = typeof(TOptions).Name;
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Pagination"> 
+    <file name="Chunk.cs"><![CDATA[ 
+﻿using static DotNetToolbox.Pagination.PaginationSettings;
+
+namespace DotNetToolbox.Pagination;
+
+[method: SetsRequiredMembers]
+public class Chunk<TItem>(IReadOnlyList<TItem> items, uint size = DefaultBlockSize)
+    : IChunk<TItem> {
+    [SetsRequiredMembers]
+    public Chunk() : this([]) {
+    }
+
+    public required IReadOnlyList<TItem> Items { get; init; } = IsNotNull(items);
+    public uint Size { get; init; } = size;
+}
+
+[method: SetsRequiredMembers]
+public class Chunk<TItem, TMarker>(IReadOnlyList<TItem> items, TMarker? marker, uint size = DefaultBlockSize)
+    : Chunk<TItem>(items, size)
+    , IChunk<TItem, TMarker> {
+    [SetsRequiredMembers]
+    public Chunk()
+        : this([], default!) {
+    }
+
+    public required TMarker? Marker { get; init; } = marker;
+}
+    ]]></file> 
+    <file name="IChunk.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Pagination;
+
+public interface IChunk<out TItem> {
+    uint Size { get; }
+    IReadOnlyList<TItem> Items { get; }
+};
+
+public interface IChunk<out TItem, out TMarker>
+    : IChunk<TItem> {
+    TMarker? Marker { get; }
+}
+    ]]></file> 
+    <file name="IPage.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Pagination;
+
+public interface IPage<out TItem> {
+    uint TotalCount { get; }
+    IReadOnlyList<TItem> Items { get; }
+    uint Index { get; }
+    uint Size { get; }
+}
+    ]]></file> 
+    <file name="Page.cs"><![CDATA[ 
+﻿using static DotNetToolbox.Pagination.PaginationSettings;
+
+namespace DotNetToolbox.Pagination;
+
+[method: SetsRequiredMembers]
+public class Page<TItem>(IReadOnlyList<TItem> items, uint index = 0, uint size = DefaultPageSize, uint totalCount = 0)
+    : IPage<TItem> {
+    [SetsRequiredMembers]
+    public Page() : this([]) {
+    }
+
+    public uint TotalCount { get; init; } = totalCount;
+    public required IReadOnlyList<TItem> Items { get; init; } = IsNotNull(items);
+    public uint Index { get; init; } = index;
+    public uint Size { get; init; } = size;
+}
+    ]]></file> 
+    <file name="PaginationSettings.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Pagination;
+
+public static class PaginationSettings {
+    public const uint MaxSize = 1_000;
+    public const uint MinSize = 1;
+    public const uint MaxCount = 1_000_000_000;
+    public const uint MaxIndex = 999_999_999;
+
+    public const uint DefaultBlockSize = 20;
+    public const uint DefaultPageSize = 20;
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Results"> 
+    <file name="IHasErrors.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Results;
+
+public interface IHasErrors {
+    IReadOnlySet<Error> Errors { get; }
+    bool HasErrors { get; }
+}
+    ]]></file> 
+    <file name="IHasValue.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Results;
+
+public interface IHasValue<out TValue> {
+    TValue Value { get; }
+}
+    ]]></file> 
+    <file name="IResult.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Results;
+
+public interface IResultBase
+    : IHasErrors {
+    bool IsSuccessful { get; }
+    bool IsFailure { get; }
+    void EnsureIsSuccess();
+}
+
+public interface IResult
+    : IResultBase {
+    Result<TValue> With<TValue>(TValue value);
+    Result<TValue> WithNo<TValue>();
+}
+
+public interface IMergeResult<TSelf>
+    where TSelf : IMergeResult<TSelf> {
+    static abstract TSelf operator +(TSelf result, Error? error);
+    static abstract TSelf operator +(TSelf result, IEnumerable<Error>? errors);
+    static abstract TSelf operator +(TSelf result, IResult? other);
+    static abstract TSelf operator +(TSelf result, Result? other);
+}
+
+public interface IConvertToResult<out TSelf>
+    where TSelf : IConvertToResult<TSelf> {
+    static abstract implicit operator TSelf(Error error);
+    static abstract implicit operator TSelf(Error[]? errors);
+    static abstract implicit operator TSelf(List<Error>? errors);
+    static abstract implicit operator TSelf(HashSet<Error>? errors);
+}
+
+public interface IResult<out TValue>
+    : IResultBase
+    , IHasValue<TValue>;
+    ]]></file> 
+    <file name="ITypedResult.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Results;
+
+public interface ITypedResultBase<in TStatus>
+    : IResultBase
+    where TStatus : Enum {
+    bool Is(TStatus status);
+    void EnsureIs(TStatus status);
+}
+
+public interface ITypedResult<TStatus>
+    : ITypedResultBase<TStatus>
+    where TStatus : Enum {
+    TypedResult<TStatus, TValue> With<TValue>(TValue value);
+    TypedResult<TStatus, TValue> WithNo<TValue>();
+    TStatus Status { get; }
+}
+
+public interface ITypedResult<in TStatus, out TValue>
+    : ITypedResultBase<TStatus>
+    , IHasValue<TValue>
+    where TStatus : Enum;
+    ]]></file> 
+    <file name="Result.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Results;
+
+public abstract record ResultBase
+    : IResultBase {
+    protected ResultBase(IEnumerable<Error>? errors = null) {
+        Errors = errors as HashSet<Error> ?? errors?.ToHashSet() ?? [];
+    }
+
+    /// <summary>
+    /// The collection of unique errors. If empty, the Result is considered a Success.
+    /// </summary>
+    public IReadOnlySet<Error> Errors { get; }
+
+    /// <summary>
+    /// True if the result has at least one error.
+    /// </summary>
+    public bool HasErrors => Errors.Count != 0;
+
+    /// <summary>
+    /// A Success result has no errors.
+    /// </summary>
+    public bool IsSuccessful => !HasErrors;
+
+    /// <summary>
+    /// A Failure result has at least one error.
+    /// </summary>
+    public bool IsFailure => HasErrors;
+
+    public void EnsureIsSuccess() {
+        if (IsFailure) throw new OperationFailureException(Errors);
+    }
+}
+
+public record Result
+    : ResultBase
+    , IResult
+    , IHasDefault<Result>
+    , IMergeResult<Result>
+    , IConvertToResult<Result> {
+    internal Result(IEnumerable<Error>? errors = null)
+        : base(errors) {
+    }
+
+    public virtual Result<TValue> With<TValue>(TValue value)
+        => new(value, Errors);
+
+    public virtual Result<TValue> WithNo<TValue>()
+        => new(default!, Errors);
+
+    public virtual bool Equals(Result? other)
+        => other?.Errors.SequenceEqual(Errors) ?? false;
+
+    public override int GetHashCode()
+        => Errors.Aggregate(0, HashCode.Combine);
+
+    // Factory methods
+
+    /// <summary>
+    /// Alias for Success().
+    /// </summary>
+    public static Result Default => new();
+
+    /// <summary>
+    /// Creates a Success result (i.e. with no errors).
+    /// </summary>
+    public static Result Success() => new();
+
+    /// <summary>
+    /// Creates a Failure result with at least one error.
+    /// </summary>
+    /// <param name="error">The first error (must not be null).</param>
+    /// <param name="additionalErrors">Optional additional errors (null errors are ignored).</param>
+    /// <returns>A Failure result with a unique set of errors.</returns>
+    public static Result Failure(Error error, params IEnumerable<Error> additionalErrors) {
+        ArgumentNullException.ThrowIfNull(error);
+        return Failure([error, .. additionalErrors]);
+    }
+
+    /// <summary>
+    /// Creates a Failure result with at least one error.
+    /// </summary>
+    /// <param name="errors">List of errors (must not be null).</param>
+    /// <returns>A Failure result with a unique set of errors.</returns>
+    public static Result Failure(IEnumerable<Error> errors) {
+        ArgumentNullException.ThrowIfNull(errors);
+        return new(errors);
+    }
+
+    /// <summary>
+    /// Creates a Success result containing a value.
+    /// </summary>
+    public static Result<TValue> Success<TValue>(TValue value)
+        => new(value);
+
+    /// <summary>
+    /// Creates a Failure result. The value is set to default.
+    /// </summary>
+    public static Result<TValue> Failure<TValue>(TValue value, Error error, params IEnumerable<Error> additionalErrors) {
+        ArgumentNullException.ThrowIfNull(error);
+        return Failure(value, [error, .. additionalErrors]);
+    }
+
+    /// <summary>
+    /// Creates a Failure result. The value is set to default.
+    /// </summary>
+    public static Result<TValue> Failure<TValue>(TValue value, IEnumerable<Error> errors) {
+        ArgumentNullException.ThrowIfNull(errors);
+        return new(value, errors);
+    }
+
+    // Addition operator overloads
+
+    /// <summary>
+    /// Adding a collection of errors.
+    /// - If the collection is null or empty, returns the current result.
+    /// - Otherwise, adds the errors (ignoring nulls) uniquely.
+    /// </summary>
+    public static Result operator +(Result result, Error? error) {
+        ArgumentNullException.ThrowIfNull(result);
+        return error is null
+                   ? result
+                   : new([.. result.Errors, error]);
+    }
+
+    /// <summary>
+    /// Adding a collection of errors.
+    /// - If the collection is null or empty, returns the current result.
+    /// - Otherwise, adds the errors (ignoring nulls) uniquely.
+    /// </summary>
+    public static Result operator +(Result result, IEnumerable<Error>? errors) {
+        ArgumentNullException.ThrowIfNull(result);
+        var enumerable = errors as Error[] ?? errors?.ToArray() ?? [];
+        return enumerable.Length == 0
+                   ? result
+                   : new([.. result.Errors, .. enumerable]);
+    }
+
+    /// <summary>
+    /// Adding a collection of errors.
+    /// - If the collection is null or empty, returns the current result.
+    /// - Otherwise, adds the errors (ignoring nulls) uniquely.
+    /// </summary>
+    public static Result operator +(Result result, IResult? other) {
+        ArgumentNullException.ThrowIfNull(result);
+        return other is null
+                   ? result
+                   : new([.. result.Errors, .. other.Errors]);
+    }
+
+    /// <summary>
+    /// Adding another Result.
+    /// - If the other Result is null or a Success, returns the current result.
+    /// - If the other Result is a Failure:
+    ///   - If current result is Success, returns a new Failure that equals the other.
+    ///   - If both are Failures, merges the errors (uniquely).
+    /// </summary>
+    public static Result operator +(Result result, Result? other) {
+        ArgumentNullException.ThrowIfNull(result);
+        return other is null
+                   ? result
+                   : new([.. result.Errors, .. other.Errors]);
+    }
+
+    // Implicit conversions
+
+    /// <summary>
+    /// Implicitly converts an Error to a Result.
+    /// </summary>
+    public static implicit operator Result(Error error) {
+        ArgumentNullException.ThrowIfNull(error);
+        return new([error]);
+    }
+
+    /// <summary>
+    /// Implicitly converts an array of Errors to a Result.
+    /// </summary>
+    public static implicit operator Result(Error[]? errors) {
+        ArgumentNullException.ThrowIfNull(errors);
+        return new(errors.AsEnumerable());
+    }
+
+    /// <summary>
+    /// Implicitly converts a List of Errors to a Result.
+    /// </summary>
+    public static implicit operator Result(List<Error>? errors) {
+        ArgumentNullException.ThrowIfNull(errors);
+        return new(errors.AsEnumerable());
+    }
+
+    /// <summary>
+    /// Implicitly converts a HashSet of Errors to a Result.
+    /// </summary>
+    public static implicit operator Result(HashSet<Error>? errors) {
+        ArgumentNullException.ThrowIfNull(errors);
+        return new(errors.AsEnumerable());
+    }
+}
+
+public record Result<TValue>
+    : ResultBase
+    , IResult<TValue>
+    , IMergeResult<Result<TValue>>
+    , IConvertToResult<Result<TValue>> {
+    internal Result(TValue value, IEnumerable<Error>? errors = null)
+        : base(errors) {
+        Value = value;
+    }
+
+    /// <summary>
+    /// When the Result is a success, this holds the value.
+    /// Otherwise, it throws an InvalidOperationException.
+    /// </summary>
+    public TValue Value { get; }
+
+    // Operator overloads
+
+    /// <summary>
+    /// Adds an error.
+    /// </summary>
+    public static Result<TValue> operator +(Result<TValue> result, Error? error) {
+        ArgumentNullException.ThrowIfNull(result);
+        return error is null
+                   ? result
+                   : new(result.Value, [.. result.Errors, error]);
+    }
+
+    /// <summary>
+    /// Adds a collection of errors.
+    /// </summary>
+    public static Result<TValue> operator +(Result<TValue> result, IEnumerable<Error>? errors) {
+        ArgumentNullException.ThrowIfNull(result);
+        var enumerable = errors as Error[] ?? errors?.ToArray() ?? [];
+        return enumerable.Length == 0
+                   ? result
+                   : new(result.Value, [.. result.Errors, .. enumerable]);
+    }
+
+    /// <summary>
+    /// Merges errors from another Result.
+    /// </summary>
+    public static Result<TValue> operator +(Result<TValue> result, IResult? other) {
+        ArgumentNullException.ThrowIfNull(result);
+        return other is null
+                   ? result
+                   : new(result.Value, [.. result.Errors, .. other.Errors]);
+    }
+
+    /// <summary>
+    /// Merges errors from another Result.
+    /// </summary>
+    public static Result<TValue> operator +(Result<TValue> result, Result? other) {
+        ArgumentNullException.ThrowIfNull(result);
+        return other is null
+                   ? result
+                   : new(result.Value, [.. result.Errors, .. other.Errors]);
+    }
+
+    public virtual bool Equals(Result<TValue>? other)
+        => base.Equals(other) && (other.Value?.Equals(Value) ?? Value is null);
+
+    public override int GetHashCode()
+        => HashCode.Combine(base.GetHashCode(), Value?.GetHashCode() ?? 0);
+
+    // Implicit conversions
+
+    /// <summary>
+    /// Implicitly converts a value to a Success Result.
+    /// </summary>
+    public static implicit operator Result<TValue>(TValue value) => new(value);
+
+    // Implicit conversions
+
+    /// <summary>
+    /// Implicitly converts an Error to a Result.
+    /// </summary>
+    public static implicit operator Result<TValue>(Error error) {
+        ArgumentNullException.ThrowIfNull(error);
+        return new(default!, [error]);
+    }
+
+    /// <summary>
+    /// Implicitly converts an array of Errors to a Result.
+    /// </summary>
+    public static implicit operator Result<TValue>(Error[]? errors) {
+        ArgumentNullException.ThrowIfNull(errors);
+        return new(default!, errors.AsEnumerable());
+    }
+
+    /// <summary>
+    /// Implicitly converts a List of Errors to a Result.
+    /// </summary>
+    public static implicit operator Result<TValue>(List<Error>? errors) {
+        ArgumentNullException.ThrowIfNull(errors);
+        return new(default!, errors.AsEnumerable());
+    }
+
+    /// <summary>
+    /// Implicitly converts a HashSet of Errors to a Result.
+    /// </summary>
+    public static implicit operator Result<TValue>(HashSet<Error>? errors) {
+        ArgumentNullException.ThrowIfNull(errors);
+        return new(default!, errors.AsEnumerable());
+    }
+
+    /// <summary>
+    /// Implicitly converts a Result to a Result of Value.
+    /// </summary>
+    public static implicit operator Result<TValue>(Result? result) {
+        ArgumentNullException.ThrowIfNull(result);
+        return new(default!, result.Errors);
+    }
+
+    /// <summary>
+    /// Implicitly converts a HashSet of Errors to a Result.
+    /// </summary>
+    public static implicit operator Result(Result<TValue>? result) {
+        ArgumentNullException.ThrowIfNull(result);
+        return new(result.Errors);
+    }
+}
+    ]]></file> 
+    <file name="TypedResult.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Results;
+
+public static class TypedResult {
+    /// <summary>
+    /// Creates a typed result with at least one error.
+    /// </summary>
+    /// <param name="status">The status of the result. </param>
+    /// <param name="errors">Optional errors (null errors are ignored).</param>
+    /// <returns>A typed result with a unique set of errors.</returns>
+    public static TypedResult<TStatus> As<TStatus>(TStatus status, params IEnumerable<Error> errors)
+        where TStatus : Enum
+        => new(status, errors);
+
+    /// <summary>
+    /// Creates a typed result with at least one error.
+    /// </summary>
+    /// <param name="status">The status of the result. </param>
+    /// <param name="value">The value of the result. </param>
+    /// <param name="errors">Optional errors (null errors are ignored).</param>
+    /// <returns>A typed result with a unique set of errors.</returns>
+    public static TypedResult<TStatus, TValue> As<TStatus, TValue>(TStatus status, TValue value, params IEnumerable<Error> errors)
+        where TStatus : Enum
+        => new(status, value, errors);
+}
+
+public abstract record TypedResultBase<TStatus>
+    : ResultBase
+    , ITypedResultBase<TStatus>
+    where TStatus : Enum {
+    protected TypedResultBase(TStatus status, IEnumerable<Error>? errors = null)
+        : base(errors) {
+        Status = status;
+    }
+
+    public TStatus Status { get; }
+
+    /// <summary>
+    /// Check if the result is of a specific status.
+    /// </summary>
+    /// <param name="status">The status to check.</param>
+    /// <returns>True if the result is of the specified status.</returns>
+    public bool Is(TStatus status) => Status.Equals(status);
+
+    public void EnsureIs(TStatus status) {
+        if (!Is(status)) throw new OperationFailureException(Errors);
+    }
+}
+
+public record TypedResult<TStatus>
+    : TypedResultBase<TStatus>
+    , IMergeResult<TypedResult<TStatus>>
+    , ITypedResult<TStatus>
+    where TStatus : Enum {
+    internal TypedResult(TStatus status, IEnumerable<Error>? errors = null)
+        : base(status, errors) {
+    }
+
+    public virtual TypedResult<TStatus, TValue> With<TValue>(TValue value)
+        => new(Status, value, Errors);
+
+    public virtual TypedResult<TStatus, TValue> WithNo<TValue>()
+        => new(Status, default!, Errors);
+
+    public virtual bool Equals(TypedResult<TStatus>? other)
+        => base.Equals(other) && other.Is(Status);
+    public override int GetHashCode()
+        => HashCode.Combine(base.GetHashCode(), Status.GetHashCode());
+
+    // Addition operator overloads
+
+    /// <summary>
+    /// Adding a single error.
+    /// - If error is null, returns the current result.
+    /// - If current result is Success, becomes typed with the error.
+    /// - If already Failure, the error is added (uniquely).
+    /// </summary>
+    public static TypedResult<TStatus> operator +(TypedResult<TStatus> result, Error? error) {
+        ArgumentNullException.ThrowIfNull(result);
+        return error is null
+                   ? result
+                   : new(result.Status, [.. result.Errors, error]);
+    }
+
+    /// <summary>
+    /// Adding a collection of errors.
+    /// - If the collection is null or empty, returns the current result.
+    /// - Otherwise, adds the errors (ignoring nulls) uniquely.
+    /// </summary>
+    public static TypedResult<TStatus> operator +(TypedResult<TStatus> result, IEnumerable<Error>? errors) {
+        ArgumentNullException.ThrowIfNull(result);
+        var enumerable = errors as Error[] ?? errors?.ToArray() ?? [];
+        return enumerable.Length == 0
+                   ? result
+                   : new(result.Status, [.. result.Errors, .. enumerable]);
+    }
+
+    /// <summary>
+    /// Adding another Result.
+    /// - If the other Result is null or a Success, returns the current result.
+    /// - If the other Result is a Failure:
+    ///   - If current result is Success, returns a new typed that equals the other.
+    ///   - If both are Failures, merges the errors (uniquely).
+    /// </summary>
+    public static TypedResult<TStatus> operator +(TypedResult<TStatus> result, IResult? other) {
+        ArgumentNullException.ThrowIfNull(result);
+        return other is null
+                   ? result
+                   : new(result.Status, [.. result.Errors, .. other.Errors]);
+    }
+
+    /// <summary>
+    /// Adding a collection of errors.
+    /// - If the collection is null or empty, returns the current result.
+    /// - Otherwise, adds the errors (ignoring nulls) uniquely.
+    /// </summary>
+    public static TypedResult<TStatus> operator +(TypedResult<TStatus> result, Result? other) {
+        ArgumentNullException.ThrowIfNull(result);
+        return other is null
+                   ? result
+                   : new(result.Status, [.. result.Errors, .. other.Errors]);
+    }
+}
+
+public sealed record TypedResult<TStatus, TValue>
+    : TypedResultBase<TStatus>
+    , IMergeResult<TypedResult<TStatus, TValue>>
+    , ITypedResult<TStatus, TValue>
+    where TStatus : Enum {
+    internal TypedResult(TStatus status, TValue value, IEnumerable<Error>? errors = null)
+        : base(status, errors) {
+        Value = value;
+    }
+
+    /// <summary>
+    /// When the Result is a success, this holds the value.
+    /// Otherwise, it throws an InvalidOperationException.
+    /// </summary>
+    public TValue Value { get; }
+
+    // Addition operator overloads
+
+    /// <summary>
+    /// Adds a single error.
+    /// </summary>
+    public static TypedResult<TStatus, TValue> operator +(TypedResult<TStatus, TValue> result, Error? error) {
+        ArgumentNullException.ThrowIfNull(result);
+        return error is null
+                   ? result
+                   : new(result.Status, result.Value, [.. result.Errors, error]);
+    }
+
+    /// <summary>
+    /// Adds a collection of errors.
+    /// </summary>
+    public static TypedResult<TStatus, TValue> operator +(TypedResult<TStatus, TValue> result, IEnumerable<Error>? errors) {
+        ArgumentNullException.ThrowIfNull(result);
+        var enumerable = errors as Error[] ?? errors?.ToArray() ?? [];
+        return enumerable.Length == 0
+                   ? result
+                   : new(result.Status, result.Value, [.. result.Errors, .. enumerable]);
+    }
+
+    /// <summary>
+    /// Merges errors from another Result.
+    /// </summary>
+    public static TypedResult<TStatus, TValue> operator +(TypedResult<TStatus, TValue> result, IResult? other) {
+        ArgumentNullException.ThrowIfNull(result);
+        return other is null
+                   ? result
+                   : new(result.Status, result.Value, [.. result.Errors, .. other.Errors]);
+    }
+
+    /// <summary>
+    /// Merges errors from another Result.
+    /// </summary>
+    public static TypedResult<TStatus, TValue> operator +(TypedResult<TStatus, TValue> result, Result? other) {
+        ArgumentNullException.ThrowIfNull(result);
+        return other is null
+                   ? result
+                   : new(result.Status, result.Value, [.. result.Errors, .. other.Errors]);
+    }
+
+    public bool Equals(TypedResult<TStatus, TValue>? other)
+        => base.Equals(other) && other.Is(Status);
+
+    public override int GetHashCode()
+        => HashCode.Combine(base.GetHashCode(), Status.GetHashCode());
+
+    /// <summary>
+    /// Implicitly converts a HashSet of Errors to a Result.
+    /// </summary>
+    public static implicit operator TypedResult<TStatus>(TypedResult<TStatus, TValue>? result) {
+        ArgumentNullException.ThrowIfNull(result);
+        return new(result.Status, result.Errors);
+    }
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Singletons"> 
+    <file name="IHasDefault.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Singletons;
+
+public interface IHasDefault<out TSelf> {
+    static abstract TSelf Default { get; }
+}
+    ]]></file> 
+    <file name="IHasEmpty.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Singletons;
+
+public interface IHasEmpty<out TSelf>
+    where TSelf : IHasEmpty<TSelf> {
+    static abstract TSelf Empty { get; }
+}
+    ]]></file> 
+    <file name="IHasInstance.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Singletons;
+
+public interface IHasInstance<out TSelf>
+    where TSelf : IHasInstance<TSelf> {
+    static abstract TSelf Instance { get; }
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Text"> 
+    <file name="StringBuilderExtensions.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace
+namespace System.Text;
+
+public static class StringBuilderExtensions {
+    public static StringBuilder AppendIntoNewLine(this StringBuilder builder, string? text)
+        => builder.AppendIntoNewLine(string.Empty, text);
+
+    public static StringBuilder AppendIntoNewLine(this StringBuilder builder, string ident, string? text)
+        => (string.IsNullOrWhiteSpace(text) || builder.Length == 0
+               ? builder
+               : builder.AppendLine())
+           .Append($"{ident}{text}");
+}
+    ]]></file> 
+    <file name="StringExtensions.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace
+namespace System.Text;
+
+public static class StringExtensions {
+    public static string ToBase64(this string value)
+        => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+
+    public static string ToSafeBase64(this string value)
+        => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+
+    public static string? TrimStart(this string? source, string? value)
+        => string.IsNullOrEmpty(source)
+        || string.IsNullOrEmpty(value)
+        || value.Length > source.Length
+        || !source.StartsWith(value)
+               ? source
+               : source[value.Length..];
+
+    public static string? TrimEnd(this string? source, string? value)
+        => string.IsNullOrEmpty(source)
+        || string.IsNullOrEmpty(value)
+        || value.Length > source.Length
+        || !source.EndsWith(value)
+               ? source
+               : source[..^value.Length];
+
+    public static string? Trim(this string? source, string? value)
+        => source?.TrimStart(value)
+                  .TrimEnd(value);
+}
+    ]]></file> 
+    <file name="UrlSafeBase64String.cs"><![CDATA[ 
+﻿// ReSharper disable once CheckNamespace
+namespace System.Text;
+
+public readonly partial record struct UrlSafeBase64String {
+    public UrlSafeBase64String() {
+        Bytes = [];
+    }
+
+    public UrlSafeBase64String(byte[]? input = null) {
+        Bytes = input ?? [];
+    }
+
+    public UrlSafeBase64String(Guid input) {
+        Bytes = input.ToByteArray();
+    }
+
+    public UrlSafeBase64String(string? input) {
+        input = input?.Trim() ?? string.Empty;
+        Bytes = _safeBase64String.IsMatch(input)
+            ? ToBytes(input)
+            : Encoding.UTF8.GetBytes(input);
+    }
+
+    public byte[] Bytes { get; }
+    public string Text => Encoding.UTF8.GetString(Bytes);
+    public string Base64 => ToBase64(Bytes);
+    public bool IsGuid => Bytes.Length is 0 or 16;
+    public Guid Guid => Bytes.Length switch {
+        0 => Guid.Empty,
+        16 => new(Bytes),
+        _ => throw new FormatException("The value is not a valid GUID."),
+    };
+
+    public static implicit operator UrlSafeBase64String(byte[]? input) => new(input);
+    public static implicit operator UrlSafeBase64String(string input) => new(input);
+    public static implicit operator UrlSafeBase64String(Guid input) => new(input);
+    public static implicit operator byte[](UrlSafeBase64String input) => input.Bytes;
+    public static implicit operator string(UrlSafeBase64String input) => input.Base64;
+    public static implicit operator Guid(UrlSafeBase64String input) => input.Guid;
+
+    private static string ToBase64(byte[] bytes)
+        => bytes.Length == 0
+        ? string.Empty
+        : ToSafeBase64(bytes);
+
+    private static string ToSafeBase64(byte[] bytes) {
+        var base64 = Convert.ToBase64String(bytes);
+        var builder = new StringBuilder(base64.TrimEnd('='));
+        builder.Replace('+', '-');
+        builder.Replace('/', '_');
+        return builder.ToString();
+    }
+
+    private static byte[] ToBytes(string input)
+        => Convert.FromBase64String(ToStandardBase64(input));
+
+    private static string ToStandardBase64(string input) {
+        var builder = new StringBuilder(input.Trim());
+        builder.Replace('_', '/');
+        builder.Replace('-', '+');
+        builder.Append('=', 24 - (input.Length % 24));
+        return builder.ToString();
+    }
+
+    private static readonly Regex _safeBase64String = SafeBase64String();
+    [GeneratedRegex("^[a-zA-Z0-9_-]{22}$", RegexOptions.Compiled)]
+    private static partial Regex SafeBase64String();
+}
+    ]]></file> 
+  </folder> 
+  <folder name="Validation"> 
+    <file name="IValidatable.cs"><![CDATA[ 
+﻿namespace DotNetToolbox.Validation;
+
+public interface IValidatable : IValidatable<IMap>;
+
+public interface IValidatable<in TContext>
+    where TContext : class {
+    Result Validate(TContext? context = null);
+}
+
+public interface IAsyncValidatable : IAsyncValidatable<IMap>;
+
+public interface IAsyncValidatable<in TContext>
+    where TContext : class {
+    Task<Result> ValidateAsync(TContext? context = null, CancellationToken token = default);
+}
+    ]]></file> 
+  </folder> 
+</root> 

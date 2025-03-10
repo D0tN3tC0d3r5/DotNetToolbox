@@ -25,7 +25,7 @@
       Stable release of DotNetToolbox.ObjectDumper, a .NET 8 library with a powerful extension for converting objects into a human-readable string representations.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.ObjectDumper</Product>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.ObjectDumper</AssemblyName>

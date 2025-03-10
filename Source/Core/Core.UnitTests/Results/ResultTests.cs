@@ -376,12 +376,12 @@ public class ResultTests {
     [Fact]
     public async Task InvalidTaskTValue_WithMessageAndSource_ReturnsTaskWithInvalidResult() {
         // Act
-        var task = Task.FromResult(Result.Failure("Test value", "Test error", "Test source"));
+        var task = Task.FromResult(Result.Failure("Test value", "Test error1", "Test error2"));
 
         // Assert
         var result = await task;
         result.HasErrors.Should().BeTrue();
-        result.Errors.Should().ContainSingle(static e => e.Message == "Test error" && e.Sources.Contains("Test source"));
+        result.Errors.Should().BeEquivalentTo([new Error("Test error1"), new Error("Test error2")]);
         result.Value.Should().Be("Test value");
     }
 }

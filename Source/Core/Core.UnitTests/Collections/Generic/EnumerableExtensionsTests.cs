@@ -5,7 +5,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToArray_FromNull_Throw() {
         // Arrange
-        IEnumerable<int>? subject = default;
+        IEnumerable<int>? subject = null;
 
         // Act
         var result = () => subject!.ToArray(i => i + 2);
@@ -27,7 +27,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToArray_WithOutput_FromNull_GetsArray() {
         // Arrange
-        IEnumerable<int>? subject = default;
+        IEnumerable<int>? subject = null;
 
         // Act
         var result = () => subject!.ToArray(i => $"{i + 2}");
@@ -49,7 +49,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToList_FromNull_Throw() {
         // Arrange
-        IEnumerable<int>? subject = default;
+        IEnumerable<int>? subject = null;
 
         // Act
         var result = () => subject!.ToList(i => i + 2);
@@ -71,7 +71,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToList_WithOutput_FromNull_GetsArray() {
         // Arrange
-        IEnumerable<int>? subject = default;
+        IEnumerable<int>? subject = null;
 
         // Act
         var result = () => subject!.ToList(i => $"{i + 2}");
@@ -93,7 +93,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToHashSet_FromNull_Throw() {
         // Arrange
-        IEnumerable<int>? subject = default;
+        IEnumerable<int>? subject = null;
 
         // Act
         var result = () => subject!.ToHashSet(i => i + 2);
@@ -115,7 +115,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToHashSet_WithOutput_FromNull_GetsArray() {
         // Arrange
-        IEnumerable<int>? subject = default;
+        IEnumerable<int>? subject = null;
 
         // Act
         var result = () => subject!.ToHashSet(i => $"{i + 2}");
@@ -190,7 +190,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToIndexedItems_FromNull_Throw() {
         // Arrange
-        IEnumerable<int>? subject = default;
+        IEnumerable<int>? subject = null;
 
         // Act
         var result = () => subject!.ToIndexedList();
@@ -214,7 +214,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToIndexedItems_WithOutput_FromNull_GetsArray() {
         // Arrange
-        IEnumerable<int>? subject = default;
+        IEnumerable<int>? subject = null;
 
         // Act
         var result = () => subject!.ToIndexedList(i => $"{i + 2}");

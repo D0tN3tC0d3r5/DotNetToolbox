@@ -22,7 +22,7 @@
 
       Stable release of DotNetToolbox.Graph, a comprehensive utility library for building and running workflows defined as a graph.
     </PackageReleaseNotes>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <IncludeSymbols>true</IncludeSymbols>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>

@@ -53,7 +53,10 @@ public class Map(IEnumerable<KeyValuePair<string, object>>? source = null)
                : value switch {
                    TValue result => result,
                    not null when value.GetType().IsAssignableTo(typeof(TValue)) => (TValue)value,
-                   _ => throw new InvalidCastException($"The value for key '{key}' cannot be converted to '{typeof(TValue).Name}'."),
+                   not null => throw new InvalidCastException($"The value for key '{key}' cannot be converted to '{typeof(TValue).Name}'."),
+                   _ when typeof(TValue).IsClass => default!,
+                   _ when typeof(TValue).Name == typeof(Nullable<>).Name => default!,
+                   _ => throw new InvalidCastException($"The value for key '{key}' cannot be null."),
                };
 
     public bool TryGetValueAs<TValue>(string key, [MaybeNullWhen(false)] out TValue value) {

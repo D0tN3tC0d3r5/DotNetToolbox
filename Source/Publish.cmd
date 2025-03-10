@@ -34,7 +34,7 @@ if [!target!]==[local] (
 
 	@echo [96mPublish package locally...[0m
 	set task=publish
-	nuget push pkgs\Debug\DotNetToolbox.%packageName%.%version%.nupkg -source c:\nuget\packages
+	nuget push pkg\Debug\DotNetToolbox.%packageName%.%version%.nupkg -source c:\nuget\packages
 	if not [!errorlevel!]==[0] goto :ERROR
 )
 if [!target!]==[local-release] (
@@ -54,7 +54,7 @@ if [!target!]==[local-release] (
 
 	@echo [96mPublish package locally...[0m
 	set task=publish
-	nuget push pkgs\Release\DotNetToolbox.%packageName%.%version%.nupkg -source c:\nuget\packages
+	nuget push pkg\Release\DotNetToolbox.%packageName%.%version%.nupkg -source c:\nuget\packages
 	if not [!errorlevel!]==[0] goto :ERROR
 )
 if [!target!]==[remote] (
@@ -69,7 +69,7 @@ if [!target!]==[remote] (
 
 	@echo [96mPublish package remotely...[0m
 	set task=publish
-	nuget push pkgs\Release\DotNetToolbox.%packageName%.%version%.nupkg %NuGetApiKey% -Source https://api.nuget.org/v3/index.json
+	nuget push pkg\Release\DotNetToolbox.%packageName%.%version%.nupkg %NuGetApiKey% -Source https://api.nuget.org/v3/index.json
 	if not [!errorlevel!]==[0] goto :ERROR
 )
 

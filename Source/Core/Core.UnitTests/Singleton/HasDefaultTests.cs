@@ -5,7 +5,7 @@ namespace DotNetToolbox.Singleton;
 public class HasDefaultTests {
     private sealed class ClassHasDefault
         : IHasDefault<ClassHasDefault> {
-        public static ClassHasDefault Default => new();
+        public static ClassHasDefault Default { get; } = new();
     }
 
     [Fact]

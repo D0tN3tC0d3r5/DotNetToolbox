@@ -22,7 +22,7 @@
 
       Stable release of DotNetToolbox.AI, a comprehensive utility .NET 8 library for interacting with AI chat models.
     </PackageReleaseNotes>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <IncludeSymbols>true</IncludeSymbols>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>

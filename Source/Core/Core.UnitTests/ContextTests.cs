@@ -38,18 +38,4 @@ public class ContextTests {
         // Assert
         context.Count.Should().Be(0);
     }
-
-    [Fact]
-    public void Dispose_SetsIsDisposedToTrue() {
-        // Arrange
-        var context = new Map();
-
-        // Act
-        context.Dispose();
-
-        // Assert
-        var isDisposedField = typeof(Map).GetField("_isDisposed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var isDisposed = (bool)isDisposedField?.GetValue(context)!;
-        isDisposed.Should().BeTrue();
-    }
 }

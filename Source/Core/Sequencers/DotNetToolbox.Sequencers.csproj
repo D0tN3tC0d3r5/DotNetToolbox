@@ -24,7 +24,7 @@
       Stable release of the DotNetToolbox.Sequencers library, a comprehensive suite of utilities and patterns designed to enhance .NET 8 development. This library provides developers with a robust set of tools to simplify complex tasks, improve testability, and streamline everyday coding activities.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Sequencers</Product>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>DotNetToolbox.Sequencers</AssemblyName>
     <Deterministic>false</Deterministic>

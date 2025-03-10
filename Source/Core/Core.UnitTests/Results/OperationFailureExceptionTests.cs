@@ -7,7 +7,7 @@ public class OperationFailureExceptionTests {
         var exception = new OperationFailureException("Some error.");
 
         // Assert
-        exception.Errors.Should().ContainSingle();
+        exception.Errors.Should().BeEmpty();
         exception.Message.Should().Be("Some error.");
         exception.InnerException.Should().BeNull();
     }
@@ -18,7 +18,7 @@ public class OperationFailureExceptionTests {
         var exception = new OperationFailureException("Some error.", new InvalidOperationException());
 
         // Assert
-        exception.Errors.Should().ContainSingle();
+        exception.Errors.Should().BeEmpty();
         exception.Message.Should().Be("Some error.");
         exception.InnerException.Should().NotBeNull();
     }
@@ -32,8 +32,7 @@ public class OperationFailureExceptionTests {
         var exception = new OperationFailureException(inner);
 
         // Assert
-        exception.Errors.Should().ContainSingle();
-        exception.Errors[0].Message.Should().Be("An error has occured.");
+        exception.Errors.Should().BeEmpty();
         exception.Message.Should().Be("An error has occured.");
         exception.InnerException.Should().NotBeNull();
     }
@@ -45,8 +44,7 @@ public class OperationFailureExceptionTests {
 
         // Assert
         exception.Errors.Should().ContainSingle();
-        exception.Message.Should().Be("Some error.");
-        exception.Source.Should().Be("Field1");
+        exception.Message.Should().Be("An error has occured.");
         exception.InnerException.Should().BeNull();
     }
 
@@ -57,8 +55,7 @@ public class OperationFailureExceptionTests {
 
         // Assert
         exception.Errors.Should().ContainSingle();
-        exception.Message.Should().Be("Some error.");
-        exception.Source.Should().Be("Field1");
+        exception.Message.Should().Be("An error has occured.");
         exception.InnerException.Should().NotBeNull();
     }
 
@@ -72,7 +69,7 @@ public class OperationFailureExceptionTests {
 
         // Assert
         exception.Errors.Should().BeEquivalentTo([error1]);
-        exception.Message.Should().Be("Validation failed.");
+        exception.Message.Should().Be("An error has occured.");
         exception.InnerException.Should().BeNull();
     }
 
@@ -86,7 +83,7 @@ public class OperationFailureExceptionTests {
 
         // Assert
         exception.Errors.Should().BeEquivalentTo([error1]);
-        exception.Message.Should().Be("Validation failed.");
+        exception.Message.Should().Be("An error has occured.");
         exception.InnerException.Should().NotBeNull();
     }
 
@@ -101,7 +98,7 @@ public class OperationFailureExceptionTests {
 
         // Assert
         exception.Errors.Should().BeEquivalentTo([error1, error2]);
-        exception.Message.Should().Be("Validation failed.");
+        exception.Message.Should().Be("An error has occured.");
         exception.InnerException.Should().BeNull();
     }
 
@@ -116,7 +113,7 @@ public class OperationFailureExceptionTests {
 
         // Assert
         exception.Errors.Should().BeEquivalentTo([error1, error2]);
-        exception.Message.Should().Be("Validation failed.");
+        exception.Message.Should().Be("An error has occured.");
         exception.InnerException.Should().NotBeNull();
     }
 
@@ -131,7 +128,6 @@ public class OperationFailureExceptionTests {
         // Assert
         exception.Errors.Should().BeEquivalentTo([error1]);
         exception.Message.Should().Be("Some message.");
-        exception.Source.Should().Be("Field1");
         exception.InnerException.Should().BeNull();
     }
 
@@ -146,7 +142,6 @@ public class OperationFailureExceptionTests {
         // Assert
         exception.Errors.Should().BeEquivalentTo([error1]);
         exception.Message.Should().Be("Some message.");
-        exception.Source.Should().Be("Field1");
         exception.InnerException.Should().NotBeNull();
     }
 
@@ -162,7 +157,6 @@ public class OperationFailureExceptionTests {
         // Assert
         exception.Errors.Should().BeEquivalentTo([error1, error2]);
         exception.Message.Should().Be("Some message.");
-        exception.Source.Should().Be("Field1");
         exception.InnerException.Should().NotBeNull();
     }
 

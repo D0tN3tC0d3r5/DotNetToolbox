@@ -25,7 +25,7 @@
       Stable release of the DotNetToolbox.Linq library.
     </PackageReleaseNotes>
     <Product>DotNetToolbox.Linq</Product>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>DotNetToolbox.Linq</AssemblyName>
     <Deterministic>false</Deterministic>

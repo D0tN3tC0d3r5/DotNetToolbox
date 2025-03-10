@@ -50,30 +50,36 @@ public static partial class Ensure {
                    : throw new OperationFailureException(new Error(BuildMessage(paramName!, IsInvalid), paramName!));
     }
 
-    public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<IResult>> validate, TArgument? defaultValue = default)
+    public static async Task<TArgument?> DefaultIfNotValidAsync<TArgument>(TArgument? argument, Func<TArgument?, Task<Result>> validate, TArgument? defaultValue = default)
         => (await validate(argument)).IsSuccessful && argument is not null
                ? argument
                : defaultValue;
 
     [return: NotNullIfNotNull(nameof(argument))]
     public static TArgument? ItemsAreValid<TArgument>(TArgument? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : IEnumerable<IValidatable>
-        => argument?.All(i => i.Validate().IsSuccessful) ?? true
-               ? argument
-               : throw new OperationFailureException(new Error(BuildMessage(paramName!, ContainsInvalid), paramName!));
+        where TArgument : IEnumerable<IValidatable?> {
+        if (argument == null) return argument;
+        (_, var result) = argument.Aggregate((index: 0, result: Success()), (a, i) => (a.index + 1, a.result + (i?.Validate().Errors.Select(e => new Error(e.Message, $"{paramName}[{a.index}]")) ?? [])));
+        return result.IsSuccessful
+                   ? argument
+                   : throw new OperationFailureException(BuildMessage(paramName!, ContainsInvalid), result.Errors);
+    }
 
     [return: NotNullIfNotNull(nameof(argument))]
-    public static TArgument? ItemsAreValid<TArgument, TValue>(TArgument? argument, Func<TValue?, IResult> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        where TArgument : IEnumerable<TValue?>
-        => argument?.All(i => validate(i).IsSuccessful) ?? true
-               ? argument
-               : throw new OperationFailureException(new Error(BuildMessage(paramName!, ContainsInvalid), paramName!));
+    public static TArgument? ItemsAreValid<TArgument, TValue>(TArgument? argument, Func<TValue?, Result> validate, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        where TArgument : IEnumerable<TValue?> {
+        if (argument == null) return argument;
+        (_, var result) = argument.Aggregate((index: 0, result: Success()), (a, i) => (a.index + 1, a.result + validate(i).Errors.Select(e => new Error(e.Message, $"{paramName}[{a.index}]"))));
+        return result.IsSuccessful
+                   ? argument
+                   : throw new OperationFailureException(BuildMessage(paramName!, ContainsInvalid), result.Errors);
+    }
 
-    [return: NotNull]
-    public static TArgument IsValid<TArgument>([NotNull] TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
-        => isValid(IsNotNull(argument, paramName))
+    [return: NotNullIfNotNull(nameof(argument))]
+    public static TArgument? IsValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        => isValid(argument)
                ? argument
-               : throw new OperationFailureException(new Error(BuildMessage(paramName!, IsInvalid), paramName!));
+               : throw new OperationFailureException(BuildMessage(paramName!, IsInvalid), paramName!);
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public static TArgument? DefaultIfNotValid<TArgument>(TArgument? argument, Func<TArgument?, bool> isValid, TArgument? defaultValue = default)

@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 :: Configuration
 :: ------------------------------------------------------------------
 set "ExcludedDirs=.vs .git migrations Migrations obj bin pkg lib"
-set "AllowedExts=.sln .csproj .cs .razor .json"
+set "AllowedExts=.sln .csproj .cs .razor .json .md"
 
 :: ------------------------------------------------------------------
 :: Step 1: Handle the input for RelativePath

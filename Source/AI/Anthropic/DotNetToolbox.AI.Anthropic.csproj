@@ -24,7 +24,7 @@
       v9.0.0:
       - Release candidate based on .Net 8.0
     </PackageReleaseNotes>
-    <PackageOutputPath>pkgs\$(Configuration)</PackageOutputPath>
+    <PackageOutputPath>pkg\$(Configuration)</PackageOutputPath>
     <IncludeSymbols>true</IncludeSymbols>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>

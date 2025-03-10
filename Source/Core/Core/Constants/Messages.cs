@@ -7,7 +7,7 @@ public static class Messages {
     public static CompositeFormat TheLengthOf { get; } = CompositeFormat.Parse("The length of '{0}'");
     public static CompositeFormat TheElementCountOf { get; } = CompositeFormat.Parse("The element count of '{0}'");
 
-    public static CompositeFormat IsInvalid { get; } = CompositeFormat.Parse("The value of {0} is invalid.");
+    public static CompositeFormat IsInvalid { get; } = CompositeFormat.Parse("{0} is invalid.");
     public static CompositeFormat ContainsInvalid { get; } = CompositeFormat.Parse("{0} contains invalid values.");
 
     public static CompositeFormat MustBeNull { get; } = CompositeFormat.Parse("{0} must be null.");
@@ -35,7 +35,7 @@ public static class Messages {
     public static CompositeFormat CannotBeNullOrWhiteSpace { get; } = CompositeFormat.Parse("{0} cannot be null or white spaces only.");
     public static CompositeFormat CannotBeEmptyOrWhiteSpace { get; } = CompositeFormat.Parse("{0} cannot be empty or white spaces only.");
 
-    public static CompositeFormat CannotContainInvalid { get; } = CompositeFormat.Parse("{0} cannot contain any invalid element.");
+    public static CompositeFormat CannotContainInvalidItem { get; } = CompositeFormat.Parse("{0} cannot contain any invalid element.");
     public static CompositeFormat CannotContainNulls { get; } = CompositeFormat.Parse("{0} cannot contain any null element.");
 
     public static CompositeFormat CannotBeAfter { get; } = CompositeFormat.Parse("{0} cannot be after {1}.");
