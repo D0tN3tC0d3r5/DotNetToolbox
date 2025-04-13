@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/1 Source/" >
+    <Project Path="Core/DotNetToolbox.Core.csproj" />
+  </Folder>
+  <Folder Name="/2 Tests/" >
+    <Project Path="Core.UnitTests/DotNetToolbox.Core.UnitTests.csproj" />
+  </Folder>
+</Solution>

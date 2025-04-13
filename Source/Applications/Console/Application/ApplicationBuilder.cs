@@ -64,7 +64,9 @@ public class ApplicationBuilder<TApplication, TBuilder, TSettings>
         Services.TryAddSingleton(Configuration);
         Services.TryAddSingleton<IConfiguration>(Configuration);
         AddLogging(Configuration);
+#pragma warning disable IDE0340 // Use unbound generic type
         Services.Configure<TSettings>(Configuration.GetSection(nameof(ApplicationBase<TSettings>.Settings)));
+#pragma warning restore IDE0340 // Use unbound generic type
 
         var serviceProvider = Services.BuildServiceProvider();
         var app = InstanceFactory.Create<TApplication>(serviceProvider, _args, Services);

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <RootNamespace>WebApi</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\DotNetToolbox.WebApi.Core.csproj" />
+    <ProjectReference Include="..\MultiTenant.Abstractions\DotNetToolbox.MultiTenantWebApi.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

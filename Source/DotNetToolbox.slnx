@@ -1,73 +1,102 @@
 <Solution>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="17" />
-  </Properties>
   <Folder Name="/1 Source/" />
+  <Folder Name="/1 Source/1 Core/" Id="02e451af-8ad4-3c53-75ac-2bb8614b165a">
+    <Project Path="Core/Core/DotNetToolbox.Core.csproj" />
+    <Project Path="Core/Environment/DotNetToolbox.Environment.csproj" />
+    <Project Path="Core/Graph/DotNetToolbox.Graph.csproj" />
+    <Project Path="Core/Linq/DotNetToolbox.Linq.csproj" />
+    <Project Path="Core/Sequencers/DotNetToolbox.Sequencers.csproj" />
+    <Project Path="Core/Threading/DotNetToolbox.Threading.csproj" />
+    <Project Path="Utilities/ObjectDumper/DotNetToolbox.ObjectDumper.csproj" />
+  </Folder>
+  <Folder Name="/1 Source/1 Testing/" Id="5a35e5e9-24fd-18aa-e9db-42201e8764d0">
+    <Project Path="Testing/FluentAssertions/DotNetToolbox.FluentAssertions.csproj" />
+    <Project Path="Testing/TestUtilities/DotNetToolbox.TestUtilities.csproj" />
+  </Folder>
+  <Folder Name="/1 Source/1 Utilities/" Id="1f7a221e-7434-e3b8-f622-416fd141a241">
+    <Project Path="Utilities/Security/DotNetToolbox.Security.csproj" />
+  </Folder>
+  <Folder Name="/1 Source/2 Cloud/" Id="234280c0-9ba9-3924-827a-e499a74f7570">
+    <Project Path="Cloud/Azure/DotNetToolbox.Azure.csproj" />
+    <Project Path="Cloud/Http/DotNetToolbox.Http.csproj" />
+  </Folder>
+  <Folder Name="/1 Source/2 Console/" Id="8ff3a01e-b5f6-4222-5034-8bef01466fd9">
+    <Project Path="Applications/Console/DotNetToolbox.Console.csproj" />
+  </Folder>
+  <Folder Name="/1 Source/2 Data Storage/" Id="824fe5d5-7e7e-3396-96b5-67b1225cb9a3">
+    <Project Path="Data/Domain/DotNetToolbox.Domain.csproj" />
+    <Project Path="Data/File/DotNetToolbox.Data.File.csproj" />
+    <Project Path="Data/Storage/DotNetToolbox.Data.csproj" />
+  </Folder>
+  <Folder Name="/1 Source/2 Web/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
+    <Project Path="Web/Basic.Abstractions/DotNetToolbox.BasicWebApi.Abstractions.csproj" Id="5a95749a-01e0-b2b1-4bf8-8f10d264e23b" />
+    <Project Path="Web/Basic/DotNetToolbox.BasicWebApi.csproj" Id="eb95ffc9-e35c-2f43-0d99-cc68f3ab5bae" />
+    <Project Path="Web/Core.Abstractions/DotNetToolbox.WebApi.Core.Abstractions.csproj" Id="8f48ff71-e8df-8cc2-53a8-166537a7579e" />
+    <Project Path="Web/Core/DotNetToolbox.WebApi.Core.csproj" Id="1103379a-699e-da65-c9a5-701b477bfc34" />
+    <Project Path="Web/IdentityProvider.Abstractions/DotNetToolbox.IdentityProviderWebApi.Abstractions.csproj" Id="af4d7720-c6a0-bca8-f0a8-c872caf34420" />
+    <Project Path="Web/IdentityProvider/DotNetToolbox.IdentityProviderWebApi.csproj" />
+    <Project Path="Web/MultiTenant.Abstractions/DotNetToolbox.MultiTenantWebApi.Abstractions.csproj" Id="ed1d0080-e34a-dc29-f7eb-9869fb273155" />
+    <Project Path="Web/MultiTenant/DotNetToolbox.MultiTenantWebApi.csproj" Id="0bd2d9e1-fe5d-1fa9-721c-e086bcb0d83c" />
+  </Folder>
+  <Folder Name="/1 Source/3 AI/" Id="94fb3231-439a-7874-2981-c19f7b6e4c73">
+    <Project Path="AI/Anthropic/DotNetToolbox.AI.Anthropic.csproj" />
+    <Project Path="AI/Core/DotNetToolbox.AI.csproj" />
+    <Project Path="AI/Graph/DotNetToolbox.Graph.AI.csproj" />
+    <Project Path="AI/OpenAI/DotNetToolbox.AI.OpenAI.csproj" />
+  </Folder>
   <Folder Name="/2 Tests/" />
-  <Folder Name="/3 Samples/" />
-  <Folder Name="/1 Source/1 Core/">
-    <Project Path="Core\Core\DotNetToolbox.Core.csproj" />
-    <Project Path="Core\Linq\DotNetToolbox.Linq.csproj" />
-    <Project Path="Core\Graph\DotNetToolbox.Graph.csproj" />
+  <Folder Name="/2 Tests/1 Core/" Id="92c4ab1d-49a7-d18e-45e7-5bf44b4a40a8">
+    <Project Path="Core/Core.UnitTests/DotNetToolbox.Core.UnitTests.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
+    <Project Path="Core/Environment.UnitTests/DotNetToolbox.Environment.UnitTests.csproj" />
+    <Project Path="Core/Graph.UnitTests/DotNetToolbox.Graph.UnitTests.csproj" />
+    <Project Path="Core/Linq.UnitTests/DotNetToolbox.Linq.UnitTests.csproj" />
+    <Project Path="Core/Sequencers.UnitTests/DotNetToolbox.Sequencers.UnitTests.csproj" />
+    <Project Path="Core/Threading.UnitTests/DotNetToolbox.Threading.UnitTests.csproj" />
   </Folder>
-  <Folder Name="/1 Source/1 Testing/">
-    <Project Path="Testing\FluentAssertions\DotNetToolbox.FluentAssertions.csproj" />
-    <Project Path="Testing\TestUtilities\DotNetToolbox.TestUtilities.csproj" />
+  <Folder Name="/2 Tests/1 Testing/" Id="bdf21292-333c-a5b5-4a5f-1c4846b901ff">
+    <Project Path="Testing/FluentAssertions.UnitTests/DotNetToolbox.FluentAssertions.UnitTests.csproj" />
+    <Project Path="Testing/TestUtilities.UnitTests/DotNetToolbox.TestUtilities.UnitTests.csproj" />
   </Folder>
-  <Folder Name="/1 Source/1 Utilities/">
-    <Project Path="Utilities\ObjectDumper\DotNetToolbox.ObjectDumper.csproj" />
-    <Project Path="Utilities\Security\DotNetToolbox.Security.csproj" />
-    <Project Path="Utilities\ValidationBuilder\DotNetToolbox.ValidationBuilder.csproj" />
+  <Folder Name="/2 Tests/1 Utilities/" Id="2f679fdd-5b1d-a131-9bee-618924dc4713">
+    <Project Path="Utilities/ObjectDumper.UnitTests/DotNetToolbox.ObjectDumper.UnitTests.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
+    <Project Path="Utilities/Security.UnitTests/DotNetToolbox.Security.UnitTests.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
   </Folder>
-  <Folder Name="/1 Source/2 Cloud/">
-    <Project Path="Cloud\Azure\DotNetToolbox.Azure.csproj" />
-    <Project Path="Cloud\Http\DotNetToolbox.Http.csproj" />
+  <Folder Name="/2 Tests/2 Cloud/" Id="fce36340-830a-cbec-68cb-335aa68979d2">
+    <Project Path="Cloud/Azure.UnitTests/DotNetToolbox.Azure.UnitTests.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
+    <Project Path="Cloud/Http.UnitTests/DotNetToolbox.Http.UnitTests.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
   </Folder>
-  <Folder Name="/1 Source/2 Console/">
-    <Project Path="Applications\Console\DotNetToolbox.Console.csproj" />
+  <Folder Name="/2 Tests/2 Console/" Id="9cd5c45e-101c-3723-8b2e-8aff9a97d022">
+    <Project Path="Applications/Console.UnitTests/DotNetToolbox.Console.UnitTests.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
   </Folder>
-  <Folder Name="/1 Source/2 Data Storage/">
-    <Project Path="Data\Storage\DotNetToolbox.Data.csproj" />
+  <Folder Name="/2 Tests/2 Data Storage/" Id="d7d5a710-45f1-6997-bf23-24c61324d19f">
+    <Project Path="Data/Storage.UnitTests/DotNetToolbox.Data.UnitTests.csproj" />
   </Folder>
-  <Folder Name="/1 Source/3 AI/">
-    <Project Path="AI\Core\DotNetToolbox.AI.csproj" />
-    <Project Path="AI\Anthropic\DotNetToolbox.AI.Anthropic.csproj" />
-    <Project Path="AI\OpenAI\DotNetToolbox.AI.OpenAI.csproj" />
-    <Project Path="Applications\Lola\Lola.csproj" />
+  <Folder Name="/2 Tests/3 AI/" Id="33a093d0-fe64-8985-e2b7-cf4ba83838ae">
+    <Project Path="AI/Anthropic.UnitTests/DotNetToolbox.AI.Anthropic.UnitTests.csproj" />
+    <Project Path="AI/Core.UnitTests/DotNetToolbox.AI.UnitTests.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
+    <Project Path="AI/OpenAI.UnitTests/DotNetToolbox.AI.OpenAI.UnitTests.csproj" />
   </Folder>
-  <Folder Name="/2 Tests/1 Core/">
-    <Project Path="Core.Unit.UnitTests\DotNetToolbox.Core.UnitTests.csproj" />
-    <Project Path="Core\Linq.UnitTests\DotNetToolbox.Linq.UnitTests.csproj" />
-  </Folder>
-  <Folder Name="/2 Tests/1 Testing/">
-    <Project Path="Testing\FluentAssertions.UnitTests\DotNetToolbox.FluentAssertions.UnitTests.csproj" />
-    <Project Path="Testing\TestUtilities.UnitTests\DotNetToolbox.TestUtilities.UnitTests.csproj" />
-  </Folder>
-  <Folder Name="/2 Tests/1 Utilities/">
-    <Project Path="Utilities\ObjectDumper.UnitTests\DotNetToolbox.ObjectDumper.UnitTests.csproj" />
-    <Project Path="Utilities\Security.UnitTests\DotNetToolbox.Security.UnitTests.csproj" />
-    <Project Path="Utilities\ValidationBuilder.UnitTests\DotNetToolbox.ValidationBuilder.UnitTests.csproj" />
-  </Folder>
-  <Folder Name="/2 Tests/2 Cloud/">
-    <Project Path="Cloud\Azure.UnitTests\DotNetToolbox.Azure.UnitTests.csproj" />
-    <Project Path="Cloud\Http.UnitTests\DotNetToolbox.Http.UnitTests.csproj" />
-  </Folder>
-  <Folder Name="/2 Tests/2 Console/">
-    <Project Path="Applications\Console.UnitTests\DotNetToolbox.Console.UnitTests.csproj" />
-  </Folder>
-  <Folder Name="/2 Tests/2 Data Storage/">
-    <Project Path="Data\Storage.UnitTests\DotNetToolbox.Data.UnitTests.csproj" />
-  </Folder>
-  <Folder Name="/2 Tests/3 AI/">
-    <Project Path="AI\Core.UnitTests\DotNetToolbox.AI.UnitTests.csproj" />
-    <Project Path="AI\Anthropic.UnitTests\DotNetToolbox.AI.Anthropic.UnitTests.csproj" />
-    <Project Path="AI\OpenAI.UnitTests\DotNetToolbox.AI.OpenAI.UnitTests.csproj" />
-    <Project Path="Applications\Lola.UnitTests\Lola.UnitTests.csproj" />
-  </Folder>
-  <Folder Name="/3 Samples/2 Console/">
-    <Project Path="Applications\Samples\CLI\DotNetToolbox.Console.SampleCLI.csproj" />
-    <Project Path="Applications\Samples\Shell\DotNetToolbox.Console.SampleShell.csproj">
-      <Configuration Solution="Release|*" Project="*|*|NoBuild" />
+  <Folder Name="/3 Examples/" />
+  <Folder Name="/3 Examples/1 Console/" Id="5559cc20-ce30-2d49-22f5-3f59170c8638">
+    <Project Path="Applications/Samples/CLI/DotNetToolbox.Console.SampleCLI.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
+    <Project Path="Applications/Samples/Shell/DotNetToolbox.Console.SampleShell.csproj">
+      <Build Solution="Release|*" Project="false" />
     </Project>
   </Folder>
 </Solution>
