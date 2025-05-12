@@ -8,7 +8,7 @@
     <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.ObjectDumper</PackageId>
     <Title>DotNetToolbox Object Dumper</Title>
-    <Version>9.0.0</Version>
+    <Version>9.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;ObjectDumper;Library;Serialization;Json;Dump</PackageTags>
@@ -20,7 +20,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.ObjectDumper Version 9.0.0
+      DotNetToolbox.ObjectDumper Version 9.0.1
 
       Stable release of DotNetToolbox.ObjectDumper, a .NET 8 library with a powerful extension for converting objects into a human-readable string representations.
     </PackageReleaseNotes>
@@ -29,8 +29,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.ObjectDumper</AssemblyName>
-    <AssemblyVersion>9.0.0.*</AssemblyVersion>
-    <FileVersion>9.0.0</FileVersion>
+    <AssemblyVersion>9.0.1.*</AssemblyVersion>
+    <FileVersion>9.0.1</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>

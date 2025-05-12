@@ -1114,7 +1114,7 @@ public class ObjectExtensionsTests {
         <RuntimeType> {
             "IsCollectible": <Boolean> false,
             "FullName": <String> "System.Int32",
-            "AssemblyQualifiedName": <String> "System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
+            "AssemblyQualifiedName": <String> "System.Int32, System.Private.CoreLib, Version=9.0.1.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
             "Namespace": <String> "System",
             "GUID": <Guid> ac33e7bc-587c-33d5-89a4-218626424743,
             "IsEnum": <Boolean> false,

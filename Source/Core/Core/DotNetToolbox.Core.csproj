@@ -8,7 +8,7 @@
     <RootNamespace>DotNetToolbox</RootNamespace>
     <PackageId>DotNetToolbox.Core</PackageId>
     <Title>DotNetToolbox Core Library</Title>
-    <Version>9.0.0</Version>
+    <Version>9.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Common;Library;Pagination;DateTime;FileSystem;Results;Validation;Azure;GUID</PackageTags>
@@ -20,7 +20,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Core Version 9.0.0
+      DotNetToolbox.Core Version 9.0.1
 
       Stable release of the DotNetToolbox.Core library, a comprehensive suite of utilities and patterns designed to enhance .NET 8 development. This library provides developers with a robust set of tools to simplify complex tasks, improve testability, and streamline everyday coding activities.
     </PackageReleaseNotes>
@@ -29,8 +29,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>DotNetToolbox.Core</AssemblyName>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>9.0.0.*</AssemblyVersion>
-    <FileVersion>9.0.0</FileVersion>
+    <AssemblyVersion>9.0.1.*</AssemblyVersion>
+    <FileVersion>9.0.1</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>

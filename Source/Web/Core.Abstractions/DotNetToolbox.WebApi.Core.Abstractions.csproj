@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.Core" Version="9.0.0" />
+    <PackageReference Include="DotNetToolbox.Core" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
   </ItemGroup>

@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.Console" Version="9.0.0" />
+    <PackageReference Include="DotNetToolbox.Console" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>

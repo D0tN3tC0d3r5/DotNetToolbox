@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>DotNetToolbox Graph AI Extension Library</Title>
-    <Version>9.0.0</Version>
+    <Version>9.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>.NET;Toolbox;Graph;Library;Workflow;AI</PackageTags>
@@ -18,7 +18,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Graph.AI Version 9.0.0:
+      DotNetToolbox.Graph.AI Version 9.0.1:
 
       Stable release of DotNetToolbox.Graph.AI, a comprehensive utility library for building and running workflows defined as a graph.
     </PackageReleaseNotes>
@@ -27,8 +27,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Deterministic>false</Deterministic>
     <AssemblyName>DotNetToolbox.Graph.AI</AssemblyName>
-    <AssemblyVersion>9.0.0.*</AssemblyVersion>
-    <FileVersion>9.0.0</FileVersion>
+    <AssemblyVersion>9.0.1.*</AssemblyVersion>
+    <FileVersion>9.0.1</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -64,8 +64,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.AI" Version="9.0.0" />
-    <PackageReference Include="DotNetToolbox.Graph" Version="9.0.0" />
+    <PackageReference Include="DotNetToolbox.AI" Version="9.0.1" />
+    <PackageReference Include="DotNetToolbox.Graph" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>

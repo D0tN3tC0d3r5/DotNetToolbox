@@ -8,7 +8,7 @@
     <RootNamespace>System.Linq</RootNamespace>
     <PackageId>DotNetToolbox.Linq</PackageId>
     <Title>DotNetToolbox Asynchronous Linq Library</Title>
-    <Version>9.0.0</Version>
+    <Version>9.0.1</Version>
     <Authors>Andre Vianna</Authors>
     <Company>D0tN3tC0d3r5</Company>
     <PackageTags>DotNet;Toolbox;Core;Async;Linq</PackageTags>
@@ -20,7 +20,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-      DotNetToolbox.Linq Version 9.0.0
+      DotNetToolbox.Linq Version 9.0.1
 
       Stable release of the DotNetToolbox.Linq library.
     </PackageReleaseNotes>
@@ -29,8 +29,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>DotNetToolbox.Linq</AssemblyName>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>9.0.0.*</AssemblyVersion>
-    <FileVersion>9.0.0</FileVersion>
+    <AssemblyVersion>9.0.1.*</AssemblyVersion>
+    <FileVersion>9.0.1</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DotNetToolbox.snk</AssemblyOriginatorKeyFile>
@@ -65,7 +65,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release'">
-    <PackageReference Include="DotNetToolbox.Core" Version="9.0.0" />
+    <PackageReference Include="DotNetToolbox.Core" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>

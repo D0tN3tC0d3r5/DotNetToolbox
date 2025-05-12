@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolbox.FluentAssertions" Version="9.0.0" />
-    <PackageReference Include="DotNetToolbox.TestUtilities" Version="9.0.0" />
+    <PackageReference Include="DotNetToolbox.FluentAssertions" Version="9.0.1" />
+    <PackageReference Include="DotNetToolbox.TestUtilities" Version="9.0.1" />
     <PackageReference Include="FluentAssertions" Version="[7.2.0]" />
     <PackageReference Include="FluentAssertions.Analyzers" Version="0.34.1">
       <PrivateAssets>all</PrivateAssets>
