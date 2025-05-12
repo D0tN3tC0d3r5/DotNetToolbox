@@ -25,8 +25,8 @@ public partial class NodeTests {
 
         [Fact]
         public void ComplexWorkflow_WithCircularReference_DetectedDuringValidation() {
-            var startNode = CreateFactory().CreateAction(_ => { });
-            var actionNode = CreateFactory().CreateAction(_ => { });
+            var startNode = CreateFactory().CreateAction(static _ => { });
+            var actionNode = CreateFactory().CreateAction(static _ => { });
             startNode.Next = actionNode;
             actionNode.Next = startNode; // Creating a circular reference
 
@@ -53,14 +53,14 @@ public partial class NodeTests {
 
         private static INode CreateComplexWorkflow() {
             var builder = new WorkflowBuilder(CreateServiceProvider());
-            builder.Do(ctx => ctx["count"] = 0)
-                   .If("LoopStart", ctx => ctx["count"].As<int>() < 2)
-                   .Then(t1 => t1.Do(ctx => ctx["count"] = ctx["count"].As<int>() + 1)
-                                 .Do(ctx => ctx["result"] = "Action1")
+            builder.Do(static ctx => ctx["count"] = 0)
+                   .If("LoopStart", static ctx => ctx["count"].As<int>() < 2)
+                   .Then(static t1 => t1.Do(static ctx => ctx["count"] = ctx["count"].As<int>() + 1)
+                                 .Do(static ctx => ctx["result"] = "Action1")
                                  .GoTo("LoopStart"))
-                   .Else(f1 => f1.If(ctx => ctx["count"].As<int>() % 2 == 0)
-                                  .Then(t2 => t2.Do(ctx => ctx["result"] = "Action2"))
-                                  .Else(f2 => f2.Do(ctx => ctx["result"] = "Action3")));
+                   .Else(static f1 => f1.If(static ctx => ctx["count"].As<int>() % 2 == 0)
+                                  .Then(static t2 => t2.Do(static ctx => ctx["result"] = "Action2"))
+                                  .Else(static f2 => f2.Do(static ctx => ctx["result"] = "Action3")));
             return builder.Build();
         }
 

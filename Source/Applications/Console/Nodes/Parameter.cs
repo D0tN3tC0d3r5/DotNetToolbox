@@ -1,12 +1,30 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Nodes;
 
-public sealed class Parameter(IHasChildren parent, string name, Action<Parameter>? configure = null)
-        : Parameter<Parameter>(parent, name, configure);
+public sealed class Parameter
+    : Parameter<Parameter> {
+    public Parameter(IHasChildren parent, string name)
+        : this(parent, name, null!) { }
 
-public abstract class Parameter<TParameter>(IHasChildren parent, string name, Action<TParameter>? configure = null)
-    : Node<TParameter>(parent, name, configure),
-      IParameter
+    public Parameter(IHasChildren parent, string name, Action<Parameter> configure)
+        : base(parent, name, configure) {
+    }
+}
+
+public abstract class Parameter<TParameter>
+    : Node<TParameter>
+    , IParameter
     where TParameter : Parameter<TParameter> {
+    protected Parameter(IHasChildren parent, string name)
+        : this(parent, name, null!) {
+        Order = parent.Children.OfType<IParameter>()
+                      .Count();
+    }
+
+    protected Parameter(IHasChildren parent, string name, Action<TParameter> configure)
+        : base(parent, name, configure) {
+        Order = parent.Children.OfType<IParameter>().Count();
+    }
+
     public string? DefaultValue {
         get;
         set {
@@ -15,7 +33,7 @@ public abstract class Parameter<TParameter>(IHasChildren parent, string name, Ac
         }
     }
 
-    public int Order { get; } = parent.Children.OfType<IParameter>().Count();
+    public int Order { get; }
     public bool IsRequired => DefaultValue is null;
     public bool IsSet { get; private set; }
 

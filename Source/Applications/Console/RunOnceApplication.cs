@@ -1,16 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
 public sealed class RunOnceApplication
-    : RunOnceApplication<ApplicationSettings> {
-    internal RunOnceApplication(string[] args, IServiceCollection services)
-        : base(args, services) {
-    }
-}
-
-public class RunOnceApplication<TSettings>
-    : RunOnceApplication<RunOnceApplication<TSettings>, TSettings>
-    where TSettings : ApplicationSettings, new() {
-    internal RunOnceApplication(string[] args, IServiceCollection services)
+    : RunOnceApplication<RunOnceApplication, ApplicationSettings> {
+    public RunOnceApplication(string[] args, IServiceCollection services)
         : base(args, services) {
     }
 }

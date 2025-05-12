@@ -24,7 +24,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task ElementAtAsync_WithInteger_ForInvalidIndex_Throws() {
-        var result = async () => await _emptyRepo.ElementAtAsync(5);
+        var result = static async () => await _emptyRepo.ElementAtAsync(5);
         await result.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 
@@ -44,7 +44,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task ElementAtAsync_WithIndex_ForInvalidIndex_ReturnsNull() {
-        var result = async () => await _emptyRepo.ElementAtAsync(^5);
+        var result = static async () => await _emptyRepo.ElementAtAsync(^5);
         await result.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 }

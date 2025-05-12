@@ -22,7 +22,7 @@ public class Map(IEnumerable<KeyValuePair<string, object>>? source = null)
         where TValue : notnull
         => [.. list.ToDictionary(keySelector)];
     public static Map<Map<string>> FromTable(IEnumerable<IEnumerable<string>> table) {
-        var rows = table.ToArray(r => r.ToArray());
+        var rows = table.ToArray(static r => r.ToArray());
         if (rows.Length < 2 || rows[0].Length == 0) return Empty<Map<string>>();
         var result = new Map<Map<string>>();
         var headers = new Map<string>();

@@ -17,7 +17,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToArray_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToArray(i => i + 2);
+        var result = Enumerable.Range(0, 100).ToArray(static i => i + 2);
 
         // Assert
         result.Should().BeOfType<int[]>();
@@ -39,7 +39,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToArray_WithOutput_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToArray(i => $"{i + 2}");
+        var result = Enumerable.Range(0, 100).ToArray(static i => $"{i + 2}");
 
         // Assert
         result.Should().BeOfType<string[]>();
@@ -61,7 +61,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToList_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToList(i => i + 2);
+        var result = Enumerable.Range(0, 100).ToList(static i => i + 2);
 
         // Assert
         result.Should().BeOfType<List<int>>();
@@ -83,7 +83,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToList_WithOutput_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToList(i => $"{i + 2}");
+        var result = Enumerable.Range(0, 100).ToList(static i => $"{i + 2}");
 
         // Assert
         result.Should().BeOfType<List<string>>();
@@ -105,7 +105,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToHashSet_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToHashSet(i => i + 2);
+        var result = Enumerable.Range(0, 100).ToHashSet(static i => i + 2);
 
         // Assert
         result.Should().BeOfType<HashSet<int>>();
@@ -127,7 +127,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToHashSet_WithOutput_GetsArray() {
         // Act
-        var result = Enumerable.Range(0, 100).ToHashSet(i => $"{i + 2}");
+        var result = Enumerable.Range(0, 100).ToHashSet(static i => $"{i + 2}");
 
         // Assert
         result.Should().BeOfType<HashSet<string>>();
@@ -143,7 +143,7 @@ public class EnumerableExtensionsTests {
         };
 
         // Act
-        var result = input.ToDictionary<string, int>(i => i * 2);
+        var result = input.ToDictionary<string, int>(static i => i * 2);
 
         // Assert
         result.Should().BeOfType<Dictionary<string, int>>();
@@ -158,7 +158,7 @@ public class EnumerableExtensionsTests {
         var input = new List<int>() { 1, 2 };
 
         // Act
-        var result = input.ToDictionary(i => $"Key{i}", i => i * 2);
+        var result = input.ToDictionary(static i => $"Key{i}", static i => i * 2);
 
         // Assert
         result.Should().BeOfType<Dictionary<string, int>>();
@@ -170,7 +170,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToHashSet_GetsHashSet() {
         // Act
-        var result = Enumerable.Range(0, 100).ToHashSet(i => i + 2);
+        var result = Enumerable.Range(0, 100).ToHashSet(static i => i + 2);
 
         // Assert
         result.Should().BeOfType<HashSet<int>>();
@@ -180,7 +180,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToHashSet_WithOutput_GetsHashSet() {
         // Act
-        var result = Enumerable.Range(0, 100).ToHashSet(i => $"{i + 2}");
+        var result = Enumerable.Range(0, 100).ToHashSet(static i => $"{i + 2}");
 
         // Assert
         result.Should().BeOfType<HashSet<string>>();
@@ -226,7 +226,7 @@ public class EnumerableExtensionsTests {
     [Fact]
     public void ToIndexedItems_WithOutput_GetsList() {
         // Act
-        var result = Enumerable.Range(0, 100).ToIndexedList(i => $"{i + 2}");
+        var result = Enumerable.Range(0, 100).ToIndexedList(static i => $"{i + 2}");
 
         // Assert
         result.Should().BeOfType<List<IndexedItem<string>>>();

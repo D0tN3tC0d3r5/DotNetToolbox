@@ -15,7 +15,7 @@ public sealed class NodeTests {
 
         // Assert
         node.Name.Should().Be("node");
-        node.Help.Should().Be("Some description.");
+        node.Help.Should().BeEmpty();
         node.Description.Should().Be("Some description.");
         node.Aliases.Should().BeEquivalentTo("n");
         node.Parent.Should().Be(app);
@@ -33,7 +33,7 @@ public sealed class NodeTests {
             Help = "Some help.",
             Description = "Some description.",
         };
-        var expectedToString = $"TestNode: {node.Name}, {node.Aliases[0]} => {node.Help}";
+        var expectedToString = $"TestNode: {node.Name}, {node.Aliases[0]} => {node.Description}";
 
         // Act
         var actualToString = node.ToString();
@@ -46,9 +46,9 @@ public sealed class NodeTests {
 
     private sealed class InvalidCommandDelegates : TheoryData<Delegate> {
         public InvalidCommandDelegates() {
-            Add(() => 13);
-            Add((Command _) => "Invalid");
-            Add((string _) => { });
+            Add(static () => 13);
+            Add(static (Command _) => "Invalid");
+            Add(static (string _) => { });
         }
     }
     [Theory]
@@ -86,18 +86,18 @@ public sealed class NodeTests {
     private sealed class CommandDelegates : TheoryData<Delegate> {
         public CommandDelegates() {
             Add(null!);
-            Add(() => { });
-            Add((Command _) => { });
-            Add(() => Result.Success());
-            Add((Command _) => Result.Success());
-            Add(() => Task.FromResult(Result.Success()));
-            Add((Command _) => Task.FromResult(Result.Success()));
-            Add(() => Task.CompletedTask);
-            Add((Command _) => Task.CompletedTask);
-            Add((CancellationToken _) => Task.FromResult(Result.Success()));
-            Add((Command _, CancellationToken _) => Task.FromResult(Result.Success()));
-            Add((CancellationToken _) => Task.CompletedTask);
-            Add((Command _, CancellationToken _) => Task.CompletedTask);
+            Add(static () => { });
+            Add(static (Command _) => { });
+            Add(static () => Result.Success());
+            Add(static (Command _) => Result.Success());
+            Add(static () => Task.FromResult(Result.Success()));
+            Add(static (Command _) => Task.FromResult(Result.Success()));
+            Add(static () => Task.CompletedTask);
+            Add(static (Command _) => Task.CompletedTask);
+            Add(static (CancellationToken _) => Task.FromResult(Result.Success()));
+            Add(static (Command _, CancellationToken _) => Task.FromResult(Result.Success()));
+            Add(static (CancellationToken _) => Task.CompletedTask);
+            Add(static (Command _, CancellationToken _) => Task.CompletedTask);
         }
     }
     [Theory]
@@ -113,7 +113,7 @@ public sealed class NodeTests {
         var subject = node.AddCommand("command", action);
 
         // Assert
-        node.Children.Should().ContainSingle(x => x.Name == "command");
+        node.Children.Should().ContainSingle(static x => x.Name == "command");
         var command = subject.Should().BeOfType<Command>().Subject;
         command.Aliases.Should().BeEmpty();
         var result = await command.Execute([]);
@@ -133,7 +133,7 @@ public sealed class NodeTests {
         node.AddCommand("command", "c", action);
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == "command").Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == "command").Subject;
         child.Aliases.Should().BeEquivalentTo("c");
     }
 
@@ -171,7 +171,7 @@ public sealed class NodeTests {
         parent.AddCommand(node);
 
         // Assert
-        var child = parent.Children.Should().ContainSingle(x => x.Name == "Command").Subject;
+        var child = parent.Children.Should().ContainSingle(static x => x.Name == "Command").Subject;
         child.Should().BeOfType<TestCommand>();
     }
 
@@ -184,8 +184,8 @@ public sealed class NodeTests {
         var parent = new TestNode(app, "node");
 
         // Act
-        parent.AddCommand("Node1", () => { });
-        parent.AddCommand("Node2", () => { });
+        parent.AddCommand("Node1", static () => { });
+        parent.AddCommand("Node2", static () => { });
 
         // Assert
         parent.Commands.Should().HaveCount(2);
@@ -203,7 +203,7 @@ public sealed class NodeTests {
         node.AddOption("option");
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == "option").Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == "option").Subject;
         var option = child.Should().BeOfType<Option>().Subject;
         option.Aliases.Should().BeEmpty();
     }
@@ -220,7 +220,7 @@ public sealed class NodeTests {
         node.AddOption("option", "o");
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == "option").Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == "option").Subject;
         var option = child.Should().BeOfType<Option>().Subject;
         option.Aliases.Should().BeEquivalentTo("o");
     }
@@ -237,7 +237,7 @@ public sealed class NodeTests {
         node.AddOption<TestOption>();
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == "MultipleChoiceOption").Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == "MultipleChoiceOption").Subject;
         var option = child.Should().BeOfType<TestOption>().Subject;
         option.Aliases.Should().BeEquivalentTo("o");
     }
@@ -255,7 +255,7 @@ public sealed class NodeTests {
         parent.AddOption(node);
 
         // Assert
-        var child = parent.Children.Should().ContainSingle(x => x.Name == "MultipleChoiceOption").Subject;
+        var child = parent.Children.Should().ContainSingle(static x => x.Name == "MultipleChoiceOption").Subject;
         child.Should().BeOfType<TestOption>();
     }
 
@@ -272,7 +272,7 @@ public sealed class NodeTests {
         node.AddParameter(parameterName);
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == parameterName).Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == parameterName).Subject;
         var parameter = child.Should().BeOfType<Parameter>().Subject;
         parameter.Order.Should().Be(0);
         parameter.IsRequired.Should().BeTrue();
@@ -293,7 +293,7 @@ public sealed class NodeTests {
         node.AddParameter(parameterName, defaultValue);
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == parameterName).Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == parameterName).Subject;
         var parameter = child.Should().BeOfType<Parameter>().Subject;
         parameter.Order.Should().Be(0);
         parameter.IsRequired.Should().BeFalse();
@@ -312,7 +312,7 @@ public sealed class NodeTests {
         node.AddParameter<TestParameter>();
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == "Age").Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == "Age").Subject;
         var parameter = child.Should().BeOfType<TestParameter>().Subject;
         parameter.Aliases.Should().BeEmpty();
         parameter.Order.Should().Be(0);
@@ -331,15 +331,15 @@ public sealed class NodeTests {
         parent.AddParameter(node);
 
         // Assert
-        var child = parent.Children.Should().ContainSingle(x => x.Name == "Age").Subject;
+        var child = parent.Children.Should().ContainSingle(static x => x.Name == "Age").Subject;
         child.Should().BeOfType<TestParameter>();
     }
 
     private sealed class InvalidFlagDelegates : TheoryData<Delegate> {
         public InvalidFlagDelegates() {
-            Add(() => 13);
-            Add((Flag _) => "Invalid");
-            Add((string _) => { });
+            Add(static () => 13);
+            Add(static (Flag _) => "Invalid");
+            Add(static (string _) => { });
         }
     }
     [Theory]
@@ -378,18 +378,18 @@ public sealed class NodeTests {
     private sealed class FlagDelegates : TheoryData<Delegate> {
         public FlagDelegates() {
             Add(null!);
-            Add(() => { });
-            Add((Flag _) => { });
-            Add(() => Result.Success());
-            Add((Flag _) => Result.Success());
-            Add(() => Task.FromResult(Result.Success()));
-            Add((Flag _) => Task.FromResult(Result.Success()));
-            Add(() => Task.CompletedTask);
-            Add((Flag _) => Task.CompletedTask);
-            Add((CancellationToken _) => Task.FromResult(Result.Success()));
-            Add((Flag _, CancellationToken _) => Task.FromResult(Result.Success()));
-            Add((CancellationToken _) => Task.CompletedTask);
-            Add((Flag _, CancellationToken _) => Task.CompletedTask);
+            Add(static () => { });
+            Add(static (Flag _) => { });
+            Add(static () => Result.Success());
+            Add(static (Flag _) => Result.Success());
+            Add(static () => Task.FromResult(Result.Success()));
+            Add(static (Flag _) => Task.FromResult(Result.Success()));
+            Add(static () => Task.CompletedTask);
+            Add(static (Flag _) => Task.CompletedTask);
+            Add(static (CancellationToken _) => Task.FromResult(Result.Success()));
+            Add(static (Flag _, CancellationToken _) => Task.FromResult(Result.Success()));
+            Add(static (CancellationToken _) => Task.CompletedTask);
+            Add(static (Flag _, CancellationToken _) => Task.CompletedTask);
         }
     }
     [Theory]
@@ -406,7 +406,7 @@ public sealed class NodeTests {
         var subject = node.AddFlag("flag", action);
 
         // Assert
-        node.Children.Should().ContainSingle(x => x.Name == "flag");
+        node.Children.Should().ContainSingle(static x => x.Name == "flag");
         var flag = subject.Should().BeOfType<Flag>().Subject;
         flag.Aliases.Should().BeEmpty();
         var result = await subject.Read(context);
@@ -426,7 +426,7 @@ public sealed class NodeTests {
         node.AddFlag("flag", "c", action);
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == "flag").Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == "flag").Subject;
         child.Aliases.Should().BeEquivalentTo("c");
     }
 
@@ -442,7 +442,7 @@ public sealed class NodeTests {
         node.AddFlag<TestFlag>();
 
         // Assert
-        var child = node.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
+        var child = node.Children.Should().ContainSingle(static x => x.Name == "Flag").Subject;
         var flag = child.Should().BeOfType<TestFlag>().Subject;
         flag.Aliases.Should().BeEquivalentTo("f");
     }
@@ -460,7 +460,7 @@ public sealed class NodeTests {
         parent.AddFlag(node);
 
         // Assert
-        var child = parent.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
+        var child = parent.Children.Should().ContainSingle(static x => x.Name == "Flag").Subject;
         child.Should().BeOfType<TestFlag>();
     }
 
@@ -468,7 +468,7 @@ public sealed class NodeTests {
     private sealed class TestCommand
         : Command<TestCommand> {
         public TestCommand(IHasChildren app)
-            : base(app, "Command", n => n.Aliases = ["c"]) {
+            : base(app, "Command", static n => n.Aliases = ["c"]) {
             Description = "Test command.";
         }
 
@@ -479,11 +479,11 @@ public sealed class NodeTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", n => n.Aliases = ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", static n => n.Aliases = ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", n => n.DefaultValue = "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", static n => n.DefaultValue = "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", n => n.Aliases = ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", static n => n.Aliases = ["f"]);
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
     private readonly IAssemblyAccessor _assemblyAccessor = Substitute.For<IAssemblyAccessor>();

@@ -12,7 +12,7 @@ public partial class InMemoryDataSourceTests {
     [Fact]
     public void Enumeration_AllowsForEach() {
         var count = 0;
-        var expectedNames = Enumerable.Range(0, 90).ToArray(i => $"{i}");
+        var expectedNames = Enumerable.Range(0, 90).ToArray(static i => $"{i}");
         foreach (var item in _readOnlyRepo) {
             expectedNames[count].Should().Be(item.Name);
             count++;

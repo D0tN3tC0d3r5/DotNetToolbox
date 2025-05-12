@@ -21,7 +21,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task LongCountAsync_WithPredicate_ReturnsFilteredCount() {
-        var result = await _repo.LongCountAsync(x => x.Name != "A");
+        var result = await _repo.LongCountAsync(static x => x.Name != "A");
         result.Should().Be(2L);
     }
 }

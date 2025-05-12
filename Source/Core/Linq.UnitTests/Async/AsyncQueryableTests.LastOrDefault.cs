@@ -4,7 +4,7 @@ public partial class AsyncQueryableTests {
     [Fact]
     public void LastOrDefault_WithInteger_ReturnsElement() {
         var expectedItem = new TestEntity("BB");
-        var result = _repo.LastOrDefault(x => x.Name == "BB");
+        var result = _repo.LastOrDefault(static x => x.Name == "BB");
         result.Should().Be(expectedItem);
     }
 
@@ -24,13 +24,13 @@ public partial class AsyncQueryableTests {
     [Fact]
     public async Task LastOrDefaultAsync_WithExistingItem_ReturnsLastElement() {
         var expectedItem = new TestEntity("A");
-        var result = await _repo.LastOrDefaultAsync(x => x.Name == "A");
+        var result = await _repo.LastOrDefaultAsync(static x => x.Name == "A");
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task LastOrDefaultAsync_WithInvalidItem_ReturnsNull() {
-        var result = await _repo.LastOrDefaultAsync(x => x.Name == "K");
+        var result = await _repo.LastOrDefaultAsync(static x => x.Name == "K");
         result.Should().BeNull();
     }
 
@@ -53,14 +53,14 @@ public partial class AsyncQueryableTests {
     public async Task LastOrDefaultAsync_ForPopulatedSet_WithDefaultAndValidPredicate_ReturnsElement() {
         var expectedItem = new TestEntity("A");
         var defaultValue = new TestEntity("D");
-        var result = await _repo.LastOrDefaultAsync(x => x.Name == "A", defaultValue);
+        var result = await _repo.LastOrDefaultAsync(static x => x.Name == "A", defaultValue);
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task LastOrDefaultAsync_ForPopulatedSet_WithDefaultAndInvalidPredicate_ReturnsDefaultValue() {
         var defaultValue = new TestEntity("D");
-        var result = await _repo.LastOrDefaultAsync(x => x.Name == "K", defaultValue);
+        var result = await _repo.LastOrDefaultAsync(static x => x.Name == "K", defaultValue);
         result.Should().Be(defaultValue);
     }
 }

@@ -7,7 +7,7 @@ public abstract class WebApiBuilder<TOptions>
 
     protected WebApiBuilder(string[] args) {
         _builder = WebApplication.CreateSlimBuilder(args);
-        _builder.Host.UseDefaultServiceProvider((_, o) => {
+        _builder.Host.UseDefaultServiceProvider(static (_, o) => {
             o.ValidateScopes = true;
             o.ValidateOnBuild = true;
         });
@@ -58,7 +58,7 @@ public abstract class WebApiBuilder<TOptions>
     private void AddRequiredServices() {
         _builder.Services.AddServiceDiscovery();
         AddDefaultHealthChecks();
-        _builder.Services.ConfigureHttpClientDefaults(http => {
+        _builder.Services.ConfigureHttpClientDefaults(static http => {
             http.AddStandardResilienceHandler();
             http.AddServiceDiscovery();
         });
@@ -69,7 +69,7 @@ public abstract class WebApiBuilder<TOptions>
         _builder.Configuration.Bind(Options);
         _builder.Services.AddHttpContextAccessor();
         _builder.Services.AddSingleton(TimeProvider.System);
-        _builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.Converters.Add(new OptionalConverterFactory()));
+        _builder.Services.Configure<JsonOptions>(static o => o.SerializerOptions.Converters.Add(new OptionalConverterFactory()));
         _builder.Services.AddSingleton<ITokenFactory, TokenFactory>();
     }
 
@@ -140,5 +140,5 @@ public abstract class WebApiBuilder<TOptions>
     private void AddDefaultHealthChecks()
         => _builder.Services
                     .AddHealthChecks()
-                    .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+                    .AddCheck("self", static () => HealthCheckResult.Healthy(), ["live"]);
 }

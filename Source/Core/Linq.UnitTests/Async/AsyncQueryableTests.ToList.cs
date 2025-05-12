@@ -11,7 +11,7 @@ public partial class AsyncQueryableTests {
     [Fact]
     public void ToList_WithMapping_ReturnsMappedList() {
         var expectedList = new[] { "A*", "BB*", "CCC*" };
-        var result = _repo.ToList(x => $"{x.Name}*");
+        var result = _repo.ToList(static x => $"{x.Name}*");
         result.Should().BeEquivalentTo(expectedList);
     }
 
@@ -25,20 +25,20 @@ public partial class AsyncQueryableTests {
     [Fact]
     public async Task ToListAsync_WithMapping_ReturnsMappedList() {
         var expectedList = new[] { "A*", "BB*", "CCC*" };
-        var result = await _repo.ToListAsync(x => $"{x.Name}*");
+        var result = await _repo.ToListAsync(static x => $"{x.Name}*");
         result.Should().BeEquivalentTo(expectedList);
     }
 
     [Fact]
     public async Task ToList_WithMappingAndIndex_ReturnsMappedList() {
         var expectedList = new[] { "0:A", "1:BB", "2:CCC" };
-        var result = await _repo.ToListAsync((x, i) => $"{i}:{x.Name}");
+        var result = await _repo.ToListAsync(static (x, i) => $"{i}:{x.Name}");
         result.Should().BeEquivalentTo(expectedList);
     }
 
     [Fact]
     public async Task ToList_ForBigRepo_ReturnsList() {
-        var expectedList = Enumerable.Range(0, 1000).ToList(x => new TestEntity($"{x}"));
+        var expectedList = Enumerable.Range(0, 1000).ToList(static x => new TestEntity($"{x}"));
         var result = await _bigRepo.ToListAsync();
         result.Should().BeEquivalentTo(expectedList);
     }

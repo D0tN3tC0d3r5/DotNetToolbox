@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions {
             return services;
         }
 
-        services.AddKeyedSingleton<IHttpClientProvider>(provider, (sp, _) => {
+        services.AddKeyedSingleton<IHttpClientProvider>(provider, static (sp, _) => {
             var factory = sp.GetRequiredService<IHttpClientFactory>();
             var configuration = sp.GetRequiredService<IConfiguration>();
             var instance = InstanceFactory.Create<TProvider>(factory, configuration);

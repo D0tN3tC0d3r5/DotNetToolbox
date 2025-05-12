@@ -31,10 +31,10 @@ public class ChatRequest(IAgent connection, IModel model, IChat chat)
     public decimal? MaximumTokenSamples { get; set; }
 
     private static string SetContext(IChat chat)
-        => chat.First(m => m.Role == MessageRole.System).ToString();
+        => chat.First(static m => m.Role == MessageRole.System).ToString();
 
     private static ChatRequestMessage[] SetMessages(IChat chat)
-        => chat.Where(m => m.Role != MessageRole.System).ToArray(m => new ChatRequestMessage(m));
+        => chat.Where(static m => m.Role != MessageRole.System).ToArray(static m => new ChatRequestMessage(m));
 
     private static uint SetMaximumOutputTokens(IAgent agent, IModel model)
         => agent.Settings.MaximumOutputTokens > AgentSettings.MinimumOutputTokens

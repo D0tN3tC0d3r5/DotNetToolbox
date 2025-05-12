@@ -336,7 +336,7 @@ public class OutputFormatterTests {
     [Fact]
     public void FormatHelp_WithNullNode_ThrowsArgumentNullException() {
         // Act
-        var act = () => ((IHasChildren)null!).ToHelp();
+        var act = static () => ((IHasChildren)null!).ToHelp();
 
         // Assert
         act.Should().Throw<NullReferenceException>();

@@ -39,13 +39,13 @@ public static class EnumerableExtensions {
     public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable source)
         => source.Cast<TItem>().AsIndexed();
     public static IEnumerable<Indexed<TItem>> AsIndexed<TItem>(this IEnumerable<TItem> source)
-        => source.AsIndexed(i => i);
+        => source.AsIndexed(static i => i);
     public static IEnumerable<Indexed<TNewItem>> AsIndexed<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo)
         => source.Select((v, i) => new Indexed<TNewItem>(i, convertTo(v)));
     public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IEnumerable source)
         => source.Cast<TItem>().ToIndexedList();
     public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IEnumerable<TItem> source)
-        => source.ToIndexedList(i => i);
+        => source.ToIndexedList(static i => i);
     public static List<IndexedItem<TNewItem>> ToIndexedList<TItem, TNewItem>(this IEnumerable<TItem> source, Func<TItem, TNewItem> convertTo) {
         using var enumerator = source.GetEnumerator();
         var list = new List<IndexedItem<TNewItem>>();

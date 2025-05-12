@@ -1,22 +1,95 @@
 ﻿namespace DotNetToolbox.Data.DataSources;
 
 internal interface IDataSourceFactory {
-    InMemoryDataSource<TItem, TKey> CreateInMemory<TItem, TKey>(IEnumerable<TItem>? data = null)
-        where TItem : class, IEntity<TKey>, new()
+    TDataSource Create<TDataSource, TStorage, TItem, TKey>(string id, IKeyGenerator<TKey> keyGenerator, IEnumerable<TItem>? seed = null)
+        where TDataSource : DataSource<TStorage, TItem, TKey>
+        where TStorage : class, IStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
         where TKey : notnull;
-    DataSource<TStrategy, TItem, TKey> CreateFromStorage<TStrategy, TItem, TKey>(IEnumerable<TItem>? data = null)
-        where TStrategy : class, IStorage<TItem, TKey>
-        where TItem : class, IEntity<TKey>, new()
+    TDataSource Create<TDataSource, TStorage, TItem, TKey>(IKeyGenerator<TKey> keyGenerator, IEnumerable<TItem>? seed = null)
+        where TDataSource : DataSource<TStorage, TItem, TKey>
+        where TStorage : class, IStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
         where TKey : notnull;
-    TRepository Create<TRepository, TStrategy, TItem, TKey>(IEnumerable<TItem>? data = null)
-        where TRepository : DataSource<TStrategy, TItem, TKey>
-        where TStrategy : class, IStorage<TItem, TKey>
-        where TItem : class, IEntity<TKey>, new()
+    TDataSource Create<TDataSource, TStorage, TItem, TKey>(string id, IEnumerable<TItem>? seed = null)
+        where TDataSource : DataSource<TStorage, TItem, TKey>
+        where TStorage : class, IStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
         where TKey : notnull;
-    InMemoryDataSource<TItem> CreateInMemory<TItem>(IEnumerable<TItem>? data = null);
-    DataSource<TStrategy, TItem> CreateFromStorage<TStrategy, TItem>(IEnumerable<TItem>? data = null)
-        where TStrategy : class, IStorage<TItem>;
-    TRepository Create<TRepository, TStrategy, TItem>(IEnumerable<TItem>? data = null)
-        where TRepository : DataSource<TStrategy, TItem>
-        where TStrategy : class, IStorage<TItem>;
+    TDataSource Create<TDataSource, TStorage, TItem, TKey>(IEnumerable<TItem>? seed = null)
+        where TDataSource : DataSource<TStorage, TItem, TKey>
+        where TStorage : class, IStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
+        where TKey : notnull;
+    TDataSource Create<TDataSource, TStorage, TItem, TKey>(TStorage storage)
+        where TDataSource : DataSource<TStorage, TItem, TKey>
+        where TStorage : class, IStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
+        where TKey : notnull;
+    TDataSource Create<TDataSource, TStorage, TItem>(string id, IKeyGenerator<uint> keyGenerator, IEnumerable<TItem>? seed = null)
+        where TDataSource : DataSource<TStorage, TItem>
+        where TStorage : class, IStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+    TDataSource Create<TDataSource, TStorage, TItem>(IKeyGenerator<uint> keyGenerator, IEnumerable<TItem>? seed = null)
+        where TDataSource : DataSource<TStorage, TItem>
+        where TStorage : class, IStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+    TDataSource Create<TDataSource, TStorage, TItem>(string id, IEnumerable<TItem>? seed = null)
+        where TDataSource : DataSource<TStorage, TItem>
+        where TStorage : class, IStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+    TDataSource Create<TDataSource, TStorage, TItem>(IEnumerable<TItem>? seed = null)
+        where TDataSource : DataSource<TStorage, TItem>
+        where TStorage : class, IStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+    TDataSource Create<TDataSource, TStorage, TItem>(TStorage storage)
+        where TDataSource : DataSource<TStorage, TItem>
+        where TStorage : class, IStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+
+    TDataSource CreateAsync<TDataSource, TStorage, TItem, TKey>(string id, IAsyncKeyGenerator<TKey> keyGenerator, IEnumerable<TItem>? seed = null)
+        where TDataSource : AsyncDataSource<TStorage, TItem, TKey>
+        where TStorage : class, IAsyncStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
+        where TKey : notnull;
+    TDataSource CreateAsync<TDataSource, TStorage, TItem, TKey>(IAsyncKeyGenerator<TKey> keyGenerator, IEnumerable<TItem>? seed = null)
+        where TDataSource : AsyncDataSource<TStorage, TItem, TKey>
+        where TStorage : class, IAsyncStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
+        where TKey : notnull;
+    TDataSource CreateAsync<TDataSource, TStorage, TItem, TKey>(string id, IEnumerable<TItem>? seed = null)
+        where TDataSource : AsyncDataSource<TStorage, TItem, TKey>
+        where TStorage : class, IAsyncStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
+        where TKey : notnull;
+    TDataSource CreateAsync<TDataSource, TStorage, TItem, TKey>(IEnumerable<TItem>? seed = null)
+        where TDataSource : AsyncDataSource<TStorage, TItem, TKey>
+        where TStorage : class, IAsyncStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
+        where TKey : notnull;
+    TDataSource CreateAsync<TDataSource, TStorage, TItem, TKey>(TStorage storage)
+        where TDataSource : AsyncDataSource<TStorage, TItem, TKey>
+        where TStorage : class, IAsyncStorage<TItem, TKey>, new()
+        where TItem : IEntity<TKey>, new()
+        where TKey : notnull;
+    TDataSource CreateAsync<TDataSource, TStorage, TItem>(string id, IAsyncKeyGenerator<uint> keyGenerator, IEnumerable<TItem>? seed = null)
+        where TDataSource : AsyncDataSource<TStorage, TItem>
+        where TStorage : class, IAsyncStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+    TDataSource CreateAsync<TDataSource, TStorage, TItem>(IAsyncKeyGenerator<uint> keyGenerator, IEnumerable<TItem>? seed = null)
+        where TDataSource : AsyncDataSource<TStorage, TItem>
+        where TStorage : class, IAsyncStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+    TDataSource CreateAsync<TDataSource, TStorage, TItem>(string id, IEnumerable<TItem>? seed = null)
+        where TDataSource : AsyncDataSource<TStorage, TItem>
+        where TStorage : class, IAsyncStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+    TDataSource CreateAsync<TDataSource, TStorage, TItem>(IEnumerable<TItem>? seed = null)
+        where TDataSource : AsyncDataSource<TStorage, TItem>
+        where TStorage : class, IAsyncStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
+    TDataSource CreateAsync<TDataSource, TStorage, TItem>(TStorage storage)
+        where TDataSource : AsyncDataSource<TStorage, TItem>
+        where TStorage : class, IAsyncStorage<TItem, uint>, new()
+        where TItem : IEntity<uint>, new();
 }

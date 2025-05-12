@@ -10,7 +10,7 @@ public static class HostApplicationBuilderExtensions {
 
         builder.Services.AddServiceDiscovery();
 
-        builder.Services.ConfigureHttpClientDefaults(http => {
+        builder.Services.ConfigureHttpClientDefaults(static http => {
             http.AddStandardResilienceHandler();
             http.AddServiceDiscovery();
         });
@@ -48,5 +48,5 @@ public static class HostApplicationBuilderExtensions {
         where TBuilder : IHostApplicationBuilder
         => builder.Services
                   .AddHealthChecks()
-                  .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+                  .AddCheck("self", static () => HealthCheckResult.Healthy(), ["live"]);
 }

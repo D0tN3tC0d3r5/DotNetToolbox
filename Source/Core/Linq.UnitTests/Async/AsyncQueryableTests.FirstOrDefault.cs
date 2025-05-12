@@ -4,7 +4,7 @@ public partial class AsyncQueryableTests {
     [Fact]
     public void FirstOrDefault_WithInteger_ReturnsElement() {
         var expectedItem = new TestEntity("BB");
-        var result = _repo.FirstOrDefault(x => x.Name == "BB");
+        var result = _repo.FirstOrDefault(static x => x.Name == "BB");
         result.Should().Be(expectedItem);
     }
 
@@ -24,13 +24,13 @@ public partial class AsyncQueryableTests {
     [Fact]
     public async Task FirstOrDefaultAsync_WithExistingItem_ReturnsFirstElement() {
         var expectedItem = new TestEntity("A");
-        var result = await _repo.FirstOrDefaultAsync(x => x.Name == "A");
+        var result = await _repo.FirstOrDefaultAsync(static x => x.Name == "A");
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task FirstOrDefaultAsync_WithInvalidItem_ReturnsNull() {
-        var result = await _repo.FirstOrDefaultAsync(x => x.Name == "K");
+        var result = await _repo.FirstOrDefaultAsync(static x => x.Name == "K");
         result.Should().BeNull();
     }
 
@@ -53,14 +53,14 @@ public partial class AsyncQueryableTests {
     public async Task FirstOrDefaultAsync_ForPopulatedSet_WithDefaultAndValidPredicate_ReturnsElement() {
         var expectedItem = new TestEntity("A");
         var defaultValue = new TestEntity("D");
-        var result = await _repo.FirstOrDefaultAsync(x => x.Name == "A", defaultValue);
+        var result = await _repo.FirstOrDefaultAsync(static x => x.Name == "A", defaultValue);
         result.Should().Be(expectedItem);
     }
 
     [Fact]
     public async Task FirstOrDefaultAsync_ForPopulatedSet_WithDefaultAndInvalidPredicate_ReturnsDefaultValue() {
         var defaultValue = new TestEntity("D");
-        var result = await _repo.FirstOrDefaultAsync(x => x.Name == "K", defaultValue);
+        var result = await _repo.FirstOrDefaultAsync(static x => x.Name == "K", defaultValue);
         result.Should().Be(defaultValue);
     }
 }

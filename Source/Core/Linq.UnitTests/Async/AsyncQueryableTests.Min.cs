@@ -9,7 +9,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MinAsync_ForEmptySet_ReturnsZero() {
-        var result = async () => await _emptyIntRepo.MinAsync();
+        var result = static async () => await _emptyIntRepo.MinAsync();
         await result.Should().ThrowAsync<InvalidOperationException>();
     }
 
@@ -21,7 +21,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MinAsync_WithTransformation_ReturnsMin() {
-        var result = await _repo.MinAsync(x => x.Name.Length);
+        var result = await _repo.MinAsync(static x => x.Name.Length);
         result.Should().Be(1);
     }
 
@@ -33,7 +33,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MinAsync_WithNullableItemAndTransformation_IgnoreNullsAndReturnsMin() {
-        var result = await _nullableIntRepo.MinAsync(x => x * 3);
+        var result = await _nullableIntRepo.MinAsync(static x => x * 3);
         result.Should().Be(6);
     }
 

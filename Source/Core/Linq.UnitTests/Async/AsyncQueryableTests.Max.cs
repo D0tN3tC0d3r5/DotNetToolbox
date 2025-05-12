@@ -9,7 +9,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MaxAsync_ForEmptySet_ReturnsZero() {
-        var result = async () => await _emptyIntRepo.MaxAsync();
+        var result = static async () => await _emptyIntRepo.MaxAsync();
         await result.Should().ThrowAsync<InvalidOperationException>();
     }
 
@@ -21,7 +21,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MaxAsync_WithTransformation_ReturnsMax() {
-        var result = await _repo.MaxAsync(x => x.Name.Length);
+        var result = await _repo.MaxAsync(static x => x.Name.Length);
         result.Should().Be(3);
     }
 
@@ -33,7 +33,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task MaxAsync_WithNullableItemAndTransformation_IgnoreNullsAndReturnsMax() {
-        var result = await _nullableIntRepo.MaxAsync(x => x * 3);
+        var result = await _nullableIntRepo.MaxAsync(static x => x * 3);
         result.Should().Be(24);
     }
 

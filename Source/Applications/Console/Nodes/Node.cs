@@ -19,15 +19,7 @@ public abstract class Node<TNode>
     public IHasChildren Parent { get; }
     public string Name { get; }
     public string[] Aliases { get; set; } = [];
-
-    public string Description {
-        get;
-        set {
-            field = value;
-            if (string.IsNullOrWhiteSpace(Help)) Help = field;
-        }
-    } = string.Empty;
-
+    public string Description { get; set; } = string.Empty;
     public string Help { get; set; } = string.Empty;
 
     public IInput Input => Environment.OperatingSystem.Input;
@@ -37,7 +29,7 @@ public abstract class Node<TNode>
 
     public override string ToString() {
         string[] aliases = [Name, .. Aliases];
-        return $"{GetType().Name}: {string.Join(",", aliases)} => {Description}\n{Help}";
+        return $"{GetType().Name}: {string.Join(", ", aliases)} => {Description}";
     }
 
     public virtual string ToHelp() {
@@ -53,10 +45,10 @@ public abstract class Node<TNode>
     private static bool IsValidName(string? name)
         => name?.Length > 1
         && char.IsLetter(name[0])
-        && name[1..].All(c => char.IsLetterOrDigit(c) || "-_".Contains(c));
+        && name[1..].All(static c => char.IsLetterOrDigit(c) || "-_".Contains(c));
 
     private readonly Func<string?, bool> _isValidAlias = IsValidAlias;
     private static bool IsValidAlias(string? alias)
         => !string.IsNullOrEmpty(alias)
-        && alias.All(c => char.IsLetterOrDigit(c) || "!?@#$%&".Contains(c));
+        && alias.All(static c => char.IsLetterOrDigit(c) || "!?@#$%&".Contains(c));
 }

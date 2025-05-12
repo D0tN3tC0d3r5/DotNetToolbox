@@ -10,19 +10,19 @@ public class ApplicationBuilder<TApplication, TBuilder, TSettings>
     private readonly string[] _args;
     private readonly string _environment;
 
-    private Action<ILoggingBuilder> _setLogging = _ => { };
+    private Action<ILoggingBuilder> _setLogging = static _ => { };
     private IAssemblyDescriptor? _assemblyDescriptor;
     private IDateTimeProvider? _dateTimeProvider;
     private IGuidProvider? _guidProvider;
     private IFileSystemAccessor? _fileSystem;
     private IOutput? _output;
     private IInput? _input;
-    private string _description = string.Empty;
-    private string _help = string.Empty;
+    private string? _description;
+    private string? _help;
 
     public ApplicationBuilder(string[] args, Action<IConfigurationBuilder>? configure = null) {
         _args = args;
-        var index = Array.FindIndex(_args, a => a is "--environment" or "-env");
+        var index = Array.FindIndex(_args, static a => a is "--environment" or "-env");
         _environment = (index >= 0 ? _args[index + 1] : null)
                     ?? System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
                     ?? string.Empty;
@@ -70,8 +70,8 @@ public class ApplicationBuilder<TApplication, TBuilder, TSettings>
 
         var serviceProvider = Services.BuildServiceProvider();
         var app = InstanceFactory.Create<TApplication>(serviceProvider, _args, Services);
-        app.Description = _description;
-        app.Help = _help;
+        app.Description = _description ?? app.Description;
+        app.Help = _help ?? app.Help;
         return app;
     }
 

@@ -3,18 +3,15 @@ namespace DotNetToolbox.Data.Storages;
 public interface IStorage
     : IReadOnlyDataSource,
       IUpdatableDataSource,
-      IAsyncDisposable;
+      IDisposable;
 
-public interface IStorage<TItem>
+public interface IStorage<TItem, TKey>
     : IStorage,
-      IReadOnlyDataSource<TItem>,
-      IUpdatableDataSource<TItem> {
-    List<TItem> Data { get; }
-}
-
-public interface IStorage<TItem, in TKey>
-    : IStorage<TItem>,
       IReadOnlyDataSource<TItem, TKey>,
       IUpdatableDataSource<TItem, TKey>
     where TItem : IEntity<TKey>
-    where TKey : notnull;
+    where TKey : notnull {
+    string Id { get; init; }
+    IKeyGenerator<TKey> KeyGenerator { get; init; }
+    List<TItem> Data { get; init; }
+}

@@ -14,7 +14,7 @@ public sealed class ShellApplicationTests {
         app.Version.Should().Be("15.0.0.0");
         app.Environment.Name.Should().Be("");
         app.AssemblyName.Should().Be("testhost");
-        app.Children.Should().HaveCount(6);
+        app.Children.Should().HaveCount(5);
         app.Context.Should().BeEmpty();
         app.Logger.Should().NotBeNull();
     }
@@ -39,8 +39,8 @@ public sealed class ShellApplicationTests {
         var input = new TestInput(output, "", "--exit", "\"exit\"", "exit");
         const string expectedOutput =
             """
-            testhost v15.0.0.0
-            >
+            testhost v17.13.0
+            > 
             > --exit
             > "exit"
             > exit
@@ -72,7 +72,7 @@ public sealed class ShellApplicationTests {
         var input = new TestInput(output, "exit");
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
             > exit
 
             """;
@@ -331,20 +331,17 @@ public sealed class ShellApplicationTests {
         static Result CommandAction() => throw new("Some error.");
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
             > crash
-            Exception: Some error.
-                Stack Trace:
-                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests.*
-                       at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.*
-                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.*
-
-
+            System.Exception: Some error.
+               at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
+               at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
+               at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
+               at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
+               at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`3*
+               at DotNetToolbox.ConsoleApplication.ShellApplication`3*
+               at DotNetToolbox.ConsoleApplication.ShellApplication`3*
+               at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`3*
             """;
         var app = Shell.Create(b => {
             b.SetInputHandler(input);
@@ -371,20 +368,17 @@ public sealed class ShellApplicationTests {
             => throw new ConsoleException(expectedErrorCode, "Some error.");
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
             > crash
-            ConsoleException: Some error.
-                Stack Trace:
-                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
-                       at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
-                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.ProcessCommand(String[] input, CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(String input, CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.Run(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.RunAsync()*
-
-
+            DotNetToolbox.ConsoleApplication.Exceptions.ConsoleException: Some error.
+               at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
+               at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
+               at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
+               at DotNetToolbox.ConsoleApplication.Nodes.Command`1*
+               at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`3*
+               at DotNetToolbox.ConsoleApplication.ShellApplication`3*
+               at DotNetToolbox.ConsoleApplication.ShellApplication`3*
+               at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`3*
             """;
         var app = Shell.Create(b => {
             b.SetInputHandler(input);
@@ -417,23 +411,20 @@ public sealed class ShellApplicationTests {
         }
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
             > crash
-            ConsoleException: Some error.
-                Stack Trace:
-                       at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
-                       at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.ExecuteAsync*
-                       at DotNetToolbox.ConsoleApplication.Nodes.Command`1.DotNetToolbox.ConsoleApplication.Nodes.ICommand.Set*
-                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.ProcessCommand*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.ProcessInput(String input, CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.ShellApplication`2.Run(CancellationToken ct)*
-                       at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`2.RunAsync()*
-                Inner Exception => InvalidOperationException: Some error.
-                    Stack Trace:
-                           at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
-
-
+            DotNetToolbox.ConsoleApplication.Exceptions.ConsoleException: Some error.
+             ---> System.InvalidOperationException: Some error.
+               at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
+               --- End of inner exception stack trace ---
+               at DotNetToolbox.ConsoleApplication.ShellApplicationTests*
+               at DotNetToolbox.ConsoleApplication.Utilities.NodeFactory*
+               at DotNetToolbox.ConsoleApplication.Nodes.Command`1.ExecuteAsync*
+               at DotNetToolbox.ConsoleApplication.Nodes.Command`1.Execute*
+               at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`3.ProcessCommand*
+               at DotNetToolbox.ConsoleApplication.ShellApplication`3.ProcessUserInput*
+               at DotNetToolbox.ConsoleApplication.ShellApplication`3.Run*
+               at DotNetToolbox.ConsoleApplication.Application.ApplicationBase`3.RunAsync*
             """;
         var app = Shell.Create(b => {
             b.SetInputHandler(input);
@@ -458,9 +449,9 @@ public sealed class ShellApplicationTests {
         static Result CommandAction() => Result.Failure("Some error.");
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
             > crash
-            Validation error: Some error.
+            Validation error: {Message: Some error., Sources: []}
 
             > exit
 
@@ -510,7 +501,7 @@ public sealed class ShellApplicationTests {
         var input = new TestInput(output, "invalid", "exit");
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
             > invalid
             > exit
 
@@ -594,9 +585,9 @@ public sealed class ShellApplicationTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", n => n.Aliases = ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", static n => n.Aliases = ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", n => n.DefaultValue = "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", static n => n.DefaultValue = "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", n => n.Aliases = ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", static n => n.Aliases = ["f"]);
 }

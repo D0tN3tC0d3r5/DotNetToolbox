@@ -1,0 +1,20 @@
+﻿// ReSharper disable once CheckNamespace - Intended to be in this namespace
+namespace System.Linq.Async;
+
+public static partial class QueryableAsyncExtensions {
+    public static ValueTask<TItem> FirstAsync<TItem>(this IQueryable<TItem> source, CancellationToken ct = default)
+        => FindFirst(source, static _ => true, ct);
+
+    public static ValueTask<TItem> FirstAsync<TItem>(this IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct = default)
+        => FindFirst(source, predicate, ct);
+
+    private static async ValueTask<TItem> FindFirst<TItem>(IQueryable<TItem> source, Expression<Func<TItem, bool>> predicate, CancellationToken ct) {
+        IsNotNull(predicate);
+        var enumerable = IsNotNull(source).Where(predicate).AsAsyncEnumerable(ct);
+        await foreach (var item in enumerable) {
+            ct.ThrowIfCancellationRequested();
+            return item;
+        }
+        throw new InvalidOperationException("Collection contains no matching element.");
+    }
+}

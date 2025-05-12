@@ -91,11 +91,11 @@ public class UrlSafeBase64StringTests {
         // Act
         UrlSafeBase64String value0 = _stringValue;
         UrlSafeBase64String value1 = _base64Value;
-        UrlSafeBase64String value3 = _bytesValue;
+        UrlSafeBase64String value2 = _bytesValue;
 
         // Assert
         value0.PlainText.Should().Be(_stringValue);
         value1.PlainText.Should().Be(_stringValue);
-        value3.PlainText.Should().Be(_stringValue);
+        value2.PlainText.Should().Be(_stringValue);
     }
 }

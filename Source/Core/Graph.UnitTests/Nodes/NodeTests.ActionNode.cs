@@ -4,7 +4,7 @@ public partial class NodeTests {
     public class ActionNodeTests : NodeTests {
         [Fact]
         public void CreateAction_WithoutTag_ReturnsActionNodeWithDefaultLabel() {
-            var node = CreateFactory().CreateAction(_ => { });
+            var node = CreateFactory().CreateAction(static _ => { });
 
             node.Should().NotBeNull();
             node.Should().BeOfType<ActionNode>();
@@ -16,7 +16,7 @@ public partial class NodeTests {
         [Fact]
         public void CreateAction_WithCustomTag_ReturnsActionNodeWithCustomLabel() {
             const string customTag = "Action1";
-            var node = CreateFactory().CreateAction(customTag, _ => { });
+            var node = CreateFactory().CreateAction(customTag, static _ => { });
 
             node.Should().NotBeNull();
             node.Should().BeOfType<ActionNode>();
@@ -27,7 +27,7 @@ public partial class NodeTests {
         [Fact]
         public void CreateAction_WithCustomPolicy_AppliesPolicyToNode() {
             var policy = new TestRetryPolicy();
-            var node = CreateFactory(policy).CreateAction(_ => { });
+            var node = CreateFactory(policy).CreateAction(static _ => { });
 
             node.Should().NotBeNull();
             node.Should().BeOfType<ActionNode>();
@@ -103,8 +103,8 @@ public partial class NodeTests {
         [Fact]
         public async Task Run_RunMethod_UpdatesContextAndReturnsNextNode() {
             var context = new Map();
-            var node = CreateFactory().CreateAction("2", ctx => ctx["key"] = "value");
-            node.Next = CreateFactory().CreateAction(_ => { });
+            var node = CreateFactory().CreateAction("2", static ctx => ctx["key"] = "value");
+            node.Next = CreateFactory().CreateAction(static _ => { });
 
             var result = await node.Run(context);
 

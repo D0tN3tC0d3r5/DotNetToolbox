@@ -1,5 +1,6 @@
 // Global using directives
 
+global using System.Buffers.Text;
 global using System.Collections;
 global using System.Collections.Async.Generic;
 global using System.Collections.Concurrent;

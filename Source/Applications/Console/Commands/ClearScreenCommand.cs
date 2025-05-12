@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Commands;
 
 internal class ClearScreenCommand(IHasChildren parent)
-    : Command<ClearScreenCommand>(parent, "ClearScreen", n => {
+    : Command<ClearScreenCommand>(parent, "ClearScreen", static n => {
         n.Aliases = ["cls"];
         n.Description = "Clear the screen.";
     }) {

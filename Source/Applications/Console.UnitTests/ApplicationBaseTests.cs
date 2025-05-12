@@ -6,7 +6,7 @@ public class ApplicationBaseTests {
     [Fact]
     public void Create_WhenCreationFails_Throws() {
         // Arrange & Act
-        var app = TestApplication.Create(b => b.ConfigureLogging(l => l.SetMinimumLevel(LogLevel.Information)));
+        var app = TestApplication.Create(static b => b.ConfigureLogging(static l => l.SetMinimumLevel(LogLevel.Information)));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -40,7 +40,7 @@ public class ApplicationBaseTests {
         app.Name.Should().Be("My App");
         app.AssemblyName.Should().Be("TestApp");
         app.Version.Should().Be("1.0");
-        app.Help.Should().Be("Some description.");
+        app.Description.Should().Be("Some description.");
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class ApplicationBaseTests {
     [Fact]
     public void Create_AddEnvironmentVariables_CreatesTestApplication() {
         // Act
-        var app = TestApplication.Create(b => b.AddEnvironmentVariables("MYAPP_"));
+        var app = TestApplication.Create(static b => b.AddEnvironmentVariables("MYAPP_"));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -70,7 +70,7 @@ public class ApplicationBaseTests {
     [Fact]
     public void Create_AddUserSecrets_CreatesTestApplication() {
         // Act
-        var app = TestApplication.Create(b => b.AddUserSecrets<TestApplication>());
+        var app = TestApplication.Create(static b => b.AddUserSecrets<TestApplication>());
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -125,8 +125,8 @@ public class ApplicationBaseTests {
     [Fact]
     public void Create_SetLogging_CreatesTestApplication() {
         // Arrange & Act
-        var app = TestApplication.Create(b
-                                   => b.ConfigureLogging(l => l.SetMinimumLevel(LogLevel.Debug)));
+        var app = TestApplication.Create(static b
+                                   => b.ConfigureLogging(static l => l.SetMinimumLevel(LogLevel.Debug)));
 
         // Assert
         app.Should().BeOfType<TestApplication>();
@@ -151,9 +151,9 @@ public class ApplicationBaseTests {
 
     private sealed class InvalidCommandDelegates : TheoryData<Delegate> {
         public InvalidCommandDelegates() {
-            Add(() => 13);
-            Add((Command _) => "Invalid");
-            Add((string _) => { });
+            Add(static () => 13);
+            Add(static (Command _) => "Invalid");
+            Add(static (string _) => { });
         }
     }
     [Theory]
@@ -175,10 +175,10 @@ public class ApplicationBaseTests {
         // Arrange
         var serviceProvider = CreateFakeServiceProvider();
         var app = new TestApplication([], serviceProvider);
-        var command = (Command)app.AddCommand("command", (Action)(() => throw new()));
+        var command = (Command)app.AddCommand("command", (Action)(static () => throw new()));
 
         // Act
-        var subCommand = command.AddCommand("sub-command", (Action)(() => throw new()));
+        var subCommand = command.AddCommand("sub-command", (Action)(static () => throw new()));
 
         // Assert
         subCommand.Path.Should().Be("TestApp command sub-command");
@@ -201,18 +201,18 @@ public class ApplicationBaseTests {
     private sealed class CommandDelegates : TheoryData<Delegate> {
         public CommandDelegates() {
             Add(null!);
-            Add(() => { });
-            Add((Command _) => { });
-            Add(() => Result.Success());
-            Add((Command _) => Result.Success());
-            Add(() => Task.FromResult(Result.Success()));
-            Add((Command _) => Task.FromResult(Result.Success()));
-            Add(() => Task.CompletedTask);
-            Add((Command _) => Task.CompletedTask);
-            Add((CancellationToken _) => Task.FromResult(Result.Success()));
-            Add((Command _, CancellationToken _) => Task.FromResult(Result.Success()));
-            Add((CancellationToken _) => Task.CompletedTask);
-            Add((Command _, CancellationToken _) => Task.CompletedTask);
+            Add(static () => { });
+            Add(static (Command _) => { });
+            Add(static () => Result.Success());
+            Add(static (Command _) => Result.Success());
+            Add(static () => Task.FromResult(Result.Success()));
+            Add(static (Command _) => Task.FromResult(Result.Success()));
+            Add(static () => Task.CompletedTask);
+            Add(static (Command _) => Task.CompletedTask);
+            Add(static (CancellationToken _) => Task.FromResult(Result.Success()));
+            Add(static (Command _, CancellationToken _) => Task.FromResult(Result.Success()));
+            Add(static (CancellationToken _) => Task.CompletedTask);
+            Add(static (Command _, CancellationToken _) => Task.CompletedTask);
         }
     }
     [Theory]
@@ -226,7 +226,7 @@ public class ApplicationBaseTests {
         var subject = app.AddCommand("command", action);
 
         // Assert
-        app.Children.Should().ContainSingle(x => x.Name == "command");
+        app.Children.Should().ContainSingle(static x => x.Name == "command");
         var command = subject.Should().BeOfType<Command>().Subject;
         command.Aliases.Should().BeEmpty();
         var result = await command.Execute([]);
@@ -269,7 +269,7 @@ public class ApplicationBaseTests {
         app.AddCommand("command", "c", action);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "command").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "command").Subject;
         child.Aliases.Should().BeEquivalentTo("c");
     }
 
@@ -283,7 +283,7 @@ public class ApplicationBaseTests {
         app.AddCommand<TestCommand>();
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Command").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "Command").Subject;
         var command = child.Should().BeOfType<TestCommand>().Subject;
         command.Aliases.Should().BeEquivalentTo("c");
         var text = command.ToString();
@@ -303,7 +303,7 @@ public class ApplicationBaseTests {
         app.AddCommand(node);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Command").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "Command").Subject;
         child.Should().BeOfType<TestCommand>();
     }
 
@@ -317,7 +317,7 @@ public class ApplicationBaseTests {
         app.AddOption("option");
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "option").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "option").Subject;
         var option = child.Should().BeOfType<Option>().Subject;
         option.Aliases.Should().BeEmpty();
     }
@@ -332,7 +332,7 @@ public class ApplicationBaseTests {
         app.AddOption("option", "o");
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "option").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "option").Subject;
         var option = child.Should().BeOfType<Option>().Subject;
         option.Aliases.Should().BeEquivalentTo("o");
     }
@@ -347,7 +347,7 @@ public class ApplicationBaseTests {
         app.AddOption<TestOption>();
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "MultipleChoiceOption").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "MultipleChoiceOption").Subject;
         var option = child.Should().BeOfType<TestOption>().Subject;
         option.Aliases.Should().BeEquivalentTo("o");
     }
@@ -363,7 +363,7 @@ public class ApplicationBaseTests {
         app.AddOption(node);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "MultipleChoiceOption").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "MultipleChoiceOption").Subject;
         child.Should().BeOfType<TestOption>();
     }
 
@@ -378,7 +378,7 @@ public class ApplicationBaseTests {
         app.AddParameter(parameterName);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == parameterName).Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == parameterName).Subject;
         var parameter = child.Should().BeOfType<Parameter>().Subject;
         parameter.Order.Should().Be(0);
         parameter.IsRequired.Should().BeTrue();
@@ -397,7 +397,7 @@ public class ApplicationBaseTests {
         app.AddParameter(parameterName, defaultValue);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == parameterName).Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == parameterName).Subject;
         var parameter = child.Should().BeOfType<Parameter>().Subject;
         parameter.Order.Should().Be(0);
         parameter.IsRequired.Should().BeFalse();
@@ -414,7 +414,7 @@ public class ApplicationBaseTests {
         app.AddParameter<TestParameter>();
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Age").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "Age").Subject;
         var parameter = child.Should().BeOfType<TestParameter>().Subject;
         parameter.Aliases.Should().BeEmpty();
         parameter.Order.Should().Be(0);
@@ -431,15 +431,15 @@ public class ApplicationBaseTests {
         app.AddParameter(node);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Age").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "Age").Subject;
         child.Should().BeOfType<TestParameter>();
     }
 
     private sealed class InvalidFlagDelegates : TheoryData<Delegate> {
         public InvalidFlagDelegates() {
-            Add(() => 13);
-            Add((Flag _) => "Invalid");
-            Add((string _) => { });
+            Add(static () => 13);
+            Add(static (Flag _) => "Invalid");
+            Add(static (string _) => { });
         }
     }
     [Theory]
@@ -474,18 +474,18 @@ public class ApplicationBaseTests {
     private sealed class FlagDelegates : TheoryData<Delegate> {
         public FlagDelegates() {
             Add(null!);
-            Add(() => { });
-            Add((Flag _) => { });
-            Add(() => Result.Success());
-            Add((Flag _) => Result.Success());
-            Add(() => Task.FromResult(Result.Success()));
-            Add((Flag _) => Task.FromResult(Result.Success()));
-            Add(() => Task.CompletedTask);
-            Add((Flag _) => Task.CompletedTask);
-            Add((CancellationToken _) => Task.FromResult(Result.Success()));
-            Add((Flag _, CancellationToken _) => Task.FromResult(Result.Success()));
-            Add((CancellationToken _) => Task.CompletedTask);
-            Add((Flag _, CancellationToken _) => Task.CompletedTask);
+            Add(static () => { });
+            Add(static (Flag _) => { });
+            Add(static () => Result.Success());
+            Add(static (Flag _) => Result.Success());
+            Add(static () => Task.FromResult(Result.Success()));
+            Add(static (Flag _) => Task.FromResult(Result.Success()));
+            Add(static () => Task.CompletedTask);
+            Add(static (Flag _) => Task.CompletedTask);
+            Add(static (CancellationToken _) => Task.FromResult(Result.Success()));
+            Add(static (Flag _, CancellationToken _) => Task.FromResult(Result.Success()));
+            Add(static (CancellationToken _) => Task.CompletedTask);
+            Add(static (Flag _, CancellationToken _) => Task.CompletedTask);
         }
     }
     [Theory]
@@ -500,7 +500,7 @@ public class ApplicationBaseTests {
         var subject = app.AddFlag("flag", action);
 
         // Assert
-        app.Children.Should().ContainSingle(x => x.Name == "flag");
+        app.Children.Should().ContainSingle(static x => x.Name == "flag");
         var flag = subject.Should().BeOfType<Flag>().Subject;
         flag.Aliases.Should().BeEmpty();
         var result = await subject.Read(context);
@@ -518,7 +518,7 @@ public class ApplicationBaseTests {
         app.AddFlag("flag", "c", action);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "flag").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "flag").Subject;
         child.Aliases.Should().BeEquivalentTo("c");
     }
 
@@ -532,7 +532,7 @@ public class ApplicationBaseTests {
         app.AddFlag<TestFlag>();
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "Flag").Subject;
         var flag = child.Should().BeOfType<TestFlag>().Subject;
         flag.Aliases.Should().BeEquivalentTo("f");
     }
@@ -548,7 +548,7 @@ public class ApplicationBaseTests {
         app.AddFlag(node);
 
         // Assert
-        var child = app.Children.Should().ContainSingle(x => x.Name == "Flag").Subject;
+        var child = app.Children.Should().ContainSingle(static x => x.Name == "Flag").Subject;
         child.Should().BeOfType<TestFlag>();
     }
 
@@ -556,7 +556,7 @@ public class ApplicationBaseTests {
     private sealed class TestCommand
         : Command<TestCommand> {
         public TestCommand(IHasChildren app)
-            : base(app, "Command", c => c.Aliases = ["c"]) {
+            : base(app, "Command", static c => c.Aliases = ["c"]) {
             Description = "Test command.";
         }
 
@@ -567,11 +567,11 @@ public class ApplicationBaseTests {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", n => n.Aliases = ["o"]);
+    private sealed class TestOption(IHasChildren app) : Option<TestOption>(app, "MultipleChoiceOption", static n => n.Aliases = ["o"]);
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", n => n.DefaultValue = "18");
+    private sealed class TestParameter(IHasChildren app) : Parameter<TestParameter>(app, "Age", static n => n.DefaultValue = "18");
     // ReSharper disable once ClassNeverInstantiated.Local - Used for tests.
-    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", n => n.Aliases = ["f"]);
+    private sealed class TestFlag(IHasChildren app) : Flag<TestFlag>(app, "Flag", static n => n.Aliases = ["f"]);
 
     private readonly IAssemblyDescriptor _assemblyDescriptor = Substitute.For<IAssemblyDescriptor>();
     private IServiceCollection CreateFakeServiceProvider() {

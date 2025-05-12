@@ -9,7 +9,7 @@ public class ChatRequestMessage
                 Role = RoleToString(c.Role);
                 Content = c.Count == 1
                               ? (string)c[0].Content!
-                              : c.ToArray(p => new MessageContent(p.Content!));
+                              : c.ToArray(static p => new MessageContent(p.Content!));
                 break;
             default:
                 throw new NotSupportedException();

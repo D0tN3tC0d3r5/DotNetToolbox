@@ -3,13 +3,13 @@
 public abstract record ResultBase
     : IResultBase {
     protected ResultBase(IEnumerable<Error>? errors = null) {
-        Errors = errors as HashSet<Error> ?? errors?.ToHashSet() ?? [];
+        Errors = errors as List<Error> ?? errors?.ToList() ?? [];
     }
 
     /// <summary>
     /// The collection of unique errors. If empty, the Result is considered a Success.
     /// </summary>
-    public IReadOnlySet<Error> Errors { get; }
+    public IReadOnlyList<Error> Errors { get; }
 
     /// <summary>
     /// True if the result has at least one error.

@@ -53,7 +53,7 @@ public sealed class WorkflowLexer {
     private IEnumerable<Token> Process(string input) {
         input = input.Replace("\r\n", "\n") // windows EOL
                      .Replace("\r", "\n");  // Mac OS EOL
-        var lines = input.Split('\n').Select(l => l.TrimEnd()).ToArray();
+        var lines = input.Split('\n').Select(static l => l.TrimEnd()).ToArray();
         _currentLine = 1;
         var length = 0;
         foreach (var line in lines) {
@@ -188,7 +188,7 @@ public sealed class WorkflowLexer {
         => !string.IsNullOrEmpty(token)
         && token.Length <= 64
         && char.IsLetter(token[0])
-        && token.All(c => char.IsLetterOrDigit(c) || c == '_');
+        && token.All(static c => char.IsLetterOrDigit(c) || c == '_');
 
     private static string GetIdentifierError(string token)
         => token switch {
@@ -196,7 +196,7 @@ public sealed class WorkflowLexer {
             _ when token.Length > 64 => "Identifier must not exceed 64 characters.",
             _ when char.IsNumber(token[0]) => "Identifier must start with a letter.",
             _ when token[0] == '_' => "Identifier must start with a letter.",
-            _ when char.IsLetter(token[0]) && !token.All(c => char.IsLetterOrDigit(c) || c == '_') => "Identifier can only contain letters, numbers, and underscores.",
+            _ when char.IsLetter(token[0]) && !token.All(static c => char.IsLetterOrDigit(c) || c == '_') => "Identifier can only contain letters, numbers, and underscores.",
             _ => "Invalid token.",
         };
 

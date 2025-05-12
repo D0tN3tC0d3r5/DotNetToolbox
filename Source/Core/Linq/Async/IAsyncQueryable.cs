@@ -9,5 +9,5 @@ public interface IAsyncQueryable
 
 public interface IAsyncQueryable<out TItem>
     : IAsyncEnumerable<TItem>
-    , IAsyncQueryable
-    , IQueryable<TItem>;
+    , IQueryable<TItem>
+    , IAsyncQueryable;

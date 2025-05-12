@@ -8,7 +8,7 @@ public partial class AsyncQueryableTests {
             new(1, "BB*", false),
             new(2, "CCC*", true),
         };
-        var result = _repo.ToIndexedList(x => $"{x.Name}*");
+        var result = _repo.ToIndexedList(static x => $"{x.Name}*");
         result.Should().BeEquivalentTo(expectedIndexedList);
     }
 
@@ -30,7 +30,7 @@ public partial class AsyncQueryableTests {
             new(1, "BB*", false),
             new(2, "CCC*", true),
         };
-        var result = await _repo.ToIndexedListAsync(x => $"{x.Name}*");
+        var result = await _repo.ToIndexedListAsync(static x => $"{x.Name}*");
         result.Should().BeEquivalentTo(expectedIndexedList);
     }
 }

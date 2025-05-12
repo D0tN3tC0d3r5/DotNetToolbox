@@ -34,8 +34,7 @@ public static class NodeFactory {
 
     private static Action<TNode> ConvertToAction<TNode>(Delegate? action)
         => action switch {
-            null => _ => { }
-            ,
+            null => static _ => { },
             Action func => _ => func(),
             Action<TNode> func => n => func(n),
             _ => throw new ArgumentException("Unsupported delegate type of configuration action", nameof(action)),

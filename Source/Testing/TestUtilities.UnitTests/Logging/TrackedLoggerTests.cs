@@ -148,7 +148,7 @@ public sealed class TrackedLoggerTests {
     [InlineData(LogLevel.None, true)]
     public void IsEnabled_WhenLevelNotBellowMinimumLevel_ReturnsTrue(LogLevel level, bool expectedResult) {
         // Arrange & Act
-        _logger.IsEnabled(Arg.Any<LogLevel>()).Returns(ci => ci.ArgAt<LogLevel>(0) >= LogLevel.Warning);
+        _logger.IsEnabled(Arg.Any<LogLevel>()).Returns(static ci => ci.ArgAt<LogLevel>(0) >= LogLevel.Warning);
         var isEnabled = _trackedLogger.IsEnabled(level);
 
         // Assert

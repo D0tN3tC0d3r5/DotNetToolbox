@@ -12,9 +12,9 @@ public static class ArgumentsParser {
     private static void ResetContext(IHasChildren node) {
         if (node is IApplication) return;
         node.Context.Clear();
-        foreach (var flag in node.Options.Where(o => o is IFlag))
+        foreach (var flag in node.Options.Where(static o => o is IFlag))
             node.Context[flag.Name] = bool.FalseString;
-        foreach (var optional in node.Parameters.Where(p => !p.IsRequired))
+        foreach (var optional in node.Parameters.Where(static p => !p.IsRequired))
             node.Context[optional.Name] = optional.DefaultValue!;
     }
 
@@ -55,7 +55,7 @@ public static class ArgumentsParser {
     }
 
     private static Result EnsureAllRequiredParametersAreSet(IHasChildren node, Result result) {
-        var missingParameters = node.Parameters.Where(p => p is { IsRequired: true, IsSet: false }).Select(p => p.Name).ToArray();
+        var missingParameters = node.Parameters.Where(static p => p is { IsRequired: true, IsSet: false }).Select(static p => p.Name).ToArray();
         return missingParameters.Length > 0
                    ? Failure($"Required parameter is missing: '{string.Join("', '", missingParameters)}'.")
                    : result;

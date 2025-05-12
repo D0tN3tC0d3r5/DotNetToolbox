@@ -38,7 +38,7 @@ public sealed class TrackedLoggerFactoryTests : IDisposable {
 
         // Assert
         trackedLogger.Should().BeOfType<TrackedLogger>();
-        _loggerFactory.Received(1).CreateLogger(Arg.Is<string>(s => s == categoryName));
+        _loggerFactory.Received(1).CreateLogger(Arg.Is<string>(static s => s == categoryName));
     }
 
     [Fact]

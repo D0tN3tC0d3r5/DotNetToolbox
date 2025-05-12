@@ -1,14 +1,10 @@
-﻿namespace DotNetToolbox.Data.File;
+﻿using DotNetToolbox.Data.KeyGenerators;
 
-public abstract class JsonFilePerTypeStorage<TItem>(string name, IConfiguration configuration, IList<TItem>? data = null)
-    : JsonFilePerTypeStorage<TItem, uint>(name, configuration, data)
+namespace DotNetToolbox.Data.File;
+
+public abstract class JsonFilePerTypeStorage<TItem>(string name, IConfiguration configuration, IKeyGenerator<uint> keyGenerator, IEnumerable<TItem>? data = null)
+    : JsonFilePerTypeStorage<TItem, uint>(name, configuration, keyGenerator, data)
     where TItem : class, IEntity<uint> {
-    protected override uint FirstKey => 1;
-
-    protected override bool TryGenerateNextKey(out uint next) {
-        next = LastUsedKey == 0 ? FirstKey : ++LastUsedKey;
-        return true;
-    }
 }
 
 public abstract class JsonFilePerTypeStorage<TItem, TKey>
@@ -19,8 +15,8 @@ public abstract class JsonFilePerTypeStorage<TItem, TKey>
     private const string _defaultBaseFolder = "data";
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
-    protected JsonFilePerTypeStorage(string name, IConfiguration configuration, IList<TItem>? data = null)
-        : base(data) {
+    protected JsonFilePerTypeStorage(string name, IConfiguration configuration, IKeyGenerator<TKey> keyGenerator, IEnumerable<TItem>? data = null)
+        : base(name, keyGenerator, data ?? []) {
         var baseFolder = configuration.GetValue<string>($"Data:{name}:BaseFolder");
         if (string.IsNullOrWhiteSpace(baseFolder)) baseFolder = configuration.GetValue<string>("Data:BaseFolder");
         if (string.IsNullOrWhiteSpace(baseFolder)) baseFolder = _defaultBaseFolder;
@@ -41,15 +37,7 @@ public abstract class JsonFilePerTypeStorage<TItem, TKey>
         var json = System.IO.File.ReadAllText(FilePath);
         var items = JsonSerializer.Deserialize<TItem[]>(json, _jsonOptions)!;
         Data.AddRange(items);
-        LoadLastUsedKey();
-        return Result.Success();
-    }
-
-    protected override Result<TKey?> LoadLastUsedKey() {
-        LastUsedKey = Data.Count != 0
-            ? Data.Max(item => item.Id)
-            : default;
-        return Result.Success(LastUsedKey);
+        return base.Load();
     }
 
     public override TItem[] GetAll(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null) {
@@ -107,23 +95,23 @@ public abstract class JsonFilePerTypeStorage<TItem, TKey>
         return result;
     }
 
-    public override Result Add(TItem newItem, IMap? context = null) {
-        context ??= new Map();
-        context[nameof(EntityAction)] = EntityAction.Insert;
-        var result = newItem.Validate(context);
+    public override Result Add(TItem newItem, IMap? validationContext = null) {
+        validationContext ??= new Map();
+        validationContext[nameof(EntityAction)] = EntityAction.Insert;
+        var result = newItem.Validate(validationContext);
         if (!result.IsSuccessful) return result;
-        if (TryGetNextKey(out var next)) newItem.Id = next;
+        newItem.Id = newItem.Id == null! ? GetNextKey() : newItem.Id;
         Data.Add(newItem);
         Save();
         return result;
     }
 
-    public override Result Update(TItem updatedItem, IMap? context = null) {
-        context ??= new Map();
-        context[nameof(EntityAction)] = EntityAction.Update;
+    public override Result Update(TItem updatedItem, IMap? validationContext = null) {
+        validationContext ??= new Map();
+        validationContext[nameof(EntityAction)] = EntityAction.Update;
         var entry = Data.Index().FirstOrDefault(i => i.Item.Id.Equals(updatedItem.Id));
         if (entry.Item is null) return new Error($"Item '{updatedItem.Id}' not found", nameof(updatedItem));
-        var result = updatedItem.Validate(context);
+        var result = updatedItem.Validate(validationContext);
         if (!result.IsSuccessful) return result;
         Data[entry.Index] = updatedItem;
         Save();

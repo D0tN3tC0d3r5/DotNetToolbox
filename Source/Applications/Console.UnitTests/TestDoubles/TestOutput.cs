@@ -32,17 +32,19 @@ internal sealed class TestOutput : IOutput {
     public void ResetColor() => throw new NotImplementedException();
     public void Write(long value) => throw new NotImplementedException();
 
-    public void Write(string value) {
-        var lines = value.Split(System.Environment.NewLine);
+    public void Write(string? value) {
+        var lines = value?.Split(System.Environment.NewLine) ?? [];
         if (lines.Length == 0) return;
         if (Lines.Count == 0) Lines.Add(lines[0]);
         else Lines[^1] += lines[0];
         Lines.AddRange(lines.Skip(1));
     }
 
-    public void Write(string format, params IEnumerable<object?> args) => throw new NotImplementedException();
+    public void Write([StringSyntax("CompositeFormat")]string format, object? arg0) => Write(string.Format(format, arg0));
+    public void Write([StringSyntax("CompositeFormat")]string format, params IEnumerable<object?> args) => Write(string.Format(format, args));
+    public void Write([StringSyntax("CompositeFormat")]string format, params object?[] args) => Write(string.Format(format, args));
 
-    public void Write(object? value) => throw new NotImplementedException();
+    public void Write(object? value) => Write("{0}", value);
 
     public void Write(StringBuilder? builder) => throw new NotImplementedException();
 
@@ -50,7 +52,7 @@ internal sealed class TestOutput : IOutput {
 
     public void Write(ulong value) => throw new NotImplementedException();
 
-    public void WriteLine() => throw new NotImplementedException();
+    public void WriteLine() => Lines.Add(string.Empty);
 
     public void WriteLine(bool value) => throw new NotImplementedException();
 
@@ -74,16 +76,20 @@ internal sealed class TestOutput : IOutput {
 
     public void WriteLine(ulong value) => throw new NotImplementedException();
 
-    public void Write([StringSyntax("CompositeFormat")] string format, params object?[] args)
-        => Lines[^1] += string.Format(format, args);
-
     public void WriteLine(string value) {
         Write(value);
         WriteLine();
     }
 
-    public void WriteLine(string format, params IEnumerable<object?> args) => throw new NotImplementedException();
+    public void WriteLine([StringSyntax("CompositeFormat")]string format, object? arg0) {
+        Write(format, arg0);
+        WriteLine();
+    }
 
+    public void WriteLine([StringSyntax("CompositeFormat")]string format, params IEnumerable<object?> args) {
+        Write(format, args);
+        WriteLine();
+    }
     public void WriteLine([StringSyntax("CompositeFormat")] string format, params object?[] args) {
         Write(format, args);
         WriteLine();

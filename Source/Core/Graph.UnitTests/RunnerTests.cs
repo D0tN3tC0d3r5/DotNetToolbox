@@ -26,7 +26,7 @@ public sealed class RunnerTests : IDisposable {
     [Fact]
     public void Constructor_WithNullStartingNode_Throws() {
         // Act
-        var action = () => new Runner(1, null!);
+        var action = static () => new Runner(1, null!);
 
         // Assert
         action.Should().Throw<ArgumentNullException>().WithMessage("*workflow*");

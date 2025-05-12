@@ -4,7 +4,7 @@ public partial class NodeTests {
     public class IfNodeTests : NodeTests {
         [Fact]
         public void CreateIf_WithoutTag_ReturnsConditionalNodeWithDefaultLabel() {
-            var node = CreateFactory().CreateIf(_ => true);
+            var node = CreateFactory().CreateIf(static _ => true);
 
             node.Should().NotBeNull();
             node.Should().BeOfType<IfNode>();
@@ -18,7 +18,7 @@ public partial class NodeTests {
         [Fact]
         public void CreateIf_WithCustomTag_ReturnsConditionalNodeWithCustomLabel() {
             const string customTag = "Action1";
-            var node = CreateFactory().CreateIf(customTag, _ => true);
+            var node = CreateFactory().CreateIf(customTag, static _ => true);
 
             node.Should().NotBeNull();
             node.Should().BeOfType<IfNode>();
@@ -31,8 +31,8 @@ public partial class NodeTests {
 
         [Fact]
         public void CreateIf_WithTrueBranchOnly_SetsOnlyTrueBranch() {
-            var node = CreateFactory().CreateIf(_ => true,
-                                                CreateFactory().CreateAction(_ => { }));
+            var node = CreateFactory().CreateIf(static _ => true,
+                                                CreateFactory().CreateAction(static _ => { }));
 
             var ifNode = node.Should().BeOfType<IfNode>().Subject;
             ifNode.Then.Should().NotBeNull();
@@ -41,9 +41,9 @@ public partial class NodeTests {
 
         [Fact]
         public void CreateIf_WithBothBranches_SetsBothBranches() {
-            var node = CreateFactory().CreateIf(_ => true,
-                                                CreateFactory().CreateAction(_ => { }),
-                                                CreateFactory().CreateAction(_ => { }));
+            var node = CreateFactory().CreateIf(static _ => true,
+                                                CreateFactory().CreateAction(static _ => { }),
+                                                CreateFactory().CreateAction(static _ => { }));
 
             var ifNode = node.Should().BeOfType<IfNode>().Subject;
             ifNode.Then.Should().NotBeNull();
@@ -53,9 +53,9 @@ public partial class NodeTests {
         [Fact]
         public async Task CreateIf_RunMethodWithTrueCondition_ExecutesTrueBranch() {
             using var context = new Map();
-            var node = CreateFactory().CreateIf(_ => true,
-                                                CreateFactory().CreateAction(ctx => ctx["branch"] = "true"),
-                                                CreateFactory().CreateAction(ctx => ctx["branch"] = "false"));
+            var node = CreateFactory().CreateIf(static _ => true,
+                                                CreateFactory().CreateAction(static ctx => ctx["branch"] = "true"),
+                                                CreateFactory().CreateAction(static ctx => ctx["branch"] = "false"));
 
             await node.Run(context);
 
@@ -67,9 +67,9 @@ public partial class NodeTests {
             var context = new Map() {
                 ["Disposable"] = new Map(),
             };
-            var node = CreateFactory().CreateIf(_ => false,
-                                                CreateFactory().CreateAction(ctx => ctx["branch"] = "true"),
-                                                CreateFactory().CreateAction(ctx => ctx["branch"] = "false"));
+            var node = CreateFactory().CreateIf(static _ => false,
+                                                CreateFactory().CreateAction(static ctx => ctx["branch"] = "true"),
+                                                CreateFactory().CreateAction(static ctx => ctx["branch"] = "false"));
 
             await node.Run(context);
 
@@ -80,9 +80,9 @@ public partial class NodeTests {
 
         [Fact]
         public void CreateIf_ValidateMethod_ValidatesBothBranches() {
-            var node = CreateFactory().CreateIf(_ => true,
-                                                CreateFactory().CreateAction(ctx => ctx["branch"] = "true"),
-                                                CreateFactory().CreateAction(ctx => ctx["branch"] = "false"));
+            var node = CreateFactory().CreateIf(static _ => true,
+                                                CreateFactory().CreateAction(static ctx => ctx["branch"] = "true"),
+                                                CreateFactory().CreateAction(static ctx => ctx["branch"] = "false"));
 
             var result = node.Validate();
 

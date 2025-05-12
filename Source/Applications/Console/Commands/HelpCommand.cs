@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Commands;
 
 internal sealed class HelpCommand(IHasChildren parent)
-    : Command<HelpCommand>(parent, "Help", n => {
+    : Command<HelpCommand>(parent, "Help", static n => {
         n.Aliases = ["?"];
         n.Description = "Display this help information.";
         n.AddParameter("Target", string.Empty);

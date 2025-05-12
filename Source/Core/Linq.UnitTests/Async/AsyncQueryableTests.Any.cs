@@ -3,7 +3,7 @@ namespace System.Linq.Async;
 public partial class AsyncQueryableTests {
     [Fact]
     public void Any_WithExistingItem_ReturnsTrue() {
-        var result = _repo.Any(x => x.Name == "BB");
+        var result = _repo.Any(static x => x.Name == "BB");
         result.Should().BeTrue();
     }
 
@@ -21,13 +21,13 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task AnyAsync_WithExistingItem_ReturnsTrue() {
-        var result = await _repo.AnyAsync(x => x.Name == "BB");
+        var result = await _repo.AnyAsync(static x => x.Name == "BB");
         result.Should().BeTrue();
     }
 
     [Fact]
     public async Task AnyAsync_WithInvalidItem_ReturnsFalse() {
-        var result = await _repo.AnyAsync(x => x.Name == "K");
+        var result = await _repo.AnyAsync(static x => x.Name == "K");
         result.Should().BeFalse();
     }
 }

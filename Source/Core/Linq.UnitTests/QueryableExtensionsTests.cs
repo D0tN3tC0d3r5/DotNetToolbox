@@ -34,7 +34,7 @@ public class QueryableExtensionsTests {
     [Fact]
     public void ToArray_WithProject_ReturnsProjectedArray() {
         // Arrange
-        Expression<Func<int, int>> project = x => x * 2;
+        Expression<Func<int, int>> project = static x => x * 2;
         var source = new List<int> { 1, 2, 3 }.AsQueryable();
 
         // Act
@@ -47,7 +47,7 @@ public class QueryableExtensionsTests {
     [Fact]
     public void ToList_WithProject_ReturnsProjectedArray() {
         // Arrange
-        Expression<Func<int, int>> project = x => x * 2;
+        Expression<Func<int, int>> project = static x => x * 2;
         var source = new List<int> { 1, 2, 3 }.AsQueryable();
 
         // Act
@@ -63,7 +63,7 @@ public class QueryableExtensionsTests {
         var source = new List<string> { "one", "two", "three" }.AsQueryable();
 
         // Act
-        var result = source.ToDictionary(x => x.ToUpper(CultureInfo.InvariantCulture), x => x.Length);
+        var result = source.ToDictionary(static x => x.ToUpper(CultureInfo.InvariantCulture), static x => x.Length);
 
         // Assert
         result.Should().Equal(new Dictionary<string, int> { { "ONE", 3 }, { "TWO", 3 }, { "THREE", 5 } });
@@ -72,7 +72,7 @@ public class QueryableExtensionsTests {
     [Fact]
     public void ToHashSet_WithProject_ReturnsProjectedHashSet() {
         // Arrange
-        Expression<Func<int, int>> project = x => x * 2;
+        Expression<Func<int, int>> project = static x => x * 2;
         var source = new List<int> { 1, 2, 3 }.AsQueryable();
 
         // Act

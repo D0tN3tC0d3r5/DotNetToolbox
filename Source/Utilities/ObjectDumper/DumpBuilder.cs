@@ -168,8 +168,8 @@ internal sealed class DumpBuilder : IDisposable {
     }
 
     private void AddMembers(object parent) {
-        var items = GetItems(parent).Cast<object?>().Select((item, index) => (Value: item, Index: index)).ToArray();
-        var lastIndex = items.Length > 0 ? items.Max(i => i.Index) : 0;
+        var items = GetItems(parent).Cast<object?>().Select(static (item, index) => (Value: item, Index: index)).ToArray();
+        var lastIndex = items.Length > 0 ? items.Max(static i => i.Index) : 0;
         foreach (var item in items) {
             var member = GetElementOrDefault(parent, item.Value);
             if (!TryAddValue(member)) continue;

@@ -16,8 +16,9 @@ public abstract class Sequencer<TSequencer, TValue>
     object IEnumerator.Current => _current;
     public TValue Current {
         get {
+            var current = _current;
             MoveNext();
-            return _current;
+            return current;
         }
         set => Set(value);
     }

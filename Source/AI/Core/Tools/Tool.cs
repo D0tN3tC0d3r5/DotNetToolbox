@@ -41,7 +41,7 @@ public class Tool
         init => this[nameof(Arguments)] = value;
     }
 
-    public string Signature => $"{Name}({string.Join(",", Arguments.Select(p => p.Signature))}) -> {ReturnType}";
+    public string Signature => $"{Name}({string.Join(",", Arguments.Select(static p => p.Signature))}) -> {ReturnType}";
 
     public Result Validate(IMap? context = null)
         => Result.Success();

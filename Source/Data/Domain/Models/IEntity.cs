@@ -4,7 +4,6 @@ public interface IEntity;
 
 public interface IEntity<TKey>
     : IEntity
-    , IValidatable
-    where TKey : notnull {
+    , IValidatable {
     TKey Id { get; set; }
 }

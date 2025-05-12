@@ -89,10 +89,10 @@ public class ExpressionConversionVisitor(IEnumerable<ParameterExpression> parent
         if (typeMapping == null)
             return base.VisitNew(node);
         var arguments = node.Arguments.ToArray(Visit);
-        var types = arguments.ToArray(a => a!.Type);
+        var types = arguments.ToArray(static a => a!.Type);
         var constructor = typeMapping.TargetType.GetConstructor(types)
                        ?? throw new InvalidOperationException($"No matching constructor for type '{typeMapping.TargetType.Name}'");
-        var members = arguments.OfType<MemberExpression>().ToArray(m => m.Member);
+        var members = arguments.OfType<MemberExpression>().ToArray(static m => m.Member);
 #pragma warning disable CS8620
         return Expression.New(constructor, arguments, members);
 #pragma warning restore CS8620

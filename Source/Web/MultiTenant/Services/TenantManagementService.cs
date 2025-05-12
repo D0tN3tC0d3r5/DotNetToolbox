@@ -12,7 +12,7 @@ public class TenantManagementService(ITenantStore storage,
         var result = options.Validate();
         if (!result.HasErrors)
             return options;
-        var errorMessages = string.Join("", $"{Environment.NewLine} - ${result.Errors.Select(e => e.ToString())}");
+        var errorMessages = string.Join("", $"{Environment.NewLine} - ${result.Errors.Select(static e => e.ToString())}");
         throw new InvalidOperationException($"Invalid TenantOptions configuration:{errorMessages}");
     }
 

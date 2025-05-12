@@ -18,9 +18,9 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>
 
     private static void DefaultAction(IConfigurationBuilder _) { }
 
-    public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration, Action<TBuilder> configureBuilder) {
+    public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration, Action<TBuilder>? configureBuilder = null) {
         var builder = CreateBuilder(args, setConfiguration);
-        configureBuilder(builder);
+        configureBuilder?.Invoke(builder);
         return builder.Build();
     }
 
@@ -28,10 +28,10 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>
         => Create([], setConfiguration, configureBuilder);
 
     public static TApplication Create(string[] args, Action<IConfigurationBuilder> setConfiguration)
-        => Create(args, setConfiguration, null!);
+        => Create(args, setConfiguration, null);
 
     public static TApplication Create(Action<IConfigurationBuilder> setConfiguration)
-        => Create([], setConfiguration, null!);
+        => Create([], setConfiguration, null);
 
     public static TApplication Create(string[] args, Action<TBuilder> configureBuilder)
         => Create(args, null!, configureBuilder);
@@ -40,10 +40,10 @@ public abstract class ApplicationBase<TApplication, TBuilder, TSettings>
         => Create([], null!, configureBuilder);
 
     public static TApplication Create(string[] args)
-        => Create(args, null!, null!);
+        => Create(args, null!, null);
 
     public static TApplication Create()
-        => Create([], null!, null!);
+        => Create([], null!, null);
 
     public override string ToString()
         => $"{GetType().Name}: {Name} v{Version} => {Help}";
@@ -161,13 +161,7 @@ public abstract partial class ApplicationBase<TSettings>
     public string Version { get; }
     public string DisplayVersion { get; }
     public string FullName => $"{Name} v{DisplayVersion}";
-    public string Description {
-        get;
-        set {
-            field = value;
-            if (string.IsNullOrWhiteSpace(Help)) Help = field;
-        }
-    } = string.Empty;
+    public string Description { get; set; }
     public string Help { get; set; } = string.Empty;
     public TSettings Settings { get; init; }
 
@@ -185,9 +179,9 @@ public abstract partial class ApplicationBase<TSettings>
     public IMap Context { get; } = new Map();
 
     public ICollection<INode> Children { get; } = [];
-    public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
-    public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(i => i.Name)];
-    public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(i => i.Name)];
+    public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(static i => i.Order)];
+    public IArgument[] Options => [.. Children.OfType<IArgument>().OrderBy(static i => i.Name)];
+    public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>().OrderBy(static i => i.Name)];
 
     protected virtual Task<Result> OnStart(CancellationToken ct = default) => Task.FromResult(Success());
     protected virtual Result OnExit() => Success();
@@ -211,7 +205,7 @@ public abstract partial class ApplicationBase<TSettings>
     public ICommand AddCommand(string name, string alias, Delegate action)
         => AddCommand(name, [alias], action);
     public ICommand AddCommand(string name, string[] aliases, Delegate action)
-        => NodeFactory.Create<Command>(this, name, (Action<Parameter>)(n => n.Aliases = aliases), action);
+        => NodeFactory.Create<Command>(this, name, (Action<Command>)(n => n.Aliases = aliases), action);
     public ICommand AddCommand<TChildCommand>()
         where TChildCommand : Command<TChildCommand>, ICommand
         => NodeFactory.Create<TChildCommand>(this);
@@ -222,7 +216,7 @@ public abstract partial class ApplicationBase<TSettings>
     public IFlag AddFlag(string name, string alias, Delegate? action = null)
         => AddFlag(name, [alias], action);
     public IFlag AddFlag(string name, string[] aliases, Delegate? action = null)
-        => NodeFactory.Create<Flag>(this, name, (Action<Parameter>)(n => n.Aliases = aliases), action);
+        => NodeFactory.Create<Flag>(this, name, (Action<Flag>)(n => n.Aliases = aliases), action);
     public IFlag AddFlag<TFlag>()
         where TFlag : Flag<TFlag>, IFlag
         => NodeFactory.Create<TFlag>(this);
@@ -233,7 +227,7 @@ public abstract partial class ApplicationBase<TSettings>
     public IOption AddOption(string name, string alias)
         => AddOption(name, [alias]);
     public IOption AddOption(string name, string[] aliases)
-        => NodeFactory.Create<Option>(this, name, (Action<Parameter>)(n => n.Aliases = aliases));
+        => NodeFactory.Create<Option>(this, name, (Action<Option>)(n => n.Aliases = aliases));
     public IOption AddOption<TOption>()
         where TOption : Option<TOption>, IOption
         => NodeFactory.Create<TOption>(this);

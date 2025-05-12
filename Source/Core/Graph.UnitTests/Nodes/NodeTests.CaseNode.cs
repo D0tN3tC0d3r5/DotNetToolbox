@@ -4,7 +4,7 @@ public partial class NodeTests {
     public class CaseNodeTests : NodeTests {
         [Fact]
         public void CreateCase_WithoutTag_ReturnsBranchingNodeWithDefaultLabel() {
-            var node = CreateFactory().CreateCase(_ => "default");
+            var node = CreateFactory().CreateCase(static _ => "default");
 
             node.Should().NotBeNull();
             node.Should().BeOfType<CaseNode>();
@@ -18,7 +18,7 @@ public partial class NodeTests {
         [Fact]
         public void CreateCase_WithCustomTag_ReturnsBranchingNodeWithCustomLabel() {
             const string customId = "Action1";
-            var node = CreateFactory().CreateCase(customId, _ => "default");
+            var node = CreateFactory().CreateCase(customId, static _ => "default");
 
             node.Should().NotBeNull();
             node.Should().BeOfType<CaseNode>();
@@ -31,13 +31,13 @@ public partial class NodeTests {
         [Fact]
         public void CreateCase_WithMultipleBranches_SetsAllBranches() {
             var node = CreateFactory().CreateCase("1",
-                                             _ => "key",
+                                             static _ => "key",
                                              new() {
                                                  ["key1"] = null,
                                                  ["key2"] = null,
                                                  ["key3"] = null,
                                              },
-                                             CreateFactory().CreateAction("o", _ => { }));
+                                             CreateFactory().CreateAction("o", static _ => { }));
 
             node.Should().BeOfType<CaseNode>();
             var branchingNode = (CaseNode)node;
@@ -48,11 +48,11 @@ public partial class NodeTests {
         [Fact]
         public async Task Run_MethodWithExistingKey_ExecutesCorrectBranch() {
             var node = CreateFactory().CreateCase("1",
-                                             _ => "key2",
+                                             static _ => "key2",
                                              new() {
-                                                 ["key1"] = CreateFactory().CreateAction("k1", ctx => ctx["branch"] = "1"),
-                                                 ["key2"] = CreateFactory().CreateAction("k2", ctx => ctx["branch"] = "2"),
-                                                 ["key3"] = CreateFactory().CreateAction("k3", ctx => ctx["branch"] = "3"),
+                                                 ["key1"] = CreateFactory().CreateAction("k1", static ctx => ctx["branch"] = "1"),
+                                                 ["key2"] = CreateFactory().CreateAction("k2", static ctx => ctx["branch"] = "2"),
+                                                 ["key3"] = CreateFactory().CreateAction("k3", static ctx => ctx["branch"] = "3"),
                                              });
 
             using var context = new Map();
@@ -81,12 +81,12 @@ public partial class NodeTests {
         [Fact]
         public async Task Run_MethodWithNonExistingKeyAndWithOtherwise_ExecutesOtherwise() {
             var node = CreateFactory().CreateCase("1",
-                                             _ => "nonexistent",
+                                             static _ => "nonexistent",
                                              new() {
-                                                 ["key1"] = CreateFactory().CreateAction("k1", ctx => ctx["branch"] = "1"),
-                                                 ["key2"] = CreateFactory().CreateAction("k2", ctx => ctx["branch"] = "2"),
+                                                 ["key1"] = CreateFactory().CreateAction("k1", static ctx => ctx["branch"] = "1"),
+                                                 ["key2"] = CreateFactory().CreateAction("k2", static ctx => ctx["branch"] = "2"),
                                              },
-                                             CreateFactory().CreateAction("o", ctx => ctx["branch"] = "9"));
+                                             CreateFactory().CreateAction("o", static ctx => ctx["branch"] = "9"));
             using var context = new Map();
             await node.Run(context);
 
@@ -96,7 +96,7 @@ public partial class NodeTests {
         [Fact]
         public void CreateCase_ValidateMethod_ValidatesAllBranches() {
             var node = CreateFactory().CreateCase("1",
-                                             _ => "key",
+                                             static _ => "key",
                                              new() {
                                                  ["key1"] = null,
                                                  ["key2"] = null,

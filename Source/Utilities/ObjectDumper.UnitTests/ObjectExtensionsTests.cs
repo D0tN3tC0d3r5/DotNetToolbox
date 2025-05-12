@@ -68,7 +68,7 @@ public class ObjectExtensionsTests {
         var expectedText = JsonSerializer.Serialize(subject);
 
         //Act
-        var result = subject.DumpAsJson(opt => opt.Indented = false);
+        var result = subject.DumpAsJson(static opt => opt.Indented = false);
 
         // Assert
         result.Should().Be(expectedText);
@@ -77,7 +77,7 @@ public class ObjectExtensionsTests {
     [Fact]
     public void Dump_WithCustomIndentSize_ReturnsString() {
         // Arrange & Act
-        var result = _listOfLists.Dump(opt => opt.IndentSize = 2);
+        var result = _listOfLists.Dump(static opt => opt.IndentSize = 2);
 
         //Assert
         result.Should().Be(_listOfListsDump2SpacesLv1);
@@ -86,9 +86,9 @@ public class ObjectExtensionsTests {
     [Fact]
     public void Dump_WithCustomFormatter_ReturnsString() {
         // Arrange & Act
-        var result = new TestClass(42, "Text").Dump(opt => {
-            opt.CustomFormatters[typeof(int)] = v => $"{v:0,000.000}";
-            opt.CustomFormatters[typeof(string)] = _ => "It is a string.";
+        var result = new TestClass(42, "Text").Dump(static opt => {
+            opt.CustomFormatters[typeof(int)] = static v => $"{v:0,000.000}";
+            opt.CustomFormatters[typeof(string)] = static _ => "It is a string.";
         });
 
         //Assert
@@ -98,7 +98,7 @@ public class ObjectExtensionsTests {
     [Fact]
     public void Dump_WithTabs_ReturnsString() {
         // Arrange & Act
-        var result = new TestClass(42, "Text").Dump(opt => opt.UseTabs = true);
+        var result = new TestClass(42, "Text").Dump(static opt => opt.UseTabs = true);
 
         //Assert
         result.Should().Be(_testWithTabs);
@@ -118,7 +118,7 @@ public class ObjectExtensionsTests {
     [ClassData(typeof(TestDataForNotIndented))]
     public void Dump_NotIndented_ReturnsString(object? value, string expectedText) {
         // Arrange & Act
-        var result = value.Dump(opt => opt.Indented = false);
+        var result = value.Dump(static opt => opt.Indented = false);
 
         // Assert
         result.Should().Be(expectedText);
@@ -128,7 +128,7 @@ public class ObjectExtensionsTests {
     [ClassData(typeof(TestDataForFullName))]
     public void Dump_WithFullName_ReturnsString(object? value, string expectedText) {
         // Arrange & Act
-        var result = value.Dump(opt => opt.UseFullNames = true);
+        var result = value.Dump(static opt => opt.UseFullNames = true);
 
         // Assert
         result.Should().Be(expectedText);
@@ -200,7 +200,7 @@ public class ObjectExtensionsTests {
         // ReSharper disable once UnusedType.Local
         public delegate void EventHandler<in TConvertedArgs>(object sender, TConvertedArgs e);
         // ReSharper disable once EventNeverSubscribedTo.Local
-        public event EventHandler<ConvertedArgs> OnConverted = (_, _) => { };
+        public event EventHandler<ConvertedArgs> OnConverted = static (_, _) => { };
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
@@ -486,7 +486,7 @@ public class ObjectExtensionsTests {
                 "CompareInfo": <CompareInfo> ...,
                 "TextInfo": <TextInfo> ...,
                 "IsNeutralCulture": <Boolean> true,
-                "CultureTypes": <CultureTypes> NeutralCultures,*
+                "CultureTypes": <CultureTypes> NeutralCultures, InstalledWin32Cultures,
                 "NumberFormat": <NumberFormatInfo> ...,
                 "DateTimeFormat": <DateTimeFormatInfo> ...,
                 "Calendar": <Calendar> ...,
@@ -521,7 +521,7 @@ public class ObjectExtensionsTests {
                 "IsRightToLeft": <Boolean> false
             },
             "IsNeutralCulture": <Boolean> false,
-            "CultureTypes": <CultureTypes> SpecificCultures,*
+            "CultureTypes": <CultureTypes> SpecificCultures, InstalledWin32Cultures,
             "NumberFormat": <NumberFormatInfo> {
                 "CurrencyDecimalDigits": <Int32> 2,
                 "CurrencyDecimalSeparator": <String> ".",
@@ -576,7 +576,7 @@ public class ObjectExtensionsTests {
                 "AbbreviatedMonthNames": <String[]> ...,
                 "MonthNames": <String[]> ...,
                 "IsReadOnly": <Boolean> true,
-                "NativeCalendarName": <String> "Gregorian Calendar",
+                "NativeCalendarName": <String> "Gregorian calendar",
                 "AbbreviatedMonthGenitiveNames": <String[]> ...,
                 "MonthGenitiveNames": <String[]> ...
             },
@@ -613,7 +613,7 @@ public class ObjectExtensionsTests {
                     "CompareInfo": <CompareInfo> ...,
                     "TextInfo": <TextInfo> ...,
                     "IsNeutralCulture": <Boolean> false,
-                    "CultureTypes": <CultureTypes> SpecificCultures,*
+                    "CultureTypes": <CultureTypes> SpecificCultures, InstalledWin32Cultures,
                     "NumberFormat": <NumberFormatInfo> ...,
                     "DateTimeFormat": <DateTimeFormatInfo> ...,
                     "Calendar": <Calendar> ...,
@@ -648,7 +648,7 @@ public class ObjectExtensionsTests {
                     "IsRightToLeft": <Boolean> false
                 },
                 "IsNeutralCulture": <Boolean> true,
-                "CultureTypes": <CultureTypes> NeutralCultures,*
+                "CultureTypes": <CultureTypes> NeutralCultures, InstalledWin32Cultures,
                 "NumberFormat": <NumberFormatInfo> {
                     "CurrencyDecimalDigits": <Int32> 2,
                     "CurrencyDecimalSeparator": <String> ".",
@@ -735,8 +735,8 @@ public class ObjectExtensionsTests {
             "CompareInfo": <CompareInfo> {
                 "Name": <String> "en-CA",
                 "Version": <SortVersion> {
-                    "FullVersion": <Int32> 26777,
-                    "SortId": <Guid> 00006899-0000-0000-0000-000000001009
+                    "FullVersion": <Int32> 31129,
+                    "SortId": <Guid> 00007999-0000-0000-0000-000000001009
                 },
                 "LCID": <Int32> 4105
             },
@@ -752,7 +752,7 @@ public class ObjectExtensionsTests {
                 "IsRightToLeft": <Boolean> false
             },
             "IsNeutralCulture": <Boolean> false,
-            "CultureTypes": <CultureTypes> SpecificCultures,*
+            "CultureTypes": <CultureTypes> SpecificCultures, InstalledWin32Cultures,
             "NumberFormat": <NumberFormatInfo> {
                 "CurrencyDecimalDigits": <Int32> 2,
                 "CurrencyDecimalSeparator": <String> ".",
@@ -827,13 +827,13 @@ public class ObjectExtensionsTests {
                 "UniversalSortableDateTimePattern": <String> "yyyy'-'MM'-'dd HH':'mm':'ss'Z'",
                 "YearMonthPattern": <String> "MMMM yyyy",
                 "AbbreviatedDayNames": <String[]> [
-                    "Sun.",
-                    "Mon.",
-                    "Tue.",
-                    "Wed.",
-                    "Thu.",
-                    "Fri.",
-                    "Sat."
+                    "Sun",
+                    "Mon",
+                    "Tue",
+                    "Wed",
+                    "Thu",
+                    "Fri",
+                    "Sat"
                 ],
                 "ShortestDayNames": <String[]> [
                     "S",
@@ -854,18 +854,18 @@ public class ObjectExtensionsTests {
                     "Saturday"
                 ],
                 "AbbreviatedMonthNames": <String[]> [
-                    "Jan.",
-                    "Feb.",
-                    "Mar.",
-                    "Apr.",
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
                     "May",
-                    "Jun.",
-                    "Jul.",
-                    "Aug.",
-                    "Sep.",
-                    "Oct.",
-                    "Nov.",
-                    "Dec.",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
                     ""
                 ],
                 "MonthNames": <String[]> [
@@ -884,20 +884,20 @@ public class ObjectExtensionsTests {
                     ""
                 ],
                 "IsReadOnly": <Boolean> true,
-                "NativeCalendarName": <String> "Gregorian Calendar",
+                "NativeCalendarName": <String> "Gregorian calendar",
                 "AbbreviatedMonthGenitiveNames": <String[]> [
-                    "Jan.",
-                    "Feb.",
-                    "Mar.",
-                    "Apr.",
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
                     "May",
-                    "Jun.",
-                    "Jul.",
-                    "Aug.",
-                    "Sep.",
-                    "Oct.",
-                    "Nov.",
-                    "Dec.",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
                     ""
                 ],
                 "MonthGenitiveNames": <String[]> [
@@ -962,6 +962,7 @@ public class ObjectExtensionsTests {
             "Namespace": <String> "DotNetToolbox",
             "GUID": <Guid> bbb0d012-07fc-349f-b31e-9fe0a1c7281f,
             "IsEnum": <Boolean> false,
+            "IsByRefLike": <Boolean> false,
             "IsConstructedGenericType": <Boolean> false,
             "IsGenericType": <Boolean> true,
             "IsGenericTypeDefinition": <Boolean> true,
@@ -974,7 +975,6 @@ public class ObjectExtensionsTests {
             "DeclaringType": <Type> ObjectExtensionsTests,
             "Assembly": <Assembly> DotNetToolbox.ObjectDumper.UnitTests v1.0.0.0,
             "BaseType": <Type> Object,
-            "IsByRefLike": <Boolean> false,
             "IsGenericParameter": <Boolean> false,
             "IsTypeDefinition": <Boolean> true,
             "IsSecurityCritical": <Boolean> true,
@@ -992,7 +992,6 @@ public class ObjectExtensionsTests {
             "DeclaredNestedTypes": <IEnumerable<TypeInfo>> ...,
             "DeclaredProperties": <IEnumerable<PropertyInfo>> ...,
             "ImplementedInterfaces": <IEnumerable<Type>> ...,
-            "IsInterface": <Boolean> false,
             "IsNested": <Boolean> true,
             "IsArray": <Boolean> false,
             "IsByRef": <Boolean> false,
@@ -1041,6 +1040,7 @@ public class ObjectExtensionsTests {
             "Namespace": <System.String> "DotNetToolbox",
             "GUID": <System.Guid> bbb0d012-07fc-349f-b31e-9fe0a1c7281f,
             "IsEnum": <System.Boolean> false,
+            "IsByRefLike": <System.Boolean> false,
             "IsConstructedGenericType": <System.Boolean> false,
             "IsGenericType": <System.Boolean> true,
             "IsGenericTypeDefinition": <System.Boolean> true,
@@ -1053,7 +1053,6 @@ public class ObjectExtensionsTests {
             "DeclaringType": <System.Type> DotNetToolbox.ObjectExtensionsTests,
             "Assembly": <System.Reflection.Assembly> DotNetToolbox.ObjectDumper.UnitTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=414fc8c314317fa7,
             "BaseType": <System.Type> System.Object,
-            "IsByRefLike": <System.Boolean> false,
             "IsGenericParameter": <System.Boolean> false,
             "IsTypeDefinition": <System.Boolean> true,
             "IsSecurityCritical": <System.Boolean> true,
@@ -1071,7 +1070,6 @@ public class ObjectExtensionsTests {
             "DeclaredNestedTypes": <System.Collections.Generic.IEnumerable<System.Reflection.TypeInfo>> ...,
             "DeclaredProperties": <System.Collections.Generic.IEnumerable<System.Reflection.PropertyInfo>> ...,
             "ImplementedInterfaces": <System.Collections.Generic.IEnumerable<System.Type>> ...,
-            "IsInterface": <System.Boolean> false,
             "IsNested": <System.Boolean> true,
             "IsArray": <System.Boolean> false,
             "IsByRef": <System.Boolean> false,
@@ -1116,10 +1114,11 @@ public class ObjectExtensionsTests {
         <RuntimeType> {
             "IsCollectible": <Boolean> false,
             "FullName": <String> "System.Int32",
-            "AssemblyQualifiedName": <String> "System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
+            "AssemblyQualifiedName": <String> "System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
             "Namespace": <String> "System",
-            "GUID": <Guid> bf6391d7-4c57-3a00-9c4b-e40608e6a569,
+            "GUID": <Guid> ac33e7bc-587c-33d5-89a4-218626424743,
             "IsEnum": <Boolean> false,
+            "IsByRefLike": <Boolean> false,
             "IsConstructedGenericType": <Boolean> false,
             "IsGenericType": <Boolean> false,
             "IsGenericTypeDefinition": <Boolean> false,
@@ -1130,16 +1129,15 @@ public class ObjectExtensionsTests {
             "IsUnmanagedFunctionPointer": <Boolean> false,
             "Name": <String> "Int32",
             "DeclaringType": <Type> null,
-            "Assembly": <Assembly> System.Private.CoreLib v8.0.0.0,
+            "Assembly": <Assembly> System.Private.CoreLib v9.0.0.0,
             "BaseType": <Type> ValueType,
-            "IsByRefLike": <Boolean> false,
             "IsGenericParameter": <Boolean> false,
             "IsTypeDefinition": <Boolean> true,
             "IsSecurityCritical": <Boolean> true,
             "IsSecuritySafeCritical": <Boolean> false,
             "IsSecurityTransparent": <Boolean> false,
             "MemberType": <MemberTypes> TypeInfo,
-            "MetadataToken": <Int32> 33554772,
+            "MetadataToken": <Int32> 33554784,
             "ReflectedType": <Type> null,
             "GenericTypeParameters": <Type[]> ...,
             "DeclaredConstructors": <IEnumerable<ConstructorInfo>> ...,
@@ -1150,7 +1148,6 @@ public class ObjectExtensionsTests {
             "DeclaredNestedTypes": <IEnumerable<TypeInfo>> ...,
             "DeclaredProperties": <IEnumerable<PropertyInfo>> ...,
             "ImplementedInterfaces": <IEnumerable<Type>> ...,
-            "IsInterface": <Boolean> false,
             "IsNested": <Boolean> false,
             "IsArray": <Boolean> false,
             "IsByRef": <Boolean> false,

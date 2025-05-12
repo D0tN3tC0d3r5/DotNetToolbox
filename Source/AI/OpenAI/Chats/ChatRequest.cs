@@ -37,7 +37,7 @@ public class ChatRequest(IAgent connection, IModel model, IChat chat)
     public ChatRequestResponseFormat? ResponseFormat { get; set; }
 
     private static ChatRequestMessage[] SetMessages(IChat chat)
-        => chat.ToArray(m => new ChatRequestMessage(m));
+        => chat.ToArray(static m => new ChatRequestMessage(m));
 
     private static uint SetMaximumOutputTokens(IAgent agent, IModel model)
         => agent.Settings.MaximumOutputTokens > AgentSettings.MinimumOutputTokens

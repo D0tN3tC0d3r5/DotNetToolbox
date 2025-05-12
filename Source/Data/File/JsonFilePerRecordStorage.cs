@@ -1,28 +1,21 @@
-using Microsoft.Extensions.Configuration;
+using DotNetToolbox.Data.KeyGenerators;
 
 namespace DotNetToolbox.Data.File;
 
-public abstract class JsonFilePerRecordStorage<TItem>(string name, IConfiguration configuration, IList<TItem>? data = null)
-    : JsonFilePerRecordStorage<TItem, uint>(name, configuration, data)
-    where TItem : class, IEntity<uint> {
-    protected override uint FirstKey => 1;
-
-    protected override bool TryGenerateNextKey(out uint next) {
-        next = LastUsedKey == 0 ? FirstKey : ++LastUsedKey;
-        return true;
-    }
-}
+public abstract class JsonFilePerRecordStorage<TItem>(string name, IConfiguration configuration, IKeyGenerator<uint> keyGenerator, IEnumerable<TItem>? data = null)
+    : JsonFilePerRecordStorage<TItem, uint>(name, configuration, keyGenerator, data)
+    where TItem : IEntity<uint>, new();
 
 public abstract class JsonFilePerRecordStorage<TItem, TKey>
     : Storage<JsonFilePerRecordStorage<TItem, TKey>, TItem, TKey>,
       IJsonFilePerRecordStorage<TItem, TKey>
-    where TItem : class, IEntity<TKey>
+    where TItem : IEntity<TKey>, new()
     where TKey : notnull {
     private const string _defaultBaseFolder = "data";
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
-    protected JsonFilePerRecordStorage(string name, IConfiguration configuration, IList<TItem>? data = null)
-        : base(data) {
+    protected JsonFilePerRecordStorage(string name, IConfiguration configuration, IKeyGenerator<TKey> keyGenerator, IEnumerable<TItem>? seed = null)
+        : base(name, keyGenerator, seed ?? []) {
         var baseFolder = configuration.GetValue<string>("Data:BaseFolder")
                       ?? configuration.GetValue<string>($"Data:{name}:BaseFolder")
                       ?? _defaultBaseFolder;
@@ -42,15 +35,7 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
             var item = JsonSerializer.Deserialize<TItem>(json, _jsonOptions);
             if (item != null) Data.Add(item);
         }
-        LoadLastUsedKey();
-        return Result.Success();
-    }
-
-    protected override Result<TKey?> LoadLastUsedKey() {
-        LastUsedKey = Data.Count != 0
-            ? Data.Max(item => item.Id)
-            : default;
-        return Result.Success(LastUsedKey);
+        return base.Load();
     }
 
     public override TItem[] GetAll(Expression<Func<TItem, bool>>? filterBy = null, HashSet<SortClause>? orderBy = null) {
@@ -103,7 +88,7 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
     }
 
     public override Result<TItem> Create(Action<TItem>? setItem = null, IMap? validationContext = null) {
-        var item = InstanceFactory.Create<TItem>();
+        var item = new TItem();
         // Create does not consume a key to avoid consuming it into a record that might not be saved.
         setItem?.Invoke(item);
         var result = Result.Success(item);
@@ -111,23 +96,23 @@ public abstract class JsonFilePerRecordStorage<TItem, TKey>
         return result;
     }
 
-    public override Result Add(TItem newItem, IMap? context = null) {
-        context ??= new Map();
-        context[nameof(EntityAction)] = EntityAction.Insert;
-        if (TryGetNextKey(out var next)) newItem.Id = next;
-        var result = newItem.Validate(context);
+    public override Result Add(TItem newItem, IMap? validationContext = null) {
+        validationContext ??= new Map();
+        validationContext[nameof(EntityAction)] = EntityAction.Insert;
+        newItem.Id = GetNextKey();
+        var result = newItem.Validate(validationContext);
         if (!result.IsSuccessful) return result;
         Data.Add(newItem);
         SaveItem(newItem);
         return result;
     }
 
-    public override Result Update(TItem updatedItem, IMap? context = null) {
-        context ??= new Map();
-        context[nameof(EntityAction)] = EntityAction.Update;
+    public override Result Update(TItem updatedItem, IMap? validationContext = null) {
+        validationContext ??= new Map();
+        validationContext[nameof(EntityAction)] = EntityAction.Update;
         var entry = Data.Index().FirstOrDefault(i => i.Item.Id.Equals(updatedItem.Id));
         if (entry.Item is null) return new Error($"Item '{updatedItem.Id}' not found", nameof(updatedItem));
-        var result = updatedItem.Validate(context);
+        var result = updatedItem.Validate(validationContext);
         if (!result.IsSuccessful) return result;
         Data[entry.Index] = updatedItem;
         SaveItem(updatedItem);

@@ -8,7 +8,7 @@ public partial class AsyncQueryableTests {
             [2] = "BB",
             [3] = "CCC",
         };
-        var result = _repo.ToDictionary(k => k.Name.Length, v => $"{v.Name}");
+        var result = _repo.ToDictionary(static k => k.Name.Length, static v => $"{v.Name}");
         result.Should().BeEquivalentTo(expectedDictionary);
     }
 
@@ -19,7 +19,7 @@ public partial class AsyncQueryableTests {
             ["BB"] = new("BB"),
             ["CCC"] = new("CCC"),
         };
-        var result = await _repo.ToDictionaryAsync(x => x.Name);
+        var result = await _repo.ToDictionaryAsync(static x => x.Name);
         result.Should().BeEquivalentTo(expectedDictionary);
     }
 
@@ -30,7 +30,7 @@ public partial class AsyncQueryableTests {
             ["BB"] = "BB*",
             ["CCC"] = "CCC*",
         };
-        var result = await _repo.ToDictionaryAsync(k => k.Name, v => $"{v.Name}*");
+        var result = await _repo.ToDictionaryAsync(static k => k.Name, static v => $"{v.Name}*");
         result.Should().BeEquivalentTo(expectedDictionary);
     }
 
@@ -41,7 +41,7 @@ public partial class AsyncQueryableTests {
             [1] = new("BB"),
             [2] = new("CCC"),
         };
-        var result = await _repo.ToDictionaryAsync((_, i) => i);
+        var result = await _repo.ToDictionaryAsync(static (_, i) => i);
         result.Should().BeEquivalentTo(expectedDictionary);
     }
 
@@ -52,7 +52,7 @@ public partial class AsyncQueryableTests {
             [1] = "1:BB",
             [2] = "2:CCC",
         };
-        var result = await _repo.ToDictionaryAsync((_, i) => i, (v, i) => $"{i}:{v.Name}");
+        var result = await _repo.ToDictionaryAsync(static (_, i) => i, static (v, i) => $"{i}:{v.Name}");
         result.Should().BeEquivalentTo(expectedDictionary);
     }
 
@@ -63,7 +63,7 @@ public partial class AsyncQueryableTests {
             ["BB"] = new("BB"),
             ["CCC"] = new("CCC"),
         };
-        var result = await _repo.ToDictionaryAsync(x => x.Name, EqualityComparer<string>.Default);
+        var result = await _repo.ToDictionaryAsync(static x => x.Name, EqualityComparer<string>.Default);
         result.Should().BeEquivalentTo(expectedDictionary);
     }
 
@@ -74,7 +74,7 @@ public partial class AsyncQueryableTests {
             ["BB"] = "BB*",
             ["CCC"] = "CCC*",
         };
-        var result = await _repo.ToDictionaryAsync(k => k.Name, v => $"{v.Name}*", EqualityComparer<string>.Default);
+        var result = await _repo.ToDictionaryAsync(static k => k.Name, static v => $"{v.Name}*", EqualityComparer<string>.Default);
         result.Should().BeEquivalentTo(expectedDictionary);
     }
     [Fact]
@@ -84,7 +84,7 @@ public partial class AsyncQueryableTests {
             [1] = new("BB"),
             [2] = new("CCC"),
         };
-        var result = await _repo.ToDictionaryAsync((_, i) => i, EqualityComparer<int>.Default);
+        var result = await _repo.ToDictionaryAsync(static (_, i) => i, EqualityComparer<int>.Default);
         result.Should().BeEquivalentTo(expectedDictionary);
     }
 
@@ -95,7 +95,7 @@ public partial class AsyncQueryableTests {
             [1] = "1:BB",
             [2] = "2:CCC",
         };
-        var result = await _repo.ToDictionaryAsync((_, i) => i, (v, i) => $"{i}:{v.Name}", EqualityComparer<int>.Default);
+        var result = await _repo.ToDictionaryAsync(static (_, i) => i, static (v, i) => $"{i}:{v.Name}", EqualityComparer<int>.Default);
         result.Should().BeEquivalentTo(expectedDictionary);
     }
 }

@@ -14,11 +14,11 @@ public class ArgumentsParserTests {
         _serviceProvider.GetService(typeof(ILoggerFactory)).Returns(_loggerFactory);
         _app.Services.Returns(_serviceProvider);
         _app.Context.Returns(new Map());
-        _option = new Option(_app, "Option", o => o.Aliases = ["o"]);
-        _flag = new Flag(_app, "Flag", f => f.Aliases = ["f"]);
+        _option = new Option(_app, "Option", static o => o.Aliases = ["o"]);
+        _flag = new Flag(_app, "Flag", static f => f.Aliases = ["f"]);
         _requiredParameter = new Parameter(_app, "Name");
-        _parameter = new Parameter(_app, "Age", p => p.DefaultValue = "18");
-        _command = new(_app, "Say", c => c.Aliases = ["s"], (_, _) => Task.FromResult(Result.Success()));
+        _parameter = new Parameter(_app, "Age", static p => p.DefaultValue = "18");
+        _command = new(_app, "Say", static c => c.Aliases = ["s"], static (_, _) => Task.FromResult(Result.Success()));
     }
 
     [Fact]
@@ -368,8 +368,8 @@ public class ArgumentsParserTests {
         var arguments = new[] { "s", "-f" };
         _app.Children.Returns([_command]);
         _command.AddFlag("Flag", "f");
-        _command.AddCommand("TheCommand", () => { });
-        _command.AddFlag("ACommand", () => { });
+        _command.AddCommand("TheCommand", static () => { });
+        _command.AddFlag("ACommand", static () => { });
         _command.AddParameter("First", "1");
         _command.AddParameter("Second", "2");
 

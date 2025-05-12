@@ -3,7 +3,7 @@ namespace System.Linq;
 
 public static partial class QueryableExtensions {
     public static List<IndexedItem<TItem>> ToIndexedList<TItem>(this IQueryable<TItem> source)
-        => source.ToIndexedList(i => i);
+        => source.ToIndexedList(static i => i);
     public static List<IndexedItem<TResult>> ToIndexedList<TItem, TResult>(this IQueryable<TItem> source, Func<TItem, TResult> transform) {
         using var enumerator = source.GetEnumerator();
         var list = new List<IndexedItem<TResult>>();

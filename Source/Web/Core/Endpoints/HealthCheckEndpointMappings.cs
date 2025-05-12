@@ -7,7 +7,7 @@ public static class HealthCheckEndpointMappings {
     public static IEndpointRouteBuilder MapHealthCheckEndpoints(this IEndpointRouteBuilder app) {
         app.MapHealthChecks(IsHealthy)
            .WithName("IsHealthy");
-        app.MapHealthChecks(IsAlive, new() { Predicate = r => r.Tags.Contains("live") })
+        app.MapHealthChecks(IsAlive, new() { Predicate = static r => r.Tags.Contains("live") })
            .WithName("IsAlive");
         return app;
     }

@@ -1,7 +1,7 @@
 ﻿namespace DotNetToolbox.ConsoleApplication.Arguments;
 
 internal sealed class ClearScreenFlag(IHasChildren parent)
-    : Flag<ClearScreenFlag>(parent, "Clear-Screen", n => {
+    : Flag<ClearScreenFlag>(parent, "Clear-Screen", static n => {
         n.Aliases = ["cls"];
         n.Description = "Clear the screen.";
     }) {

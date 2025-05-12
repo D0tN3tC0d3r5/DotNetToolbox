@@ -1,12 +1,15 @@
 ﻿// ReSharper disable once CheckNamespace
+
 namespace System.Text;
 
-public readonly partial record struct UrlSafeBase64String {
-    public UrlSafeBase64String(byte[]? input = null) {
+public readonly partial record struct UrlSafeBase64String() {
+    public UrlSafeBase64String(byte[]? input)
+        : this() {
         Bytes = input ?? [];
     }
 
-    public UrlSafeBase64String(string? input) {
+    public UrlSafeBase64String(string? input)
+        : this() {
         input = input?.Trim() ?? string.Empty;
         if (string.IsNullOrEmpty(input)) {
             Bytes = [];
@@ -17,17 +20,10 @@ public readonly partial record struct UrlSafeBase64String {
             return;
         }
 
-        var result = new byte[input.Length * 2];
-        if (Convert.TryFromBase64String(input, result.AsSpan(), out var size)) {
-            Array.Resize(ref result, size);
-            Bytes = result;
-            return;
-        }
-
         Bytes = Encoding.UTF8.GetBytes(input);
     }
 
-    public byte[] Bytes { get; }
+    public byte[] Bytes { get; } = [];
     public string PlainText => Encoding.UTF8.GetString(Bytes);
     public string Encoded => UrlSafeBase64Converter.GetString(Bytes);
 

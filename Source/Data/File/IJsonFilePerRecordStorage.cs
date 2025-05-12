@@ -1,9 +1,9 @@
 ﻿
 namespace DotNetToolbox.Data.File;
 
-public interface IJsonFilePerRecordStorage<TItem, in TKey>
+public interface IJsonFilePerRecordStorage<TItem, TKey>
     : IStorage<TItem, TKey>
-    where TItem : class, IEntity<TKey>
+    where TItem : IEntity<TKey>
     where TKey : notnull {
     string BaseFolderPath { get; }
 }

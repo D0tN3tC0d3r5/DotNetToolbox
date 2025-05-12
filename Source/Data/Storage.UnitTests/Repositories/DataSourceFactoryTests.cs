@@ -1,6 +1,3 @@
-using DotNetToolbox.Data.DataSources;
-using DotNetToolbox.Data.Storages;
-
 namespace DotNetToolbox.Data.Repositories;
 
 public class DataSourceFactoryTests {
@@ -8,31 +5,28 @@ public class DataSourceFactoryTests {
 
     [Fact]
     public void CreateRepository_ReturnsRepository() {
-        var result = _factory.CreateInMemory<int>();
+        var keyGenerator = Substitute.For<IKeyGenerator<uint>>();
+        var result = _factory.Create<InMemoryDataSource<TestEntity>, InMemoryStorage<TestEntity>, TestEntity>("test", keyGenerator);
 
-        result.Should().BeOfType<InMemoryDataSource<int>>();
+        result.Should().BeOfType<InMemoryDataSource<TestEntity>>();
     }
 
     [Fact]
     public void CreateRepository_WithData_ReturnsSeededRepository() {
-        var result = _factory.CreateInMemory([1, 2, 3]);
+        var keyGenerator = Substitute.For<IKeyGenerator<uint>>();
+        var seed = new TestEntity[] { new(1, "One"), new(2, "Two"), new(3, "Three") };
+        var result = _factory.Create<InMemoryDataSource<TestEntity>, InMemoryStorage<TestEntity>, TestEntity>("test", keyGenerator, seed);
 
-        result.Should().BeOfType<InMemoryDataSource<int>>();
+        result.Should().BeOfType<InMemoryDataSource<TestEntity>>();
         result.Count().Should().Be(3);
     }
 
     [Fact]
-    public void CreateRepository_WithStrategy_ReturnsRepository() {
-        var result = _factory.CreateFromStorage<InMemoryStorage<int>, int>();
+    public void CreateRepository_FromStorage_ReturnsRepository() {
+        var keyGenerator = Substitute.For<IKeyGenerator<uint>>();
+        var storage = new InMemoryStorage<TestEntity>("test", keyGenerator);
+        var result = _factory.Create<InMemoryDataSource<TestEntity>, InMemoryStorage<TestEntity>, TestEntity>(storage);
 
-        result.Should().BeOfType<DataSource<InMemoryStorage<int>, int>>();
-    }
-
-    [Fact]
-    public void CreateRepository_WithStrategyAndData_ReturnsSeededRepository() {
-        var result = _factory.CreateFromStorage<InMemoryStorage<int>, int>(data: [1, 2, 3]);
-
-        result.Should().BeOfType<DataSource<InMemoryStorage<int>, int>>();
-        result.Count().Should().Be(3);
+        result.Should().BeOfType<InMemoryDataSource<TestEntity>>();
     }
 }

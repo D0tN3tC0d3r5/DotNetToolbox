@@ -6,5 +6,5 @@ public static partial class QueryableExtensions {
         => source.Cast<TItem>().AsIndexed();
 
     public static IQueryable<Indexed<TItem>> AsIndexed<TItem>(this IQueryable<TItem> source)
-        => source.Select((x, i) => new Indexed<TItem>(i, x));
+        => source.Select(static (x, i) => new Indexed<TItem>(i, x));
 }

@@ -1,16 +1,8 @@
 ﻿namespace DotNetToolbox.ConsoleApplication;
 
 public sealed class ShellApplication
-    : ShellApplication<ApplicationSettings> {
-    internal ShellApplication(string[] args, IServiceCollection services)
-        : base(args, services) {
-    }
-}
-
-public class ShellApplication<TSettings>
-    : ShellApplication<ShellApplication<TSettings>, TSettings>
-    where TSettings : ApplicationSettings, new() {
-    internal ShellApplication(string[] args, IServiceCollection services)
+    : ShellApplication<ShellApplication, ApplicationSettings> {
+    public ShellApplication(string[] args, IServiceCollection services)
         : base(args, services) {
     }
 }

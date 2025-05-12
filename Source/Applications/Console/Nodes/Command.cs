@@ -31,7 +31,7 @@ public class Command<TCommand>(IHasChildren parent,
     public IMap Context { get; } = new Map();
 
     public ICollection<INode> Children { get; } = [];
-    public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(i => i.Order)];
+    public IParameter[] Parameters => [.. Children.OfType<IParameter>().OrderBy(static i => i.Order)];
     public IArgument[] Options => [.. Children.OfType<IArgument>()];
     public ICommand[] Commands => [.. Children.OfType<ICommand>().Except(Options.Cast<INode>()).Cast<ICommand>()];
 
@@ -48,7 +48,7 @@ public class Command<TCommand>(IHasChildren parent,
     public ICommand AddCommand(string name, string alias, Delegate action)
         => AddCommand(name, [alias], action);
     public ICommand AddCommand(string name, string[] aliases, Delegate action)
-        => NodeFactory.Create<Command>(this, name, (Action<Parameter>)(n => n.Aliases = aliases), action);
+        => NodeFactory.Create<Command>(this, name, (Action<Command>)(n => n.Aliases = aliases), action);
     public ICommand AddCommand<TChildCommand>()
         where TChildCommand : Command<TChildCommand>, ICommand
         => NodeFactory.Create<TChildCommand>(this);
@@ -59,7 +59,7 @@ public class Command<TCommand>(IHasChildren parent,
     public IFlag AddFlag(string name, string alias, Delegate? action = null)
         => AddFlag(name, [alias], action);
     public IFlag AddFlag(string name, string[] aliases, Delegate? action = null)
-        => NodeFactory.Create<Flag>(this, name, (Action<Parameter>)(n => n.Aliases = aliases), action);
+        => NodeFactory.Create<Flag>(this, name, (Action<Flag>)(n => n.Aliases = aliases), action);
     public IFlag AddFlag<TFlag>()
         where TFlag : Flag<TFlag>, IFlag
         => NodeFactory.Create<TFlag>(this);
@@ -70,16 +70,16 @@ public class Command<TCommand>(IHasChildren parent,
     public IOption AddOption(string name, string alias)
         => AddOption(name, [alias]);
     public IOption AddOption(string name, string[] aliases)
-        => NodeFactory.Create<Option>(this, name, (Action<Parameter>)(n => n.Aliases = aliases));
+        => NodeFactory.Create<Option>(this, name, (Action<Option>)(n => n.Aliases = aliases));
     public IOption AddOption<TOption>()
         where TOption : Option<TOption>, IOption
         => NodeFactory.Create<TOption>(this);
     public void AddOption(IOption option) => Children.Add(option);
 
     public IParameter AddParameter(string name)
-        => AddParameter(name, null);
-    public IParameter AddParameter(string name, string? defaultValue)
-        => NodeFactory.Create<Parameter>(this, name, (Action<Parameter>)(n => n.DefaultValue = IsNotNull(defaultValue)));
+        => AddParameter(name, null!);
+    public IParameter AddParameter(string name, string defaultValue)
+        => NodeFactory.Create<Parameter>(this, name, (Action<Parameter>)(n => n.DefaultValue = defaultValue));
     public IParameter AddParameter<TParameter>()
         where TParameter : Parameter<TParameter>, IParameter
         => NodeFactory.Create<TParameter>(this);

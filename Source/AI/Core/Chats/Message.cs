@@ -15,7 +15,7 @@ public class Message(MessageRole role, IEnumerable<MessagePart> parts)
     public MessageRole Role { get; } = role;
     public bool IsPartial { get; set; }
     public override string ToString()
-        => this.Aggregate(new StringBuilder(), (b, v) => v.IsPartial ? b.Append(v.ToString()) : b.AppendLine(v.ToString())).ToString();
+        => this.Aggregate(new StringBuilder(), static (b, v) => v.IsPartial ? b.Append(v.ToString()) : b.AppendLine(v.ToString())).ToString();
 
     public static implicit operator string(Message message) => message.ToString();
 }

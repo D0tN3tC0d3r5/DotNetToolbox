@@ -108,13 +108,13 @@ internal static class OutputFormatter {
 
     private static string GetIds(INode node) {
         string[] ids = node is IArgument _
-                           ? [$"--{node.Name.ToLowerInvariant()}", .. node.Aliases.Select(a => $"-{a}")]
+                           ? [$"--{node.Name.ToLowerInvariant()}", .. node.Aliases.Select(static a => $"-{a}")]
                            : [node.Name, .. node.Aliases];
         return string.Join(", ", ids);
     }
 
     private static void AppendNodeDescription(StringBuilder builder, INode node, int length) {
-        var lines = node.Help.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var lines = node.Description.Split(System.Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (lines.Length == 0) {
             builder.AppendLine();
             return;

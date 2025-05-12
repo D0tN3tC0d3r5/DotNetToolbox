@@ -21,7 +21,7 @@ public partial class AsyncQueryableTests {
 
     [Fact]
     public async Task CountAsync_WithPredicate_ReturnsFilteredCount() {
-        var result = await _repo.CountAsync(x => x.Name != "A");
+        var result = await _repo.CountAsync(static x => x.Name != "A");
         result.Should().Be(2);
     }
 }

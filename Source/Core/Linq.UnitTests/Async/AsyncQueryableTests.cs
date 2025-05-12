@@ -9,7 +9,7 @@ public partial class AsyncQueryableTests {
     private static readonly AsyncQueryable<TestEntity> _repo = new([new("A"), new("BB"), new("CCC")]);
     private static readonly AsyncQueryable<TestEntity?> _repoWithNulls = new([new("A"), null, new("BB"), new("CCC"), null]);
     private static readonly AsyncQueryable<TestEntity> _repoWithDuplicate = new([new("CCC"), new("A"), new("BB"), new("CCC")]);
-    private static readonly AsyncQueryable<TestEntity> _bigRepo = new(Enumerable.Range(0, 1000).ToArray(x => new TestEntity($"{x}")));
+    private static readonly AsyncQueryable<TestEntity> _bigRepo = new(Enumerable.Range(0, 1000).ToArray(static x => new TestEntity($"{x}")));
     private static readonly AsyncQueryable<int> _emptyIntRepo = new([]);
     private static readonly AsyncQueryable<int> _intRepo = new([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     private static readonly AsyncQueryable<int?> _emptyNullableIntRepo = new([]);

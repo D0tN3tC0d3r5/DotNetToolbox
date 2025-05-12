@@ -36,7 +36,7 @@ public class InstanceFactoryTests {
     [Fact]
     public void Create_WithWrongArgs_Throws() {
         // Act
-        var action = () => InstanceFactory.Create<TestClassWithArgs>();
+        var action = static () => InstanceFactory.Create<TestClassWithArgs>();
 
         // Assert
         action.Should().Throw<InvalidOperationException>();

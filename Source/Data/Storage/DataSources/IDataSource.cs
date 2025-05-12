@@ -6,16 +6,11 @@ public interface IDataSource
     : IQueryableDataSource
     , IReadOnlyDataSource
     , IUpdatableDataSource
-    , IAsyncDisposable;
-
-public interface IDataSource<TItem>
-    : IDataSource
-    , IQueryableDataSource<TItem>
-    , IReadOnlyDataSource<TItem>
-    , IUpdatableDataSource<TItem>;
+    , IDisposable;
 
 public interface IDataSource<TItem, in TKey>
-    : IDataSource<TItem>
+    : IDataSource
+    , IQueryableDataSource<TItem, TKey>
     , IReadOnlyDataSource<TItem, TKey>
     , IUpdatableDataSource<TItem, TKey>
     where TItem : IEntity<TKey>

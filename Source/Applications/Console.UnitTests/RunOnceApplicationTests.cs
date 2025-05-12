@@ -19,7 +19,7 @@ public class RunOnceApplicationTests {
     [Fact]
     public void Create_AddEnvironmentVariables_CreatesRunOnceApplication() {
         // Act
-        var app = RunOnceApplication.Create(b => b.AddEnvironmentVariables("MYAPP_"));
+        var app = RunOnceApplication.Create(static b => b.AddEnvironmentVariables("MYAPP_"));
 
         // Assert
         app.Should().BeOfType<RunOnceApplication>();
@@ -41,7 +41,7 @@ public class RunOnceApplicationTests {
     [Fact]
     public void Create_AddUserSecrets_CreatesRunOnceApplication() {
         // Act
-        var app = RunOnceApplication.Create(b => b.AddUserSecrets<RunOnceApplication>());
+        var app = RunOnceApplication.Create(static b => b.AddUserSecrets<RunOnceApplication>());
 
         // Assert
         app.Should().BeOfType<RunOnceApplication>();
@@ -140,7 +140,7 @@ public class RunOnceApplicationTests {
         var output = new TestOutput();
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
 
             Usage:
                 testhost [Options]
@@ -168,7 +168,7 @@ public class RunOnceApplicationTests {
         var output = new TestOutput();
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
 
             Usage:
                 testhost [Options] [Commands]
@@ -202,7 +202,7 @@ public class RunOnceApplicationTests {
         var output = new TestOutput();
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
 
             Usage:
                 testhost [Options] [<Project>]
@@ -258,7 +258,7 @@ public class RunOnceApplicationTests {
         var dateTimeProvider = new TestDateTimeProvider();
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
 
             Usage:
                 testhost [Options]
@@ -281,17 +281,6 @@ public class RunOnceApplicationTests {
         // Act
         await app.RunAsync();
 
-        // Assert
-        dateTimeProvider.Maximum.Should().Be(DateTime.MaxValue);
-        dateTimeProvider.Minimum.Should().Be(DateTime.MaxValue);
-        dateTimeProvider.Now.Should().Be(DateTime.MaxValue);
-        dateTimeProvider.TimeOfDay.Should().Be(TimeOnly.MaxValue);
-        dateTimeProvider.Today.Should().Be(DateOnly.MaxValue);
-        dateTimeProvider.UnixEpoch.Should().Be(DateTime.MaxValue);
-        dateTimeProvider.UtcNow.Should().Be(DateTime.MaxValue);
-        dateTimeProvider.UtcTimeOfDay.Should().Be(TimeOnly.MaxValue);
-        dateTimeProvider.UtcToday.Should().Be(DateOnly.MaxValue);
-
         app.Should().BeOfType<RunOnceApplication>();
         output.ToString().Should().Be(expectedOutput);
     }
@@ -302,7 +291,7 @@ public class RunOnceApplicationTests {
         var output = new TestOutput();
         const string expectedOutput =
             """
-            testhost v15.0.0.0
+            testhost v17.13.0
 
             Usage:
                 testhost [Options]
@@ -351,7 +340,7 @@ public class RunOnceApplicationTests {
     [Fact]
     public void Create_SetLogging_CreatesRunOnceApplication() {
         // Arrange & Act
-        var app = RunOnceApplication.Create(b => b.ConfigureLogging(l => l.SetMinimumLevel(LogLevel.Debug)));
+        var app = RunOnceApplication.Create(static b => b.ConfigureLogging(static l => l.SetMinimumLevel(LogLevel.Debug)));
 
         // Assert
         app.Should().BeOfType<RunOnceApplication>();

@@ -35,7 +35,7 @@ dotnet add package DotNetToolbox.Linq
 - `AsyncQueryable<T>`: Base implementation of IAsyncQueryable
 - `EmptyAsyncQueryable<T>`: Represents an empty async queryable
 
-### AsyncQueryableExtensions
+### QueryableAsyncExtensions
 Provides asynchronous versions of common LINQ operations, including:
 - `AggregateAsync`
 - `AllAsync`

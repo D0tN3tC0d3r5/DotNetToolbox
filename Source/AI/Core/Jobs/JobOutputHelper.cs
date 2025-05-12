@@ -17,7 +17,7 @@ internal static class JobOutputHelper {
     }
 
     private static List<List<string>> ConvertToTable(string responseText)
-        => responseText.Split('\n').ToList(line => line.Split('|').ToList(cell => cell));
+        => responseText.Split('\n').ToList(static line => line.Split('|').ToList(static cell => cell));
 
     private static List<object> ConvertToList(string responseText)
         => JsonSerializer.Deserialize<List<object>>(responseText, _jsonOptions) ?? [];
